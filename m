@@ -1,47 +1,41 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [patch 15/36] Hexagon: Add init_task and process functions
-Date: Wed, 17 Aug 2011 21:45:10 +0200
-Message-ID: <1903508.hihLuMSVUz@wuerfel>
-References: <20110817163457.878854582@codeaurora.org> <20110817163521.257943209@codeaurora.org>
+From: Linas Vepstas <linasvepstas@gmail.com>
+Subject: Re: [patch 32/36] Hexagon: Comet platform support
+Date: Wed, 17 Aug 2011 18:45:24 -0500
+Message-ID: <CAHrUA37Z1A_UNaOrSu3VXyV3jJumEoCAU4hsqQm4RHraLrAu3A@mail.gmail.com>
+References: <20110817163457.878854582@codeaurora.org> <20110817163522.852412019@codeaurora.org>
+ <1490448.Ut7YRxkLUk@wuerfel>
+Reply-To: linasvepstas@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20110817163521.257943209@codeaurora.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=gamma;
+        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
+         :subject:to:cc:content-type;
+        bh=+59jjRcwtYb6KFyM24JZnN69spEIavOYdNK1f5jFAWQ=;
+        b=t8Vmf82eNNEHa1gKets2+3rPEe9/G13+HgFiCAVQm0olucLmiJsI556RfhStpRvZTm
+         yYFnEEufpt3MG5nzfP1nxWvTwYeSFc/YsfBnXS01l8sveL7bz+F4qMo+dFR2wmSsRSkl
+         JCC3dtQkWXT8J0uR63N4fzfE02nZQGGK6frgY=
+In-Reply-To: <1490448.Ut7YRxkLUk@wuerfel>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Richard Kuo <rkuo@codeaurora.org>, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On Wednesday 17 August 2011 11:35:12 Richard Kuo wrote:
-> +/*
-> + *  Spin, or better still, do a hardware or VM wait instruction
-> + *  If hardware or VM offer wait termination even though interrupts
-> + *  are disabled.
-> + */
-> +static void default_idle(void)
-> +{
-> +       __vmwait();
-> +}
-> +
-> +void (*idle_sleep)(void) = default_idle;
-> +
-> +void cpu_idle(void)
-> +{
-> +       while (1) {
-> +               tick_nohz_stop_sched_tick(1);
-> +               while (!need_resched())
-> +                       idle_sleep();
-> +               tick_nohz_restart_sched_tick();
-> +               schedule();
-> +       }
-> +}
+On 17 August 2011 15:07, Arnd Bergmann <arnd@arndb.de> wrote:
 
-This looks like you have the classic going to sleep race in here:
+>> + * linux/arch/hexagon/platform/comet/board.c
+>
+> We really don't want to have board files in new architectures any more. If your
+> hardware is not fully discoverable, you should instead describe it in a device
+> tree source file, see powerpc, microblaze, and the newer arm platforms.
 
-You need to disable hardware interrupts before checking need_resched(),
-otherwise an interrupt might hit just after you have checked it and
-before you call __vmwait(). The definition of the __vmwait call
-must atomically reenable interrupts and suspend the CPU.
+Working on device-tree support, slowly but surely, but this could get
+all tangled
+for a while as many of the devices are common with the arm.  The goal is to
+yank this file before the final submission. but for now, it seemed
+easier to mail
+this as a work in progress.
 
-	Arnd
+-- Linas
