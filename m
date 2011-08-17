@@ -1,35 +1,64 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 13/36] Hexagon: Support dynamic module loading.
-Date: Wed, 17 Aug 2011 11:35:10 -0500
-Message-ID: <20110817163521.072192837@codeaurora.org>
+Subject: [patch 18/36] Hexagon: Add time and timer functions
+Date: Wed, 17 Aug 2011 11:35:15 -0500
+Message-ID: <20110817163521.552020151@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=module.diff
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline; filename=timer.diff
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
-Cc: Linas Vepstas <linas@codeaurora.org>
 
-Modules should be compiled as ordinary .o's; shared objects are not
-supported.
-
-
-Signed-off-by: Linas Vepstas <linas@codeaurora.org>
+Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
 
 ---
- arch/hexagon/kernel/module.c |  218 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 218 insertions(+)
+ arch/hexagon/include/asm/time.h       |   27 +++
+ arch/hexagon/include/asm/timer-regs.h |   39 ++++
+ arch/hexagon/kernel/time.c            |  299 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 365 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/kernel/module.c
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/time.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/module.c	2011-07-20 15:19:39.645152623 -0500
-@@ -0,0 +1,218 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/time.h	2011-07-20 15:19:41.065152216 -0500
+@@ -0,0 +1,27 @@
 +/*
-+ * Kernel module loader for Hexagon
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef ASM_TIME_H
++#define ASM_TIME_H
++
++#ifdef CONFIG_SMP
++void setup_percpu_clockdev(void);
++void ipi_timer(void);
++#endif
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/timer-regs.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/timer-regs.h	2011-07-20 15:19:41.065152216 -0500
+@@ -0,0 +1,39 @@
++/*
++ * Timer support for Hexagon
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -48,204 +77,330 @@ Index: linux-hexagon-kernel/arch/hexagon/kernel/module.c
 + * 02110-1301, USA.
 + */
 +
-+#include <asm/module.h>
-+#include <linux/elf.h>
-+#include <linux/module.h>
-+#include <linux/moduleloader.h>
-+#include <linux/vmalloc.h>
++#ifndef _ASM_TIMER_REGS_H
++#define _ASM_TIMER_REGS_H
 +
-+#if 0
-+#define DEBUGP printk
-+#else
-+#define DEBUGP(fmt , ...)
++/*  This stuff should go into a platform specific file  */
++#define TCX0_CLK_RATE		19200
++#define TIMER_ENABLE		0
++#define TIMER_CLR_ON_MATCH	1
++
++/*
++ * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
++ * release 1.1, and then it's "adjustable" and probably not defaulted.
++ */
++#define RTOS_TIMER_INT		3
++#ifdef CONFIG_HEXAGON_COMET
++#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
++#endif
++#define SLEEP_CLK_RATE		32000
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/kernel/time.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/kernel/time.c	2011-07-20 15:19:41.065152216 -0500
+@@ -0,0 +1,299 @@
++/*
++ * Time related functions for Hexagon architecture
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#include <linux/init.h>
++#include <linux/clockchips.h>
++#include <linux/clocksource.h>
++#include <linux/interrupt.h>
++#include <linux/err.h>
++#include <linux/platform_device.h>
++#include <linux/ioport.h>
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/of_irq.h>
++
++#include <asm/timer-regs.h>
++#include <asm/platform.h>
++#include <asm/hexagon_vm.h>
++
++/*
++ * For now, hard wire the simulated CPU/pcycle frequency.
++ * XXX TODO fish it out of device tree!
++ */
++#define CPU_MHZ 600
++
++static struct resource rtos_timer_resources[] = {
++	{
++		.start	= RTOS_TIMER_REGS_ADDR,
++		.end	= RTOS_TIMER_REGS_ADDR+PAGE_SIZE-1,
++		.flags	= IORESOURCE_MEM,
++	},
++};
++
++static struct platform_device rtos_timer_device = {
++	.name		= "rtos_timer",
++	.id		= -1,
++	.num_resources	= ARRAY_SIZE(rtos_timer_resources),
++	.resource	= rtos_timer_resources,
++};
++
++/*  A lot of this stuff should move into a platform specific section.  */
++struct adsp_hw_timer_struct {
++	unsigned int match;   /*  Match value  */
++	unsigned int count;
++	unsigned int enable;  /*  [1] - CLR_ON_MATCH_EN, [0] - EN  */
++	unsigned int clear;   /*  one-shot register that clears the count  */
++};
++
++/*  Look for "TCX0" for related constants.  */
++static volatile struct adsp_hw_timer_struct *rtos_timer = (void *) 0x0;
++
++void debug_adsp_timers(void)
++{
++	printk(KERN_INFO "rtos_timer->match=0x%08x\n", rtos_timer->match);
++	printk(KERN_INFO "rtos_timer->count=%d\n", rtos_timer->count);
++	printk(KERN_INFO "rtos_timer->enable=%d\n", rtos_timer->enable);
++	printk(KERN_INFO "rtos_timer->clear=%d\n", rtos_timer->clear);
++}
++
++static cycle_t timer_get_cycles(struct clocksource *cs)
++{
++	return (cycle_t) __vmgettime();
++}
++
++static struct clocksource hexagon_clocksource = {
++	.name		= "pcycles",
++	.rating		= 250,
++	.shift		= 16,
++	.read		= timer_get_cycles,
++	.mask		= CLOCKSOURCE_MASK(64),
++	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
++};
++
++static int set_next_event(unsigned long delta, struct clock_event_device *evt)
++{
++	/*  Assuming the timer will be disabled when we enter here.  */
++	rtos_timer->clear = 1;
++	rtos_timer->clear = 0;
++
++	/*  Does this need massaging?  */
++	rtos_timer->match = delta;
++	rtos_timer->enable = 1 << TIMER_ENABLE;
++	return 0;
++}
++
++/*
++ * Sets the mode (periodic, shutdown, oneshot, etc) of a timer.
++ */
++static void set_mode(enum clock_event_mode mode,
++	struct clock_event_device *evt)
++{
++	switch (mode) {
++	case CLOCK_EVT_MODE_SHUTDOWN:
++		/* XXX implement me */
++	default:
++		break;
++	}
++}
++
++#ifdef CONFIG_SMP
++/*  Broadcast mechanism  */
++static void broadcast(const struct cpumask *mask)
++{
++	send_ipi(mask, IPI_TIMER);
++}
 +#endif
 +
-+/*
-+ * module_alloc - wrapper around vmalloc
-+ * @size - memory size to vmalloc
-+ */
-+void *module_alloc(unsigned long size)
++static struct clock_event_device hexagon_clockevent_dev = {
++	.name		= "clockevent",
++	.features	= CLOCK_EVT_FEAT_ONESHOT,
++	.rating		= 400,
++	.shift		= 32,
++	.irq		= RTOS_TIMER_INT,
++	.set_next_event = set_next_event,
++	.set_mode	= set_mode,
++#ifdef CONFIG_SMP
++	.broadcast	= broadcast
++#endif
++};
++
++#ifdef CONFIG_SMP
++static DEFINE_PER_CPU(struct clock_event_device, clock_events);
++
++void setup_percpu_clockdev(void)
 +{
-+	if (size == 0)
-+		return NULL;
-+	return vmalloc_exec(size);
++	int cpu = smp_processor_id();
++	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
++	struct clock_event_device *dummy_clock_dev =
++		&per_cpu(clock_events, cpu);
++
++	memcpy(dummy_clock_dev, ce_dev, sizeof(*dummy_clock_dev));
++	INIT_LIST_HEAD(&dummy_clock_dev->list);
++
++	dummy_clock_dev->features = CLOCK_EVT_FEAT_DUMMY;
++	dummy_clock_dev->cpumask = cpumask_of(cpu);
++	dummy_clock_dev->mode = CLOCK_EVT_MODE_UNUSED;
++
++	clockevents_register_device(dummy_clock_dev);
++}
++
++/*  Called from smp.c for each CPU's timer ipi call  */
++void ipi_timer(void)
++{
++	int cpu = smp_processor_id();
++	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
++
++	ce_dev = &per_cpu(clock_events, cpu);
++	ce_dev->event_handler(ce_dev);
++}
++#endif /* CONFIG_SMP */
++
++static irqreturn_t timer_interrupt(int irq, void *devid)
++{
++	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
++
++	rtos_timer->enable = 0;
++	ce_dev->event_handler(ce_dev);
++
++	return IRQ_HANDLED;
++}
++
++/*  This should also be pulled from devtree  */
++static struct irqaction rtos_timer_intdesc = {
++	.handler = timer_interrupt,
++	.flags = IRQF_DISABLED | IRQF_TIMER | IRQF_TRIGGER_RISING,
++	.name = "rtos_timer"
++};
++
++void clocksource_debug(struct clocksource *cs)
++{
++	printk(KERN_DEBUG "cs->mult=0x%08x\n", cs->mult);
++	printk(KERN_DEBUG "cs->shift=%d\n", cs->shift);
++}
++
++void clockevent_debug(struct clock_event_device *ce)
++{
++	printk(KERN_DEBUG "ce->mult=0x%08x\n", ce->mult);
++	printk(KERN_DEBUG "ce->shift=%d\n", ce->shift);
 +}
 +
 +/*
-+ * module_free - free memory returned from module_alloc
-+ * @mod - pointer to module?
-+ * @module_region - pointer to module region?
-+ */
-+void module_free(struct module *mod, void *module_region)
-+{
-+	vfree(module_region);
-+}
-+
-+/*
-+ * module_finalize - perform platform-dependent fixups.
-+ */
-+int module_finalize(const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs,
-+			struct module *me)
-+{
-+	return 0;
-+}
-+
-+/*
-+ * module_arch_cleanup - Any cleanup needed with module
-+ * @mod - pointer to module
-+ * @module_region - pointer to module region
-+ */
-+void module_arch_cleanup(struct module *mod)
-+{
-+}
-+
-+/*
-+ * module_frob_arch_sections - tweak got/plt sections.
-+ * @hdr - pointer to elf header
-+ * @sechdrs - pointer to elf load section headers
-+ * @secstrings - symbol names
-+ * @mod - pointer to module
-+ */
-+int module_frob_arch_sections(Elf_Ehdr *hdr, Elf_Shdr *sechdrs,
-+				char *secstrings,
-+				struct module *mod)
-+{
-+	unsigned int i;
-+	int found = 0;
-+
-+	/* Look for .plt and/or .got.plt and/or .init.plt sections */
-+	for (i = 0; i < hdr->e_shnum; i++) {
-+		DEBUGP("Section %d is %s\n", i,
-+		       secstrings + sechdrs[i].sh_name);
-+		if (strcmp(secstrings + sechdrs[i].sh_name, ".plt") == 0)
-+			found = i+1;
-+		if (strcmp(secstrings + sechdrs[i].sh_name, ".got.plt") == 0)
-+			found = i+1;
-+		if (strcmp(secstrings + sechdrs[i].sh_name, ".rela.plt") == 0)
-+			found = i+1;
-+	}
-+
-+	/* At this time, we don't support modules comiled with -shared */
-+	if (found) {
-+		printk(KERN_WARNING
-+			"Module '%s' contains unexpected .plt/.got sections.\n",
-+			mod->name);
-+		/* return -ENOEXEC; */
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * apply_relocate - do the actual work of relocating sections
-+ * @sechdrs - pointer to section headers
-+ * @strtab - some sort of start address
-+ * @symindex - symbol index offset or something
-+ * @relsec - address to relocate to
-+ * @me - pointer to module
-+ */
-+int apply_relocate(Elf_Shdr *sechdrs, const char *strtab,
-+			unsigned int symindex, unsigned int relsec,
-+			struct module *module)
-+{
-+	printk(KERN_ERR "%s: Non-rela reolcation unsupported\n",
-+	       module->name);
-+	return -ENOEXEC;
-+}
-+
-+/*
-+ * apply_relocate_add - perform rela relocations.
-+ * @sechdrs - pointer to section headers
-+ * @strtab - some sort of start address?
-+ * @symindex - symbol index offset or something?
-+ * @relsec - address to relocate to?
-+ * @module - pointer to module
++ * time_init_deferred - called by start_kernel to set up timer/clock source
 + *
-+ * Perform rela relocations.
++ * Install the IRQ handler for the clock, setup timers.
++ * This is done late, as that way, we can use ioremap().
++ *
++ * This runs just before the delay loop is calibrated, and
++ * is used for delay calibration.
 + */
-+int apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab,
-+			unsigned int symindex, unsigned int relsec,
-+			struct module *module)
++void __init time_init_deferred(void)
 +{
-+	unsigned int i;
-+	Elf32_Sym *sym;
-+	uint32_t *location;
-+	uint32_t value;
-+	unsigned int nrelocs = sechdrs[relsec].sh_size / sizeof(Elf32_Rela);
-+	Elf32_Rela *rela = (void *)sechdrs[relsec].sh_addr;
-+	Elf32_Word sym_info = sechdrs[relsec].sh_info;
-+	Elf32_Sym *sym_base = (Elf32_Sym *) sechdrs[symindex].sh_addr;
-+	void *loc_base = (void *) sechdrs[sym_info].sh_addr;
++	struct resource *resource = NULL;
++	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
++	struct device_node *dn;
++	struct resource r;
++	int err;
 +
-+	DEBUGP("Applying relocations in section %u to section %u base=%p\n",
-+	       relsec, sym_info, loc_base);
++#ifdef CONFIG_SMP
++	ce_dev->cpumask = cpu_all_mask;
++#else
++	ce_dev->cpumask = cpumask_of(0);
++#endif
 +
-+	for (i = 0; i < nrelocs; i++) {
++	/*
++	 * There's a simulator bug where the interrupt input used
++	 * for the 19.2KHz timer is different from that used on
++	 * the hardware platform it ostensibly models.  The definition
++	 * used in the data structure initialization is correct for
++	 * the hardware.  Here we tweak it at run-time so that the
++	 * same binary will work on the simulator. FIX THE SIMULATOR,
++	 * THEN FIX THIS.
++	 */
 +
-+		/* Symbol to relocate */
-+		sym = sym_base + ELF32_R_SYM(rela[i].r_info);
-+
-+		/* Where to make the change */
-+		location = loc_base + rela[i].r_offset;
-+
-+		/* `Everything is relative'. */
-+		value = sym->st_value + rela[i].r_addend;
-+
-+		DEBUGP("%d: value=%08x loc=%p reloc=%d symbol=%s\n",
-+		       i, value, location, ELF32_R_TYPE(rela[i].r_info),
-+		       sym->st_name ?
-+		       &strtab[sym->st_name] : "(anonymous)");
-+
-+		switch (ELF32_R_TYPE(rela[i].r_info)) {
-+		case R_HEXAGON_B22_PCREL: {
-+			int dist = (int)(value - (uint32_t)location);
-+			if ((dist < -0x00800000) ||
-+			    (dist >= 0x00800000)) {
-+				printk(KERN_ERR
-+				       "%s: %s: %08x=%08x-%08x %s\n",
-+				       module->name,
-+				       "R_HEXAGON_B22_PCREL reloc out of range",
-+				       dist, value, (uint32_t)location,
-+				       sym->st_name ?
-+				       &strtab[sym->st_name] : "(anonymous)");
-+				return -ENOEXEC;
-+			}
-+			DEBUGP("B22_PCREL contents: %08X.\n", *location);
-+			*location &= ~0x01ff3fff;
-+			*location |= 0x00003fff & dist;
-+			*location |= 0x01ff0000 & (dist<<2);
-+			DEBUGP("Contents after reloc: %08x\n", *location);
-+			break;
-+		}
-+		case R_HEXAGON_HI16:
-+			value = (value>>16) & 0xffff;
-+			/* fallthrough */
-+		case R_HEXAGON_LO16:
-+			*location &= ~0x00c03fff;
-+			*location |= value & 0x3fff;
-+			*location |= (value & 0xc000) << 8;
-+			break;
-+		case R_HEXAGON_32:
-+			*location = value;
-+			break;
-+		case R_HEXAGON_32_PCREL:
-+			*location = value - (uint32_t)location;
-+			break;
-+		case R_HEXAGON_PLT_B22_PCREL:
-+		case R_HEXAGON_GOTOFF_LO16:
-+		case R_HEXAGON_GOTOFF_HI16:
-+			printk(KERN_ERR "%s: GOT/PLT relocations unsupported\n",
-+			       module->name);
-+			return -ENOEXEC;
-+		default:
-+			printk(KERN_ERR "%s: unknown relocation: %u\n",
-+			       module->name,
-+			       ELF32_R_TYPE(rela[i].r_info));
-+			return -ENOEXEC;
-+		}
++	if (on_simulator) {
++		printk(KERN_DEBUG "Adjusting clockevent IRQ for simulator.\n");
++		ce_dev->irq = 2;
 +	}
-+	return 0;
++
++	if (!resource)
++		resource = rtos_timer_device.resource;
++
++	/*  ioremap here means this has to run later, after paging init  */
++	rtos_timer = ioremap(resource->start, resource->end
++		- resource->start + 1);
++
++	if (!rtos_timer) {
++		release_mem_region(resource->start, resource->end
++			- resource->start + 1);
++	}
++	/*  Change to clocksource_register_khz in newer kernels  */
++	hexagon_clocksource.mult = clocksource_hz2mult(CPU_MHZ * 1000000,
++		hexagon_clocksource.shift);
++	clocksource_register(&hexagon_clocksource);
++	clocksource_debug(&hexagon_clocksource);
++
++	/*  Note: the sim generic RTOS clock is apparently really 18750Hz  */
++	/*  Change to clockevents_calc_mult_shift()  */
++	/*  SLEEP_CLK_RATE should be pulled from devtree?  */
++	ce_dev->mult  = div_sc(SLEEP_CLK_RATE, NSEC_PER_SEC,
++			       ce_dev->shift);
++
++	ce_dev->max_delta_ns = clockevent_delta2ns(0x7fffffff, ce_dev);
++	ce_dev->min_delta_ns = clockevent_delta2ns(0xf, ce_dev);
++
++#ifdef CONFIG_SMP
++	setup_percpu_clockdev();
++#endif
++
++	clockevents_register_device(ce_dev);
++	setup_irq(ce_dev->irq, &rtos_timer_intdesc);
 +}
++
++void __init time_init(void)
++{
++	late_time_init = time_init_deferred;
++}
++
++/*
++ * Some architectures inline this, which seems slightly insane.
++ * Why burn memory to speed up a delay function?
++ *
++ * Note that there are hooks for MP systems to have different
++ * delay values for different CPUs.  We should ultimately replace
++ * the CPU_MHZ constant below with a reference to whatever per-CPU
++ * state is dedicated to that role.
++ */
++
++/*
++ * This could become parametric or perhaps even computed at run-time,
++ * but for now we take the observed simulator jitter.
++ * XXX TODO fish this out of the device tree!
++ */
++static long long fudgefactor = 350;  /* Maybe lower if kernel optimized. */
++
++void __udelay(unsigned long usecs)
++{
++	unsigned long long start = __vmgettime();
++	unsigned long long finish = (CPU_MHZ * usecs) - fudgefactor;
++
++	while ((__vmgettime() - start) < finish)
++		; /*  not sure how this improves readability  */
++}
++EXPORT_SYMBOL(__udelay);
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+
