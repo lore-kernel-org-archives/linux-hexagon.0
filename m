@@ -1,40 +1,75 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [patch 01/36] Hexagon: Add generic headers
-Date: Wed, 17 Aug 2011 21:19:07 +0200
-Message-ID: <1652013.0Mm3aOmd9K@wuerfel>
-References: <20110817163457.878854582@codeaurora.org> <20110817163519.957524170@codeaurora.org>
+Subject: Re: [patch 03/36] Hexagon: Add bitops support
+Date: Wed, 17 Aug 2011 21:19 +0200
+Message-ID: <3654942.CdI694lZOj@wuerfel>
+References: <20110817163457.878854582@codeaurora.org> <20110817163520.145693358@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110817163519.957524170@codeaurora.org>
+In-Reply-To: <20110817163520.145693358@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 To: Richard Kuo <rkuo@codeaurora.org>
 Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On Wednesday 17 August 2011 11:34:58 Richard Kuo wrote:
->  arch/hexagon/include/asm/bug.h               |    1 
->  arch/hexagon/include/asm/cpumask.h           |    1 
->  arch/hexagon/include/asm/cputime.h           |    1 
->  arch/hexagon/include/asm/device.h            |    1 
->  arch/hexagon/include/asm/div64.h             |    1 
->  arch/hexagon/include/asm/emergency-restart.h |    1 
->  arch/hexagon/include/asm/errno.h             |    1 
->  arch/hexagon/include/asm/fb.h                |    1 
->  arch/hexagon/include/asm/fcntl.h             |    1 
->  arch/hexagon/include/asm/ioctl.h             |    1 
->  arch/hexagon/include/asm/ioctls.h            |    1 
->  arch/hexagon/include/asm/ipc.h               |    1 
->  arch/hexagon/include/asm/ipcbuf.h            |    1 
->  arch/hexagon/include/asm/irq_regs.h          |    1 
->  arch/hexagon/include/asm/kdebug.h            |    1 
->  arch/hexagon/include/asm/kmap_types.h        |    1 
->  arch/hexagon/include/asm/local.h             |    1 
->  arch/hexagon/include/asm/local64.h           |    1 
->  arch/hexagon/include/asm/mman.h              |    1 
+On Wednesday 17 August 2011 11:35:00 Richard Kuo wrote:
 
-There is no need for these one-line files any more, see
-arch/openrisc/include/asm/Kbuild
+> +
+> +#ifdef CONFIG_HEXAGON_BITOPS
+> +#include <asm/bitops/ffz.h>
+> +#include <asm/bitops/fls.h>
+> +#include <asm/bitops/ffs.h>
+> +#include <asm/bitops/__ffs.h>
+> +#include <asm/bitops/__fls.h>
+> +#else
+> +#include <asm-generic/bitops/ffz.h>
+> +#include <asm-generic/bitops/fls.h>
+> +#include <asm-generic/bitops/ffs.h>
+> +#include <asm-generic/bitops/__ffs.h>
+> +#define __fls(x) (fls(x) - 1)
+> +#endif
+
+Is there a particular reason why this is configurable? Also, I see no reaons
+to split these up into lots of files. Just put all of them into one file.
+
+> +/*
+> + * __ffs - find first bit in word.
+> + * @word: The word to search
+> + *
+> + * Undefined if no bit exists, so code should check against 0 first.
+> + *
+> + * bits_per_long assumed to be 32
+> + * numbering starts at 0 I think (instead of 1 like ffs)
+> + */
+> +static inline unsigned long __ffs(unsigned long word)
+> +{
+> +	int num;
+> +
+> +	asm volatile("%0 = ct0(%1);\n"
+> +		: "=&r" (num)
+> +		: "r" (word));
+> +
+> +	return num;
+> +}
+
+I think this should not be marked volatile: If the result is unused,
+there is no need to compute the value either. Same for __fls, ffs,
+ffz, and fls.
+
+> +/*
+> + * ffs - find first bit set
+> + * @x: the word to search
+> + *
+> + * This is defined the same way as
+> + * the libc and compiler builtin ffs routines, therefore
+> + * differs in spirit from the above ffz (man ffs).
+> + */
+> +static inline int ffs(int x)
+> +{
+
+The type is normally 'long', not 'int'. They are obviously the
+same length on 32 bit machines, but you might get bogus compiler
+warnings from this. Same for ffz and fls.
 
 	Arnd
