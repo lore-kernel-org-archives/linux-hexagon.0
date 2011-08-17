@@ -1,34 +1,34 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 25/36] Hexagon: Implement basic cache-flush support
-Date: Wed, 17 Aug 2011 11:35:22 -0500
-Message-ID: <20110817163522.192253113@codeaurora.org>
+Subject: [patch 24/36] Hexagon: Provide basic implementation and/or stubs for I/O routines.
+Date: Wed, 17 Aug 2011 11:35:21 -0500
+Message-ID: <20110817163522.101836238@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=cache.diff
+Content-Disposition: inline; filename=io.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
-
-We have separate I/D caches.  Data caches are physically indexed.
+Cc: Linas Vepstas <linas@codeaurora.org>
 
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
+Signed-off-by: Linas Vepstas <linas@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/cache.h      |   34 +++++++++++
- arch/hexagon/include/asm/cacheflush.h |   97 ++++++++++++++++++++++++++++++++++
- arch/hexagon/mm/cache.c               |   85 +++++++++++++++++++++++++++++
- 3 files changed, 216 insertions(+)
+ arch/hexagon/include/asm/io.h    |  279 +++++++++++++++++++++++++++++++++++++++
+ arch/hexagon/include/asm/iomap.h |   30 ++++
+ arch/hexagon/lib/io.c            |   91 ++++++++++++
+ 3 files changed, 400 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/cacheflush.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/io.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/cacheflush.h	2011-07-20 15:19:42.925151729 -0500
-@@ -0,0 +1,97 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/io.h	2011-07-20 15:19:42.665151795 -0500
+@@ -0,0 +1,279 @@
 +/*
-+ * Cache flush operations for the Hexagon architecture
++ * IO definitions for the Hexagon architecture
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -47,212 +47,396 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/cacheflush.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef _ASM_CACHEFLUSH_H
-+#define _ASM_CACHEFLUSH_H
++#ifndef _ASM_IO_H
++#define _ASM_IO_H
 +
-+#include <linux/cache.h>
-+#include <linux/mm.h>
++#ifdef __KERNEL__
++
++#include <linux/types.h>
++#include <linux/delay.h>
++#include <linux/vmalloc.h>
 +#include <asm/string.h>
-+#include <asm-generic/cacheflush.h>
-+
-+/* Cache flushing:
-+ *
-+ *  - flush_cache_all() flushes entire cache
-+ *  - flush_cache_mm(mm) flushes the specified mm context's cache lines
-+ *  - flush_cache_page(mm, vmaddr, pfn) flushes a single page
-+ *  - flush_cache_range(vma, start, end) flushes a range of pages
-+ *  - flush_icache_range(start, end) flush a range of instructions
-+ *  - flush_dcache_page(pg) flushes(wback&invalidates) a page for dcache
-+ *  - flush_icache_page(vma, pg) flushes(invalidates) a page for icache
-+ *
-+ *  Need to doublecheck which one is really needed for ptrace stuff to work.
-+ */
-+#define LINESIZE	32
-+#define LINEBITS	5
-+
-+/*
-+ * Flush Dcache range through current map.
-+ */
-+extern void flush_dcache_range(unsigned long start, unsigned long end);
-+
-+/*
-+ * Flush Icache range through current map.
-+ */
-+#undef flush_icache_range
-+extern void flush_icache_range(unsigned long start, unsigned long end);
-+
-+/*
-+ * Memory-management related flushes are there to ensure in non-physically
-+ * indexed cache schemes that stale lines belonging to a given ASID aren't
-+ * in the cache to confuse things.  The prototype Hexagon Virtual Machine
-+ * only uses a single ASID for all user-mode maps, which should
-+ * mean that they aren't necessary.  A brute-force, flush-everything
-+ * implementation, with the name xxxxx_hexagon() is present in
-+ * arch/hexagon/mm/cache.c, but let's not wire it up until we know
-+ * it is needed.
-+ */
-+extern void flush_cache_all_hexagon(void);
-+
-+/*
-+ * This may or may not ever have to be non-null, depending on the
-+ * virtual machine MMU.  For a native kernel, it's definitiely  a no-op
-+ *
-+ * This is also the place where deferred cache coherency stuff seems
-+ * to happen, classically...  but instead we do it like ia64 and
-+ * clean the cache when the PTE is set.
-+ *
-+ */
-+static inline void update_mmu_cache(struct vm_area_struct *vma,
-+					unsigned long address, pte_t *ptep)
-+{
-+	/*  generic_ptrace_pokedata doesn't wind up here, does it?  */
-+}
-+
-+#undef copy_to_user_page
-+static inline void copy_to_user_page(struct vm_area_struct *vma,
-+					     struct page *page,
-+					     unsigned long vaddr,
-+					     void *dst, void *src, int len)
-+{
-+	memcpy(dst, src, len);
-+	if (vma->vm_flags & VM_EXEC) {
-+		flush_icache_range((unsigned long) dst,
-+		(unsigned long) dst + len);
-+	}
-+}
-+
-+
-+
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/cache.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/cache.h	2011-07-20 15:19:42.925151729 -0500
-@@ -0,0 +1,34 @@
-+/*
-+ * Cache definitions for the Hexagon architecture
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#ifndef __ASM_CACHE_H
-+#define __ASM_CACHE_H
-+
-+/* Bytes per L1 cache line */
-+#define L1_CACHE_SHIFT		(5)
-+#define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
-+
-+#define __cacheline_aligned	__attribute__((aligned(L1_CACHE_BYTES)))
-+#define ____cacheline_aligned	__attribute__((aligned(L1_CACHE_BYTES)))
-+
-+/* See http://kerneltrap.org/node/15100  */
-+#define __read_mostly
-+
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/mm/cache.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/mm/cache.c	2011-07-20 15:19:42.925151729 -0500
-@@ -0,0 +1,85 @@
-+/*
-+ * Cache management functions for Hexagon
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#include <linux/mm.h>
++#include <asm/mem-layout.h>
++#include <asm/iomap.h>
++#include <asm/page.h>
 +#include <asm/cacheflush.h>
-+#include <asm/hexagon_vm.h>
++#include <asm/tlbflush.h>
 +
-+#define spanlines(start, end) \
-+	(((end - (start & ~(LINESIZE - 1))) >> LINEBITS) + 1)
++/*
++ * Need to figure out where our I/O space is.  Important for PCI.
++ * Which we don't have.
++ */
++#define IO_SPACE_LIMIT 0xffffffff
++#define _IO_BASE 0x0
 +
-+void flush_dcache_range(unsigned long start, unsigned long end)
++extern int remap_area_pages(unsigned long start, unsigned long phys_addr,
++				unsigned long end, unsigned long flags);
++
++extern void __iounmap(const volatile void __iomem *addr);
++
++/* Defined in lib/io.c, needed for smc91x driver. */
++extern void __raw_readsw(const void __iomem *addr, void *data, int wordlen);
++extern void __raw_writesw(void __iomem *addr, const void *data, int wordlen);
++
++extern void __raw_readsl(const void __iomem *addr, void *data, int wordlen);
++extern void __raw_writesl(void __iomem *addr, const void *data, int wordlen);
++
++#define readsw(p, d, l)	__raw_readsw(p, d, l)
++#define writesw(p, d, l) __raw_writesw(p, d, l)
++
++#define readsl(p, d, l)   __raw_readsl(p, d, l)
++#define writesl(p, d, l)  __raw_writesl(p, d, l)
++
++/*
++ * virt_to_phys - map virtual address to physical
++ * @address:  address to map
++ */
++static inline unsigned long virt_to_phys(volatile void *address)
 +{
-+	unsigned long lines = spanlines(start, end-1);
-+	unsigned long i, flags;
-+
-+	start &= ~(LINESIZE - 1);
-+
-+	local_irq_save(flags);
-+
-+	for (i = 0; i < lines; i++) {
-+		__asm__ __volatile__ (
-+		"	dccleaninva(%0);	"
-+		:
-+		: "r" (start)
-+		);
-+		start += LINESIZE;
-+	}
-+	local_irq_restore(flags);
-+}
-+
-+void flush_icache_range(unsigned long start, unsigned long end)
-+{
-+	unsigned long lines = spanlines(start, end-1);
-+	unsigned long i, flags;
-+
-+	start &= ~(LINESIZE - 1);
-+
-+	local_irq_save(flags);
-+
-+	for (i = 0; i < lines; i++) {
-+		__asm__ __volatile__ (
-+			"	dccleana(%0); "
-+			"	icinva(%0);	"
-+			:
-+			: "r" (start)
-+		);
-+		start += LINESIZE;
-+	}
-+	__asm__ __volatile__ (
-+		"isync"
-+	);
-+	local_irq_restore(flags);
++	return __pa(address);
 +}
 +
 +/*
-+ * This is just really brutal and shouldn't be used anyways,
-+ * especially on V2.  Left here just in case.
++ * phys_to_virt - map physical address to virtual
++ * @address: address to map
 + */
-+void flush_cache_all_hexagon(void)
++static inline void *phys_to_virt(unsigned long address)
 +{
-+	unsigned long flags;
-+	local_irq_save(flags);
-+	__vmcache_ickill();
-+	__vmcache_dckill();
-+	__vmcache_l2kill();
-+	local_irq_restore(flags);
-+	mb();
++	return __va(address);
 +}
++
++/*
++ * IO port access primitives.  Hexagon doesn't have special IO access
++ * instructions; all I/O is memory mapped.
++ *
++ * in/out are used for "ports", but we don't have "port instructions",
++ * so these are really just memory mapped too.
++ */
++
++/*
++ * readb - read byte from memory mapped device
++ * @addr:  pointer to memory
++ *
++ * Operates on "I/O bus memory space"
++ */
++static inline u8 readb(const volatile void __iomem *addr)
++{
++	const volatile u8 *__mem = addr;
++	u8 val = *__mem;
++	return val;
++}
++
++static inline u16 readw(const volatile void __iomem *addr)
++{
++	const volatile u16 *__mem = addr;
++	u16 val = *__mem;
++	return val;
++}
++
++static inline u32 readl(const volatile void __iomem *addr)
++{
++	const volatile u32 *__mem = addr;
++	u32 val = *__mem;
++	return val;
++}
++
++/*
++ * inb - read byte from I/O port or something
++ * @port:  address in I/O space
++ *
++ * Operates on "I/O bus I/O space"
++ */
++static inline u8 inb(unsigned long port)
++{
++	printk(KERN_INFO "inb not implemented\n");
++	return 0;
++}
++
++static inline u16 inw(unsigned long port)
++{
++	printk(KERN_INFO "inw not implemented\n");
++	return 0;
++}
++
++static inline u32 inl(unsigned long port)
++{
++	printk(KERN_INFO "inl not implemented\n");
++	return 0;
++}
++
++/*
++ * writeb - write a byte to a memory location
++ * @data: data to write to
++ * @addr:  pointer to memory
++ *
++ */
++static inline void writeb(u8 data, volatile void __iomem *addr)
++{
++	volatile u8 *__mem = addr;
++	*__mem = data;
++	return;
++}
++
++static inline void writew(u16 data, volatile void __iomem *addr)
++{
++	volatile u16 *__mem = addr;
++	*__mem = data;
++	return;
++}
++
++static inline void writel(u32 data, volatile void __iomem *addr)
++{
++	volatile u32 *__mem = addr;
++	*__mem = data;
++	return;
++}
++
++#define __raw_writeb writeb
++#define __raw_writew writew
++#define __raw_writel writel
++
++#define __raw_readb readb
++#define __raw_readw readw
++#define __raw_readl readl
++
++#define PCI_IO_ADDR	volatile void __iomem *
++
++/*
++ * outb - write a byte to a memory location
++ * @data: data to write to
++ * @addr:  address in I/O space
++ */
++static inline void outb(u8 data, unsigned long port)
++{
++	writeb(data, (PCI_IO_ADDR)_IO_BASE+port);
++}
++
++static inline void outw(u16 data, unsigned long port)
++{
++	writew(data, (PCI_IO_ADDR)_IO_BASE+port);
++}
++
++static inline void outl(u32 data, unsigned long port)
++{
++	writel(data, (PCI_IO_ADDR)_IO_BASE+port);
++}
++
++/*
++ * Need an mtype somewhere in here, for cache type deals?
++ * This is probably too long for an inline.
++ */
++void __iomem *ioremap_nocache(unsigned long phys_addr, unsigned long size);
++
++static inline void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
++{
++	return ioremap_nocache(phys_addr, size);
++}
++
++static inline void iounmap(volatile void __iomem *addr)
++{
++	__iounmap(addr);
++}
++
++#define __raw_writel writel
++
++/*  _p means "pause until the I/O completes"  */
++#define outb_p outb
++#define outw_p outw
++#define outl_p outl
++
++#define inb_p inb
++#define inw_p inw
++#define inl_p inl
++
++static inline void insb(unsigned long addr, void *buffer, int count)
++{
++	printk(KERN_INFO "insb not implemented\n");
++}
++
++static inline void insw(unsigned long addr, void *buffer, int count)
++{
++	printk(KERN_INFO "insw not implemented\n");
++}
++
++static inline void insl(unsigned long addr, void *buffer, int count)
++{
++	printk(KERN_INFO "insl not implemented\n");
++}
++
++static inline void outsb(unsigned long addr, const void *buffer, int count)
++{
++	printk(KERN_INFO "outsb not implemented\n");
++}
++
++static inline void outsw(unsigned long addr, const void *buffer, int count)
++{
++	printk(KERN_INFO "outsw not implemented\n");
++}
++
++static inline void outsl(unsigned long addr, const void *buffer, int count)
++{
++	printk(KERN_INFO "outsl not implemented\n");
++}
++
++static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
++	int count)
++{
++	memcpy(dst, (void *) src, count);
++}
++
++static inline void memcpy_toio(volatile void __iomem *dst, const void *src,
++	int count)
++{
++	memcpy((void *) dst, src, count);
++}
++
++/*
++ * convert a physical pointer to a virtual kernel pointer for
++ * /dev/mem access.
++ */
++#define xlate_dev_kmem_ptr(p)    __va(p)
++#define xlate_dev_mem_ptr(p)    __va(p)
++
++/*  generic versions defined in lib/iomap.c  */
++extern void __iomem *ioport_map(unsigned long port, unsigned int nr);
++extern void ioport_unmap(void __iomem *addr);
++
++#define flush_write_buffers() do { } while (0)
++
++#endif /* __KERNEL__ */
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/lib/io.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/lib/io.c	2011-07-20 15:19:42.665151795 -0500
+@@ -0,0 +1,91 @@
++/*
++ * I/O access functions for Hexagon
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#include <asm/io.h>
++
++/*  These are all FIFO routines!  */
++
++/*
++ * __raw_readsw - read words a short at a time
++ * @addr:  source address
++ * @data:  data address
++ * @len: number of shorts to read
++ */
++void __raw_readsw(const void __iomem *addr, void *data, int len)
++{
++	const volatile short int *src = (short int *) addr;
++	short int *dst = (short int *) data;
++
++	if ((u32)data & 0x1)
++		panic("unaligned pointer to readsw");
++
++	while (len-- > 0)
++		*dst++ = *src;
++
++}
++
++/*
++ * __raw_writesw - read words a short at a time
++ * @addr:  source address
++ * @data:  data address
++ * @len: number of shorts to read
++ */
++void __raw_writesw(void __iomem *addr, const void *data, int len)
++{
++	const short int *src = (short int *)data;
++	volatile short int *dst = (short int *)addr;
++
++	if ((u32)data & 0x1)
++		panic("unaligned pointer to writesw");
++
++	while (len-- > 0)
++		*dst = *src++;
++
++
++}
++
++/*  Pretty sure len is pre-adjusted for the length of the access already */
++void __raw_readsl(const void __iomem *addr, void *data, int len)
++{
++	const volatile long *src = (long *) addr;
++	long *dst = (long *) data;
++
++	if ((u32)data & 0x3)
++		panic("unaligned pointer to readsl");
++
++	while (len-- > 0)
++		*dst++ = *src;
++
++
++}
++
++void __raw_writesl(void __iomem *addr, const void *data, int len)
++{
++	const long *src = (long *)data;
++	volatile long *dst = (long *)addr;
++
++	if ((u32)data & 0x3)
++		panic("unaligned pointer to writesl");
++
++	while (len-- > 0)
++		*dst = *src++;
++
++
++}
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/iomap.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/iomap.h	2011-07-20 15:19:42.665151795 -0500
+@@ -0,0 +1,30 @@
++/*
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef _HEXAGON_IOMAP_H
++#define _HEXAGON_IOMAP_H
++
++#ifndef __ASSEMBLY__
++#include <asm-generic/iomap.h>
++#endif
++
++#ifdef CONFIG_HEXAGON_COMET
++#include "platform/comet/comet_iomap.h"
++#endif
++
++#endif
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
