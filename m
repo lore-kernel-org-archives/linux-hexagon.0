@@ -1,11 +1,11 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 03/36] Hexagon: Add bitops support
-Date: Wed, 17 Aug 2011 11:35:00 -0500
-Message-ID: <20110817163520.145693358@codeaurora.org>
+Subject: [patch 01/36] Hexagon: Add generic headers
+Date: Wed, 17 Aug 2011 11:34:58 -0500
+Message-ID: <20110817163519.957524170@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline; filename=bitops.diff
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline; filename=generic-asm-headers.diff
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -15,243 +15,67 @@ To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/bitops.h       |  219 ++++++++++++++++++++++++++++++++
- arch/hexagon/include/asm/bitops/__ffs.h |   42 ++++++
- arch/hexagon/include/asm/bitops/__fls.h |   41 +++++
- arch/hexagon/include/asm/bitops/ffs.h   |   43 ++++++
- arch/hexagon/include/asm/bitops/ffz.h   |   38 +++++
- arch/hexagon/include/asm/bitops/fls.h   |   42 ++++++
- 6 files changed, 425 insertions(+)
+ arch/hexagon/include/asm/Kbuild              |    4 +
+ arch/hexagon/include/asm/bitsperlong.h       |   26 ++++++++
+ arch/hexagon/include/asm/bug.h               |    1 
+ arch/hexagon/include/asm/cpumask.h           |    1 
+ arch/hexagon/include/asm/cputime.h           |    1 
+ arch/hexagon/include/asm/device.h            |    1 
+ arch/hexagon/include/asm/div64.h             |    1 
+ arch/hexagon/include/asm/emergency-restart.h |    1 
+ arch/hexagon/include/asm/errno.h             |    1 
+ arch/hexagon/include/asm/fb.h                |    1 
+ arch/hexagon/include/asm/fcntl.h             |    1 
+ arch/hexagon/include/asm/ioctl.h             |    1 
+ arch/hexagon/include/asm/ioctls.h            |    1 
+ arch/hexagon/include/asm/ipc.h               |    1 
+ arch/hexagon/include/asm/ipcbuf.h            |    1 
+ arch/hexagon/include/asm/irq_regs.h          |    1 
+ arch/hexagon/include/asm/kdebug.h            |    1 
+ arch/hexagon/include/asm/kmap_types.h        |    1 
+ arch/hexagon/include/asm/local.h             |    1 
+ arch/hexagon/include/asm/local64.h           |    1 
+ arch/hexagon/include/asm/mman.h              |    1 
+ arch/hexagon/include/asm/msgbuf.h            |    1 
+ arch/hexagon/include/asm/mutex.h             |    8 ++
+ arch/hexagon/include/asm/percpu.h            |    1 
+ arch/hexagon/include/asm/poll.h              |    1 
+ arch/hexagon/include/asm/posix_types.h       |    8 ++
+ arch/hexagon/include/asm/resource.h          |    1 
+ arch/hexagon/include/asm/scatterlist.h       |    1 
+ arch/hexagon/include/asm/sections.h          |    3 +
+ arch/hexagon/include/asm/sembuf.h            |    1 
+ arch/hexagon/include/asm/setup.h             |   29 +++++++++
+ arch/hexagon/include/asm/shmbuf.h            |    1 
+ arch/hexagon/include/asm/shmparam.h          |    1 
+ arch/hexagon/include/asm/siginfo.h           |    1 
+ arch/hexagon/include/asm/socket.h            |    1 
+ arch/hexagon/include/asm/sockios.h           |    1 
+ arch/hexagon/include/asm/statfs.h            |    1 
+ arch/hexagon/include/asm/termbits.h          |    1 
+ arch/hexagon/include/asm/termios.h           |    1 
+ arch/hexagon/include/asm/topology.h          |    1 
+ arch/hexagon/include/asm/types.h             |    1 
+ arch/hexagon/include/asm/ucontext.h          |    1 
+ arch/hexagon/include/asm/unaligned.h         |    1 
+ arch/hexagon/include/asm/user.h              |   79 +++++++++++++++++++++++++++
+ arch/hexagon/include/asm/xor.h               |    1 
+ 45 files changed, 195 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/Kbuild
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops.h	2011-07-20 15:19:35.455153985 -0500
-@@ -0,0 +1,219 @@
-+/*
-+ * Bit operations for the Hexagon architecture
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
++++ linux-hexagon-kernel/arch/hexagon/include/asm/Kbuild	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1,4 @@
++include include/asm-generic/Kbuild.asm
 +
-+#ifndef _ASM_BITOPS_H
-+#define _ASM_BITOPS_H
-+
-+#include <linux/compiler.h>
-+#include <asm/byteorder.h>
-+#include <asm/system.h>
-+#include <asm/atomic.h>
-+
-+#ifdef __KERNEL__
-+
-+#define smp_mb__before_clear_bit()	barrier()
-+#define smp_mb__after_clear_bit()	barrier()
-+
-+/*
-+ * The offset calculations for these are based on BITS_PER_LONG == 32
-+ * (i.e. I get to shift by #5-2 (32 bits per long, 4 bytes per access),
-+ * mask by 0x0000001F)
-+ *
-+ * Typically, R10 is clobbered for address, R11 bit nr, and R12 is temp
-+ */
-+
-+/**
-+ * test_and_clear_bit - clear a bit and return its old value
-+ * @nr:  bit number to clear
-+ * @addr:  pointer to memory
-+ */
-+static inline int test_and_clear_bit(int nr, volatile void *addr)
-+{
-+	int oldval;
-+
-+	__asm__ __volatile__ (
-+	"	{R10 = %1; R11 = asr(%2,#5); }\n"
-+	"	{R10 += asl(R11,#2); R11 = and(%2,#0x1f)}\n"
-+	"1:	R12 = memw_locked(R10);\n"
-+	"	{ P0 = tstbit(R12,R11); R12 = clrbit(R12,R11); }\n"
-+	"	memw_locked(R10,P1) = R12;\n"
-+	"	{if !P1 jump 1b; %0 = mux(P0,#1,#0);}\n"
-+	: "=&r" (oldval)
-+	: "r" (addr), "r" (nr)
-+	: "r10", "r11", "r12", "p0", "p1", "memory"
-+	);
-+
-+	return oldval;
-+}
-+
-+/**
-+ * test_and_set_bit - set a bit and return its old value
-+ * @nr:  bit number to set
-+ * @addr:  pointer to memory
-+ */
-+static inline int test_and_set_bit(int nr, volatile void *addr)
-+{
-+	int oldval;
-+
-+	__asm__ __volatile__ (
-+	"	{R10 = %1; R11 = asr(%2,#5); }\n"
-+	"	{R10 += asl(R11,#2); R11 = and(%2,#0x1f)}\n"
-+	"1:	R12 = memw_locked(R10);\n"
-+	"	{ P0 = tstbit(R12,R11); R12 = setbit(R12,R11); }\n"
-+	"	memw_locked(R10,P1) = R12;\n"
-+	"	{if !P1 jump 1b; %0 = mux(P0,#1,#0);}\n"
-+	: "=&r" (oldval)
-+	: "r" (addr), "r" (nr)
-+	: "r10", "r11", "r12", "p0", "p1", "memory"
-+	);
-+
-+
-+	return oldval;
-+
-+}
-+
-+/**
-+ * test_and_change_bit - toggle a bit and return its old value
-+ * @nr:  bit number to set
-+ * @addr:  pointer to memory
-+ */
-+static inline int test_and_change_bit(int nr, volatile void *addr)
-+{
-+	int oldval;
-+
-+	__asm__ __volatile__ (
-+	"	{R10 = %1; R11 = asr(%2,#5); }\n"
-+	"	{R10 += asl(R11,#2); R11 = and(%2,#0x1f)}\n"
-+	"1:	R12 = memw_locked(R10);\n"
-+	"	{ P0 = tstbit(R12,R11); R12 = togglebit(R12,R11); }\n"
-+	"	memw_locked(R10,P1) = R12;\n"
-+	"	{if !P1 jump 1b; %0 = mux(P0,#1,#0);}\n"
-+	: "=&r" (oldval)
-+	: "r" (addr), "r" (nr)
-+	: "r10", "r11", "r12", "p0", "p1", "memory"
-+	);
-+
-+	return oldval;
-+
-+}
-+
-+/*
-+ * Atomic, but doesn't care about the return value.
-+ * Rewrite later to save a cycle or two.
-+ */
-+
-+static inline void clear_bit(int nr, volatile void *addr)
-+{
-+	test_and_clear_bit(nr, addr);
-+}
-+
-+static inline void set_bit(int nr, volatile void *addr)
-+{
-+	test_and_set_bit(nr, addr);
-+}
-+
-+static inline void change_bit(int nr, volatile void *addr)
-+{
-+	test_and_change_bit(nr, addr);
-+}
-+
-+
-+/*
-+ * These are allowed to be non-atomic.  In fact the generic flavors are
-+ * in non-atomic.h.  Would it be better to use intrinsics for this?
-+ *
-+ * OK, writes in our architecture do not invalidate LL/SC, so this has to
-+ * be atomic, particularly for things like slab_lock and slab_unlock.
-+ *
-+ */
-+static inline void __clear_bit(int nr, volatile unsigned long *addr)
-+{
-+	test_and_clear_bit(nr, addr);
-+}
-+
-+static inline void __set_bit(int nr, volatile unsigned long *addr)
-+{
-+	test_and_set_bit(nr, addr);
-+}
-+
-+static inline void __change_bit(int nr, volatile unsigned long *addr)
-+{
-+	test_and_change_bit(nr, addr);
-+}
-+
-+/*  Apparently, at least some of these are allowed to be non-atomic  */
-+static inline int __test_and_clear_bit(int nr, volatile unsigned long *addr)
-+{
-+	return test_and_clear_bit(nr, addr);
-+}
-+
-+static inline int __test_and_set_bit(int nr, volatile unsigned long *addr)
-+{
-+	return test_and_set_bit(nr, addr);
-+}
-+
-+static inline int __test_and_change_bit(int nr, volatile unsigned long *addr)
-+{
-+	return test_and_change_bit(nr, addr);
-+}
-+
-+static inline int __test_bit(int nr, const volatile unsigned long *addr)
-+{
-+	int retval;
-+
-+	asm volatile(
-+	"{P0 = tstbit(%1,%2); if (P0.new) %0 = #1; if (!P0.new) %0 = #0;}\n"
-+	: "=&r" (retval)
-+	: "r" (addr[BIT_WORD(nr)]), "r" (nr % BITS_PER_LONG)
-+	: "p0"
-+	);
-+
-+	return retval;
-+}
-+
-+#define test_bit(nr, addr) __test_bit(nr, addr)
-+
-+#ifdef CONFIG_HEXAGON_BITOPS
-+#include <asm/bitops/ffz.h>
-+#include <asm/bitops/fls.h>
-+#include <asm/bitops/ffs.h>
-+#include <asm/bitops/__ffs.h>
-+#include <asm/bitops/__fls.h>
-+#else
-+#include <asm-generic/bitops/ffz.h>
-+#include <asm-generic/bitops/fls.h>
-+#include <asm-generic/bitops/ffs.h>
-+#include <asm-generic/bitops/__ffs.h>
-+#define __fls(x) (fls(x) - 1)
-+#endif
-+
-+#include <asm-generic/bitops/lock.h>
-+#include <asm-generic/bitops/find.h>
-+
-+#include <asm-generic/bitops/fls64.h>
-+#include <asm-generic/bitops/sched.h>
-+#include <asm-generic/bitops/hweight.h>
-+
-+#include <asm-generic/bitops/le.h>
-+#include <asm-generic/bitops/ext2-atomic.h>
-+
-+#endif /* __KERNEL__ */
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/__ffs.h
++header-y += registers.h
++header-y += ucontext.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitsperlong.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops/__ffs.h	2011-07-20 15:19:35.455153985 -0500
-@@ -0,0 +1,42 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/bitsperlong.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1,26 @@
 +/*
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -270,35 +94,197 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/__ffs.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef _ASM_BITOPS___FFS_H_
-+#define _ASM_BITOPS___FFS_H_
++#ifndef __ASM_HEXAGON_BITSPERLONG_H
++#define __ASM_HEXAGON_BITSPERLONG_H
 +
-+/*
-+ * __ffs - find first bit in word.
-+ * @word: The word to search
-+ *
-+ * Undefined if no bit exists, so code should check against 0 first.
-+ *
-+ * bits_per_long assumed to be 32
-+ * numbering starts at 0 I think (instead of 1 like ffs)
-+ */
-+static inline unsigned long __ffs(unsigned long word)
-+{
-+	int num;
++#define __BITS_PER_LONG 32
 +
-+	asm volatile("%0 = ct0(%1);\n"
-+		: "=&r" (num)
-+		: "r" (word));
-+
-+	return num;
-+}
++#include <asm-generic/bitsperlong.h>
 +
 +#endif
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/__fls.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/bug.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops/__fls.h	2011-07-20 15:19:35.455153985 -0500
-@@ -0,0 +1,41 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/bug.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/bug.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/cpumask.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/cpumask.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/cpumask.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/cputime.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/cputime.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/cputime.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/device.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/device.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/div64.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/div64.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/div64.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/emergency-restart.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/emergency-restart.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/emergency-restart.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/errno.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/errno.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/errno.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/fb.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/fb.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/fb.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/fcntl.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/fcntl.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/fcntl.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/ioctl.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/ioctl.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/ioctl.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/ioctls.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/ioctls.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/ioctls.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/ipc.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/ipc.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/ipc.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/ipcbuf.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/ipcbuf.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/ipcbuf.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/irq_regs.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/irq_regs.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/irq_regs.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/kdebug.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/kdebug.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/kdebug.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/kmap_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/kmap_types.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/kmap_types.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/local.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/local.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/local.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/mman.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/mman.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/mman.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/msgbuf.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/msgbuf.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/msgbuf.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/mutex.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/mutex.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1,8 @@
++/*
++ * Pull in the generic implementation for the mutex fastpath.
++ *
++ * TODO: implement optimized primitives instead, or leave the generic
++ * implementation in place, or pick the atomic_xchg() based generic
++ * implementation. (see asm-generic/mutex-xchg.h for details)
++ */
++#include <asm-generic/mutex-xchg.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/percpu.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/percpu.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/percpu.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/poll.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/poll.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/poll.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/posix_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/posix_types.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1,8 @@
++/*  These header guards are here for uClibc's protection.  */
++
++#ifndef _ASM_POSIX_TYPES_H
++#define _ASM_POSIX_TYPES_H
++
++#include <asm-generic/posix_types.h>
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/resource.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/resource.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/resource.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/scatterlist.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/scatterlist.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/scatterlist.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/sections.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/sections.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1,3 @@
++#ifndef __ASSEMBLY__
++#include <asm-generic/sections.h>
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/sembuf.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/sembuf.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/sembuf.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/setup.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/setup.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1,29 @@
 +/*
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -317,34 +303,94 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/__fls.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef _ASM_BITOPS___FLS_H_
-+#define _ASM_BITOPS___FLS_H_
++#ifndef _ASM_SETUP_H
++#define _ASM_SETUP_H
 +
-+/*
-+ * __fls - find last (most-significant) set bit in a long word
-+ * @word: the word to search
-+ *
-+ * Undefined if no set bit exists, so code should check against 0 first.
-+ * bits_per_long assumed to be 32
-+ */
-+static inline unsigned long __fls(unsigned long word)
-+{
-+	int num;
++#include <linux/init.h>
++#include <asm-generic/setup.h>
 +
-+	asm volatile("%0 = cl0(%1);\n"
-+		"%0 = sub(#31,%0);\n"
-+		: "=&r" (num)
-+		: "r" (word));
++extern char external_cmdline_buffer;
 +
-+	return num;
-+}
++void __init setup_arch_memory(void);
 +
 +#endif
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/ffs.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/shmbuf.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops/ffs.h	2011-07-20 15:19:35.455153985 -0500
-@@ -0,0 +1,43 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/shmbuf.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/shmbuf.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/shmparam.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/shmparam.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/shmparam.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/siginfo.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/siginfo.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/siginfo.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/socket.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/socket.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/socket.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/sockios.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/sockios.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/sockios.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/statfs.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/statfs.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/statfs.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/termbits.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/termbits.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/termbits.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/termios.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/termios.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/termios.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/topology.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/topology.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/topology.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/types.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/types.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/ucontext.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/ucontext.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/ucontext.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/unaligned.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/unaligned.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/unaligned.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/user.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/user.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1,79 @@
 +/*
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -363,122 +409,79 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/ffs.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef _ASM_BITOPS_FFS_H_
-+#define _ASM_BITOPS_FFS_H_
++#ifndef HEXAGON_ASM_USER_H
++#define HEXAGON_ASM_USER_H
++
++#include <asm-generic/user.h>
 +
 +/*
-+ * ffs - find first bit set
-+ * @x: the word to search
++ * Layout for registers passed in elf core dumps to userspace.
 + *
-+ * This is defined the same way as
-+ * the libc and compiler builtin ffs routines, therefore
-+ * differs in spirit from the above ffz (man ffs).
++ * Basically a rearranged subset of "pt_regs".
++ *
++ * Interested parties:  libc, gdb...
 + */
-+static inline int ffs(int x)
-+{
-+	int r;
 +
-+	asm volatile("{ P0 = cmp.eq(%1,#0); %0 = ct0(%1);}\n"
-+		"{ if P0 %0 = #0; if !P0 %0 = add(%0,#1);}\n"
-+		: "=&r" (r)
-+		: "r" (x)
-+		: "p0");
-+
-+	return r;
-+}
++struct user_regs_struct {
++	unsigned long r0;
++	unsigned long r1;
++	unsigned long r2;
++	unsigned long r3;
++	unsigned long r4;
++	unsigned long r5;
++	unsigned long r6;
++	unsigned long r7;
++	unsigned long r8;
++	unsigned long r9;
++	unsigned long r10;
++	unsigned long r11;
++	unsigned long r12;
++	unsigned long r13;
++	unsigned long r14;
++	unsigned long r15;
++	unsigned long r16;
++	unsigned long r17;
++	unsigned long r18;
++	unsigned long r19;
++	unsigned long r20;
++	unsigned long r21;
++	unsigned long r22;
++	unsigned long r23;
++	unsigned long r24;
++	unsigned long r25;
++	unsigned long r26;
++	unsigned long r27;
++	unsigned long r28;
++	unsigned long r29;
++	unsigned long r30;
++	unsigned long r31;
++	unsigned long gp;
++	unsigned long ugp;
++	unsigned long sa0;
++	unsigned long lc0;
++	unsigned long sa1;
++	unsigned long lc1;
++	unsigned long m0;
++	unsigned long m1;
++	unsigned long p3_0;
++	unsigned long pc;
++	unsigned long cause;
++	unsigned long badva;
++};
 +
 +#endif
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/ffz.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/xor.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops/ffz.h	2011-07-20 15:19:35.455153985 -0500
-@@ -0,0 +1,38 @@
-+/*
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#ifndef _ASM_BITOPS_FFZ_H_
-+#define _ASM_BITOPS_FFZ_H_
-+
-+/*
-+ * ffz - find first zero in word.
-+ * @word: The word to search
-+ *
-+ * Undefined if no zero exists, so code should check against ~0UL first.
-+ */
-+static inline int ffz(int x)
-+{
-+	int r;
-+
-+	asm volatile("%0 = ct1(%1);\n"
-+		: "=&r" (r)
-+		: "r" (x));
-+	return r;
-+}
-+
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/fls.h
++++ linux-hexagon-kernel/arch/hexagon/include/asm/xor.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/xor.h>
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/local64.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops/fls.h	2011-07-20 15:19:35.455153985 -0500
-@@ -0,0 +1,42 @@
-+/*
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#ifndef _ASM_BITOPS_FLS_H_
-+#define _ASM_BITOPS_FLS_H_
-+
-+/*
-+ * fls - find last (most-significant) bit set
-+ * @x: the word to search
-+ *
-+ * This is defined the same way as ffs.
-+ * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
-+ */
-+static inline int fls(int x)
-+{
-+	int r;
-+
-+	asm volatile("{ %0 = cl0(%1);}\n"
-+		"%0 = sub(#32,%0);\n"
-+		: "=&r" (r)
-+		: "r" (x)
-+		: "p0");
-+
-+	return r;
-+}
-+
-+#endif
++++ linux-hexagon-kernel/arch/hexagon/include/asm/local64.h	2011-07-20 15:19:33.095154861 -0500
+@@ -0,0 +1 @@
++#include <asm-generic/local64.h>
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
-
