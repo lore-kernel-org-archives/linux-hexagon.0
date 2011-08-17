@@ -1,10 +1,10 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 07/36] Hexagon: Add threadinfo
-Date: Wed, 17 Aug 2011 11:35:04 -0500
-Message-ID: <20110817163520.513397876@codeaurora.org>
+Subject: [patch 05/36] Hexagon: Add syscalls
+Date: Wed, 17 Aug 2011 11:35:02 -0500
+Message-ID: <20110817163520.334269161@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=thread.diff
+Content-Disposition: inline; filename=syscalls.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -15,28 +15,19 @@ To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/current.h     |    6 +
- arch/hexagon/include/asm/thread_info.h |  197 +++++++++++++++++++++++++++++++++
- 2 files changed, 203 insertions(+)
+ arch/hexagon/include/asm/syscall.h |   45 ++++++++++
+ arch/hexagon/include/asm/unistd.h  |   49 +++++++++++
+ arch/hexagon/kernel/syscall.c      |  164 +++++++++++++++++++++++++++++++++++++
+ arch/hexagon/kernel/syscalltab.c   |   32 +++++++
+ 4 files changed, 290 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/current.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/syscall.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/current.h	2011-07-20 15:19:37.415153317 -0500
-@@ -0,0 +1,6 @@
-+#ifndef _ASM_CURRENT_H
-+#define _ASM_CURRENT_H
-+
-+#include <asm-generic/current.h>
-+
-+#endif /* _ASM_CURRENT_H */
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/thread_info.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/thread_info.h	2011-07-20 15:19:37.415153317 -0500
-@@ -0,0 +1,197 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/syscall.h	2011-07-20 15:19:36.655153568 -0500
+@@ -0,0 +1,45 @@
 +/*
-+ * Thread support for the Hexagon architecture
++ * Syscall support for the Hexagon architecture
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -55,183 +46,291 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/thread_info.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef _ASM_THREAD_INFO_H
-+#define _ASM_THREAD_INFO_H
++#ifndef _ASM_HEXAGON_SYSCALL_H
++#define _ASM_HEXAGON_SYSCALL_H
 +
-+#ifdef __KERNEL__
++typedef long (*syscall_fn)(unsigned long, unsigned long,
++	unsigned long, unsigned long,
++	unsigned long, unsigned long);
 +
-+#ifndef __ASSEMBLY__
-+#include <asm/processor.h>
++asmlinkage int sys_execve(char __user *ufilename, char __user * __user *argv,
++			  char __user * __user *envp);
++asmlinkage int sys_clone(unsigned long clone_flags, unsigned long newsp,
++			 unsigned long parent_tidp, unsigned long child_tidp);
++
++asmlinkage int sys_fork(void);
++asmlinkage int sys_vfork(void);
++
++#define sys_execve	sys_execve
++#define sys_clone	sys_clone
++#define sys_fork	sys_fork
++#define sys_vfork	sys_vfork
++
++#include <asm-generic/syscalls.h>
++
++extern void *sys_call_table[];
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/unistd.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/unistd.h	2011-07-20 15:19:36.655153568 -0500
+@@ -0,0 +1,49 @@
++/*
++ * Syscall support for Hexagon
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#if !defined(_ASM_HEXAGON_UNISTD_H) || defined(__SYSCALL)
++#define _ASM_HEXAGON_UNISTD_H
++
++/*
++ *  The kernel pulls this unistd.h in three different ways:
++ *  1.  the "normal" way which gets all the __NR defines
++ *  2.  with __SYSCALL defined to produce function declarations
++ *  3.  with __SYSCALL defined to produce syscall table initialization
++ *  See also:  syscalltab.c
++ */
++
++#define __ARCH_WANT_SYSCALL_DEPRECATED
++
++#ifndef __GLIBC__
++/* It seems these are all needed for uClibc...
++ * However, if glibc is compiled w/ these turned on, then it will
++ * will fail (typically with 32/64-bit compat problems). */
++#define __ARCH_WANT_SYSCALL_OFF_T
++#define __ARCH_WANT_SYSCALL_NO_AT
++#define __ARCH_WANT_SYSCALL_NO_FLAGS
++#endif
++
++/*  And the kernel itself wants these...  */
++#define __ARCH_WANT_SYS_NICE
++#define __ARCH_WANT_SYS_SIGPENDING
++
++#include <asm-generic/unistd.h>
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/kernel/syscall.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/kernel/syscall.c	2011-07-20 15:19:36.655153568 -0500
+@@ -0,0 +1,164 @@
++/*
++ * Hexagon system calls
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#include <linux/file.h>
++#include <linux/fs.h>
++#include <linux/linkage.h>
++#include <linux/mm.h>
++#include <linux/module.h>
++#include <linux/sched.h>
++#include <linux/slab.h>
++#include <linux/syscalls.h>
++#include <linux/unistd.h>
++#include <asm/mman.h>
 +#include <asm/registers.h>
-+#endif
 +
 +/*
-+ * order is for __get_free_pages; see get_order()
++ * System calls with architecture-specific wrappers.
++ * See signal.c for signal-related system call wrappers.
 + */
 +
-+#ifdef CONFIG_PAGE_SIZE_4KB
-+#define THREAD_SIZE	(1<<13)
-+#define THREAD_SIZE_ORDER 1
-+#endif
++asmlinkage int sys_fork(void)
++{
++	struct pt_regs *pregs = current_thread_info()->regs;
 +
-+#ifdef CONFIG_PAGE_SIZE_16KB
-+#define THREAD_SIZE	(1<<14)
-+#define THREAD_SIZE_ORDER 0
-+#endif
-+
-+#ifdef CONFIG_PAGE_SIZE_64KB
-+#define THREAD_SIZE	(1<<16)
-+#define THREAD_SIZE_ORDER 0
-+#endif
-+
-+#ifdef CONFIG_PAGE_SIZE_256KB
-+#define THREAD_SIZE	(1<<18)
-+#define THREAD_SIZE_ORDER 0
-+#endif
-+
-+#ifndef __ASSEMBLY__
-+
-+typedef struct {
-+	unsigned long seg;
-+} mm_segment_t;
-+
-+/*
-+ * This is union'd with the "bottom" of the kernel stack.
-+ * It keeps track of thread info which is handy for routines
-+ * to access quickly.
-+ */
-+
-+struct thread_info {
-+	struct task_struct	*task;		/* main task structure */
-+	struct exec_domain      *exec_domain;   /* execution domain */
-+	unsigned long		flags;          /* low level flags */
-+	__u32                   cpu;            /* current cpu */
-+	int                     preempt_count;  /* 0=>preemptible,<0=>BUG */
-+	mm_segment_t            addr_limit;     /* segmentation sux */
-+	/*
-+	 * used for syscalls somehow;
-+	 * seems to have a function pointer and four arguments
-+	 */
-+	struct restart_block    restart_block;
-+	/* Points to the current pt_regs frame  */
-+	struct pt_regs		*regs;
-+	/*
-+	 * saved kernel sp at switch_to time;
-+	 * not sure if this is used (it's not in the VM model it seems;
-+	 * see thread_struct)
-+	 */
-+	unsigned long		sp;
-+};
-+
-+#else /* !__ASSEMBLY__ */
-+
-+#include <asm/asm-offsets.h>
-+
-+#endif  /* __ASSEMBLY__  */
-+
-+/*  looks like "linux/hardirq.h" uses this.  */
-+
-+#define PREEMPT_ACTIVE		0x10000000
-+
-+#ifndef __ASSEMBLY__
-+
-+#define INIT_THREAD_INFO(tsk)                   \
-+{                                               \
-+	.task           = &tsk,                 \
-+	.exec_domain    = &default_exec_domain, \
-+	.flags          = 0,                    \
-+	.cpu            = 0,                    \
-+	.preempt_count  = 1,                    \
-+	.addr_limit     = KERNEL_DS,            \
-+	.restart_block = {                      \
-+		.fn = do_no_restart_syscall,    \
-+	},                                      \
-+	.sp = 0,				\
-+	.regs = NULL,			\
++	return do_fork(SIGCHLD, pregs->SP, pregs, 0, NULL, NULL);
 +}
 +
-+#define init_thread_info        (init_thread_union.thread_info)
-+#define init_stack              (init_thread_union.stack)
++asmlinkage int sys_vfork(void)
++{
++	struct pt_regs *pregs = current_thread_info()->regs;
 +
-+/* Tacky preprocessor trickery */
-+#define	qqstr(s) qstr(s)
-+#define qstr(s) #s
-+#define QUOTED_THREADINFO_REG qqstr(THREADINFO_REG)
++	return do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD,
++		       pregs->SP, pregs, 0, NULL, NULL);
++}
 +
-+register struct thread_info *__current_thread_info asm(QUOTED_THREADINFO_REG);
-+#define current_thread_info()  __current_thread_info
++asmlinkage int sys_execve(char __user *ufilename,
++			  const char __user *const __user *argv,
++			  const char __user *const __user *envp)
++{
++	struct pt_regs *pregs = current_thread_info()->regs;
++	char *filename;
++	int retval;
 +
-+/*  defined in process.c  */
-+#if 0
-+extern void free_thread_info(struct thread_info *thread);
-+#endif
++	filename = getname(ufilename);
++	retval = PTR_ERR(filename);
++	if (IS_ERR(filename))
++		return retval;
 +
-+/* thread information allocation */
++	retval = do_execve(filename, argv, envp, pregs);
++	putname(filename);
 +
-+/*
-+ * kmalloc is probably not appropriate because alignment seems
-+ * not guaranteed out of kmalloc at all, and we assume thread_info
-+ * is aligned to THREAD_SIZE all over the place, notably the switch and
-+ * entry/exit routines.
-+ */
++	return retval;
++}
 +
-+#if 0
-+#define __HAVE_ARCH_THREAD_INFO_ALLOCATOR
-+#ifdef CONFIG_DEBUG_STACK_USAGE
-+#define alloc_thread_info(tsk) \
-+	((struct thread_info *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, \
-+	THREAD_SIZE_ORDER))
++asmlinkage int sys_clone(unsigned long clone_flags, unsigned long newsp,
++			 unsigned long parent_tidp, unsigned long child_tidp)
++{
++	struct pt_regs *pregs = current_thread_info()->regs;
 +
-+#else   /*  CONFIG_DEBUG_STACK_USAGE  */
-+#define alloc_thread_info(tsk) \
-+	((struct thread_info *)__get_free_pages(GFP_KERNEL, \
-+	THREAD_SIZE_ORDER))
-+#endif  /*  ! CONFIG_DEBUG_STACK_USAGE  */
-+
-+
-+#define free_thread_info(info) \
-+	free_pages((unsigned long)info, THREAD_SIZE_ORDER);
-+#endif
-+
-+#endif /* __ASSEMBLY__ */
++	if (!newsp)
++		newsp = pregs->SP;
++	return do_fork(clone_flags, newsp, pregs, 0, (int __user *)parent_tidp,
++		       (int __user *)child_tidp);
++}
 +
 +/*
-+ * thread information flags
-+ * - these are process state flags that various assembly files
-+ *   may need to access
-+ * - pending work-to-be-done flags are in LSW
-+ * - other flags in MSW
++ * Many archictures support both sys_mmap and sys_mmap2, which use
++ * a common do_mmap2 function to do the work.  So long as we support
++ * only mmap2, we do it all in-line here.
++ */
++asmlinkage int sys_mmap2(unsigned long addr, size_t len, unsigned long prot,
++			 unsigned long flags, unsigned long fd,
++			 unsigned long pgoff)
++{
++	struct file *file = NULL;
++	int retval = -EBADF;
++
++	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
++	if (!(flags & MAP_ANONYMOUS)) {
++		file = fget(fd);
++		if (!file)
++			return retval;
++	}
++
++	down_write(&current->mm->mmap_sem);
++	retval = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
++	up_write(&current->mm->mmap_sem);
++	if (file)
++		fput(file);
++
++	return retval;
++}
++
++/*  apparently this should only map on page boundaries  */
++asmlinkage int sys_mmap(unsigned long addr, size_t len,
++			unsigned long prot, unsigned long flags,
++			unsigned long fd, off_t off)
++{
++	struct file *file = NULL;
++	int retval = -EINVAL;
++	unsigned long pgoff;
++
++	if (off & ((1 << PAGE_SHIFT) - 1))
++		return retval;
++	pgoff = off >> PAGE_SHIFT;
++
++	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
++	if (!(flags & MAP_ANONYMOUS)) {
++		file = fget(fd);
++		retval = -EBADF;
++		if (!file)
++			return retval;
++	}
++
++	down_write(&current->mm->mmap_sem);
++	retval = do_mmap_pgoff(file, addr, len, prot, flags, pgoff);
++	up_write(&current->mm->mmap_sem);
++	if (file)
++		fput(file);
++
++	return retval;
++}
++
++
++/*
++ * Do a system call from the kernel, so as to have a proper pt_regs
++ * and recycle the sys_execvpe infrustructure.
++ */
++int kernel_execve(const char *filename,
++		  const char *const argv[], const char *const envp[])
++{
++	register unsigned long __a0 asm("r0") = (unsigned long) filename;
++	register unsigned long __a1 asm("r1") = (unsigned long) argv;
++	register unsigned long __a2 asm("r2") = (unsigned long) envp;
++	int retval;
++
++	__asm__ volatile(
++		"	R6 = #%4;\n"
++		"	trap0(#1);\n"
++		"	%0 = R0;\n"
++		: "=r" (retval)
++		: "r" (__a0), "r" (__a1), "r" (__a2), "i" (__NR_execve)
++	);
++
++	return retval;
++}
++EXPORT_SYMBOL(kernel_execve);
+Index: linux-hexagon-kernel/arch/hexagon/kernel/syscalltab.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/kernel/syscalltab.c	2011-07-20 15:19:36.655153568 -0500
+@@ -0,0 +1,32 @@
++/*
++ * System call table for Hexagon
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
 + */
 +
-+#define TIF_SYSCALL_TRACE       0       /* syscall trace active */
-+#define TIF_NOTIFY_RESUME       1       /* resumption notification requested */
-+#define TIF_SIGPENDING          2       /* signal pending */
-+#define TIF_NEED_RESCHED        3       /* rescheduling necessary */
-+#define TIF_SINGLESTEP          4       /* restore ss @ return to usr mode */
-+#define TIF_IRET                5       /* return with iret */
-+#define TIF_RESTORE_SIGMASK     6       /* restore sig mask in do_signal() */
-+/* true if poll_idle() is polling TIF_NEED_RESCHED */
-+#define TIF_POLLING_NRFLAG      16
-+#define TIF_MEMDIE              17      /* OOM killer killed process */
++#include <linux/syscalls.h>
++#include <linux/signal.h>
++#include <linux/unistd.h>
 +
-+#define _TIF_SYSCALL_TRACE      (1 << TIF_SYSCALL_TRACE)
-+#define _TIF_NOTIFY_RESUME      (1 << TIF_NOTIFY_RESUME)
-+#define _TIF_SIGPENDING         (1 << TIF_SIGPENDING)
-+#define _TIF_NEED_RESCHED       (1 << TIF_NEED_RESCHED)
-+#define _TIF_SINGLESTEP         (1 << TIF_SINGLESTEP)
-+#define _TIF_IRET               (1 << TIF_IRET)
-+#define _TIF_RESTORE_SIGMASK    (1 << TIF_RESTORE_SIGMASK)
-+#define _TIF_POLLING_NRFLAG     (1 << TIF_POLLING_NRFLAG)
++#include <asm/syscall.h>
 +
-+/* work to do on interrupt/exception return - All but TIF_SYSCALL_TRACE */
-+#define _TIF_WORK_MASK          (0x0000FFFF & ~_TIF_SYSCALL_TRACE)
++#undef __SYSCALL
++#define __SYSCALL(nr, call) [nr] = (call),
 +
-+/* work to do on any return to u-space */
-+#define _TIF_ALLWORK_MASK       0x0000FFFF
-+
-+#endif /* __KERNEL__ */
-+
-+#endif
++void *sys_call_table[__NR_syscalls] = {
++#include <asm/unistd.h>
++};
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
