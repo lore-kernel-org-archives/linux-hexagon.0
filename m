@@ -1,32 +1,33 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 21/36] Hexagon: Add SMP support
-Date: Wed, 17 Aug 2011 11:35:18 -0500
-Message-ID: <20110817163521.821770236@codeaurora.org>
+Subject: [patch 20/36] Hexagon: Provide basic debugging and system trap support.
+Date: Wed, 17 Aug 2011 11:35:17 -0500
+Message-ID: <20110817163521.731149424@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline; filename=smp.diff
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline; filename=traps.diff
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Cc: Linas Vepstas <linas@codeaurora.org>
 
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
+Signed-off-by: Linas Vepstas <linas@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/smp.h |   40 ++++
- arch/hexagon/kernel/smp.c      |  365 +++++++++++++++++++++++++++++++++++++++++
- arch/hexagon/kernel/topology.c |   52 +++++
- 3 files changed, 457 insertions(+)
+ arch/hexagon/include/asm/traps.h |   29 +++
+ arch/hexagon/kernel/traps.c      |  356 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 385 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/smp.h
+Index: linux-hexagon-kernel/arch/hexagon/kernel/traps.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/smp.h	2011-08-01 15:29:41.219060354 -0500
-@@ -0,0 +1,40 @@
++++ linux-hexagon-kernel/arch/hexagon/kernel/traps.c	2011-07-20 15:19:41.575152080 -0500
+@@ -0,0 +1,356 @@
 +/*
-+ * SMP definitions for the Hexagon architecture
++ * Kernel traps/events for Hexagon processor
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -45,403 +46,349 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/smp.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef __ASM_SMP_H
-+#define __ASM_SMP_H
-+
-+#include <linux/cpumask.h>
-+
-+#define raw_smp_processor_id() (current_thread_info()->cpu)
-+
-+enum ipi_message_type {
-+	IPI_RESCHEDULE,
-+	IPI_CALL_FUNC,
-+	IPI_CPU_STOP,
-+	IPI_TIMER
-+};
-+
-+extern void send_ipi(const struct cpumask *cpumask, enum ipi_message_type msg);
-+extern void smp_start_cpus(void);
-+
-+void smp_vm_unmask_irq(void *info);
-+
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/kernel/smp.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/smp.c	2011-08-01 15:31:33.739180622 -0500
-@@ -0,0 +1,365 @@
-+/*
-+ * SMP support for Hexagon
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#include <linux/err.h>
-+#include <linux/errno.h>
-+#include <linux/kernel.h>
 +#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/percpu.h>
 +#include <linux/sched.h>
-+#include <linux/smp.h>
-+#include <linux/spinlock.h>
++#include <linux/module.h>
++#include <linux/kallsyms.h>
++#include <linux/kdebug.h>
++#include <linux/syscalls.h>
++#include <linux/signal.h>
++#include <linux/tracehook.h>
++#include <asm/traps.h>
++#include <asm/vm_fault.h>
++#include <asm/syscall.h>
++#include <asm/registers.h>
++#include <asm/unistd.h>
++#ifdef CONFIG_KGDB
++# include <linux/kgdb.h>
++#endif
 +
-+#include <asm/system.h>  /*  xchg  */
-+#include <asm/time.h>    /*  timer_interrupt  */
-+#include <asm/hexagon_vm.h>
++#define TRAP_SYSCALL	1
++#define TRAP_DEBUG	0xdb
 +
-+#define BASE_IPI_IRQ 26
-+
-+/*
-+ * cpu_possible_map needs to be filled out prior to setup_per_cpu_areas
-+ * (which is prior to any of our smp_prepare_cpu crap), in order to set
-+ * up the...  per_cpu areas.
-+ */
-+
-+struct smp_call_struct {
-+	void (*func) (void *info);
-+	void *info;
-+	long wait;
-+	struct cpumask pending;
-+	struct cpumask unfinished;
-+};
-+
-+struct smp_call_struct *smp_call_function_data;
-+
-+struct ipi_data {
-+	spinlock_t lock;
-+	unsigned long ipi_count;
-+	unsigned long bits;
-+};
-+
-+static DEFINE_PER_CPU(struct ipi_data, ipi_data) = {
-+	.lock = __SPIN_LOCK_UNLOCKED(ipi_data.lock)
-+};
-+
-+static inline void __handle_ipi(unsigned long *ops, struct ipi_data *ipi,
-+				int cpu)
-+{
-+	do {
-+		unsigned long msg = msg = ffz(~*ops);
-+
-+		*ops &= ~(1 << msg);
-+
-+		switch (msg) {
-+		case IPI_TIMER:
-+			ipi_timer();
-+			break;
-+		case IPI_CALL_FUNC:
-+		{
-+			struct smp_call_struct *data =
-+				smp_call_function_data;
-+			void (*func) (void *info) =
-+				data->func;
-+			void *info = data->info;
-+			int wait = data->wait;
-+
-+			smp_mb();
-+			cpumask_clear_cpu(cpu, &data->pending);
-+
-+			(*func)(info);
-+
-+			smp_mb();
-+			if (wait)
-+				cpumask_clear_cpu(cpu,
-+					&data->unfinished);
-+			break;
-+		}
-+		case IPI_CPU_STOP:
-+			/*
-+			 * call vmstop()
-+			 */
-+			__vmstop();
-+			break;
-+		case IPI_RESCHEDULE:
-+			/*
-+			 * need to revisit our exit path; see comments for
-+			 * scheduler_ipi()
-+			 */
-+			scheduler_ipi();
-+			break;
-+		}
-+	} while (*ops);
-+}
-+
-+/*  Used for IPI call from other CPU's to unmask int  */
-+void smp_vm_unmask_irq(void *info)
-+{
-+	__vmintop_locen((long) info);
-+}
-+
-+
-+/*
-+ * This is based on Alpha's IPI stuff.
-+ * Supposed to take (int, void*) as args now.
-+ * Specifically, first arg is irq, second is the irq_desc.
-+ */
-+
-+irqreturn_t handle_ipi(int irq, void *desc)
-+{
-+	int cpu = smp_processor_id();
-+	struct ipi_data *ipi = &per_cpu(ipi_data, cpu);
-+	unsigned long ops;
-+
-+	while ((ops = xchg(&ipi->bits, 0)) != 0)
-+		__handle_ipi(&ops, ipi, cpu);
-+	return IRQ_HANDLED;
-+}
-+
-+void send_ipi(const struct cpumask *cpumask, enum ipi_message_type msg)
-+{
-+	unsigned long flags;
-+	unsigned long cpu;
-+	unsigned long retval;
-+
-+	local_irq_save(flags);
-+
-+	for_each_cpu(cpu, cpumask) {
-+		struct ipi_data *ipi = &per_cpu(ipi_data, cpu);
-+
-+		spin_lock(&ipi->lock);
-+		ipi->bits |= 1 << msg;  /*  one bit per message  */
-+		spin_unlock(&ipi->lock);
-+
-+		retval = __vmintop_post(BASE_IPI_IRQ+cpu);
-+		if (retval != 0) {
-+			printk(KERN_ERR "interrupt %ld not configured?\n",
-+				BASE_IPI_IRQ+cpu);
-+		}
-+	}
-+
-+	local_irq_restore(flags);
-+}
-+
-+static struct irqaction ipi_intdesc = {
-+	.handler = handle_ipi,
-+	.flags = IRQF_DISABLED | IRQF_TRIGGER_RISING,
-+	.name = "ipi_handler"
-+};
-+
-+/*
-+ * SMP call stuff
-+ */
-+static DEFINE_SPINLOCK(smp_call_function_lock);
-+
-+int smp_call_function_cpumask(const struct cpumask *cpumask,
-+			      void (*func) (void *info),
-+			      void *info, int wait)
-+{
-+	struct smp_call_struct data;
-+
-+	data.func	= func;
-+	data.info	= info;
-+	data.wait	= wait;
-+	cpumask_copy(&data.pending, cpumask);
-+	cpumask_copy(&data.unfinished, cpumask);
-+
-+	spin_lock(&smp_call_function_lock);
-+	smp_call_function_data = &data;
-+	smp_mb();
-+
-+	send_ipi(cpumask, IPI_CALL_FUNC);
-+
-+	/*  some archs implement a timeout here.  */
-+	while (!cpumask_empty(&data.pending))
-+		barrier();
-+
-+	smp_call_function_data = NULL;
-+	spin_unlock(&smp_call_function_lock);
-+
-+	if (wait) {
-+		while (!cpumask_empty(&data.unfinished))
-+			barrier();
-+	}
-+
-+	return 0;
-+}
-+
-+int smp_call_function_single(int cpu, void (*func) (void *info),
-+			      void *info, int wait)
-+{
-+	return smp_call_function_cpumask(cpumask_of(cpu), func, info,
-+		wait);
-+}
-+
-+/*
-+ * smp_call_function(): Run a function on all other CPUs
-+ * @mask: cpu mask of cpu's to run function on
-+ * @func: the function to run; must be fast and non-blocking
-+ * @info: arbitrary pointer to pass to the function
-+ * @wait:  if true, wait until function has completed on other CPUs
-+ *
-+ * Returns 0 on success, else a vague negative status code.
-+ *
-+ * "Does not return until remote CPUs are nearly ready to execute <func> or
-+ *  are or have executed."  Translation:  don't count on it.
-+ *
-+ * You must not call this function with disabled interrupts or from a
-+ * hardware interrupt handler or from a bottom half handler.
-+ *
-+ */
-+
-+int smp_call_function(void (*func) (void *info), void *info, int wait)
-+{
-+	struct cpumask targets;
-+
-+	cpumask_copy(&targets, cpu_online_mask);
-+	cpumask_clear_cpu(smp_processor_id(), &targets);
-+	return smp_call_function_cpumask(&targets, func, info, wait);
-+}
-+
-+
-+void __init smp_prepare_boot_cpu(void)
++void __init trap_init(void)
 +{
 +}
 +
-+/*
-+ * interrupts should already be disabled from the VM
-+ * SP should already be correct; need to set THREADINFO_REG
-+ * to point to current thread info
-+ */
-+
-+void __cpuinit start_secondary(void)
++#ifdef CONFIG_GENERIC_BUG
++/* Maybe should resemble arch/sh/kernel/traps.c ?? */
++int is_valid_bugaddr(unsigned long addr)
 +{
-+	unsigned int cpu;
-+	unsigned long thread_ptr;
-+
-+	/*  Calculate thread_info pointer from stack pointer  */
-+	__asm__ __volatile__(
-+		"%0 = SP;\n"
-+		: "=r" (thread_ptr)
-+	);
-+
-+	thread_ptr = thread_ptr & ~(THREAD_SIZE-1);
-+
-+	__asm__ __volatile__(
-+		QUOTED_THREADINFO_REG " = %0;\n"
-+		:
-+		: "r" (thread_ptr)
-+	);
-+
-+	/*  Set the memory struct  */
-+	atomic_inc(&init_mm.mm_count);
-+	current->active_mm = &init_mm;
-+
-+	cpu = smp_processor_id();
-+
-+	setup_irq(BASE_IPI_IRQ + cpu, &ipi_intdesc);
-+
-+	/*  Register the clock_event dummy  */
-+	setup_percpu_clockdev();
-+
-+	printk(KERN_INFO "%s cpu %d\n", __func__, current_thread_info()->cpu);
-+
-+	local_irq_enable();
-+	set_cpu_online(cpu, true);
-+	cpu_idle();
++	return 1;
 +}
++#endif /* CONFIG_GENERIC_BUG */
 +
-+
-+/*
-+ * called once for each present cpu
-+ * apparently starts up the CPU and then
-+ * maintains control until "cpu_online(cpu)" is set.
-+ */
-+
-+int __cpuinit __cpu_up(unsigned int cpu)
++void show_stack(struct task_struct *task, unsigned long *fp)
 +{
-+	struct task_struct *idle;
-+	struct thread_info *thread;
-+	void *stack_start;
-+
-+	/*  Create new init task for the CPU  */
-+	idle = fork_idle(cpu);
-+	if (IS_ERR(idle))
-+		panic(KERN_ERR "fork_idle failed\n");
-+
-+	thread = (struct thread_info *)idle->stack;
-+	thread->cpu = cpu;
-+
-+	/*  Boot to the head.  */
-+	stack_start =  ((void *) thread) + THREAD_SIZE;
-+	__vmstart(start_secondary, stack_start);
-+
-+	while (!cpu_isset(cpu, cpu_online_map))
-+		barrier();
-+
-+	return 0;
-+}
-+
-+void __init smp_cpus_done(unsigned int max_cpus)
-+{
-+}
-+
-+void __init smp_prepare_cpus(unsigned int max_cpus)
-+{
++	int kstack_depth_to_print = 20;
++	unsigned long offset, size;
++	const char *name = NULL;
++	unsigned long *newfp;
++	unsigned long ip;
++	char tmpstr[128];
++	char *modname;
 +	int i;
++
++	if (task == NULL)
++		task = current;
++
++	if (fp == NULL) {
++		if (task == current) {
++			asm("%0 = r30" : "=r" (fp));
++		} else {
++			fp = (unsigned long *)
++			     ((struct hexagon_switch_stack *)
++			     task->thread.switch_sp)->fp;
++		}
++	}
++
++	printk(KERN_INFO "CPU#%d, %s/%d, Call Trace:\n",
++	       raw_smp_processor_id(), current->comm,
++	       task_pid_nr(current));
++	for (i = 0; i < kstack_depth_to_print; i++) {
++		if (0 /* Check irq stack at some point */)
++			printk(KERN_INFO " <EOI> ");
++		else if (((long) fp & (THREAD_SIZE-1)) == 0)
++			break;
++
++		newfp = (unsigned long *) *fp;
++
++		ip = *(unsigned long *)((char *)fp + sizeof(unsigned long));
++		name = kallsyms_lookup(ip, &size, &offset, &modname, tmpstr);
++
++		printk(KERN_INFO "[%p] 0x%lx: %s + 0x%lx", fp, ip, name,
++			offset);
++		if (modname)
++			printk(KERN_CONT " [%s] ", modname);
++		if (i == 0)
++			printk(KERN_CONT " (unreliable)");
++		printk(KERN_CONT "\n");
++
++		/* If newfp isn't larger, we're tracing garbage */
++		if (newfp > fp)
++			fp = newfp;
++		else
++			break;
++	}
++}
++
++void dump_state(struct pt_regs *regs)
++{
++	show_regs(regs);
++	show_stack(current, &regs->r30);
++}
++
++void dump_stack(void)
++{
++	show_stack(current, NULL);
++}
++EXPORT_SYMBOL(dump_stack);
++
++int die(const char *str, struct pt_regs *regs, long err)
++{
++	static struct {
++		spinlock_t lock;
++		int counter;
++	} die = {
++		.lock = __SPIN_LOCK_UNLOCKED(die.lock),
++		.counter = 0
++	};
++
++	spin_lock_irq(&die.lock);
++	bust_spinlocks(1);
++	printk(KERN_INFO "%s[#%d]:\n", str, ++die.counter);
++
++	if (notify_die(DIE_OOPS, str, regs, err, pt_cause(regs), SIGSEGV) ==
++	    NOTIFY_STOP)
++		return 1;
++
++	print_modules();
++	dump_state(regs);
++
++	do_exit(err);
++	return 0;
++}
++
++int die_if_kernel(char *str, struct pt_regs *regs, long err)
++{
++	if (!user_mode(regs))
++		return die(str, regs, err);
++	else
++		return 0;
++}
++
++/*
++ * It's not clear that misaligned fetches are ever recoverable.
++ */
++static void misaligned_instruction(struct pt_regs *regs)
++{
++	die_if_kernel("Misaligned Instruction", regs, 0);
++	force_sig(SIGBUS, current);
++}
++
++/*
++ * Misaligned loads and stores, on the other hand, can be
++ * emulated, and probably should be, some day.  But for now
++ * they will be considered fatal.
++ */
++static void misaligned_data_load(struct pt_regs *regs)
++{
++	die_if_kernel("Misaligned Data Load", regs, 0);
++	force_sig(SIGBUS, current);
++}
++
++static void misaligned_data_store(struct pt_regs *regs)
++{
++	die_if_kernel("Misaligned Data Store", regs, 0);
++	force_sig(SIGBUS, current);
++}
++
++static void illegal_instruction(struct pt_regs *regs)
++{
++	die_if_kernel("Illegal Instruction", regs, 0);
++	force_sig(SIGILL, current);
++}
++
++/*
++ * Precise bus errors may be recoverable with a a retry,
++ * but for now, treat them as irrecoverable.
++ */
++static void precise_bus_error(struct pt_regs *regs)
++{
++	die_if_kernel("Precise Bus Error", regs, 0);
++	force_sig(SIGBUS, current);
++}
++
++/*
++ * If anything is to be done here other than panic,
++ * it will probably be complex and migrate to another
++ * source module.  For now, just die.
++ */
++static void cache_error(struct pt_regs *regs)
++{
++	die("Cache Error", regs, 0);
++}
++
++/*
++ * General exception handler
++ */
++void do_genex(struct pt_regs *regs)
++{
 +
 +	/*
-+	 * should eventually have some sort of machine
-+	 * descriptor that has this stuff
++	 * Decode Cause and Dispatch
 +	 */
-+
-+	/*  Right now, let's just fake it. */
-+	for (i = 0; i < max_cpus; i++)
-+		cpu_set(i, cpu_present_map);
-+
-+	/*  Also need to register the interrupts for IPI  */
-+	if (max_cpus > 1)
-+		setup_irq(BASE_IPI_IRQ, &ipi_intdesc);
++	switch (pt_cause(regs)) {
++	case HVM_GE_C_XPROT:
++	case HVM_GE_C_XUSER:
++		execute_protection_fault(regs);
++		break;
++	case HVM_GE_C_RPROT:
++	case HVM_GE_C_RUSER:
++		read_protection_fault(regs);
++		break;
++	case HVM_GE_C_WPROT:
++	case HVM_GE_C_WUSER:
++		write_protection_fault(regs);
++		break;
++	case HVM_GE_C_XMAL:
++		misaligned_instruction(regs);
++		break;
++	case HVM_GE_C_RMAL:
++		misaligned_data_load(regs);
++		break;
++	case HVM_GE_C_WMAL:
++		misaligned_data_store(regs);
++		break;
++	case HVM_GE_C_INVI:
++	case HVM_GE_C_PRIVI:
++		illegal_instruction(regs);
++		break;
++	case HVM_GE_C_BUS:
++		precise_bus_error(regs);
++		break;
++	case HVM_GE_C_CACHE:
++		cache_error(regs);
++		break;
++	default:
++		/* Halt and catch fire */
++		panic("Unrecognized exception 0x%lx\n", pt_cause(regs));
++		break;
++	}
 +}
 +
-+void smp_send_reschedule(int cpu)
++/* Indirect system call dispatch */
++long sys_syscall(void)
 +{
-+	send_ipi(cpumask_of(cpu), IPI_RESCHEDULE);
++	printk(KERN_ERR "sys_syscall invoked!\n");
++	return -ENOSYS;
 +}
 +
-+void smp_send_stop(void)
++void do_trap0(struct pt_regs *regs)
 +{
-+	struct cpumask targets;
-+	cpumask_copy(&targets, cpu_online_mask);
-+	cpumask_clear_cpu(smp_processor_id(), &targets);
-+	send_ipi(&targets, IPI_CPU_STOP);
++	unsigned long syscallret = 0;
++	syscall_fn syscall;
++
++	switch (pt_cause(regs)) {
++	case TRAP_SYSCALL:
++		/* System call is trap0 #1 */
++
++		/* allow strace to catch syscall args  */
++		if (unlikely(test_thread_flag(TIF_SYSCALL_TRACE) &&
++			tracehook_report_syscall_entry(regs)))
++			return;  /*  return -ENOSYS somewhere?  */
++
++		/* Interrupts should be re-enabled for syscall processing */
++		__vmsetie(VM_INT_ENABLE);
++
++		/*
++		 * System call number is in r6, arguments in r0..r5.
++		 * Fortunately, no Linux syscall has more than 6 arguments,
++		 * and Hexagon ABI passes first 6 arguments in registers.
++		 * 64-bit arguments are passed in odd/even register pairs.
++		 * Fortunately, we have no system calls that take more
++		 * than three arguments with more than one 64-bit value.
++		 * Should that change, we'd need to redesign to copy
++		 * between user and kernel stacks.
++		 */
++		regs->syscall_nr = regs->r06;
++
++		/*
++		 * GPR R0 carries the first parameter, and is also used
++		 * to report the return value.  We need a backup of
++		 * the user's value in case we need to do a late restart
++		 * of the system call.
++		 */
++		regs->restart_r0 = regs->r00;
++
++		if ((unsigned long) regs->syscall_nr >= __NR_syscalls) {
++			regs->r00 = -1;
++		} else {
++			syscall = (syscall_fn)
++				  (sys_call_table[regs->syscall_nr]);
++			syscallret = syscall(regs->r00, regs->r01,
++				   regs->r02, regs->r03,
++				   regs->r04, regs->r05);
++		}
++
++		/*
++		 * If it was a sigreturn system call, don't overwrite
++		 * r0 value in stack frame with return value.
++		 *
++		 * __NR_sigreturn doesn't seem to exist in new unistd.h
++		 */
++
++		if (regs->syscall_nr != __NR_rt_sigreturn)
++			regs->r00 = syscallret;
++
++		/* allow strace to get the syscall return state  */
++		if (unlikely(test_thread_flag(TIF_SYSCALL_TRACE)))
++			tracehook_report_syscall_exit(regs, 0);
++
++		break;
++	case TRAP_DEBUG:
++		/* Trap0 0xdb is debug breakpoint */
++		if (user_mode(regs)) {
++			struct siginfo info;
++
++			info.si_signo = SIGTRAP;
++			info.si_errno = 0;
++			/*
++			 * Some architecures add some per-thread state
++			 * to distinguish between breakpoint traps and
++			 * trace traps.  We may want to do that, and
++			 * set the si_code value appropriately, or we
++			 * may want to use a different trap0 flavor.
++			 */
++			info.si_code = TRAP_BRKPT;
++			info.si_addr = (void __user *) pt_elr(regs);
++			send_sig_info(SIGTRAP, &info, current);
++		} else {
++#ifdef CONFIG_KGDB
++			kgdb_handle_exception(pt_cause(regs), SIGTRAP,
++					      TRAP_BRKPT, regs);
++#endif
++		}
++		break;
++	}
++	/* Ignore other trap0 codes for now, especially 0 (Angel calls) */
 +}
 +
-+
-+int setup_profiling_timer(unsigned int multiplier)
++/*
++ * Machine check exception handler
++ */
++void do_machcheck(struct pt_regs *regs)
 +{
-+	return -EINVAL;
++	/* Halt and catch fire */
++	__vmstop();
 +}
-+
-+void smp_start_cpus(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < NR_CPUS; i++)
-+		cpu_set(i, cpu_possible_map);
-+}
-Index: linux-hexagon-kernel/arch/hexagon/kernel/topology.c
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/traps.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/topology.c	2011-08-01 15:29:41.219060354 -0500
-@@ -0,0 +1,52 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/traps.h	2011-07-20 15:19:41.575152080 -0500
+@@ -0,0 +1,29 @@
 +/*
-+ * CPU topology for Hexagon
++ * Trap support for Hexagon
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -460,39 +407,15 @@ Index: linux-hexagon-kernel/arch/hexagon/kernel/topology.c
 + * 02110-1301, USA.
 + */
 +
-+#include <linux/cpu.h>
-+#include <linux/cpumask.h>
-+#include <linux/init.h>
-+#include <linux/node.h>
-+#include <linux/nodemask.h>
-+#include <linux/percpu.h>
++#ifndef _ASM_HEXAGON_TRAPS_H
++#define _ASM_HEXAGON_TRAPS_H
 +
-+/*  Swiped from MIPS.  */
++#include <asm/registers.h>
 +
-+static DEFINE_PER_CPU(struct cpu, cpu_devices);
++extern int die(const char *str, struct pt_regs *regs, long err);
++extern int die_if_kernel(char *str, struct pt_regs *regs, long err);
 +
-+static int __init topology_init(void)
-+{
-+	int i, ret;
-+
-+	for_each_present_cpu(i) {
-+
-+		/*
-+		 * register_cpu takes a per_cpu pointer and
-+		 * just points it at another per_cpu struct...
-+		 */
-+
-+		ret = register_cpu(&per_cpu(cpu_devices, i), i);
-+		if (ret)
-+			printk(KERN_WARNING "topology_init: register_cpu %d "
-+			       "failed (%d)\n", i, ret);
-+	}
-+
-+	return 0;
-+}
-+
-+subsys_initcall(topology_init);
++#endif /* _ASM_HEXAGON_TRAPS_H */
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
-
