@@ -1,11 +1,11 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 18/36] Hexagon: Add time and timer functions
-Date: Wed, 17 Aug 2011 11:35:15 -0500
-Message-ID: <20110817163521.552020151@codeaurora.org>
+Subject: [patch 16/36] Hexagon: Add startup code
+Date: Wed, 17 Aug 2011 11:35:13 -0500
+Message-ID: <20110817163521.350478303@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline; filename=timer.diff
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline; filename=startup.diff
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -15,16 +15,183 @@ To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/time.h       |   27 +++
- arch/hexagon/include/asm/timer-regs.h |   39 ++++
- arch/hexagon/kernel/time.c            |  299 ++++++++++++++++++++++++++++++++++
- 3 files changed, 365 insertions(+)
+ arch/hexagon/kernel/head.S  |  162 ++++++++++++++++++++++++++++++++++++++++++++
+ arch/hexagon/kernel/reset.c |   38 ++++++++++
+ arch/hexagon/kernel/setup.c |  143 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 343 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/time.h
+Index: linux-hexagon-kernel/arch/hexagon/kernel/head.S
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/time.h	2011-07-20 15:19:41.065152216 -0500
-@@ -0,0 +1,27 @@
++++ linux-hexagon-kernel/arch/hexagon/kernel/head.S	2011-07-20 15:19:40.515152372 -0500
+@@ -0,0 +1,162 @@
++/*
++ * Early kernel startup code for Hexagon
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#include <linux/linkage.h>
++#include <linux/init.h>
++#include <asm/asm-offsets.h>
++#include <asm/mem-layout.h>
++#include <asm/vm_mmu.h>
++#include <asm/page.h>
++
++       	__INIT
++ENTRY(stext)
++	/*
++	 * VMM will already have set up true vector page, MMU, etc.
++	 * To set up initial kernel identity map, we have to pass
++	 * the VMM a pointer to some canonical page tables. In
++	 * this implementation, we're assuming that we've got
++	 * them precompiled. Generate value in R24, as we'll need
++	 * it again shortly.
++	 */
++	r24.L = #LO(swapper_pg_dir)
++	r24.H = #HI(swapper_pg_dir)
++
++	/*
++	 * Symbol is kernel segment address, but we need
++	 * the logical/physical address.
++	 */
++	r24 = asl(r24, #2)
++	r24 = lsr(r24, #2)
++
++	r0 = r24
++
++	/*
++	 * Initialize a 16MB PTE to make the virtual and physical
++	 * addresses where the kernel was loaded be identical.
++	 */
++#define PTE_BITS ( __HVM_PTE_R | __HVM_PTE_W | __HVM_PTE_X	\
++		  | __HEXAGON_C_WB_L2 << 6			\
++		  | __HVM_PDE_S_4MB)
++
++	r1 = pc
++	r2.H = #0xffc0
++	r2.L = #0x0000
++	r1 = and(r1,r2)		/* round PC to 4MB boundary	*/
++	r2 = lsr(r1, #22)	/* 4MB page number		*/
++	r2 = asl(r2, #2)	/* times sizeof(PTE) (4bytes)	*/
++	r0 = add(r0,r2)		/* r0 = address of correct PTE	*/
++	r2 = #PTE_BITS
++	r1 = add(r1,r2)		/* r1 = 4MB PTE for the first entry	*/
++	r2.h = #0x0040
++	r2.l = #0x0000		/* 4MB	*/
++	memw(r0 ++ #4) = r1
++	r1 = add(r1, r2)
++	memw(r0 ++ #4) = r1
++
++	r0 = r24
++
++	/*
++	 * The subroutine wrapper around the virtual instruction touches
++	 * no memory, so we should be able to use it even here.
++	 */
++	call	__vmnewmap;
++
++	/*  Jump into virtual address range.  */
++
++	r31.h = #hi(__head_s_vaddr_target)
++	r31.l = #lo(__head_s_vaddr_target)
++	jumpr r31
++
++	/*  Insert trippy space effects.  */
++
++__head_s_vaddr_target:
++	/*
++	 * Tear down VA=PA translation now that we are running
++	 * in the desgnated kernel segments.
++	 */
++	r0 = #__HVM_PDE_S_INVALID
++	r1 = r24
++	loop0(1f,#0x100)
++1:
++	{
++		memw(R1 ++ #4) = R0
++	}:endloop0
++
++	r0 = r24
++	call __vmnewmap
++
++	/*  Go ahead and install the trap0 return so angel calls work  */
++	r0.h = #hi(_K_provisional_vec)
++	r0.l = #lo(_K_provisional_vec)
++	call __vmsetvec
++
++	/*
++	 * OK, at this point we should start to be much more careful,
++	 * we're going to enter C code and start touching memory
++	 * in all sorts of places.
++	 * This means:
++	 *      SGP needs to be OK
++	 *	Need to lock shared resources
++	 *	A bunch of other things that will cause
++	 * 	all kinds of painful bugs
++	 */
++
++	/*
++	 * Stack pointer should be pointed at the init task's
++	 * thread stack, which should have been declared in arch/init_task.c.
++	 * So uhhhhh...
++	 * It's accessible via the init_thread_union, which is a union
++	 * of a thread_info struct and a stack; of course, the top
++	 * of the stack is not for you.  The end of the stack
++	 * is simply init_thread_union + THREAD_SIZE.
++	 */
++
++	{r29.H = #HI(init_thread_union); r0.H = #HI(_THREAD_SIZE); }
++	{r29.L = #LO(init_thread_union); r0.L = #LO(_THREAD_SIZE); }
++
++	/*  initialize the register used to point to current_thread_info */
++	/*  Fixme:  THREADINFO_REG can't be R2 because of that memset thing. */
++	{r29 = add(r29,r0); THREADINFO_REG = r29; }
++
++	/*  Hack:  zero bss; */
++	{ r0.L = #LO(__bss_start);  r1 = #0; r2.l = #LO(__bss_stop); }
++	{ r0.H = #HI(__bss_start);           r2.h = #HI(__bss_stop); }
++
++	r2 = sub(r2,r0);
++	call memset;
++
++	/* Time to make the doughnuts.   */
++	call start_kernel
++
++	/*
++	 * Should not reach here.
++	 */
++1:
++	jump 1b
++
++.p2align PAGE_SHIFT
++ENTRY(external_cmdline_buffer)
++        .fill _PAGE_SIZE,1,0
++
++.data
++.p2align PAGE_SHIFT
++ENTRY(empty_zero_page)
++        .fill _PAGE_SIZE,1,0
+Index: linux-hexagon-kernel/arch/hexagon/kernel/reset.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/kernel/reset.c	2011-07-20 15:19:40.515152372 -0500
+@@ -0,0 +1,38 @@
 +/*
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -43,66 +210,33 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/time.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef ASM_TIME_H
-+#define ASM_TIME_H
++#include <linux/smp.h>
++#include <asm/hexagon_vm.h>
 +
-+#ifdef CONFIG_SMP
-+void setup_percpu_clockdev(void);
-+void ipi_timer(void);
-+#endif
++void machine_power_off(void)
++{
++	smp_send_stop();
++	__vmstop();
++}
 +
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/timer-regs.h
++void machine_halt(void)
++{
++}
++
++void machine_restart(char *cmd)
++{
++}
++
++void pm_power_off(void)
++{
++}
+Index: linux-hexagon-kernel/arch/hexagon/kernel/setup.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/timer-regs.h	2011-07-20 15:19:41.065152216 -0500
-@@ -0,0 +1,39 @@
++++ linux-hexagon-kernel/arch/hexagon/kernel/setup.c	2011-07-20 15:19:40.515152372 -0500
+@@ -0,0 +1,143 @@
 +/*
-+ * Timer support for Hexagon
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#ifndef _ASM_TIMER_REGS_H
-+#define _ASM_TIMER_REGS_H
-+
-+/*  This stuff should go into a platform specific file  */
-+#define TCX0_CLK_RATE		19200
-+#define TIMER_ENABLE		0
-+#define TIMER_CLR_ON_MATCH	1
-+
-+/*
-+ * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
-+ * release 1.1, and then it's "adjustable" and probably not defaulted.
-+ */
-+#define RTOS_TIMER_INT		3
-+#ifdef CONFIG_HEXAGON_COMET
-+#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
-+#endif
-+#define SLEEP_CLK_RATE		32000
-+
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/kernel/time.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/time.c	2011-07-20 15:19:41.065152216 -0500
-@@ -0,0 +1,299 @@
-+/*
-+ * Time related functions for Hexagon architecture
++ * Arch related setup for Hexagon
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -122,285 +256,128 @@ Index: linux-hexagon-kernel/arch/hexagon/kernel/time.c
 + */
 +
 +#include <linux/init.h>
-+#include <linux/clockchips.h>
-+#include <linux/clocksource.h>
-+#include <linux/interrupt.h>
-+#include <linux/err.h>
-+#include <linux/platform_device.h>
-+#include <linux/ioport.h>
-+#include <linux/of.h>
-+#include <linux/of_address.h>
-+#include <linux/of_irq.h>
-+
-+#include <asm/timer-regs.h>
-+#include <asm/platform.h>
++#include <linux/bootmem.h>
++#include <linux/mmzone.h>
++#include <linux/mm.h>
++#include <linux/seq_file.h>
++#include <linux/console.h>
++#include <linux/of_fdt.h>
++#include <asm/io.h>
++#include <asm/sections.h>
++#include <asm/setup.h>
++#include <asm/processor.h>
 +#include <asm/hexagon_vm.h>
++#include <asm/vm_mmu.h>
++#include <asm/platform.h>
++#ifdef CONFIG_OF
++#include <asm/prom.h>
++#endif
++
++char cmd_line[COMMAND_LINE_SIZE];
++static char default_command_line[COMMAND_LINE_SIZE] __initdata = CONFIG_CMDLINE;
++
++struct platform_ops_t platform_ops;
++
++int on_simulator;
 +
 +/*
-+ * For now, hard wire the simulated CPU/pcycle frequency.
-+ * XXX TODO fish it out of device tree!
++ * setup_arch -  high level architectural setup routine
++ * @cmdline_p: pointer to pointer to command-line arguments
 + */
-+#define CPU_MHZ 600
 +
-+static struct resource rtos_timer_resources[] = {
-+	{
-+		.start	= RTOS_TIMER_REGS_ADDR,
-+		.end	= RTOS_TIMER_REGS_ADDR+PAGE_SIZE-1,
-+		.flags	= IORESOURCE_MEM,
-+	},
-+};
-+
-+static struct platform_device rtos_timer_device = {
-+	.name		= "rtos_timer",
-+	.id		= -1,
-+	.num_resources	= ARRAY_SIZE(rtos_timer_resources),
-+	.resource	= rtos_timer_resources,
-+};
-+
-+/*  A lot of this stuff should move into a platform specific section.  */
-+struct adsp_hw_timer_struct {
-+	unsigned int match;   /*  Match value  */
-+	unsigned int count;
-+	unsigned int enable;  /*  [1] - CLR_ON_MATCH_EN, [0] - EN  */
-+	unsigned int clear;   /*  one-shot register that clears the count  */
-+};
-+
-+/*  Look for "TCX0" for related constants.  */
-+static volatile struct adsp_hw_timer_struct *rtos_timer = (void *) 0x0;
-+
-+void debug_adsp_timers(void)
++void __init setup_arch(char **cmdline_p)
 +{
-+	printk(KERN_INFO "rtos_timer->match=0x%08x\n", rtos_timer->match);
-+	printk(KERN_INFO "rtos_timer->count=%d\n", rtos_timer->count);
-+	printk(KERN_INFO "rtos_timer->enable=%d\n", rtos_timer->enable);
-+	printk(KERN_INFO "rtos_timer->clear=%d\n", rtos_timer->clear);
++	char *p = &external_cmdline_buffer;
++
++	platform_setup_ops(&platform_ops);
++
++	/*
++	 * Set up event bindings to handle exceptions and interrupts.
++	 */
++	__vmsetvec(_K_VM_event_vector);
++
++	/*
++	 * Simulator has a few differences from the hardware.
++	 * For now, check uninitialized-but-mapped memory
++	 * prior to invoking setup_arch_memory().
++	 */
++	if (*(int *)((unsigned long)_end + 8) == 0x1f1f1f1f)
++		on_simulator = 1;
++	else
++		on_simulator = 0;
++
++	if (p[0] != '\0')
++		strlcpy(boot_command_line, p, COMMAND_LINE_SIZE);
++	else
++		strlcpy(boot_command_line, default_command_line,
++			COMMAND_LINE_SIZE);
++
++	/*
++	 * boot_command_line and the value set up by setup_arch
++	 * are both picked up by the init code. If no reason to
++	 * make them different, pass the same pointer back.
++	 */
++	strlcpy(cmd_line, boot_command_line, COMMAND_LINE_SIZE);
++	*cmdline_p = cmd_line;
++
++	parse_early_param();
++
++#ifdef CONFIG_EARLY_PRINTK
++	if (platform_ops.register_early_console)
++		platform_ops.register_early_console();
++#endif
++	setup_arch_memory();
++
++	/*  Need a devtree version of this.  */
++	platform_ops.clock_init();
++
++#ifdef CONFIG_SMP
++	smp_start_cpus();
++#endif
 +}
 +
-+static cycle_t timer_get_cycles(struct clocksource *cs)
++/*
++ * Functions for dumping CPU info via /proc
++ * Probably should move to kernel/proc.c or something.
++ */
++static void *c_start(struct seq_file *m, loff_t *pos)
 +{
-+	return (cycle_t) __vmgettime();
++	return *pos < nr_cpu_ids ? (void *)((unsigned long) *pos + 1) : NULL;
 +}
 +
-+static struct clocksource hexagon_clocksource = {
-+	.name		= "pcycles",
-+	.rating		= 250,
-+	.shift		= 16,
-+	.read		= timer_get_cycles,
-+	.mask		= CLOCKSOURCE_MASK(64),
-+	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
-+};
-+
-+static int set_next_event(unsigned long delta, struct clock_event_device *evt)
++static void *c_next(struct seq_file *m, void *v, loff_t *pos)
 +{
-+	/*  Assuming the timer will be disabled when we enter here.  */
-+	rtos_timer->clear = 1;
-+	rtos_timer->clear = 0;
++	++*pos;
++	return c_start(m, pos);
++}
 +
-+	/*  Does this need massaging?  */
-+	rtos_timer->match = delta;
-+	rtos_timer->enable = 1 << TIMER_ENABLE;
++static void c_stop(struct seq_file *m, void *v)
++{
++}
++
++/*
++ * Eventually this will dump information about
++ * CPU properties like ISA level, TLB size, etc.
++ */
++static int show_cpuinfo(struct seq_file *m, void *v)
++{
++	int cpu = (unsigned long) v - 1;
++
++	seq_printf(m, "processor\t: %d\n", cpu);
++	seq_printf(m, "model name\t: Hexagon Virtual Machine\n");
++	seq_printf(m, "BogoMips\t: %lu.%02lu\n",
++		(loops_per_jiffy * HZ) / 500000,
++		((loops_per_jiffy * HZ) / 5000) % 100);
++	seq_printf(m, "\n");
 +	return 0;
 +}
 +
-+/*
-+ * Sets the mode (periodic, shutdown, oneshot, etc) of a timer.
-+ */
-+static void set_mode(enum clock_event_mode mode,
-+	struct clock_event_device *evt)
-+{
-+	switch (mode) {
-+	case CLOCK_EVT_MODE_SHUTDOWN:
-+		/* XXX implement me */
-+	default:
-+		break;
-+	}
-+}
-+
-+#ifdef CONFIG_SMP
-+/*  Broadcast mechanism  */
-+static void broadcast(const struct cpumask *mask)
-+{
-+	send_ipi(mask, IPI_TIMER);
-+}
-+#endif
-+
-+static struct clock_event_device hexagon_clockevent_dev = {
-+	.name		= "clockevent",
-+	.features	= CLOCK_EVT_FEAT_ONESHOT,
-+	.rating		= 400,
-+	.shift		= 32,
-+	.irq		= RTOS_TIMER_INT,
-+	.set_next_event = set_next_event,
-+	.set_mode	= set_mode,
-+#ifdef CONFIG_SMP
-+	.broadcast	= broadcast
-+#endif
++const struct seq_operations cpuinfo_op = {
++	.start  = &c_start,
++	.next   = &c_next,
++	.stop   = &c_stop,
++	.show   = &show_cpuinfo,
 +};
-+
-+#ifdef CONFIG_SMP
-+static DEFINE_PER_CPU(struct clock_event_device, clock_events);
-+
-+void setup_percpu_clockdev(void)
-+{
-+	int cpu = smp_processor_id();
-+	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
-+	struct clock_event_device *dummy_clock_dev =
-+		&per_cpu(clock_events, cpu);
-+
-+	memcpy(dummy_clock_dev, ce_dev, sizeof(*dummy_clock_dev));
-+	INIT_LIST_HEAD(&dummy_clock_dev->list);
-+
-+	dummy_clock_dev->features = CLOCK_EVT_FEAT_DUMMY;
-+	dummy_clock_dev->cpumask = cpumask_of(cpu);
-+	dummy_clock_dev->mode = CLOCK_EVT_MODE_UNUSED;
-+
-+	clockevents_register_device(dummy_clock_dev);
-+}
-+
-+/*  Called from smp.c for each CPU's timer ipi call  */
-+void ipi_timer(void)
-+{
-+	int cpu = smp_processor_id();
-+	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
-+
-+	ce_dev = &per_cpu(clock_events, cpu);
-+	ce_dev->event_handler(ce_dev);
-+}
-+#endif /* CONFIG_SMP */
-+
-+static irqreturn_t timer_interrupt(int irq, void *devid)
-+{
-+	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
-+
-+	rtos_timer->enable = 0;
-+	ce_dev->event_handler(ce_dev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/*  This should also be pulled from devtree  */
-+static struct irqaction rtos_timer_intdesc = {
-+	.handler = timer_interrupt,
-+	.flags = IRQF_DISABLED | IRQF_TIMER | IRQF_TRIGGER_RISING,
-+	.name = "rtos_timer"
-+};
-+
-+void clocksource_debug(struct clocksource *cs)
-+{
-+	printk(KERN_DEBUG "cs->mult=0x%08x\n", cs->mult);
-+	printk(KERN_DEBUG "cs->shift=%d\n", cs->shift);
-+}
-+
-+void clockevent_debug(struct clock_event_device *ce)
-+{
-+	printk(KERN_DEBUG "ce->mult=0x%08x\n", ce->mult);
-+	printk(KERN_DEBUG "ce->shift=%d\n", ce->shift);
-+}
-+
-+/*
-+ * time_init_deferred - called by start_kernel to set up timer/clock source
-+ *
-+ * Install the IRQ handler for the clock, setup timers.
-+ * This is done late, as that way, we can use ioremap().
-+ *
-+ * This runs just before the delay loop is calibrated, and
-+ * is used for delay calibration.
-+ */
-+void __init time_init_deferred(void)
-+{
-+	struct resource *resource = NULL;
-+	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
-+	struct device_node *dn;
-+	struct resource r;
-+	int err;
-+
-+#ifdef CONFIG_SMP
-+	ce_dev->cpumask = cpu_all_mask;
-+#else
-+	ce_dev->cpumask = cpumask_of(0);
-+#endif
-+
-+	/*
-+	 * There's a simulator bug where the interrupt input used
-+	 * for the 19.2KHz timer is different from that used on
-+	 * the hardware platform it ostensibly models.  The definition
-+	 * used in the data structure initialization is correct for
-+	 * the hardware.  Here we tweak it at run-time so that the
-+	 * same binary will work on the simulator. FIX THE SIMULATOR,
-+	 * THEN FIX THIS.
-+	 */
-+
-+	if (on_simulator) {
-+		printk(KERN_DEBUG "Adjusting clockevent IRQ for simulator.\n");
-+		ce_dev->irq = 2;
-+	}
-+
-+	if (!resource)
-+		resource = rtos_timer_device.resource;
-+
-+	/*  ioremap here means this has to run later, after paging init  */
-+	rtos_timer = ioremap(resource->start, resource->end
-+		- resource->start + 1);
-+
-+	if (!rtos_timer) {
-+		release_mem_region(resource->start, resource->end
-+			- resource->start + 1);
-+	}
-+	/*  Change to clocksource_register_khz in newer kernels  */
-+	hexagon_clocksource.mult = clocksource_hz2mult(CPU_MHZ * 1000000,
-+		hexagon_clocksource.shift);
-+	clocksource_register(&hexagon_clocksource);
-+	clocksource_debug(&hexagon_clocksource);
-+
-+	/*  Note: the sim generic RTOS clock is apparently really 18750Hz  */
-+	/*  Change to clockevents_calc_mult_shift()  */
-+	/*  SLEEP_CLK_RATE should be pulled from devtree?  */
-+	ce_dev->mult  = div_sc(SLEEP_CLK_RATE, NSEC_PER_SEC,
-+			       ce_dev->shift);
-+
-+	ce_dev->max_delta_ns = clockevent_delta2ns(0x7fffffff, ce_dev);
-+	ce_dev->min_delta_ns = clockevent_delta2ns(0xf, ce_dev);
-+
-+#ifdef CONFIG_SMP
-+	setup_percpu_clockdev();
-+#endif
-+
-+	clockevents_register_device(ce_dev);
-+	setup_irq(ce_dev->irq, &rtos_timer_intdesc);
-+}
-+
-+void __init time_init(void)
-+{
-+	late_time_init = time_init_deferred;
-+}
-+
-+/*
-+ * Some architectures inline this, which seems slightly insane.
-+ * Why burn memory to speed up a delay function?
-+ *
-+ * Note that there are hooks for MP systems to have different
-+ * delay values for different CPUs.  We should ultimately replace
-+ * the CPU_MHZ constant below with a reference to whatever per-CPU
-+ * state is dedicated to that role.
-+ */
-+
-+/*
-+ * This could become parametric or perhaps even computed at run-time,
-+ * but for now we take the observed simulator jitter.
-+ * XXX TODO fish this out of the device tree!
-+ */
-+static long long fudgefactor = 350;  /* Maybe lower if kernel optimized. */
-+
-+void __udelay(unsigned long usecs)
-+{
-+	unsigned long long start = __vmgettime();
-+	unsigned long long finish = (CPU_MHZ * usecs) - fudgefactor;
-+
-+	while ((__vmgettime() - start) < finish)
-+		; /*  not sure how this improves readability  */
-+}
-+EXPORT_SYMBOL(__udelay);
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
-
