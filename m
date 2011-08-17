@@ -1,11 +1,11 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 16/36] Hexagon: Add startup code
-Date: Wed, 17 Aug 2011 11:35:13 -0500
-Message-ID: <20110817163521.350478303@codeaurora.org>
+Subject: [patch 19/36] Hexagon: Add ptrace support
+Date: Wed, 17 Aug 2011 11:35:16 -0500
+Message-ID: <20110817163521.637768691@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=startup.diff
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline; filename=ptrace.diff
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -15,228 +15,17 @@ To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
 
 ---
- arch/hexagon/kernel/head.S  |  162 ++++++++++++++++++++++++++++++++++++++++++++
- arch/hexagon/kernel/reset.c |   38 ++++++++++
- arch/hexagon/kernel/setup.c |  143 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 343 insertions(+)
+ arch/hexagon/include/asm/ptrace.h |   90 +++++++
+ arch/hexagon/kernel/ptrace.c      |  437 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 527 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/kernel/head.S
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/ptrace.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/head.S	2011-07-20 15:19:40.515152372 -0500
-@@ -0,0 +1,162 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/ptrace.h	2011-07-20 15:19:41.335152144 -0500
+@@ -0,0 +1,90 @@
 +/*
-+ * Early kernel startup code for Hexagon
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#include <linux/linkage.h>
-+#include <linux/init.h>
-+#include <asm/asm-offsets.h>
-+#include <asm/mem-layout.h>
-+#include <asm/vm_mmu.h>
-+#include <asm/page.h>
-+
-+       	__INIT
-+ENTRY(stext)
-+	/*
-+	 * VMM will already have set up true vector page, MMU, etc.
-+	 * To set up initial kernel identity map, we have to pass
-+	 * the VMM a pointer to some canonical page tables. In
-+	 * this implementation, we're assuming that we've got
-+	 * them precompiled. Generate value in R24, as we'll need
-+	 * it again shortly.
-+	 */
-+	r24.L = #LO(swapper_pg_dir)
-+	r24.H = #HI(swapper_pg_dir)
-+
-+	/*
-+	 * Symbol is kernel segment address, but we need
-+	 * the logical/physical address.
-+	 */
-+	r24 = asl(r24, #2)
-+	r24 = lsr(r24, #2)
-+
-+	r0 = r24
-+
-+	/*
-+	 * Initialize a 16MB PTE to make the virtual and physical
-+	 * addresses where the kernel was loaded be identical.
-+	 */
-+#define PTE_BITS ( __HVM_PTE_R | __HVM_PTE_W | __HVM_PTE_X	\
-+		  | __HEXAGON_C_WB_L2 << 6			\
-+		  | __HVM_PDE_S_4MB)
-+
-+	r1 = pc
-+	r2.H = #0xffc0
-+	r2.L = #0x0000
-+	r1 = and(r1,r2)		/* round PC to 4MB boundary	*/
-+	r2 = lsr(r1, #22)	/* 4MB page number		*/
-+	r2 = asl(r2, #2)	/* times sizeof(PTE) (4bytes)	*/
-+	r0 = add(r0,r2)		/* r0 = address of correct PTE	*/
-+	r2 = #PTE_BITS
-+	r1 = add(r1,r2)		/* r1 = 4MB PTE for the first entry	*/
-+	r2.h = #0x0040
-+	r2.l = #0x0000		/* 4MB	*/
-+	memw(r0 ++ #4) = r1
-+	r1 = add(r1, r2)
-+	memw(r0 ++ #4) = r1
-+
-+	r0 = r24
-+
-+	/*
-+	 * The subroutine wrapper around the virtual instruction touches
-+	 * no memory, so we should be able to use it even here.
-+	 */
-+	call	__vmnewmap;
-+
-+	/*  Jump into virtual address range.  */
-+
-+	r31.h = #hi(__head_s_vaddr_target)
-+	r31.l = #lo(__head_s_vaddr_target)
-+	jumpr r31
-+
-+	/*  Insert trippy space effects.  */
-+
-+__head_s_vaddr_target:
-+	/*
-+	 * Tear down VA=PA translation now that we are running
-+	 * in the desgnated kernel segments.
-+	 */
-+	r0 = #__HVM_PDE_S_INVALID
-+	r1 = r24
-+	loop0(1f,#0x100)
-+1:
-+	{
-+		memw(R1 ++ #4) = R0
-+	}:endloop0
-+
-+	r0 = r24
-+	call __vmnewmap
-+
-+	/*  Go ahead and install the trap0 return so angel calls work  */
-+	r0.h = #hi(_K_provisional_vec)
-+	r0.l = #lo(_K_provisional_vec)
-+	call __vmsetvec
-+
-+	/*
-+	 * OK, at this point we should start to be much more careful,
-+	 * we're going to enter C code and start touching memory
-+	 * in all sorts of places.
-+	 * This means:
-+	 *      SGP needs to be OK
-+	 *	Need to lock shared resources
-+	 *	A bunch of other things that will cause
-+	 * 	all kinds of painful bugs
-+	 */
-+
-+	/*
-+	 * Stack pointer should be pointed at the init task's
-+	 * thread stack, which should have been declared in arch/init_task.c.
-+	 * So uhhhhh...
-+	 * It's accessible via the init_thread_union, which is a union
-+	 * of a thread_info struct and a stack; of course, the top
-+	 * of the stack is not for you.  The end of the stack
-+	 * is simply init_thread_union + THREAD_SIZE.
-+	 */
-+
-+	{r29.H = #HI(init_thread_union); r0.H = #HI(_THREAD_SIZE); }
-+	{r29.L = #LO(init_thread_union); r0.L = #LO(_THREAD_SIZE); }
-+
-+	/*  initialize the register used to point to current_thread_info */
-+	/*  Fixme:  THREADINFO_REG can't be R2 because of that memset thing. */
-+	{r29 = add(r29,r0); THREADINFO_REG = r29; }
-+
-+	/*  Hack:  zero bss; */
-+	{ r0.L = #LO(__bss_start);  r1 = #0; r2.l = #LO(__bss_stop); }
-+	{ r0.H = #HI(__bss_start);           r2.h = #HI(__bss_stop); }
-+
-+	r2 = sub(r2,r0);
-+	call memset;
-+
-+	/* Time to make the doughnuts.   */
-+	call start_kernel
-+
-+	/*
-+	 * Should not reach here.
-+	 */
-+1:
-+	jump 1b
-+
-+.p2align PAGE_SHIFT
-+ENTRY(external_cmdline_buffer)
-+        .fill _PAGE_SIZE,1,0
-+
-+.data
-+.p2align PAGE_SHIFT
-+ENTRY(empty_zero_page)
-+        .fill _PAGE_SIZE,1,0
-Index: linux-hexagon-kernel/arch/hexagon/kernel/reset.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/reset.c	2011-07-20 15:19:40.515152372 -0500
-@@ -0,0 +1,38 @@
-+/*
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#include <linux/smp.h>
-+#include <asm/hexagon_vm.h>
-+
-+void machine_power_off(void)
-+{
-+	smp_send_stop();
-+	__vmstop();
-+}
-+
-+void machine_halt(void)
-+{
-+}
-+
-+void machine_restart(char *cmd)
-+{
-+}
-+
-+void pm_power_off(void)
-+{
-+}
-Index: linux-hexagon-kernel/arch/hexagon/kernel/setup.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/setup.c	2011-07-20 15:19:40.515152372 -0500
-@@ -0,0 +1,143 @@
-+/*
-+ * Arch related setup for Hexagon
++ * Ptrace definitions for the Hexagon architecture
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -255,129 +44,519 @@ Index: linux-hexagon-kernel/arch/hexagon/kernel/setup.c
 + * 02110-1301, USA.
 + */
 +
-+#include <linux/init.h>
-+#include <linux/bootmem.h>
-+#include <linux/mmzone.h>
++#ifndef _ASM_PTRACE_H
++#define _ASM_PTRACE_H
++
++#include <asm/registers.h>
++
++/*  arch_ptrace and ptrace_disable use task_struct in arg lists  */
++struct task_struct;
++
++/*
++ * ptrace commands not part of Linux base set (but common to essentially
++ * all supported architectures).
++ */
++
++#define PTRACE_GETREGS	12
++#define PTRACE_SETREGS	13
++
++/*
++ * Register numbers used in ptrace calls.  0-31 represent GPRs R0-R31
++ */
++#define PT_R0		0
++#define PT_R1		1
++#define PT_R2		2
++#define PT_R3		3
++#define PT_R4		4
++#define PT_R5		5
++#define PT_R6		6
++#define PT_R7		7
++#define PT_R8		8
++#define PT_R9		9
++#define PT_R10		10
++#define PT_R11		11
++#define PT_R12		12
++#define PT_R13		13
++#define PT_R14		14
++#define PT_R15		15
++#define PT_R16		16
++#define PT_R17		17
++#define PT_R18		18
++#define PT_R19		19
++#define PT_R20		20
++#define PT_R21		21
++#define PT_R22		22
++#define PT_R23		23
++#define PT_R24		24
++#define PT_R25		25
++#define PT_R26		26
++#define PT_R27		27
++#define PT_R28		28
++#define PT_R29		29
++#define PT_R30		30
++#define PT_R31		31
++#define PT_GP		32
++#define PT_UGP		33
++#define PT_SA0		34
++#define PT_LC0		35
++#define PT_SA1		36
++#define PT_LC1		37
++#define PT_M0		38
++#define PT_M1		39
++#define PT_PREDS	40
++#define PT_PC		41
++#define PT_CAUSE	42
++#define PT_BADVA	43
++
++#define N_PTRACE_REGS	44
++
++#define profile_pc(regs) instruction_pointer(regs)
++#define instruction_pointer(regs) pt_elr(regs)
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/kernel/ptrace.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/kernel/ptrace.c	2011-07-20 15:19:41.335152144 -0500
+@@ -0,0 +1,437 @@
++/*
++ * Ptrace support for Hexagon
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#include <linux/kernel.h>
++#include <linux/sched.h>
 +#include <linux/mm.h>
-+#include <linux/seq_file.h>
-+#include <linux/console.h>
-+#include <linux/of_fdt.h>
-+#include <asm/io.h>
-+#include <asm/sections.h>
-+#include <asm/setup.h>
++#include <linux/smp.h>
++#include <linux/errno.h>
++#include <linux/ptrace.h>
++#include <linux/user.h>
++
++#include <asm/uaccess.h>
++#include <asm/page.h>
++#include <asm/pgtable.h>
++#include <asm/system.h>
 +#include <asm/processor.h>
-+#include <asm/hexagon_vm.h>
-+#include <asm/vm_mmu.h>
-+#include <asm/platform.h>
-+#ifdef CONFIG_OF
-+#include <asm/prom.h>
-+#endif
++#include <asm/cacheflush.h>
 +
-+char cmd_line[COMMAND_LINE_SIZE];
-+static char default_command_line[COMMAND_LINE_SIZE] __initdata = CONFIG_CMDLINE;
++/*  ToDo:  see include/linux/regset.h  */
 +
-+struct platform_ops_t platform_ops;
-+
-+int on_simulator;
-+
-+/*
-+ * setup_arch -  high level architectural setup routine
-+ * @cmdline_p: pointer to pointer to command-line arguments
-+ */
-+
-+void __init setup_arch(char **cmdline_p)
++void ptrace_disable(struct task_struct *child)
 +{
-+	char *p = &external_cmdline_buffer;
-+
-+	platform_setup_ops(&platform_ops);
-+
-+	/*
-+	 * Set up event bindings to handle exceptions and interrupts.
-+	 */
-+	__vmsetvec(_K_VM_event_vector);
-+
-+	/*
-+	 * Simulator has a few differences from the hardware.
-+	 * For now, check uninitialized-but-mapped memory
-+	 * prior to invoking setup_arch_memory().
-+	 */
-+	if (*(int *)((unsigned long)_end + 8) == 0x1f1f1f1f)
-+		on_simulator = 1;
-+	else
-+		on_simulator = 0;
-+
-+	if (p[0] != '\0')
-+		strlcpy(boot_command_line, p, COMMAND_LINE_SIZE);
-+	else
-+		strlcpy(boot_command_line, default_command_line,
-+			COMMAND_LINE_SIZE);
-+
-+	/*
-+	 * boot_command_line and the value set up by setup_arch
-+	 * are both picked up by the init code. If no reason to
-+	 * make them different, pass the same pointer back.
-+	 */
-+	strlcpy(cmd_line, boot_command_line, COMMAND_LINE_SIZE);
-+	*cmdline_p = cmd_line;
-+
-+	parse_early_param();
-+
-+#ifdef CONFIG_EARLY_PRINTK
-+	if (platform_ops.register_early_console)
-+		platform_ops.register_early_console();
-+#endif
-+	setup_arch_memory();
-+
-+	/*  Need a devtree version of this.  */
-+	platform_ops.clock_init();
-+
-+#ifdef CONFIG_SMP
-+	smp_start_cpus();
-+#endif
++	/* Boilerplate - resolves to null inline if no HW single-step */
++	user_disable_single_step(child);
 +}
 +
 +/*
-+ * Functions for dumping CPU info via /proc
-+ * Probably should move to kernel/proc.c or something.
++ * Examine a specific register of a task
 + */
-+static void *c_start(struct seq_file *m, loff_t *pos)
++static int ptrace_peekusr(struct task_struct *child, int regnum,
++			  void __user *data)
 +{
-+	return *pos < nr_cpu_ids ? (void *)((unsigned long) *pos + 1) : NULL;
-+}
++	struct pt_regs *regs = task_pt_regs(child);
++	unsigned long tmp;
 +
-+static void *c_next(struct seq_file *m, void *v, loff_t *pos)
-+{
-+	++*pos;
-+	return c_start(m, pos);
-+}
-+
-+static void c_stop(struct seq_file *m, void *v)
-+{
++	switch (regnum) {
++	case PT_R0:
++		tmp = regs->r00;
++		break;
++	case PT_R1:
++		tmp = regs->r01;
++		break;
++	case PT_R2:
++		tmp = regs->r02;
++		break;
++	case PT_R3:
++		tmp = regs->r03;
++		break;
++	case PT_R4:
++		tmp = regs->r04;
++		break;
++	case PT_R5:
++		tmp = regs->r05;
++		break;
++	case PT_R6:
++		tmp = regs->r06;
++		break;
++	case PT_R7:
++		tmp = regs->r07;
++		break;
++	case PT_R8:
++		tmp = regs->r08;
++		break;
++	case PT_R9:
++		tmp = regs->r09;
++		break;
++	case PT_R10:
++		tmp = regs->r10;
++		break;
++	case PT_R11:
++		tmp = regs->r11;
++		break;
++	case PT_R12:
++		tmp = regs->r12;
++		break;
++	case PT_R13:
++		tmp = regs->r13;
++		break;
++	case PT_R14:
++		tmp = regs->r14;
++		break;
++	case PT_R15:
++		tmp = regs->r15;
++		break;
++	case PT_R16:
++		tmp = regs->r16;
++		break;
++	case PT_R17:
++		tmp = regs->r17;
++		break;
++	case PT_R18:
++		tmp = regs->r18;
++		break;
++	case PT_R19:
++		tmp = regs->r19;
++		break;
++	case PT_R20:
++		tmp = regs->r20;
++		break;
++	case PT_R21:
++		tmp = regs->r21;
++		break;
++	case PT_R22:
++		tmp = regs->r22;
++		break;
++	case PT_R23:
++		tmp = regs->r23;
++		break;
++	case PT_R24:
++		tmp = regs->r24;
++		break;
++	case PT_R25:
++		tmp = regs->r25;
++		break;
++	case PT_R26:
++		tmp = regs->r26;
++		break;
++	case PT_R27:
++		tmp = regs->r27;
++		break;
++	case PT_R28:
++		tmp = regs->r28;
++		break;
++	case PT_R29:
++		tmp = regs->r29;
++		break;
++	case PT_R30:
++		tmp = regs->r30;
++		break;
++	case PT_R31:
++		tmp = regs->r31;
++		break;
++	case PT_GP:
++		tmp = regs->gp;
++		break;
++	case PT_UGP:
++		tmp = regs->ugp;
++		break;
++	case PT_SA0:
++		tmp = regs->sa0;
++		break;
++	case PT_LC0:
++		tmp = regs->lc0;
++		break;
++	case PT_SA1:
++		tmp = regs->sa1;
++		break;
++	case PT_LC1:
++		tmp = regs->lc1;
++		break;
++	case PT_M0:
++		tmp = regs->m0;
++		break;
++	case PT_M1:
++		tmp = regs->m1;
++		break;
++	case PT_PREDS:
++		tmp = regs->preds;
++		break;
++	case PT_PC:
++		tmp = pt_elr(regs);
++		break;
++	case PT_CAUSE:
++		tmp = pt_cause(regs);
++		break;
++	case PT_BADVA:
++		tmp = pt_badva(regs);
++		break;
++	default:
++		return -EIO;
++	}
++	return put_user(tmp, (unsigned long __user *)data);
 +}
 +
 +/*
-+ * Eventually this will dump information about
-+ * CPU properties like ISA level, TLB size, etc.
++ * Modify a specific register of a task.  CAUSE and BADVA aren't writeable.
 + */
-+static int show_cpuinfo(struct seq_file *m, void *v)
++static int ptrace_pokeusr(struct task_struct *child, int regnum,
++				unsigned long data)
 +{
-+	int cpu = (unsigned long) v - 1;
++	struct pt_regs *regs = task_pt_regs(child);
 +
-+	seq_printf(m, "processor\t: %d\n", cpu);
-+	seq_printf(m, "model name\t: Hexagon Virtual Machine\n");
-+	seq_printf(m, "BogoMips\t: %lu.%02lu\n",
-+		(loops_per_jiffy * HZ) / 500000,
-+		((loops_per_jiffy * HZ) / 5000) % 100);
-+	seq_printf(m, "\n");
++	switch (regnum) {
++	case PT_R0:
++		regs->r00 = data;
++		break;
++	case PT_R1:
++		regs->r01 = data;
++		break;
++	case PT_R2:
++		regs->r02 = data;
++		break;
++	case PT_R3:
++		regs->r03 = data;
++		break;
++	case PT_R4:
++		regs->r04 = data;
++		break;
++	case PT_R5:
++		regs->r05 = data;
++		break;
++	case PT_R6:
++		regs->r06 = data;
++		break;
++	case PT_R7:
++		regs->r07 = data;
++		break;
++	case PT_R8:
++		regs->r08 = data;
++		break;
++	case PT_R9:
++		regs->r09 = data;
++		break;
++	case PT_R10:
++		regs->r10 = data;
++		break;
++	case PT_R11:
++		regs->r11 = data;
++		break;
++	case PT_R12:
++		regs->r12 = data;
++		break;
++	case PT_R13:
++		regs->r13 = data;
++		break;
++	case PT_R14:
++		regs->r14 = data;
++		break;
++	case PT_R15:
++		regs->r15 = data;
++		break;
++	case PT_R16:
++		regs->r16 = data;
++		break;
++	case PT_R17:
++		regs->r17 = data;
++		break;
++	case PT_R18:
++		regs->r18 = data;
++		break;
++	case PT_R19:
++		regs->r19 = data;
++		break;
++	case PT_R20:
++		regs->r20 = data;
++		break;
++	case PT_R21:
++		regs->r21 = data;
++		break;
++	case PT_R22:
++		regs->r22 = data;
++		break;
++	case PT_R23:
++		regs->r23 = data;
++		break;
++	case PT_R24:
++		regs->r24 = data;
++		break;
++	case PT_R25:
++		regs->r25 = data;
++		break;
++	case PT_R26:
++		regs->r26 = data;
++		break;
++	case PT_R27:
++		regs->r27 = data;
++		break;
++	case PT_R28:
++		regs->r28 = data;
++		break;
++	case PT_R29:
++		regs->r29 = data;
++		/*
++		 * This is special; SP is actually restored by the VM via the
++		 * special event record which is set by the special trap.
++		 */
++		regs->hvmer.vmpsp = data;
++		break;
++	case PT_R30:
++		regs->r30 = data;
++		break;
++	case PT_R31:
++		regs->r31 = data;
++		break;
++	case PT_GP:
++		regs->gp = data;
++		break;
++	case PT_UGP:
++		regs->ugp = data;
++		break;
++	case PT_SA0:
++		regs->sa0 = data;
++		break;
++	case PT_LC0:
++		regs->lc0 = data;
++		break;
++	case PT_SA1:
++		regs->sa1 = data;
++		break;
++	case PT_LC1:
++		regs->lc1 = data;
++		break;
++	case PT_M0:
++		regs->m0 = data;
++		break;
++	case PT_M1:
++		regs->m1 = data;
++		break;
++	case PT_PREDS:
++		regs->preds = data;
++		break;
++	case PT_PC:
++		pt_elr(regs) = data;
++		break;
++	default:
++		return -EIO;
++	}
 +	return 0;
 +}
 +
-+const struct seq_operations cpuinfo_op = {
-+	.start  = &c_start,
-+	.next   = &c_next,
-+	.stop   = &c_stop,
-+	.show   = &show_cpuinfo,
-+};
++#define reg_acc(err, fn, reg, offset)	\
++	do {				\
++		err = fn(reg, offset);	\
++		if (err)		\
++			return err;	\
++	} while (0)
++
++/*
++ * Read the full register set of a task.  Layout is *not* the same
++ * as pt_regs, but is instead an array of longs whose indices are
++ * defined in ptrace.h.
++ */
++int ptrace_getregs(struct task_struct *child, unsigned long __user *data)
++{
++	struct pt_regs *regs = task_pt_regs(child);
++	int err;
++	int i;
++
++	if (!access_ok(VERIFY_WRITE, data, N_PTRACE_REGS * sizeof(long)))
++		return -EIO;
++
++	for (i = 0; i < 32; i++)
++		reg_acc(err, __put_user, *((unsigned long *)(&regs->r0100) + i),
++			data + i);
++
++	reg_acc(err, __put_user, regs->gp, data + PT_GP);
++	reg_acc(err, __put_user, regs->ugp, data + PT_UGP);
++	reg_acc(err, __put_user, regs->sa0, data + PT_SA0);
++	reg_acc(err, __put_user, regs->lc0, data + PT_LC0);
++	reg_acc(err, __put_user, regs->sa1, data + PT_SA1);
++	reg_acc(err, __put_user, regs->lc1, data + PT_LC1);
++	reg_acc(err, __put_user, regs->m0, data + PT_M0);
++	reg_acc(err, __put_user, regs->m1, data + PT_M1);
++	reg_acc(err, __put_user, regs->preds, data + PT_PREDS);
++	reg_acc(err, __put_user, pt_elr(regs), data + PT_PC);
++	reg_acc(err, __put_user, pt_cause(regs), data + PT_CAUSE);
++	reg_acc(err, __put_user, pt_badva(regs), data + PT_BADVA);
++
++	return 0;
++}
++
++/*
++ * Write the full register set of a task, with same layout as ptrace_getregs.
++ * BADVA and CAUSE aren't modifiable, however.
++ */
++int ptrace_setregs(struct task_struct *child, unsigned long __user *data)
++{
++	struct pt_regs *regs = task_pt_regs(child);
++	int i;
++	int err;
++
++	if (!access_ok(VERIFY_READ, data, (N_PTRACE_REGS - 2) * sizeof(long)))
++		return -EIO;
++
++	for (i = 0; i < 32; i++)
++		reg_acc(err, __get_user, *((unsigned long *)(&regs->r0100) + i),
++			data + i);
++
++	reg_acc(err, __get_user, regs->gp, data + PT_GP);
++	reg_acc(err, __get_user, regs->ugp, data + PT_UGP);
++	reg_acc(err, __get_user, regs->sa0, data + PT_SA0);
++	reg_acc(err, __get_user, regs->lc0, data + PT_LC0);
++	reg_acc(err, __get_user, regs->sa1, data + PT_SA1);
++	reg_acc(err, __get_user, regs->lc1, data + PT_LC1);
++	reg_acc(err, __get_user, regs->m0, data + PT_M0);
++	reg_acc(err, __get_user, regs->m1, data + PT_M1);
++	reg_acc(err, __get_user, regs->preds, data + PT_PREDS);
++	reg_acc(err, __get_user, pt_elr(regs), data + PT_PC);
++
++	return 0;
++}
++
++long arch_ptrace(struct task_struct *child, long request,
++		 unsigned long addr, unsigned long data)
++{
++	int ret;
++
++	switch (request) {
++	case PTRACE_PEEKUSR:	/* read register specified by addr. */
++		ret = ptrace_peekusr(child, addr, (void __user *) data);
++		break;
++	case PTRACE_POKETEXT:	/* write the word at location addr. */
++	case PTRACE_POKEDATA:
++		ret = generic_ptrace_pokedata(child, addr, data);
++		break;
++	case PTRACE_POKEUSR:	/* write register specified by addr. */
++		ret = ptrace_pokeusr(child, addr, data);
++		break;
++	case PTRACE_GETREGS:
++		ret = ptrace_getregs(child, (void __user *) data);
++		break;
++	case PTRACE_SETREGS:
++		ret = ptrace_setregs(child, (void __user *) data);
++		break;
++	default:
++		ret = ptrace_request(child, request, addr, data);
++	}
++
++	return ret;
++}
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+
