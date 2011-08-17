@@ -1,33 +1,35 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 04/36] Hexagon: Add atomic ops support
-Date: Wed, 17 Aug 2011 11:35:01 -0500
-Message-ID: <20110817163520.243028227@codeaurora.org>
+Subject: [patch 03/36] Hexagon: Add bitops support
+Date: Wed, 17 Aug 2011 11:35:00 -0500
+Message-ID: <20110817163520.145693358@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=atomic.diff
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline; filename=bitops.diff
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-Our architecture uses load locked/store conditional type semantics for atomic
-ops.
-
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/atomic.h |  157 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 157 insertions(+)
+ arch/hexagon/include/asm/bitops.h       |  219 ++++++++++++++++++++++++++++++++
+ arch/hexagon/include/asm/bitops/__ffs.h |   42 ++++++
+ arch/hexagon/include/asm/bitops/__fls.h |   41 +++++
+ arch/hexagon/include/asm/bitops/ffs.h   |   43 ++++++
+ arch/hexagon/include/asm/bitops/ffz.h   |   38 +++++
+ arch/hexagon/include/asm/bitops/fls.h   |   42 ++++++
+ 6 files changed, 425 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/atomic.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/atomic.h	2011-08-15 13:16:43.721748657 -0500
-@@ -0,0 +1,157 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops.h	2011-07-20 15:19:35.455153985 -0500
+@@ -0,0 +1,219 @@
 +/*
-+ * Atomic operations for the Hexagon architecture
++ * Bit operations for the Hexagon architecture
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -47,142 +49,436 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/atomic.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef _ASM_ATOMIC_H
-+#define _ASM_ATOMIC_H
++#ifndef _ASM_BITOPS_H
++#define _ASM_BITOPS_H
 +
-+#include <linux/types.h>
++#include <linux/compiler.h>
++#include <asm/byteorder.h>
++#include <asm/system.h>
++#include <asm/atomic.h>
 +
-+#define ATOMIC_INIT(i)		{ (i) }
-+#define atomic_set(v, i)	((v)->counter = (i))
++#ifdef __KERNEL__
++
++#define smp_mb__before_clear_bit()	barrier()
++#define smp_mb__after_clear_bit()	barrier()
++
++/*
++ * The offset calculations for these are based on BITS_PER_LONG == 32
++ * (i.e. I get to shift by #5-2 (32 bits per long, 4 bytes per access),
++ * mask by 0x0000001F)
++ *
++ * Typically, R10 is clobbered for address, R11 bit nr, and R12 is temp
++ */
 +
 +/**
-+ * atomic_read - reads a word, atomically
-+ * @v: pointer to atomic value
-+ *
-+ * Assumes all word reads on our architecture are atomic.
++ * test_and_clear_bit - clear a bit and return its old value
++ * @nr:  bit number to clear
++ * @addr:  pointer to memory
 + */
-+#define atomic_read(v)		((v)->counter)
-+
-+/**
-+ * atomic_xchg - atomic
-+ * @v: pointer to memory to change
-+ * @new: new value (technically passed in a register -- see xchg)
-+ */
-+#define atomic_xchg(v, new)	(xchg(&((v)->counter), (new)))
-+
-+
-+/**
-+ * atomic_cmpxchg - atomic compare-and-exchange values
-+ * @v: pointer to value to change
-+ * @old:  desired old value to match
-+ * @new:  new value to put in
-+ *
-+ * Parameters are then pointer, value-in-register, value-in-register,
-+ * and the output is the old value.
-+ *
-+ * Apparently this is complicated for archs that don't support
-+ * the memw_locked like we do (or it's broken or whatever).
-+ *
-+ * Kind of the lynchpin of the rest of the generically defined routines.
-+ * Remember V2 had that bug with dotnew predicate set by memw_locked.
-+ *
-+ * "old" is "expected" old val, __oldval is actual old value
-+ */
-+static inline int atomic_cmpxchg(atomic_t *v, int old, int new)
++static inline int test_and_clear_bit(int nr, volatile void *addr)
 +{
-+	int __oldval;
++	int oldval;
++
++	__asm__ __volatile__ (
++	"	{R10 = %1; R11 = asr(%2,#5); }\n"
++	"	{R10 += asl(R11,#2); R11 = and(%2,#0x1f)}\n"
++	"1:	R12 = memw_locked(R10);\n"
++	"	{ P0 = tstbit(R12,R11); R12 = clrbit(R12,R11); }\n"
++	"	memw_locked(R10,P1) = R12;\n"
++	"	{if !P1 jump 1b; %0 = mux(P0,#1,#0);}\n"
++	: "=&r" (oldval)
++	: "r" (addr), "r" (nr)
++	: "r10", "r11", "r12", "p0", "p1", "memory"
++	);
++
++	return oldval;
++}
++
++/**
++ * test_and_set_bit - set a bit and return its old value
++ * @nr:  bit number to set
++ * @addr:  pointer to memory
++ */
++static inline int test_and_set_bit(int nr, volatile void *addr)
++{
++	int oldval;
++
++	__asm__ __volatile__ (
++	"	{R10 = %1; R11 = asr(%2,#5); }\n"
++	"	{R10 += asl(R11,#2); R11 = and(%2,#0x1f)}\n"
++	"1:	R12 = memw_locked(R10);\n"
++	"	{ P0 = tstbit(R12,R11); R12 = setbit(R12,R11); }\n"
++	"	memw_locked(R10,P1) = R12;\n"
++	"	{if !P1 jump 1b; %0 = mux(P0,#1,#0);}\n"
++	: "=&r" (oldval)
++	: "r" (addr), "r" (nr)
++	: "r10", "r11", "r12", "p0", "p1", "memory"
++	);
++
++
++	return oldval;
++
++}
++
++/**
++ * test_and_change_bit - toggle a bit and return its old value
++ * @nr:  bit number to set
++ * @addr:  pointer to memory
++ */
++static inline int test_and_change_bit(int nr, volatile void *addr)
++{
++	int oldval;
++
++	__asm__ __volatile__ (
++	"	{R10 = %1; R11 = asr(%2,#5); }\n"
++	"	{R10 += asl(R11,#2); R11 = and(%2,#0x1f)}\n"
++	"1:	R12 = memw_locked(R10);\n"
++	"	{ P0 = tstbit(R12,R11); R12 = togglebit(R12,R11); }\n"
++	"	memw_locked(R10,P1) = R12;\n"
++	"	{if !P1 jump 1b; %0 = mux(P0,#1,#0);}\n"
++	: "=&r" (oldval)
++	: "r" (addr), "r" (nr)
++	: "r10", "r11", "r12", "p0", "p1", "memory"
++	);
++
++	return oldval;
++
++}
++
++/*
++ * Atomic, but doesn't care about the return value.
++ * Rewrite later to save a cycle or two.
++ */
++
++static inline void clear_bit(int nr, volatile void *addr)
++{
++	test_and_clear_bit(nr, addr);
++}
++
++static inline void set_bit(int nr, volatile void *addr)
++{
++	test_and_set_bit(nr, addr);
++}
++
++static inline void change_bit(int nr, volatile void *addr)
++{
++	test_and_change_bit(nr, addr);
++}
++
++
++/*
++ * These are allowed to be non-atomic.  In fact the generic flavors are
++ * in non-atomic.h.  Would it be better to use intrinsics for this?
++ *
++ * OK, writes in our architecture do not invalidate LL/SC, so this has to
++ * be atomic, particularly for things like slab_lock and slab_unlock.
++ *
++ */
++static inline void __clear_bit(int nr, volatile unsigned long *addr)
++{
++	test_and_clear_bit(nr, addr);
++}
++
++static inline void __set_bit(int nr, volatile unsigned long *addr)
++{
++	test_and_set_bit(nr, addr);
++}
++
++static inline void __change_bit(int nr, volatile unsigned long *addr)
++{
++	test_and_change_bit(nr, addr);
++}
++
++/*  Apparently, at least some of these are allowed to be non-atomic  */
++static inline int __test_and_clear_bit(int nr, volatile unsigned long *addr)
++{
++	return test_and_clear_bit(nr, addr);
++}
++
++static inline int __test_and_set_bit(int nr, volatile unsigned long *addr)
++{
++	return test_and_set_bit(nr, addr);
++}
++
++static inline int __test_and_change_bit(int nr, volatile unsigned long *addr)
++{
++	return test_and_change_bit(nr, addr);
++}
++
++static inline int __test_bit(int nr, const volatile unsigned long *addr)
++{
++	int retval;
 +
 +	asm volatile(
-+		"1:	%0 = memw_locked(%1);\n"
-+		"	{ P0 = cmp.eq(%0,%2);\n"
-+		"	  if (!P0.new) jump:nt 2f; }\n"
-+		"	memw_locked(%1,P0) = %3;\n"
-+		"	if (!P0) jump 1b;\n"
-+		"2:\n"
-+		: "=&r" (__oldval)
-+		: "r" (&v->counter), "r" (old), "r" (new)
-+		: "memory", "p0"
++	"{P0 = tstbit(%1,%2); if (P0.new) %0 = #1; if (!P0.new) %0 = #0;}\n"
++	: "=&r" (retval)
++	: "r" (addr[BIT_WORD(nr)]), "r" (nr % BITS_PER_LONG)
++	: "p0"
 +	);
 +
-+	return __oldval;
++	return retval;
 +}
 +
-+static inline int atomic_add_return(int i, atomic_t *v)
-+{
-+	int output;
++#define test_bit(nr, addr) __test_bit(nr, addr)
 +
-+	__asm__ __volatile__ (
-+		"1:	%0 = memw_locked(%1);\n"
-+		"	%0 = add(%0,%2);\n"
-+		"	memw_locked(%1,P3)=%0;\n"
-+		"	if !P3 jump 1b;\n"
-+		: "=&r" (output)
-+		: "r" (&v->counter), "r" (i)
-+		: "memory", "p3"
-+	);
-+	return output;
++#ifdef CONFIG_HEXAGON_BITOPS
++#include <asm/bitops/ffz.h>
++#include <asm/bitops/fls.h>
++#include <asm/bitops/ffs.h>
++#include <asm/bitops/__ffs.h>
++#include <asm/bitops/__fls.h>
++#else
++#include <asm-generic/bitops/ffz.h>
++#include <asm-generic/bitops/fls.h>
++#include <asm-generic/bitops/ffs.h>
++#include <asm-generic/bitops/__ffs.h>
++#define __fls(x) (fls(x) - 1)
++#endif
 +
-+}
++#include <asm-generic/bitops/lock.h>
++#include <asm-generic/bitops/find.h>
 +
-+#define atomic_add(i, v) atomic_add_return(i, (v))
++#include <asm-generic/bitops/fls64.h>
++#include <asm-generic/bitops/sched.h>
++#include <asm-generic/bitops/hweight.h>
 +
-+static inline int atomic_sub_return(int i, atomic_t *v)
-+{
-+	int output;
-+	__asm__ __volatile__ (
-+		"1:	%0 = memw_locked(%1);\n"
-+		"	%0 = sub(%0,%2);\n"
-+		"	memw_locked(%1,P3)=%0\n"
-+		"	if !P3 jump 1b;\n"
-+		: "=&r" (output)
-+		: "r" (&v->counter), "r" (i)
-+		: "memory", "p3"
-+	);
-+	return output;
-+}
++#include <asm-generic/bitops/le.h>
++#include <asm-generic/bitops/ext2-atomic.h>
 +
-+#define atomic_sub(i, v) atomic_sub_return(i, (v))
-+
-+/**
-+ * atomic_add_unless - add unless the number is a given value
-+ * @v: pointer to value
-+ * @a: amount to add
-+ * @u: unless value is equal to u
++#endif /* __KERNEL__ */
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/__ffs.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops/__ffs.h	2011-07-20 15:19:35.455153985 -0500
+@@ -0,0 +1,42 @@
++/*
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
-+ * This is actually in the asm-generic version; should revisit this
-+ * entire file...
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
 + */
-+static inline int __atomic_add_unless(atomic_t *v, int a, int u)
-+{
-+	int c, old;
 +
-+	c = atomic_read(v);
-+	for (;;) {
-+		if (unlikely(c == u))
-+			break;
-+		old = atomic_cmpxchg((v), c, c + a);
-+		if (likely(old == c))
-+			break;
-+		c = old;
-+	}
-+	return c != u;
++#ifndef _ASM_BITOPS___FFS_H_
++#define _ASM_BITOPS___FFS_H_
++
++/*
++ * __ffs - find first bit in word.
++ * @word: The word to search
++ *
++ * Undefined if no bit exists, so code should check against 0 first.
++ *
++ * bits_per_long assumed to be 32
++ * numbering starts at 0 I think (instead of 1 like ffs)
++ */
++static inline unsigned long __ffs(unsigned long word)
++{
++	int num;
++
++	asm volatile("%0 = ct0(%1);\n"
++		: "=&r" (num)
++		: "r" (word));
++
++	return num;
 +}
 +
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/__fls.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops/__fls.h	2011-07-20 15:19:35.455153985 -0500
+@@ -0,0 +1,41 @@
++/*
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
 +
-+#define atomic_inc(v) atomic_add(1, (v))
-+#define atomic_dec(v) atomic_sub(1, (v))
++#ifndef _ASM_BITOPS___FLS_H_
++#define _ASM_BITOPS___FLS_H_
 +
-+#define atomic_inc_and_test(v) (atomic_add_return(1, (v)) == 0)
-+#define atomic_dec_and_test(v) (atomic_sub_return(1, (v)) == 0)
-+#define atomic_sub_and_test(i, v) (atomic_sub_return(i, (v)) == 0)
-+#define atomic_add_negative(i, v) (atomic_add_return(i, (v)) < 0)
++/*
++ * __fls - find last (most-significant) set bit in a long word
++ * @word: the word to search
++ *
++ * Undefined if no set bit exists, so code should check against 0 first.
++ * bits_per_long assumed to be 32
++ */
++static inline unsigned long __fls(unsigned long word)
++{
++	int num;
 +
++	asm volatile("%0 = cl0(%1);\n"
++		"%0 = sub(#31,%0);\n"
++		: "=&r" (num)
++		: "r" (word));
 +
-+#define atomic_inc_return(v) (atomic_add_return(1, v))
-+#define atomic_dec_return(v) (atomic_sub_return(1, v))
++	return num;
++}
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/ffs.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops/ffs.h	2011-07-20 15:19:35.455153985 -0500
+@@ -0,0 +1,43 @@
++/*
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef _ASM_BITOPS_FFS_H_
++#define _ASM_BITOPS_FFS_H_
++
++/*
++ * ffs - find first bit set
++ * @x: the word to search
++ *
++ * This is defined the same way as
++ * the libc and compiler builtin ffs routines, therefore
++ * differs in spirit from the above ffz (man ffs).
++ */
++static inline int ffs(int x)
++{
++	int r;
++
++	asm volatile("{ P0 = cmp.eq(%1,#0); %0 = ct0(%1);}\n"
++		"{ if P0 %0 = #0; if !P0 %0 = add(%0,#1);}\n"
++		: "=&r" (r)
++		: "r" (x)
++		: "p0");
++
++	return r;
++}
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/ffz.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops/ffz.h	2011-07-20 15:19:35.455153985 -0500
+@@ -0,0 +1,38 @@
++/*
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef _ASM_BITOPS_FFZ_H_
++#define _ASM_BITOPS_FFZ_H_
++
++/*
++ * ffz - find first zero in word.
++ * @word: The word to search
++ *
++ * Undefined if no zero exists, so code should check against ~0UL first.
++ */
++static inline int ffz(int x)
++{
++	int r;
++
++	asm volatile("%0 = ct1(%1);\n"
++		: "=&r" (r)
++		: "r" (x));
++	return r;
++}
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/bitops/fls.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/bitops/fls.h	2011-07-20 15:19:35.455153985 -0500
+@@ -0,0 +1,42 @@
++/*
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef _ASM_BITOPS_FLS_H_
++#define _ASM_BITOPS_FLS_H_
++
++/*
++ * fls - find last (most-significant) bit set
++ * @x: the word to search
++ *
++ * This is defined the same way as ffs.
++ * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
++ */
++static inline int fls(int x)
++{
++	int r;
++
++	asm volatile("{ %0 = cl0(%1);}\n"
++		"%0 = sub(#32,%0);\n"
++		: "=&r" (r)
++		: "r" (x)
++		: "p0");
++
++	return r;
++}
 +
 +#endif
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+
