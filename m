@@ -1,38 +1,36 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 17/36] Hexagon: Add interrupts
-Date: Wed, 17 Aug 2011 11:35:14 -0500
-Message-ID: <20110817163521.444836325@codeaurora.org>
+Subject: [patch 13/36] Hexagon: Support dynamic module loading.
+Date: Wed, 17 Aug 2011 11:35:10 -0500
+Message-ID: <20110817163521.072192837@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline; filename=interrupts.diff
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline; filename=module.diff
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Cc: Linas Vepstas <linas@codeaurora.org>
 
-Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
+Modules should be compiled as ordinary .o's; shared objects are not
+supported.
+
+
+Signed-off-by: Linas Vepstas <linas@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/hardirq.h |    1 
- arch/hexagon/include/asm/irq.h     |   37 +++++++++++++++
- arch/hexagon/kernel/irq.c          |   74 ++++++++++++++++++++++++++++++
- arch/hexagon/kernel/irq_cpu.c      |   90 +++++++++++++++++++++++++++++++++++++
- 4 files changed, 202 insertions(+)
+ arch/hexagon/kernel/module.c |  218 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 218 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/hardirq.h
+Index: linux-hexagon-kernel/arch/hexagon/kernel/module.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/hardirq.h	2011-08-05 19:38:02.551806912 -0500
-@@ -0,0 +1 @@
-+#include <asm-generic/hardirq.h>
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/irq.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/irq.h	2011-08-05 19:38:02.551806912 -0500
-@@ -0,0 +1,37 @@
++++ linux-hexagon-kernel/arch/hexagon/kernel/module.c	2011-07-20 15:19:39.645152623 -0500
+@@ -0,0 +1,218 @@
 +/*
++ * Kernel module loader for Hexagon
++ *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
 + * This program is free software; you can redistribute it and/or modify
@@ -50,200 +48,204 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/irq.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef _ASM_IRQ_H_
-+#define _ASM_IRQ_H_
++#include <asm/module.h>
++#include <linux/elf.h>
++#include <linux/module.h>
++#include <linux/moduleloader.h>
++#include <linux/vmalloc.h>
 +
-+/* Number of first-level interrupts associated with the CPU core. */
-+#define HEXAGON_CPUINTS 32
-+
-+/*
-+ * XXX TODO FIXME this should be pulled from a platform file!
-+ * Must define NR_IRQS before including <asm-generic/irq.h>
-+ * 64 == the two SIRC's, 176 == the two gpio's
-+ */
-+#define NR_IRQS (HEXAGON_CPUINTS + 64 + 176)
-+
-+#include <asm-generic/irq.h>
-+
-+extern void __init platform_irq_init(void);
-+extern void __init hexagon_cpu_irq_init(void);
-+
++#if 0
++#define DEBUGP printk
++#else
++#define DEBUGP(fmt , ...)
 +#endif
-Index: linux-hexagon-kernel/arch/hexagon/kernel/irq.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/irq.c	2011-08-05 19:42:38.172363921 -0500
-@@ -0,0 +1,74 @@
++
 +/*
-+ * Interrupt support for Hexagon
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
++ * module_alloc - wrapper around vmalloc
++ * @size - memory size to vmalloc
 + */
-+
-+#include <linux/init.h>
-+#include <linux/delay.h>
-+#include <linux/kernel_stat.h>
-+#include <linux/interrupt.h>
-+#include <linux/seq_file.h>
-+#include <linux/version.h>
-+
-+void __init init_IRQ(void)
++void *module_alloc(unsigned long size)
 +{
-+	/* Set up core cpu irqs before platform secondaries. */
-+	hexagon_cpu_irq_init();
-+	platform_irq_init();
++	if (size == 0)
++		return NULL;
++	return vmalloc_exec(size);
 +}
 +
-+int show_interrupts(struct seq_file *p, void *v)
++/*
++ * module_free - free memory returned from module_alloc
++ * @mod - pointer to module?
++ * @module_region - pointer to module region?
++ */
++void module_free(struct module *mod, void *module_region)
 +{
-+	int i = *(loff_t *)v, cpu;
-+	struct irqaction *action;
-+	unsigned long flags;
++	vfree(module_region);
++}
 +
-+	if (i == 0) {
-+		seq_puts(p, "           ");
-+		for_each_online_cpu(cpu)
-+			seq_printf(p, "CPU%d       ", cpu);
-+		seq_putc(p, '\n');
++/*
++ * module_finalize - perform platform-dependent fixups.
++ */
++int module_finalize(const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs,
++			struct module *me)
++{
++	return 0;
++}
++
++/*
++ * module_arch_cleanup - Any cleanup needed with module
++ * @mod - pointer to module
++ * @module_region - pointer to module region
++ */
++void module_arch_cleanup(struct module *mod)
++{
++}
++
++/*
++ * module_frob_arch_sections - tweak got/plt sections.
++ * @hdr - pointer to elf header
++ * @sechdrs - pointer to elf load section headers
++ * @secstrings - symbol names
++ * @mod - pointer to module
++ */
++int module_frob_arch_sections(Elf_Ehdr *hdr, Elf_Shdr *sechdrs,
++				char *secstrings,
++				struct module *mod)
++{
++	unsigned int i;
++	int found = 0;
++
++	/* Look for .plt and/or .got.plt and/or .init.plt sections */
++	for (i = 0; i < hdr->e_shnum; i++) {
++		DEBUGP("Section %d is %s\n", i,
++		       secstrings + sechdrs[i].sh_name);
++		if (strcmp(secstrings + sechdrs[i].sh_name, ".plt") == 0)
++			found = i+1;
++		if (strcmp(secstrings + sechdrs[i].sh_name, ".got.plt") == 0)
++			found = i+1;
++		if (strcmp(secstrings + sechdrs[i].sh_name, ".rela.plt") == 0)
++			found = i+1;
 +	}
 +
-+	if (i < NR_IRQS) {
-+		struct irq_desc *desc = irq_to_desc(i);
++	/* At this time, we don't support modules comiled with -shared */
++	if (found) {
++		printk(KERN_WARNING
++			"Module '%s' contains unexpected .plt/.got sections.\n",
++			mod->name);
++		/* return -ENOEXEC; */
++	}
 +
-+		raw_spin_lock_irqsave(&desc->lock, flags);
++	return 0;
++}
 +
-+		action = irq_desc[i].action;
-+		if (action) {
-+			seq_printf(p, "%3d: ", i);
-+			for_each_online_cpu(cpu) {
-+				seq_printf(p, "%10u ", kstat_irqs_cpu(i, cpu));
++/*
++ * apply_relocate - do the actual work of relocating sections
++ * @sechdrs - pointer to section headers
++ * @strtab - some sort of start address
++ * @symindex - symbol index offset or something
++ * @relsec - address to relocate to
++ * @me - pointer to module
++ */
++int apply_relocate(Elf_Shdr *sechdrs, const char *strtab,
++			unsigned int symindex, unsigned int relsec,
++			struct module *module)
++{
++	printk(KERN_ERR "%s: Non-rela reolcation unsupported\n",
++	       module->name);
++	return -ENOEXEC;
++}
++
++/*
++ * apply_relocate_add - perform rela relocations.
++ * @sechdrs - pointer to section headers
++ * @strtab - some sort of start address?
++ * @symindex - symbol index offset or something?
++ * @relsec - address to relocate to?
++ * @module - pointer to module
++ *
++ * Perform rela relocations.
++ */
++int apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab,
++			unsigned int symindex, unsigned int relsec,
++			struct module *module)
++{
++	unsigned int i;
++	Elf32_Sym *sym;
++	uint32_t *location;
++	uint32_t value;
++	unsigned int nrelocs = sechdrs[relsec].sh_size / sizeof(Elf32_Rela);
++	Elf32_Rela *rela = (void *)sechdrs[relsec].sh_addr;
++	Elf32_Word sym_info = sechdrs[relsec].sh_info;
++	Elf32_Sym *sym_base = (Elf32_Sym *) sechdrs[symindex].sh_addr;
++	void *loc_base = (void *) sechdrs[sym_info].sh_addr;
++
++	DEBUGP("Applying relocations in section %u to section %u base=%p\n",
++	       relsec, sym_info, loc_base);
++
++	for (i = 0; i < nrelocs; i++) {
++
++		/* Symbol to relocate */
++		sym = sym_base + ELF32_R_SYM(rela[i].r_info);
++
++		/* Where to make the change */
++		location = loc_base + rela[i].r_offset;
++
++		/* `Everything is relative'. */
++		value = sym->st_value + rela[i].r_addend;
++
++		DEBUGP("%d: value=%08x loc=%p reloc=%d symbol=%s\n",
++		       i, value, location, ELF32_R_TYPE(rela[i].r_info),
++		       sym->st_name ?
++		       &strtab[sym->st_name] : "(anonymous)");
++
++		switch (ELF32_R_TYPE(rela[i].r_info)) {
++		case R_HEXAGON_B22_PCREL: {
++			int dist = (int)(value - (uint32_t)location);
++			if ((dist < -0x00800000) ||
++			    (dist >= 0x00800000)) {
++				printk(KERN_ERR
++				       "%s: %s: %08x=%08x-%08x %s\n",
++				       module->name,
++				       "R_HEXAGON_B22_PCREL reloc out of range",
++				       dist, value, (uint32_t)location,
++				       sym->st_name ?
++				       &strtab[sym->st_name] : "(anonymous)");
++				return -ENOEXEC;
 +			}
-+			seq_printf(p, " %8s",
-+				   irq_desc_get_chip(&irq_desc[i])->name ?
-+				   : "-");
-+			seq_printf(p, "  %s", action->name);
-+			for (action = action->next; action;
-+			     action = action->next) {
-+				seq_printf(p, ", %s", action->name);
-+			}
-+
-+			seq_putc(p, '\n');
++			DEBUGP("B22_PCREL contents: %08X.\n", *location);
++			*location &= ~0x01ff3fff;
++			*location |= 0x00003fff & dist;
++			*location |= 0x01ff0000 & (dist<<2);
++			DEBUGP("Contents after reloc: %08x\n", *location);
++			break;
 +		}
-+		raw_spin_unlock_irqrestore(&desc->lock, flags);
++		case R_HEXAGON_HI16:
++			value = (value>>16) & 0xffff;
++			/* fallthrough */
++		case R_HEXAGON_LO16:
++			*location &= ~0x00c03fff;
++			*location |= value & 0x3fff;
++			*location |= (value & 0xc000) << 8;
++			break;
++		case R_HEXAGON_32:
++			*location = value;
++			break;
++		case R_HEXAGON_32_PCREL:
++			*location = value - (uint32_t)location;
++			break;
++		case R_HEXAGON_PLT_B22_PCREL:
++		case R_HEXAGON_GOTOFF_LO16:
++		case R_HEXAGON_GOTOFF_HI16:
++			printk(KERN_ERR "%s: GOT/PLT relocations unsupported\n",
++			       module->name);
++			return -ENOEXEC;
++		default:
++			printk(KERN_ERR "%s: unknown relocation: %u\n",
++			       module->name,
++			       ELF32_R_TYPE(rela[i].r_info));
++			return -ENOEXEC;
++		}
 +	}
-+
 +	return 0;
-+}
-Index: linux-hexagon-kernel/arch/hexagon/kernel/irq_cpu.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/irq_cpu.c	2011-08-05 19:38:02.551806912 -0500
-@@ -0,0 +1,90 @@
-+/*
-+ * First-level interrupt controller model for Hexagon.
-+ *
-+ * Copyright (c) 2010-2011 Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#include <linux/interrupt.h>
-+#include <asm/irq.h>
-+#include <asm/hexagon_vm.h>
-+
-+static void mask_irq(struct irq_data *data)
-+{
-+	__vmintop_locdis((long) data->irq);
-+}
-+
-+static void mask_irq_num(unsigned int irq)
-+{
-+	__vmintop_locdis((long) irq);
-+}
-+
-+static void unmask_irq(struct irq_data *data)
-+{
-+	__vmintop_locen((long) data->irq);
-+}
-+
-+/*  This is actually all we need for handle_fasteoi_irq  */
-+static void eoi_irq(struct irq_data *data)
-+{
-+	__vmintop_globen((long) data->irq);
-+}
-+
-+/* Power mamangement wake call. We don't need this, however,
-+ * if this is absent, then an -ENXIO error is returned to the
-+ * msm_serial driver, and it fails to correctly initialize.
-+ * This is a bug in the msm_serial driver, but, for now, we
-+ * work around it here, by providing this bogus handler.
-+ * XXX FIXME!!! remove this when msm_serial is fixed.
-+ */
-+static int set_wake(struct irq_data *data, unsigned int on)
-+{
-+	return 0;
-+}
-+
-+static struct irq_chip hexagon_irq_chip = {
-+	.name		= "HEXAGON",
-+	.irq_mask	= mask_irq,
-+	.irq_unmask	= unmask_irq,
-+	.irq_set_wake	= set_wake,
-+	.irq_eoi	= eoi_irq
-+};
-+
-+/**
-+ * The hexagon core comes with a first-level interrupt controller
-+ * with 32 total possible interrupts.  When the core is embedded
-+ * into different systems/platforms, it is typically wrapped by
-+ * macro cells that provide one or more second-level interrupt
-+ * controllers that are cascaded into one or more of the first-level
-+ * interrupts handled here. The precise wiring of these other
-+ * irqs varies from platform to platform, and are set up & configured
-+ * in the platform-specific files.
-+ *
-+ * The first-level interrupt controller is wrapped by the VM, which
-+ * virtualizes the interrupt controller for us.  It provides a very
-+ * simple, fast & efficient API, and so the fasteoi handler is
-+ * appropriate for this case.
-+ */
-+void __init hexagon_cpu_irq_init(void)
-+{
-+	int irq;
-+
-+	for (irq = 0; irq < HEXAGON_CPUINTS; irq++) {
-+		mask_irq_num(irq);
-+		irq_set_chip_and_handler(irq, &hexagon_irq_chip,
-+						 handle_fasteoi_irq);
-+	}
 +}
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
-
