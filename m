@@ -1,75 +1,74 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [patch 03/36] Hexagon: Add bitops support
-Date: Wed, 17 Aug 2011 21:19 +0200
-Message-ID: <3654942.CdI694lZOj@wuerfel>
-References: <20110817163457.878854582@codeaurora.org> <20110817163520.145693358@codeaurora.org>
+Subject: Re: [patch 07/36] Hexagon: Add threadinfo
+Date: Wed, 17 Aug 2011 21:37:18 +0200
+Message-ID: <3022109.uYnQ9M7cUS@wuerfel>
+References: <20110817163457.878854582@codeaurora.org> <20110817163520.513397876@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110817163520.145693358@codeaurora.org>
+In-Reply-To: <20110817163520.513397876@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 To: Richard Kuo <rkuo@codeaurora.org>
 Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On Wednesday 17 August 2011 11:35:00 Richard Kuo wrote:
+On Wednesday 17 August 2011 11:35:04 Richard Kuo wrote:
 
+> +/*
+> + * order is for __get_free_pages; see get_order()
+> + */
 > +
-> +#ifdef CONFIG_HEXAGON_BITOPS
-> +#include <asm/bitops/ffz.h>
-> +#include <asm/bitops/fls.h>
-> +#include <asm/bitops/ffs.h>
-> +#include <asm/bitops/__ffs.h>
-> +#include <asm/bitops/__fls.h>
-> +#else
-> +#include <asm-generic/bitops/ffz.h>
-> +#include <asm-generic/bitops/fls.h>
-> +#include <asm-generic/bitops/ffs.h>
-> +#include <asm-generic/bitops/__ffs.h>
-> +#define __fls(x) (fls(x) - 1)
+> +#ifdef CONFIG_PAGE_SIZE_4KB
+> +#define THREAD_SIZE	(1<<13)
+> +#define THREAD_SIZE_ORDER 1
 > +#endif
-
-Is there a particular reason why this is configurable? Also, I see no reaons
-to split these up into lots of files. Just put all of them into one file.
-
-> +/*
-> + * __ffs - find first bit in word.
-> + * @word: The word to search
-> + *
-> + * Undefined if no bit exists, so code should check against 0 first.
-> + *
-> + * bits_per_long assumed to be 32
-> + * numbering starts at 0 I think (instead of 1 like ffs)
-> + */
-> +static inline unsigned long __ffs(unsigned long word)
-> +{
-> +	int num;
 > +
-> +	asm volatile("%0 = ct0(%1);\n"
-> +		: "=&r" (num)
-> +		: "r" (word));
+> +#ifdef CONFIG_PAGE_SIZE_16KB
+> +#define THREAD_SIZE	(1<<14)
+> +#define THREAD_SIZE_ORDER 0
+> +#endif
 > +
-> +	return num;
-> +}
+> +#ifdef CONFIG_PAGE_SIZE_64KB
+> +#define THREAD_SIZE	(1<<16)
+> +#define THREAD_SIZE_ORDER 0
+> +#endif
+> +
+> +#ifdef CONFIG_PAGE_SIZE_256KB
+> +#define THREAD_SIZE	(1<<18)
+> +#define THREAD_SIZE_ORDER 0
+> +#endif
+>
 
-I think this should not be marked volatile: If the result is unused,
-there is no need to compute the value either. Same for __fls, ffs,
-ffz, and fls.
+If you use pages larger than 16KB, you probably want to use less than
+a page for the kernel stack and use kmalloc to get it.
+See arch/powerpc/include/asm/thread_info.h
 
+> +
 > +/*
-> + * ffs - find first bit set
-> + * @x: the word to search
-> + *
-> + * This is defined the same way as
-> + * the libc and compiler builtin ffs routines, therefore
-> + * differs in spirit from the above ffz (man ffs).
+> + * kmalloc is probably not appropriate because alignment seems
+> + * not guaranteed out of kmalloc at all, and we assume thread_info
+> + * is aligned to THREAD_SIZE all over the place, notably the switch and
+> + * entry/exit routines.
 > + */
-> +static inline int ffs(int x)
-> +{
+> +
+> +#if 0
+> +#define __HAVE_ARCH_THREAD_INFO_ALLOCATOR
+> +#ifdef CONFIG_DEBUG_STACK_USAGE
+> +#define alloc_thread_info(tsk) \
+> +	((struct thread_info *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, \
+> +	THREAD_SIZE_ORDER))
+> +
+> +#else   /*  CONFIG_DEBUG_STACK_USAGE  */
+> +#define alloc_thread_info(tsk) \
+> +	((struct thread_info *)__get_free_pages(GFP_KERNEL, \
+> +	THREAD_SIZE_ORDER))
+> +#endif  /*  ! CONFIG_DEBUG_STACK_USAGE  */
+> +
 
-The type is normally 'long', not 'int'. They are obviously the
-same length on 32 bit machines, but you might get bogus compiler
-warnings from this. Same for ffz and fls.
+You don't have to align the thread_info if you use different implementation
+of current_thread_info. One way to do it would be to have a per-cpu
+variable pointing to the current thread_info and use the TLS mechanism
+to point to percpu data, instead of getting the percpu offset from thread_info.
 
 	Arnd
