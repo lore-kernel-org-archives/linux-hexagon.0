@@ -1,33 +1,31 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 20/36] Hexagon: Provide basic debugging and system trap support.
-Date: Wed, 17 Aug 2011 11:35:17 -0500
-Message-ID: <20110817163521.731149424@codeaurora.org>
+Subject: [patch 15/36] Hexagon: Add init_task and process functions
+Date: Wed, 17 Aug 2011 11:35:12 -0500
+Message-ID: <20110817163521.257943209@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=traps.diff
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline; filename=init-task.diff
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
-Cc: Linas Vepstas <linas@codeaurora.org>
 
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
-Signed-off-by: Linas Vepstas <linas@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/traps.h |   29 +++
- arch/hexagon/kernel/traps.c      |  356 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 385 insertions(+)
+ arch/hexagon/kernel/init_task.c |   54 +++++++++
+ arch/hexagon/kernel/process.c   |  235 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 289 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/kernel/traps.c
+Index: linux-hexagon-kernel/arch/hexagon/kernel/init_task.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/traps.c	2011-07-20 15:19:41.575152080 -0500
-@@ -0,0 +1,356 @@
++++ linux-hexagon-kernel/arch/hexagon/kernel/init_task.c	2011-07-20 15:19:40.255152444 -0500
+@@ -0,0 +1,54 @@
 +/*
-+ * Kernel traps/events for Hexagon processor
++ * Init task definition
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -46,376 +44,281 @@ Index: linux-hexagon-kernel/arch/hexagon/kernel/traps.c
 + * 02110-1301, USA.
 + */
 +
-+#include <linux/init.h>
-+#include <linux/sched.h>
++#include <linux/mm.h>
 +#include <linux/module.h>
-+#include <linux/kallsyms.h>
-+#include <linux/kdebug.h>
-+#include <linux/syscalls.h>
-+#include <linux/signal.h>
-+#include <linux/tracehook.h>
-+#include <asm/traps.h>
-+#include <asm/vm_fault.h>
-+#include <asm/syscall.h>
-+#include <asm/registers.h>
-+#include <asm/unistd.h>
-+#ifdef CONFIG_KGDB
-+# include <linux/kgdb.h>
-+#endif
++#include <linux/sched.h>
++#include <linux/init_task.h>
++#include <linux/fs.h>
++#include <linux/mqueue.h>
++#include <asm/thread_info.h>
++#include <asm/uaccess.h>
++#include <asm/pgtable.h>
 +
-+#define TRAP_SYSCALL	1
-+#define TRAP_DEBUG	0xdb
++static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
++static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
 +
-+void __init trap_init(void)
++/*
++ * Initial thread structure.
++ *
++ * We need to make sure that this is 8192-byte aligned due to the
++ * way process stacks are handled. This is done by making sure
++ * the linker maps this in the .text segment right after head.S,
++ * and making head.S ensure the proper alignment.
++ */
++union thread_union init_thread_union
++	__attribute__((__section__(".data.init_task"),
++		__aligned__(THREAD_SIZE))) = {
++			INIT_THREAD_INFO(init_task)
++		};
++
++/*
++ * Initial task structure.
++ *
++ * All other task structs will be allocated on slabs in fork.c
++ */
++struct task_struct init_task = INIT_TASK(init_task);
++EXPORT_SYMBOL(init_task);
+Index: linux-hexagon-kernel/arch/hexagon/kernel/process.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/kernel/process.c	2011-07-20 15:19:40.255152444 -0500
+@@ -0,0 +1,235 @@
++/*
++ * Process creation support for Hexagon
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#include <linux/sched.h>
++#include <linux/types.h>
++#include <linux/module.h>
++#include <linux/tick.h>
++#include <linux/uaccess.h>
++
++/*
++ * Kernel thread creation.  The desired kernel function is "wrapped"
++ * in the kernel_thread_helper function, which does cleanup
++ * afterwards.
++ */
++static void __noreturn kernel_thread_helper(void *arg, int (*fn)(void *))
 +{
++	do_exit(fn(arg));
 +}
 +
-+#ifdef CONFIG_GENERIC_BUG
-+/* Maybe should resemble arch/sh/kernel/traps.c ?? */
-+int is_valid_bugaddr(unsigned long addr)
++int kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
 +{
-+	return 1;
++	struct pt_regs regs;
++
++	memset(&regs, 0, sizeof(regs));
++	/*
++	 * Yes, we're exploting illicit knowledge of the ABI here.
++	 */
++	regs.r00 = (unsigned long) arg;
++	regs.r01 = (unsigned long) fn;
++	pt_set_elr(&regs, (unsigned long)kernel_thread_helper);
++	pt_set_kmode(&regs);
++
++	return do_fork(flags|CLONE_VM|CLONE_UNTRACED, 0, &regs, 0, NULL, NULL);
 +}
-+#endif /* CONFIG_GENERIC_BUG */
++EXPORT_SYMBOL(kernel_thread);
 +
-+void show_stack(struct task_struct *task, unsigned long *fp)
++/*
++ * Program thread launch.  Often defined as a macro in processor.h,
++ * but we're shooting for a small footprint and it's not an inner-loop
++ * performance-critical operation.
++ *
++ * The Hexagon ABI specifies that R28 is zero'ed before program launch,
++ * so that gets automatically done here.  If we ever stop doing that here,
++ * we'll probably want to define the ELF_PLAT_INIT macro.
++ */
++void start_thread(struct pt_regs *regs, unsigned long pc, unsigned long sp)
 +{
-+	int kstack_depth_to_print = 20;
-+	unsigned long offset, size;
-+	const char *name = NULL;
-+	unsigned long *newfp;
-+	unsigned long ip;
-+	char tmpstr[128];
-+	char *modname;
-+	int i;
++	/* Set to run with user-mode data segmentation */
++	set_fs(USER_DS);
++	/* We want to zero all data-containing registers. Is this overkill? */
++	memset(regs, 0, sizeof(*regs));
++	/* We might want to also zero all Processor registers here */
++	pt_set_usermode(regs);
++	pt_set_elr(regs, pc);
++	pt_set_rte_sp(regs, sp);
++}
 +
-+	if (task == NULL)
-+		task = current;
++/*
++ *  Spin, or better still, do a hardware or VM wait instruction
++ *  If hardware or VM offer wait termination even though interrupts
++ *  are disabled.
++ */
++static void default_idle(void)
++{
++	__vmwait();
++}
 +
-+	if (fp == NULL) {
-+		if (task == current) {
-+			asm("%0 = r30" : "=r" (fp));
-+		} else {
-+			fp = (unsigned long *)
-+			     ((struct hexagon_switch_stack *)
-+			     task->thread.switch_sp)->fp;
-+		}
++void (*idle_sleep)(void) = default_idle;
++
++void cpu_idle(void)
++{
++	while (1) {
++		tick_nohz_stop_sched_tick(1);
++		while (!need_resched())
++			idle_sleep();
++		tick_nohz_restart_sched_tick();
++		schedule();
 +	}
-+
-+	printk(KERN_INFO "CPU#%d, %s/%d, Call Trace:\n",
-+	       raw_smp_processor_id(), current->comm,
-+	       task_pid_nr(current));
-+	for (i = 0; i < kstack_depth_to_print; i++) {
-+		if (0 /* Check irq stack at some point */)
-+			printk(KERN_INFO " <EOI> ");
-+		else if (((long) fp & (THREAD_SIZE-1)) == 0)
-+			break;
-+
-+		newfp = (unsigned long *) *fp;
-+
-+		ip = *(unsigned long *)((char *)fp + sizeof(unsigned long));
-+		name = kallsyms_lookup(ip, &size, &offset, &modname, tmpstr);
-+
-+		printk(KERN_INFO "[%p] 0x%lx: %s + 0x%lx", fp, ip, name,
-+			offset);
-+		if (modname)
-+			printk(KERN_CONT " [%s] ", modname);
-+		if (i == 0)
-+			printk(KERN_CONT " (unreliable)");
-+		printk(KERN_CONT "\n");
-+
-+		/* If newfp isn't larger, we're tracing garbage */
-+		if (newfp > fp)
-+			fp = newfp;
-+		else
-+			break;
-+	}
 +}
 +
-+void dump_state(struct pt_regs *regs)
++/*
++ *  Return saved PC of a blocked thread
++ */
++unsigned long thread_saved_pc(struct task_struct *tsk)
 +{
-+	show_regs(regs);
-+	show_stack(current, &regs->r30);
-+}
-+
-+void dump_stack(void)
-+{
-+	show_stack(current, NULL);
-+}
-+EXPORT_SYMBOL(dump_stack);
-+
-+int die(const char *str, struct pt_regs *regs, long err)
-+{
-+	static struct {
-+		spinlock_t lock;
-+		int counter;
-+	} die = {
-+		.lock = __SPIN_LOCK_UNLOCKED(die.lock),
-+		.counter = 0
-+	};
-+
-+	spin_lock_irq(&die.lock);
-+	bust_spinlocks(1);
-+	printk(KERN_INFO "%s[#%d]:\n", str, ++die.counter);
-+
-+	if (notify_die(DIE_OOPS, str, regs, err, pt_cause(regs), SIGSEGV) ==
-+	    NOTIFY_STOP)
-+		return 1;
-+
-+	print_modules();
-+	dump_state(regs);
-+
-+	do_exit(err);
 +	return 0;
 +}
 +
-+int die_if_kernel(char *str, struct pt_regs *regs, long err)
-+{
-+	if (!user_mode(regs))
-+		return die(str, regs, err);
-+	else
-+		return 0;
-+}
-+
 +/*
-+ * It's not clear that misaligned fetches are ever recoverable.
++ * Copy architecture-specific thread state
 + */
-+static void misaligned_instruction(struct pt_regs *regs)
++int copy_thread(unsigned long clone_flags, unsigned long usp,
++		unsigned long unused, struct task_struct *p,
++		struct pt_regs *regs)
 +{
-+	die_if_kernel("Misaligned Instruction", regs, 0);
-+	force_sig(SIGBUS, current);
-+}
++	struct thread_info *ti = task_thread_info(p);
++	struct hexagon_switch_stack *ss;
++	struct pt_regs *childregs;
++	asmlinkage void ret_from_fork(void);
 +
-+/*
-+ * Misaligned loads and stores, on the other hand, can be
-+ * emulated, and probably should be, some day.  But for now
-+ * they will be considered fatal.
-+ */
-+static void misaligned_data_load(struct pt_regs *regs)
-+{
-+	die_if_kernel("Misaligned Data Load", regs, 0);
-+	force_sig(SIGBUS, current);
-+}
++	childregs = (struct pt_regs *) (((unsigned long) ti + THREAD_SIZE) -
++					sizeof(*childregs));
 +
-+static void misaligned_data_store(struct pt_regs *regs)
-+{
-+	die_if_kernel("Misaligned Data Store", regs, 0);
-+	force_sig(SIGBUS, current);
-+}
-+
-+static void illegal_instruction(struct pt_regs *regs)
-+{
-+	die_if_kernel("Illegal Instruction", regs, 0);
-+	force_sig(SIGILL, current);
-+}
-+
-+/*
-+ * Precise bus errors may be recoverable with a a retry,
-+ * but for now, treat them as irrecoverable.
-+ */
-+static void precise_bus_error(struct pt_regs *regs)
-+{
-+	die_if_kernel("Precise Bus Error", regs, 0);
-+	force_sig(SIGBUS, current);
-+}
-+
-+/*
-+ * If anything is to be done here other than panic,
-+ * it will probably be complex and migrate to another
-+ * source module.  For now, just die.
-+ */
-+static void cache_error(struct pt_regs *regs)
-+{
-+	die("Cache Error", regs, 0);
-+}
-+
-+/*
-+ * General exception handler
-+ */
-+void do_genex(struct pt_regs *regs)
-+{
++	memcpy(childregs, regs, sizeof(*childregs));
++	ti->regs = childregs;
 +
 +	/*
-+	 * Decode Cause and Dispatch
++	 * Establish kernel stack pointer and initial PC for new thread
 +	 */
-+	switch (pt_cause(regs)) {
-+	case HVM_GE_C_XPROT:
-+	case HVM_GE_C_XUSER:
-+		execute_protection_fault(regs);
-+		break;
-+	case HVM_GE_C_RPROT:
-+	case HVM_GE_C_RUSER:
-+		read_protection_fault(regs);
-+		break;
-+	case HVM_GE_C_WPROT:
-+	case HVM_GE_C_WUSER:
-+		write_protection_fault(regs);
-+		break;
-+	case HVM_GE_C_XMAL:
-+		misaligned_instruction(regs);
-+		break;
-+	case HVM_GE_C_RMAL:
-+		misaligned_data_load(regs);
-+		break;
-+	case HVM_GE_C_WMAL:
-+		misaligned_data_store(regs);
-+		break;
-+	case HVM_GE_C_INVI:
-+	case HVM_GE_C_PRIVI:
-+		illegal_instruction(regs);
-+		break;
-+	case HVM_GE_C_BUS:
-+		precise_bus_error(regs);
-+		break;
-+	case HVM_GE_C_CACHE:
-+		cache_error(regs);
-+		break;
-+	default:
-+		/* Halt and catch fire */
-+		panic("Unrecognized exception 0x%lx\n", pt_cause(regs));
-+		break;
++	ss = (struct hexagon_switch_stack *) ((unsigned long) childregs -
++						    sizeof(*ss));
++	ss->lr = (unsigned long)ret_from_fork;
++	p->thread.switch_sp = ss;
++
++	/* If User mode thread, set pt_reg stack pointer as per parameter */
++	if (user_mode(childregs)) {
++		pt_set_rte_sp(childregs, usp);
++
++		/* Child sees zero return value */
++		childregs->r00 = 0;
++
++		/*
++		 * The clone syscall has the C signature:
++		 * int [r0] clone(int flags [r0],
++		 *           void *child_frame [r1],
++		 *           void *parent_tid [r2],
++		 *           void *child_tid [r3],
++		 *           void *thread_control_block [r4]);
++		 * ugp is used to provide TLS support.
++		 */
++		if (clone_flags & CLONE_SETTLS)
++			childregs->ugp = childregs->r04;
++
++		/*
++		 * Parent sees new pid -- not necessary, not even possible at
++		 * this point in the fork process
++		 * Might also want to set things like ti->addr_limit
++		 */
++	} else {
++		/*
++		 * If kernel thread, resume stack is kernel stack base.
++		 * Note that this is pointer arithmetic on pt_regs *
++		 */
++		pt_set_rte_sp(childregs, (unsigned long)(childregs + 1));
++		/*
++		 * We need the current thread_info fast path pointer
++		 * set up in pt_regs.  The register to be used is
++		 * parametric for assembler code, but the mechanism
++		 * doesn't drop neatly into C.  Needs to be fixed.
++		 */
++		childregs->THREADINFO_REG = (unsigned long) ti;
 +	}
-+}
 +
-+/* Indirect system call dispatch */
-+long sys_syscall(void)
-+{
-+	printk(KERN_ERR "sys_syscall invoked!\n");
-+	return -ENOSYS;
-+}
++	/*
++	 * thread_info pointer is pulled out of task_struct "stack"
++	 * field on switch_to.
++	 */
++	p->stack = (void *)ti;
 +
-+void do_trap0(struct pt_regs *regs)
-+{
-+	unsigned long syscallret = 0;
-+	syscall_fn syscall;
-+
-+	switch (pt_cause(regs)) {
-+	case TRAP_SYSCALL:
-+		/* System call is trap0 #1 */
-+
-+		/* allow strace to catch syscall args  */
-+		if (unlikely(test_thread_flag(TIF_SYSCALL_TRACE) &&
-+			tracehook_report_syscall_entry(regs)))
-+			return;  /*  return -ENOSYS somewhere?  */
-+
-+		/* Interrupts should be re-enabled for syscall processing */
-+		__vmsetie(VM_INT_ENABLE);
-+
-+		/*
-+		 * System call number is in r6, arguments in r0..r5.
-+		 * Fortunately, no Linux syscall has more than 6 arguments,
-+		 * and Hexagon ABI passes first 6 arguments in registers.
-+		 * 64-bit arguments are passed in odd/even register pairs.
-+		 * Fortunately, we have no system calls that take more
-+		 * than three arguments with more than one 64-bit value.
-+		 * Should that change, we'd need to redesign to copy
-+		 * between user and kernel stacks.
-+		 */
-+		regs->syscall_nr = regs->r06;
-+
-+		/*
-+		 * GPR R0 carries the first parameter, and is also used
-+		 * to report the return value.  We need a backup of
-+		 * the user's value in case we need to do a late restart
-+		 * of the system call.
-+		 */
-+		regs->restart_r0 = regs->r00;
-+
-+		if ((unsigned long) regs->syscall_nr >= __NR_syscalls) {
-+			regs->r00 = -1;
-+		} else {
-+			syscall = (syscall_fn)
-+				  (sys_call_table[regs->syscall_nr]);
-+			syscallret = syscall(regs->r00, regs->r01,
-+				   regs->r02, regs->r03,
-+				   regs->r04, regs->r05);
-+		}
-+
-+		/*
-+		 * If it was a sigreturn system call, don't overwrite
-+		 * r0 value in stack frame with return value.
-+		 *
-+		 * __NR_sigreturn doesn't seem to exist in new unistd.h
-+		 */
-+
-+		if (regs->syscall_nr != __NR_rt_sigreturn)
-+			regs->r00 = syscallret;
-+
-+		/* allow strace to get the syscall return state  */
-+		if (unlikely(test_thread_flag(TIF_SYSCALL_TRACE)))
-+			tracehook_report_syscall_exit(regs, 0);
-+
-+		break;
-+	case TRAP_DEBUG:
-+		/* Trap0 0xdb is debug breakpoint */
-+		if (user_mode(regs)) {
-+			struct siginfo info;
-+
-+			info.si_signo = SIGTRAP;
-+			info.si_errno = 0;
-+			/*
-+			 * Some architecures add some per-thread state
-+			 * to distinguish between breakpoint traps and
-+			 * trace traps.  We may want to do that, and
-+			 * set the si_code value appropriately, or we
-+			 * may want to use a different trap0 flavor.
-+			 */
-+			info.si_code = TRAP_BRKPT;
-+			info.si_addr = (void __user *) pt_elr(regs);
-+			send_sig_info(SIGTRAP, &info, current);
-+		} else {
-+#ifdef CONFIG_KGDB
-+			kgdb_handle_exception(pt_cause(regs), SIGTRAP,
-+					      TRAP_BRKPT, regs);
-+#endif
-+		}
-+		break;
-+	}
-+	/* Ignore other trap0 codes for now, especially 0 (Angel calls) */
++	return 0;
 +}
 +
 +/*
-+ * Machine check exception handler
++ * Release any architecture-specific resources locked by thread
 + */
-+void do_machcheck(struct pt_regs *regs)
++void release_thread(struct task_struct *dead_task)
 +{
-+	/* Halt and catch fire */
-+	__vmstop();
 +}
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/traps.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/traps.h	2011-07-20 15:19:41.575152080 -0500
-@@ -0,0 +1,29 @@
++
 +/*
-+ * Trap support for Hexagon
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
++ * Free any architecture-specific thread data structures, etc.
 + */
++void exit_thread(void)
++{
++}
 +
-+#ifndef _ASM_HEXAGON_TRAPS_H
-+#define _ASM_HEXAGON_TRAPS_H
++/*
++ * Some archs flush debug and FPU info here
++ */
++void flush_thread(void)
++{
++}
 +
-+#include <asm/registers.h>
++/*
++ * The "wait channel" terminology is archaic, but what we want
++ * is an identification of the point at which the scheduler
++ * was invoked by a blocked thread.
++ */
++unsigned long get_wchan(struct task_struct *p)
++{
++	unsigned long fp, pc;
++	unsigned long stack_page;
++	int count = 0;
++	if (!p || p == current || p->state == TASK_RUNNING)
++		return 0;
 +
-+extern int die(const char *str, struct pt_regs *regs, long err);
-+extern int die_if_kernel(char *str, struct pt_regs *regs, long err);
++	stack_page = (unsigned long)task_stack_page(p);
++	fp = ((struct hexagon_switch_stack *)p->thread.switch_sp)->fp;
++	do {
++		if (fp < (stack_page + sizeof(struct thread_info)) ||
++			fp >= (THREAD_SIZE - 8 + stack_page))
++			return 0;
++		pc = ((unsigned long *)fp)[1];
++		if (!in_sched_functions(pc))
++			return pc;
++		fp = *(unsigned long *) fp;
++	} while (count++ < 16);
 +
-+#endif /* _ASM_HEXAGON_TRAPS_H */
++	return 0;
++}
++
++/*
++ * Required placeholder.
++ */
++int dump_fpu(struct pt_regs *regs, elf_fpregset_t *fpu)
++{
++	return 0;
++}
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+
