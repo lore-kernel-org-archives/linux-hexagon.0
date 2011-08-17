@@ -1,31 +1,103 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 15/36] Hexagon: Add init_task and process functions
-Date: Wed, 17 Aug 2011 11:35:12 -0500
-Message-ID: <20110817163521.257943209@codeaurora.org>
+Subject: [patch 14/36] Hexagon: Add signal functions
+Date: Wed, 17 Aug 2011 11:35:11 -0500
+Message-ID: <20110817163521.165013232@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline; filename=init-task.diff
+Content-Disposition: inline; filename=signals.diff
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Cc: Linas Vepstas <linas@codeaurora.org>
 
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
+Signed-off-by: Linas Vepstas <linas@codeaurora.org>
 
 ---
- arch/hexagon/kernel/init_task.c |   54 +++++++++
- arch/hexagon/kernel/process.c   |  235 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 289 insertions(+)
+ arch/hexagon/include/asm/sigcontext.h |   32 +++
+ arch/hexagon/include/asm/signal.h     |   26 ++
+ arch/hexagon/kernel/signal.c          |  325 ++++++++++++++++++++++++++++++++++
+ arch/hexagon/kernel/trampoline.S      |   35 +++
+ 4 files changed, 418 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/kernel/init_task.c
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/sigcontext.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/init_task.c	2011-07-20 15:19:40.255152444 -0500
-@@ -0,0 +1,54 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/sigcontext.h	2011-08-11 17:55:17.450209255 -0500
+@@ -0,0 +1,32 @@
 +/*
-+ * Init task definition
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef _ASM_SIGCONTEXT_H
++#define _ASM_SIGCONTEXT_H
++
++#include <asm/registers.h>
++
++/*
++ * Signal context structure - contains all info to do with the state
++ * before the signal handler was invoked.
++ */
++struct sigcontext {
++	struct pt_regs sc_regs;
++};
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/signal.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/signal.h	2011-08-11 17:55:17.450209255 -0500
+@@ -0,0 +1,26 @@
++/*
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef _ASM_SIGNAL_H
++#define _ASM_SIGNAL_H
++
++extern unsigned long __rt_sigtramp_template[2];
++
++#include <asm-generic/signal.h>
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/kernel/signal.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/kernel/signal.c	2011-08-11 17:55:49.740249322 -0500
+@@ -0,0 +1,325 @@
++/*
++ * Signal support for Hexagon processor
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -44,48 +116,317 @@ Index: linux-hexagon-kernel/arch/hexagon/kernel/init_task.c
 + * 02110-1301, USA.
 + */
 +
-+#include <linux/mm.h>
-+#include <linux/module.h>
-+#include <linux/sched.h>
-+#include <linux/init_task.h>
-+#include <linux/fs.h>
-+#include <linux/mqueue.h>
++#include <linux/linkage.h>
++#include <linux/syscalls.h>
++#include <linux/freezer.h>
++#include <asm/registers.h>
 +#include <asm/thread_info.h>
++#include <asm/unistd.h>
 +#include <asm/uaccess.h>
-+#include <asm/pgtable.h>
++#include <asm/ucontext.h>
++#include <asm/cacheflush.h>
++#include <asm/signal.h>
 +
-+static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
-+static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
++#define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
++
++struct sigframe {
++	unsigned long tramp[2];
++	struct sigcontext sc;
++	sigset_t mask;
++};
++
++struct rt_sigframe {
++	unsigned long tramp[2];
++	struct siginfo info;
++	struct ucontext uc;
++};
++
++static void __user *get_sigframe(struct k_sigaction *ka, struct pt_regs *regs,
++			  size_t frame_size)
++{
++	unsigned long sp = regs->r29;
++
++	/* Switch to signal stack if appropriate */
++	if ((ka->sa.sa_flags & SA_ONSTACK) && (sas_ss_flags(sp) == 0))
++		sp = current->sas_ss_sp + current->sas_ss_size;
++
++	return (void __user *)((sp - frame_size) & ~(sizeof(long long) - 1));
++}
++
++static int setup_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc)
++{
++	int err = 0;
++
++	/*
++	 * Need to revisit if we're leaking anything inappropriate to user
++	 * stack.
++	 */
++
++	err |= copy_to_user(&sc->sc_regs, regs, sizeof(struct pt_regs));
++	return err;
++}
++
++static int restore_sigcontext(struct pt_regs *regs,
++			      struct sigcontext __user *sc)
++{
++	int err = 0;
++
++	/*
++	 * Should only restore vmel in case user stack is corrupted,
++	 * bogus status shouldn't be used in the rte.
++	 */
++
++	err |= copy_from_user(regs, &sc->sc_regs,
++			      offsetof(struct pt_regs, hvmer.vmel)
++			      + sizeof(unsigned long));
++	return err;
++}
 +
 +/*
-+ * Initial thread structure.
-+ *
-+ * We need to make sure that this is 8192-byte aligned due to the
-+ * way process stacks are handled. This is done by making sure
-+ * the linker maps this in the .text segment right after head.S,
-+ * and making head.S ensure the proper alignment.
++ * Setup signal stack frame with siginfo structure
 + */
-+union thread_union init_thread_union
-+	__attribute__((__section__(".data.init_task"),
-+		__aligned__(THREAD_SIZE))) = {
-+			INIT_THREAD_INFO(init_task)
-+		};
++static int setup_rt_frame(int signr, struct k_sigaction *ka, siginfo_t *info,
++			  sigset_t *set,  struct pt_regs *regs)
++{
++	int err = 0;
++	struct rt_sigframe __user *frame;
++
++	frame = get_sigframe(ka, regs, sizeof(struct rt_sigframe));
++
++	if (!access_ok(VERIFY_WRITE, frame, sizeof(struct rt_sigframe)))
++		goto	sigsegv;
++
++	if (copy_siginfo_to_user(&frame->info, info))
++		goto	sigsegv;
++
++	err |= __put_user(__rt_sigtramp_template[0], &frame->tramp[0]);
++	err |= __put_user(__rt_sigtramp_template[1], &frame->tramp[1]);
++	flush_dcache_range((unsigned long)&frame->tramp[0],
++			   (unsigned long)&frame->tramp[2]);
++	flush_icache_range((unsigned long)&frame->tramp[0],
++			   (unsigned long)&frame->tramp[2]);
++	mb();
++
++	err |= setup_sigcontext(regs, &frame->uc.uc_mcontext);
++	err |= __copy_to_user(&frame->uc.uc_sigmask, set, sizeof(*set));
++	if (err)
++		goto sigsegv;
++
++	/* Load r0/r1 pair with signumber/siginfo pointer... */
++	regs->r0100 = ((unsigned long long)((unsigned long)&frame->info) << 32)
++		| (unsigned long long)signr;
++	regs->r02 = (unsigned long) &frame->uc;
++	regs->r31 = (unsigned long) frame->tramp;
++	pt_psp(regs) = (unsigned long) frame;
++	pt_set_elr(regs, (unsigned long)ka->sa.sa_handler);
++
++	return 0;
++
++sigsegv:
++	force_sigsegv(signr, current);
++	return -EFAULT;
++}
 +
 +/*
-+ * Initial task structure.
-+ *
-+ * All other task structs will be allocated on slabs in fork.c
++ * Setup invocation of signal handler
 + */
-+struct task_struct init_task = INIT_TASK(init_task);
-+EXPORT_SYMBOL(init_task);
-Index: linux-hexagon-kernel/arch/hexagon/kernel/process.c
++static int handle_signal(int sig, siginfo_t *info, struct k_sigaction *ka,
++			 sigset_t *oldset, struct pt_regs *regs)
++{
++	int rc;
++
++	/*
++	 * If we're handling a signal that aborted a system call,
++	 * set up the error return value before adding the signal
++	 * frame to the stack.
++	 */
++
++	if (regs->syscall_nr >= 0) {
++		switch (regs->r00) {
++		case -ERESTART_RESTARTBLOCK:
++		case -ERESTARTNOHAND:
++			regs->r00 = -EINTR;
++			break;
++		case -ERESTARTSYS:
++			if (!(ka->sa.sa_flags & SA_RESTART)) {
++				regs->r00 = -EINTR;
++				break;
++			}
++			/* Fall through */
++		case -ERESTARTNOINTR:
++			regs->r06 = regs->syscall_nr;
++			pt_set_elr(regs, pt_elr(regs) - 4);
++			regs->r00 = regs->restart_r0;
++			break;
++		default:
++			break;
++		}
++	}
++
++	/*
++	 * Set up the stack frame; not doing the SA_SIGINFO thing.  We
++	 * only set up the rt_frame flavor.
++	 */
++	rc = setup_rt_frame(sig, ka, info, oldset, regs);
++
++	/* If there was an error on setup, no signal was delivered. */
++	if (rc)
++		return rc;
++
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked, &current->blocked, &ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
++		sigaddset(&current->blocked, sig);
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
++
++	return 0;
++}
++
++/*
++ * Called from return-from-event code.
++ */
++static void do_signal(struct pt_regs *regs)
++{
++	struct k_sigaction sigact;
++	siginfo_t info;
++	int signo;
++
++	if (!user_mode(regs))
++		return;
++
++	if (try_to_freeze())
++		goto no_signal;
++
++	signo = get_signal_to_deliver(&info, &sigact, regs, NULL);
++
++	if (signo > 0) {
++		sigset_t *oldset;
++
++		if (test_thread_flag(TIF_RESTORE_SIGMASK))
++			oldset = &current->saved_sigmask;
++		else
++			oldset = &current->blocked;
++
++		if (handle_signal(signo, &info, &sigact, oldset, regs) == 0) {
++			/*
++			 * Successful delivery case.  The saved sigmask is
++			 * stored in the signal frame, and will be restored
++			 * by sigreturn.  We can clear the TIF flag.
++			 */
++			clear_thread_flag(TIF_RESTORE_SIGMASK);
++		}
++		return;
++	}
++
++no_signal:
++	/*
++	 * If we came from a system call, handle the restart.
++	 */
++	if (regs->syscall_nr >= 0) {
++		switch (regs->r00) {
++		case -ERESTARTNOHAND:
++		case -ERESTARTSYS:
++		case -ERESTARTNOINTR:
++			regs->r06 = regs->syscall_nr;
++			break;
++		case -ERESTART_RESTARTBLOCK:
++			regs->r06 = __NR_restart_syscall;
++			break;
++		default:
++			goto no_restart;
++		}
++		pt_set_elr(regs, pt_elr(regs) - 4);
++		regs->r00 = regs->restart_r0;
++	}
++
++no_restart:
++	/* If there's no signal to deliver, put the saved sigmask back */
++	if (test_thread_flag(TIF_RESTORE_SIGMASK)) {
++		clear_thread_flag(TIF_RESTORE_SIGMASK);
++		sigprocmask(SIG_SETMASK, &current->saved_sigmask, NULL);
++	}
++}
++
++void do_notify_resume(struct pt_regs *regs, unsigned long thread_info_flags)
++{
++	if (thread_info_flags & _TIF_SIGPENDING)
++		do_signal(regs);
++
++	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
++		clear_thread_flag(TIF_NOTIFY_RESUME);
++		if (current->replacement_session_keyring)
++			key_replace_session_keyring();
++	}
++}
++
++/*
++ * Architecture-specific wrappers for signal-related system calls
++ */
++asmlinkage int sys_sigaltstack(const stack_t __user *uss, stack_t __user *uoss)
++{
++	struct pt_regs *regs = current_thread_info()->regs;
++
++	return do_sigaltstack(uss, uoss, regs->r29);
++}
++
++asmlinkage int sys_rt_sigreturn(void)
++{
++	struct pt_regs *regs = current_thread_info()->regs;
++	struct rt_sigframe __user *frame;
++	sigset_t blocked;
++
++	frame = (struct rt_sigframe __user *)pt_psp(regs);
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
++		goto badframe;
++	if (__copy_from_user(&blocked, &frame->uc.uc_sigmask, sizeof(blocked)))
++		goto badframe;
++
++	sigdelsetmask(&blocked, ~_BLOCKABLE);
++	spin_lock_irq(&current->sighand->siglock);
++	current->blocked = blocked;
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
++
++	if (restore_sigcontext(regs, &frame->uc.uc_mcontext))
++		goto badframe;
++
++	/* Restore the user's stack as well */
++	pt_psp(regs) = regs->r29;
++
++	/*
++	 * Leave a trace in the stack frame that this was a sigreturn.
++	 * If the system call is to replay, we've already restored the
++	 * number in the GPR slot and it will be regenerated on the
++	 * new system call trap entry. Note that if restore_sigcontext()
++	 * did something other than a bulk copy of the pt_regs struct,
++	 * we could avoid this assignment by simply not overwriting
++	 * regs->syscall_nr.
++	 */
++	regs->syscall_nr = __NR_rt_sigreturn;
++
++	/*
++	 * If we were meticulous, we'd only call this if we knew that
++	 * we were actually going to use an alternate stack, and we'd
++	 * consider any error to be fatal.  What we do here, in common
++	 * with many other architectures, is call it blindly and only
++	 * consider the -EFAULT return case to be proof of a problem.
++	 */
++	if (do_sigaltstack(&frame->uc.uc_stack, NULL, pt_psp(regs)) == -EFAULT)
++		goto badframe;
++
++	return 0;
++
++badframe:
++	force_sig(SIGSEGV, current);
++	return 0;
++}
+Index: linux-hexagon-kernel/arch/hexagon/kernel/trampoline.S
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/process.c	2011-07-20 15:19:40.255152444 -0500
-@@ -0,0 +1,235 @@
++++ linux-hexagon-kernel/arch/hexagon/kernel/trampoline.S	2011-08-11 17:55:17.450209255 -0500
+@@ -0,0 +1,35 @@
 +/*
-+ * Process creation support for Hexagon
-+ *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
 + * This program is free software; you can redistribute it and/or modify
@@ -103,221 +444,23 @@ Index: linux-hexagon-kernel/arch/hexagon/kernel/process.c
 + * 02110-1301, USA.
 + */
 +
-+#include <linux/sched.h>
-+#include <linux/types.h>
-+#include <linux/module.h>
-+#include <linux/tick.h>
-+#include <linux/uaccess.h>
-+
 +/*
-+ * Kernel thread creation.  The desired kernel function is "wrapped"
-+ * in the kernel_thread_helper function, which does cleanup
-+ * afterwards.
++ * Trampoline sequences to be copied onto user stack.
++ * This consumes a little more space than hand-assembling
++ * immediate constants for use in C, but is more portable
++ * to future tweaks to the Hexagon instruction set.
 + */
-+static void __noreturn kernel_thread_helper(void *arg, int (*fn)(void *))
-+{
-+	do_exit(fn(arg));
-+}
 +
-+int kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
-+{
-+	struct pt_regs regs;
++#include <asm/unistd.h>
 +
-+	memset(&regs, 0, sizeof(regs));
-+	/*
-+	 * Yes, we're exploting illicit knowledge of the ABI here.
-+	 */
-+	regs.r00 = (unsigned long) arg;
-+	regs.r01 = (unsigned long) fn;
-+	pt_set_elr(&regs, (unsigned long)kernel_thread_helper);
-+	pt_set_kmode(&regs);
++/*  Sig trampolines - call sys_sigreturn or sys_rt_sigreturn as appropriate */
 +
-+	return do_fork(flags|CLONE_VM|CLONE_UNTRACED, 0, &regs, 0, NULL, NULL);
-+}
-+EXPORT_SYMBOL(kernel_thread);
++/*  plain sigreturn is gone.  */
 +
-+/*
-+ * Program thread launch.  Often defined as a macro in processor.h,
-+ * but we're shooting for a small footprint and it's not an inner-loop
-+ * performance-critical operation.
-+ *
-+ * The Hexagon ABI specifies that R28 is zero'ed before program launch,
-+ * so that gets automatically done here.  If we ever stop doing that here,
-+ * we'll probably want to define the ELF_PLAT_INIT macro.
-+ */
-+void start_thread(struct pt_regs *regs, unsigned long pc, unsigned long sp)
-+{
-+	/* Set to run with user-mode data segmentation */
-+	set_fs(USER_DS);
-+	/* We want to zero all data-containing registers. Is this overkill? */
-+	memset(regs, 0, sizeof(*regs));
-+	/* We might want to also zero all Processor registers here */
-+	pt_set_usermode(regs);
-+	pt_set_elr(regs, pc);
-+	pt_set_rte_sp(regs, sp);
-+}
-+
-+/*
-+ *  Spin, or better still, do a hardware or VM wait instruction
-+ *  If hardware or VM offer wait termination even though interrupts
-+ *  are disabled.
-+ */
-+static void default_idle(void)
-+{
-+	__vmwait();
-+}
-+
-+void (*idle_sleep)(void) = default_idle;
-+
-+void cpu_idle(void)
-+{
-+	while (1) {
-+		tick_nohz_stop_sched_tick(1);
-+		while (!need_resched())
-+			idle_sleep();
-+		tick_nohz_restart_sched_tick();
-+		schedule();
-+	}
-+}
-+
-+/*
-+ *  Return saved PC of a blocked thread
-+ */
-+unsigned long thread_saved_pc(struct task_struct *tsk)
-+{
-+	return 0;
-+}
-+
-+/*
-+ * Copy architecture-specific thread state
-+ */
-+int copy_thread(unsigned long clone_flags, unsigned long usp,
-+		unsigned long unused, struct task_struct *p,
-+		struct pt_regs *regs)
-+{
-+	struct thread_info *ti = task_thread_info(p);
-+	struct hexagon_switch_stack *ss;
-+	struct pt_regs *childregs;
-+	asmlinkage void ret_from_fork(void);
-+
-+	childregs = (struct pt_regs *) (((unsigned long) ti + THREAD_SIZE) -
-+					sizeof(*childregs));
-+
-+	memcpy(childregs, regs, sizeof(*childregs));
-+	ti->regs = childregs;
-+
-+	/*
-+	 * Establish kernel stack pointer and initial PC for new thread
-+	 */
-+	ss = (struct hexagon_switch_stack *) ((unsigned long) childregs -
-+						    sizeof(*ss));
-+	ss->lr = (unsigned long)ret_from_fork;
-+	p->thread.switch_sp = ss;
-+
-+	/* If User mode thread, set pt_reg stack pointer as per parameter */
-+	if (user_mode(childregs)) {
-+		pt_set_rte_sp(childregs, usp);
-+
-+		/* Child sees zero return value */
-+		childregs->r00 = 0;
-+
-+		/*
-+		 * The clone syscall has the C signature:
-+		 * int [r0] clone(int flags [r0],
-+		 *           void *child_frame [r1],
-+		 *           void *parent_tid [r2],
-+		 *           void *child_tid [r3],
-+		 *           void *thread_control_block [r4]);
-+		 * ugp is used to provide TLS support.
-+		 */
-+		if (clone_flags & CLONE_SETTLS)
-+			childregs->ugp = childregs->r04;
-+
-+		/*
-+		 * Parent sees new pid -- not necessary, not even possible at
-+		 * this point in the fork process
-+		 * Might also want to set things like ti->addr_limit
-+		 */
-+	} else {
-+		/*
-+		 * If kernel thread, resume stack is kernel stack base.
-+		 * Note that this is pointer arithmetic on pt_regs *
-+		 */
-+		pt_set_rte_sp(childregs, (unsigned long)(childregs + 1));
-+		/*
-+		 * We need the current thread_info fast path pointer
-+		 * set up in pt_regs.  The register to be used is
-+		 * parametric for assembler code, but the mechanism
-+		 * doesn't drop neatly into C.  Needs to be fixed.
-+		 */
-+		childregs->THREADINFO_REG = (unsigned long) ti;
-+	}
-+
-+	/*
-+	 * thread_info pointer is pulled out of task_struct "stack"
-+	 * field on switch_to.
-+	 */
-+	p->stack = (void *)ti;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Release any architecture-specific resources locked by thread
-+ */
-+void release_thread(struct task_struct *dead_task)
-+{
-+}
-+
-+/*
-+ * Free any architecture-specific thread data structures, etc.
-+ */
-+void exit_thread(void)
-+{
-+}
-+
-+/*
-+ * Some archs flush debug and FPU info here
-+ */
-+void flush_thread(void)
-+{
-+}
-+
-+/*
-+ * The "wait channel" terminology is archaic, but what we want
-+ * is an identification of the point at which the scheduler
-+ * was invoked by a blocked thread.
-+ */
-+unsigned long get_wchan(struct task_struct *p)
-+{
-+	unsigned long fp, pc;
-+	unsigned long stack_page;
-+	int count = 0;
-+	if (!p || p == current || p->state == TASK_RUNNING)
-+		return 0;
-+
-+	stack_page = (unsigned long)task_stack_page(p);
-+	fp = ((struct hexagon_switch_stack *)p->thread.switch_sp)->fp;
-+	do {
-+		if (fp < (stack_page + sizeof(struct thread_info)) ||
-+			fp >= (THREAD_SIZE - 8 + stack_page))
-+			return 0;
-+		pc = ((unsigned long *)fp)[1];
-+		if (!in_sched_functions(pc))
-+			return pc;
-+		fp = *(unsigned long *) fp;
-+	} while (count++ < 16);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Required placeholder.
-+ */
-+int dump_fpu(struct pt_regs *regs, elf_fpregset_t *fpu)
-+{
-+	return 0;
-+}
++	.globl __rt_sigtramp_template
++__rt_sigtramp_template:
++	r6 = #__NR_rt_sigreturn;
++	trap0(#1);
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
