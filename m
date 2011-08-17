@@ -1,318 +1,362 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch 24/36] Hexagon: Provide basic implementation and/or stubs for I/O routines.
-Date: Wed, 17 Aug 2011 11:35:21 -0500
-Message-ID: <20110817163522.101836238@codeaurora.org>
+Subject: [patch 22/36] Hexagon: Add locking types and functions
+Date: Wed, 17 Aug 2011 11:35:19 -0500
+Message-ID: <20110817163521.914040212@codeaurora.org>
 References: <20110817163457.878854582@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=io.diff
+Content-Disposition: inline; filename=rwsem-spin.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
-Cc: Linas Vepstas <linas@codeaurora.org>
+
+We pretty much just reused the PPC version of rwsem.h.  Spinlocks use ll/sc.
 
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
-Signed-off-by: Linas Vepstas <linas@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/io.h    |  279 +++++++++++++++++++++++++++++++++++++++
- arch/hexagon/include/asm/iomap.h |   30 ++++
- arch/hexagon/lib/io.c            |   91 ++++++++++++
- 3 files changed, 400 insertions(+)
+ arch/hexagon/include/asm/rwsem.h          |  132 +++++++++++++++++++++
+ arch/hexagon/include/asm/spinlock.h       |  186 ++++++++++++++++++++++++++++++
+ arch/hexagon/include/asm/spinlock_types.h |   42 ++++++
+ 3 files changed, 360 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/io.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/rwsem.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/io.h	2011-07-20 15:19:42.665151795 -0500
-@@ -0,0 +1,279 @@
-+/*
-+ * IO definitions for the Hexagon architecture
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
++++ linux-hexagon-kernel/arch/hexagon/include/asm/rwsem.h	2011-07-20 15:19:42.105151939 -0500
+@@ -0,0 +1,132 @@
++#ifndef _ASM_POWERPC_RWSEM_H
++#define _ASM_POWERPC_RWSEM_H
 +
-+#ifndef _ASM_IO_H
-+#define _ASM_IO_H
++#ifndef _LINUX_RWSEM_H
++#error "Please don't include <asm/rwsem.h> directly, use <linux/rwsem.h> instead."
++#endif
 +
 +#ifdef __KERNEL__
 +
-+#include <linux/types.h>
-+#include <linux/delay.h>
-+#include <linux/vmalloc.h>
-+#include <asm/string.h>
-+#include <asm/mem-layout.h>
-+#include <asm/iomap.h>
-+#include <asm/page.h>
-+#include <asm/cacheflush.h>
-+#include <asm/tlbflush.h>
-+
 +/*
-+ * Need to figure out where our I/O space is.  Important for PCI.
-+ * Which we don't have.
-+ */
-+#define IO_SPACE_LIMIT 0xffffffff
-+#define _IO_BASE 0x0
-+
-+extern int remap_area_pages(unsigned long start, unsigned long phys_addr,
-+				unsigned long end, unsigned long flags);
-+
-+extern void __iounmap(const volatile void __iomem *addr);
-+
-+/* Defined in lib/io.c, needed for smc91x driver. */
-+extern void __raw_readsw(const void __iomem *addr, void *data, int wordlen);
-+extern void __raw_writesw(void __iomem *addr, const void *data, int wordlen);
-+
-+extern void __raw_readsl(const void __iomem *addr, void *data, int wordlen);
-+extern void __raw_writesl(void __iomem *addr, const void *data, int wordlen);
-+
-+#define readsw(p, d, l)	__raw_readsw(p, d, l)
-+#define writesw(p, d, l) __raw_writesw(p, d, l)
-+
-+#define readsl(p, d, l)   __raw_readsl(p, d, l)
-+#define writesl(p, d, l)  __raw_writesl(p, d, l)
-+
-+/*
-+ * virt_to_phys - map virtual address to physical
-+ * @address:  address to map
-+ */
-+static inline unsigned long virt_to_phys(volatile void *address)
-+{
-+	return __pa(address);
-+}
-+
-+/*
-+ * phys_to_virt - map physical address to virtual
-+ * @address: address to map
-+ */
-+static inline void *phys_to_virt(unsigned long address)
-+{
-+	return __va(address);
-+}
-+
-+/*
-+ * IO port access primitives.  Hexagon doesn't have special IO access
-+ * instructions; all I/O is memory mapped.
-+ *
-+ * in/out are used for "ports", but we don't have "port instructions",
-+ * so these are really just memory mapped too.
++ * R/W semaphores for PPC using the stuff in lib/rwsem.c.
++ * Adapted largely from include/asm-i386/rwsem.h
++ * by Paul Mackerras <paulus@samba.org>.
 + */
 +
 +/*
-+ * readb - read byte from memory mapped device
-+ * @addr:  pointer to memory
-+ *
-+ * Operates on "I/O bus memory space"
++ * the semaphore definition
 + */
-+static inline u8 readb(const volatile void __iomem *addr)
-+{
-+	const volatile u8 *__mem = addr;
-+	u8 val = *__mem;
-+	return val;
-+}
-+
-+static inline u16 readw(const volatile void __iomem *addr)
-+{
-+	const volatile u16 *__mem = addr;
-+	u16 val = *__mem;
-+	return val;
-+}
-+
-+static inline u32 readl(const volatile void __iomem *addr)
-+{
-+	const volatile u32 *__mem = addr;
-+	u32 val = *__mem;
-+	return val;
-+}
-+
-+/*
-+ * inb - read byte from I/O port or something
-+ * @port:  address in I/O space
-+ *
-+ * Operates on "I/O bus I/O space"
-+ */
-+static inline u8 inb(unsigned long port)
-+{
-+	printk(KERN_INFO "inb not implemented\n");
-+	return 0;
-+}
-+
-+static inline u16 inw(unsigned long port)
-+{
-+	printk(KERN_INFO "inw not implemented\n");
-+	return 0;
-+}
-+
-+static inline u32 inl(unsigned long port)
-+{
-+	printk(KERN_INFO "inl not implemented\n");
-+	return 0;
-+}
-+
-+/*
-+ * writeb - write a byte to a memory location
-+ * @data: data to write to
-+ * @addr:  pointer to memory
-+ *
-+ */
-+static inline void writeb(u8 data, volatile void __iomem *addr)
-+{
-+	volatile u8 *__mem = addr;
-+	*__mem = data;
-+	return;
-+}
-+
-+static inline void writew(u16 data, volatile void __iomem *addr)
-+{
-+	volatile u16 *__mem = addr;
-+	*__mem = data;
-+	return;
-+}
-+
-+static inline void writel(u32 data, volatile void __iomem *addr)
-+{
-+	volatile u32 *__mem = addr;
-+	*__mem = data;
-+	return;
-+}
-+
-+#define __raw_writeb writeb
-+#define __raw_writew writew
-+#define __raw_writel writel
-+
-+#define __raw_readb readb
-+#define __raw_readw readw
-+#define __raw_readl readl
-+
-+#define PCI_IO_ADDR	volatile void __iomem *
-+
-+/*
-+ * outb - write a byte to a memory location
-+ * @data: data to write to
-+ * @addr:  address in I/O space
-+ */
-+static inline void outb(u8 data, unsigned long port)
-+{
-+	writeb(data, (PCI_IO_ADDR)_IO_BASE+port);
-+}
-+
-+static inline void outw(u16 data, unsigned long port)
-+{
-+	writew(data, (PCI_IO_ADDR)_IO_BASE+port);
-+}
-+
-+static inline void outl(u32 data, unsigned long port)
-+{
-+	writel(data, (PCI_IO_ADDR)_IO_BASE+port);
-+}
-+
-+/*
-+ * Need an mtype somewhere in here, for cache type deals?
-+ * This is probably too long for an inline.
-+ */
-+void __iomem *ioremap_nocache(unsigned long phys_addr, unsigned long size);
-+
-+static inline void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
-+{
-+	return ioremap_nocache(phys_addr, size);
-+}
-+
-+static inline void iounmap(volatile void __iomem *addr)
-+{
-+	__iounmap(addr);
-+}
-+
-+#define __raw_writel writel
-+
-+/*  _p means "pause until the I/O completes"  */
-+#define outb_p outb
-+#define outw_p outw
-+#define outl_p outl
-+
-+#define inb_p inb
-+#define inw_p inw
-+#define inl_p inl
-+
-+static inline void insb(unsigned long addr, void *buffer, int count)
-+{
-+	printk(KERN_INFO "insb not implemented\n");
-+}
-+
-+static inline void insw(unsigned long addr, void *buffer, int count)
-+{
-+	printk(KERN_INFO "insw not implemented\n");
-+}
-+
-+static inline void insl(unsigned long addr, void *buffer, int count)
-+{
-+	printk(KERN_INFO "insl not implemented\n");
-+}
-+
-+static inline void outsb(unsigned long addr, const void *buffer, int count)
-+{
-+	printk(KERN_INFO "outsb not implemented\n");
-+}
-+
-+static inline void outsw(unsigned long addr, const void *buffer, int count)
-+{
-+	printk(KERN_INFO "outsw not implemented\n");
-+}
-+
-+static inline void outsl(unsigned long addr, const void *buffer, int count)
-+{
-+	printk(KERN_INFO "outsl not implemented\n");
-+}
-+
-+static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
-+	int count)
-+{
-+	memcpy(dst, (void *) src, count);
-+}
-+
-+static inline void memcpy_toio(volatile void __iomem *dst, const void *src,
-+	int count)
-+{
-+	memcpy((void *) dst, src, count);
-+}
-+
-+/*
-+ * convert a physical pointer to a virtual kernel pointer for
-+ * /dev/mem access.
-+ */
-+#define xlate_dev_kmem_ptr(p)    __va(p)
-+#define xlate_dev_mem_ptr(p)    __va(p)
-+
-+/*  generic versions defined in lib/iomap.c  */
-+extern void __iomem *ioport_map(unsigned long port, unsigned int nr);
-+extern void ioport_unmap(void __iomem *addr);
-+
-+#define flush_write_buffers() do { } while (0)
-+
-+#endif /* __KERNEL__ */
-+
++#ifdef CONFIG_PPC64
++# define RWSEM_ACTIVE_MASK		0xffffffffL
++#else
++# define RWSEM_ACTIVE_MASK		0x0000ffffL
 +#endif
-Index: linux-hexagon-kernel/arch/hexagon/lib/io.c
++
++#define RWSEM_UNLOCKED_VALUE		0x00000000L
++#define RWSEM_ACTIVE_BIAS		0x00000001L
++#define RWSEM_WAITING_BIAS		(-RWSEM_ACTIVE_MASK-1)
++#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
++#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
++
++/*
++ * lock for reading
++ */
++static inline void __down_read(struct rw_semaphore *sem)
++{
++	if (unlikely(atomic_long_inc_return((atomic_long_t *)&sem->count) <= 0))
++		rwsem_down_read_failed(sem);
++}
++
++static inline int __down_read_trylock(struct rw_semaphore *sem)
++{
++	long tmp;
++
++	while ((tmp = sem->count) >= 0) {
++		if (tmp == cmpxchg(&sem->count, tmp,
++				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
++			return 1;
++		}
++	}
++	return 0;
++}
++
++/*
++ * lock for writing
++ */
++static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
++{
++	long tmp;
++
++	tmp = atomic_long_add_return(RWSEM_ACTIVE_WRITE_BIAS,
++				     (atomic_long_t *)&sem->count);
++	if (unlikely(tmp != RWSEM_ACTIVE_WRITE_BIAS))
++		rwsem_down_write_failed(sem);
++}
++
++static inline void __down_write(struct rw_semaphore *sem)
++{
++	__down_write_nested(sem, 0);
++}
++
++static inline int __down_write_trylock(struct rw_semaphore *sem)
++{
++	long tmp;
++
++	tmp = cmpxchg(&sem->count, RWSEM_UNLOCKED_VALUE,
++		      RWSEM_ACTIVE_WRITE_BIAS);
++	return tmp == RWSEM_UNLOCKED_VALUE;
++}
++
++/*
++ * unlock after reading
++ */
++static inline void __up_read(struct rw_semaphore *sem)
++{
++	long tmp;
++
++	tmp = atomic_long_dec_return((atomic_long_t *)&sem->count);
++	if (unlikely(tmp < -1 && (tmp & RWSEM_ACTIVE_MASK) == 0))
++		rwsem_wake(sem);
++}
++
++/*
++ * unlock after writing
++ */
++static inline void __up_write(struct rw_semaphore *sem)
++{
++	if (unlikely(atomic_long_sub_return(RWSEM_ACTIVE_WRITE_BIAS,
++				 (atomic_long_t *)&sem->count) < 0))
++		rwsem_wake(sem);
++}
++
++/*
++ * implement atomic add functionality
++ */
++static inline void rwsem_atomic_add(long delta, struct rw_semaphore *sem)
++{
++	atomic_long_add(delta, (atomic_long_t *)&sem->count);
++}
++
++/*
++ * downgrade write lock to read lock
++ */
++static inline void __downgrade_write(struct rw_semaphore *sem)
++{
++	long tmp;
++
++	tmp = atomic_long_add_return(-RWSEM_WAITING_BIAS,
++				     (atomic_long_t *)&sem->count);
++	if (tmp < 0)
++		rwsem_downgrade_wake(sem);
++}
++
++/*
++ * implement exchange and add functionality
++ */
++static inline long rwsem_atomic_update(long delta, struct rw_semaphore *sem)
++{
++	return atomic_long_add_return(delta, (atomic_long_t *)&sem->count);
++}
++
++#endif	/* __KERNEL__ */
++#endif	/* _ASM_POWERPC_RWSEM_H */
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/spinlock.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/lib/io.c	2011-07-20 15:19:42.665151795 -0500
-@@ -0,0 +1,91 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/spinlock.h	2011-07-20 15:19:42.105151939 -0500
+@@ -0,0 +1,186 @@
 +/*
-+ * I/O access functions for Hexagon
++ * Spinlock support for the Hexagon architecture
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef _ASM_SPINLOCK_H
++#define _ASM_SPINLOCK_H
++
++#include <asm/irqflags.h>
++
++/*
++ * This file is pulled in for SMP builds.
++ * Really need to check all the barrier stuff for "true" SMP
++ */
++
++/*
++ * Read locks:
++ * - load the lock value
++ * - increment it
++ * - if the lock value is still negative, go back and try again.
++ * - unsuccessful store is unsuccessful.  Go back and try again.  Loser.
++ * - successful store new lock value if positive -> lock acquired
++ */
++static inline void arch_read_lock(arch_rwlock_t *lock)
++{
++	__asm__ __volatile__(
++		"1:	R6 = memw_locked(%0);\n"
++		"	{ P3 = cmp.ge(R6,#0); R6 = add(R6,#1);}\n"
++		"	{ if !P3 jump 1b; }\n"
++		"	memw_locked(%0,P3) = R6;\n"
++		"	{ if !P3 jump 1b; }\n"
++		:
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++
++}
++
++static inline void arch_read_unlock(arch_rwlock_t *lock)
++{
++	__asm__ __volatile__(
++		"1:	R6 = memw_locked(%0);\n"
++		"	R6 = add(R6,#-1);\n"
++		"	memw_locked(%0,P3) = R6\n"
++		"	if !P3 jump 1b;\n"
++		:
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++
++}
++
++/*  I think this returns 0 on fail, 1 on success.  */
++static inline int arch_read_trylock(arch_rwlock_t *lock)
++{
++	int temp;
++	__asm__ __volatile__(
++		"	R6 = memw_locked(%1);\n"
++		"	{ %0 = #0; P3 = cmp.ge(R6,#0); R6 = add(R6,#1);}\n"
++		"	{ if !P3 jump 1f; }\n"
++		"	memw_locked(%1,P3) = R6;\n"
++		"	{ %0 = P3 }\n"
++		"1:\n"
++		: "=&r" (temp)
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++	return temp;
++}
++
++static inline int arch_read_can_lock(arch_rwlock_t *rwlock)
++{
++	return rwlock->lock == 0;
++}
++
++static inline int arch_write_can_lock(arch_rwlock_t *rwlock)
++{
++	return rwlock->lock == 0;
++}
++
++/*  Stuffs a -1 in the lock value?  */
++static inline void arch_write_lock(arch_rwlock_t *lock)
++{
++	__asm__ __volatile__(
++		"1:	R6 = memw_locked(%0)\n"
++		"	{ P3 = cmp.eq(R6,#0);  R6 = #-1;}\n"
++		"	{ if !P3 jump 1b; }\n"
++		"	memw_locked(%0,P3) = R6;\n"
++		"	{ if !P3 jump 1b; }\n"
++		:
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++}
++
++
++static inline int arch_write_trylock(arch_rwlock_t *lock)
++{
++	int temp;
++	__asm__ __volatile__(
++		"	R6 = memw_locked(%1)\n"
++		"	{ %0 = #0; P3 = cmp.eq(R6,#0);  R6 = #-1;}\n"
++		"	{ if !P3 jump 1f; }\n"
++		"	memw_locked(%1,P3) = R6;\n"
++		"	%0 = P3;\n"
++		"1:\n"
++		: "=&r" (temp)
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++	return temp;
++
++}
++
++static inline void arch_write_unlock(arch_rwlock_t *lock)
++{
++	smp_mb();
++	lock->lock = 0;
++}
++
++static inline void arch_spin_lock(arch_spinlock_t *lock)
++{
++	__asm__ __volatile__(
++		"1:	R6 = memw_locked(%0);\n"
++		"	P3 = cmp.eq(R6,#0);\n"
++		"	{ if !P3 jump 1b; R6 = #1; }\n"
++		"	memw_locked(%0,P3) = R6;\n"
++		"	{ if !P3 jump 1b; }\n"
++		:
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++
++}
++
++static inline void arch_spin_unlock(arch_spinlock_t *lock)
++{
++	smp_mb();
++	lock->lock = 0;
++}
++
++static inline unsigned int arch_spin_trylock(arch_spinlock_t *lock)
++{
++	int temp;
++	__asm__ __volatile__(
++		"	R6 = memw_locked(%1);\n"
++		"	P3 = cmp.eq(R6,#0);\n"
++		"	{ if !P3 jump 1f; R6 = #1; %0 = #0; }\n"
++		"	memw_locked(%1,P3) = R6;\n"
++		"	%0 = P3;\n"
++		"1:\n"
++		: "=&r" (temp)
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++	return temp;
++}
++
++/*
++ * SMP spinlocks are intended to allow only a single CPU at the lock
++ */
++#define arch_spin_lock_flags(lock, flags) arch_spin_lock(lock)
++#define arch_spin_unlock_wait(lock) \
++	do {while (arch_spin_is_locked(lock)) cpu_relax(); } while (0)
++#define arch_spin_is_locked(x) ((x)->lock != 0)
++
++#define arch_read_lock_flags(lock, flags) arch_read_lock(lock)
++#define arch_write_lock_flags(lock, flags) arch_write_lock(lock)
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/spinlock_types.h	2011-07-20 15:19:42.105151939 -0500
+@@ -0,0 +1,42 @@
++/*
++ * Spinlock support for the Hexagon architecture
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -331,110 +375,26 @@ Index: linux-hexagon-kernel/arch/hexagon/lib/io.c
 + * 02110-1301, USA.
 + */
 +
-+#include <asm/io.h>
++#ifndef _ASM_SPINLOCK_TYPES_H
++#define _ASM_SPINLOCK_TYPES_H
 +
-+/*  These are all FIFO routines!  */
++#include <linux/version.h>
 +
-+/*
-+ * __raw_readsw - read words a short at a time
-+ * @addr:  source address
-+ * @data:  data address
-+ * @len: number of shorts to read
-+ */
-+void __raw_readsw(const void __iomem *addr, void *data, int len)
-+{
-+	const volatile short int *src = (short int *) addr;
-+	short int *dst = (short int *) data;
-+
-+	if ((u32)data & 0x1)
-+		panic("unaligned pointer to readsw");
-+
-+	while (len-- > 0)
-+		*dst++ = *src;
-+
-+}
-+
-+/*
-+ * __raw_writesw - read words a short at a time
-+ * @addr:  source address
-+ * @data:  data address
-+ * @len: number of shorts to read
-+ */
-+void __raw_writesw(void __iomem *addr, const void *data, int len)
-+{
-+	const short int *src = (short int *)data;
-+	volatile short int *dst = (short int *)addr;
-+
-+	if ((u32)data & 0x1)
-+		panic("unaligned pointer to writesw");
-+
-+	while (len-- > 0)
-+		*dst = *src++;
-+
-+
-+}
-+
-+/*  Pretty sure len is pre-adjusted for the length of the access already */
-+void __raw_readsl(const void __iomem *addr, void *data, int len)
-+{
-+	const volatile long *src = (long *) addr;
-+	long *dst = (long *) data;
-+
-+	if ((u32)data & 0x3)
-+		panic("unaligned pointer to readsl");
-+
-+	while (len-- > 0)
-+		*dst++ = *src;
-+
-+
-+}
-+
-+void __raw_writesl(void __iomem *addr, const void *data, int len)
-+{
-+	const long *src = (long *)data;
-+	volatile long *dst = (long *)addr;
-+
-+	if ((u32)data & 0x3)
-+		panic("unaligned pointer to writesl");
-+
-+	while (len-- > 0)
-+		*dst = *src++;
-+
-+
-+}
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/iomap.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/iomap.h	2011-07-20 15:19:42.665151795 -0500
-@@ -0,0 +1,30 @@
-+/*
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#ifndef _HEXAGON_IOMAP_H
-+#define _HEXAGON_IOMAP_H
-+
-+#ifndef __ASSEMBLY__
-+#include <asm-generic/iomap.h>
++#ifndef __LINUX_SPINLOCK_TYPES_H
++# error "please don't include this file directly"
 +#endif
 +
-+#ifdef CONFIG_HEXAGON_COMET
-+#include "platform/comet/comet_iomap.h"
-+#endif
++typedef struct {
++	volatile unsigned int lock;
++} arch_spinlock_t;
++
++#define __ARCH_SPIN_LOCK_UNLOCKED	{ 0 }
++
++typedef struct {
++	volatile unsigned int lock;
++} arch_rwlock_t;
++
++#define __ARCH_RW_LOCK_UNLOCKED		{ 0 }
 +
 +#endif
 
