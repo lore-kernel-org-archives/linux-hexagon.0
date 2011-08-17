@@ -1,77 +1,53 @@
-From: Jonas Bonn <jonas.bonn@gmail.com>
-Subject: Re: [patch 05/36] Hexagon: Add syscalls
-Date: Wed, 17 Aug 2011 22:12:20 +0200
-Message-ID: <CACM3HyE=vHtr7Y-9k7PWvxmGt+O1bJyxs18CEmtzMdq9zOtfqw@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [patch 00/36] Hexagon: Add support for Qualcomm Hexagon architecture
+Date: Wed, 17 Aug 2011 22:34:38 +0200
+Message-ID: <5653962.eQPS9muPhD@wuerfel>
 References: <20110817163457.878854582@codeaurora.org>
-	<20110817163520.334269161@codeaurora.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=gamma;
-        h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-         :cc:content-type:content-transfer-encoding;
-        bh=ga2vgo/nX7ztC0hzGVQyE4Ngm/PgnZYd9/ao+oa0GEk=;
-        b=KSGe6RG+voSWHHecLQaZUWWDUJa4zPPuggSE8c2bm2bLCz4icYkHTDfF1jw80TCXeR
-         FG0G/8wMuqp/DJYK3QtMa1GR21RXpaG6I0bwfbgAbUG7X7oEulzL1ZDXxziDFV2wM0bU
-         dboLTXG8/9BugojSyAd3hXPNqocYvoFNRya+A=
-In-Reply-To: <20110817163520.334269161@codeaurora.org>
+In-Reply-To: <20110817163457.878854582@codeaurora.org>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="utf-8"
 To: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org, Linas Vepstas <linas@codeaurora.org>
 
-> +
-> +#define __ARCH_WANT_SYSCALL_DEPRECATED
-> +
-> +#ifndef __GLIBC__
-> +/* It seems these are all needed for uClibc...
-> + * However, if glibc is compiled w/ these turned on, then it will
-> + * will fail (typically with 32/64-bit compat problems). */
-> +#define __ARCH_WANT_SYSCALL_OFF_T
-> +#define __ARCH_WANT_SYSCALL_NO_AT
-> +#define __ARCH_WANT_SYSCALL_NO_FLAGS
-> +#endif
-> +
+On Wednesday 17 August 2011 11:34:57 Richard Kuo wrote:
+> The following patch set is intended to add support for the Qualcomm Hexagon
+> architecture to the Linux kernel.
+> 
+> The Hexagon architecture is designed to deliver performance with low power
+> over a variety of applications.  It has features such as multithreading,
+> privilege levels, VLIW, and instructions geared toward efficient signal
+> processing.  The port of Linux for Hexagon runs under a hypervisor layer.
+> 
+> I realize we are not currently in a merge window, but I felt it would be best
+> to go ahead and send it out so that the community gets an ample chance to
+> review it.  This is a very large patch set, but we've tried to break it up
+> into functional pieces to make review easier.
 
-These are no longer appropriate for the mainline kernel.  These
-definitions are mainly intended to be used during a transitional
-period until the necessary changes can be made in the required C
-library.
+Hi Richard and Linas,
 
-The recommendation is to just carry these defines as an external patch
-while the necessary changes are made in uClibc.  I've just about got
-the necessary changes done and will send them to the uClibc mailing
-list shortly, so hopefully the need for these defines will go away
-really soon now.
+It's good to finally see the source for this, and I have a good feeling
+about the quality of the code, so it should not be a problem to resolve
+the remaining issues in time to get it into the next merge window.
 
+I have gone over all patches once now and commented about everything
+that looked odd or wrong. Most of the issues are really just small
+changes. Removing support for the legacy syscalls is an easy change
+in the kernel but it might require significant changes in the libc
+implementation. It's not a big problem if your libc still requires the
+old interfaces at the time the architecture gets merged upstream,
+that will just mean that you have to have a small kernel patch to add
+them back in while transitioning to the new libc.
 
-> +asmlinkage int sys_fork(void)
-> +{
-> + =C2=A0 =C2=A0 =C2=A0 struct pt_regs *pregs =3D current_thread_info(=
-)->regs;
-> +
-> + =C2=A0 =C2=A0 =C2=A0 return do_fork(SIGCHLD, pregs->SP, pregs, 0, N=
-ULL, NULL);
-> +}
-> +
-> +asmlinkage int sys_vfork(void)
-> +{
-> + =C2=A0 =C2=A0 =C2=A0 struct pt_regs *pregs =3D current_thread_info(=
-)->regs;
-> +
-> + =C2=A0 =C2=A0 =C2=A0 return do_fork(CLONE_VFORK | CLONE_VM | SIGCHL=
-D,
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0pregs->SP, pregs, 0, NULL, NULL);
-> +}
+As I commented on patch 33, I think the platform specific patches should
+not get merged before everything is converted to device tree based
+probing. This should also not keep the rest from going in. I think it
+would be good to do the conversion together with the ARM-MSM platform
+that seems to share a lot of the device specific code, and it would
+be bad to end up with duplicate work here or (worse) with incompatible
+DT bindings.
 
-These two are deprecated.
-
-/Jonas
---
-To unsubscribe from this list: send the line "unsubscribe linux-hexagon=
-" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	Arnd
