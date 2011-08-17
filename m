@@ -1,124 +1,129 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [patch 33/36] Hexagon: Platform-generic support.
-Date: Wed, 17 Aug 2011 22:20:59 +0200
-Message-ID: <1965116.89cf5iXWOV@wuerfel>
-References: <20110817163457.878854582@codeaurora.org> <20110817163522.946736379@codeaurora.org>
+Subject: Re: [patch 24/36] Hexagon: Provide basic implementation and/or stubs for I/O routines.
+Date: Wed, 17 Aug 2011 21:55:40 +0200
+Message-ID: <3634899.QN7OL7NIVd@wuerfel>
+References: <20110817163457.878854582@codeaurora.org> <20110817163522.101836238@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20110817163522.946736379@codeaurora.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110817163522.101836238@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 To: Richard Kuo <rkuo@codeaurora.org>
 Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org, Linas Vepstas <linas@codeaurora.org>
 
-On Wednesday 17 August 2011 11:35:30 Richard Kuo wrote:
-> We understand that devtree is preferred for platform support and
-> will be switching to that in the foreseeable future.
-> 
-> Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
-> Signed-off-by: Linas Vepstas <linas@codeaurora.org>
-> 
-> ---
->  arch/hexagon/include/asm/angel_console.h     |   24 +++
->  arch/hexagon/include/asm/clock.h             |  172 ++++++++++++++++++++++
->  arch/hexagon/include/asm/gpio.h              |   32 ++++
->  arch/hexagon/include/asm/platform.h          |   49 ++++++
->  arch/hexagon/include/asm/platform/sirc.h     |   71 +++++++++
->  arch/hexagon/platform/common/Makefile        |   12 +
->  arch/hexagon/platform/common/angel_console.c |   89 +++++++++++
->  arch/hexagon/platform/common/angel_misc.c    |   56 +++++++
->  arch/hexagon/platform/common/clock.c         |  100 ++++++++++++
->  arch/hexagon/platform/common/irq.c           |   23 ++
->  arch/hexagon/platform/common/platform.c      |   82 ++++++++++
->  arch/hexagon/platform/common/sirc.c          |  208 +++++++++++++++++++++++++++
->  12 files changed, 918 insertions(+)
+On Wednesday 17 August 2011 11:35:21 Richard Kuo wrote:
 
-I think it would be better not to start with a 'platform' directory then:
-Ideally you should be able to handle all systems with a single kernel, and
-so far there is only one platform.
-
-Just move the contents into an appropriate location, and at the point in the
-distant future where you need multiple platforms, split out just the parts
-that are different.
-
-Also, my feeling is that we should not merge the platform code into mainline
-until it has been converted to device tree based probing.
-
-> Index: linux-hexagon-kernel/arch/hexagon/include/asm/platform.h
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-hexagon-kernel/arch/hexagon/include/asm/platform.h	2011-07-20 15:19:45.035151233 -0500
-> +#ifndef __PLATFORM_H
-> +#define __PLATFORM_H
-> +
-> +extern int on_simulator;
-> +extern unsigned long bootmem_lastpg;
-> +
-> +/* Platforms */
-> +enum {
-> +	PLATFORM_COMET	= 1,	/*  Comet/Simulator  */
-> +};
-> +
 > +/*
-> + * Function pointers to all our platform specific callouts
+> + * Need to figure out where our I/O space is.  Important for PCI.
+> + * Which we don't have.
 > + */
-> +struct platform_ops_t {
-> +	void (*register_early_console)(void);
-> +	void (*clock_init)(void);
-> +	void (*irq_init)(void);
-> +};
-> +
-> +void platform_setup_ops(struct platform_ops_t *);
-> +void __init comet_setup_ops(struct platform_ops_t * ops);
-> +void __init amazon_setup_ops(struct platform_ops_t * ops);
-> +
-> +extern void __init plat_clock_init(void);
-> +
-> +extern void __init angel_get_command_line(char *s, unsigned n);
-> +
-> +#endif
+> +#define IO_SPACE_LIMIT 0xffffffff
+> +#define _IO_BASE 0x0
 
-The platform_ops_t structure looks a bit out of place here. I'd recommend
-starting without it and just calling the appropriate functions directly,
-at least as long as there is only one version anyway.
+Better set IO_SPACE_LIMIT to zero then, which should prevent drivers
+from doing NULL pointer dereferences when they want to access I/O
+space.
 
-> Index: linux-hexagon-kernel/arch/hexagon/platform/common/Makefile
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-hexagon-kernel/arch/hexagon/platform/common/Makefile	2011-07-20 15:19:45.035151233 -0500
-> @@ -0,0 +1,12 @@
-> +
-> +obj-y += platform.o irq.o
-> +
-> +obj-y += clock.o
-> +
-> +ifdef CONFIG_HEXAGON_ANGEL_TRAPS
-> +obj-y += angel_misc.o angel_console.o
-> +endif
-> +
-> +ifdef CONFIG_HEXAGON_COMET
-> +obj-y += sirc.o
-> +endif
-
-The normal syntax for this is
-
-obj-$(CONFIG_HEXAGON_ANGEL_TRAPS)	+= angel_misc.o angel_console.o
-obj-$(CONFIG_HEXAGON_COMET)		+= sirc.o
-
-
-> Index: linux-hexagon-kernel/arch/hexagon/platform/common/sirc.c
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-hexagon-kernel/arch/hexagon/platform/common/sirc.c	2011-07-20 15:19:45.035151233 -0500
-> @@ -0,0 +1,208 @@
 > +/*
-> + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
+> + * IO port access primitives.  Hexagon doesn't have special IO access
+> + * instructions; all I/O is memory mapped.
+> + *
+> + * in/out are used for "ports", but we don't have "port instructions",
+> + * so these are really just memory mapped too.
+> + */
+> +
+> +/*
+> + * readb - read byte from memory mapped device
+> + * @addr:  pointer to memory
+> + *
+> + * Operates on "I/O bus memory space"
+> + */
+> +static inline u8 readb(const volatile void __iomem *addr)
+> +{
+> +	const volatile u8 *__mem = addr;
+> +	u8 val = *__mem;
+> +	return val;
+> +}
+> +
+> +static inline u16 readw(const volatile void __iomem *addr)
+> +{
+> +	const volatile u16 *__mem = addr;
+> +	u16 val = *__mem;
+> +	return val;
+> +}
+> +
+> +static inline u32 readl(const volatile void __iomem *addr)
+> +{
+> +	const volatile u32 *__mem = addr;
+> +	u32 val = *__mem;
+> +	return val;
+> +}
 
-Is this the same hardware as in arch/arm/mach-msm/sirc.c?
-If so, better merge the drivers and put them into a common location.
-There was some talk of starting a drivers/irqchip/ directory for interrupt
-controller drivers that are not architecture specific.
+These definitions might not be safe, because gcc can turn these
+accesses into byte-wise pointer dereferences when it feels like it.
+Better use inline assembly.
+
+> +/*
+> + * inb - read byte from I/O port or something
+> + * @port:  address in I/O space
+> + *
+> + * Operates on "I/O bus I/O space"
+> + */
+> +static inline u8 inb(unsigned long port)
+> +{
+> +	printk(KERN_INFO "inb not implemented\n");
+> +	return 0;
+> +}
+> +
+> +static inline u16 inw(unsigned long port)
+> +{
+> +	printk(KERN_INFO "inw not implemented\n");
+> +	return 0;
+> +}
+> +
+> +static inline u32 inl(unsigned long port)
+> +{
+> +	printk(KERN_INFO "inl not implemented\n");
+> +	return 0;
+> +}
+
+I'm working on a patch set to make it possible to build the
+kernel without having to define these when you have no PCI.
+Maybe you can leave them out already and see how far you get
+on your platform?
+
+It will definitely break allyesconfig right now, but perhaps
+not break any of the drivers that you actually use.
+
+> +/*
+> + * outb - write a byte to a memory location
+> + * @data: data to write to
+> + * @addr:  address in I/O space
+> + */
+> +static inline void outb(u8 data, unsigned long port)
+> +{
+> +	writeb(data, (PCI_IO_ADDR)_IO_BASE+port);
+> +}
+> +
+> +static inline void outw(u16 data, unsigned long port)
+> +{
+> +	writew(data, (PCI_IO_ADDR)_IO_BASE+port);
+> +}
+> +
+> +static inline void outl(u32 data, unsigned long port)
+> +{
+> +	writel(data, (PCI_IO_ADDR)_IO_BASE+port);
+> +}
+
+It seems very inconsistent to provide outb but not inb.
+
+> +
+> +/*  generic versions defined in lib/iomap.c  */
+> +extern void __iomem *ioport_map(unsigned long port, unsigned int nr);
+> +extern void ioport_unmap(void __iomem *addr);
+
+You don't need these when you set CONFIG_NO_IOPORT.
 
 	Arnd
