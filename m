@@ -1,41 +1,55 @@
-From: Linas Vepstas <linasvepstas@gmail.com>
-Subject: Re: [patch 32/36] Hexagon: Comet platform support
-Date: Wed, 17 Aug 2011 18:45:24 -0500
-Message-ID: <CAHrUA37Z1A_UNaOrSu3VXyV3jJumEoCAU4hsqQm4RHraLrAu3A@mail.gmail.com>
-References: <20110817163457.878854582@codeaurora.org> <20110817163522.852412019@codeaurora.org>
- <1490448.Ut7YRxkLUk@wuerfel>
-Reply-To: linasvepstas@gmail.com
+From: Richard Kuo <rkuo@codeaurora.org>
+Subject: Re: [patch 00/36] Hexagon: Add support for Qualcomm Hexagon
+ architecture
+Date: Wed, 17 Aug 2011 19:31:08 -0500
+Message-ID: <20110818003108.GA4049@codeaurora.org>
+References: <20110817163457.878854582@codeaurora.org>
+ <5653962.eQPS9muPhD@wuerfel>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=gamma;
-        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
-         :subject:to:cc:content-type;
-        bh=+59jjRcwtYb6KFyM24JZnN69spEIavOYdNK1f5jFAWQ=;
-        b=t8Vmf82eNNEHa1gKets2+3rPEe9/G13+HgFiCAVQm0olucLmiJsI556RfhStpRvZTm
-         yYFnEEufpt3MG5nzfP1nxWvTwYeSFc/YsfBnXS01l8sveL7bz+F4qMo+dFR2wmSsRSkl
-         JCC3dtQkWXT8J0uR63N4fzfE02nZQGGK6frgY=
-In-Reply-To: <1490448.Ut7YRxkLUk@wuerfel>
+Content-Disposition: inline
+In-Reply-To: <5653962.eQPS9muPhD@wuerfel>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: Richard Kuo <rkuo@codeaurora.org>, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On 17 August 2011 15:07, Arnd Bergmann <arnd@arndb.de> wrote:
+> It's good to finally see the source for this, and I have a good feeling
+> about the quality of the code, so it should not be a problem to resolve
+> the remaining issues in time to get it into the next merge window.
+> 
+> I have gone over all patches once now and commented about everything
+> that looked odd or wrong. Most of the issues are really just small
+> changes. Removing support for the legacy syscalls is an easy change
+> in the kernel but it might require significant changes in the libc
+> implementation. It's not a big problem if your libc still requires the
+> old interfaces at the time the architecture gets merged upstream,
+> that will just mean that you have to have a small kernel patch to add
+> them back in while transitioning to the new libc.
 
->> + * linux/arch/hexagon/platform/comet/board.c
->
-> We really don't want to have board files in new architectures any more. If your
-> hardware is not fully discoverable, you should instead describe it in a device
-> tree source file, see powerpc, microblaze, and the newer arm platforms.
+Thanks for reviewing the patches!  I've started working on some of the
+feedback and will be answering other questions as I get to them.
 
-Working on device-tree support, slowly but surely, but this could get
-all tangled
-for a while as many of the devices are common with the arm.  The goal is to
-yank this file before the final submission. but for now, it seemed
-easier to mail
-this as a work in progress.
+> As I commented on patch 33, I think the platform specific patches should
+> not get merged before everything is converted to device tree based
+> probing. This should also not keep the rest from going in. I think it
+> would be good to do the conversion together with the ARM-MSM platform
+> that seems to share a lot of the device specific code, and it would
+> be bad to end up with duplicate work here or (worse) with incompatible
+> DT bindings.
 
--- Linas
+OK, sounds fair.  I have been working on devtree code on the side, but for
+this first submission, it sounds like I'll just gut the platform code
+out.
+
+
+Thanks,
+Richard Kuo
+
+
+-- 
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
