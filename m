@@ -1,29 +1,71 @@
-From: "Joseph S. Myers" <joseph@codesourcery.com>
+From: Guan Xuetao <gxt@mprc.pku.edu.cn>
 Subject: Re: __ARCH_WANT_SYSCALL_DEPRECATED
-Date: Mon, 22 Aug 2011 22:11:26 +0000 (UTC)
-Message-ID: <Pine.LNX.4.64.1108222210090.31559@digraph.polyomino.org.uk>
-References: <20110822193602.GA23301@codeaurora.org>
+Date: Wed, 24 Aug 2011 10:01:24 +0800
+Message-ID: <1314151284.29738.34.camel@epip-laptop>
+References: <20110822193602.GA23301@codeaurora.org>	 <2047151.mWElcT8jZQ@wuerfel>
+Reply-To: gxt@mprc.pku.edu.cn
 Mime-Version: 1.0
-Return-path: <libc-ports-return-2008-gclgp-libc-ports=m.gmane.org@sourceware.org>
-In-Reply-To: <20110822193602.GA23301@codeaurora.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <libc-ports-return-2009-gclgp-libc-ports=m.gmane.org@sourceware.org>
+In-Reply-To: <2047151.mWElcT8jZQ@wuerfel>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <mailto:libc-ports-unsubscribe-gclgp-libc-ports=m.gmane.org@sourceware.org>
 List-Subscribe: <mailto:libc-ports-subscribe@sourceware.org>
 List-Post: <mailto:libc-ports@sourceware.org>
 List-Help: <mailto:libc-ports-help@sourceware.org>, <http://sourceware.org/lists.html#faqs>
 Sender: libc-ports-owner@sourceware.org
-Content-Type: TEXT/PLAIN; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, GLIBC Devel <libc-alpha@sourceware.org>, Chris Metcalf <cmetcalf@tilera.com>, Jonas Bonn <jonas.bonn@gmail.com>, libc-ports@sourceware.org, linux-hexagon@vger.kernel.org, linux-arch@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>, GLIBC Devel <libc-alpha@sourceware.org>, Chris Metcalf <cmetcalf@tilera.com>, Jonas Bonn <jonas.bonn@gmail.com>, libc-ports@sourceware.org, linux-hexagon@vger.kernel.org, linux-arch@vger.kernel.org, Mark Salter <msalter@redhat.com>, Tobias Klauser <tklauser@distanz.ch>
 
-On Mon, 22 Aug 2011, Linas Vepstas (Code Aurora) wrote:
+Hi, Linas,
+  For unicore32, we have our own porting version of glibc, so conflict
+problems are solved when one abi defined. We will modify the code of
+kernel and glibc together to maintain the consistence.
+  So, sadly, you must choose one to modify (patching and re-building),
+otherwise you must choose old good-matched versions.
+  For getdents (or other deprecated syscalls), we select getdents64 to
+replace getdent, though we have not verified it on unicore32 platform. I
+think it's reasonable, and perhaps modifying/rebuilding glibc is enough
+for the whole file-system (there are always some applications which do
+do syscalls and handle structs by themselves).
+  Another words, compatibility is very important, so making the decision
+with your team.
 
-> So: What's the latest on asm-generic support on glibc? 
+Guan Xuetao
 
-No-one has submitted a patch (to libc-ports).  If a patch doesn't get 
-submitted by someone with current FSF paperwork, it won't get in.
+On Mon, 2011-08-22 at 22:43 +0200, Arnd Bergmann wrote:
+> On Monday 22 August 2011 14:36:02 Linas Vepstas wrote:
+> > 
+> > So: What's the latest on asm-generic support on glibc? 
+> > I just pulled glibc-2.14 and note that Chris Metcalf's
+> > generic implementation hasn't been folded in yet. 
+> > It seems to work well for me, so can we expect it
+> > anytime soon?
+> > 
+> > Another problem:  If I don't define __ARCH_WANT_SYSCALL_DEPRECATED
+> > in the kernel asm/unistd.h  then glibc won't build: currently,
+> > I get 
+> > ../sysdeps/unix/sysv/linux/getdents.c:105: error: ‘__NR_getdents’ undeclared (first use in this function)
+> > 
+> > A very quick grep tells me that asm-generic defines a getdents64
+> > but that is not what glibc is looking for.  Is there any chance
+> > that there are glibc patches floating around somewhere that heal
+> > this and any remaining __ARCH_WANT_SYSCALL_DEPRECATED issues?
+> 
+> I don't know the answer to your question, but I've added Mark Salter,
+> Guan Xuetao and Tobias Klauser to the list, since they probably have
+> the same issue on c64x, unicore32 and nios2. c64x is currently nommu,
+> but there is a similar problem with uclibc and I expect that architecture
+> to grow an mmu at some point.
+> 
+> As far as I can tell, there is now a total of six architectures using
+> the generic syscalls (not counting s*core, because that relies on
+> the deprecated calls) and at least two unnamed ones waiting to have
+> their coming-out, plus a few stagnated ports (lm32, arc, mmix, meta, ...)
+> that would need to get converted if someone wanted to push kernel
+> support upstream.
+> 
+> 	Arnd
 
--- 
-Joseph S. Myers
-joseph@codesourcery.com
+
