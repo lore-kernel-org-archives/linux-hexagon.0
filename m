@@ -1,80 +1,33 @@
-From: Chris Metcalf <cmetcalf@tilera.com>
-Subject: Re: __ARCH_WANT_SYSCALL_DEPRECATED
-Date: Thu, 25 Aug 2011 22:56:38 -0400
-Message-ID: <4E570B66.608@tilera.com>
-References: <20110822193602.GA23301@codeaurora.org> <2047151.mWElcT8jZQ@wuerfel> <1314151284.29738.34.camel@epip-laptop> <20110824152537.GA3993@codeaurora.org>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [patch 03/36] Hexagon: Add bitops support
+Date: Fri, 26 Aug 2011 22:34:10 +0200
+Message-ID: <20110826203410.GB6630@ucw.cz>
+References: <20110817163457.878854582@codeaurora.org>
+ <20110817163520.145693358@codeaurora.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <libc-ports-return-2014-gclgp-libc-ports=m.gmane.org@sourceware.org>
-In-Reply-To: <20110824152537.GA3993@codeaurora.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <mailto:libc-ports-unsubscribe-gclgp-libc-ports=m.gmane.org@sourceware.org>
-List-Subscribe: <mailto:libc-ports-subscribe@sourceware.org>
-List-Post: <mailto:libc-ports@sourceware.org>
-List-Help: <mailto:libc-ports-help@sourceware.org>, <http://sourceware.org/lists.html#faqs>
-Sender: libc-ports-owner@sourceware.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110817163520.145693358@codeaurora.org>
+Sender: linux-hexagon-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>
-Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>, Arnd Bergmann <arnd@arndb.de>, GLIBC Devel <libc-alpha@sourceware.org>, Jonas Bonn <jonas.bonn@gmail.com>, libc-ports@sourceware.org, linux-hexagon@vger.kernel.org, linux-arch@vger.kernel.org, Mark Salter <msalter@redhat.com>, Tobias Klauser <tklauser@distanz.ch>
+Content-Transfer-Encoding: 7bit
+To: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On 8/24/2011 11:25 AM, Linas Vepstas (Code Aurora) wrote:
-> On Wed, Aug 24, 2011 at 10:01:24AM +0800, Guan Xuetao wrote:
->>   For getdents (or other deprecated syscalls), we select getdents64 to
->> replace getdent, though we have not verified it on unicore32 platform.
-> Do you have a publically-available version? Have you considered
-> submitting it to the FSF?  Have you signed the copyright-transfer
-> forms with the FSF?
+Hi!
 
-I apologize for the slow-motion return of our glibc port to the community. 
-We have a signed FSF copyright-transfer on file, which we've already used
-for binutils, and gcc is in progress, but glibc is not quite at the top of
-the stack yet.  It's the curse of being a small company with new features
-to write, bugs to fix, and customers to keep happy :-)
+> +	__asm__ __volatile__ (
+> +	"	{R10 = %1; R11 = asr(%2,#5); }\n"
+> +	"	{R10 += asl(R11,#2); R11 = and(%2,#0x1f)}\n"
+> +	"1:	R12 = memw_locked(R10);\n"
+> +	"	{ P0 = tstbit(R12,R11); R12 = clrbit(R12,R11); }\n"
+> +	"	memw_locked(R10,P1) = R12;\n"
+> +	"	{if !P1 jump 1b; %0 = mux(P0,#1,#0);}\n"
 
-Our 2.11.2 port is here:
-
-http://www.tilera.com/scm/glibc-2.11.2.tar.bz2
-
-Wwe are using 2.12 for our upcoming release, which is based around RHEL 6. 
-We have not tried to return this to the community yet because there are
-plenty of small cleanups to do: another pass through the code to make sure
-there are no lingering minor issues, sync up to the git tip, check all the
-code style issues, update copyrights, write changelogs, etc.
-
-> My goal with the hexagon archiecture is to have the kernel asm/unistd.h
-> include asm-generic/unistd.h, and have glibc compile (on hexagon) with
-> no further #defines in asm/unistd.h.  This "almost" works today; with
-> Chris Metcalf's generic syscall patches for glibc, I am able to compile
-> glibc (and pass the glibc test suite). However, I have to #define
-> __ARCH_WANT_SYSCALL_DEPRECATED to do this. If I don't, then the 
-> getdents syscall fails to compile; I don't know how many others there are.
-
-For getdents in particular, we use this patch:
-
---- sysdeps/unix/sysv/linux/getdents.c~        2010-05-04 07:27:23.000000000 -0400
-+++ sysdeps/unix/sysv/linux/getdents.c  2010-10-12 14:28:47.026114000 -0400
-@@ -236,6 +236,7 @@
- # endif
-     }
- #endif
-+#if !defined __NR_getdents64 || !defined __ASSUME_GETDENTS64_SYSCALL
-   {
-     size_t red_nbytes;
-     struct kernel_dirent *skdp, *kdp;
-@@ -295,4 +296,5 @@
-
-     return (char *) dp - buf;
-   }
-+#endif
- }
-
-
-> As to the "API": I just want to use Arnd's "generic" kernel support;
-> that will be the API.  No changing, porting, hacking :-)
-
-Indeed.
-
+Nice assembly syntax, btw. I can only wish architectures such as arm
+used something as readable...
+								Pavel
 -- 
-Chris Metcalf, Tilera Corp.
-http://www.tilera.com
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
