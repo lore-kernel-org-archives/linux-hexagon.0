@@ -1,50 +1,31 @@
-From: Tobias Klauser <tklauser@distanz.ch>
+From: "Joseph S. Myers" <joseph@codesourcery.com>
 Subject: Re: __ARCH_WANT_SYSCALL_DEPRECATED
-Date: Mon, 29 Aug 2011 12:43:24 +0200
-Message-ID: <20110829104324.GM24840@distanz.ch>
+Date: Mon, 29 Aug 2011 15:21:52 +0000 (UTC)
+Message-ID: <Pine.LNX.4.64.1108291518300.17624@digraph.polyomino.org.uk>
 References: <20110822193602.GA23301@codeaurora.org> <2047151.mWElcT8jZQ@wuerfel>
+ <20110829104324.GM24840@distanz.ch>
 Mime-Version: 1.0
 Return-path: <linux-arch-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <2047151.mWElcT8jZQ@wuerfel>
+In-Reply-To: <20110829104324.GM24840@distanz.ch>
 Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>, GLIBC Devel <libc-alpha@sourceware.org>, Chris Metcalf <cmetcalf@tilera.com>, Jonas Bonn <jonas.bonn@gmail.com>, libc-ports@sourceware.org, linux-hexagon@vger.kernel.org, linux-arch@vger.kernel.org, Mark Salter <msalter@redhat.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>
+To: Tobias Klauser <tklauser@distanz.ch>
+Cc: Arnd Bergmann <arnd@arndb.de>, "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>, Chris Metcalf <cmetcalf@tilera.com>, Jonas Bonn <jonas.bonn@gmail.com>, libc-ports@sourceware.org, linux-hexagon@vger.kernel.org, linux-arch@vger.kernel.org, Mark Salter <msalter@redhat.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>
 
-On 2011-08-22 at 22:43:18 +0200, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Monday 22 August 2011 14:36:02 Linas Vepstas wrote:
-> > 
-> > So: What's the latest on asm-generic support on glibc? 
-> > I just pulled glibc-2.14 and note that Chris Metcalf's
-> > generic implementation hasn't been folded in yet. 
-> > It seems to work well for me, so can we expect it
-> > anytime soon?
-> > 
-> > Another problem:  If I don't define __ARCH_WANT_SYSCALL_DEPRECATED
-> > in the kernel asm/unistd.h  then glibc won't build: currently,
-> > I get 
-> > ../sysdeps/unix/sysv/linux/getdents.c:105: error: ???__NR_getdents??? undeclared (first use in this function)
-> > 
-> > A very quick grep tells me that asm-generic defines a getdents64
-> > but that is not what glibc is looking for.  Is there any chance
-> > that there are glibc patches floating around somewhere that heal
-> > this and any remaining __ARCH_WANT_SYSCALL_DEPRECATED issues?
-> 
-> I don't know the answer to your question, but I've added Mark Salter,
-> Guan Xuetao and Tobias Klauser to the list, since they probably have
-> the same issue on c64x, unicore32 and nios2. c64x is currently nommu,
-> but there is a similar problem with uclibc and I expect that architecture
-> to grow an mmu at some point.
+On Mon, 29 Aug 2011, Tobias Klauser wrote:
 
-On nios2 we're using an outdated eglibc version (based on glibc 2.5)
-right now and thus we still rely on our own non-asm-generic version of
-asm/unistd.h
+> On nios2 we're using an outdated eglibc version (based on glibc 2.5)
+> right now and thus we still rely on our own non-asm-generic version of
+> asm/unistd.h
 
-I'm currently in the process of converting our arch to solely use
-asm-generic header wherever possible one of which is the syscall ABI.
-This will also mean we'll have to redo the libc parts.
+As I noted before 
+<http://sourceware.org/ml/libc-ports/2010-09/msg00014.html> Nios II has 
+the problem for upstream submission of the unassigned nature of the 
+binutils and GCC ports - unless you know of any progress on that issue at 
+Altera.
 
-Tobias
+-- 
+Joseph S. Myers
+joseph@codesourcery.com
