@@ -1,10 +1,10 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch v2 34/35] Hexagon: Add basic stacktrace functionality for Hexagon architecture.
-Date: Tue, 30 Aug 2011 14:08:03 -0500
-Message-ID: <20110830190802.933911290@codeaurora.org>
+Subject: [patch v2 17/35] Hexagon: Add interrupts
+Date: Tue, 30 Aug 2011 14:07:46 -0500
+Message-ID: <20110830190801.353140948@codeaurora.org>
 References: <20110830190729.923334292@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=stacktrace.diff
+Content-Disposition: inline; filename=interrupts.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -13,17 +13,61 @@ Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
----
- arch/hexagon/kernel/stacktrace.c |   66 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 66 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/kernel/stacktrace.c
+---
+ arch/hexagon/include/asm/irq.h |   36 ++++++++++++++++
+ arch/hexagon/kernel/irq.c      |   73 +++++++++++++++++++++++++++++++++
+ arch/hexagon/kernel/irq_cpu.c  |   90 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 199 insertions(+)
+
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/irq.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/stacktrace.c	2011-08-24 18:45:48.603877517 -0500
-@@ -0,0 +1,66 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/irq.h	2011-08-24 18:45:48.223877183 -0500
+@@ -0,0 +1,36 @@
 +/*
-+ * Stacktrace support for Hexagon
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef _ASM_IRQ_H_
++#define _ASM_IRQ_H_
++
++/* Number of first-level interrupts associated with the CPU core. */
++#define HEXAGON_CPUINTS 32
++
++/*
++ * XXX TODO FIXME this should be pulled from a platform file!
++ * Must define NR_IRQS before including <asm-generic/irq.h>
++ * 64 == the two SIRC's, 176 == the two gpio's
++ */
++#define NR_IRQS (HEXAGON_CPUINTS + 64 + 176)
++
++#include <asm-generic/irq.h>
++
++extern void __init hexagon_cpu_irq_init(void);
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/kernel/irq.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/kernel/irq.c	2011-08-24 18:45:48.223877183 -0500
+@@ -0,0 +1,73 @@
++/*
++ * Interrupt support for Hexagon
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -42,52 +86,154 @@ Index: linux-hexagon-kernel/arch/hexagon/kernel/stacktrace.c
 + * 02110-1301, USA.
 + */
 +
-+#include <linux/sched.h>
-+#include <linux/stacktrace.h>
-+#include <linux/thread_info.h>
-+#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/delay.h>
++#include <linux/kernel_stat.h>
++#include <linux/interrupt.h>
++#include <linux/seq_file.h>
++#include <linux/version.h>
 +
-+register unsigned long current_frame_pointer asm("r30");
++void __init init_IRQ(void)
++{
++	/* Set up core cpu irqs before platform secondaries. */
++	hexagon_cpu_irq_init();
++}
 +
-+struct stackframe {
-+	unsigned long fp;
-+	unsigned long rets;
++int show_interrupts(struct seq_file *p, void *v)
++{
++	int i = *(loff_t *)v, cpu;
++	struct irqaction *action;
++	unsigned long flags;
++
++	if (i == 0) {
++		seq_puts(p, "           ");
++		for_each_online_cpu(cpu)
++			seq_printf(p, "CPU%d       ", cpu);
++		seq_putc(p, '\n');
++	}
++
++	if (i < NR_IRQS) {
++		struct irq_desc *desc = irq_to_desc(i);
++
++		raw_spin_lock_irqsave(&desc->lock, flags);
++
++		action = irq_desc[i].action;
++		if (action) {
++			seq_printf(p, "%3d: ", i);
++			for_each_online_cpu(cpu) {
++				seq_printf(p, "%10u ", kstat_irqs_cpu(i, cpu));
++			}
++			seq_printf(p, " %8s",
++				   irq_desc_get_chip(&irq_desc[i])->name ?
++				   : "-");
++			seq_printf(p, "  %s", action->name);
++			for (action = action->next; action;
++			     action = action->next) {
++				seq_printf(p, ", %s", action->name);
++			}
++
++			seq_putc(p, '\n');
++		}
++		raw_spin_unlock_irqrestore(&desc->lock, flags);
++	}
++
++	return 0;
++}
+Index: linux-hexagon-kernel/arch/hexagon/kernel/irq_cpu.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/kernel/irq_cpu.c	2011-08-24 18:45:48.223877183 -0500
+@@ -0,0 +1,90 @@
++/*
++ * First-level interrupt controller model for Hexagon.
++ *
++ * Copyright (c) 2010-2011 Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#include <linux/interrupt.h>
++#include <asm/irq.h>
++#include <asm/hexagon_vm.h>
++
++static void mask_irq(struct irq_data *data)
++{
++	__vmintop_locdis((long) data->irq);
++}
++
++static void mask_irq_num(unsigned int irq)
++{
++	__vmintop_locdis((long) irq);
++}
++
++static void unmask_irq(struct irq_data *data)
++{
++	__vmintop_locen((long) data->irq);
++}
++
++/*  This is actually all we need for handle_fasteoi_irq  */
++static void eoi_irq(struct irq_data *data)
++{
++	__vmintop_globen((long) data->irq);
++}
++
++/* Power mamangement wake call. We don't need this, however,
++ * if this is absent, then an -ENXIO error is returned to the
++ * msm_serial driver, and it fails to correctly initialize.
++ * This is a bug in the msm_serial driver, but, for now, we
++ * work around it here, by providing this bogus handler.
++ * XXX FIXME!!! remove this when msm_serial is fixed.
++ */
++static int set_wake(struct irq_data *data, unsigned int on)
++{
++	return 0;
++}
++
++static struct irq_chip hexagon_irq_chip = {
++	.name		= "HEXAGON",
++	.irq_mask	= mask_irq,
++	.irq_unmask	= unmask_irq,
++	.irq_set_wake	= set_wake,
++	.irq_eoi	= eoi_irq
 +};
 +
-+/*
-+ * Save stack-backtrace addresses into a stack_trace buffer.
++/**
++ * The hexagon core comes with a first-level interrupt controller
++ * with 32 total possible interrupts.  When the core is embedded
++ * into different systems/platforms, it is typically wrapped by
++ * macro cells that provide one or more second-level interrupt
++ * controllers that are cascaded into one or more of the first-level
++ * interrupts handled here. The precise wiring of these other
++ * irqs varies from platform to platform, and are set up & configured
++ * in the platform-specific files.
++ *
++ * The first-level interrupt controller is wrapped by the VM, which
++ * virtualizes the interrupt controller for us.  It provides a very
++ * simple, fast & efficient API, and so the fasteoi handler is
++ * appropriate for this case.
 + */
-+void save_stack_trace(struct stack_trace *trace)
++void __init hexagon_cpu_irq_init(void)
 +{
-+	unsigned long low, high;
-+	unsigned long fp;
-+	struct stackframe *frame;
-+	int skip = trace->skip;
++	int irq;
 +
-+	low = (unsigned long)task_stack_page(current);
-+	high = low + THREAD_SIZE;
-+	fp = current_frame_pointer;
-+
-+	while (fp >= low && fp <= (high - sizeof(*frame))) {
-+		frame = (struct stackframe *)fp;
-+
-+		if (skip) {
-+			skip--;
-+		} else {
-+			trace->entries[trace->nr_entries++] = frame->rets;
-+			if (trace->nr_entries >= trace->max_entries)
-+				break;
-+		}
-+
-+		/*
-+		 * The next frame must be at a higher address than the
-+		 * current frame.
-+		 */
-+		low = fp + sizeof(*frame);
-+		fp = frame->fp;
++	for (irq = 0; irq < HEXAGON_CPUINTS; irq++) {
++		mask_irq_num(irq);
++		irq_set_chip_and_handler(irq, &hexagon_irq_chip,
++						 handle_fasteoi_irq);
 +	}
 +}
-+EXPORT_SYMBOL_GPL(save_stack_trace);
 
 --
 
