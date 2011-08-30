@@ -1,38 +1,197 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch v2 27/35] Hexagon: Provide DMA implementation
-Date: Tue, 30 Aug 2011 14:07:56 -0500
-Message-ID: <20110830190802.279215705@codeaurora.org>
+Subject: [patch v2 16/35] Hexagon: Add startup code
+Date: Tue, 30 Aug 2011 14:07:45 -0500
+Message-ID: <20110830190801.249053803@codeaurora.org>
 References: <20110830190729.923334292@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=dma.diff
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline; filename=startup.diff
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
-Cc: Linas Vepstas <linas@codeaurora.org>
-
-Basic DMA implementation for our architecture.
-
-Added sync_single_for_* routines; hexagon_map_page() still seems to be a
-convenient place to flush/invalidate.
-
 
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
-Signed-off-by: Linas Vepstas <linas@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/dma-mapping.h |  101 +++++++++++++++
- arch/hexagon/include/asm/dma.h         |   29 ++++
- arch/hexagon/kernel/dma.c              |  220 +++++++++++++++++++++++++++++++++
- 3 files changed, 350 insertions(+)
+ arch/hexagon/kernel/head.S  |  162 ++++++++++++++++++++++++++++++++++++++++++++
+ arch/hexagon/kernel/reset.c |   38 ++++++++++
+ arch/hexagon/kernel/setup.c |  131 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 331 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/dma.h
+Index: linux-hexagon-kernel/arch/hexagon/kernel/head.S
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/dma.h	2011-08-24 20:03:49.500967008 -0500
-@@ -0,0 +1,29 @@
++++ linux-hexagon-kernel/arch/hexagon/kernel/head.S	2011-08-24 18:45:48.213877174 -0500
+@@ -0,0 +1,162 @@
++/*
++ * Early kernel startup code for Hexagon
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#include <linux/linkage.h>
++#include <linux/init.h>
++#include <asm/asm-offsets.h>
++#include <asm/mem-layout.h>
++#include <asm/vm_mmu.h>
++#include <asm/page.h>
++
++       	__INIT
++ENTRY(stext)
++	/*
++	 * VMM will already have set up true vector page, MMU, etc.
++	 * To set up initial kernel identity map, we have to pass
++	 * the VMM a pointer to some canonical page tables. In
++	 * this implementation, we're assuming that we've got
++	 * them precompiled. Generate value in R24, as we'll need
++	 * it again shortly.
++	 */
++	r24.L = #LO(swapper_pg_dir)
++	r24.H = #HI(swapper_pg_dir)
++
++	/*
++	 * Symbol is kernel segment address, but we need
++	 * the logical/physical address.
++	 */
++	r24 = asl(r24, #2)
++	r24 = lsr(r24, #2)
++
++	r0 = r24
++
++	/*
++	 * Initialize a 16MB PTE to make the virtual and physical
++	 * addresses where the kernel was loaded be identical.
++	 */
++#define PTE_BITS ( __HVM_PTE_R | __HVM_PTE_W | __HVM_PTE_X	\
++		  | __HEXAGON_C_WB_L2 << 6			\
++		  | __HVM_PDE_S_4MB)
++
++	r1 = pc
++	r2.H = #0xffc0
++	r2.L = #0x0000
++	r1 = and(r1,r2)		/* round PC to 4MB boundary	*/
++	r2 = lsr(r1, #22)	/* 4MB page number		*/
++	r2 = asl(r2, #2)	/* times sizeof(PTE) (4bytes)	*/
++	r0 = add(r0,r2)		/* r0 = address of correct PTE	*/
++	r2 = #PTE_BITS
++	r1 = add(r1,r2)		/* r1 = 4MB PTE for the first entry	*/
++	r2.h = #0x0040
++	r2.l = #0x0000		/* 4MB	*/
++	memw(r0 ++ #4) = r1
++	r1 = add(r1, r2)
++	memw(r0 ++ #4) = r1
++
++	r0 = r24
++
++	/*
++	 * The subroutine wrapper around the virtual instruction touches
++	 * no memory, so we should be able to use it even here.
++	 */
++	call	__vmnewmap;
++
++	/*  Jump into virtual address range.  */
++
++	r31.h = #hi(__head_s_vaddr_target)
++	r31.l = #lo(__head_s_vaddr_target)
++	jumpr r31
++
++	/*  Insert trippy space effects.  */
++
++__head_s_vaddr_target:
++	/*
++	 * Tear down VA=PA translation now that we are running
++	 * in the desgnated kernel segments.
++	 */
++	r0 = #__HVM_PDE_S_INVALID
++	r1 = r24
++	loop0(1f,#0x100)
++1:
++	{
++		memw(R1 ++ #4) = R0
++	}:endloop0
++
++	r0 = r24
++	call __vmnewmap
++
++	/*  Go ahead and install the trap0 return so angel calls work  */
++	r0.h = #hi(_K_provisional_vec)
++	r0.l = #lo(_K_provisional_vec)
++	call __vmsetvec
++
++	/*
++	 * OK, at this point we should start to be much more careful,
++	 * we're going to enter C code and start touching memory
++	 * in all sorts of places.
++	 * This means:
++	 *      SGP needs to be OK
++	 *	Need to lock shared resources
++	 *	A bunch of other things that will cause
++	 * 	all kinds of painful bugs
++	 */
++
++	/*
++	 * Stack pointer should be pointed at the init task's
++	 * thread stack, which should have been declared in arch/init_task.c.
++	 * So uhhhhh...
++	 * It's accessible via the init_thread_union, which is a union
++	 * of a thread_info struct and a stack; of course, the top
++	 * of the stack is not for you.  The end of the stack
++	 * is simply init_thread_union + THREAD_SIZE.
++	 */
++
++	{r29.H = #HI(init_thread_union); r0.H = #HI(_THREAD_SIZE); }
++	{r29.L = #LO(init_thread_union); r0.L = #LO(_THREAD_SIZE); }
++
++	/*  initialize the register used to point to current_thread_info */
++	/*  Fixme:  THREADINFO_REG can't be R2 because of that memset thing. */
++	{r29 = add(r29,r0); THREADINFO_REG = r29; }
++
++	/*  Hack:  zero bss; */
++	{ r0.L = #LO(__bss_start);  r1 = #0; r2.l = #LO(__bss_stop); }
++	{ r0.H = #HI(__bss_start);           r2.h = #HI(__bss_stop); }
++
++	r2 = sub(r2,r0);
++	call memset;
++
++	/* Time to make the doughnuts.   */
++	call start_kernel
++
++	/*
++	 * Should not reach here.
++	 */
++1:
++	jump 1b
++
++.p2align PAGE_SHIFT
++ENTRY(external_cmdline_buffer)
++        .fill _PAGE_SIZE,1,0
++
++.data
++.p2align PAGE_SHIFT
++ENTRY(empty_zero_page)
++        .fill _PAGE_SIZE,1,0
+Index: linux-hexagon-kernel/arch/hexagon/kernel/reset.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/kernel/reset.c	2011-08-24 18:45:48.213877174 -0500
+@@ -0,0 +1,38 @@
 +/*
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -51,24 +210,33 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/dma.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef _ASM_DMA_H
-+#define _ASM_DMA_H
++#include <linux/smp.h>
++#include <asm/hexagon_vm.h>
 +
-+#include <asm/io.h>
++void machine_power_off(void)
++{
++	smp_send_stop();
++	__vmstop();
++}
 +
-+#define MAX_DMA_CHANNELS 1
-+#define MAX_DMA_ADDRESS  (PAGE_OFFSET)
++void machine_halt(void)
++{
++}
 +
-+extern size_t hexagon_coherent_pool_size;
++void machine_restart(char *cmd)
++{
++}
 +
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/dma-mapping.h
++void pm_power_off(void)
++{
++}
+Index: linux-hexagon-kernel/arch/hexagon/kernel/setup.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/dma-mapping.h	2011-08-24 20:03:49.500967008 -0500
-@@ -0,0 +1,101 @@
++++ linux-hexagon-kernel/arch/hexagon/kernel/setup.c	2011-08-24 18:45:48.213877174 -0500
+@@ -0,0 +1,131 @@
 +/*
-+ * DMA operations for the Hexagon architecture
++ * Arch related setup for Hexagon
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -87,314 +255,120 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/dma-mapping.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef _ASM_DMA_MAPPING_H
-+#define _ASM_DMA_MAPPING_H
-+
-+#include <linux/types.h>
-+#include <linux/cache.h>
-+#include <linux/mm.h>
-+#include <linux/scatterlist.h>
-+#include <linux/dma-mapping.h>
-+#include <linux/dma-debug.h>
-+#include <linux/dma-attrs.h>
-+#include <asm/io.h>
-+
-+struct device;
-+extern int bad_dma_address;
-+
-+extern struct dma_map_ops *dma_ops;
-+
-+#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
-+#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
-+
-+static inline struct dma_map_ops *get_dma_ops(struct device *dev)
-+{
-+	if (unlikely(dev == NULL))
-+		return NULL;
-+
-+	return dma_ops;
-+}
-+
-+extern int dma_supported(struct device *dev, u64 mask);
-+extern int dma_set_mask(struct device *dev, u64 mask);
-+extern int dma_is_consistent(struct device *dev, dma_addr_t dma_handle);
-+extern void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
-+			   enum dma_data_direction direction);
-+
-+#include <asm-generic/dma-mapping-common.h>
-+
-+static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
-+{
-+	if (!dev->dma_mask)
-+		return 0;
-+	return addr + size - 1 <= *dev->dma_mask;
-+}
-+
-+static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
-+{
-+	struct dma_map_ops *dma_ops = get_dma_ops(dev);
-+
-+	if (dma_ops->mapping_error)
-+		return dma_ops->mapping_error(dev, dma_addr);
-+
-+	return (dma_addr == bad_dma_address);
-+}
-+
-+static inline void *dma_alloc_coherent(struct device *dev, size_t size,
-+				       dma_addr_t *dma_handle, gfp_t flag)
-+{
-+	void *ret;
-+	struct dma_map_ops *ops = get_dma_ops(dev);
-+
-+	BUG_ON(!dma_ops);
-+
-+	ret = ops->alloc_coherent(dev, size, dma_handle, flag);
-+
-+	debug_dma_alloc_coherent(dev, size, *dma_handle, ret);
-+
-+	return ret;
-+}
-+
-+static inline void dma_free_coherent(struct device *dev, size_t size,
-+				     void *cpu_addr, dma_addr_t dma_handle)
-+{
-+	struct dma_map_ops *dma_ops = get_dma_ops(dev);
-+
-+	BUG_ON(!dma_ops);
-+
-+	dma_ops->free_coherent(dev, size, cpu_addr, dma_handle);
-+
-+	debug_dma_free_coherent(dev, size, cpu_addr, dma_handle);
-+}
-+
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/kernel/dma.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/dma.c	2011-08-24 20:04:08.161003344 -0500
-@@ -0,0 +1,220 @@
-+/*
-+ * DMA implementation for Hexagon
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#include <linux/dma-mapping.h>
++#include <linux/init.h>
 +#include <linux/bootmem.h>
-+#include <linux/genalloc.h>
-+#include <asm/dma-mapping.h>
++#include <linux/mmzone.h>
++#include <linux/mm.h>
++#include <linux/seq_file.h>
++#include <linux/console.h>
++#include <linux/of_fdt.h>
++#include <asm/io.h>
++#include <asm/sections.h>
++#include <asm/setup.h>
++#include <asm/processor.h>
++#include <asm/hexagon_vm.h>
++#include <asm/vm_mmu.h>
++#ifdef CONFIG_OF
++#include <asm/prom.h>
++#endif
 +
-+struct dma_map_ops *dma_ops;
-+EXPORT_SYMBOL(dma_ops);
++char cmd_line[COMMAND_LINE_SIZE];
++static char default_command_line[COMMAND_LINE_SIZE] __initdata = CONFIG_CMDLINE;
 +
-+int bad_dma_address;  /*  globals are automatically initialized to zero  */
++int on_simulator;
 +
-+int dma_supported(struct device *dev, u64 mask)
++/*
++ * setup_arch -  high level architectural setup routine
++ * @cmdline_p: pointer to pointer to command-line arguments
++ */
++
++void __init setup_arch(char **cmdline_p)
 +{
-+	if (mask == DMA_BIT_MASK(32))
-+		return 1;
++	char *p = &external_cmdline_buffer;
++
++	/*
++	 * Set up event bindings to handle exceptions and interrupts.
++	 */
++	__vmsetvec(_K_VM_event_vector);
++
++	/*
++	 * Simulator has a few differences from the hardware.
++	 * For now, check uninitialized-but-mapped memory
++	 * prior to invoking setup_arch_memory().
++	 */
++	if (*(int *)((unsigned long)_end + 8) == 0x1f1f1f1f)
++		on_simulator = 1;
 +	else
-+		return 0;
++		on_simulator = 0;
++
++	if (p[0] != '\0')
++		strlcpy(boot_command_line, p, COMMAND_LINE_SIZE);
++	else
++		strlcpy(boot_command_line, default_command_line,
++			COMMAND_LINE_SIZE);
++
++	/*
++	 * boot_command_line and the value set up by setup_arch
++	 * are both picked up by the init code. If no reason to
++	 * make them different, pass the same pointer back.
++	 */
++	strlcpy(cmd_line, boot_command_line, COMMAND_LINE_SIZE);
++	*cmdline_p = cmd_line;
++
++	parse_early_param();
++
++	setup_arch_memory();
++
++#ifdef CONFIG_SMP
++	smp_start_cpus();
++#endif
 +}
-+EXPORT_SYMBOL(dma_supported);
 +
-+int dma_set_mask(struct device *dev, u64 mask)
++/*
++ * Functions for dumping CPU info via /proc
++ * Probably should move to kernel/proc.c or something.
++ */
++static void *c_start(struct seq_file *m, loff_t *pos)
 +{
-+	if (!dev->dma_mask || !dma_supported(dev, mask))
-+		return -EIO;
++	return *pos < nr_cpu_ids ? (void *)((unsigned long) *pos + 1) : NULL;
++}
 +
-+	*dev->dma_mask = mask;
++static void *c_next(struct seq_file *m, void *v, loff_t *pos)
++{
++	++*pos;
++	return c_start(m, pos);
++}
 +
++static void c_stop(struct seq_file *m, void *v)
++{
++}
++
++/*
++ * Eventually this will dump information about
++ * CPU properties like ISA level, TLB size, etc.
++ */
++static int show_cpuinfo(struct seq_file *m, void *v)
++{
++	int cpu = (unsigned long) v - 1;
++
++	seq_printf(m, "processor\t: %d\n", cpu);
++	seq_printf(m, "model name\t: Hexagon Virtual Machine\n");
++	seq_printf(m, "BogoMips\t: %lu.%02lu\n",
++		(loops_per_jiffy * HZ) / 500000,
++		((loops_per_jiffy * HZ) / 5000) % 100);
++	seq_printf(m, "\n");
 +	return 0;
 +}
-+EXPORT_SYMBOL(dma_set_mask);
 +
-+static struct gen_pool *coherent_pool;
-+
-+
-+/* Allocates from a pool of uncached memory that was reserved at boot time */
-+
-+void *hexagon_dma_alloc_coherent(struct device *dev, size_t size,
-+				 dma_addr_t *dma_addr, gfp_t flag)
-+{
-+	void *ret;
-+
-+	if (coherent_pool == NULL) {
-+		coherent_pool = gen_pool_create(PAGE_SHIFT, -1);
-+
-+		if (coherent_pool == NULL)
-+			panic("Can't create %s() memory pool!", __func__);
-+		else
-+			gen_pool_add(coherent_pool,
-+				(PAGE_OFFSET + (max_low_pfn << PAGE_SHIFT)),
-+				hexagon_coherent_pool_size, -1);
-+	}
-+
-+	ret = (void *) gen_pool_alloc(coherent_pool, size);
-+
-+	if (ret) {
-+		memset(ret, 0, size);
-+		*dma_addr = (dma_addr_t) (ret - PAGE_OFFSET);
-+	} else
-+		*dma_addr = ~0;
-+
-+	return ret;
-+}
-+
-+static void hexagon_free_coherent(struct device *dev, size_t size, void *vaddr,
-+				  dma_addr_t dma_addr)
-+{
-+	gen_pool_free(coherent_pool, (unsigned long) vaddr, size);
-+}
-+
-+static int check_addr(const char *name, struct device *hwdev,
-+		      dma_addr_t bus, size_t size)
-+{
-+	if (hwdev && hwdev->dma_mask && !dma_capable(hwdev, bus, size)) {
-+		if (*hwdev->dma_mask >= DMA_BIT_MASK(32))
-+			printk(KERN_ERR
-+				"%s: overflow %Lx+%zu of device mask %Lx\n",
-+				name, (long long)bus, size,
-+				(long long)*hwdev->dma_mask);
-+		return 0;
-+	}
-+	return 1;
-+}
-+
-+static int hexagon_map_sg(struct device *hwdev, struct scatterlist *sg,
-+			  int nents, enum dma_data_direction dir,
-+			  struct dma_attrs *attrs)
-+{
-+	struct scatterlist *s;
-+	int i;
-+
-+	WARN_ON(nents == 0 || sg[0].length == 0);
-+
-+	for_each_sg(sg, s, nents, i) {
-+		s->dma_address = sg_phys(s);
-+		if (!check_addr("map_sg", hwdev, s->dma_address, s->length))
-+			return 0;
-+
-+		s->dma_length = s->length;
-+
-+		flush_dcache_range(PAGE_OFFSET + s->dma_address,
-+				   PAGE_OFFSET + s->dma_address + s->length);
-+	}
-+
-+	return nents;
-+}
-+
-+/*
-+ * address is virtual
-+ */
-+static inline void dma_sync(void *addr, size_t size,
-+			    enum dma_data_direction dir)
-+{
-+	switch (dir) {
-+	case DMA_TO_DEVICE:
-+		hexagon_clean_dcache_range((unsigned long) addr,
-+		(unsigned long) addr + size);
-+		break;
-+	case DMA_FROM_DEVICE:
-+		hexagon_inv_dcache_range((unsigned long) addr,
-+		(unsigned long) addr + size);
-+		break;
-+	case DMA_BIDIRECTIONAL:
-+		flush_dcache_range((unsigned long) addr,
-+		(unsigned long) addr + size);
-+		break;
-+	default:
-+		BUG();
-+	}
-+}
-+
-+static inline void *dma_addr_to_virt(dma_addr_t dma_addr)
-+{
-+	return phys_to_virt((unsigned long) dma_addr);
-+}
-+
-+/**
-+ * hexagon_map_page() - maps an address for device DMA
-+ * @dev:	pointer to DMA device
-+ * @page:	pointer to page struct of DMA memory
-+ * @offset:	offset within page
-+ * @size:	size of memory to map
-+ * @dir:	transfer direction
-+ * @attrs:	pointer to DMA attrs (not used)
-+ *
-+ * Called to map a memory address to a DMA address prior
-+ * to accesses to/from device.
-+ *
-+ * We don't particularly have many hoops to jump through
-+ * so far.  Straight translation between phys and virtual.
-+ *
-+ * DMA is not cache coherent so sync is necessary; this
-+ * seems to be a convenient place to do it.
-+ *
-+ */
-+static dma_addr_t hexagon_map_page(struct device *dev, struct page *page,
-+				   unsigned long offset, size_t size,
-+				   enum dma_data_direction dir,
-+				   struct dma_attrs *attrs)
-+{
-+	dma_addr_t bus = page_to_phys(page) + offset;
-+	WARN_ON(size == 0);
-+
-+	if (!check_addr("map_single", dev, bus, size))
-+		return bad_dma_address;
-+
-+	dma_sync(dma_addr_to_virt(bus), size, dir);
-+
-+	return bus;
-+}
-+
-+static void hexagon_sync_single_for_cpu(struct device *dev,
-+					dma_addr_t dma_handle, size_t size,
-+					enum dma_data_direction dir)
-+{
-+	dma_sync(dma_addr_to_virt(dma_handle), size, dir);
-+}
-+
-+static void hexagon_sync_single_for_device(struct device *dev,
-+					dma_addr_t dma_handle, size_t size,
-+					enum dma_data_direction dir)
-+{
-+	dma_sync(dma_addr_to_virt(dma_handle), size, dir);
-+}
-+
-+struct dma_map_ops hexagon_dma_ops = {
-+	.alloc_coherent	= hexagon_dma_alloc_coherent,
-+	.free_coherent	= hexagon_free_coherent,
-+	.map_sg		= hexagon_map_sg,
-+	.map_page	= hexagon_map_page,
-+	.sync_single_for_cpu = hexagon_sync_single_for_cpu,
-+	.sync_single_for_device = hexagon_sync_single_for_device,
-+	.is_phys	= 1,
++const struct seq_operations cpuinfo_op = {
++	.start  = &c_start,
++	.next   = &c_next,
++	.stop   = &c_stop,
++	.show   = &show_cpuinfo,
 +};
-+
-+void __init hexagon_dma_init(void)
-+{
-+	if (dma_ops)
-+		return;
-+
-+	dma_ops = &hexagon_dma_ops;
-+}
 
 --
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+
