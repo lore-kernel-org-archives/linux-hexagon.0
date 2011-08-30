@@ -1,40 +1,38 @@
-From: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [patch v2 09/35] Hexagon: Add checksum functions
-Date: Tue, 30 Aug 2011 21:52:11 +0200
-Message-ID: <20110830195211.GA10415@merkur.ravnborg.org>
-References: <20110830190729.923334292@codeaurora.org> <20110830190800.574002538@codeaurora.org> <1314732887.14422.10.camel@Joe-Laptop>
+From: Pekka Enberg <penberg@kernel.org>
+Subject: Re: [patch v2 00/35] Hexagon: Add support for Qualcomm Hexagon architecture
+Date: Tue, 30 Aug 2011 23:18:24 +0300
+Message-ID: <CAOJsxLHrC1Tuf9j_Xnq9DHe15zvaB9kUWiFSxPgi4urUUO3bhQ@mail.gmail.com>
+References: <20110830190729.923334292@codeaurora.org>
 Mime-Version: 1.0
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1314732887.14422.10.camel@Joe-Laptop>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=gamma;
+        h=mime-version:sender:in-reply-to:references:date
+         :x-google-sender-auth:message-id:subject:from:to:cc:content-type
+         :content-transfer-encoding;
+        bh=Na2m/opoNCnQ4xMK2if8eIfJp6J+q7xjKyG62ujlrx8=;
+        b=WISkzLrt9ijYenWEbjryB3SrMkZMx6SbLwdNzgnu8o9fL9whmUL/pn6GlFBcw0Ar/S
+         R2TNRtHFXgTtuq+VTALQ8YcXnHntyVyh+Rdbn17TOKIWYqphMM1JNdIRcOoEG/2J6tp+
+         ZubWFzZtwXnj3pMEsd8RO6QxEr7p1TZTPWXT4=
+In-Reply-To: <20110830190729.923334292@codeaurora.org>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Joe Perches <joe@perches.com>
-Cc: Richard Kuo <rkuo@codeaurora.org>, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+To: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 
-On Tue, Aug 30, 2011 at 12:34:47PM -0700, Joe Perches wrote:
-> On Tue, 2011-08-30 at 14:07 -0500, Richard Kuo wrote:
-> > Removed most non-assembly functions and use the generic ones instead.
-> []
-> > +++ linux-hexagon-kernel/arch/hexagon/include/asm/checksum.h	2011-08-24 18:45:48.133877105 -0500
-> []
-> > +#define do_csum	do_csum
-> 
-> That looks pretty odd.
-> I have a hard time believing that's useful or necessary.
+On Tue, Aug 30, 2011 at 10:07 PM, Richard Kuo <rkuo@codeaurora.org> wro=
+te:
+> Thanks to everyone for their comments/feedback! =A0If I missed anythi=
+ng
+> or there's something else that needs cleanup, please let me know.
 
-This is "the new way" to tell that an arch supply an arch specific variant of a function.
-See lib/checksum.c.
-
-It does:
-
-#ifndef do_csum
-...
-#endif
-
-So archs that do not define do_csum will get a generic version of do_csum.
-And "do_csum" nicely shows up in grep - so it makes sense to do so.
-
-	Sam
+Are there any publicly available references for the architecture?
+Googling for "Qualcomm Hexagon" doesn't seem to find anything
+interesting.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-hexagon=
+" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
