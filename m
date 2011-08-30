@@ -1,38 +1,33 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch v2 04/35] Hexagon: Add atomic ops support
-Date: Tue, 30 Aug 2011 14:07:33 -0500
-Message-ID: <20110830190800.097783373@codeaurora.org>
+Subject: [patch v2 12/35] Hexagon: Export ksyms defined in assembly files.
+Date: Tue, 30 Aug 2011 14:07:41 -0500
+Message-ID: <20110830190800.882565453@codeaurora.org>
 References: <20110830190729.923334292@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=atomic.diff
+Content-Disposition: inline; filename=ksyms.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Cc: Linas Vepstas <linas@codeaurora.org>
 
-Our architecture uses load locked/store conditional type semantics for atomic
-ops.
-
-Added inline assembly version of atomic_add_unless.
-
-Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
+Signed-off-by: Linas Vepstas <linas@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/atomic.h |  164 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 164 insertions(+)
+ arch/hexagon/kernel/hexagon_ksyms.c |   42 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/atomic.h
+Index: linux-hexagon-kernel/arch/hexagon/kernel/hexagon_ksyms.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/atomic.h	2011-08-24 18:45:48.083877060 -0500
-@@ -0,0 +1,164 @@
++++ linux-hexagon-kernel/arch/hexagon/kernel/hexagon_ksyms.c	2011-08-24 18:45:48.173877140 -0500
+@@ -0,0 +1,42 @@
 +/*
-+ * Atomic operations for the Hexagon architecture
++ * Export of symbols defined in assembly files and/or libgcc.
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 and
@@ -49,149 +44,28 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/atomic.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef _ASM_ATOMIC_H
-+#define _ASM_ATOMIC_H
++#include <asm/hexagon_vm.h>
++#include <asm/uaccess.h>
 +
-+#include <linux/types.h>
++EXPORT_SYMBOL(__copy_from_user_hexagon);
++EXPORT_SYMBOL(__copy_to_user_hexagon);
++EXPORT_SYMBOL(__vmgetie);
++EXPORT_SYMBOL(__vmsetie);
++EXPORT_SYMBOL(memcpy);
++EXPORT_SYMBOL(memset);
 +
-+#define ATOMIC_INIT(i)		{ (i) }
-+#define atomic_set(v, i)	((v)->counter = (i))
++#define DECLARE_EXPORT(name)     \
++	extern void name(void); EXPORT_SYMBOL(name)
 +
-+/**
-+ * atomic_read - reads a word, atomically
-+ * @v: pointer to atomic value
-+ *
-+ * Assumes all word reads on our architecture are atomic.
-+ */
-+#define atomic_read(v)		((v)->counter)
++/* Symbols found in libgcc that assorted kernel modules need */
++DECLARE_EXPORT(__hexagon_memcpy_likely_aligned_min32bytes_mult8bytes);
 +
-+/**
-+ * atomic_xchg - atomic
-+ * @v: pointer to memory to change
-+ * @new: new value (technically passed in a register -- see xchg)
-+ */
-+#define atomic_xchg(v, new)	(xchg(&((v)->counter), (new)))
++DECLARE_EXPORT(__hexagon_divsi3);
++DECLARE_EXPORT(__hexagon_modsi3);
++DECLARE_EXPORT(__hexagon_udivsi3);
++DECLARE_EXPORT(__hexagon_umodsi3);
 +
 +
-+/**
-+ * atomic_cmpxchg - atomic compare-and-exchange values
-+ * @v: pointer to value to change
-+ * @old:  desired old value to match
-+ * @new:  new value to put in
-+ *
-+ * Parameters are then pointer, value-in-register, value-in-register,
-+ * and the output is the old value.
-+ *
-+ * Apparently this is complicated for archs that don't support
-+ * the memw_locked like we do (or it's broken or whatever).
-+ *
-+ * Kind of the lynchpin of the rest of the generically defined routines.
-+ * Remember V2 had that bug with dotnew predicate set by memw_locked.
-+ *
-+ * "old" is "expected" old val, __oldval is actual old value
-+ */
-+static inline int atomic_cmpxchg(atomic_t *v, int old, int new)
-+{
-+	int __oldval;
-+
-+	asm volatile(
-+		"1:	%0 = memw_locked(%1);\n"
-+		"	{ P0 = cmp.eq(%0,%2);\n"
-+		"	  if (!P0.new) jump:nt 2f; }\n"
-+		"	memw_locked(%1,P0) = %3;\n"
-+		"	if (!P0) jump 1b;\n"
-+		"2:\n"
-+		: "=&r" (__oldval)
-+		: "r" (&v->counter), "r" (old), "r" (new)
-+		: "memory", "p0"
-+	);
-+
-+	return __oldval;
-+}
-+
-+static inline int atomic_add_return(int i, atomic_t *v)
-+{
-+	int output;
-+
-+	__asm__ __volatile__ (
-+		"1:	%0 = memw_locked(%1);\n"
-+		"	%0 = add(%0,%2);\n"
-+		"	memw_locked(%1,P3)=%0;\n"
-+		"	if !P3 jump 1b;\n"
-+		: "=&r" (output)
-+		: "r" (&v->counter), "r" (i)
-+		: "memory", "p3"
-+	);
-+	return output;
-+
-+}
-+
-+#define atomic_add(i, v) atomic_add_return(i, (v))
-+
-+static inline int atomic_sub_return(int i, atomic_t *v)
-+{
-+	int output;
-+	__asm__ __volatile__ (
-+		"1:	%0 = memw_locked(%1);\n"
-+		"	%0 = sub(%0,%2);\n"
-+		"	memw_locked(%1,P3)=%0\n"
-+		"	if !P3 jump 1b;\n"
-+		: "=&r" (output)
-+		: "r" (&v->counter), "r" (i)
-+		: "memory", "p3"
-+	);
-+	return output;
-+}
-+
-+#define atomic_sub(i, v) atomic_sub_return(i, (v))
-+
-+/**
-+ * atomic_add_unless - add unless the number is a given value
-+ * @v: pointer to value
-+ * @a: amount to add
-+ * @u: unless value is equal to u
-+ *
-+ * Returns 1 if the add happened, 0 if it didn't.
-+ */
-+static inline int __atomic_add_unless(atomic_t *v, int a, int u)
-+{
-+	int output;
-+	asm volatile(
-+		"1:	R15 = memw_locked(%1);"
-+		"	{"
-+		"		p3 = cmp.eq(R15, %3);"
-+		"		if (p3.new) jump:nt 2f;"
-+		"		R15 = add(R15,%2);"
-+		"		%0 = #0;"
-+		"	}"
-+		"	memw_locked(%1,p3) = r15;"
-+		"	{"
-+		"		if !p3 jump 1b;"
-+		"		%0 = #1;"
-+		"	}"
-+		"2:"
-+		: "=&r" (output)
-+		: "r" (v), "r" (a), "r" (u)
-+		: "memory", "p3", "r15"
-+	);
-+	return output;
-+}
-+
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
-+#define atomic_inc(v) atomic_add(1, (v))
-+#define atomic_dec(v) atomic_sub(1, (v))
-+
-+#define atomic_inc_and_test(v) (atomic_add_return(1, (v)) == 0)
-+#define atomic_dec_and_test(v) (atomic_sub_return(1, (v)) == 0)
-+#define atomic_sub_and_test(i, v) (atomic_sub_return(i, (v)) == 0)
-+#define atomic_add_negative(i, v) (atomic_add_return(i, (v)) < 0)
-+
-+
-+#define atomic_inc_return(v) (atomic_add_return(1, v))
-+#define atomic_dec_return(v) (atomic_sub_return(1, v))
-+
-+#endif
 
 --
 
