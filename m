@@ -1,47 +1,49 @@
-From: Tobias Klauser <tklauser@distanz.ch>
-Subject: Re: __ARCH_WANT_SYSCALL_DEPRECATED
-Date: Mon, 29 Aug 2011 18:18:31 +0200
-Message-ID: <20110829161831.GA11405@distanz.ch>
-References: <20110822193602.GA23301@codeaurora.org> <2047151.mWElcT8jZQ@wuerfel> <20110829104324.GM24840@distanz.ch> <Pine.LNX.4.64.1108291518300.17624@digraph.polyomino.org.uk>
-Mime-Version: 1.0
+From: Richard Kuo <rkuo@codeaurora.org>
+Subject: [patch v2 00/35] Hexagon: Add support for Qualcomm Hexagon architecture
+Date: Tue, 30 Aug 2011 14:07:29 -0500
+Message-ID: <20110830190729.923334292@codeaurora.org>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.1108291518300.17624@digraph.polyomino.org.uk>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: "Joseph S. Myers" <joseph@codesourcery.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>, Chris Metcalf <cmetcalf@tilera.com>, Jonas Bonn <jonas.bonn@gmail.com>, libc-ports@sourceware.org, linux-hexagon@vger.kernel.org, linux-arch@vger.kernel.org, Mark Salter <msalter@redhat.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>
+To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On 2011-08-29 at 17:21:52 +0200, Joseph S. Myers <joseph@codesourcery.com> wrote:
-> On Mon, 29 Aug 2011, Tobias Klauser wrote:
-> 
-> > On nios2 we're using an outdated eglibc version (based on glibc 2.5)
-> > right now and thus we still rely on our own non-asm-generic version of
-> > asm/unistd.h
-> 
-> As I noted before 
-> <http://sourceware.org/ml/libc-ports/2010-09/msg00014.html> Nios II has 
-> the problem for upstream submission of the unassigned nature of the 
-> binutils and GCC ports - unless you know of any progress on that issue at 
-> Altera.
+This is the second version of the patchset to the Linux kernel to support
+the Qualcomm Hexagon architecture.  These patches have been organized like
+the last time, in a somewhat logically grouped fashion.
 
-Thanks, I wasn't aware of the discussion in this thread. Unfortunately
-I do not know of any progress wrt this matter at Altera.
+A summary of changes from the last patchset:
 
-My primary interest at the moment is getting the kernel port ready for
-mainline submission. One of the requirements for this to happen seems
-to be the convertion to the asm-generic syscall ABI which I'm currently
-working on. For this an updated glibc port will be needed.
+* use Kbuild method for strictly asm-generic headers
+* clean up dma sync and implement clean/invalidate
+* bitops fl*/ff* cleanup
+* added inline assembly version of atomic_add_unless
+* removed deprecated syscalls/defines
+* call __vmyield for cpu_relax and fix cpu_idle
+* clean up thread_info; use arch allocator to allow kernel stack sizes
+  smaller than page size
+* implement read_timer_counter
+* changed checksum to pull non-asm functions from generic code
+* delete module functions which already have generic equivalents
+* cleaned up IO routines
+* reduced comet_defconfig
+* remove ugly platform code
 
-Joseph: Are the sources of the improved CodeSourcery port availbale
-somewhere publicly or are they only available if one buys/evaluates
-CodeBench?
+These patches are available on Code Aurora as well as git:
 
-I'd like to base my glibc work to come on the most recent and mature
-version of glibc, so it would be nice to start off CodeSourcey's
-version.
+https://www.codeaurora.org/patches/quic/hlk/hexagon-linux-20110830.tar.gz
 
-Thanks
-Tobias
+git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon.git hexagon
+
+Thanks to everyone for their comments/feedback!  If I missed anything
+or there's something else that needs cleanup, please let me know.
+
+
+-Richard Kuo
+
+--
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
