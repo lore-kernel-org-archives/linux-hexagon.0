@@ -1,64 +1,44 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch v2 18/35] Hexagon: Add time and timer functions
-Date: Tue, 30 Aug 2011 14:07:47 -0500
-Message-ID: <20110830190801.448257740@codeaurora.org>
+Subject: [patch v2 24/35] Hexagon: Provide basic implementation and/or stubs for I/O routines.
+Date: Tue, 30 Aug 2011 14:07:53 -0500
+Message-ID: <20110830190801.995980546@codeaurora.org>
 References: <20110830190729.923334292@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=timer.diff
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline; filename=io.diff
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Cc: Linas Vepstas <linas@codeaurora.org>
+
+Changed read/write to use inline assembly.
+
+Rearranged the file and put all the ioport stuff at the bottom.  For now
+I'd like to just leave the stubs in there in case they need to be
+filled out later; plus things don't compile.
+
+We still seem to need IO_SPACE_LIMIT to be defined, particularly to something
+large, as we have drivers that request resources with IORESOURCE_IO that
+are memory mapped IO.  The ioread/iowrites work as they select the correct
+routine to use.
 
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
+Signed-off-by: Linas Vepstas <linas@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/time.h       |   27 +++
- arch/hexagon/include/asm/timer-regs.h |   39 ++++
- arch/hexagon/kernel/time.c            |  283 ++++++++++++++++++++++++++++++++++
- 3 files changed, 349 insertions(+)
+ arch/hexagon/include/asm/io.h |  297 ++++++++++++++++++++++++++++++++++++++++++
+ arch/hexagon/lib/io.c         |   91 ++++++++++++
+ 2 files changed, 388 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/time.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/io.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/time.h	2011-08-24 18:45:48.233877192 -0500
-@@ -0,0 +1,27 @@
++++ linux-hexagon-kernel/arch/hexagon/include/asm/io.h	2011-08-24 18:45:48.323877271 -0500
+@@ -0,0 +1,297 @@
 +/*
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#ifndef ASM_TIME_H
-+#define ASM_TIME_H
-+
-+#ifdef CONFIG_SMP
-+void setup_percpu_clockdev(void);
-+void ipi_timer(void);
-+#endif
-+
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/timer-regs.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/timer-regs.h	2011-08-24 18:45:48.233877192 -0500
-@@ -0,0 +1,39 @@
-+/*
-+ * Timer support for Hexagon
++ * IO definitions for the Hexagon architecture
 + *
 + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
@@ -77,315 +57,382 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/timer-regs.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef _ASM_TIMER_REGS_H
-+#define _ASM_TIMER_REGS_H
++#ifndef _ASM_IO_H
++#define _ASM_IO_H
 +
-+/*  This stuff should go into a platform specific file  */
-+#define TCX0_CLK_RATE		19200
-+#define TIMER_ENABLE		0
-+#define TIMER_CLR_ON_MATCH	1
++#ifdef __KERNEL__
 +
-+/*
-+ * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
-+ * release 1.1, and then it's "adjustable" and probably not defaulted.
-+ */
-+#define RTOS_TIMER_INT		3
-+#ifdef CONFIG_HEXAGON_COMET
-+#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
-+#endif
-+#define SLEEP_CLK_RATE		32000
-+
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/kernel/time.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/time.c	2011-08-24 18:45:48.233877192 -0500
-@@ -0,0 +1,283 @@
-+/*
-+ * Time related functions for Hexagon architecture
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/clockchips.h>
-+#include <linux/clocksource.h>
-+#include <linux/interrupt.h>
-+#include <linux/err.h>
-+#include <linux/platform_device.h>
-+#include <linux/ioport.h>
-+#include <linux/of.h>
-+#include <linux/of_address.h>
-+#include <linux/of_irq.h>
-+
-+#include <asm/timer-regs.h>
-+#include <asm/hexagon_vm.h>
++#include <linux/types.h>
++#include <linux/delay.h>
++#include <linux/vmalloc.h>
++#include <asm/string.h>
++#include <asm/mem-layout.h>
++#include <asm/iomap.h>
++#include <asm/page.h>
++#include <asm/cacheflush.h>
++#include <asm/tlbflush.h>
 +
 +/*
-+ * For now, hard wire the simulated CPU/pcycle frequency.
-+ * XXX TODO fish it out of device tree!
++ * We don't have PCI yet.
 + */
-+#define CPU_MHZ 600
++#define IO_SPACE_LIMIT 0xffffffff
++#define _IO_BASE 0x0
 +
-+static struct resource rtos_timer_resources[] = {
-+	{
-+		.start	= RTOS_TIMER_REGS_ADDR,
-+		.end	= RTOS_TIMER_REGS_ADDR+PAGE_SIZE-1,
-+		.flags	= IORESOURCE_MEM,
-+	},
-+};
++extern int remap_area_pages(unsigned long start, unsigned long phys_addr,
++				unsigned long end, unsigned long flags);
 +
-+static struct platform_device rtos_timer_device = {
-+	.name		= "rtos_timer",
-+	.id		= -1,
-+	.num_resources	= ARRAY_SIZE(rtos_timer_resources),
-+	.resource	= rtos_timer_resources,
-+};
++extern void __iounmap(const volatile void __iomem *addr);
 +
-+/*  A lot of this stuff should move into a platform specific section.  */
-+struct adsp_hw_timer_struct {
-+	unsigned int match;   /*  Match value  */
-+	unsigned int count;
-+	unsigned int enable;  /*  [1] - CLR_ON_MATCH_EN, [0] - EN  */
-+	unsigned int clear;   /*  one-shot register that clears the count  */
-+};
++/* Defined in lib/io.c, needed for smc91x driver. */
++extern void __raw_readsw(const void __iomem *addr, void *data, int wordlen);
++extern void __raw_writesw(void __iomem *addr, const void *data, int wordlen);
 +
-+/*  Look for "TCX0" for related constants.  */
-+static volatile struct adsp_hw_timer_struct *rtos_timer = (void *) 0x0;
++extern void __raw_readsl(const void __iomem *addr, void *data, int wordlen);
++extern void __raw_writesl(void __iomem *addr, const void *data, int wordlen);
 +
-+void debug_adsp_timers(void)
++#define readsw(p, d, l)	__raw_readsw(p, d, l)
++#define writesw(p, d, l) __raw_writesw(p, d, l)
++
++#define readsl(p, d, l)   __raw_readsl(p, d, l)
++#define writesl(p, d, l)  __raw_writesl(p, d, l)
++
++/*
++ * virt_to_phys - map virtual address to physical
++ * @address:  address to map
++ */
++static inline unsigned long virt_to_phys(volatile void *address)
 +{
-+	printk(KERN_INFO "rtos_timer->match=0x%08x\n", rtos_timer->match);
-+	printk(KERN_INFO "rtos_timer->count=%d\n", rtos_timer->count);
-+	printk(KERN_INFO "rtos_timer->enable=%d\n", rtos_timer->enable);
-+	printk(KERN_INFO "rtos_timer->clear=%d\n", rtos_timer->clear);
++	return __pa(address);
 +}
 +
-+static cycle_t timer_get_cycles(struct clocksource *cs)
++/*
++ * phys_to_virt - map physical address to virtual
++ * @address: address to map
++ */
++static inline void *phys_to_virt(unsigned long address)
 +{
-+	return (cycle_t) __vmgettime();
++	return __va(address);
 +}
 +
-+static struct clocksource hexagon_clocksource = {
-+	.name		= "pcycles",
-+	.rating		= 250,
-+	.shift		= 16,
-+	.read		= timer_get_cycles,
-+	.mask		= CLOCKSOURCE_MASK(64),
-+	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
-+};
++/*
++ * convert a physical pointer to a virtual kernel pointer for
++ * /dev/mem access.
++ */
++#define xlate_dev_kmem_ptr(p)    __va(p)
++#define xlate_dev_mem_ptr(p)    __va(p)
 +
-+static int set_next_event(unsigned long delta, struct clock_event_device *evt)
++/*
++ * IO port access primitives.  Hexagon doesn't have special IO access
++ * instructions; all I/O is memory mapped.
++ *
++ * in/out are used for "ports", but we don't have "port instructions",
++ * so these are really just memory mapped too.
++ */
++
++/*
++ * readb - read byte from memory mapped device
++ * @addr:  pointer to memory
++ *
++ * Operates on "I/O bus memory space"
++ */
++static inline u8 readb(const volatile void __iomem *addr)
 +{
-+	/*  Assuming the timer will be disabled when we enter here.  */
-+	rtos_timer->clear = 1;
-+	rtos_timer->clear = 0;
++	u8 val;
++	asm volatile(
++		"%0 = memb(%1);"
++		: "=&r" (val)
++		: "r" (addr)
++	);
++	return val;
++}
 +
-+	/*  Does this need massaging?  */
-+	rtos_timer->match = delta;
-+	rtos_timer->enable = 1 << TIMER_ENABLE;
++static inline u16 readw(const volatile void __iomem *addr)
++{
++	u16 val;
++	asm volatile(
++		"%0 = memh(%1);"
++		: "=&r" (val)
++		: "r" (addr)
++	);
++	return val;
++}
++
++static inline u32 readl(const volatile void __iomem *addr)
++{
++	u32 val;
++	asm volatile(
++		"%0 = memw(%1);"
++		: "=&r" (val)
++		: "r" (addr)
++	);
++	return val;
++}
++
++/*
++ * writeb - write a byte to a memory location
++ * @data: data to write to
++ * @addr:  pointer to memory
++ *
++ */
++static inline void writeb(u8 data, volatile void __iomem *addr)
++{
++	asm volatile(
++		"memb(%0) = %1;"
++		:
++		: "r" (addr), "r" (data)
++	);
++}
++
++static inline void writew(u16 data, volatile void __iomem *addr)
++{
++	asm volatile(
++		"memh(%0) = %1;"
++		:
++		: "r" (addr), "r" (data)
++	);
++
++}
++
++static inline void writel(u32 data, volatile void __iomem *addr)
++{
++	asm volatile(
++		"memw(%0) = %1;"
++		:
++		: "r" (addr), "r" (data)
++	);
++}
++
++#define __raw_writeb writeb
++#define __raw_writew writew
++#define __raw_writel writel
++
++#define __raw_readb readb
++#define __raw_readw readw
++#define __raw_readl readl
++
++/*
++ * Need an mtype somewhere in here, for cache type deals?
++ * This is probably too long for an inline.
++ */
++void __iomem *ioremap_nocache(unsigned long phys_addr, unsigned long size);
++
++static inline void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
++{
++	return ioremap_nocache(phys_addr, size);
++}
++
++static inline void iounmap(volatile void __iomem *addr)
++{
++	__iounmap(addr);
++}
++
++#define __raw_writel writel
++
++static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
++	int count)
++{
++	memcpy(dst, (void *) src, count);
++}
++
++static inline void memcpy_toio(volatile void __iomem *dst, const void *src,
++	int count)
++{
++	memcpy((void *) dst, src, count);
++}
++
++#define PCI_IO_ADDR	volatile void __iomem *
++
++/*
++ * inb - read byte from I/O port or something
++ * @port:  address in I/O space
++ *
++ * Operates on "I/O bus I/O space"
++ */
++static inline u8 inb(unsigned long port)
++{
++	printk(KERN_INFO "inb not implemented\n");
++	return 0;
++}
++
++static inline u16 inw(unsigned long port)
++{
++	printk(KERN_INFO "inw not implemented\n");
++	return 0;
++}
++
++static inline u32 inl(unsigned long port)
++{
++	printk(KERN_INFO "inl not implemented\n");
 +	return 0;
 +}
 +
 +/*
-+ * Sets the mode (periodic, shutdown, oneshot, etc) of a timer.
++ * outb - write a byte to a memory location
++ * @data: data to write to
++ * @addr:  address in I/O space
 + */
-+static void set_mode(enum clock_event_mode mode,
-+	struct clock_event_device *evt)
++static inline void outb(u8 data, unsigned long port)
 +{
-+	switch (mode) {
-+	case CLOCK_EVT_MODE_SHUTDOWN:
-+		/* XXX implement me */
-+	default:
-+		break;
-+	}
++	writeb(data, (PCI_IO_ADDR)_IO_BASE+port);
 +}
 +
-+#ifdef CONFIG_SMP
-+/*  Broadcast mechanism  */
-+static void broadcast(const struct cpumask *mask)
++static inline void outw(u16 data, unsigned long port)
 +{
-+	send_ipi(mask, IPI_TIMER);
++	writew(data, (PCI_IO_ADDR)_IO_BASE+port);
 +}
++
++static inline void outl(u32 data, unsigned long port)
++{
++	writel(data, (PCI_IO_ADDR)_IO_BASE+port);
++}
++
++/*  _p means "pause until the I/O completes"  */
++#define outb_p outb
++#define outw_p outw
++#define outl_p outl
++
++#define inb_p inb
++#define inw_p inw
++#define inl_p inl
++
++static inline void insb(unsigned long addr, void *buffer, int count)
++{
++	printk(KERN_INFO "insb not implemented\n");
++}
++
++static inline void insw(unsigned long addr, void *buffer, int count)
++{
++	printk(KERN_INFO "insw not implemented\n");
++}
++
++static inline void insl(unsigned long addr, void *buffer, int count)
++{
++	printk(KERN_INFO "insl not implemented\n");
++}
++
++static inline void outsb(unsigned long addr, const void *buffer, int count)
++{
++	printk(KERN_INFO "outsb not implemented\n");
++}
++
++static inline void outsw(unsigned long addr, const void *buffer, int count)
++{
++	printk(KERN_INFO "outsw not implemented\n");
++}
++
++static inline void outsl(unsigned long addr, const void *buffer, int count)
++{
++	printk(KERN_INFO "outsl not implemented\n");
++}
++
++/*  generic versions defined in lib/iomap.c  */
++extern void __iomem *ioport_map(unsigned long port, unsigned int nr);
++extern void ioport_unmap(void __iomem *addr);
++
++#define flush_write_buffers() do { } while (0)
++
++#endif /* __KERNEL__ */
++
 +#endif
+Index: linux-hexagon-kernel/arch/hexagon/lib/io.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/lib/io.c	2011-08-24 18:45:48.323877271 -0500
+@@ -0,0 +1,91 @@
++/*
++ * I/O access functions for Hexagon
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
 +
-+static struct clock_event_device hexagon_clockevent_dev = {
-+	.name		= "clockevent",
-+	.features	= CLOCK_EVT_FEAT_ONESHOT,
-+	.rating		= 400,
-+	.shift		= 32,
-+	.irq		= RTOS_TIMER_INT,
-+	.set_next_event = set_next_event,
-+	.set_mode	= set_mode,
-+#ifdef CONFIG_SMP
-+	.broadcast	= broadcast
-+#endif
-+};
++#include <asm/io.h>
 +
-+#ifdef CONFIG_SMP
-+static DEFINE_PER_CPU(struct clock_event_device, clock_events);
++/*  These are all FIFO routines!  */
 +
-+void setup_percpu_clockdev(void)
++/*
++ * __raw_readsw - read words a short at a time
++ * @addr:  source address
++ * @data:  data address
++ * @len: number of shorts to read
++ */
++void __raw_readsw(const void __iomem *addr, void *data, int len)
 +{
-+	int cpu = smp_processor_id();
-+	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
-+	struct clock_event_device *dummy_clock_dev =
-+		&per_cpu(clock_events, cpu);
++	const volatile short int *src = (short int *) addr;
++	short int *dst = (short int *) data;
 +
-+	memcpy(dummy_clock_dev, ce_dev, sizeof(*dummy_clock_dev));
-+	INIT_LIST_HEAD(&dummy_clock_dev->list);
++	if ((u32)data & 0x1)
++		panic("unaligned pointer to readsw");
 +
-+	dummy_clock_dev->features = CLOCK_EVT_FEAT_DUMMY;
-+	dummy_clock_dev->cpumask = cpumask_of(cpu);
-+	dummy_clock_dev->mode = CLOCK_EVT_MODE_UNUSED;
++	while (len-- > 0)
++		*dst++ = *src;
 +
-+	clockevents_register_device(dummy_clock_dev);
-+}
-+
-+/*  Called from smp.c for each CPU's timer ipi call  */
-+void ipi_timer(void)
-+{
-+	int cpu = smp_processor_id();
-+	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
-+
-+	ce_dev = &per_cpu(clock_events, cpu);
-+	ce_dev->event_handler(ce_dev);
-+}
-+#endif /* CONFIG_SMP */
-+
-+static irqreturn_t timer_interrupt(int irq, void *devid)
-+{
-+	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
-+
-+	rtos_timer->enable = 0;
-+	ce_dev->event_handler(ce_dev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/*  This should also be pulled from devtree  */
-+static struct irqaction rtos_timer_intdesc = {
-+	.handler = timer_interrupt,
-+	.flags = IRQF_DISABLED | IRQF_TIMER | IRQF_TRIGGER_RISING,
-+	.name = "rtos_timer"
-+};
-+
-+void clocksource_debug(struct clocksource *cs)
-+{
-+	printk(KERN_DEBUG "cs->mult=0x%08x\n", cs->mult);
-+	printk(KERN_DEBUG "cs->shift=%d\n", cs->shift);
-+}
-+
-+void clockevent_debug(struct clock_event_device *ce)
-+{
-+	printk(KERN_DEBUG "ce->mult=0x%08x\n", ce->mult);
-+	printk(KERN_DEBUG "ce->shift=%d\n", ce->shift);
 +}
 +
 +/*
-+ * time_init_deferred - called by start_kernel to set up timer/clock source
-+ *
-+ * Install the IRQ handler for the clock, setup timers.
-+ * This is done late, as that way, we can use ioremap().
-+ *
-+ * This runs just before the delay loop is calibrated, and
-+ * is used for delay calibration.
++ * __raw_writesw - read words a short at a time
++ * @addr:  source address
++ * @data:  data address
++ * @len: number of shorts to read
 + */
-+void __init time_init_deferred(void)
++void __raw_writesw(void __iomem *addr, const void *data, int len)
 +{
-+	struct resource *resource = NULL;
-+	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
-+	struct device_node *dn;
-+	struct resource r;
-+	int err;
++	const short int *src = (short int *)data;
++	volatile short int *dst = (short int *)addr;
 +
-+#ifdef CONFIG_SMP
-+	ce_dev->cpumask = cpu_all_mask;
-+#else
-+	ce_dev->cpumask = cpumask_of(0);
-+#endif
++	if ((u32)data & 0x1)
++		panic("unaligned pointer to writesw");
 +
-+	if (!resource)
-+		resource = rtos_timer_device.resource;
++	while (len-- > 0)
++		*dst = *src++;
 +
-+	/*  ioremap here means this has to run later, after paging init  */
-+	rtos_timer = ioremap(resource->start, resource->end
-+		- resource->start + 1);
 +
-+	if (!rtos_timer) {
-+		release_mem_region(resource->start, resource->end
-+			- resource->start + 1);
-+	}
-+	/*  Change to clocksource_register_khz in newer kernels  */
-+	hexagon_clocksource.mult = clocksource_hz2mult(CPU_MHZ * 1000000,
-+		hexagon_clocksource.shift);
-+	clocksource_register(&hexagon_clocksource);
-+	clocksource_debug(&hexagon_clocksource);
-+
-+	/*  Note: the sim generic RTOS clock is apparently really 18750Hz  */
-+	/*  Change to clockevents_calc_mult_shift()  */
-+	/*  SLEEP_CLK_RATE should be pulled from devtree?  */
-+	ce_dev->mult  = div_sc(SLEEP_CLK_RATE, NSEC_PER_SEC,
-+			       ce_dev->shift);
-+
-+	ce_dev->max_delta_ns = clockevent_delta2ns(0x7fffffff, ce_dev);
-+	ce_dev->min_delta_ns = clockevent_delta2ns(0xf, ce_dev);
-+
-+#ifdef CONFIG_SMP
-+	setup_percpu_clockdev();
-+#endif
-+
-+	clockevents_register_device(ce_dev);
-+	setup_irq(ce_dev->irq, &rtos_timer_intdesc);
 +}
 +
-+void __init time_init(void)
++/*  Pretty sure len is pre-adjusted for the length of the access already */
++void __raw_readsl(const void __iomem *addr, void *data, int len)
 +{
-+	late_time_init = time_init_deferred;
++	const volatile long *src = (long *) addr;
++	long *dst = (long *) data;
++
++	if ((u32)data & 0x3)
++		panic("unaligned pointer to readsl");
++
++	while (len-- > 0)
++		*dst++ = *src;
++
++
 +}
 +
-+/*
-+ * Some architectures inline this, which seems slightly insane.
-+ * Why burn memory to speed up a delay function?
-+ *
-+ * Note that there are hooks for MP systems to have different
-+ * delay values for different CPUs.  We should ultimately replace
-+ * the CPU_MHZ constant below with a reference to whatever per-CPU
-+ * state is dedicated to that role.
-+ */
-+
-+/*
-+ * This could become parametric or perhaps even computed at run-time,
-+ * but for now we take the observed simulator jitter.
-+ * XXX TODO fish this out of the device tree!
-+ */
-+static long long fudgefactor = 350;  /* Maybe lower if kernel optimized. */
-+
-+void __udelay(unsigned long usecs)
++void __raw_writesl(void __iomem *addr, const void *data, int len)
 +{
-+	unsigned long long start = __vmgettime();
-+	unsigned long long finish = (CPU_MHZ * usecs) - fudgefactor;
++	const long *src = (long *)data;
++	volatile long *dst = (long *)addr;
 +
-+	while ((__vmgettime() - start) < finish)
-+		; /*  not sure how this improves readability  */
++	if ((u32)data & 0x3)
++		panic("unaligned pointer to writesl");
++
++	while (len-- > 0)
++		*dst = *src++;
++
++
 +}
-+EXPORT_SYMBOL(__udelay);
 
 --
 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+
