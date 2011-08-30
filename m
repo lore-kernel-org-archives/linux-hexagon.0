@@ -1,10 +1,10 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch v2 25/35] Hexagon: Implement basic cache-flush support
-Date: Tue, 30 Aug 2011 14:07:54 -0500
-Message-ID: <20110830190802.092436755@codeaurora.org>
+Subject: [patch v2 22/35] Hexagon: Add locking types and functions
+Date: Tue, 30 Aug 2011 14:07:51 -0500
+Message-ID: <20110830190801.806746182@codeaurora.org>
 References: <20110830190729.923334292@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=cache.diff
+Content-Disposition: inline; filename=rwsem-spin.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -12,292 +12,391 @@ Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-We have separate I/D caches.  Data caches are physically indexed.
+We pretty much just reused the PPC version of rwsem.h.  Spinlocks use ll/sc.
 
 Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
 
 ---
- arch/hexagon/include/asm/cache.h      |   34 +++++++++
- arch/hexagon/include/asm/cacheflush.h |   99 ++++++++++++++++++++++++++
- arch/hexagon/mm/cache.c               |  128 ++++++++++++++++++++++++++++++++++
- 3 files changed, 261 insertions(+)
+ arch/hexagon/include/asm/rwsem.h          |  132 +++++++++++++++++++++
+ arch/hexagon/include/asm/spinlock.h       |  186 ++++++++++++++++++++++++++++++
+ arch/hexagon/include/asm/spinlock_types.h |   42 ++++++
+ 3 files changed, 360 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/cacheflush.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/rwsem.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/cacheflush.h	2011-08-24 18:45:48.363877306 -0500
-@@ -0,0 +1,99 @@
-+/*
-+ * Cache flush operations for the Hexagon architecture
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
++++ linux-hexagon-kernel/arch/hexagon/include/asm/rwsem.h	2011-08-24 18:45:48.283877237 -0500
+@@ -0,0 +1,132 @@
++#ifndef _ASM_POWERPC_RWSEM_H
++#define _ASM_POWERPC_RWSEM_H
 +
-+#ifndef _ASM_CACHEFLUSH_H
-+#define _ASM_CACHEFLUSH_H
++#ifndef _LINUX_RWSEM_H
++#error "Please don't include <asm/rwsem.h> directly, use <linux/rwsem.h> instead."
++#endif
 +
-+#include <linux/cache.h>
-+#include <linux/mm.h>
-+#include <asm/string.h>
-+#include <asm-generic/cacheflush.h>
-+
-+/* Cache flushing:
-+ *
-+ *  - flush_cache_all() flushes entire cache
-+ *  - flush_cache_mm(mm) flushes the specified mm context's cache lines
-+ *  - flush_cache_page(mm, vmaddr, pfn) flushes a single page
-+ *  - flush_cache_range(vma, start, end) flushes a range of pages
-+ *  - flush_icache_range(start, end) flush a range of instructions
-+ *  - flush_dcache_page(pg) flushes(wback&invalidates) a page for dcache
-+ *  - flush_icache_page(vma, pg) flushes(invalidates) a page for icache
-+ *
-+ *  Need to doublecheck which one is really needed for ptrace stuff to work.
-+ */
-+#define LINESIZE	32
-+#define LINEBITS	5
++#ifdef __KERNEL__
 +
 +/*
-+ * Flush Dcache range through current map.
++ * R/W semaphores for PPC using the stuff in lib/rwsem.c.
++ * Adapted largely from include/asm-i386/rwsem.h
++ * by Paul Mackerras <paulus@samba.org>.
 + */
-+extern void flush_dcache_range(unsigned long start, unsigned long end);
 +
 +/*
-+ * Flush Icache range through current map.
++ * the semaphore definition
 + */
-+#undef flush_icache_range
-+extern void flush_icache_range(unsigned long start, unsigned long end);
++#ifdef CONFIG_PPC64
++# define RWSEM_ACTIVE_MASK		0xffffffffL
++#else
++# define RWSEM_ACTIVE_MASK		0x0000ffffL
++#endif
++
++#define RWSEM_UNLOCKED_VALUE		0x00000000L
++#define RWSEM_ACTIVE_BIAS		0x00000001L
++#define RWSEM_WAITING_BIAS		(-RWSEM_ACTIVE_MASK-1)
++#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
++#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
 +
 +/*
-+ * Memory-management related flushes are there to ensure in non-physically
-+ * indexed cache schemes that stale lines belonging to a given ASID aren't
-+ * in the cache to confuse things.  The prototype Hexagon Virtual Machine
-+ * only uses a single ASID for all user-mode maps, which should
-+ * mean that they aren't necessary.  A brute-force, flush-everything
-+ * implementation, with the name xxxxx_hexagon() is present in
-+ * arch/hexagon/mm/cache.c, but let's not wire it up until we know
-+ * it is needed.
++ * lock for reading
 + */
-+extern void flush_cache_all_hexagon(void);
-+
-+/*
-+ * This may or may not ever have to be non-null, depending on the
-+ * virtual machine MMU.  For a native kernel, it's definitiely  a no-op
-+ *
-+ * This is also the place where deferred cache coherency stuff seems
-+ * to happen, classically...  but instead we do it like ia64 and
-+ * clean the cache when the PTE is set.
-+ *
-+ */
-+static inline void update_mmu_cache(struct vm_area_struct *vma,
-+					unsigned long address, pte_t *ptep)
++static inline void __down_read(struct rw_semaphore *sem)
 +{
-+	/*  generic_ptrace_pokedata doesn't wind up here, does it?  */
++	if (unlikely(atomic_long_inc_return((atomic_long_t *)&sem->count) <= 0))
++		rwsem_down_read_failed(sem);
 +}
 +
-+#undef copy_to_user_page
-+static inline void copy_to_user_page(struct vm_area_struct *vma,
-+					     struct page *page,
-+					     unsigned long vaddr,
-+					     void *dst, void *src, int len)
++static inline int __down_read_trylock(struct rw_semaphore *sem)
 +{
-+	memcpy(dst, src, len);
-+	if (vma->vm_flags & VM_EXEC) {
-+		flush_icache_range((unsigned long) dst,
-+		(unsigned long) dst + len);
++	long tmp;
++
++	while ((tmp = sem->count) >= 0) {
++		if (tmp == cmpxchg(&sem->count, tmp,
++				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
++			return 1;
++		}
 +	}
++	return 0;
 +}
 +
-+
-+extern void hexagon_inv_dcache_range(unsigned long start, unsigned long end);
-+extern void hexagon_clean_dcache_range(unsigned long start, unsigned long end);
-+
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/cache.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/cache.h	2011-08-24 18:45:48.363877306 -0500
-@@ -0,0 +1,34 @@
 +/*
-+ * Cache definitions for the Hexagon architecture
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
++ * lock for writing
 + */
-+
-+#ifndef __ASM_CACHE_H
-+#define __ASM_CACHE_H
-+
-+/* Bytes per L1 cache line */
-+#define L1_CACHE_SHIFT		(5)
-+#define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
-+
-+#define __cacheline_aligned	__attribute__((aligned(L1_CACHE_BYTES)))
-+#define ____cacheline_aligned	__attribute__((aligned(L1_CACHE_BYTES)))
-+
-+/* See http://kerneltrap.org/node/15100  */
-+#define __read_mostly
-+
-+#endif
-Index: linux-hexagon-kernel/arch/hexagon/mm/cache.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/mm/cache.c	2011-08-24 18:45:48.363877306 -0500
-@@ -0,0 +1,128 @@
-+/*
-+ * Cache management functions for Hexagon
-+ *
-+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+
-+#include <linux/mm.h>
-+#include <asm/cacheflush.h>
-+#include <asm/hexagon_vm.h>
-+
-+#define spanlines(start, end) \
-+	(((end - (start & ~(LINESIZE - 1))) >> LINEBITS) + 1)
-+
-+void flush_dcache_range(unsigned long start, unsigned long end)
++static inline void __down_write_nested(struct rw_semaphore *sem, int subclass)
 +{
-+	unsigned long lines = spanlines(start, end-1);
-+	unsigned long i, flags;
++	long tmp;
 +
-+	start &= ~(LINESIZE - 1);
++	tmp = atomic_long_add_return(RWSEM_ACTIVE_WRITE_BIAS,
++				     (atomic_long_t *)&sem->count);
++	if (unlikely(tmp != RWSEM_ACTIVE_WRITE_BIAS))
++		rwsem_down_write_failed(sem);
++}
 +
-+	local_irq_save(flags);
++static inline void __down_write(struct rw_semaphore *sem)
++{
++	__down_write_nested(sem, 0);
++}
 +
-+	for (i = 0; i < lines; i++) {
-+		__asm__ __volatile__ (
-+		"	dccleaninva(%0);	"
++static inline int __down_write_trylock(struct rw_semaphore *sem)
++{
++	long tmp;
++
++	tmp = cmpxchg(&sem->count, RWSEM_UNLOCKED_VALUE,
++		      RWSEM_ACTIVE_WRITE_BIAS);
++	return tmp == RWSEM_UNLOCKED_VALUE;
++}
++
++/*
++ * unlock after reading
++ */
++static inline void __up_read(struct rw_semaphore *sem)
++{
++	long tmp;
++
++	tmp = atomic_long_dec_return((atomic_long_t *)&sem->count);
++	if (unlikely(tmp < -1 && (tmp & RWSEM_ACTIVE_MASK) == 0))
++		rwsem_wake(sem);
++}
++
++/*
++ * unlock after writing
++ */
++static inline void __up_write(struct rw_semaphore *sem)
++{
++	if (unlikely(atomic_long_sub_return(RWSEM_ACTIVE_WRITE_BIAS,
++				 (atomic_long_t *)&sem->count) < 0))
++		rwsem_wake(sem);
++}
++
++/*
++ * implement atomic add functionality
++ */
++static inline void rwsem_atomic_add(long delta, struct rw_semaphore *sem)
++{
++	atomic_long_add(delta, (atomic_long_t *)&sem->count);
++}
++
++/*
++ * downgrade write lock to read lock
++ */
++static inline void __downgrade_write(struct rw_semaphore *sem)
++{
++	long tmp;
++
++	tmp = atomic_long_add_return(-RWSEM_WAITING_BIAS,
++				     (atomic_long_t *)&sem->count);
++	if (tmp < 0)
++		rwsem_downgrade_wake(sem);
++}
++
++/*
++ * implement exchange and add functionality
++ */
++static inline long rwsem_atomic_update(long delta, struct rw_semaphore *sem)
++{
++	return atomic_long_add_return(delta, (atomic_long_t *)&sem->count);
++}
++
++#endif	/* __KERNEL__ */
++#endif	/* _ASM_POWERPC_RWSEM_H */
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/spinlock.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/spinlock.h	2011-08-24 18:45:48.283877237 -0500
+@@ -0,0 +1,186 @@
++/*
++ * Spinlock support for the Hexagon architecture
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef _ASM_SPINLOCK_H
++#define _ASM_SPINLOCK_H
++
++#include <asm/irqflags.h>
++
++/*
++ * This file is pulled in for SMP builds.
++ * Really need to check all the barrier stuff for "true" SMP
++ */
++
++/*
++ * Read locks:
++ * - load the lock value
++ * - increment it
++ * - if the lock value is still negative, go back and try again.
++ * - unsuccessful store is unsuccessful.  Go back and try again.  Loser.
++ * - successful store new lock value if positive -> lock acquired
++ */
++static inline void arch_read_lock(arch_rwlock_t *lock)
++{
++	__asm__ __volatile__(
++		"1:	R6 = memw_locked(%0);\n"
++		"	{ P3 = cmp.ge(R6,#0); R6 = add(R6,#1);}\n"
++		"	{ if !P3 jump 1b; }\n"
++		"	memw_locked(%0,P3) = R6;\n"
++		"	{ if !P3 jump 1b; }\n"
 +		:
-+		: "r" (start)
-+		);
-+		start += LINESIZE;
-+	}
-+	local_irq_restore(flags);
-+}
-+
-+void flush_icache_range(unsigned long start, unsigned long end)
-+{
-+	unsigned long lines = spanlines(start, end-1);
-+	unsigned long i, flags;
-+
-+	start &= ~(LINESIZE - 1);
-+
-+	local_irq_save(flags);
-+
-+	for (i = 0; i < lines; i++) {
-+		__asm__ __volatile__ (
-+			"	dccleana(%0); "
-+			"	icinva(%0);	"
-+			:
-+			: "r" (start)
-+		);
-+		start += LINESIZE;
-+	}
-+	__asm__ __volatile__ (
-+		"isync"
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
 +	);
-+	local_irq_restore(flags);
++
 +}
 +
-+void hexagon_clean_dcache_range(unsigned long start, unsigned long end)
++static inline void arch_read_unlock(arch_rwlock_t *lock)
 +{
-+	unsigned long lines = spanlines(start, end-1);
-+	unsigned long i, flags;
-+
-+	start &= ~(LINESIZE - 1);
-+
-+	local_irq_save(flags);
-+
-+	for (i = 0; i < lines; i++) {
-+		__asm__ __volatile__ (
-+		"	dccleana(%0);	"
++	__asm__ __volatile__(
++		"1:	R6 = memw_locked(%0);\n"
++		"	R6 = add(R6,#-1);\n"
++		"	memw_locked(%0,P3) = R6\n"
++		"	if !P3 jump 1b;\n"
 +		:
-+		: "r" (start)
-+		);
-+		start += LINESIZE;
-+	}
-+	local_irq_restore(flags);
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++
 +}
 +
-+void hexagon_inv_dcache_range(unsigned long start, unsigned long end)
++/*  I think this returns 0 on fail, 1 on success.  */
++static inline int arch_read_trylock(arch_rwlock_t *lock)
 +{
-+	unsigned long lines = spanlines(start, end-1);
-+	unsigned long i, flags;
++	int temp;
++	__asm__ __volatile__(
++		"	R6 = memw_locked(%1);\n"
++		"	{ %0 = #0; P3 = cmp.ge(R6,#0); R6 = add(R6,#1);}\n"
++		"	{ if !P3 jump 1f; }\n"
++		"	memw_locked(%1,P3) = R6;\n"
++		"	{ %0 = P3 }\n"
++		"1:\n"
++		: "=&r" (temp)
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++	return temp;
++}
 +
-+	start &= ~(LINESIZE - 1);
++static inline int arch_read_can_lock(arch_rwlock_t *rwlock)
++{
++	return rwlock->lock == 0;
++}
 +
-+	local_irq_save(flags);
++static inline int arch_write_can_lock(arch_rwlock_t *rwlock)
++{
++	return rwlock->lock == 0;
++}
 +
-+	for (i = 0; i < lines; i++) {
-+		__asm__ __volatile__ (
-+		"	dcinva(%0);	"
++/*  Stuffs a -1 in the lock value?  */
++static inline void arch_write_lock(arch_rwlock_t *lock)
++{
++	__asm__ __volatile__(
++		"1:	R6 = memw_locked(%0)\n"
++		"	{ P3 = cmp.eq(R6,#0);  R6 = #-1;}\n"
++		"	{ if !P3 jump 1b; }\n"
++		"	memw_locked(%0,P3) = R6;\n"
++		"	{ if !P3 jump 1b; }\n"
 +		:
-+		: "r" (start)
-+		);
-+		start += LINESIZE;
-+	}
-+	local_irq_restore(flags);
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
 +}
 +
 +
++static inline int arch_write_trylock(arch_rwlock_t *lock)
++{
++	int temp;
++	__asm__ __volatile__(
++		"	R6 = memw_locked(%1)\n"
++		"	{ %0 = #0; P3 = cmp.eq(R6,#0);  R6 = #-1;}\n"
++		"	{ if !P3 jump 1f; }\n"
++		"	memw_locked(%1,P3) = R6;\n"
++		"	%0 = P3;\n"
++		"1:\n"
++		: "=&r" (temp)
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++	return temp;
 +
++}
++
++static inline void arch_write_unlock(arch_rwlock_t *lock)
++{
++	smp_mb();
++	lock->lock = 0;
++}
++
++static inline void arch_spin_lock(arch_spinlock_t *lock)
++{
++	__asm__ __volatile__(
++		"1:	R6 = memw_locked(%0);\n"
++		"	P3 = cmp.eq(R6,#0);\n"
++		"	{ if !P3 jump 1b; R6 = #1; }\n"
++		"	memw_locked(%0,P3) = R6;\n"
++		"	{ if !P3 jump 1b; }\n"
++		:
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++
++}
++
++static inline void arch_spin_unlock(arch_spinlock_t *lock)
++{
++	smp_mb();
++	lock->lock = 0;
++}
++
++static inline unsigned int arch_spin_trylock(arch_spinlock_t *lock)
++{
++	int temp;
++	__asm__ __volatile__(
++		"	R6 = memw_locked(%1);\n"
++		"	P3 = cmp.eq(R6,#0);\n"
++		"	{ if !P3 jump 1f; R6 = #1; %0 = #0; }\n"
++		"	memw_locked(%1,P3) = R6;\n"
++		"	%0 = P3;\n"
++		"1:\n"
++		: "=&r" (temp)
++		: "r" (&lock->lock)
++		: "memory", "r6", "p3"
++	);
++	return temp;
++}
 +
 +/*
-+ * This is just really brutal and shouldn't be used anyways,
-+ * especially on V2.  Left here just in case.
++ * SMP spinlocks are intended to allow only a single CPU at the lock
 + */
-+void flush_cache_all_hexagon(void)
-+{
-+	unsigned long flags;
-+	local_irq_save(flags);
-+	__vmcache_ickill();
-+	__vmcache_dckill();
-+	__vmcache_l2kill();
-+	local_irq_restore(flags);
-+	mb();
-+}
++#define arch_spin_lock_flags(lock, flags) arch_spin_lock(lock)
++#define arch_spin_unlock_wait(lock) \
++	do {while (arch_spin_is_locked(lock)) cpu_relax(); } while (0)
++#define arch_spin_is_locked(x) ((x)->lock != 0)
++
++#define arch_read_lock_flags(lock, flags) arch_read_lock(lock)
++#define arch_write_lock_flags(lock, flags) arch_write_lock(lock)
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/spinlock_types.h	2011-08-24 18:45:48.283877237 -0500
+@@ -0,0 +1,42 @@
++/*
++ * Spinlock support for the Hexagon architecture
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef _ASM_SPINLOCK_TYPES_H
++#define _ASM_SPINLOCK_TYPES_H
++
++#include <linux/version.h>
++
++#ifndef __LINUX_SPINLOCK_TYPES_H
++# error "please don't include this file directly"
++#endif
++
++typedef struct {
++	volatile unsigned int lock;
++} arch_spinlock_t;
++
++#define __ARCH_SPIN_LOCK_UNLOCKED	{ 0 }
++
++typedef struct {
++	volatile unsigned int lock;
++} arch_rwlock_t;
++
++#define __ARCH_RW_LOCK_UNLOCKED		{ 0 }
++
++#endif
 
 --
 
