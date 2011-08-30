@@ -1,34 +1,98 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [patch v2 31/35] Hexagon: kgdb support files
-Date: Tue, 30 Aug 2011 14:08:00 -0500
-Message-ID: <20110830190802.653408535@codeaurora.org>
+Subject: [patch v2 26/35] Hexagon: Implement basic TLB management routines for Hexagon.
+Date: Tue, 30 Aug 2011 14:07:55 -0500
+Message-ID: <20110830190802.185888808@codeaurora.org>
 References: <20110830190729.923334292@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline; filename=kgdb.diff
+Content-Disposition: inline; filename=tlb.diff
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
-Cc: Linas Vepstas <linas@codeaurora.org>
 
-Signed-off-by: Linas Vepstas <linas@codeaurora.org>
+Mostly all stubs, as the TLB is managed by the hypervisor.
+
+Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
+
 
 ---
- arch/hexagon/include/asm/kgdb.h |   39 ++++++
- arch/hexagon/kernel/kgdb.c      |  241 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 280 insertions(+)
+ arch/hexagon/include/asm/tlb.h      |   39 +++++++++++++++
+ arch/hexagon/include/asm/tlbflush.h |   58 ++++++++++++++++++++++
+ arch/hexagon/mm/vm_tlb.c            |   93 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 190 insertions(+)
 
-Index: linux-hexagon-kernel/arch/hexagon/include/asm/kgdb.h
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/tlbflush.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/include/asm/kgdb.h	2011-08-25 19:24:03.628025356 -0500
++++ linux-hexagon-kernel/arch/hexagon/include/asm/tlbflush.h	2011-08-24 18:45:48.383877324 -0500
+@@ -0,0 +1,58 @@
++/*
++ * TLB flush support for Hexagon
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef _ASM_TLBFLUSH_H
++#define _ASM_TLBFLUSH_H
++
++#include <linux/mm.h>
++#include <asm/processor.h>
++
++/*
++ * TLB flushing -- in "SMP", these routines get defined to be the
++ * ones from smp.c, else they are some local flavors.
++ */
++
++/*
++ * These functions are commonly macros, but in the interests of
++ * VM vs. native implementation and code size, we simply declare
++ * the function prototypes here.
++ */
++extern void tlb_flush_all(void);
++extern void flush_tlb_mm(struct mm_struct *mm);
++extern void flush_tlb_page(struct vm_area_struct *vma, unsigned long addr);
++extern void flush_tlb_range(struct vm_area_struct *vma,
++				unsigned long start, unsigned long end);
++extern void flush_tlb_kernel_range(unsigned long start, unsigned long end);
++extern void flush_tlb_one(unsigned long);
++
++/*
++ * "This is called in munmap when we have freed up some page-table pages.
++ * We don't need to do anything here..."
++ *
++ * The VM kernel doesn't walk page tables, and they are passed to the VMM
++ * by logical address. There doesn't seem to be any possibility that they
++ * could be referenced by the VM kernel based on a stale mapping, since
++ * they would only be located by consulting the mm structure, and they
++ * will have been purged from that structure by the munmap.  Seems like
++ * a noop on HVM as well.
++ */
++#define flush_tlb_pgtables(mm, start, end)
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/include/asm/tlb.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-hexagon-kernel/arch/hexagon/include/asm/tlb.h	2011-08-24 18:45:48.383877324 -0500
 @@ -0,0 +1,39 @@
 +/*
-+ * arch/hexagon/include/asm/kgdb.h - Hexagon KGDB Support
-+ *
-+ * Copyright (c) 2011, Code Aurora Forum. All rights reserved.
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 and
@@ -45,34 +109,36 @@ Index: linux-hexagon-kernel/arch/hexagon/include/asm/kgdb.h
 + * 02110-1301, USA.
 + */
 +
-+#ifndef __HEXAGON_KGDB_H__
-+#define __HEXAGON_KGDB_H__
++#ifndef _ASM_TLB_H
++#define _ASM_TLB_H
 +
-+#define BREAK_INSTR_SIZE 4
-+#define CACHE_FLUSH_IS_SAFE   1
-+#define BUFMAX       ((NUMREGBYTES * 2) + 512)
++#include <linux/pagemap.h>
++#include <asm/tlbflush.h>
 +
-+static inline void arch_kgdb_breakpoint(void)
-+{
-+	asm("trap0(#0xDB)");
-+}
-+
-+/* Registers:
-+ * 32 gpr + sa0/1 + lc0/1 + m0/1 + gp + ugp + pred + pc = 42 total.
++/*
++ * We don't need any special per-pte or per-vma handling...
 + */
-+#define NUMREGBYTES  (42*4)
-+#define DBG_MAX_REG_NUM 42
++#define tlb_start_vma(tlb, vma)				do { } while (0)
++#define tlb_end_vma(tlb, vma)				do { } while (0)
++#define __tlb_remove_tlb_entry(tlb, ptep, address)	do { } while (0)
 +
-+#endif /* __HEXAGON_KGDB_H__ */
-Index: linux-hexagon-kernel/arch/hexagon/kernel/kgdb.c
++/*
++ * .. because we flush the whole mm when it fills up
++ */
++#define tlb_flush(tlb)		flush_tlb_mm((tlb)->mm)
++
++#include <asm-generic/tlb.h>
++
++#endif
+Index: linux-hexagon-kernel/arch/hexagon/mm/vm_tlb.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-hexagon-kernel/arch/hexagon/kernel/kgdb.c	2011-08-27 20:20:07.085494269 -0500
-@@ -0,0 +1,241 @@
++++ linux-hexagon-kernel/arch/hexagon/mm/vm_tlb.c	2011-08-24 18:45:48.383877324 -0500
+@@ -0,0 +1,93 @@
 +/*
-+ * arch/hexagon/kernel/kgdb.c - Hexagon KGDB Support
++ * Hexagon Virtual Machine TLB functions
 + *
-+ * Copyright (c) 2011, Code Aurora Forum. All rights reserved.
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 and
@@ -89,227 +155,79 @@ Index: linux-hexagon-kernel/arch/hexagon/kernel/kgdb.c
 + * 02110-1301, USA.
 + */
 +
-+#include <linux/kdebug.h>
-+#include <linux/kgdb.h>
-+
-+/* All registers are 4 bytes, for now */
-+#define GDB_SIZEOF_REG 4
-+
-+/* The register names are used during printing of the regs;
-+ * Keep these at three letters to pretty-print. */
-+struct dbg_reg_def_t dbg_reg_def[DBG_MAX_REG_NUM] = {
-+	{ " r0", GDB_SIZEOF_REG, offsetof(struct pt_regs, r00)},
-+	{ " r1", GDB_SIZEOF_REG, offsetof(struct pt_regs, r01)},
-+	{ " r2", GDB_SIZEOF_REG, offsetof(struct pt_regs, r02)},
-+	{ " r3", GDB_SIZEOF_REG, offsetof(struct pt_regs, r03)},
-+	{ " r4", GDB_SIZEOF_REG, offsetof(struct pt_regs, r04)},
-+	{ " r5", GDB_SIZEOF_REG, offsetof(struct pt_regs, r05)},
-+	{ " r6", GDB_SIZEOF_REG, offsetof(struct pt_regs, r06)},
-+	{ " r7", GDB_SIZEOF_REG, offsetof(struct pt_regs, r07)},
-+	{ " r8", GDB_SIZEOF_REG, offsetof(struct pt_regs, r08)},
-+	{ " r9", GDB_SIZEOF_REG, offsetof(struct pt_regs, r09)},
-+	{ "r10", GDB_SIZEOF_REG, offsetof(struct pt_regs, r10)},
-+	{ "r11", GDB_SIZEOF_REG, offsetof(struct pt_regs, r11)},
-+	{ "r12", GDB_SIZEOF_REG, offsetof(struct pt_regs, r12)},
-+	{ "r13", GDB_SIZEOF_REG, offsetof(struct pt_regs, r13)},
-+	{ "r14", GDB_SIZEOF_REG, offsetof(struct pt_regs, r14)},
-+	{ "r15", GDB_SIZEOF_REG, offsetof(struct pt_regs, r15)},
-+	{ "r16", GDB_SIZEOF_REG, offsetof(struct pt_regs, r16)},
-+	{ "r17", GDB_SIZEOF_REG, offsetof(struct pt_regs, r17)},
-+	{ "r18", GDB_SIZEOF_REG, offsetof(struct pt_regs, r18)},
-+	{ "r19", GDB_SIZEOF_REG, offsetof(struct pt_regs, r19)},
-+	{ "r20", GDB_SIZEOF_REG, offsetof(struct pt_regs, r20)},
-+	{ "r21", GDB_SIZEOF_REG, offsetof(struct pt_regs, r21)},
-+	{ "r22", GDB_SIZEOF_REG, offsetof(struct pt_regs, r22)},
-+	{ "r23", GDB_SIZEOF_REG, offsetof(struct pt_regs, r23)},
-+	{ "r24", GDB_SIZEOF_REG, offsetof(struct pt_regs, r24)},
-+	{ "r25", GDB_SIZEOF_REG, offsetof(struct pt_regs, r25)},
-+	{ "r26", GDB_SIZEOF_REG, offsetof(struct pt_regs, r26)},
-+	{ "r27", GDB_SIZEOF_REG, offsetof(struct pt_regs, r27)},
-+	{ "r28", GDB_SIZEOF_REG, offsetof(struct pt_regs, r28)},
-+	{ "r29", GDB_SIZEOF_REG, offsetof(struct pt_regs, r29)},
-+	{ "r30", GDB_SIZEOF_REG, offsetof(struct pt_regs, r30)},
-+	{ "r31", GDB_SIZEOF_REG, offsetof(struct pt_regs, r31)},
-+
-+	{ "usr", GDB_SIZEOF_REG, offsetof(struct pt_regs, usr)},
-+	{ "preds", GDB_SIZEOF_REG, offsetof(struct pt_regs, preds)},
-+	{ " m0", GDB_SIZEOF_REG, offsetof(struct pt_regs, m0)},
-+	{ " m1", GDB_SIZEOF_REG, offsetof(struct pt_regs, m1)},
-+	{ "sa0", GDB_SIZEOF_REG, offsetof(struct pt_regs, sa0)},
-+	{ "sa1", GDB_SIZEOF_REG, offsetof(struct pt_regs, sa1)},
-+	{ "lc0", GDB_SIZEOF_REG, offsetof(struct pt_regs, lc0)},
-+	{ "lc1", GDB_SIZEOF_REG, offsetof(struct pt_regs, lc1)},
-+	{ " gp", GDB_SIZEOF_REG, offsetof(struct pt_regs, gp)},
-+	{ "ugp", GDB_SIZEOF_REG, offsetof(struct pt_regs, ugp)},
-+};
-+
-+struct kgdb_arch arch_kgdb_ops = {
-+	/* trap0(#0xDB) 0x0cdb0054 */
-+	.gdb_bpt_instr = {0x54, 0x00, 0xdb, 0x0c},
-+};
-+
-+char *dbg_get_reg(int regno, void *mem, struct pt_regs *regs)
-+{
-+	if (regno >= DBG_MAX_REG_NUM || regno < 0)
-+		return NULL;
-+
-+	*((unsigned long *) mem) = *((unsigned long *) ((void *)regs +
-+		dbg_reg_def[regno].offset));
-+
-+	return dbg_reg_def[regno].name;
-+}
-+
-+int dbg_set_reg(int regno, void *mem, struct pt_regs *regs)
-+{
-+	if (regno >= DBG_MAX_REG_NUM || regno < 0)
-+		return -EINVAL;
-+
-+	*((unsigned long *) ((void *)regs + dbg_reg_def[regno].offset)) =
-+		*((unsigned long *) mem);
-+
-+	return 0;
-+}
-+
-+void kgdb_arch_set_pc(struct pt_regs *regs, unsigned long pc)
-+{
-+	instruction_pointer(regs) = pc;
-+}
-+
-+#ifdef CONFIG_SMP
-+
-+/**
-+ * kgdb_roundup_cpus - Get other CPUs into a holding pattern
-+ * @flags: Current IRQ state
-+ *
-+ * On SMP systems, we need to get the attention of the other CPUs
-+ * and get them be in a known state.  This should do what is needed
-+ * to get the other CPUs to call kgdb_wait(). Note that on some arches,
-+ * the NMI approach is not used for rounding up all the CPUs. For example,
-+ * in case of MIPS, smp_call_function() is used to roundup CPUs. In
-+ * this case, we have to make sure that interrupts are enabled before
-+ * calling smp_call_function(). The argument to this function is
-+ * the flags that will be used when restoring the interrupts. There is
-+ * local_irq_save() call before kgdb_roundup_cpus().
-+ *
-+ * On non-SMP systems, this is not called.
++/*
++ * The Hexagon Virtual Machine conceals the real workings of
++ * the TLB, but there are one or two functions that need to
++ * be instantiated for it, differently from a native build.
 + */
++#include <linux/mm.h>
++#include <asm/page.h>
++#include <asm/hexagon_vm.h>
 +
-+static void hexagon_kgdb_nmi_hook(void *ignored)
-+{
-+	kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
-+}
-+
-+void kgdb_roundup_cpus(unsigned long flags)
-+{
-+	smp_call_function(hexagon_kgdb_nmi_hook, NULL, 0);
-+}
-+#endif
-+
-+
-+/*  Not yet working  */
-+void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs,
-+				 struct task_struct *task)
-+{
-+	struct pt_regs *thread_regs;
-+
-+	if (task == NULL)
-+		return;
-+
-+	/* Initialize to zero */
-+	memset(gdb_regs, 0, NUMREGBYTES);
-+
-+	/* Otherwise, we have only some registers from switch_to() */
-+	thread_regs = task_pt_regs(task);
-+	gdb_regs[0] = thread_regs->r00;
-+}
-+
-+/**
-+ * kgdb_arch_handle_exception - Handle architecture specific GDB packets.
-+ * @vector: The error vector of the exception that happened.
-+ * @signo: The signal number of the exception that happened.
-+ * @err_code: The error code of the exception that happened.
-+ * @remcom_in_buffer: The buffer of the packet we have read.
-+ * @remcom_out_buffer: The buffer of %BUFMAX bytes to write a packet into.
-+ * @regs: The &struct pt_regs of the current process.
-+ *
-+ * This function MUST handle the 'c' and 's' command packets,
-+ * as well packets to set / remove a hardware breakpoint, if used.
-+ * If there are additional packets which the hardware needs to handle,
-+ * they are handled here.  The code should return -1 if it wants to
-+ * process more packets, and a %0 or %1 if it wants to exit from the
-+ * kgdb callback.
-+ *
-+ * Not yet working.
++/*
++ * Initial VM implementation has only one map active at a time, with
++ * TLB purgings on changes.  So either we're nuking the current map,
++ * or it's a no-op.  This operation is messy on true SMPs where other
++ * processors must be induced to flush the copies in their local TLBs,
++ * but Hexagon thread-based virtual processors share the same MMU.
 + */
-+int kgdb_arch_handle_exception(int vector, int signo, int err_code,
-+			       char *remcom_in_buffer, char *remcom_out_buffer,
-+			       struct pt_regs *linux_regs)
++void flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
++			unsigned long end)
 +{
-+	switch (remcom_in_buffer[0]) {
-+	case 's':
-+	case 'c':
-+		return 0;
-+	}
-+	/* Stay in the debugger. */
-+	return -1;
++	struct mm_struct *mm = vma->vm_mm;
++
++	if (mm->context.ptbase == current->active_mm->context.ptbase)
++		__vmclrmap((void *)start, end - start);
 +}
 +
-+static int __kgdb_notify(struct die_args *args, unsigned long cmd)
-+{
-+	struct pt_regs *regs = args->regs;
-+#if 0
-+	ret = kgdb_handle_exception(args->trapnr & 0xff, args->signr, args->err,
-+				    regs);
-+	if (ret)
-+		return NOTIFY_DONE;
-+#endif
-+	return NOTIFY_STOP;
-+}
-+
-+static int
-+kgdb_notify(struct notifier_block *self, unsigned long cmd, void *ptr)
-+{
-+	unsigned long flags;
-+	int ret;
-+
-+	local_irq_save(flags);
-+	ret = __kgdb_notify(ptr, cmd);
-+	local_irq_restore(flags);
-+
-+	return ret;
-+}
-+
-+static struct notifier_block kgdb_notifier = {
-+	.notifier_call = kgdb_notify,
-+
-+	/*
-+	 * Lowest-prio notifier priority, we want to be notified last:
-+	 */
-+	.priority = -INT_MAX,
-+};
-+
-+/**
-+ * kgdb_arch_init - Perform any architecture specific initalization.
-+ *
-+ * This function will handle the initalization of any architecture
-+ * specific callbacks.
++/*
++ * Flush a page from the kernel virtual map - used by highmem
 + */
-+int kgdb_arch_init(void)
++void flush_tlb_one(unsigned long vaddr)
 +{
-+	return register_die_notifier(&kgdb_notifier);
++	__vmclrmap((void *)vaddr, PAGE_SIZE);
 +}
 +
-+/**
-+ * kgdb_arch_exit - Perform any architecture specific uninitalization.
-+ *
-+ * This function will handle the uninitalization of any architecture
-+ * specific callbacks, for dynamic registration and unregistration.
++/*
++ * Flush all TLBs across all CPUs, virtual or real.
++ * A single Hexagon core has 6 thread contexts but
++ * only one TLB.
 + */
-+void kgdb_arch_exit(void)
++void tlb_flush_all(void)
 +{
-+	unregister_die_notifier(&kgdb_notifier);
++	/*  should probably use that fixaddr end or whateve label  */
++	__vmclrmap(0, 0xffff0000);
 +}
 +
++/*
++ * Flush TLB entries associated with a given mm_struct mapping.
++ */
++void flush_tlb_mm(struct mm_struct *mm)
++{
++	/* Current Virtual Machine has only one map active at a time */
++	if (current->active_mm->context.ptbase == mm->context.ptbase)
++		tlb_flush_all();
++}
++
++/*
++ * Flush TLB state associated with a page of a vma.
++ */
++void flush_tlb_page(struct vm_area_struct *vma, unsigned long vaddr)
++{
++	struct mm_struct *mm = vma->vm_mm;
++
++	if (mm->context.ptbase  == current->active_mm->context.ptbase)
++		__vmclrmap((void *)vaddr, PAGE_SIZE);
++}
++
++/*
++ * Flush TLB entries associated with a kernel address range.
++ * Like flush range, but without the check on the vma->vm_mm.
++ */
++void flush_tlb_kernel_range(unsigned long start, unsigned long end)
++{
++		__vmclrmap((void *)start, end - start);
++}
 
 --
 
