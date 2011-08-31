@@ -1,13 +1,13 @@
 From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [patch v2 24/35] Hexagon: Provide basic implementation and/or stubs for I/O routines.
-Date: Wed, 31 Aug 2011 16:28:52 +0200
-Message-ID: <201108311628.53309.arnd@arndb.de>
+Date: Wed, 31 Aug 2011 16:47:41 +0200
+Message-ID: <201108311647.42017.arnd@arndb.de>
 References: <20110830190729.923334292@codeaurora.org> <20110830190801.995980546@codeaurora.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20110830190801.995980546@codeaurora.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: Text/Plain; charset="us-ascii"
 To: Richard Kuo <rkuo@codeaurora.org>
