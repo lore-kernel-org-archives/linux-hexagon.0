@@ -1,47 +1,48 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [patch v2 00/35] Hexagon: Add support for Qualcomm Hexagon architecture
-Date: Wed, 31 Aug 2011 17:08:08 +0200
-Message-ID: <201108311708.08757.arnd@arndb.de>
+From: "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>
+Subject: Re: [patch v2 17/35] Hexagon: Add interrupts
+Date: Wed, 31 Aug 2011 11:16:16 -0500
+Message-ID: <20110831161616.GA11117@codeaurora.org>
 References: <20110830190729.923334292@codeaurora.org>
+ <20110830190801.353140948@codeaurora.org>
+ <201108311550.23240.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20110830190729.923334292@codeaurora.org>
+Content-Disposition: inline
+In-Reply-To: <201108311550.23240.arnd@arndb.de>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Richard Kuo <rkuo@codeaurora.org>, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On Tuesday 30 August 2011, Richard Kuo wrote:
+On Wed, Aug 31, 2011 at 03:50:23PM +0200, Arnd Bergmann wrote:
+> > +/*
+> > + * XXX TODO FIXME this should be pulled from a platform file!
+> > + * Must define NR_IRQS before including <asm-generic/irq.h>
+> > + * 64 == the two SIRC's, 176 == the two gpio's
+> > + */
+> > +#define NR_IRQS (HEXAGON_CPUINTS + 64 + 176)
 > 
-> This is the second version of the patchset to the Linux kernel to support
-> the Qualcomm Hexagon architecture.  These patches have been organized like
-> the last time, in a somewhat logically grouped fashion.
-> 
-> A summary of changes from the last patchset:
-> 
-> * use Kbuild method for strictly asm-generic headers
-> * clean up dma sync and implement clean/invalidate
-> * bitops fl*/ff* cleanup
-> * added inline assembly version of atomic_add_unless
-> * removed deprecated syscalls/defines
-> * call __vmyield for cpu_relax and fix cpu_idle
-> * clean up thread_info; use arch allocator to allow kernel stack sizes
->   smaller than page size
-> * implement read_timer_counter
-> * changed checksum to pull non-asm functions from generic code
-> * delete module functions which already have generic equivalents
-> * cleaned up IO routines
-> * reduced comet_defconfig
-> * remove ugly platform code
+> I disagree with that comment: NR_IRQS is a constant and should
+> not be platform specific. There should be no compile-time settings
+> that are strictly specific to one platform, otherwise you are not
 
-Excellent work!
+OK.  The interrupt handling on hexagon really is under construction:
+not only do we need to finish support for the device tree, but there's
+also a bunch of nasty ugliness in how the second & third-level
+interrupt cntrollers are handled.  Some of the difficulties are due
+the fact that we are re-cycling some of the msm drivers in the 
+arm platform directories. The hexagon and the arm are on the same
+chip, and see the same controllers, more or less, just with 
+different address ranges and sometimes with different permissions,
+different pin numberings, etc. 
 
-I've looked through it again and noticed a few things that I had
-not seen in the first round and some that you changed but that I
-still think need to be changed again.
+Some of these patches are missing Signed-off-by-me lines, I take
+full responsibility for all triple-X's that are lingering.
 
-On the whole, I think this is good to go into 3.2.
+-- Linas
 
-	Arnd
+-- 
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
