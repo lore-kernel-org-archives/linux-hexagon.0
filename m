@@ -1,14 +1,14 @@
-From: "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>
-Subject: Re: [patch v2 17/35] Hexagon: Add interrupts
-Date: Wed, 31 Aug 2011 11:16:16 -0500
-Message-ID: <20110831161616.GA11117@codeaurora.org>
+From: David Brown <davidb@codeaurora.org>
+Subject: Re: [patch v2 01/35] Hexagon: Add generic headers
+Date: Wed, 31 Aug 2011 12:51:11 -0700
+Message-ID: <20110831195111.GA29918@huya.qualcomm.com>
 References: <20110830190729.923334292@codeaurora.org>
- <20110830190801.353140948@codeaurora.org>
- <201108311550.23240.arnd@arndb.de>
+ <20110830190759.813984525@codeaurora.org>
+ <201108311524.42373.arnd@arndb.de>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <201108311550.23240.arnd@arndb.de>
+In-Reply-To: <201108311524.42373.arnd@arndb.de>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
@@ -16,32 +16,19 @@ Content-Transfer-Encoding: 7bit
 To: Arnd Bergmann <arnd@arndb.de>
 Cc: Richard Kuo <rkuo@codeaurora.org>, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On Wed, Aug 31, 2011 at 03:50:23PM +0200, Arnd Bergmann wrote:
-> > +/*
-> > + * XXX TODO FIXME this should be pulled from a platform file!
-> > + * Must define NR_IRQS before including <asm-generic/irq.h>
-> > + * 64 == the two SIRC's, 176 == the two gpio's
-> > + */
-> > +#define NR_IRQS (HEXAGON_CPUINTS + 64 + 176)
+On Wed, Aug 31, 2011 at 03:24:42PM +0200, Arnd Bergmann wrote:
+> On Tuesday 30 August 2011, Richard Kuo wrote:
+> > Reworked to use the Kbuild generic headers mechanism.
+> > 
+> > Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
 > 
-> I disagree with that comment: NR_IRQS is a constant and should
-> not be platform specific. There should be no compile-time settings
-> that are strictly specific to one platform, otherwise you are not
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
 
-OK.  The interrupt handling on hexagon really is under construction:
-not only do we need to finish support for the device tree, but there's
-also a bunch of nasty ugliness in how the second & third-level
-interrupt cntrollers are handled.  Some of the difficulties are due
-the fact that we are re-cycling some of the msm drivers in the 
-arm platform directories. The hexagon and the arm are on the same
-chip, and see the same controllers, more or less, just with 
-different address ranges and sometimes with different permissions,
-different pin numberings, etc. 
+Any suggestions on what path this code should flow to get into the
+kernel?
 
-Some of these patches are missing Signed-off-by-me lines, I take
-full responsibility for all triple-X's that are lingering.
-
--- Linas
+Thanks,
+David
 
 -- 
 Sent by an employee of the Qualcomm Innovation Center, Inc.
