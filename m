@@ -1,39 +1,36 @@
-From: Pedro Alves <pedro@codesourcery.com>
+From: "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>
 Subject: Re: [patch v3 19/36] Hexagon: Add ptrace support
-Date: Wed, 21 Sep 2011 17:15:20 +0100
-Message-ID: <201109211715.20795.pedro@codesourcery.com>
-References: <20110909010847.294039464@codeaurora.org> <201109101229.58445.pedro@codesourcery.com> <20110919152505.GB6830@codeaurora.org>
+Date: Wed, 21 Sep 2011 12:50:09 -0500
+Message-ID: <20110921175009.GA3703@codeaurora.org>
+References: <20110909010847.294039464@codeaurora.org>
+ <201109101229.58445.pedro@codesourcery.com>
+ <20110919152505.GB6830@codeaurora.org>
+ <201109211715.20795.pedro@codesourcery.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20110919152505.GB6830@codeaurora.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <201109211715.20795.pedro@codesourcery.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Pedro Alves <pedro@codesourcery.com>
 Cc: Jonas Bonn <jonas.bonn@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de
 
-On Monday 19 September 2011 16:25:05, Linas Vepstas (Code Aurora) wrote:
-> On Sat, Sep 10, 2011 at 12:29:57PM +0100, Pedro Alves wrote:
-> > On Saturday 10 September 2011 07:42:26, Jonas Bonn wrote:
-> > 
-> > > I'm really not an expert on GDB, but I believe it can use either the
-> > > PEEK/POKE functions to access regs, or it can use GET/SETREGS; it's an
-> > > architecture-dependent configuration.  I think the second variant can
-> > > be easily modified to become GET/SETREGSET instead, and the PEEK/POKE
-> > > variant wouldn't be needed at all.
-> > 
-> > Yes, the x86/x86-64 ports or gdb and gdbserver are already
-> > using GET/SETREGSET even.
-> 
-> Reading the code, it seemed to only fetch "extended state" in
-> this way, and not all of the registers.  Am I mistaken?
+On Wed, Sep 21, 2011 at 05:15:20PM +0100, Pedro Alves wrote:
+> > On Sat, Sep 10, 2011 at 12:29:57PM +0100, Pedro Alves wrote:
+> > > Yes, the x86/x86-64 ports or gdb and gdbserver are already
+> > > using GET/SETREGSET even.
 
-True.  gdb/gdbserver need to keep working with older x86 kernels, so
-we avoid having two ways of doing things with the other registers.
-No reason to support legacy interfaces with new ports though.
+Thanks; after a bit of initial confusion, I've gotten gdb to
+work with this, so I'm happy. 
 
-I wish there was an equivalent of PTRACE_GETREGSET for siginfo...
+> I wish there was an equivalent of PTRACE_GETREGSET for siginfo...
+
+How? Why?
+
+-- Linas
 
 -- 
-Pedro Alves
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
