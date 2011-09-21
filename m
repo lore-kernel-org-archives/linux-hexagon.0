@@ -1,64 +1,78 @@
-From: Yong Zhang <yong.zhang0@gmail.com>
-Subject: [PATCH 55/57] hexagon: irq: Remove IRQF_DISABLED
-Date: Wed, 21 Sep 2011 17:28:56 +0800
-Message-ID: <1316597339-29861-56-git-send-email-yong.zhang0@gmail.com>
+From: Richard Kuo <rkuo@codeaurora.org>
+Subject: Re: [PATCH 55/57] hexagon: irq: Remove IRQF_DISABLED
+Date: Wed, 21 Sep 2011 10:35:38 -0500
+Message-ID: <20110921153538.GA6006@codeaurora.org>
 References: <1316597339-29861-1-git-send-email-yong.zhang0@gmail.com>
+ <1316597339-29861-56-git-send-email-yong.zhang0@gmail.com>
+Mime-Version: 1.0
 Return-path: <linux-arch-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=gamma;
-        h=from:to:cc:subject:date:message-id:x-mailer:in-reply-to:references;
-        bh=a6wneV2yU+eVfwWxWjs7Fzwk/7euGnlnyKCUX4s9FIk=;
-        b=YXVqt3stYidod09eHCCnRdRK2wbL1Ic+3Zjm87EVBA2SGXU6D9/unt//ExFdV6YRJO
-         XoaRRzPr3NHUhIoOjYQsF7VZq1WcdraPv4N88N5nSHa7HGKuSFpDkm0f+JI5nEaaKwfM
-         K+8JfNRqxxqMxvcGIZynebAI+8SJIw51yLSwI=
-In-Reply-To: <1316597339-29861-1-git-send-email-yong.zhang0@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1316597339-29861-56-git-send-email-yong.zhang0@gmail.com>
 Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: tglx@linutronix.de, yong.zhang0@gmail.com, Richard Kuo <rkuo@codeaurora.org>, Linas Vepstas <linas@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org
+To: Yong Zhang <yong.zhang0@gmail.com>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de, Linas Vepstas <linas@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org
 
-Since commit [c58543c8: genirq: Run irq handlers with interrupts disabled],
-We run all interrupt handlers with interrupts disabled
-and we even check and yell when an interrupt handler
-returns with interrupts enabled (see commit [b738a50a:
-genirq: Warn when handler enables interrupts]).
+Thanks!  I already had that timer fixed in my tree, but I had left out the
+IPI flag.  I will make sure this goes into the next patch series.
 
-So now this flag is a NOOP and can be removed.
 
-Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
----
- arch/hexagon/kernel/smp.c  |    2 +-
- arch/hexagon/kernel/time.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Thanks again, 
+Richard Kuo
 
-diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
-index 96bf6c2..ad43649 100644
---- a/arch/hexagon/kernel/smp.c
-+++ b/arch/hexagon/kernel/smp.c
-@@ -136,7 +136,7 @@ void send_ipi(const struct cpumask *cpumask, enum ipi_message_type msg)
- 
- static struct irqaction ipi_intdesc = {
- 	.handler = handle_ipi,
--	.flags = IRQF_DISABLED | IRQF_TRIGGER_RISING,
-+	.flags = IRQF_TRIGGER_RISING,
- 	.name = "ipi_handler"
- };
- 
-diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
-index fc8e95c..a4d7b58 100644
---- a/arch/hexagon/kernel/time.c
-+++ b/arch/hexagon/kernel/time.c
-@@ -181,7 +181,7 @@ static irqreturn_t timer_interrupt(int irq, void *devid)
- /*  This should also be pulled from devtree  */
- static struct irqaction rtos_timer_intdesc = {
- 	.handler = timer_interrupt,
--	.flags = IRQF_DISABLED | IRQF_TIMER | IRQF_TRIGGER_RISING,
-+	.flags = IRQF_TIMER | IRQF_TRIGGER_RISING,
- 	.name = "rtos_timer"
- };
- 
+
+On Wed, Sep 21, 2011 at 05:28:56PM +0800, Yong Zhang wrote:
+> Since commit [c58543c8: genirq: Run irq handlers with interrupts disabled],
+> We run all interrupt handlers with interrupts disabled
+> and we even check and yell when an interrupt handler
+> returns with interrupts enabled (see commit [b738a50a:
+> genirq: Warn when handler enables interrupts]).
+> 
+> So now this flag is a NOOP and can be removed.
+> 
+> Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
+> ---
+>  arch/hexagon/kernel/smp.c  |    2 +-
+>  arch/hexagon/kernel/time.c |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
+> index 96bf6c2..ad43649 100644
+> --- a/arch/hexagon/kernel/smp.c
+> +++ b/arch/hexagon/kernel/smp.c
+> @@ -136,7 +136,7 @@ void send_ipi(const struct cpumask *cpumask, enum ipi_message_type msg)
+>  
+>  static struct irqaction ipi_intdesc = {
+>  	.handler = handle_ipi,
+> -	.flags = IRQF_DISABLED | IRQF_TRIGGER_RISING,
+> +	.flags = IRQF_TRIGGER_RISING,
+>  	.name = "ipi_handler"
+>  };
+>  
+> diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
+> index fc8e95c..a4d7b58 100644
+> --- a/arch/hexagon/kernel/time.c
+> +++ b/arch/hexagon/kernel/time.c
+> @@ -181,7 +181,7 @@ static irqreturn_t timer_interrupt(int irq, void *devid)
+>  /*  This should also be pulled from devtree  */
+>  static struct irqaction rtos_timer_intdesc = {
+>  	.handler = timer_interrupt,
+> -	.flags = IRQF_DISABLED | IRQF_TIMER | IRQF_TRIGGER_RISING,
+> +	.flags = IRQF_TIMER | IRQF_TRIGGER_RISING,
+>  	.name = "rtos_timer"
+>  };
+>  
+> -- 
+> 1.7.4.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-hexagon" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
 -- 
-1.7.4.1
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
