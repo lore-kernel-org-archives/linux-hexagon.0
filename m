@@ -1,49 +1,105 @@
-From: Pedro Alves <pedro@codesourcery.com>
-Subject: Re: [patch v3 19/36] Hexagon: Add ptrace support
-Date: Wed, 21 Sep 2011 19:04:29 +0100
-Message-ID: <201109211904.29572.pedro@codesourcery.com>
-References: <20110909010847.294039464@codeaurora.org> <201109211715.20795.pedro@codesourcery.com> <20110921175009.GA3703@codeaurora.org>
+From: Yong Zhang <yong.zhang0@gmail.com>
+Subject: Re: [PATCH 55/57] hexagon: irq: Remove IRQF_DISABLED
+Date: Thu, 22 Sep 2011 16:08:24 +0800
+Message-ID: <20110922080824.GA3834@zhy>
+References: <1316597339-29861-1-git-send-email-yong.zhang0@gmail.com>
+ <1316597339-29861-56-git-send-email-yong.zhang0@gmail.com>
+ <20110921153538.GA6006@codeaurora.org>
+Reply-To: Yong Zhang <yong.zhang0@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20110921175009.GA3703@codeaurora.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-arch-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=gamma;
+        h=date:from:to:cc:subject:message-id:reply-to:references:mime-version
+         :content-type:content-disposition:in-reply-to:user-agent;
+        bh=U8bMSZG+idzYYp0mDNYGmENebz5uEhRRomXSIywBTXE=;
+        b=WbCq1ha2SDS7oyGMKVANFwHOBxf2o0dvU8cotc4eZSl0o5WdDmc+rWQrkXc8hvqjGy
+         30LfQVA7ipVi/GLXxVPHzNRdOf/GoF8Q4dHWSxSxlKVSWLZWBkTY92vYYBP6zabFxfE9
+         yAW6DZ002sZEFWOqyptyn+YyaYsxaX7Rb3Vlc=
+Content-Disposition: inline
+In-Reply-To: <20110921153538.GA6006@codeaurora.org>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>
-Cc: Jonas Bonn <jonas.bonn@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de, Linas Vepstas <linas@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org
 
-On Wednesday 21 September 2011 18:50:09, Linas Vepstas (Code Aurora) wrote:
-> On Wed, Sep 21, 2011 at 05:15:20PM +0100, Pedro Alves wrote:
-> > > On Sat, Sep 10, 2011 at 12:29:57PM +0100, Pedro Alves wrote:
-> > > > Yes, the x86/x86-64 ports or gdb and gdbserver are already
-> > > > using GET/SETREGSET even.
-> 
-> Thanks; after a bit of initial confusion, I've gotten gdb to
-> work with this, so I'm happy. 
-> 
-> > I wish there was an equivalent of PTRACE_GETREGSET for siginfo...
-> 
-> How? Why?
+On Wed, Sep 21, 2011 at 10:35:38AM -0500, Richard Kuo wrote:
+> Thanks!  I already had that timer fixed in my tree, but I had left out the
+> IPI flag.  I will make sure this goes into the next patch series.
 
-One of the the cool features of PTRACE_GETREGSET is that it returns
-the regset in the natural layout of the tracee.  So when debugging a 
-32-bit process on a 64-bit kernel, PTRACE_GETREGSET returns the
-regset in 32-bit layout.  Recent enough GDBs can print the siginfo of a
-caught signal (before its delivered with (PTRACE_CONT, sig).
-Try "(gdb) p $_siginfo" on x86.  Trouble is 32-bit processes on 64-bit
-kernels or other biarch setups.  PTRACE_GETSIGINFO returns the siginfo in
-64-bit layout, so GDB gets to try to immitate what the kernel's 32-bit
-compat layer does.  Both for reading and writting siginfo.
-See compat_siginfo_from_siginfo and siginfo_from_compat_siginfo
-at [1].
-The kernel already knows to convert siginfo to the native layout
-of the process -- needed to pass to the user space signal handler
-at least.  But AFAIK, there's no way for the debugger to get at it
-before the signal is actually delivered.
+Thanks.
 
-[1]
-http://sourceware.org/cgi-bin/cvsweb.cgi/src/gdb/amd64-linux-nat.c?rev=1.35&content-type=text/x-cvsweb-markup&cvsroot=src
+I'll drop this patch in my next resending.
+
+Thanks,
+Yong
+
+> 
+> 
+> Thanks again, 
+> Richard Kuo
+> 
+> 
+> On Wed, Sep 21, 2011 at 05:28:56PM +0800, Yong Zhang wrote:
+> > Since commit [c58543c8: genirq: Run irq handlers with interrupts disabled],
+> > We run all interrupt handlers with interrupts disabled
+> > and we even check and yell when an interrupt handler
+> > returns with interrupts enabled (see commit [b738a50a:
+> > genirq: Warn when handler enables interrupts]).
+> > 
+> > So now this flag is a NOOP and can be removed.
+> > 
+> > Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
+> > ---
+> >  arch/hexagon/kernel/smp.c  |    2 +-
+> >  arch/hexagon/kernel/time.c |    2 +-
+> >  2 files changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
+> > index 96bf6c2..ad43649 100644
+> > --- a/arch/hexagon/kernel/smp.c
+> > +++ b/arch/hexagon/kernel/smp.c
+> > @@ -136,7 +136,7 @@ void send_ipi(const struct cpumask *cpumask, enum ipi_message_type msg)
+> >  
+> >  static struct irqaction ipi_intdesc = {
+> >  	.handler = handle_ipi,
+> > -	.flags = IRQF_DISABLED | IRQF_TRIGGER_RISING,
+> > +	.flags = IRQF_TRIGGER_RISING,
+> >  	.name = "ipi_handler"
+> >  };
+> >  
+> > diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
+> > index fc8e95c..a4d7b58 100644
+> > --- a/arch/hexagon/kernel/time.c
+> > +++ b/arch/hexagon/kernel/time.c
+> > @@ -181,7 +181,7 @@ static irqreturn_t timer_interrupt(int irq, void *devid)
+> >  /*  This should also be pulled from devtree  */
+> >  static struct irqaction rtos_timer_intdesc = {
+> >  	.handler = timer_interrupt,
+> > -	.flags = IRQF_DISABLED | IRQF_TIMER | IRQF_TRIGGER_RISING,
+> > +	.flags = IRQF_TIMER | IRQF_TRIGGER_RISING,
+> >  	.name = "rtos_timer"
+> >  };
+> >  
+> > -- 
+> > 1.7.4.1
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-hexagon" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> -- 
+> 
+> Sent by an employee of the Qualcomm Innovation Center, Inc.
+> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Pedro Alves
+Only stand for myself
