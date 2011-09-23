@@ -1,105 +1,36 @@
-From: Yong Zhang <yong.zhang0@gmail.com>
-Subject: Re: [PATCH 55/57] hexagon: irq: Remove IRQF_DISABLED
-Date: Thu, 22 Sep 2011 16:08:24 +0800
-Message-ID: <20110922080824.GA3834@zhy>
-References: <1316597339-29861-1-git-send-email-yong.zhang0@gmail.com>
- <1316597339-29861-56-git-send-email-yong.zhang0@gmail.com>
- <20110921153538.GA6006@codeaurora.org>
-Reply-To: Yong Zhang <yong.zhang0@gmail.com>
+From: "Linas Vepstas (Code Aurora)" <linas@codeaurora.org>
+Subject: Device trees and systems-on-a-chip
+Date: Fri, 23 Sep 2011 12:13:00 -0500
+Message-ID: <20110923171300.GA15815@codeaurora.org>
 Mime-Version: 1.0
-Return-path: <linux-arch-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=gamma;
-        h=date:from:to:cc:subject:message-id:reply-to:references:mime-version
-         :content-type:content-disposition:in-reply-to:user-agent;
-        bh=U8bMSZG+idzYYp0mDNYGmENebz5uEhRRomXSIywBTXE=;
-        b=WbCq1ha2SDS7oyGMKVANFwHOBxf2o0dvU8cotc4eZSl0o5WdDmc+rWQrkXc8hvqjGy
-         30LfQVA7ipVi/GLXxVPHzNRdOf/GoF8Q4dHWSxSxlKVSWLZWBkTY92vYYBP6zabFxfE9
-         yAW6DZ002sZEFWOqyptyn+YyaYsxaX7Rb3Vlc=
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20110921153538.GA6006@codeaurora.org>
-Sender: linux-arch-owner@vger.kernel.org
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de, Linas Vepstas <linas@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On Wed, Sep 21, 2011 at 10:35:38AM -0500, Richard Kuo wrote:
-> Thanks!  I already had that timer fixed in my tree, but I had left out the
-> IPI flag.  I will make sure this goes into the next patch series.
 
-Thanks.
+Arnd,
 
-I'll drop this patch in my next resending.
+Here:  http://lwn.net/Articles/457635/  you say:  "If the device tree
+vision comes true, a single board will actually be able to use the
+same device tree binary on either one, independent of which CPU
+actually runs the kernel."
 
-Thanks,
-Yong
+In my case, the hexagon and the arm cores will perceive the same
+devices at different addresses; there are also devices attached to one
+core that aren't attached to the other.  So either we have two DT's,
+one for each core, or we have one DT with subsections for each core.    
 
-> 
-> 
-> Thanks again, 
-> Richard Kuo
-> 
-> 
-> On Wed, Sep 21, 2011 at 05:28:56PM +0800, Yong Zhang wrote:
-> > Since commit [c58543c8: genirq: Run irq handlers with interrupts disabled],
-> > We run all interrupt handlers with interrupts disabled
-> > and we even check and yell when an interrupt handler
-> > returns with interrupts enabled (see commit [b738a50a:
-> > genirq: Warn when handler enables interrupts]).
-> > 
-> > So now this flag is a NOOP and can be removed.
-> > 
-> > Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
-> > ---
-> >  arch/hexagon/kernel/smp.c  |    2 +-
-> >  arch/hexagon/kernel/time.c |    2 +-
-> >  2 files changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
-> > index 96bf6c2..ad43649 100644
-> > --- a/arch/hexagon/kernel/smp.c
-> > +++ b/arch/hexagon/kernel/smp.c
-> > @@ -136,7 +136,7 @@ void send_ipi(const struct cpumask *cpumask, enum ipi_message_type msg)
-> >  
-> >  static struct irqaction ipi_intdesc = {
-> >  	.handler = handle_ipi,
-> > -	.flags = IRQF_DISABLED | IRQF_TRIGGER_RISING,
-> > +	.flags = IRQF_TRIGGER_RISING,
-> >  	.name = "ipi_handler"
-> >  };
-> >  
-> > diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
-> > index fc8e95c..a4d7b58 100644
-> > --- a/arch/hexagon/kernel/time.c
-> > +++ b/arch/hexagon/kernel/time.c
-> > @@ -181,7 +181,7 @@ static irqreturn_t timer_interrupt(int irq, void *devid)
-> >  /*  This should also be pulled from devtree  */
-> >  static struct irqaction rtos_timer_intdesc = {
-> >  	.handler = timer_interrupt,
-> > -	.flags = IRQF_DISABLED | IRQF_TIMER | IRQF_TRIGGER_RISING,
-> > +	.flags = IRQF_TIMER | IRQF_TRIGGER_RISING,
-> >  	.name = "rtos_timer"
-> >  };
-> >  
-> > -- 
-> > 1.7.4.1
-> > 
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-hexagon" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> -- 
-> 
-> Sent by an employee of the Qualcomm Innovation Center, Inc.
-> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I haven't yet looked to see how the DT's are being designed, but I have
+this sneaking suspicion that the second alternative is not being
+pursued ...
+
+--linas
 
 -- 
-Only stand for myself
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
