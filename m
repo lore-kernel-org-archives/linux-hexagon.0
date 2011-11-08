@@ -1,41 +1,54 @@
-From: Jesper Juhl <jj@chaosbits.net>
-Subject: Re: [PATCH][resend] hexagon: Remove unneeded include of version.h
-Date: Wed, 11 Apr 2012 00:02:31 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204110002110.31626@swampdragon.chaosbits.net>
-References: <alpine.LNX.2.00.1204102333460.31626@swampdragon.chaosbits.net> <20120410215356.GA2513@codeaurora.org>
-Mime-Version: 1.0
+From: Thomas Meyer <thomas@m3y3r.de>
+Subject: [PATCH 01/10] Hexagon: Use resource_size function
+Date: Tue, 8 Nov 2011 19:49:30 +0100
+Message-ID: <6e201a$5e4isk@wolverine01.qualcomm.com>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20120410215356.GA2513@codeaurora.org>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: TEXT/PLAIN; charset="us-ascii"
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Linas Vepstas <linasvepstas@gmail.com>, trivial@kernel.org
+To: linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 10 Apr 2012, Richard Kuo wrote:
+ Use resource_size function on resource object
+ instead of explicit computation.
 
-> On Tue, Apr 10, 2012 at 11:37:23PM +0200, Jesper Juhl wrote:
-> > "make versioncheck" points out that arch/hexagon/include/asm/spinlock_types.h
-> > does not need to include version.h .
-> > A quick look at the file seems to confirm its findings, so here's a patch that
-> > removes the include.
-> > 
-> > Signed-off-by: Jesper Juhl <jj@chaosbits.net>
-> > Acked-by: Linas Vepstas <linasvepstas@gmail.com>
-> > ---
-> >  arch/hexagon/include/asm/spinlock_types.h |    2 --
-> >  1 file changed, 2 deletions(-)
-> > 
-> 
-> I've applied this patch to my tree (it's already spent some time in
-> linux-next as well) and it will go out with my next pull request.
-> 
-I see.
+ The semantic patch that makes this change is available
+ in scripts/coccinelle/api/resource_size.cocci.
 
-Thanks.
+ More information about semantic patching is available at
+ http://coccinelle.lip6.fr/
 
+Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
+Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
+---
+ arch/hexagon/kernel/time.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
+index 6bee15c..ea9e34f 100644
+--- a/arch/hexagon/kernel/time.c
++++ b/arch/hexagon/kernel/time.c
+@@ -200,12 +200,10 @@ void __init time_init_deferred(void)
+ 		resource = rtos_timer_device.resource;
+ 
+ 	/*  ioremap here means this has to run later, after paging init  */
+-	rtos_timer = ioremap(resource->start, resource->end
+-		- resource->start + 1);
++	rtos_timer = ioremap(resource->start, resource_size(resource));
+ 
+ 	if (!rtos_timer) {
+-		release_mem_region(resource->start, resource->end
+-			- resource->start + 1);
++		release_mem_region(resource->start, resource_size(resource));
+ 	}
+ 	clocksource_register_khz(&hexagon_clocksource, pcycle_freq_mhz * 1000);
+ 
 -- 
-Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
-Don't top-post http://www.catb.org/jargon/html/T/top-post.html
-Plain text mails only, please.
+1.7.1
+
+
+--
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
