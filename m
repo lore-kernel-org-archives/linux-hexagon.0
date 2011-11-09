@@ -1,45 +1,56 @@
-From: David Brown <davidb@codeaurora.org>
+From: rkuo@codeaurora.org
 Subject: Re: [PATCH] Hexagon: Use resource_size function
-Date: Tue, 8 Nov 2011 17:02:02 -0800
-Message-ID: <20111109010202.GA16505@huya.qualcomm.com>
+Date: Tue, 8 Nov 2011 21:33:50 -0800 (PST)
+Message-ID: <bd0f0eff978b799baf979487756e5cde.squirrel@www.codeaurora.org>
 References: <1320778170.8062.134.camel@localhost.localdomain>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 In-Reply-To: <1320778170.8062.134.camel@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 To: Thomas Meyer <thomas@m3y3r.de>
-Cc: Richard Kuo <rkuo@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: davidb@codeaurora.org, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Some minor nits about the formatting of the patch.
-
-On Tue, Nov 08, 2011 at 07:49:30PM +0100, Thomas Meyer wrote:
 > From: Thomas Meyer <thomas@m3y3r.de>
-
-Shouldn't need a From: line, since it is the same as the email you
-sent it from.
-
+>
 >  Use resource_size function on resource object
 >  instead of explicit computation.
-
-The commit text shouldn't be indented.
-
+>
 >  The semantic patch that makes this change is available
 >  in scripts/coccinelle/api/resource_size.cocci.
-> 
+>
 >  More information about semantic patching is available at
 >  http://coccinelle.lip6.fr/
+>
+> Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
+> ---
+>
+> diff -u -p a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
+> --- a/arch/hexagon/kernel/time.c 2011-11-07 19:37:21.719553477 +0100
+> +++ b/arch/hexagon/kernel/time.c 2011-11-08 12:21:17.722176538 +0100
+> @@ -200,12 +200,10 @@ void __init time_init_deferred(void)
+>  		resource = rtos_timer_device.resource;
+>
+>  	/*  ioremap here means this has to run later, after paging init  */
+> -	rtos_timer = ioremap(resource->start, resource->end
+> -		- resource->start + 1);
+> +	rtos_timer = ioremap(resource->start, resource_size(resource));
+>
+>  	if (!rtos_timer) {
+> -		release_mem_region(resource->start, resource->end
+> -			- resource->start + 1);
+> +		release_mem_region(resource->start, resource_size(resource));
+>  	}
+>  	clocksource_register_khz(&hexagon_clocksource, pcycle_freq_mhz * 1000);
+>
+>
+>
+>
 
-I'm curious if these patches are generated directly by coccinelle,
-since they don't appear to be coming from git.  It'd be nice to have
-diffstats in them (especially when they are larger).
+I don't have much to add about the form of the patch; David
+noticed more than I did, but as far as content, it looks good
+and I will have this patch applied to my tree.  Thanks!
 
-Thanks,
-David
 
--- 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
