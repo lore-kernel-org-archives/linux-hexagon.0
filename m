@@ -1,56 +1,73 @@
-From: rkuo@codeaurora.org
+From: Thomas Meyer <thomas@m3y3r.de>
 Subject: Re: [PATCH] Hexagon: Use resource_size function
-Date: Tue, 8 Nov 2011 21:33:50 -0800 (PST)
-Message-ID: <bd0f0eff978b799baf979487756e5cde.squirrel@www.codeaurora.org>
+Date: Thu, 10 Nov 2011 09:39:24 +0100
+Message-ID: <1320914364.20155.10.camel@localhost.localdomain>
 References: <1320778170.8062.134.camel@localhost.localdomain>
+	 <20111109010202.GA16505@huya.qualcomm.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <1320778170.8062.134.camel@localhost.localdomain>
+In-Reply-To: <20111109010202.GA16505@huya.qualcomm.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Thomas Meyer <thomas@m3y3r.de>
-Cc: davidb@codeaurora.org, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Brown <davidb@codeaurora.org>
+Cc: Richard Kuo <rkuo@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> From: Thomas Meyer <thomas@m3y3r.de>
->
->  Use resource_size function on resource object
->  instead of explicit computation.
->
->  The semantic patch that makes this change is available
->  in scripts/coccinelle/api/resource_size.cocci.
->
->  More information about semantic patching is available at
->  http://coccinelle.lip6.fr/
->
-> Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
-> ---
->
-> diff -u -p a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
-> --- a/arch/hexagon/kernel/time.c 2011-11-07 19:37:21.719553477 +0100
-> +++ b/arch/hexagon/kernel/time.c 2011-11-08 12:21:17.722176538 +0100
-> @@ -200,12 +200,10 @@ void __init time_init_deferred(void)
->  		resource = rtos_timer_device.resource;
->
->  	/*  ioremap here means this has to run later, after paging init  */
-> -	rtos_timer = ioremap(resource->start, resource->end
-> -		- resource->start + 1);
-> +	rtos_timer = ioremap(resource->start, resource_size(resource));
->
->  	if (!rtos_timer) {
-> -		release_mem_region(resource->start, resource->end
-> -			- resource->start + 1);
-> +		release_mem_region(resource->start, resource_size(resource));
->  	}
->  	clocksource_register_khz(&hexagon_clocksource, pcycle_freq_mhz * 1000);
->
->
->
->
+Am Dienstag, den 08.11.2011, 17:02 -0800 schrieb David Brown:
+> Some minor nits about the formatting of the patch.
+> 
+> On Tue, Nov 08, 2011 at 07:49:30PM +0100, Thomas Meyer wrote:
+> > From: Thomas Meyer <thomas@m3y3r.de>
+> 
+> Shouldn't need a From: line, since it is the same as the email you
+> sent it from.
 
-I don't have much to add about the form of the patch; David
-noticed more than I did, but as far as content, it looks good
-and I will have this patch applied to my tree.  Thanks!
+So do I need a From: line or not?
+
+Documentation/SubmittingPatches says:
+
+        The "from" line must be the very first line in the message body,
+        and has the form:
+        
+                From: Original Author <author@example.com>
+        
+        The "from" line specifies who will be credited as the author of the
+        patch in the permanent changelog.  If the "from" line is missing,
+        then the "From:" line from the email header will be used to determine
+        the patch author in the changelog.
+
+MUST in the meaning of RFC2119, means it is an absolut requirment. What
+should I do?
+
+OTOH some people seems to ignore this, too:
+
+        Do not send more than 15 patches at once to the vger mailing lists!!!
+
+> 
+> >  Use resource_size function on resource object
+> >  instead of explicit computation.
+> 
+> The commit text shouldn't be indented.
+
+Will fix that.
+
+> 
+> >  The semantic patch that makes this change is available
+> >  in scripts/coccinelle/api/resource_size.cocci.
+> > 
+> >  More information about semantic patching is available at
+> >  http://coccinelle.lip6.fr/
+> 
+> I'm curious if these patches are generated directly by coccinelle,
+> since they don't appear to be coming from git.  It'd be nice to have
+> diffstats in them (especially when they are larger).
+
+coccinelle doesn't work that way. It's independent from git. I need to
+check the manual of spatch.bin if it's possible to produce a diffstat.
+
+> Thanks,
+> David
+> 
 
 
