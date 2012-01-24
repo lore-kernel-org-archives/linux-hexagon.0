@@ -1,44 +1,37 @@
-From: "David Laight" <David.Laight@ACULAB.COM>
-Subject: RE: Re: [PATCHv5] atomic: add *_dec_not_zero
-Date: Mon, 5 Dec 2011 11:44:10 -0000
-Message-ID: <AE90C24D6B3A694183C094C60CF0A2F6D8AEFE@saturn3.aculab.com>
-References: <20111204221850.GC14542@n2100.arm.linux.org.uk>
-Mime-Version: 1.0
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH] arch/hexagon/kernel/dma.c: make function static
+Date: Tue, 24 Jan 2012 14:31:36 +0100
+Message-ID: <1327411896-4532-1-git-send-email-Julia.Lawall@lip6.fr>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Sender: linux-hexagon-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <20111204221850.GC14542@n2100.arm.linux.org.uk>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>, Sven Eckelmann <sven@narfation.org>
-Cc: linux-m32r-ja@ml.linux-m32r.org, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Randy Dunlap <rdunlap@xenotime.net>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Ingo Molnar <mingo@redhat.com>, Matt Turner <mattst88@gmail.com>, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergma nn <arnd@arndb.de>, Jeff Dike <jdike@addtoit.com>, linux-alpha@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Tony Luck <tony.luck@intel.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@li
+To: Richard Kuo <rkuo@codeaurora.org>
+Cc: kernel-janitors@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Looking at this:
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-> #ifndef atomic_inc_unless_negative
-> static inline int atomic_inc_unless_negative(atomic_t *p)
-> {
->         int v, v1;
->         for (v = 0; v >= 0; v = v1) {
->                 v1 = atomic_cmpxchg(p, v, v + 1);
->                 if (likely(v1 == v))
->                         return 1;
->         }
->         return 0;
-> }
-> #endif
+This function is only used in the same file, and the other similar
+functions in this file are also static.
 
-why is it optimised for '*p' being zero??
-I'd have though the initial assignment to 'v' should
-be made by reading '*p' without any memory barriers (etc).
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
-	David
+---
+ arch/hexagon/kernel/dma.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/hexagon/kernel/dma.c b/arch/hexagon/kernel/dma.c
+index 54891e1..0b49a0a 100644
+--- a/arch/hexagon/kernel/dma.c
++++ b/arch/hexagon/kernel/dma.c
+@@ -54,7 +54,7 @@ static struct gen_pool *coherent_pool;
+ 
+ /* Allocates from a pool of uncached memory that was reserved at boot time */
+ 
+-void *hexagon_dma_alloc_coherent(struct device *dev, size_t size,
++static void *hexagon_dma_alloc_coherent(struct device *dev, size_t size,
+ 				 dma_addr_t *dma_addr, gfp_t flag)
+ {
+ 	void *ret;
