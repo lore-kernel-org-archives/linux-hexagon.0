@@ -1,56 +1,78 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH] arch/hexagon/kernel/dma.c: make function static
-Date: Thu, 26 Jan 2012 16:52:22 -0600
-Message-ID: <20120126225222.GA11120@codeaurora.org>
-References: <1327411896-4532-1-git-send-email-Julia.Lawall@lip6.fr>
+From: Kevin Cernekee <cernekee@gmail.com>
+Subject: Re: [PATCH-RFC 06/10] mips: switch to GENERIC_PCI_IOMAP
+Date: Sat, 28 Jan 2012 14:38:10 -0800
+Message-ID: <CAJiQ=7BPzhWWzU3_nDv3j=ZB4f=iOzeyLyd2L0_3UFaMiLujpw@mail.gmail.com>
+References: <cover.1322163031.git.mst@redhat.com>
+        <66457f7750d7d14229fcf8d0b011aba63185a75d.1322163031.git.mst@redhat.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1327411896-4532-1-git-send-email-Julia.Lawall@lip6.fr>
-Sender: linux-hexagon-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: kernel-janitors@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-mips-bounce@linux-mips.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=gamma;
+        h=mime-version:in-reply-to:references:date:message-id:subject:from:to
+         :cc:content-type:content-transfer-encoding;
+        bh=0i+RjziX8xr1fw1XyWqYc3ttsNXRW/8Z5EzgKlkyr40=;
+        b=RRJfoJqnNF3aaXzqz6P4SPT+/fOKX7TKmuGc4tTb16k5q9ZHS6qRasvkrVsGrVvy85
+         GE1jbJ9UAIE1XF3cwBfw5jyTAJzMvx5RG76lei4vvcTAGl5OVTjHBMfPk+y+iH3ob7XL
+         2LvRJZW1zIzucIThSKdOqPh7Szlw+dufKDVTM=
+In-Reply-To: <66457f7750d7d14229fcf8d0b011aba63185a75d.1322163031.git.mst@redhat.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-Id: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+To: Ralf Baechle <ralf@linux-mips.org>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Russell King <linux@arm.linux.org.uk>, Mikael Starvik <starvik@axis.com>, Jesper Nilsson <jesper.nilsson@axis.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Jonas Bonn <jonas@southpole.se>, Kyle McMartin <kyle@mcmartin.ca>, Helge Deller <deller@gmx.de>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Chen Liqin <liqin.chen@sunplusct.com>, Lennox Wu <lennox.wu@gmail.com>, Paul Mundt <lethal@linux-sh.org>
 
-On Tue, Jan 24, 2012 at 02:31:36PM +0100, Julia Lawall wrote:
-> From: Julia Lawall <Julia.Lawall@lip6.fr>
-> 
-> This function is only used in the same file, and the other similar
-> functions in this file are also static.
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-> 
-> ---
->  arch/hexagon/kernel/dma.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/hexagon/kernel/dma.c b/arch/hexagon/kernel/dma.c
-> index 54891e1..0b49a0a 100644
-> --- a/arch/hexagon/kernel/dma.c
-> +++ b/arch/hexagon/kernel/dma.c
-> @@ -54,7 +54,7 @@ static struct gen_pool *coherent_pool;
->  
->  /* Allocates from a pool of uncached memory that was reserved at boot time */
->  
-> -void *hexagon_dma_alloc_coherent(struct device *dev, size_t size,
-> +static void *hexagon_dma_alloc_coherent(struct device *dev, size_t size,
->  				 dma_addr_t *dma_addr, gfp_t flag)
->  {
->  	void *ret;
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-hexagon" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Thu, Nov 24, 2011 at 12:18 PM, Michael S. Tsirkin <mst@redhat.com> w=
+rote:
+> mips copied pci_iomap from generic code, probably to avoid
+> pulling the rest of iomap.c in. =C2=A0Since that's in
+> a separate file now, we can reuse the common implementation.
 
-Thanks!
+[snip]
 
-Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
+> - =C2=A0 =C2=A0 =C2=A0 if (flags & IORESOURCE_IO)
+> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return ioport_map_=
+pci(dev, start, len);
 
+While investigating a new warning on the 3.3-rc1 MIPS build (unused
+static function ioport_map_pci()), I noticed that this patch has shown
+up in Linus' tree as commit eab90291d35438bcebf7c3dc85be66d0f24e3002.
 
--- 
+I am not completely clear on the implications it has on mapping PCI I/O=
+ regions:
 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Prior to this change, the MIPS version of pci_iomap() called a
+MIPS-specific function, ioport_map_pci(), which tried to use the PCI
+controller's io_map_base field to determine the base address of the
+PCI I/O space.  It also had a fallback mechanism to deal with the case
+where io_map_base is unset.
+
+Now, in 3.3-rc1, the generic version of pci_iomap() is used instead.
+This code just calls arch/mips/lib/iomap.c:ioport_map() on these
+regions.  ioport_map() falls through to ioport_map_legacy(), which
+always uses mips_io_port_base (not the PCI controller's io_map_base)
+as the base address.  But on MIPS, it is still permissible to use
+different I/O port bases for PCI devices and for legacy (ISA?)
+devices.
+
+Is this new behavior desirable, or are there any supported platforms
+on which adverse effects might be seen?
+
+As for my part, I don't use PCI I/O regions at all - just memory
+regions.  I'm more worried about making sure my tree builds with 0
+warnings.
+
+If we do want to move ahead with the switch to GENERIC_PCI_IOMAP now,
+I have patches to scrap iomap-pci.c entirely and squash the unused
+function warning.
+
+If we still want to support the case where io_map_base !=3D
+mips_io_port_base, maybe it would be better to revert commit eab90291
+for 3.3.
+
+Might also want to take a look at SH since it also appears to have an
+orphaned ioport_map_pci() function.
+
+What are your thoughts?
+
