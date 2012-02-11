@@ -1,58 +1,62 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH-RFC 06/10] mips: switch to GENERIC_PCI_IOMAP
-Date: Mon, 30 Jan 2012 00:45:07 +0200
-Message-ID: <20120129223339.GA22666@redhat.com>
-References: <cover.1322163031.git.mst@redhat.com>
-	<66457f7750d7d14229fcf8d0b011aba63185a75d.1322163031.git.mst@redhat.com>
-	<CAJiQ=7BPzhWWzU3_nDv3j=ZB4f=iOzeyLyd2L0_3UFaMiLujpw@mail.gmail.com>
+From: Al Viro <viro@ZenIV.linux.org.uk>
+Subject: hexagon: signal handling bugs
+Date: Sat, 11 Feb 2012 23:27:40 +0000
+Message-ID: <20120211232740.GM23916@ZenIV.linux.org.uk>
+References: <20110817163457.878854582@codeaurora.org>
+ <20110817163521.165013232@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-bounces@lists.openrisc.net>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAJiQ=7BPzhWWzU3_nDv3j=ZB4f=iOzeyLyd2L0_3UFaMiLujpw@mail.gmail.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.openrisc.net/options/linux>,
-	<mailto:linux-request@lists.openrisc.net?subject=unsubscribe>
-List-Archive: <http://lists.openrisc.net/pipermail/linux>
-List-Post: <mailto:linux@lists.openrisc.net>
-List-Help: <mailto:linux-request@lists.openrisc.net?subject=help>
-List-Subscribe: <http://lists.openrisc.net/listinfo/linux>,
-	<mailto:linux-request@lists.openrisc.net?subject=subscribe>
-Sender: linux-bounces@lists.openrisc.net
-Errors-To: linux-bounces@lists.openrisc.net
-To: Kevin Cernekee <cernekee@gmail.com>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, linux-mips@linux-mips.org, linux-m68k@vger.kernel.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux@openrisc.net, linux-pci@vger.kernel.org, Jesse Barnes <jbarnes@virtuousgeek.org>, Kumar Gala <galak@kernel.crashing.org>, Chen Liqin <liqin.chen@sunplusct.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, Lennox Wu <lennox.wu@gmail.com>, Jesper Nilsson <jesper.nilsson@axis.com>, Russell King <linux@arm.linux.org.uk>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-arch@vger.kernel.org, Arend van Spriel <arend@broadcom.com>
+In-Reply-To: <20110817163521.165013232@codeaurora.org>
+Sender: linux-hexagon-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
 
-On Sat, Jan 28, 2012 at 02:38:10PM -0800, Kevin Cernekee wrote:
-> On Thu, Nov 24, 2011 at 12:18 PM, Michael S. Tsirkin <mst@redhat.com> wro=
-te:
-> > mips copied pci_iomap from generic code, probably to avoid
-> > pulling the rest of iomap.c in. =A0Since that's in
-> > a separate file now, we can reuse the common implementation.
-> =
+	1) unless I'm seriously misreading hexagon vm_entry.S, once we'd
+called do_notify_resume, we do *not* recheck if there's more work to
+be done.  In particular, if we'd got more signals pending - e.g. from
+SIGSEGV we'd got while trying to set a sigframe up.  That's not a good
+thing for a lot of reasons.  Note that once that is fixed, you'll need
+to make sure that restart logics is applied only *once* - not for subsequent
+sigframes.
 
-> [snip]
-> =
+	2) sigreturn should *NOT* be restartable at all, or you'll get
+a lot of hard-to-reproduce fun.  AFAICS, the right thing to do would
+be to set ->syscall_nr to something negative, not __NR_rt_sigreturn in there
+(and return regs->r00 instead of 0, to avoid the check in do_trap0).
+Reason: suppose you have e.g. a loop that runs through different values in
+r00.  No syscalls in it.  A signal comes and gets treated on the way
+out of kernel after the next e.g. timer interrupt.  We save the values
+of registers into a sigframe and go into the handler.  Another signal
+comes; the next time we reach the kernel is when we get to rt_sigreturn().
+There we
+	* have registers restored from on-stack sigframe
+	* have ->syscall_nr set to __NR_rt_sigreturn
+	* hit handle_signal() on the way out
+	* check ->r00; note that this is the value we have just restored
+from sigframe.  If it happens to be -ERESTARTNOHAND, silently replace it
+with -EINTR.  And eventually return to clueless userland.
+Result: if timer interrupt happens when the userland loop goes through
+-ERESTARTNOHAND, the value of r00 is clobbered upon return from signal handler.
+Fun debugging that kind of bugs: priceless...
 
-> > - =A0 =A0 =A0 if (flags & IORESOURCE_IO)
-> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return ioport_map_pci(dev, start, len);
-> =
+	3) on sigreturn we need to set current->restart_block.fn; hexagon
+doesn't do that.
 
-> While investigating a new warning on the 3.3-rc1 MIPS build (unused
-> static function ioport_map_pci()), I noticed that this patch has shown
-> up in Linus' tree as commit eab90291d35438bcebf7c3dc85be66d0f24e3002.
-> =
+	4) altstack can overflow; you don't check that.  See
+commit 83bd01024b1fdfc41d9b758e5669e80fca72df66
+Author: Roland McGrath <roland@redhat.com>
+Date:   Wed Jan 30 13:30:06 2008 +0100
+for an analog.
 
-> I am not completely clear on the implications it has on mapping PCI I/O r=
-egions:
+	5) try_to_freeze() has no business being called in do_signal();
+let get_signal_to_deliver() handle that.
 
-Yes, my bad, I missed the difference between ioport_map_pci
-and ioport_map for both MIPS and SH.
-I'll post a patch to fix this, which is probably preferable
-to reintroducing the code duplication where it might
-trip us up again.
-
--- =
-
-MST
+I don't have any access to hardware *or* cross-toolchain, so all I can do
+here is RTFS and review.  For #2..#5 I would not be afraid to post untested
+patches (they are essentially trivial), but #1 is well beyond my arrogance
+threshold - messing in assembler glue on an architecture I don't know *and*
+can't test...  Sorry.
