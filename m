@@ -1,62 +1,120 @@
-From: Al Viro <viro@ZenIV.linux.org.uk>
-Subject: hexagon: signal handling bugs
-Date: Sat, 11 Feb 2012 23:27:40 +0000
-Message-ID: <20120211232740.GM23916@ZenIV.linux.org.uk>
-References: <20110817163457.878854582@codeaurora.org>
- <20110817163521.165013232@codeaurora.org>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: [PATCH] Hexagon: adapt for dma_map_ops changes
+Date: Mon, 13 Feb 2012 11:40:05 +0100
+Message-ID: <1329129605-27355-1-git-send-email-m.szyprowski@samsung.com>
+References: <1324643253-3024-1-git-send-email-m.szyprowski@samsung.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110817163521.165013232@codeaurora.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-alpha-owner@vger.kernel.org>
+In-reply-to: <1324643253-3024-1-git-send-email-m.szyprowski@samsung.com>
+Sender: linux-alpha-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+Content-Type: TEXT/PLAIN; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Stephen Rothwell <sfr@canb.auug.org.au>, FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>, microblaze-uclinux@itee.uq.edu.au, linux-arch@vger.kernel.org, x86@kernel.org, linux-sh@vger.kernel.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, discuss@x86-64.org, linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org, linaro-mm-sig@lists.linaro.org, Jonathan Corbet <corbet@lwn.net>, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Andrzej Pietrasiewicz <andrzej.p@samsung.com>, linux-hexagon@vger.kernel.org
 
-	1) unless I'm seriously misreading hexagon vm_entry.S, once we'd
-called do_notify_resume, we do *not* recheck if there's more work to
-be done.  In particular, if we'd got more signals pending - e.g. from
-SIGSEGV we'd got while trying to set a sigframe up.  That's not a good
-thing for a lot of reasons.  Note that once that is fixed, you'll need
-to make sure that restart logics is applied only *once* - not for subsequent
-sigframes.
+Adapt core Hexagon architecture code for dma_map_ops changes: replace
+alloc/free_coherent with generic alloc/free methods.
 
-	2) sigreturn should *NOT* be restartable at all, or you'll get
-a lot of hard-to-reproduce fun.  AFAICS, the right thing to do would
-be to set ->syscall_nr to something negative, not __NR_rt_sigreturn in there
-(and return regs->r00 instead of 0, to avoid the check in do_trap0).
-Reason: suppose you have e.g. a loop that runs through different values in
-r00.  No syscalls in it.  A signal comes and gets treated on the way
-out of kernel after the next e.g. timer interrupt.  We save the values
-of registers into a sigframe and go into the handler.  Another signal
-comes; the next time we reach the kernel is when we get to rt_sigreturn().
-There we
-	* have registers restored from on-stack sigframe
-	* have ->syscall_nr set to __NR_rt_sigreturn
-	* hit handle_signal() on the way out
-	* check ->r00; note that this is the value we have just restored
-from sigframe.  If it happens to be -ERESTARTNOHAND, silently replace it
-with -EINTR.  And eventually return to clueless userland.
-Result: if timer interrupt happens when the userland loop goes through
--ERESTARTNOHAND, the value of r00 is clobbered upon return from signal handler.
-Fun debugging that kind of bugs: priceless...
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+---
 
-	3) on sigreturn we need to set current->restart_block.fn; hexagon
-doesn't do that.
+Hello,
 
-	4) altstack can overflow; you don't check that.  See
-commit 83bd01024b1fdfc41d9b758e5669e80fca72df66
-Author: Roland McGrath <roland@redhat.com>
-Date:   Wed Jan 30 13:30:06 2008 +0100
-for an analog.
+This patch adds Hexagon architecture to the DMA-mapping framework
+redesign preparation patches. For more information please refer to the
+following thread:
+https://lkml.org/lkml/2011/12/23/97
 
-	5) try_to_freeze() has no business being called in do_signal();
-let get_signal_to_deliver() handle that.
+Best regards
+Marek Szyprowski
+Samsung Poland R&D Center
+---
+ arch/hexagon/include/asm/dma-mapping.h |   18 ++++++++++++------
+ arch/hexagon/kernel/dma.c              |    9 +++++----
+ 2 files changed, 17 insertions(+), 10 deletions(-)
 
-I don't have any access to hardware *or* cross-toolchain, so all I can do
-here is RTFS and review.  For #2..#5 I would not be afraid to post untested
-patches (they are essentially trivial), but #1 is well beyond my arrogance
-threshold - messing in assembler glue on an architecture I don't know *and*
-can't test...  Sorry.
+diff --git a/arch/hexagon/include/asm/dma-mapping.h b/arch/hexagon/include/asm/dma-mapping.h
+index 448b224..233ed3d 100644
+--- a/arch/hexagon/include/asm/dma-mapping.h
++++ b/arch/hexagon/include/asm/dma-mapping.h
+@@ -71,29 +71,35 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+ 	return (dma_addr == bad_dma_address);
+ }
+ 
+-static inline void *dma_alloc_coherent(struct device *dev, size_t size,
+-				       dma_addr_t *dma_handle, gfp_t flag)
++#define dma_alloc_coherent(d,s,h,f)	dma_alloc_attrs(d,s,h,f,NULL)
++
++static inline void *dma_alloc_attrs(struct device *dev, size_t size,
++				    dma_addr_t *dma_handle, gfp_t flag,
++				    struct dma_attrs *attrs)
+ {
+ 	void *ret;
+ 	struct dma_map_ops *ops = get_dma_ops(dev);
+ 
+ 	BUG_ON(!dma_ops);
+ 
+-	ret = ops->alloc_coherent(dev, size, dma_handle, flag);
++	ret = ops->alloc(dev, size, dma_handle, flag, attrs);
+ 
+ 	debug_dma_alloc_coherent(dev, size, *dma_handle, ret);
+ 
+ 	return ret;
+ }
+ 
+-static inline void dma_free_coherent(struct device *dev, size_t size,
+-				     void *cpu_addr, dma_addr_t dma_handle)
++#define dma_free_coherent(d,s,c,h) dma_free_attrs(d,s,c,h,NULL)
++
++static inline void dma_free_attrs(struct device *dev, size_t size,
++				  void *cpu_addr, dma_addr_t dma_handle,
++				  struct dma_attrs *attrs)
+ {
+ 	struct dma_map_ops *dma_ops = get_dma_ops(dev);
+ 
+ 	BUG_ON(!dma_ops);
+ 
+-	dma_ops->free_coherent(dev, size, cpu_addr, dma_handle);
++	dma_ops->free(dev, size, cpu_addr, dma_handle, attrs);
+ 
+ 	debug_dma_free_coherent(dev, size, cpu_addr, dma_handle);
+ }
+diff --git a/arch/hexagon/kernel/dma.c b/arch/hexagon/kernel/dma.c
+index e711ace..3730221 100644
+--- a/arch/hexagon/kernel/dma.c
++++ b/arch/hexagon/kernel/dma.c
+@@ -54,7 +54,8 @@ static struct gen_pool *coherent_pool;
+ /* Allocates from a pool of uncached memory that was reserved at boot time */
+ 
+ void *hexagon_dma_alloc_coherent(struct device *dev, size_t size,
+-				 dma_addr_t *dma_addr, gfp_t flag)
++				 dma_addr_t *dma_addr, gfp_t flag,
++				 struct dma_attrs *attrs)
+ {
+ 	void *ret;
+ 
+@@ -81,7 +82,7 @@ void *hexagon_dma_alloc_coherent(struct device *dev, size_t size,
+ }
+ 
+ static void hexagon_free_coherent(struct device *dev, size_t size, void *vaddr,
+-				  dma_addr_t dma_addr)
++				  dma_addr_t dma_addr, struct dma_attrs *attrs)
+ {
+ 	gen_pool_free(coherent_pool, (unsigned long) vaddr, size);
+ }
+@@ -202,8 +203,8 @@ static void hexagon_sync_single_for_device(struct device *dev,
+ }
+ 
+ struct dma_map_ops hexagon_dma_ops = {
+-	.alloc_coherent	= hexagon_dma_alloc_coherent,
+-	.free_coherent	= hexagon_free_coherent,
++	.alloc		= hexagon_dma_alloc_coherent,
++	.free		= hexagon_free_coherent,
+ 	.map_sg		= hexagon_map_sg,
+ 	.map_page	= hexagon_map_page,
+ 	.sync_single_for_cpu = hexagon_sync_single_for_cpu,
+-- 
+1.7.1.569.g6f426
+
