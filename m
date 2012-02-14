@@ -1,70 +1,32 @@
-From: Matt Fleming <matt@console-pimps.org>
-Subject: [PATCH 11/40] Hexagon: Use set_current_blocked() and block_sigmask()
-Date: Tue, 14 Feb 2012 11:40:44 +0000
-Message-ID: <1329219673-28711-12-git-send-email-matt@console-pimps.org>
-References: <1329219673-28711-1-git-send-email-matt@console-pimps.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1329219673-28711-1-git-send-email-matt@console-pimps.org>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Venkatesh Pallipadi <venki@google.com>
+Subject: [PATCH 0/3] Cleanup raw handling of online/possible map
+Date: Tue, 14 Feb 2012 14:49:41 -0800
+Message-ID: <1329259784-20592-1-git-send-email-venki@google.com>
+References: <87wr7pbwbz.fsf@rustcorp.com.au>
+Mime-Version: 1.0
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=gamma;
+        h=mime-version:from:to:cc:subject:date:message-id:x-mailer
+         :in-reply-to:references;
+        bh=yOhserrUfvkY3ZIJV3xIijVCgGVNyG2k9fouDdZjnZU=;
+        b=wXjRMQrcRlvP18w5yv/Nnie/YSIPcaUazUGD35WW280QmzLqWaH9MwmCL9E+qhzxoG
+         kfCVhuudaBpOtVIehr2zKS3uduYgdhirqQSx96NH6AnfUr3q7dk+SUm5l4Lz3ZHjU2kE
+         Gu31lQOFEzY5JBWHt2ImGdox896QzAd5VodD8=
+In-Reply-To: <87wr7pbwbz.fsf@rustcorp.com.au>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: linux-arch@vger.kernel.org
-Cc: Oleg Nesterov <oleg@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Matt Fleming <matt.fleming@intel.com>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Tony Luck <tony.luck@gmail.com>, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, KOSAKI Motohiro <kosaki.motohiro@gmail.com>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Mike Travis <travis@sgi.com>, "Paul E. McKenney" <paul.mckenney@linaro.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, Paul Gortmaker <paul.gortmaker@windriver.com>, linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, user-mode-linux-devel@lists.sourceforge.net
 
-From: Matt Fleming <matt.fleming@intel.com>
+> Yes, and the other architectures.
 
-As described in e6fa16ab ("signal: sigprocmask() should do
-retarget_shared_pending()") the modification of current->blocked is
-incorrect as we need to check whether the signal we're about to block
-is pending in the shared queue.
+Here are the patches for other instances I see in plain git grep.
 
-Also, use the new helper function introduced in commit 5e6292c0f28f
-("signal: add block_sigmask() for adding sigmask to current->blocked")
-which centralises the code for updating current->blocked after
-successfully delivering a signal and reduces the amount of duplicate
-code across architectures. In the past some architectures got this
-code wrong, so using this helper function should stop that from
-happening again.
+I have been brave (foolish) enough to send this without any testing. So,
+this comes with 'use it at your own risk' tag :-).
 
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
-Signed-off-by: Matt Fleming <matt.fleming@intel.com>
----
- arch/hexagon/kernel/signal.c |   12 ++----------
- 1 files changed, 2 insertions(+), 10 deletions(-)
-
-diff --git a/arch/hexagon/kernel/signal.c b/arch/hexagon/kernel/signal.c
-index b45be31..ecbab34 100644
---- a/arch/hexagon/kernel/signal.c
-+++ b/arch/hexagon/kernel/signal.c
-@@ -192,12 +192,7 @@ static int handle_signal(int sig, siginfo_t *info, struct k_sigaction *ka,
- 	if (rc)
- 		return rc;
- 
--	spin_lock_irq(&current->sighand->siglock);
--	sigorsets(&current->blocked, &current->blocked, &ka->sa.sa_mask);
--	if (!(ka->sa.sa_flags & SA_NODEFER))
--		sigaddset(&current->blocked, sig);
--	recalc_sigpending();
--	spin_unlock_irq(&current->sighand->siglock);
-+	block_sigmask(ka, sig);
- 
- 	return 0;
- }
-@@ -305,10 +300,7 @@ asmlinkage int sys_rt_sigreturn(void)
- 		goto badframe;
- 
- 	sigdelsetmask(&blocked, ~_BLOCKABLE);
--	spin_lock_irq(&current->sighand->siglock);
--	current->blocked = blocked;
--	recalc_sigpending();
--	spin_unlock_irq(&current->sighand->siglock);
-+	set_current_blocked(&blocked);
- 
- 	if (restore_sigcontext(regs, &frame->uc.uc_mcontext))
- 		goto badframe;
--- 
-1.7.4.4
+Thanks,
+Venki
