@@ -1,30 +1,40 @@
-From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Subject: Re: [PATCH 3/12] arch/hexagon: remove references to cpu_*_map.
-Date: Wed, 15 Feb 2012 14:49:20 +0530
-Message-ID: <4F3B7898.9010502@linux.vnet.ibm.com>
-References: <1329281884.32535.rusty@rustcorp.com.au>
+From: Richard Kuo <rkuo@codeaurora.org>
+Subject: Re: hexagon: signal handling bugs
+Date: Wed, 15 Feb 2012 11:45:16 -0600
+Message-ID: <20120215174516.GC29780@codeaurora.org>
+References: <20110817163457.878854582@codeaurora.org>
+ <20110817163521.165013232@codeaurora.org>
+ <20120211232740.GM23916@ZenIV.linux.org.uk>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <1329281884.32535.rusty@rustcorp.com.au>
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20120211232740.GM23916@ZenIV.linux.org.uk>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Venkatesh Pallipadi <venki@google.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
+Content-Transfer-Encoding: 7bit
+To: Al Viro <viro@ZenIV.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
 
-On 02/15/2012 10:28 AM, Rusty Russell wrote:
+On Sat, Feb 11, 2012 at 11:27:40PM +0000, Al Viro wrote:
+> I don't have any access to hardware *or* cross-toolchain, so all I can do
+> here is RTFS and review.  For #2..#5 I would not be afraid to post untested
+> patches (they are essentially trivial), but #1 is well beyond my arrogance
+> threshold - messing in assembler glue on an architecture I don't know *and*
+> can't test...  Sorry.
 
-> From: Rusty Russell <rusty@rustcorp.com.au>
-> 
-> This has been obsolescent for a while; time for the final push.
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Richard Kuo <rkuo@codeaurora.org>
-> Cc: linux-hexagon@vger.kernel.org
-> ---
+Thanks for reviewing the code.  Admittedly, it's been a while since I looked
+at the signal handling bits, so I will need to review it again and test the
+changes where appropriate.  I'll post a patch or something for review when
+ready...
 
-Reviewed-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
 
-Regards,
-Srivatsa S. Bhat
+
+Thanks again,
+Richard Kuo
+
+
+-- 
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
