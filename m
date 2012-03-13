@@ -1,45 +1,29 @@
-From: Arnd Bergmann <arnd@arndb.de>
+From: David Howells <dhowells@redhat.com>
 Subject: Re: [PATCH 10/35] Disintegrate asm/system.h for Hexagon [ver #2]
-Date: Tue, 13 Mar 2012 09:16:14 +0000
-Message-ID: <201203130916.15118.arnd@arndb.de>
-References: <20120312233602.13888.27659.stgit@warthog.procyon.org.uk> <20120312233747.13888.75605.stgit@warthog.procyon.org.uk>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Date: Tue, 13 Mar 2012 10:01:40 +0000
+Message-ID: <27808.1331632900@redhat.com>
+References: <201203130916.15118.arnd@arndb.de> <20120312233602.13888.27659.stgit@warthog.procyon.org.uk> <20120312233747.13888.75605.stgit@warthog.procyon.org.uk>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20120312233747.13888.75605.stgit@warthog.procyon.org.uk>
+In-Reply-To: <201203130916.15118.arnd@arndb.de>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: David Howells <dhowells@redhat.com>
-Cc: paul.gortmaker@windriver.com, hpa@zytor.com, torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: dhowells@redhat.com, paul.gortmaker@windriver.com, hpa@zytor.com, torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On Monday 12 March 2012, David Howells wrote:
-> Disintegrate asm/system.h for Hexagon.  Not compiled.
-> 
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> cc: linux-hexagon@vger.kernel.org
-> ---
-> 
->  arch/hexagon/include/asm/atomic.h    |    1 
->  arch/hexagon/include/asm/barrier.h   |   41 +++++++++++
->  arch/hexagon/include/asm/bitops.h    |    1 
->  arch/hexagon/include/asm/cmpxchg.h   |   90 +++++++++++++++++++++++
->  arch/hexagon/include/asm/exec.h      |   28 +++++++
->  arch/hexagon/include/asm/switch_to.h |   34 +++++++++
->  arch/hexagon/include/asm/system.h    |  131 +---------------------------------
->  arch/hexagon/kernel/ptrace.c         |    1 
->  arch/hexagon/kernel/smp.c            |    1 
->  arch/hexagon/kernel/vm_events.c      |    1 
->  10 files changed, 199 insertions(+), 130 deletions(-)
->  create mode 100644 arch/hexagon/include/asm/barrier.h
->  create mode 100644 arch/hexagon/include/asm/cmpxchg.h
->  create mode 100644 arch/hexagon/include/asm/exec.h
->  create mode 100644 arch/hexagon/include/asm/switch_to.h
+Arnd Bergmann <arnd@arndb.de> wrote:
 
-Looking at this example, it could easily use the asm-generic versions of
-switch_to.h and barrier.h, but that would complicate the dependency chain
-again.
+> Looking at this example, it could easily use the asm-generic versions of
+> switch_to.h and barrier.h, but that would complicate the dependency chain
+> again.
 
-I think the same is true for other platforms.
+Yep.  The plan is to throw more patches on to the end of the series to
+consolidate those.
 
-	Arnd
+In fact, I wonder if we still really need the switch_to() macro wrapper, or
+whether we could replace it with an function, inline or otherwise, that
+returns the macro's third argument.
+
+David
