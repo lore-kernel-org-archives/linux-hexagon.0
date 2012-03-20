@@ -1,27 +1,25 @@
 From: Kautuk Consul <consul.kautuk@gmail.com>
-Subject: [PATCH 0/20] mmu: arch/mm: Port OOM changes to arch page fault handlers.
-Date: Tue, 20 Mar 2012 09:18:14 -0400
-Message-ID: <CAFPAmTQs9dOpQTaXU=6Or66YU+my_CnPw33TE4h++YArBNa38g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=0016368e2a82ddd5fa04bbac811c
-Return-path: <owner-linux-mm@kvack.org>
+Subject: [PATCH 11/20] hexagon/mm/vm_fault.c: Port OOM changes to do_page_fault
+Date: Tue, 20 Mar 2012 09:23:33 -0400
+Message-ID: <1332249813-2970-1-git-send-email-consul.kautuk@gmail.com>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20120113;
-        h=mime-version:date:message-id:subject:from:to:cc:content-type;
-        bh=B8OjEgkd7jyOlanjtatmkQ3YQi74mRqL9S00gOQLO60=;
-        b=XzupTDJKCCgKdIo17xO8xFCyu5qeU/t9aPH6D0IhYT3lNXfkAw/uWsIvw8YN4Qzn8k
-         aKRQ7wUWz0lYWKXdQHaMRckKBpOUeskuJIxZ2shWQuBmzK6vEsWMrr6i5Y8dJM398U7g
-         soX9HfzNWTfyfxqwgHZOAm9ND3neYhmNE7n/nHuETA5w8Y7Ljf6bZ9j4ZNuIPaDu+gSn
-         IA8hUs2nCfKx2p38BKCsgR/qewWyLOXQj+OvTET+pv7hSDzhpzdPrtccsNEdXgWHrHcr
-         4gODctQl0XRtM/+6GECvRKasVn8wgNA66E2cAe1tgpypWAR2hmoy51p/HOPgnlFVSl3n
-         j5TQ==
-Sender: owner-linux-mm@kvack.org
+        h=from:to:cc:subject:date:message-id:x-mailer;
+        bh=Stk454fJV0HqVErIAwgf0+tDhfekSQ/T7hgoxqXQK60=;
+        b=K1Cbij493ZWvxZR4ts2QaYZayQa9pPsPouN/vweMhWV5WpvH/pPY3ziIRMfHfbFqy5
+         3lw0ww56ZNcDtd5zZWAQ8n87fu0fiRW2xFJ5EOdEuzAg6czcIfFp1yXEAbl/SkMGNgex
+         zGJ5RN+Ot2HpEOD+dwzWxAKPm9O8jE8U+Qe39xAIYSTzCZyVzxdwP4aL//OjBNIpr7qp
+         MFMI+AuXnVBN0mNmIjroZ450llMxGKjS2VaeKNSVdmE0YhLWW0fVSwy74+oWP76sae4+
+         I/aEt7L1bdLClWsY8kll0ryobp24z+D9ZvWD+Gs753n63WvzmFr8PQMi3aH7EiQN590r
+         0hYg==
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-To: linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux@lists.openrisc.net, linux-am33-list@redhat.com, microblaze-uclinux@itee.uq.edu.au, linux-m68k@lists.linux-m68k.org, linux-m32r-ja@ml.linux-m32r.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-cris-kernel@axis.com, linux-sh@vger.kernel.org, linux-parisc@vger.kernel.org, sparclinux@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-
---0016368e2a82ddd5fa04bbac811c
-Content-Type: text/plain; charset=ISO-8859-1
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Richard Kuo <rkuo@codeaurora.org>, Linas Vepstas <linas@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Kautuk Consul <consul.kautuk@gmail.com>
 
 Commit d065bd810b6deb67d4897a14bfe21f8eb526ba99
 (mm: retry page fault when blocking on disk transfer) and
@@ -34,101 +32,62 @@ for making the page fault handler retryable as well as killable.
 These changes reduce the mmap_sem hold time, which is crucial
 during OOM killer invocation.
 
-I was facing hang and livelock problems on my ARM and MIPS boards when
-I invoked OOM by running the stress_32k.c test-case attached to this email.
+Port these changes to hexagon.
 
-Since both the ARM and MIPS porting chainges were accepted, me and my
-co-worker decided to take the initiative to port these changes to all other
-MMU based architectures.
-
-Please review and do write back if there is any way I need to
-improve/rewrite any
-of these patches.
-
-Signed-off-by: Mohd. Faris <mohdfarisq2010@gmail.com>
 Signed-off-by: Kautuk Consul <consul.kautuk@gmail.com>
 ---
+ arch/hexagon/mm/vm_fault.c |   22 +++++++++++++++++-----
+ 1 files changed, 17 insertions(+), 5 deletions(-)
 
---0016368e2a82ddd5fa04bbac811c
-Content-Type: text/x-csrc; charset=US-ASCII; name="stress_32k.c"
-Content-Disposition: attachment; filename="stress_32k.c"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_h00yqhf60
-
-I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxzdGRsaWIuaD4KI2luY2x1ZGUgPHN0cmluZy5o
-PgojaW5jbHVkZSA8cHRocmVhZC5oPgojaW5jbHVkZSA8dW5pc3RkLmg+CgojZGVmaW5lIEFMTE9D
-X0JZVEUgNTEyKjEwMjQKI2RlZmluZSBDT1VOVCA1MAoKdm9pZCAqYWxsb2NfZnVuY3Rpb25fb25l
-KCB2b2lkICpwdHIgKTsKdm9pZCAqYWxsb2NfZnVuY3Rpb25fdHdvKCB2b2lkICpwdHIgKTsKdm9p
-ZCAqYWxsb2NfZnVuY3Rpb25fdGhyZWUoIHZvaWQgKnB0ciApOwp2b2lkICphbGxvY19mdW5jdGlv
-bl9mb3VyKCB2b2lkICpwdHIgKTsKdm9pZCAqYWxsb2NfZnVuY3Rpb25fZml2ZSggdm9pZCAqcHRy
-ICk7CnZvaWQgKmVuYWJsZV9mdW5jdGlvbiggdm9pZCAqcHRyICk7CgoKaW50IG1haW4oaW50IGFy
-Z2MsIGNoYXIgKmFyZ3ZbXSkKewoJcHRocmVhZF90IHRocmVhZDEsIHRocmVhZDIsIHRocmVhZDMs
-IHRocmVhZDQsIHRocmVhZDU7CgljaGFyICptZXNzYWdlMSA9ICJUaHJlYWQgMSI7CgljaGFyICpt
-ZXNzYWdlMiA9ICJUaHJlYWQgMiI7CgljaGFyICptZXNzYWdlMyA9ICJUaHJlYWQgMyI7CgljaGFy
-ICptZXNzYWdlNCA9ICJUaHJlYWQgNCI7CgljaGFyICptZXNzYWdlNSA9ICJUaHJlYWQgNSI7Cglp
-bnQgaXJldDEgPSAtMTsKCWludCBpcmV0MiA9IC0xOwoJaW50IGlyZXQzID0gLTE7CglpbnQgaXJl
-dDQgPSAtMTsKCWludCBpcmV0NSA9IC0xOwoJZm9yaygpOwoJaXJldDEgPSBwdGhyZWFkX2NyZWF0
-ZSggJnRocmVhZDEsIE5VTEwsIGFsbG9jX2Z1bmN0aW9uX29uZSwgKHZvaWQqKSBtZXNzYWdlMSk7
-CglpcmV0MiA9IHB0aHJlYWRfY3JlYXRlKCAmdGhyZWFkMiwgTlVMTCwgYWxsb2NfZnVuY3Rpb25f
-dHdvLCAodm9pZCopIG1lc3NhZ2UyKTsKCWlyZXQyID0gcHRocmVhZF9jcmVhdGUoICZ0aHJlYWQz
-LCBOVUxMLCBhbGxvY19mdW5jdGlvbl90aHJlZSwgKHZvaWQqKSBtZXNzYWdlMik7CglpcmV0MiA9
-IHB0aHJlYWRfY3JlYXRlKCAmdGhyZWFkNCwgTlVMTCwgYWxsb2NfZnVuY3Rpb25fZm91ciwgKHZv
-aWQqKSBtZXNzYWdlMik7CglpcmV0MiA9IHB0aHJlYWRfY3JlYXRlKCAmdGhyZWFkNSwgTlVMTCwg
-YWxsb2NfZnVuY3Rpb25fZml2ZSwgKHZvaWQqKSBtZXNzYWdlMik7CgoJcHRocmVhZF9qb2luKCB0
-aHJlYWQxLCBOVUxMKTsKCXB0aHJlYWRfam9pbiggdGhyZWFkMiwgTlVMTCk7CglwdGhyZWFkX2pv
-aW4oIHRocmVhZDMsIE5VTEwpOwoJcHRocmVhZF9qb2luKCB0aHJlYWQ0LCBOVUxMKTsKCXB0aHJl
-YWRfam9pbiggdGhyZWFkNSwgTlVMTCk7CgoJcHJpbnRmKCJUaHJlYWQgMSByZXR1cm5zOiAlZFxu
-IixpcmV0MSk7CglwcmludGYoIlRocmVhZCAyIHJldHVybnM6ICVkXG4iLGlyZXQyKTsKCXByaW50
-ZigiVGhyZWFkIDMgcmV0dXJuczogJWRcbiIsaXJldDMpOwoJcHJpbnRmKCJUaHJlYWQgNCByZXR1
-cm5zOiAlZFxuIixpcmV0NCk7CglwcmludGYoIlRocmVhZCA1IHJldHVybnM6ICVkXG4iLGlyZXQ1
-KTsKCWV4aXQoMCk7Cn0KCnZvaWQgKmFsbG9jX2Z1bmN0aW9uX3R3byggdm9pZCAqcHRyICkKewoJ
-Y2hhciAqbWVzc2FnZTsKCW1lc3NhZ2UgPSAoY2hhciAqKSBwdHI7Cgl2b2lkICpteWJsb2NrW0NP
-VU5UXTsKCWludCBpPSAwLGo9MDsKCWludCBmcmVlZD0wOwoJcHJpbnRmKCJtZXNzYWdlX2FsbG9j
-ICBcbiIpOwoJd2hpbGUoMSkKCXsKCQltZW1zZXQobXlibG9jaywwLHNpemVvZihteWJsb2NrKSk7
-CgkJcHJpbnRmKCJtZXNzYWdlX2FsbG9jICVzIFxuIixtZXNzYWdlKTsKCQlmb3IoaT0wO2k8IENP
-VU5UIDtpKyspCgkJewoJCQlteWJsb2NrW2ldID0gKHZvaWQgKikgbWFsbG9jKEFMTE9DX0JZVEUp
-OwoJCQltZW1zZXQobXlibG9ja1tpXSwxLCBBTExPQ19CWVRFKTsKCQl9Cgl9Cn0KCgp2b2lkICph
-bGxvY19mdW5jdGlvbl9vbmUoIHZvaWQgKnB0ciApCnsKCWNoYXIgKm1lc3NhZ2U7CgltZXNzYWdl
-ID0gKGNoYXIgKikgcHRyOwoJdm9pZCAqbXlibG9ja1tDT1VOVF07CglpbnQgaT0gMCxqPTA7Cglp
-bnQgZnJlZWQ9MDsKCXByaW50ZigibWVzc2FnZV9hbGxvYyAgXG4iKTsKCXdoaWxlKDEpCgl7CgkJ
-bWVtc2V0KG15YmxvY2ssMCxzaXplb2YobXlibG9jaykpOwoJCXByaW50ZigibWVzc2FnZV9hbGxv
-YyAlcyBcbiIsbWVzc2FnZSk7CgkJZm9yKGk9MDtpPCBDT1VOVCA7aSsrKQoJCXsKCQkJbXlibG9j
-a1tpXSA9ICh2b2lkICopIG1hbGxvYyhBTExPQ19CWVRFKTsKCQkJbWVtc2V0KG15YmxvY2tbaV0s
-MSwgQUxMT0NfQllURSk7CgkJfQoJfQp9Cgp2b2lkICphbGxvY19mdW5jdGlvbl90aHJlZSggdm9p
-ZCAqcHRyICkKewogICAgICAgY2hhciAqbWVzc2FnZTsKICAgICAgICBtZXNzYWdlID0gKGNoYXIg
-KikgcHRyOwogICAgICAgIHZvaWQgKm15YmxvY2tbQ09VTlRdOwogICAgICAgIGludCBpPSAwLGo9
-MDsKICAgICAgICBpbnQgZnJlZWQ9MDsKICAgICAgICBwcmludGYoIm1lc3NhZ2VfYWxsb2MgIFxu
-Iik7CiAgICAgICAgd2hpbGUoMSkKICAgICAgICB7CiAgICAgICAgICAgICAgICBtZW1zZXQobXli
-bG9jaywwLHNpemVvZihteWJsb2NrKSk7CiAgICAgICAgICAgICAgICBwcmludGYoIm1lc3NhZ2Vf
-YWxsb2MgJXMgXG4iLG1lc3NhZ2UpOwogICAgICAgICAgICAgICAgZm9yKGk9MDtpPCBDT1VOVCA7
-aSsrKQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBteWJsb2NrW2ld
-ID0gKHZvaWQgKikgbWFsbG9jKEFMTE9DX0JZVEUpOwogICAgICAgICAgICAgICAgICAgICAgICBt
-ZW1zZXQobXlibG9ja1tpXSwxLCBBTExPQ19CWVRFKTsKICAgICAgICAgICAgICAgIH0KICAgICAg
-ICB9Cn0Kdm9pZCAqYWxsb2NfZnVuY3Rpb25fZm91ciggdm9pZCAqcHRyICkKewogICAgICAgY2hh
-ciAqbWVzc2FnZTsKICAgICAgICBtZXNzYWdlID0gKGNoYXIgKikgcHRyOwogICAgICAgIHZvaWQg
-Km15YmxvY2tbQ09VTlRdOwogICAgICAgIGludCBpPSAwLGo9MDsKICAgICAgICBpbnQgZnJlZWQ9
-MDsKICAgICAgICBwcmludGYoIm1lc3NhZ2VfYWxsb2MgIFxuIik7CiAgICAgICAgd2hpbGUoMSkK
-ICAgICAgICB7CiAgICAgICAgICAgICAgICBtZW1zZXQobXlibG9jaywwLHNpemVvZihteWJsb2Nr
-KSk7CiAgICAgICAgICAgICAgICBwcmludGYoIm1lc3NhZ2VfYWxsb2MgJXMgXG4iLG1lc3NhZ2Up
-OwogICAgICAgICAgICAgICAgZm9yKGk9MDtpPCBDT1VOVCA7aSsrKQogICAgICAgICAgICAgICAg
-ewogICAgICAgICAgICAgICAgICAgICAgICBteWJsb2NrW2ldID0gKHZvaWQgKikgbWFsbG9jKEFM
-TE9DX0JZVEUpOwogICAgICAgICAgICAgICAgICAgICAgICBtZW1zZXQobXlibG9ja1tpXSwxLCBB
-TExPQ19CWVRFKTsKICAgICAgICAgICAgICAgIH0KICAgICAgICB9Cn0Kdm9pZCAqYWxsb2NfZnVu
-Y3Rpb25fZml2ZSggdm9pZCAqcHRyICkKewogICAgICAgY2hhciAqbWVzc2FnZTsKICAgICAgICBt
-ZXNzYWdlID0gKGNoYXIgKikgcHRyOwogICAgICAgIHZvaWQgKm15YmxvY2tbQ09VTlRdOwogICAg
-ICAgIGludCBpPSAwLGo9MDsKICAgICAgICBpbnQgZnJlZWQ9MDsKICAgICAgICBwcmludGYoIm1l
-c3NhZ2VfYWxsb2MgIFxuIik7CiAgICAgICAgd2hpbGUoMSkKICAgICAgICB7CiAgICAgICAgICAg
-ICAgICBtZW1zZXQobXlibG9jaywwLHNpemVvZihteWJsb2NrKSk7CiAgICAgICAgICAgICAgICBw
-cmludGYoIm1lc3NhZ2VfYWxsb2MgJXMgXG4iLG1lc3NhZ2UpOwogICAgICAgICAgICAgICAgZm9y
-KGk9MDtpPCBDT1VOVCA7aSsrKQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAg
-ICAgICBteWJsb2NrW2ldID0gKHZvaWQgKikgbWFsbG9jKEFMTE9DX0JZVEUpOwogICAgICAgICAg
-ICAgICAgICAgICAgICBtZW1zZXQobXlibG9ja1tpXSwxLCBBTExPQ19CWVRFKTsKICAgICAgICAg
-ICAgICAgIH0KICAgICAgICB9Cn0K
---0016368e2a82ddd5fa04bbac811c--
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Fight unfair telecom internet charges in Canada: sign http://stopthemeter.ca/
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+diff --git a/arch/hexagon/mm/vm_fault.c b/arch/hexagon/mm/vm_fault.c
+index c10b76f..06695cc 100644
+--- a/arch/hexagon/mm/vm_fault.c
++++ b/arch/hexagon/mm/vm_fault.c
+@@ -53,6 +53,8 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
+ 	int si_code = SEGV_MAPERR;
+ 	int fault;
+ 	const struct exception_table_entry *fixup;
++	unsigned int flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE |
++				 (cause > 0 ? FAULT_FLAG_WRITE : 0);
+ 
+ 	/*
+ 	 * If we're in an interrupt or have no user context,
+@@ -63,6 +65,7 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
+ 
+ 	local_irq_enable();
+ 
++retry:
+ 	down_read(&mm->mmap_sem);
+ 	vma = find_vma(mm, address);
+ 	if (!vma)
+@@ -96,14 +99,23 @@ good_area:
+ 		break;
+ 	}
+ 
+-	fault = handle_mm_fault(mm, vma, address, (cause > 0));
++	fault = handle_mm_fault(mm, vma, address, flags);
++
++	if ((fault & VM_FAULT_RETRY) && fatal_signal_pending(current))
++		return;
+ 
+ 	/* The most common case -- we are done. */
+ 	if (likely(!(fault & VM_FAULT_ERROR))) {
+-		if (fault & VM_FAULT_MAJOR)
+-			current->maj_flt++;
+-		else
+-			current->min_flt++;
++		if (flags & FAULT_FLAG_ALLOW_RETRY) {
++			if (fault & VM_FAULT_MAJOR)
++				current->maj_flt++;
++			else
++				current->min_flt++;
++			if (fault & VM_FAULT_RETRY) {
++				flags &= ~FAULT_FLAG_ALLOW_RETRY;
++				goto retry;
++			}
++		}
+ 
+ 		up_read(&mm->mmap_sem);
+ 		return;
+-- 
+1.7.5.4
