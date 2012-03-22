@@ -1,71 +1,47 @@
-From: Linas Vepstas <linasvepstas@gmail.com>
-Subject: Re: Hexagon binutils and gcc
-Date: Wed, 21 Mar 2012 23:34:40 -0500
-Message-ID: <CAHrUA369ZoSDg3rJ9mbpCucR5zuwGNzKjS4CsxrSRQJyr3Puog@mail.gmail.com>
-References: <27970.1332238362@redhat.com> <20120322001451.GA11553@codeaurora.org>
-Reply-To: linasvepstas@gmail.com
+From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Subject: [PATCH 2/4] mn10300/CPU hotplug: Add missing call to
+ notify_cpu_starting()
+Date: Thu, 22 Mar 2012 16:58:47 +0530
+Message-ID: <20120322112830.17063.88766.stgit@srivatsabhat.in.ibm.com>
+References: <20120322112735.17063.21791.stgit@srivatsabhat.in.ibm.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
-         :subject:to:cc:content-type:content-transfer-encoding;
-        bh=ofempSKUkkAtBIQTWRK+pkUgou+5HjBz6uykjHOyRsg=;
-        b=zhSzApA/bLOCsQ2eqHOmmdA1CY7MVVWtEpyfh3XH3dAZiEqGXCqLGK6ZtL+6qEvYJW
-         DVn0l6s07OPyEB1LMiSdg0tV6XUyTr2KM0Z4i/HCf6tgSAGIPW0pINzg6WiPdBQq6UwC
-         APe8T+8h4g6+5+wokN0xzAZDiK6tvJF67gB9lmbBWw2EvIK70ngJyNojBTIQVjNfqwr1
-         3eKjOCU+YP1wJgelQmxXlxjrXlpR+WcTxh2a8umeB0OgVDhMRGmc2z/dak9cGlFgoYVc
-         95FfENOXosSl0bYas6BMJiMhuyV9jc/+Ws/OzIfKJuB/YyWphu9TgIaTdi8flwo3wz/x
-         fzpg==
-In-Reply-To: <20120322001451.GA11553@codeaurora.org>
+In-Reply-To: <20120322112735.17063.21791.stgit@srivatsabhat.in.ibm.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="utf-8"
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: David Howells <dhowells@redhat.com>, linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: rkuo@codeaurora.org, tglx@linutronix.de, linas@codeaurora.org, mingo@elte.hu, a.p.zijlstra@chello.nl, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, akpm@linux-foundation.org, benh@kernel.crashing.org, jesper.nilsson@axis.com, cmetcalf@tilera.com, linux@arm.linux.org.uk, jejb@parisc-linux.org, deller@gmx.de, vapier@gentoo.org
+Cc: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org
 
-On 21 March 2012 19:14, Richard Kuo <rkuo@codeaurora.org> wrote:
-> On Tue, Mar 20, 2012 at 10:12:42AM +0000, David Howells wrote:
->> I'd like to add hexagon to my clutch of binutils and gcc cross-compi=
-ler RPMs,
->> but it doesn't seem to be supported upstream yet. =C2=A0Is it likely=
- to be upstream
->> in the near future, or are there patches available I could use (I'm =
-using
->> gcc-4.7 and binutils-2.22.52.0.1)?
->
-> Hi David,
->
-> We have full source and binaries available somewhere for earlier vers=
-ions of
-> gcc/binutils, but they don't exist in patch form. =C2=A0We're working=
- on upstreaming,
-> but I'm thinking it might not count as "near future" for your plans. =
-=C2=A0I will try
-> to see if I can get a better answer for you...
+The scheduler depends on receiving the CPU_STARTING notification, without
+which we end up into a lot of trouble. So add the missing call to
+notify_cpu_starting() in the bringup code.
 
-A quick google search shows:
+Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
+---
 
-https://www.codeaurora.org/patches/quic/hexagon/4.0/
+ arch/mn10300/kernel/smp.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
 
-which contains the full sources for gcc-4.4 (with hexagon in it) and
-binutils-2.20
-
-This can compile the kernel for hexagon v2, v3 and v4 just fine.
-
-There are many other directories there, and I promise you that you
-will become confused if you look at them (they are for older versions
-of gcc & binutils, but due to the numbering, this might not be
-obvious. The 2,3,4 do *not* refer to hexagon v2,3,4...).  The one
-exception to the confusion may be
-
-https://www.codeaurora.org/patches/quic/hexagon/dev/
-
-which, I'm proud to point out, has glibc patches that should apply
-cleanly to the latest brand-spanking new glibc sources (as well as
-many older sources as well), compile cleanly, and pass all but a
-handful of the glibc test suite :-) OK, that was off-topic, but its
-what I hacked on for a year...
-
--- Linas
+diff --git a/arch/mn10300/kernel/smp.c b/arch/mn10300/kernel/smp.c
+index 9242e9f..25ca7fe 100644
+--- a/arch/mn10300/kernel/smp.c
++++ b/arch/mn10300/kernel/smp.c
+@@ -875,10 +875,14 @@ static void __init smp_online(void)
+ 
+ 	cpu = smp_processor_id();
+ 
+-	local_irq_enable();
++	notify_cpu_starting(cpu);
+ 
++	ipi_call_lock();
+ 	set_cpu_online(cpu, true);
+-	smp_wmb();
++	ipi_call_unlock();
++
++	local_irq_enable();
++
+ }
+ 
+ /**
