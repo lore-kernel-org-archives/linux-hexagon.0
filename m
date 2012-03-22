@@ -1,8 +1,8 @@
 From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Subject: [PATCH 3/4] parisc/CPU hotplug: Add missing call to
+Subject: [PATCH 4/4] tile/CPU hotplug: Add missing call to
  notify_cpu_starting()
-Date: Thu, 22 Mar 2012 16:58:59 +0530
-Message-ID: <20120322112852.17063.4629.stgit@srivatsabhat.in.ibm.com>
+Date: Thu, 22 Mar 2012 16:59:11 +0530
+Message-ID: <20120322112905.17063.88829.stgit@srivatsabhat.in.ibm.com>
 References: <20120322112735.17063.21791.stgit@srivatsabhat.in.ibm.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -21,26 +21,20 @@ notify_cpu_starting() in the bringup code.
 Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
 ---
 
- arch/parisc/kernel/smp.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletions(-)
+ arch/tile/kernel/smpboot.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/arch/parisc/kernel/smp.c b/arch/parisc/kernel/smp.c
-index 32d5884..50a4581 100644
---- a/arch/parisc/kernel/smp.c
-+++ b/arch/parisc/kernel/smp.c
-@@ -297,8 +297,13 @@ smp_cpu_init(int cpunum)
+diff --git a/arch/tile/kernel/smpboot.c b/arch/tile/kernel/smpboot.c
+index b949edc..172aef7 100644
+--- a/arch/tile/kernel/smpboot.c
++++ b/arch/tile/kernel/smpboot.c
+@@ -196,6 +196,8 @@ void __cpuinit online_secondary(void)
+ 	/* This must be done before setting cpu_online_mask */
+ 	wmb();
  
- 		printk(KERN_CRIT "CPU#%d already initialized!\n", cpunum);
- 		machine_halt();
--	}  
-+	}
++	notify_cpu_starting(smp_processor_id());
 +
-+	notify_cpu_starting(cpunum);
-+
-+	ipi_call_lock();
- 	set_cpu_online(cpunum, true);
-+	ipi_call_unlock();
- 
- 	/* Initialise the idle task for this CPU */
- 	atomic_inc(&init_mm.mm_count);
+ 	/*
+ 	 * We need to hold call_lock, so there is no inconsistency
+ 	 * between the time smp_call_function() determines number of
 
