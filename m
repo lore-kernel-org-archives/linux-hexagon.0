@@ -1,27 +1,54 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 Subject: Re: [PATCH 0/4] arch/CPU hotplug: Add missing CPU Hotplug bits to
  fix nasty issues
-Date: Thu, 22 Mar 2012 13:32:38 +0100
-Message-ID: <1332419558.2487.14.camel@twins>
+Date: Thu, 22 Mar 2012 14:53:09 +0000
+Message-ID: <1332427989.2946.20.camel@dabdike.int.hansenpartnership.com>
 References: <20120322112735.17063.21791.stgit@srivatsabhat.in.ibm.com>
 	 <1332418412.2487.13.camel@twins>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 In-Reply-To: <1332418412.2487.13.camel@twins>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Cc: rkuo@codeaurora.org, tglx@linutronix.de, linas@codeaurora.org, mingo@elte.hu, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, akpm@linux-foundation.org, benh@kernel.crashing.org, jesper.nilsson@axis.com, cmetcalf@tilera.com, linux@arm.linux.org.uk, jejb@parisc-linux.org, deller@gmx.de, vapier@gentoo.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, rkuo@codeaurora.org, tglx@linutronix.de, linas@codeaurora.org, mingo@elte.hu, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, akpm@linux-foundation.org, benh@kernel.crashing.org, jesper.nilsson@axis.com, cmetcalf@tilera.com, linux@arm.linux.org.uk, jejb@parisc-linux.org, deller@gmx.de, vapier@gentoo.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org
 
 On Thu, 2012-03-22 at 13:13 +0100, Peter Zijlstra wrote:
+> On Thu, 2012-03-22 at 16:58 +0530, Srivatsa S. Bhat wrote:
+> > Commit 5fbd036b552f633abb394a319f7c62a5c86a9cd7 (sched: Cleanup cpu_active
+> > madness) introduced some changes that made the scheduler rely on the
+> > CPU_STARTING notifier. And hence those architectures which forgot to
+> > send out the CPU_STARTING notification will almost surely get into trouble.
+> > (Xen is one example[1]). 
 > 
+> The requirement is that CPU_STARTING is ran before set_cpu_online() or
+> the open-coded equivalent -- eg. blackfin gets this wrong.
+> 
+> However, it is also required that all this happens while local IRQs are
+> still disabled, since the moment we enable IRQs interrupts can happen
+> and interrupts can cause wakeups, and wakeups need to have this state
+> set up -- blackfin, cris, m32r, mips, sh, sparc64, sparc32, um?, x86 get
+> this wrong.
+> 
+> Furthermore, all archs that use CONFIG_USE_GENERIC_SMP_HELPERS should
+> hold ipi_call_lock() over setting the cpu online -- alpha, arm, m32r,
+> mips, sh, sparc32 seem wrong.
+
+So for parisc, anywhere in smp_callin() should be fine.  Our last act on
+CPU bringup before going into cpu_idle() is to enable interrupts.
+
 > Furthermore, I was pondering the scenario where a 3rd cpu IPIs the newly
 > booting cpu, I suspect we need a smp_wmb() after setting cpu_active and
 > a rmb in select_fallback_rq() before reading active.
+> 
+> All in all its a complete friggin trainwreck.
 
-Hmm, not IPI, that would be covered by the disabling of interrupts on
-bringup, but somehow manage to wake a thread that's strictly affine that
-the fresh cpu, like queue_work_on() or so.
+I haven't yet actually tried git head on parisc (and I won't be able to
+until I actually get my machines back [currently being shipped across
+the atlantic]) but if there's a problem it will show up quickly:  parisc
+actually uses cpu hotplug to boot its secondary cpus.
+
+James
 
