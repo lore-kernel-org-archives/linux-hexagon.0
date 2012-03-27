@@ -1,22 +1,46 @@
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Subject: Re: [PATCH 0/4] arch/CPU hotplug: Add missing CPU Hotplug bits to
- fix nasty issues
-Date: Thu, 22 Mar 2012 15:55:24 +0100
-Message-ID: <1332428124.2487.15.camel@twins>
-References: <20120322112735.17063.21791.stgit@srivatsabhat.in.ibm.com>
-	 <1332418412.2487.13.camel@twins>
-	 <1332427989.2946.20.camel@dabdike.int.hansenpartnership.com>
+From: Richard Kuo <rkuo@codeaurora.org>
+Subject: Re: [PATCH 11/20] hexagon/mm/vm_fault.c: Port OOM changes to
+ do_page_fault
+Date: Tue, 27 Mar 2012 11:42:53 -0500
+Message-ID: <20120327164253.GB3916@codeaurora.org>
+References: <1332249813-2970-1-git-send-email-consul.kautuk@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7BIT
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <1332427989.2946.20.camel@dabdike.int.hansenpartnership.com>
+Content-Disposition: inline
+In-Reply-To: <1332249813-2970-1-git-send-email-consul.kautuk@gmail.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, rkuo@codeaurora.org, tglx@linutronix.de, linas@codeaurora.org, mingo@elte.hu, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, akpm@linux-foundation.org, benh@kernel.crashing.org, jesper.nilsson@axis.com, cmetcalf@tilera.com, linux@arm.linux.org.uk, jejb@parisc-linux.org, deller@gmx.de, vapier@gentoo.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: Kautuk Consul <consul.kautuk@gmail.com>
+Cc: Linas Vepstas <linas@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 2012-03-22 at 14:53 +0000, James Bottomley wrote:
-> parisc actually uses cpu hotplug to boot its secondary cpus. 
+On Tue, Mar 20, 2012 at 09:23:33AM -0400, Kautuk Consul wrote:
+> Commit d065bd810b6deb67d4897a14bfe21f8eb526ba99
+> (mm: retry page fault when blocking on disk transfer) and
+> commit 37b23e0525d393d48a7d59f870b3bc061a30ccdb
+> (x86,mm: make pagefault killable)
+> 
+> The above commits introduced changes into the x86 pagefault handler
+> for making the page fault handler retryable as well as killable.
+> 
+> These changes reduce the mmap_sem hold time, which is crucial
+> during OOM killer invocation.
+> 
+> Port these changes to hexagon.
+> 
+> Signed-off-by: Kautuk Consul <consul.kautuk@gmail.com>
+> ---
+>  arch/hexagon/mm/vm_fault.c |   22 +++++++++++++++++-----
+>  1 files changed, 17 insertions(+), 5 deletions(-)
+> 
 
-I think we all do these days..
+Sorry for the delay; got around to it this morning.  Looks good; thanks!
+
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
+
+
+-- 
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
