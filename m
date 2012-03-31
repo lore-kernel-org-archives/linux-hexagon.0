@@ -1,116 +1,407 @@
-From: Kautuk Consul <consul.kautuk@gmail.com>
-Subject: Re: [PATCH 0/19 v2] mmu: arch/mm: Port OOM changes to arch page fault handlers.
-Date: Sat, 31 Mar 2012 08:15:53 -0400
-Message-ID: <CAFPAmTSkDyJUX1dCyAwUht72Kc7pkT1Uh3q9Grynb_fS7oOhAA@mail.gmail.com>
-References: <CAFPAmTQs9dOpQTaXU=6Or66YU+my_CnPw33TE4h++YArBNa38g@mail.gmail.com>
-	<CAFPAmTT19hFymnFftLkV1jQjYmJgyk3y4b-kTXO3VP1YCR-_fQ@mail.gmail.com>
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: [PATCH RFC] Simplify the Linux kernel by reducing its state space
+Date: Sun, 1 Apr 2012 00:33:21 +0800
+Message-ID: <20120331163321.GA15809@linux.vnet.ibm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=20cf30050bf029880304bc88eb62
-Return-path: <owner-linux-mm@kvack.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-         :cc:content-type;
-        bh=0Oi3wZ5LJ+Efkzs1R7kL//FlZactCdtPjlZJZK0DkLU=;
-        b=0+KllyNWu2j2lnBHVW8J9jaBSCneWhyez6OhJVfKEWGFQxMERXkLXe+xDF6bkqxtgY
-         hpZJqwcxe2o7g6+zbvQoVRiue6frXc21pgqt9N8+86VRmd9gGdFyHWsvYB5pUvC6UFCE
-         EWTSHIBpkW7YqwipyRnSHLAWhNDrrwQrdga1xueHSwKuKSJMKBXbQX89rA0dQCEVBPUL
-         D79c9QHV2w36TC3NDBx4yE6ovqsXF27qjmzt3J3/0ZYFcVhZtlluKNUlkQunG0iZ6Xo+
-         0F/PoSky3GOl+9wSq3m1BKjRdlnJ6+ya61PP9+pjO5LAER0AxO61Ij3g7/oTxOfCqmaZ
-         +biA==
-In-Reply-To: <CAFPAmTT19hFymnFftLkV1jQjYmJgyk3y4b-kTXO3VP1YCR-_fQ@mail.gmail.com>
-Sender: owner-linux-mm@kvack.org
+Return-path: <linux-alpha-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-alpha-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-To: linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux@lists.openrisc.net, linux-am33-list@redhat.com, microblaze-uclinux@itee.uq.edu.au, linux-m68k@lists.linux-m68k.org, linux-m32r-ja@ml.linux-m32r.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-cris-kernel@axis.com, linux-sh@vger.kernel.org, linux-parisc@vger.kernel.org, linux-mm@kvack.org, linux-arch@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, uclinux-dist-devel@blackfin.uclinux.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m32r@ml.linux-m32r.org, linux-m32r-ja@ml.linux-m32r.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tglx@linutronix.de, linux@arm.linux.org.uk, dhowells@redhat.com, jejb@parisc-linux.org, linux390@de.ibm.com, x86@kernel.org, cmetcalf@tilera.com
 
---20cf30050bf029880304bc88eb62
-Content-Type: text/plain; charset=ISO-8859-1
+Although there have been numerous complaints about the complexity of
+parallel programming (especially over the past 5-10 years), the plain
+truth is that the incremental complexity of parallel programming over
+that of sequential programming is not as large as is commonly believed.
+Despite that you might have heard, the mind-numbing complexity of modern
+computer systems is not due so much to there being multiple CPUs, but
+rather to there being any CPUs at all.  In short, for the ultimate in
+computer-system simplicity, the optimal choice is NR_CPUS=0.
 
-Ugh, sorry I forgot to attach the stress_32k.c test-case to this email.
+This commit therefore limits kernel builds to zero CPUs.  This change
+has the beneficial side effect of rendering all kernel bugs harmless.
+Furthermore, this commit enables additional beneficial changes, for
+example, the removal of those parts of the kernel that are not needed
+when there are zero CPUs.
 
-Please find it attached to this one.
+Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+---
 
---20cf30050bf029880304bc88eb62
-Content-Type: text/x-csrc; charset=US-ASCII; name="stress_32k.c"
-Content-Disposition: attachment; filename="stress_32k.c"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_h0gmk8do0
+ alpha/Kconfig                     |   11 ++++++-----
+ arm/Kconfig                       |    6 +++---
+ blackfin/Kconfig                  |    3 ++-
+ hexagon/Kconfig                   |    9 +++++----
+ ia64/Kconfig                      |    9 +++++----
+ m32r/Kconfig                      |   10 ++++++----
+ mips/Kconfig                      |   21 +++++++++++----------
+ mn10300/Kconfig                   |    3 ++-
+ parisc/Kconfig                    |    6 +++---
+ powerpc/platforms/Kconfig.cputype |    8 ++++----
+ s390/Kconfig                      |   12 +++++++-----
+ sh/Kconfig                        |   11 ++++++-----
+ sparc/Kconfig                     |    8 ++++----
+ tile/Kconfig                      |    9 +++++----
+ x86/Kconfig                       |   16 +++++++++-------
+ 15 files changed, 78 insertions(+), 64 deletions(-)
 
-I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxzdGRsaWIuaD4KI2luY2x1ZGUgPHN0cmluZy5o
-PgojaW5jbHVkZSA8cHRocmVhZC5oPgojaW5jbHVkZSA8dW5pc3RkLmg+CgojZGVmaW5lIEFMTE9D
-X0JZVEUgNTEyKjEwMjQKI2RlZmluZSBDT1VOVCA1MAoKdm9pZCAqYWxsb2NfZnVuY3Rpb25fb25l
-KCB2b2lkICpwdHIgKTsKdm9pZCAqYWxsb2NfZnVuY3Rpb25fdHdvKCB2b2lkICpwdHIgKTsKdm9p
-ZCAqYWxsb2NfZnVuY3Rpb25fdGhyZWUoIHZvaWQgKnB0ciApOwp2b2lkICphbGxvY19mdW5jdGlv
-bl9mb3VyKCB2b2lkICpwdHIgKTsKdm9pZCAqYWxsb2NfZnVuY3Rpb25fZml2ZSggdm9pZCAqcHRy
-ICk7CnZvaWQgKmVuYWJsZV9mdW5jdGlvbiggdm9pZCAqcHRyICk7CgoKaW50IG1haW4oaW50IGFy
-Z2MsIGNoYXIgKmFyZ3ZbXSkKewoJcHRocmVhZF90IHRocmVhZDEsIHRocmVhZDIsIHRocmVhZDMs
-IHRocmVhZDQsIHRocmVhZDU7CgljaGFyICptZXNzYWdlMSA9ICJUaHJlYWQgMSI7CgljaGFyICpt
-ZXNzYWdlMiA9ICJUaHJlYWQgMiI7CgljaGFyICptZXNzYWdlMyA9ICJUaHJlYWQgMyI7CgljaGFy
-ICptZXNzYWdlNCA9ICJUaHJlYWQgNCI7CgljaGFyICptZXNzYWdlNSA9ICJUaHJlYWQgNSI7Cglp
-bnQgaXJldDEgPSAtMTsKCWludCBpcmV0MiA9IC0xOwoJaW50IGlyZXQzID0gLTE7CglpbnQgaXJl
-dDQgPSAtMTsKCWludCBpcmV0NSA9IC0xOwoJZm9yaygpOwoJaXJldDEgPSBwdGhyZWFkX2NyZWF0
-ZSggJnRocmVhZDEsIE5VTEwsIGFsbG9jX2Z1bmN0aW9uX29uZSwgKHZvaWQqKSBtZXNzYWdlMSk7
-CglpcmV0MiA9IHB0aHJlYWRfY3JlYXRlKCAmdGhyZWFkMiwgTlVMTCwgYWxsb2NfZnVuY3Rpb25f
-dHdvLCAodm9pZCopIG1lc3NhZ2UyKTsKCWlyZXQyID0gcHRocmVhZF9jcmVhdGUoICZ0aHJlYWQz
-LCBOVUxMLCBhbGxvY19mdW5jdGlvbl90aHJlZSwgKHZvaWQqKSBtZXNzYWdlMik7CglpcmV0MiA9
-IHB0aHJlYWRfY3JlYXRlKCAmdGhyZWFkNCwgTlVMTCwgYWxsb2NfZnVuY3Rpb25fZm91ciwgKHZv
-aWQqKSBtZXNzYWdlMik7CglpcmV0MiA9IHB0aHJlYWRfY3JlYXRlKCAmdGhyZWFkNSwgTlVMTCwg
-YWxsb2NfZnVuY3Rpb25fZml2ZSwgKHZvaWQqKSBtZXNzYWdlMik7CgoJcHRocmVhZF9qb2luKCB0
-aHJlYWQxLCBOVUxMKTsKCXB0aHJlYWRfam9pbiggdGhyZWFkMiwgTlVMTCk7CglwdGhyZWFkX2pv
-aW4oIHRocmVhZDMsIE5VTEwpOwoJcHRocmVhZF9qb2luKCB0aHJlYWQ0LCBOVUxMKTsKCXB0aHJl
-YWRfam9pbiggdGhyZWFkNSwgTlVMTCk7CgoJcHJpbnRmKCJUaHJlYWQgMSByZXR1cm5zOiAlZFxu
-IixpcmV0MSk7CglwcmludGYoIlRocmVhZCAyIHJldHVybnM6ICVkXG4iLGlyZXQyKTsKCXByaW50
-ZigiVGhyZWFkIDMgcmV0dXJuczogJWRcbiIsaXJldDMpOwoJcHJpbnRmKCJUaHJlYWQgNCByZXR1
-cm5zOiAlZFxuIixpcmV0NCk7CglwcmludGYoIlRocmVhZCA1IHJldHVybnM6ICVkXG4iLGlyZXQ1
-KTsKCWV4aXQoMCk7Cn0KCnZvaWQgKmFsbG9jX2Z1bmN0aW9uX3R3byggdm9pZCAqcHRyICkKewoJ
-Y2hhciAqbWVzc2FnZTsKCW1lc3NhZ2UgPSAoY2hhciAqKSBwdHI7Cgl2b2lkICpteWJsb2NrW0NP
-VU5UXTsKCWludCBpPSAwLGo9MDsKCWludCBmcmVlZD0wOwoJcHJpbnRmKCJtZXNzYWdlX2FsbG9j
-ICBcbiIpOwoJd2hpbGUoMSkKCXsKCQltZW1zZXQobXlibG9jaywwLHNpemVvZihteWJsb2NrKSk7
-CgkJcHJpbnRmKCJtZXNzYWdlX2FsbG9jICVzIFxuIixtZXNzYWdlKTsKCQlmb3IoaT0wO2k8IENP
-VU5UIDtpKyspCgkJewoJCQlteWJsb2NrW2ldID0gKHZvaWQgKikgbWFsbG9jKEFMTE9DX0JZVEUp
-OwoJCQltZW1zZXQobXlibG9ja1tpXSwxLCBBTExPQ19CWVRFKTsKCQl9Cgl9Cn0KCgp2b2lkICph
-bGxvY19mdW5jdGlvbl9vbmUoIHZvaWQgKnB0ciApCnsKCWNoYXIgKm1lc3NhZ2U7CgltZXNzYWdl
-ID0gKGNoYXIgKikgcHRyOwoJdm9pZCAqbXlibG9ja1tDT1VOVF07CglpbnQgaT0gMCxqPTA7Cglp
-bnQgZnJlZWQ9MDsKCXByaW50ZigibWVzc2FnZV9hbGxvYyAgXG4iKTsKCXdoaWxlKDEpCgl7CgkJ
-bWVtc2V0KG15YmxvY2ssMCxzaXplb2YobXlibG9jaykpOwoJCXByaW50ZigibWVzc2FnZV9hbGxv
-YyAlcyBcbiIsbWVzc2FnZSk7CgkJZm9yKGk9MDtpPCBDT1VOVCA7aSsrKQoJCXsKCQkJbXlibG9j
-a1tpXSA9ICh2b2lkICopIG1hbGxvYyhBTExPQ19CWVRFKTsKCQkJbWVtc2V0KG15YmxvY2tbaV0s
-MSwgQUxMT0NfQllURSk7CgkJfQoJfQp9Cgp2b2lkICphbGxvY19mdW5jdGlvbl90aHJlZSggdm9p
-ZCAqcHRyICkKewogICAgICAgY2hhciAqbWVzc2FnZTsKICAgICAgICBtZXNzYWdlID0gKGNoYXIg
-KikgcHRyOwogICAgICAgIHZvaWQgKm15YmxvY2tbQ09VTlRdOwogICAgICAgIGludCBpPSAwLGo9
-MDsKICAgICAgICBpbnQgZnJlZWQ9MDsKICAgICAgICBwcmludGYoIm1lc3NhZ2VfYWxsb2MgIFxu
-Iik7CiAgICAgICAgd2hpbGUoMSkKICAgICAgICB7CiAgICAgICAgICAgICAgICBtZW1zZXQobXli
-bG9jaywwLHNpemVvZihteWJsb2NrKSk7CiAgICAgICAgICAgICAgICBwcmludGYoIm1lc3NhZ2Vf
-YWxsb2MgJXMgXG4iLG1lc3NhZ2UpOwogICAgICAgICAgICAgICAgZm9yKGk9MDtpPCBDT1VOVCA7
-aSsrKQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICBteWJsb2NrW2ld
-ID0gKHZvaWQgKikgbWFsbG9jKEFMTE9DX0JZVEUpOwogICAgICAgICAgICAgICAgICAgICAgICBt
-ZW1zZXQobXlibG9ja1tpXSwxLCBBTExPQ19CWVRFKTsKICAgICAgICAgICAgICAgIH0KICAgICAg
-ICB9Cn0Kdm9pZCAqYWxsb2NfZnVuY3Rpb25fZm91ciggdm9pZCAqcHRyICkKewogICAgICAgY2hh
-ciAqbWVzc2FnZTsKICAgICAgICBtZXNzYWdlID0gKGNoYXIgKikgcHRyOwogICAgICAgIHZvaWQg
-Km15YmxvY2tbQ09VTlRdOwogICAgICAgIGludCBpPSAwLGo9MDsKICAgICAgICBpbnQgZnJlZWQ9
-MDsKICAgICAgICBwcmludGYoIm1lc3NhZ2VfYWxsb2MgIFxuIik7CiAgICAgICAgd2hpbGUoMSkK
-ICAgICAgICB7CiAgICAgICAgICAgICAgICBtZW1zZXQobXlibG9jaywwLHNpemVvZihteWJsb2Nr
-KSk7CiAgICAgICAgICAgICAgICBwcmludGYoIm1lc3NhZ2VfYWxsb2MgJXMgXG4iLG1lc3NhZ2Up
-OwogICAgICAgICAgICAgICAgZm9yKGk9MDtpPCBDT1VOVCA7aSsrKQogICAgICAgICAgICAgICAg
-ewogICAgICAgICAgICAgICAgICAgICAgICBteWJsb2NrW2ldID0gKHZvaWQgKikgbWFsbG9jKEFM
-TE9DX0JZVEUpOwogICAgICAgICAgICAgICAgICAgICAgICBtZW1zZXQobXlibG9ja1tpXSwxLCBB
-TExPQ19CWVRFKTsKICAgICAgICAgICAgICAgIH0KICAgICAgICB9Cn0Kdm9pZCAqYWxsb2NfZnVu
-Y3Rpb25fZml2ZSggdm9pZCAqcHRyICkKewogICAgICAgY2hhciAqbWVzc2FnZTsKICAgICAgICBt
-ZXNzYWdlID0gKGNoYXIgKikgcHRyOwogICAgICAgIHZvaWQgKm15YmxvY2tbQ09VTlRdOwogICAg
-ICAgIGludCBpPSAwLGo9MDsKICAgICAgICBpbnQgZnJlZWQ9MDsKICAgICAgICBwcmludGYoIm1l
-c3NhZ2VfYWxsb2MgIFxuIik7CiAgICAgICAgd2hpbGUoMSkKICAgICAgICB7CiAgICAgICAgICAg
-ICAgICBtZW1zZXQobXlibG9jaywwLHNpemVvZihteWJsb2NrKSk7CiAgICAgICAgICAgICAgICBw
-cmludGYoIm1lc3NhZ2VfYWxsb2MgJXMgXG4iLG1lc3NhZ2UpOwogICAgICAgICAgICAgICAgZm9y
-KGk9MDtpPCBDT1VOVCA7aSsrKQogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAg
-ICAgICBteWJsb2NrW2ldID0gKHZvaWQgKikgbWFsbG9jKEFMTE9DX0JZVEUpOwogICAgICAgICAg
-ICAgICAgICAgICAgICBtZW1zZXQobXlibG9ja1tpXSwxLCBBTExPQ19CWVRFKTsKICAgICAgICAg
-ICAgICAgIH0KICAgICAgICB9Cn0K
---20cf30050bf029880304bc88eb62--
+diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+index 56a4df9..1766b4a 100644
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -541,14 +541,15 @@ config HAVE_DEC_LOCK
+ 	default y
+ 
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-32)"
+-	range 2 32
++	int "Maximum number of CPUs (0-0)"
++	range 0 0
+ 	depends on SMP
+-	default "32" if ALPHA_GENERIC || ALPHA_MARVEL
+-	default "4" if !ALPHA_GENERIC && !ALPHA_MARVEL
++	default "0" if ALPHA_GENERIC || ALPHA_MARVEL
++	default "0" if !ALPHA_GENERIC && !ALPHA_MARVEL
+ 	help
+ 	  MARVEL support can handle a maximum of 32 CPUs, all the others
+-          with working support have a maximum of 4 CPUs.
++          with working support have a maximum of 4 CPUs.  But why take
++	  chances?  Just stick with zero CPUs.
+ 
+ config ARCH_DISCONTIGMEM_ENABLE
+ 	bool "Discontiguous Memory Support (EXPERIMENTAL)"
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index a48aecc..1f07a3a 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1551,10 +1551,10 @@ config PAGE_OFFSET
+ 	default 0xC0000000
+ 
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-32)"
+-	range 2 32
++	int "Maximum number of CPUs (0-0)"
++	range 0 0
+ 	depends on SMP
+-	default "4"
++	default "0"
+ 
+ config HOTPLUG_CPU
+ 	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
+diff --git a/arch/blackfin/Kconfig b/arch/blackfin/Kconfig
+index abe5a9e..6a78549 100644
+--- a/arch/blackfin/Kconfig
++++ b/arch/blackfin/Kconfig
+@@ -241,7 +241,8 @@ config SMP
+ config NR_CPUS
+ 	int
+ 	depends on SMP
+-	default 2 if BF561
++	range 0 0
++	default 0 if BF561
+ 
+ config HOTPLUG_CPU
+ 	bool "Support for hot-pluggable CPUs"
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index 9059e39..daab009 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -158,13 +158,14 @@ config SMP
+ 
+ config NR_CPUS
+ 	int "Maximum number of CPUs" if SMP
+-	range 2 6 if SMP
+-	default "1" if !SMP
+-	default "6" if SMP
++	range 0 0 if SMP
++	default "0" if !SMP
++	default "0" if SMP
+ 	---help---
+ 	  This allows you to specify the maximum number of CPUs which this
+ 	  kernel will support.  The maximum supported value is 6 and the
+-	  minimum value which makes sense is 2.
++	  minimum value which makes sense is 2.  But a limit of zero is
++	  so much safer!
+ 
+ 	  This is purely to save memory - each supported CPU adds
+ 	  approximately eight kilobytes to the kernel image.
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+index bd72669..fea0e6d 100644
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -373,16 +373,17 @@ config SMP
+ 	  If you don't know what to do here, say N.
+ 
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-4096)"
+-	range 2 4096
++	int "Maximum number of CPUs (0-0)"
++	range 0 0
+ 	depends on SMP
+-	default "4096"
++	default "0"
+ 	help
+ 	  You should set this to the number of CPUs in your system, but
+ 	  keep in mind that a kernel compiled for, e.g., 2 CPUs will boot but
+ 	  only use 2 CPUs on a >2 CPU system.  Setting this to a value larger
+ 	  than 64 will cause the use of a CPU mask array, causing a small
+-	  performance hit.
++	  performance hit.  And setting it larger than zero risks all
++	  manner of software bugs, so we just play it safe.
+ 
+ config HOTPLUG_CPU
+ 	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
+diff --git a/arch/m32r/Kconfig b/arch/m32r/Kconfig
+index ef80a65..68b9e88 100644
+--- a/arch/m32r/Kconfig
++++ b/arch/m32r/Kconfig
+@@ -300,14 +300,16 @@ config CHIP_M32700_TS1
+ 	default n
+ 
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-32)"
+-	range 2 32
++	int "Maximum number of CPUs (0-0)"
++	range 0 0
+ 	depends on SMP
+-	default "2"
++	default "0"
+ 	help
+ 	  This allows you to specify the maximum number of CPUs which this
+ 	  kernel will support.  The maximum supported value is 32 and the
+-	  minimum value which makes sense is 2.
++	  minimum value which makes sense is 2.  Zero may not make sense,
++	  but given that there is much in this world that does not make
++	  sense, zero it is!
+ 
+ 	  This is purely to save memory - each supported CPU adds
+ 	  approximately eight kilobytes to the kernel image.
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 5ab6e89..3d7d06c 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -2192,16 +2192,16 @@ config NR_CPUS_DEFAULT_64
+ 	bool
+ 
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-64)"
+-	range 1 64 if NR_CPUS_DEFAULT_1
++	int "Maximum number of CPUs (0-0)"
++	range 0 0 if NR_CPUS_DEFAULT_1
+ 	depends on SMP
+-	default "1" if NR_CPUS_DEFAULT_1
+-	default "2" if NR_CPUS_DEFAULT_2
+-	default "4" if NR_CPUS_DEFAULT_4
+-	default "8" if NR_CPUS_DEFAULT_8
+-	default "16" if NR_CPUS_DEFAULT_16
+-	default "32" if NR_CPUS_DEFAULT_32
+-	default "64" if NR_CPUS_DEFAULT_64
++	default "0" if NR_CPUS_DEFAULT_1
++	default "0" if NR_CPUS_DEFAULT_2
++	default "0" if NR_CPUS_DEFAULT_4
++	default "0" if NR_CPUS_DEFAULT_8
++	default "0" if NR_CPUS_DEFAULT_16
++	default "0" if NR_CPUS_DEFAULT_32
++	default "0" if NR_CPUS_DEFAULT_64
+ 	help
+ 	  This allows you to specify the maximum number of CPUs which this
+ 	  kernel will support.  The maximum supported value is 32 for 32-bit
+@@ -2212,7 +2212,8 @@ config NR_CPUS
+ 	  This is purely to save memory - each supported CPU adds
+ 	  approximately eight kilobytes to the kernel image.  For best
+ 	  performance should round up your number of processors to the next
+-	  power of two.
++	  power of two.  And just think how much more memory we will
++	  save by setting the limit to zero!
+ 
+ source "kernel/time/Kconfig"
+ 
+diff --git a/arch/mn10300/Kconfig b/arch/mn10300/Kconfig
+index 8f1c40d..85fc112 100644
+--- a/arch/mn10300/Kconfig
++++ b/arch/mn10300/Kconfig
+@@ -201,7 +201,8 @@ config SMP
+ config NR_CPUS
+ 	int
+ 	depends on SMP
+-	default "2"
++	range 0 0
++	default "0"
+ 
+ source "kernel/Kconfig.preempt"
+ 
+diff --git a/arch/parisc/Kconfig b/arch/parisc/Kconfig
+index 242a1b7..358eaf8 100644
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -254,10 +254,10 @@ config HPUX
+ 	depends on !64BIT
+ 
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-32)"
+-	range 2 32
++	int "Maximum number of CPUs (0-0)"
++	range 0 0
+ 	depends on SMP
+-	default "32"
++	default "0"
+ 
+ endmenu
+ 
+diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
+index 425db18..5e607e0 100644
+--- a/arch/powerpc/platforms/Kconfig.cputype
++++ b/arch/powerpc/platforms/Kconfig.cputype
+@@ -356,11 +356,11 @@ config SMP
+ 	  If you don't know what to do here, say N.
+ 
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-8192)"
+-	range 2 8192
++	int "Maximum number of CPUs (0-0)"
++	range 0 0
+ 	depends on SMP
+-	default "32" if PPC64
+-	default "4"
++	default "0" if PPC64
++	default "0"
+ 
+ config NOT_COHERENT_CACHE
+ 	bool
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index d172758..f9bc067 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -169,15 +169,17 @@ config SMP
+ 	  Even if you don't know what to do here, say Y.
+ 
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-64)"
+-	range 2 64
++	int "Maximum number of CPUs (0-0)"
++	range 0 0
+ 	depends on SMP
+-	default "32" if !64BIT
+-	default "64" if 64BIT
++	default "0" if !64BIT
++	default "0" if 64BIT
+ 	help
+ 	  This allows you to specify the maximum number of CPUs which this
+ 	  kernel will support.  The maximum supported value is 64 and the
+-	  minimum value which makes sense is 2.
++	  minimum value which makes sense is 2.  The minimal value that
++	  makes sense might well be 2, but we all know that the only
++	  -sane- value is zero!
+ 
+ 	  This is purely to save memory - each supported CPU adds
+ 	  approximately sixteen kilobytes to the kernel image.
+diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+index 713fb58..5ddc7c0 100644
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -705,18 +705,19 @@ config SMP
+ 	  If you don't know what to do here, say N.
+ 
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-32)"
+-	range 2 32
++	int "Maximum number of CPUs (0-0)"
++	range 0 0
+ 	depends on SMP
+-	default "4" if CPU_SUBTYPE_SHX3
+-	default "2"
++	default "0" if CPU_SUBTYPE_SHX3
++	default "0"
+ 	help
+ 	  This allows you to specify the maximum number of CPUs which this
+ 	  kernel will support.  The maximum supported value is 32 and the
+ 	  minimum value which makes sense is 2.
+ 
+ 	  This is purely to save memory - each supported CPU adds
+-	  approximately eight kilobytes to the kernel image.
++	  approximately eight kilobytes to the kernel image.  Debloating
++	  is the way, NR_CPUS to zero today!!!
+ 
+ config HOTPLUG_CPU
+ 	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index ca5580e..0de9f0f 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -177,10 +177,10 @@ config SMP
+ config NR_CPUS
+ 	int "Maximum number of CPUs"
+ 	depends on SMP
+-	range 2 32 if SPARC32
+-	range 2 1024 if SPARC64
+-	default 32 if SPARC32
+-	default 64 if SPARC64
++	range 0 0 if SPARC32
++	range 0 0 if SPARC64
++	default 0 if SPARC32
++	default 0 if SPARC64
+ 
+ source kernel/Kconfig.hz
+ 
+diff --git a/arch/tile/Kconfig b/arch/tile/Kconfig
+index 11270ca..a05112c 100644
+--- a/arch/tile/Kconfig
++++ b/arch/tile/Kconfig
+@@ -126,14 +126,15 @@ source "init/Kconfig"
+ menu "Tilera-specific configuration"
+ 
+ config NR_CPUS
+-	int "Maximum number of tiles (2-255)"
+-	range 2 255
++	int "Maximum number of tiles (0-0)"
++	range 0 0
+ 	depends on SMP
+-	default "64"
++	default "0"
+ 	---help---
+ 	  Building with 64 is the recommended value, but a slightly
+ 	  smaller kernel memory footprint results from using a smaller
+-	  value on chips with fewer tiles.
++	  value on chips with fewer tiles.  To minimize both memory
++	  footprint and bugs, use zero and only zero.
+ 
+ source "kernel/time/Kconfig"
+ 
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 5bed94e..a6977f2 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -773,19 +773,21 @@ config MAXSMP
+ 
+ config NR_CPUS
+ 	int "Maximum number of CPUs" if SMP && !MAXSMP
+-	range 2 8 if SMP && X86_32 && !X86_BIGSMP
+-	range 2 512 if SMP && !MAXSMP
+-	default "1" if !SMP
+-	default "4096" if MAXSMP
+-	default "32" if SMP && (X86_NUMAQ || X86_SUMMIT || X86_BIGSMP || X86_ES7000)
+-	default "8" if SMP
++	range 0 0 if SMP && X86_32 && !X86_BIGSMP
++	range 0 0 if SMP && !MAXSMP
++	default "0" if !SMP
++	default "0" if MAXSMP
++	default "0" if SMP && (X86_NUMAQ || X86_SUMMIT || X86_BIGSMP || X86_ES7000)
++	default "0" if SMP
+ 	---help---
+ 	  This allows you to specify the maximum number of CPUs which this
+ 	  kernel will support.  The maximum supported value is 512 and the
+ 	  minimum value which makes sense is 2.
+ 
+ 	  This is purely to save memory - each supported CPU adds
+-	  approximately eight kilobytes to the kernel image.
++	  approximately eight kilobytes to the kernel image.  But
++	  the first supported CPU brings a lot of bugs with it, so
++	  for ultimate reliability, set the number of CPUs to zero.
+ 
+ config SCHED_SMT
+ 	bool "SMT (Hyperthreading) scheduler support"
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Fight unfair telecom internet charges in Canada: sign http://stopthemeter.ca/
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
