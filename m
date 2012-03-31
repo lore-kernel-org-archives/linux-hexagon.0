@@ -1,45 +1,67 @@
 From: Kautuk Consul <consul.kautuk@gmail.com>
-Subject: Re: [PATCH 11/20] hexagon/mm/vm_fault.c: Port OOM changes to do_page_fault
-Date: Sat, 31 Mar 2012 06:11:40 -0400
-Message-ID: <CAFPAmTS81+KabiuD-yWRHwwbM9-g2JwywZUChX0QyE2NiBhZnA@mail.gmail.com>
-References: <1332249813-2970-1-git-send-email-consul.kautuk@gmail.com>
-	<20120327164253.GB3916@codeaurora.org>
+Subject: [PATCH 0/19 v2] mmu: arch/mm: Port OOM changes to arch page fault handlers.
+Date: Sat, 31 Mar 2012 07:58:04 -0400
+Message-ID: <CAFPAmTT19hFymnFftLkV1jQjYmJgyk3y4b-kTXO3VP1YCR-_fQ@mail.gmail.com>
+References: <CAFPAmTQs9dOpQTaXU=6Or66YU+my_CnPw33TE4h++YArBNa38g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-m68k-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20120113;
         h=mime-version:in-reply-to:references:date:message-id:subject:from:to
-         :cc:content-type:content-transfer-encoding;
-        bh=fZ+wgLRYazuwZ9ss6XV+wSbEcA57vhqvveUqapJfsIk=;
-        b=HpR1yk9mhqvILISV2AVtDQGIzxlEcgDS1ie199t3BGlZPnPHHBSN/f1lY1aeK93bEQ
-         auljbG1mAOW9/GffZHqf81of9jQc4btDG7RuXApe6Bvs4z8TarD3gKR3mOKgzkVWzkv3
-         w3GRhUPSJRITdYLqd9eTEQ4XCXSnlzMZxnNfaeU+z/AWWsl96DKIMQWUS5VB5m2Rmasf
-         UL09K5KGHs6uYvXF6R46RjtyL/QpkKvXz+UvlRXw3zw+Q1dzDETb9xelfWg4CdIUl7Cc
-         4NFhmTqziKuSsDvDmSx/WCawzaupqYQJIW/UzlCIRcwkpRE+iPomLwN2CqpJlDgWSKey
-         5E2Q==
-In-Reply-To: <20120327164253.GB3916@codeaurora.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+         :cc:content-type;
+        bh=oudsvfZO9ETL3UihnWaI8rM0Wvpu5zYKBsSsSewgKw8=;
+        b=wHJkM/g/YcWX/BiDqlFGIQh1LZ9NXqVpX2Ra+8cPYARa9MIQa5lHNxOb3o9iBfEa6u
+         Ly10UvsAKyH0HvLCOKu5YXgkxRNyyWpAsSHagEaR/799Cbvhgg9TY/qKmKIK0pkHVGUp
+         eE31Px3jxQrp+AFZ52AtHJyLx9W1Oq/2JZ/uXUFbZMvUd4lE5H1bEzTxybdQ0rI1GZeT
+         /cUqK4NwfuM2Q8VL7egvldF7FJH4KKacmbS1bPB68eGjpNS75fZEg1lbDGB6wSyBPEqL
+         2U9dAy//MQyB/hRK+EFhrl23ACHAHijbBaoTu1XB/tx5I8LIn5wZgmpwOa+2Y0ZQ4nS3
+         Qd7w==
+In-Reply-To: <CAFPAmTQs9dOpQTaXU=6Or66YU+my_CnPw33TE4h++YArBNa38g@mail.gmail.com>
+Sender: linux-m68k-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="iso-8859-1"
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: Linas Vepstas <linas@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux@lists.openrisc.net, linux-am33-list@redhat.com, microblaze-uclinux@itee.uq.edu.au, linux-m68k@lists.linux-m68k.org, linux-m32r-ja@ml.linux-m32r.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-cris-kernel@axis.com, linux-sh@vger.kernel.org, linux-parisc@vger.kernel.org, linux-mm@kvack.org, linux-arch@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
->
-> Sorry for the delay; got around to it this morning. =A0Looks good; th=
-anks!
->
+Commit d065bd810b6deb67d4897a14bfe21f8eb526ba99
+(mm: retry page fault when blocking on disk transfer) and
+commit 37b23e0525d393d48a7d59f870b3bc061a30ccdb
+(x86,mm: make pagefault killable)
 
-No problem at all.
+The above commits introduced changes into the x86 pagefault handler
+for making the page fault handler retryable as well as killable.
 
-> Acked-by: Richard Kuo <rkuo@codeaurora.org>
->
+These changes reduce the mmap_sem hold time, which is crucial
+during OOM killer invocation.
 
-And thanks for the ACK.
+I was facing hang and livelock problems on my ARM and MIPS boards when
+I invoked OOM by running the stress_32k.c test-case attached to this email.
 
->
-> --
->
-> Sent by an employee of the Qualcomm Innovation Center, Inc.
-> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora F=
-orum.
+Since both the ARM and MIPS porting changes were accepted, me and my
+co-worker decided to take the initiative to port these changes to all other
+MMU based architectures.
+
+This is v2 of this patch set as there were some problems with the v1 of this
+patchset:
+- Whitespace issues as reported by David Miller and Joe Perches
+- In 2 of the patches, the write(or equivalent) local variable has
+been removed from the
+  page fault handler because it is not really needed anymore with the
+advent of the "flags"
+  local variable. Thanks to Geert Uytterhoeven for that.
+- The powerpc patch for this has been removed as this has already been
+done by someone
+  else for powerpc.
+
+At the moment, 8 of these patches have Acked these patches as valid.
+I have included their ACKed-By headers for them in their respective
+arch patches.
+
+And thanks to Guan Xuetao for actually testing this out on unicore32.
+
+Rest of the arch owners: Please review these patches.
+
+Signed-off-by: Mohd. Faris <mohdfarisq2010@gmail.com>
+Signed-off-by: Kautuk Consul <consul.kautuk@gmail.com>
+---
