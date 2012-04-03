@@ -1,45 +1,37 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH 3/12] arch/hexagon: remove references to cpu_*_map.
-Date: Tue, 3 Apr 2012 16:02:41 -0500
-Message-ID: <20120403210241.GA20924@codeaurora.org>
-References: <1329281884.32535.rusty@rustcorp.com.au>
- <20120403184608.GA23183@codeaurora.org>
+Subject: Re: [PATCH 1/4] hexagon/CPU hotplug: Add missing call to
+ notify_cpu_starting()
+Date: Tue, 3 Apr 2012 16:09:38 -0500
+Message-ID: <20120403210938.GA20952@codeaurora.org>
+References: <20120322112735.17063.21791.stgit@srivatsabhat.in.ibm.com>
+ <20120322112805.17063.19393.stgit@srivatsabhat.in.ibm.com>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20120403184608.GA23183@codeaurora.org>
+In-Reply-To: <20120322112805.17063.19393.stgit@srivatsabhat.in.ibm.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Cc: tglx@linutronix.de, linas@codeaurora.org, mingo@elte.hu, a.p.zijlstra@chello.nl, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, akpm@linux-foundation.org, benh@kernel.crashing.org, jesper.nilsson@axis.com, cmetcalf@tilera.com, linux@arm.linux.org.uk, jejb@parisc-linux.org, deller@gmx.de, vapier@gentoo.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org
 
-On Tue, Apr 03, 2012 at 01:46:08PM -0500, Richard Kuo wrote:
-> On Wed, Feb 15, 2012 at 03:28:04PM +1030, Rusty Russell wrote:
-> > From: Rusty Russell <rusty@rustcorp.com.au>
-> > 
-> > This has been obsolescent for a while; time for the final push.
-> > 
-> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > Cc: Richard Kuo <rkuo@codeaurora.org>
-> > Cc: linux-hexagon@vger.kernel.org
-> > ---
-> >  arch/hexagon/kernel/smp.c |    8 ++++----
-> >  1 file changed, 4 insertions(+), 4 deletions(-)
-> > 
+On Thu, Mar 22, 2012 at 04:58:25PM +0530, Srivatsa S. Bhat wrote:
+> The scheduler depends on receiving the CPU_STARTING notification, without
+> which we end up into a lot of trouble. So add the missing call to
+> notify_cpu_starting() in the bringup code.
 > 
-> Did I ever send a Signed-off-by for this?  I thought I did but I can't
-> find evidence of it.  Just in case...
+> Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
+> ---
 > 
+>  arch/hexagon/kernel/smp.c |    5 +++++
+>  1 files changed, 5 insertions(+), 0 deletions(-)
 > 
-> Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
 
+Tested in my tree; thanks!
 
-And, sorry about that, I really meant...
 
 Acked-by: Richard Kuo <rkuo@codeaurora.org>
-
 
 
 -- 
