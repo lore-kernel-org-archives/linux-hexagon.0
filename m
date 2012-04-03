@@ -1,31 +1,48 @@
-From: Chris Metcalf <cmetcalf@tilera.com>
-Subject: Re: [PATCH 4/4] tile/CPU hotplug: Add missing call to notify_cpu_starting()
-Date: Tue, 3 Apr 2012 15:48:12 -0400
-Message-ID: <4F7B53FC.7030606@tilera.com>
-References: <20120322112735.17063.21791.stgit@srivatsabhat.in.ibm.com> <20120322112905.17063.88829.stgit@srivatsabhat.in.ibm.com>
+From: Richard Kuo <rkuo@codeaurora.org>
+Subject: Re: [PATCH 3/12] arch/hexagon: remove references to cpu_*_map.
+Date: Tue, 3 Apr 2012 16:02:41 -0500
+Message-ID: <20120403210241.GA20924@codeaurora.org>
+References: <1329281884.32535.rusty@rustcorp.com.au>
+ <20120403184608.GA23183@codeaurora.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20120322112905.17063.88829.stgit@srivatsabhat.in.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <20120403184608.GA23183@codeaurora.org>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Cc: rkuo@codeaurora.org, tglx@linutronix.de, linas@codeaurora.org, mingo@elte.hu, a.p.zijlstra@chello.nl, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, akpm@linux-foundation.org, benh@kernel.crashing.org, jesper.nilsson@axis.com, linux@arm.linux.org.uk, jejb@parisc-linux.org, deller@gmx.de, vapier@gentoo.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 3/22/2012 7:29 AM, Srivatsa S. Bhat wrote:
-> The scheduler depends on receiving the CPU_STARTING notification, without
-> which we end up into a lot of trouble. So add the missing call to
-> notify_cpu_starting() in the bringup code.
->
-> Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
-> ---
->
->  arch/tile/kernel/smpboot.c |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
+On Tue, Apr 03, 2012 at 01:46:08PM -0500, Richard Kuo wrote:
+> On Wed, Feb 15, 2012 at 03:28:04PM +1030, Rusty Russell wrote:
+> > From: Rusty Russell <rusty@rustcorp.com.au>
+> > 
+> > This has been obsolescent for a while; time for the final push.
+> > 
+> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> > Cc: Richard Kuo <rkuo@codeaurora.org>
+> > Cc: linux-hexagon@vger.kernel.org
+> > ---
+> >  arch/hexagon/kernel/smp.c |    8 ++++----
+> >  1 file changed, 4 insertions(+), 4 deletions(-)
+> > 
+> 
+> Did I ever send a Signed-off-by for this?  I thought I did but I can't
+> find evidence of it.  Just in case...
+> 
+> 
+> Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
 
-Thanks!  Taken into the tile tree.
+
+And, sorry about that, I really meant...
+
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
+
+
 
 -- 
-Chris Metcalf, Tilera Corp.
-http://www.tilera.com
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
