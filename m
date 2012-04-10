@@ -1,40 +1,45 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH 1/4] hexagon/CPU hotplug: Add missing call to
- notify_cpu_starting()
-Date: Tue, 3 Apr 2012 16:09:38 -0500
-Message-ID: <20120403210938.GA20952@codeaurora.org>
-References: <20120322112735.17063.21791.stgit@srivatsabhat.in.ibm.com>
- <20120322112805.17063.19393.stgit@srivatsabhat.in.ibm.com>
+From: Jesper Juhl <jj@chaosbits.net>
+Subject: [PATCH][resend] hexagon: Remove unneeded include of version.h
+Date: Tue, 10 Apr 2012 23:37:23 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1204102333460.31626@swampdragon.chaosbits.net>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20120322112805.17063.19393.stgit@srivatsabhat.in.ibm.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Cc: tglx@linutronix.de, linas@codeaurora.org, mingo@elte.hu, a.p.zijlstra@chello.nl, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, akpm@linux-foundation.org, benh@kernel.crashing.org, jesper.nilsson@axis.com, cmetcalf@tilera.com, linux@arm.linux.org.uk, jejb@parisc-linux.org, deller@gmx.de, vapier@gentoo.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-am33-list@redhat.com, linux-parisc@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Linas Vepstas <linasvepstas@gmail.com>, trivial@kernel.org
 
-On Thu, Mar 22, 2012 at 04:58:25PM +0530, Srivatsa S. Bhat wrote:
-> The scheduler depends on receiving the CPU_STARTING notification, without
-> which we end up into a lot of trouble. So add the missing call to
-> notify_cpu_starting() in the bringup code.
-> 
-> Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
-> ---
-> 
->  arch/hexagon/kernel/smp.c |    5 +++++
->  1 files changed, 5 insertions(+), 0 deletions(-)
-> 
+"make versioncheck" points out that arch/hexagon/include/asm/spinlock_types.h
+does not need to include version.h .
+A quick look at the file seems to confirm its findings, so here's a patch that
+removes the include.
 
-Tested in my tree; thanks!
+Signed-off-by: Jesper Juhl <jj@chaosbits.net>
+Acked-by: Linas Vepstas <linasvepstas@gmail.com>
+---
+ arch/hexagon/include/asm/spinlock_types.h |    2 --
+ 1 file changed, 2 deletions(-)
 
-
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
+diff --git a/arch/hexagon/include/asm/spinlock_types.h b/arch/hexagon/include/asm/spinlock_types.h
+index 5e937af..99b5a75 100644
+--- a/arch/hexagon/include/asm/spinlock_types.h
++++ b/arch/hexagon/include/asm/spinlock_types.h
+@@ -21,8 +21,6 @@
+ #ifndef _ASM_SPINLOCK_TYPES_H
+ #define _ASM_SPINLOCK_TYPES_H
+ 
+-#include <linux/version.h>
+-
+ #ifndef __LINUX_SPINLOCK_TYPES_H
+ # error "please don't include this file directly"
+ #endif
+-- 
+1.7.10
 
 
 -- 
-
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
+Don't top-post http://www.catb.org/jargon/html/T/top-post.html
+Plain text mails only, please.
