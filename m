@@ -1,45 +1,35 @@
-From: Jesper Juhl <jj@chaosbits.net>
-Subject: [PATCH][resend] hexagon: Remove unneeded include of version.h
-Date: Tue, 10 Apr 2012 23:37:23 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1204102333460.31626@swampdragon.chaosbits.net>
+From: Richard Kuo <rkuo@codeaurora.org>
+Subject: Re: [PATCH][resend] hexagon: Remove unneeded include of version.h
+Date: Tue, 10 Apr 2012 16:53:57 -0500
+Message-ID: <20120410215356.GA2513@codeaurora.org>
+References: <alpine.LNX.2.00.1204102333460.31626@swampdragon.chaosbits.net>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1204102333460.31626@swampdragon.chaosbits.net>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: TEXT/PLAIN; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: linux-kernel@vger.kernel.org
-Cc: linux-hexagon@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Linas Vepstas <linasvepstas@gmail.com>, trivial@kernel.org
+To: Jesper Juhl <jj@chaosbits.net>
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>, Linas Vepstas <linasvepstas@gmail.com>, trivial@kernel.org
 
-"make versioncheck" points out that arch/hexagon/include/asm/spinlock_types.h
-does not need to include version.h .
-A quick look at the file seems to confirm its findings, so here's a patch that
-removes the include.
+On Tue, Apr 10, 2012 at 11:37:23PM +0200, Jesper Juhl wrote:
+> "make versioncheck" points out that arch/hexagon/include/asm/spinlock_types.h
+> does not need to include version.h .
+> A quick look at the file seems to confirm its findings, so here's a patch that
+> removes the include.
+> 
+> Signed-off-by: Jesper Juhl <jj@chaosbits.net>
+> Acked-by: Linas Vepstas <linasvepstas@gmail.com>
+> ---
+>  arch/hexagon/include/asm/spinlock_types.h |    2 --
+>  1 file changed, 2 deletions(-)
+> 
 
-Signed-off-by: Jesper Juhl <jj@chaosbits.net>
-Acked-by: Linas Vepstas <linasvepstas@gmail.com>
----
- arch/hexagon/include/asm/spinlock_types.h |    2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/arch/hexagon/include/asm/spinlock_types.h b/arch/hexagon/include/asm/spinlock_types.h
-index 5e937af..99b5a75 100644
---- a/arch/hexagon/include/asm/spinlock_types.h
-+++ b/arch/hexagon/include/asm/spinlock_types.h
-@@ -21,8 +21,6 @@
- #ifndef _ASM_SPINLOCK_TYPES_H
- #define _ASM_SPINLOCK_TYPES_H
- 
--#include <linux/version.h>
--
- #ifndef __LINUX_SPINLOCK_TYPES_H
- # error "please don't include this file directly"
- #endif
--- 
-1.7.10
+I've applied this patch to my tree (it's already spent some time in
+linux-next as well) and it will go out with my next pull request.
 
 
--- 
-Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
-Don't top-post http://www.catb.org/jargon/html/T/top-post.html
-Plain text mails only, please.
+Thanks,
+Richard Kuo
