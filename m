@@ -1,43 +1,30 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: [PATCH 02/10] hexagon: drop selects of bogus Kconfig symbols
-Date: Thu, 10 Nov 2011 21:07:47 +0100
-Message-ID: <8675ae$5bugqf@wolverine02.qualcomm.com>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+From: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH 00/10] Hexagon cleanup and misc patches
+Date: Wed, 18 Apr 2012 06:54:56 +0200
+Message-ID: <20120418045456.GA32374@merkur.ravnborg.org>
+References: <6e201a$5e4ium@wolverine01.qualcomm.com>
+Mime-Version: 1.0
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <6e201a$5e4ium@wolverine01.qualcomm.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-There are no Kconfig symbols named GENERIC_HARDIRQS_NO__DO_IRQ and
-GENERIC_HARDIRQS_NO_DEPRECATED. The two select statements for these
-symbols are nops. Drop these.
+On Tue, Apr 17, 2012 at 06:56:01PM -0500, Richard Kuo wrote:
+> This is a small collection of patches that I've been sitting on for probably
+> too long that I'm getting ready to make a pull request for.  It's largely
+> cleanup and fixes from the original Hexagon upstreaming, with a few
+> additional enhancements to do_page_fault and SMP startup which have already
+> been on the mailing lists for some time.
+> 
+> Please let me know if there are any issues, and thanks to everyone who sent
+> patches.
 
-Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
-Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
----
- arch/hexagon/Kconfig |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+You need to fix how the mails are sent out.
+They appear to come from the author of the patch, and they are timestamped in the past.
 
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index 9059e39..3126fc6 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -18,8 +18,6 @@ config HEXAGON
- 	select GENERIC_ATOMIC64
- 	select HAVE_PERF_EVENTS
- 	select HAVE_GENERIC_HARDIRQS
--	select GENERIC_HARDIRQS_NO__DO_IRQ
--	select GENERIC_HARDIRQS_NO_DEPRECATED
- 	# GENERIC_ALLOCATOR is used by dma_alloc_coherent()
- 	select GENERIC_ALLOCATOR
- 	select GENERIC_IRQ_SHOW
--- 
-1.7.1
-
-
---
-
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+	Sam
