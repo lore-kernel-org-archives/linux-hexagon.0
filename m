@@ -1,50 +1,31 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [GIT PULL] Hexagon: compile fixes and CPU hotplug
-Date: Mon, 23 Apr 2012 16:18:23 -0500
-Message-ID: <20120423211823.GB3221@codeaurora.org>
+Subject: Re: [patch 11/18] hexagon: Use generic idle thread allocation
+Date: Tue, 24 Apr 2012 11:47:59 -0500
+Message-ID: <20120424164759.GD3221@codeaurora.org>
+References: <20120420122120.097464672@linutronix.de>
+ <20120420124557.581762105@linutronix.de>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20120420124557.581762105@linutronix.de>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-arch@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Rusty Russell <rusty@rustcorp.com.au>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@kernel.org>, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, linux-hexagon@vger.kernel.org
 
-Hello Linus,
+On Fri, Apr 20, 2012 at 01:05:51PM -0000, Thomas Gleixner wrote:
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Richard Kuo <rkuo@codeaurora.org>
+> ---
+>  arch/hexagon/Kconfig      |    1 +
+>  arch/hexagon/kernel/smp.c |   11 ++---------
+>  2 files changed, 3 insertions(+), 9 deletions(-)
 
-Please pull the following changes for the Hexagon architecture.
-It's mostly compile fixes and the Hexagon portion of a CPU hotplug
-patch set.
+Tested; works for me.
 
-
-Thanks,
-Richard Kuo
-
-
-The following changes since commit 66f75a5d028beaf67c931435fdc3e7823125730c:
-
-  Linux 3.4-rc4 (2012-04-21 14:47:52 -0700)
-
-are available in the git repository at:
-  git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
-
-Richard Kuo (3):
-      Hexagon: misc compile warning/error cleanup due to missing headers
-      hexagon:  use renamed tick_nohz_idle_* functions
-      hexagon: add missing cpu.h include
-
-Srivatsa S. Bhat (1):
-      hexagon/CPU hotplug: Add missing call to notify_cpu_starting()
-
- arch/hexagon/kernel/dma.c     |    1 +
- arch/hexagon/kernel/process.c |    6 +++---
- arch/hexagon/kernel/ptrace.c  |    1 +
- arch/hexagon/kernel/smp.c     |    8 +++++++-
- arch/hexagon/kernel/time.c    |    1 +
- arch/hexagon/kernel/vdso.c    |    1 +
- 6 files changed, 14 insertions(+), 4 deletions(-)
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
 
 
 -- 
