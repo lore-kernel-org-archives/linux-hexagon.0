@@ -1,133 +1,55 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [patch 10/29] hexagon: Use generic idle_task
-Date: Wed, 2 May 2012 19:46:38 -0500
-Message-ID: <20120503004638.GA3541@codeaurora.org>
-References: <20120430194725.763322463@linutronix.de>
- <20120430194846.162247700@linutronix.de>
+Subject: [GIT PULL] Hexagon:  misc cleanup
+Date: Tue, 22 May 2012 19:40:50 -0500
+Message-ID: <20120523004049.GA4269@codeaurora.org>
 Mime-Version: 1.0
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20120430194846.162247700@linutronix.de>
-Sender: linux-arch-owner@vger.kernel.org
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On Mon, Apr 30, 2012 at 08:15:56PM -0000, Thomas Gleixner wrote:
-> Same code. Use the generic version. The special Makefile treatment is
-> pointless anyway as init_task.o contains only data which is handled by
-> the linker script. So no point on being treated like head text.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Richard Kuo <rkuo@codeaurora.org>
-> ---
->  arch/hexagon/Kconfig            |    1 
->  arch/hexagon/Makefile           |    3 --
->  arch/hexagon/kernel/Makefile    |    2 -
->  arch/hexagon/kernel/init_task.c |   54 ----------------------------------------
->  4 files changed, 3 insertions(+), 57 deletions(-)
-> 
-> Index: tip/arch/hexagon/Kconfig
-> ===================================================================
-> --- tip.orig/arch/hexagon/Kconfig
-> +++ tip/arch/hexagon/Kconfig
-> @@ -28,6 +28,7 @@ config HEXAGON
->  	select NO_IOPORT
->  	select GENERIC_IOMAP
->  	select GENERIC_SMP_IDLE_THREAD
-> +	select HAVE_GENERIC_INIT_TASK
->  	# mostly generic routines, with some accelerated ones
->  	---help---
->  	  Qualcomm Hexagon is a processor architecture designed for high
-> Index: tip/arch/hexagon/Makefile
-> ===================================================================
-> --- tip.orig/arch/hexagon/Makefile
-> +++ tip/arch/hexagon/Makefile
-> @@ -45,8 +45,7 @@ KBUILD_AFLAGS += -DTHREADINFO_REG=$(TIR_
->  LIBGCC := $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
->  libs-y += $(LIBGCC)
->  
-> -head-y := arch/hexagon/kernel/head.o \
-> -	arch/hexagon/kernel/init_task.o
-> +head-y := arch/hexagon/kernel/head.o
->  
->  core-y += arch/hexagon/kernel/ \
->  	arch/hexagon/mm/ \
-> Index: tip/arch/hexagon/kernel/Makefile
-> ===================================================================
-> --- tip.orig/arch/hexagon/kernel/Makefile
-> +++ tip/arch/hexagon/kernel/Makefile
-> @@ -1,4 +1,4 @@
-> -extra-y := head.o vmlinux.lds init_task.o
-> +extra-y := head.o vmlinux.lds
->  
->  obj-$(CONFIG_SMP) += smp.o topology.o
->  
-> Index: tip/arch/hexagon/kernel/init_task.c
-> ===================================================================
-> --- tip.orig/arch/hexagon/kernel/init_task.c
-> +++ /dev/null
-> @@ -1,54 +0,0 @@
-> -/*
-> - * Init task definition
-> - *
-> - * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-> - *
-> - * This program is free software; you can redistribute it and/or modify
-> - * it under the terms of the GNU General Public License version 2 and
-> - * only version 2 as published by the Free Software Foundation.
-> - *
-> - * This program is distributed in the hope that it will be useful,
-> - * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> - * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> - * GNU General Public License for more details.
-> - *
-> - * You should have received a copy of the GNU General Public License
-> - * along with this program; if not, write to the Free Software
-> - * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-> - * 02110-1301, USA.
-> - */
-> -
-> -#include <linux/mm.h>
-> -#include <linux/module.h>
-> -#include <linux/sched.h>
-> -#include <linux/init_task.h>
-> -#include <linux/fs.h>
-> -#include <linux/mqueue.h>
-> -#include <asm/thread_info.h>
-> -#include <asm/uaccess.h>
-> -#include <asm/pgtable.h>
-> -
-> -static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
-> -static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
-> -
-> -/*
-> - * Initial thread structure.
-> - *
-> - * We need to make sure that this is 8192-byte aligned due to the
-> - * way process stacks are handled. This is done by making sure
-> - * the linker maps this in the .text segment right after head.S,
-> - * and making head.S ensure the proper alignment.
-> - */
-> -union thread_union init_thread_union
-> -	__attribute__((__section__(".data.init_task"),
-> -		__aligned__(THREAD_SIZE))) = {
-> -			INIT_THREAD_INFO(init_task)
-> -		};
-> -
-> -/*
-> - * Initial task structure.
-> - *
-> - * All other task structs will be allocated on slabs in fork.c
-> - */
-> -struct task_struct init_task = INIT_TASK(init_task);
-> -EXPORT_SYMBOL(init_task);
-> 
-> 
+Linus,
 
-Acked-and-tested-by: Richard Kuo <rkuo@codeaurora.org>
+Please pull the following changes for the Hexagon architecture from: 
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
+
+These are mostly cleanups and feedback remaining from the original
+upstreaming.
+
+
+Thanks,
+Richard Kuo
+
+
+
+------------------>
+Jesper Juhl (1):
+      Remove unneeded include of version.h from arch/hexagon/include/asm/spinlock_types.h
+
+Julia Lawall (1):
+      arch/hexagon/kernel/dma.c: make function static
+
+Kautuk Consul (1):
+      hexagon/mm/vm_fault.c: Port OOM changes to do_page_fault
+
+Richard Kuo (1):
+      various Kconfig cleanup and old platform build code removal
+
+Thomas Meyer (1):
+      Hexagon: Use resource_size function
+
+ arch/hexagon/Kconfig                      |   21 ++++-----------------
+ arch/hexagon/Makefile                     |    5 -----
+ arch/hexagon/include/asm/spinlock_types.h |    2 --
+ arch/hexagon/kernel/dma.c                 |    2 +-
+ arch/hexagon/kernel/time.c                |    6 ++----
+ arch/hexagon/mm/vm_fault.c                |   22 +++++++++++++++++-----
+ 6 files changed, 24 insertions(+), 34 deletions(-)
 
 
 -- 
