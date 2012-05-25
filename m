@@ -1,58 +1,57 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [GIT PULL] Hexagon:  misc cleanup
-Date: Tue, 22 May 2012 19:40:50 -0500
-Message-ID: <20120523004049.GA4269@codeaurora.org>
-Mime-Version: 1.0
+From: Richard Weinberger <richard@nod.at>
+Subject: [PATCH 17/20] hexagon: Do not call try_to_freeze() in do_signal()
+Date: Sat, 26 May 2012 00:04:33 +0200
+Message-ID: <1337983476-22081-17-git-send-email-richard@nod.at>
+References: <1337983476-22081-1-git-send-email-richard@nod.at>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <1337983476-22081-1-git-send-email-richard@nod.at>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org, Richard Weinberger <richard@nod.at>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-Linus,
+get_signal_to_deliver() already calls try_to_freeze(), there is no
+need to call it directly.
 
-Please pull the following changes for the Hexagon architecture from: 
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Signed-off-by: Richard Weinberger <richard@nod.at>
+---
+ arch/hexagon/kernel/signal.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
-
-These are mostly cleanups and feedback remaining from the original
-upstreaming.
-
-
-Thanks,
-Richard Kuo
-
-
-
------------------->
-Jesper Juhl (1):
-      Remove unneeded include of version.h from arch/hexagon/include/asm/spinlock_types.h
-
-Julia Lawall (1):
-      arch/hexagon/kernel/dma.c: make function static
-
-Kautuk Consul (1):
-      hexagon/mm/vm_fault.c: Port OOM changes to do_page_fault
-
-Richard Kuo (1):
-      various Kconfig cleanup and old platform build code removal
-
-Thomas Meyer (1):
-      Hexagon: Use resource_size function
-
- arch/hexagon/Kconfig                      |   21 ++++-----------------
- arch/hexagon/Makefile                     |    5 -----
- arch/hexagon/include/asm/spinlock_types.h |    2 --
- arch/hexagon/kernel/dma.c                 |    2 +-
- arch/hexagon/kernel/time.c                |    6 ++----
- arch/hexagon/mm/vm_fault.c                |   22 +++++++++++++++++-----
- 6 files changed, 24 insertions(+), 34 deletions(-)
-
-
+diff --git a/arch/hexagon/kernel/signal.c b/arch/hexagon/kernel/signal.c
+index 8403bfd..9783cfa 100644
+--- a/arch/hexagon/kernel/signal.c
++++ b/arch/hexagon/kernel/signal.c
+@@ -20,7 +20,6 @@
+ 
+ #include <linux/linkage.h>
+ #include <linux/syscalls.h>
+-#include <linux/freezer.h>
+ #include <linux/tracehook.h>
+ #include <linux/irqflags.h>
+ #include <asm/registers.h>
+@@ -210,9 +209,6 @@ static void do_signal(struct pt_regs *regs)
+ 	if (!user_mode(regs))
+ 		return;
+ 
+-	if (try_to_freeze())
+-		goto no_signal;
+-
+ 	signo = get_signal_to_deliver(&info, &sigact, regs, NULL);
+ 
+ 	if (signo > 0) {
+@@ -237,7 +233,6 @@ static void do_signal(struct pt_regs *regs)
+ 		return;
+ 	}
+ 
+-no_signal:
+ 	/*
+ 	 * If we came from a system call, handle the restart.
+ 	 */
 -- 
-
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+1.7.7.3
