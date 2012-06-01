@@ -1,61 +1,84 @@
-From: Yong Zhang <yong.zhang0@gmail.com>
-Subject: [RFC PATCH 01/10] hexagon: smp: remove call to ipi_call_lock()/ipi_call_unlock()
-Date: Tue, 29 May 2012 15:15:56 +0800
-Message-ID: <1338275765-3217-2-git-send-email-yong.zhang0@gmail.com>
-References: <1338275765-3217-1-git-send-email-yong.zhang0@gmail.com>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=from:to:cc:subject:date:message-id:x-mailer:in-reply-to:references;
-        bh=js2RduqTmnX/bOONYGUODQyETfhbtE6+fdP2l9NVdWs=;
-        b=iodtBawSuXibBRsK03SiyV0uK0I/Q8ShiiBnfAIQKv6BFRyUIYdYOJnl7vs6XptIQ4
-         hDmzh6Ys3x8395jTV9G/O3PhqzV3uj1QBNUMEVbuSnszjFuMmoYtblmzwnQka5bAHzuZ
-         q2+Eb2RuijqkZ1FEwIVTaCURGnWSF3xFjwaXuMU8QZ6bMiq9z8KHC60I+dhggZfHFISn
-         n0RzI0PkT0JkBdpgzTbUweEZU+/kI/KtHeJBJgbXmfPYVTMrIBTV4e+uEJ48KjM+eklA
-         eJNIIP4hmALeBGi0YT+4C8jSfk5StLZY8174uBz6w40hlVeGC76qBZg2+L3xe5IpTUgI
-         a3ag==
-In-Reply-To: <1338275765-3217-1-git-send-email-yong.zhang0@gmail.com>
-Sender: linux-hexagon-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Subject: [PATCH 13/27] hexagon, smpboot: Use generic SMP booting infrastructure
+Date: Fri, 01 Jun 2012 14:43:10 +0530
+Message-ID: <20120601091304.31979.39256.stgit@srivatsabhat.in.ibm.com>
+References: <20120601090952.31979.24799.stgit@srivatsabhat.in.ibm.com>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-To: linux-kernel@vger.kernel.org
-Cc: ralf@linux-mips.org, sshtylyov@mvista.com, david.daney@cavium.com, nikunj@linux.vnet.ibm.com, paulmck@linux.vnet.ibm.com, axboe@kernel.dk, mingo@kernel.org, tglx@linutronix.de, peterz@infradead.org, akpm@linux-foundation.org, srivatsa.bhat@linux.vnet.ibm.com, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <20120601090952.31979.24799.stgit@srivatsabhat.in.ibm.com>
+Sender: linux-arch-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: tglx@linutronix.de, peterz@infradead.org, paulmck@linux.vnet.ibm.com
+Cc: rusty@rustcorp.com.au, mingo@kernel.org, yong.zhang0@gmail.com, akpm@linux-foundation.org, vatsa@linux.vnet.ibm.com, rjw@sisk.pl, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, srivatsa.bhat@linux.vnet.ibm.com, nikunj@linux.vnet.ibm.com, "Nikunj A. Dadhania" <nikunj@linux.vnet.ibm.com>, Richard Kuo <rkuo@codeaurora.org>, Thomas Gleixner <tglx@linutronix.de>, Rusty Russell <rusty@rustcorp.com.au>, David Howells <dhowells@redhat.com>, Chris Metcalf <cmetcalf@tilera.com>, linux-hexagon@vger.kernel.org
 
-From: Yong Zhang <yong.zhang@windriver.com>
+From: Nikunj A. Dadhania <nikunj@linux.vnet.ibm.com>
 
-1) call_function.lock used in smp_call_function_many() is just to protect
-   call_function.queue and &data->refs, cpu_online_mask is outside of the
-   lock. And it's not necessary to protect cpu_online_mask,
-   because data->cpumask is pre-calculate and even if a cpu is brougt up
-   when calling arch_send_call_function_ipi_mask(), it's harmless because
-   validation test in generic_smp_call_function_interrupt() will take care
-   of it.
+Convert hexagon to use the generic framework to boot secondary CPUs.
 
-2) For cpu down issue, stop_machine() will guarantee that no concurrent
-   smp_call_fuction() is processing.
-
-Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
+Signed-off-by: Nikunj A. Dadhania <nikunj@linux.vnet.ibm.com>
 Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Chris Metcalf <cmetcalf@tilera.com>
 Cc: linux-hexagon@vger.kernel.org
+Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
 ---
- arch/hexagon/kernel/smp.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+
+ arch/hexagon/kernel/smp.c |   18 ++++++++----------
+ 1 files changed, 8 insertions(+), 10 deletions(-)
 
 diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
-index f726462..149fbef 100644
+index 149fbef..0a679a4 100644
 --- a/arch/hexagon/kernel/smp.c
 +++ b/arch/hexagon/kernel/smp.c
-@@ -180,9 +180,7 @@ void __cpuinit start_secondary(void)
+@@ -29,6 +29,7 @@
+ #include <linux/smp.h>
+ #include <linux/spinlock.h>
+ #include <linux/cpu.h>
++#include <linux/smpboot.h>
  
- 	notify_cpu_starting(cpu);
+ #include <asm/time.h>    /*  timer_interrupt  */
+ #include <asm/hexagon_vm.h>
+@@ -148,7 +149,6 @@ void __init smp_prepare_boot_cpu(void)
  
--	ipi_call_lock();
- 	set_cpu_online(cpu, true);
--	ipi_call_unlock();
+ void __cpuinit start_secondary(void)
+ {
+-	unsigned int cpu;
+ 	unsigned long thread_ptr;
  
- 	local_irq_enable();
+ 	/*  Calculate thread_info pointer from stack pointer  */
+@@ -165,6 +165,13 @@ void __cpuinit start_secondary(void)
+ 		: "r" (thread_ptr)
+ 	);
  
--- 
-1.7.5.4
++	smpboot_start_secondary(NULL);
++}
++
++void __cpuinit __cpu_pre_starting(void *arg)
++{
++	unsigned int cpu;
++
+ 	/*  Set the memory struct  */
+ 	atomic_inc(&init_mm.mm_count);
+ 	current->active_mm = &init_mm;
+@@ -177,17 +184,8 @@ void __cpuinit start_secondary(void)
+ 	setup_percpu_clockdev();
+ 
+ 	printk(KERN_INFO "%s cpu %d\n", __func__, current_thread_info()->cpu);
+-
+-	notify_cpu_starting(cpu);
+-
+-	set_cpu_online(cpu, true);
+-
+-	local_irq_enable();
+-
+-	cpu_idle();
+ }
+ 
+-
+ /*
+  * called once for each present cpu
+  * apparently starts up the CPU and then
