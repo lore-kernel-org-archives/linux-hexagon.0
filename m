@@ -1,84 +1,60 @@
-From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Subject: [PATCH 13/27] hexagon, smpboot: Use generic SMP booting infrastructure
-Date: Fri, 01 Jun 2012 14:43:10 +0530
-Message-ID: <20120601091304.31979.39256.stgit@srivatsabhat.in.ibm.com>
-References: <20120601090952.31979.24799.stgit@srivatsabhat.in.ibm.com>
+From: Richard Kuo <rkuo@codeaurora.org>
+Subject: Re: [PATCH 05/20] hexagon: Do not call do_signal() with irqs
+ disabled
+Date: Fri, 1 Jun 2012 12:54:59 -0500
+Message-ID: <20120601175459.GA23541@codeaurora.org>
+References: <1337983476-22081-1-git-send-email-richard@nod.at>
+ <1337983476-22081-5-git-send-email-richard@nod.at>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20120601090952.31979.24799.stgit@srivatsabhat.in.ibm.com>
-Sender: linux-arch-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1337983476-22081-5-git-send-email-richard@nod.at>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: tglx@linutronix.de, peterz@infradead.org, paulmck@linux.vnet.ibm.com
-Cc: rusty@rustcorp.com.au, mingo@kernel.org, yong.zhang0@gmail.com, akpm@linux-foundation.org, vatsa@linux.vnet.ibm.com, rjw@sisk.pl, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, srivatsa.bhat@linux.vnet.ibm.com, nikunj@linux.vnet.ibm.com, "Nikunj A. Dadhania" <nikunj@linux.vnet.ibm.com>, Richard Kuo <rkuo@codeaurora.org>, Thomas Gleixner <tglx@linutronix.de>, Rusty Russell <rusty@rustcorp.com.au>, David Howells <dhowells@redhat.com>, Chris Metcalf <cmetcalf@tilera.com>, linux-hexagon@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: Richard Weinberger <richard@nod.at>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-From: Nikunj A. Dadhania <nikunj@linux.vnet.ibm.com>
+On Sat, May 26, 2012 at 12:04:21AM +0200, Richard Weinberger wrote:
+> get_signal_to_deliver() calls try_to_freeze() which might sleep.
+> 
+> Cc: Richard Kuo <rkuo@codeaurora.org>
+> Cc: linux-hexagon@vger.kernel.org
+> Signed-off-by: Richard Weinberger <richard@nod.at>
+> ---
+>  arch/hexagon/kernel/signal.c |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
+> 
+> diff --git a/arch/hexagon/kernel/signal.c b/arch/hexagon/kernel/signal.c
+> index 434866e..8403bfd 100644
+> --- a/arch/hexagon/kernel/signal.c
+> +++ b/arch/hexagon/kernel/signal.c
+> @@ -22,6 +22,7 @@
+>  #include <linux/syscalls.h>
+>  #include <linux/freezer.h>
+>  #include <linux/tracehook.h>
+> +#include <linux/irqflags.h>
+>  #include <asm/registers.h>
+>  #include <asm/thread_info.h>
+>  #include <asm/unistd.h>
+> @@ -267,6 +268,8 @@ no_restart:
+>  
+>  void do_notify_resume(struct pt_regs *regs, unsigned long thread_info_flags)
+>  {
+> +	local_irq_enable();
+> +
+>  	if (thread_info_flags & _TIF_SIGPENDING)
+>  		do_signal(regs);
+>  
+> -- 
+> 1.7.7.3
+> 
 
-Convert hexagon to use the generic framework to boot secondary CPUs.
+Signed-off-by: Richard Kuo <rkuo@codeaurora.org>
 
-Signed-off-by: Nikunj A. Dadhania <nikunj@linux.vnet.ibm.com>
-Cc: Richard Kuo <rkuo@codeaurora.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Chris Metcalf <cmetcalf@tilera.com>
-Cc: linux-hexagon@vger.kernel.org
-Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
----
 
- arch/hexagon/kernel/smp.c |   18 ++++++++----------
- 1 files changed, 8 insertions(+), 10 deletions(-)
+-- 
 
-diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
-index 149fbef..0a679a4 100644
---- a/arch/hexagon/kernel/smp.c
-+++ b/arch/hexagon/kernel/smp.c
-@@ -29,6 +29,7 @@
- #include <linux/smp.h>
- #include <linux/spinlock.h>
- #include <linux/cpu.h>
-+#include <linux/smpboot.h>
- 
- #include <asm/time.h>    /*  timer_interrupt  */
- #include <asm/hexagon_vm.h>
-@@ -148,7 +149,6 @@ void __init smp_prepare_boot_cpu(void)
- 
- void __cpuinit start_secondary(void)
- {
--	unsigned int cpu;
- 	unsigned long thread_ptr;
- 
- 	/*  Calculate thread_info pointer from stack pointer  */
-@@ -165,6 +165,13 @@ void __cpuinit start_secondary(void)
- 		: "r" (thread_ptr)
- 	);
- 
-+	smpboot_start_secondary(NULL);
-+}
-+
-+void __cpuinit __cpu_pre_starting(void *arg)
-+{
-+	unsigned int cpu;
-+
- 	/*  Set the memory struct  */
- 	atomic_inc(&init_mm.mm_count);
- 	current->active_mm = &init_mm;
-@@ -177,17 +184,8 @@ void __cpuinit start_secondary(void)
- 	setup_percpu_clockdev();
- 
- 	printk(KERN_INFO "%s cpu %d\n", __func__, current_thread_info()->cpu);
--
--	notify_cpu_starting(cpu);
--
--	set_cpu_online(cpu, true);
--
--	local_irq_enable();
--
--	cpu_idle();
- }
- 
--
- /*
-  * called once for each present cpu
-  * apparently starts up the CPU and then
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
