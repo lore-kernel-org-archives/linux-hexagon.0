@@ -1,69 +1,94 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH 17/20] hexagon: Do not call try_to_freeze() in
- do_signal()
-Date: Fri, 1 Jun 2012 14:02:21 -0500
-Message-ID: <20120601190221.GE23541@codeaurora.org>
-References: <1337983476-22081-1-git-send-email-richard@nod.at>
- <1337983476-22081-17-git-send-email-richard@nod.at>
+From: Paul Bolle <pebolle@tiscali.nl>
+Subject: [PATCH 1/3] Remove useless wrappers of asm-generic/cpumask.h
+Date: Thu, 21 Jun 2012 21:20:06 +0200
+Message-ID: <1340306406.1773.59.camel@x61.thuisdomein>
 Mime-Version: 1.0
-Return-path: <linux-arch-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1337983476-22081-17-git-send-email-richard@nod.at>
-Sender: linux-arch-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Richard Weinberger <richard@nod.at>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org
+To: Michal Marek <mmarek@suse.cz>
+Cc: linux-kbuild@vger.kernel.org, David Howells <dhowells@redhat.com>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, Jonas Bonn <jonas@southpole.se>, linux@lists.openrisc.net, Chris Zankel <chris@zankel.net>, linux-kernel@vger.kernel.org
 
-On Sat, May 26, 2012 at 12:04:33AM +0200, Richard Weinberger wrote:
-> get_signal_to_deliver() already calls try_to_freeze(), there is no
-> need to call it directly.
-> 
-> Cc: Richard Kuo <rkuo@codeaurora.org>
-> Cc: linux-hexagon@vger.kernel.org
-> Signed-off-by: Richard Weinberger <richard@nod.at>
-> ---
->  arch/hexagon/kernel/signal.c |    5 -----
->  1 files changed, 0 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/hexagon/kernel/signal.c b/arch/hexagon/kernel/signal.c
-> index 8403bfd..9783cfa 100644
-> --- a/arch/hexagon/kernel/signal.c
-> +++ b/arch/hexagon/kernel/signal.c
-> @@ -20,7 +20,6 @@
->  
->  #include <linux/linkage.h>
->  #include <linux/syscalls.h>
-> -#include <linux/freezer.h>
->  #include <linux/tracehook.h>
->  #include <linux/irqflags.h>
->  #include <asm/registers.h>
-> @@ -210,9 +209,6 @@ static void do_signal(struct pt_regs *regs)
->  	if (!user_mode(regs))
->  		return;
->  
-> -	if (try_to_freeze())
-> -		goto no_signal;
-> -
->  	signo = get_signal_to_deliver(&info, &sigact, regs, NULL);
->  
->  	if (signo > 0) {
-> @@ -237,7 +233,6 @@ static void do_signal(struct pt_regs *regs)
->  		return;
->  	}
->  
-> -no_signal:
->  	/*
->  	 * If we came from a system call, handle the restart.
->  	 */
-> -- 
-> 1.7.7.3
-> 
+frv and xtensa both have a header (in their include/asm directories)
+that are thin wrappers around asm-generic/cpumask.h. These wrappers are
+useless, since that header doesn't exist. They are also unused (all
+files including asm/cpumask.h are x86 specific).
 
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
+hexagon and openrisc generate similar headers at build time (using a
+generic-y entry in include/asm/Kbuild). These generated headers are
+useless and unused too.
 
+Remove these headers and generic-y entries.
+
+Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
+---
+ arch/frv/include/asm/cpumask.h    |    6 ------
+ arch/hexagon/include/asm/Kbuild   |    1 -
+ arch/openrisc/include/asm/Kbuild  |    1 -
+ arch/xtensa/include/asm/cpumask.h |   16 ----------------
+ 4 files changed, 0 insertions(+), 24 deletions(-)
+ delete mode 100644 arch/frv/include/asm/cpumask.h
+ delete mode 100644 arch/xtensa/include/asm/cpumask.h
+
+diff --git a/arch/frv/include/asm/cpumask.h b/arch/frv/include/asm/cpumask.h
+deleted file mode 100644
+index d999c20..0000000
+--- a/arch/frv/include/asm/cpumask.h
++++ /dev/null
+@@ -1,6 +0,0 @@
+-#ifndef _ASM_CPUMASK_H
+-#define _ASM_CPUMASK_H
+-
+-#include <asm-generic/cpumask.h>
+-
+-#endif /* _ASM_CPUMASK_H */
+diff --git a/arch/hexagon/include/asm/Kbuild b/arch/hexagon/include/asm/Kbuild
+index 9aa17f1..8ecd202 100644
+--- a/arch/hexagon/include/asm/Kbuild
++++ b/arch/hexagon/include/asm/Kbuild
+@@ -7,7 +7,6 @@ header-y += user.h
+ generic-y += auxvec.h
+ generic-y += bug.h
+ generic-y += bugs.h
+-generic-y += cpumask.h
+ generic-y += cputime.h
+ generic-y += current.h
+ generic-y += device.h
+diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
+index 3f35c38..08484f7 100644
+--- a/arch/openrisc/include/asm/Kbuild
++++ b/arch/openrisc/include/asm/Kbuild
+@@ -13,7 +13,6 @@ generic-y += cacheflush.h
+ generic-y += checksum.h
+ generic-y += cmpxchg.h
+ generic-y += cmpxchg-local.h
+-generic-y += cpumask.h
+ generic-y += cputime.h
+ generic-y += current.h
+ generic-y += device.h
+diff --git a/arch/xtensa/include/asm/cpumask.h b/arch/xtensa/include/asm/cpumask.h
+deleted file mode 100644
+index ebeede3..0000000
+--- a/arch/xtensa/include/asm/cpumask.h
++++ /dev/null
+@@ -1,16 +0,0 @@
+-/*
+- * include/asm-xtensa/cpumask.h
+- *
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file "COPYING" in the main directory of this archive
+- * for more details.
+- *
+- * Copyright (C) 2001 - 2005 Tensilica Inc.
+- */
+-
+-#ifndef _XTENSA_CPUMASK_H
+-#define _XTENSA_CPUMASK_H
+-
+-#include <asm-generic/cpumask.h>
+-
+-#endif /* _XTENSA_CPUMASK_H */
 -- 
-
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+1.7.7.6
