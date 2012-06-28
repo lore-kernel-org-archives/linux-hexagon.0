@@ -1,30 +1,32 @@
-From: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 2/3] Remove useless wrappers of asm-generic/ipc.h
-Date: Fri, 22 Jun 2012 00:08:51 +0100
-Message-ID: <32480.1340320131@redhat.com>
-References: <1340306466.1773.60.camel@x61.thuisdomein>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1340306466.1773.60.camel@x61.thuisdomein>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Michal Marek <mmarek@suse.cz>
+Subject: Re: [PATCH 1/3] Remove useless wrappers of asm-generic/cpumask.h
+Date: Thu, 28 Jun 2012 11:30:23 +0200
+Message-ID: <4FEC242F.7050906@suse.cz>
+References: <1340306406.1773.59.camel@x61.thuisdomein>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Return-path: <linux-kbuild-owner@vger.kernel.org>
+In-Reply-To: <1340306406.1773.59.camel@x61.thuisdomein>
+Sender: linux-kbuild-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
 To: Paul Bolle <pebolle@tiscali.nl>
-Cc: dhowells@redhat.com, Michal Marek <mmarek@suse.cz>, linux-kbuild@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-am33-list@redhat.com, Chris Metcalf <cmetcalf@tilera.com>, linux-kernel@vger.kernel.org
+Cc: linux-kbuild@vger.kernel.org, David Howells <dhowells@redhat.com>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, Jonas Bonn <jonas@southpole.se>, linux@lists.openrisc.net, Chris Zankel <chris@zankel.net>, linux-kernel@vger.kernel.org
 
-Paul Bolle <pebolle@tiscali.nl> wrote:
-
-> mn10300 has a header (in its include/asm directory) that is a thin
-> wrapper around asm-generic/ipc.h. This wrapper is useless, since that
-> header doesn't exist. It is also unused (no file includes asm/ipc.h).
+On 21.6.2012 21:20, Paul Bolle wrote:
+> frv and xtensa both have a header (in their include/asm directories)
+> that are thin wrappers around asm-generic/cpumask.h. These wrappers are
+> useless, since that header doesn't exist. They are also unused (all
+> files including asm/cpumask.h are x86 specific).
 > 
-> hexagon and tile generate similar headers at build time (using a
+> hexagon and openrisc generate similar headers at build time (using a
 > generic-y entry in include/asm/Kbuild). These generated headers are
 > useless and unused too.
 > 
-> Remove this header and these generic-y entries.
+> Remove these headers and generic-y entries.
 > 
 > Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
 
-Acked-by: David Howells <dhowells@redhat.com> [MN10300]
+Thanks, applied to kbuild.git#trivial.
+
+Michal
