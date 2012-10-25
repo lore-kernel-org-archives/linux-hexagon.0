@@ -1,44 +1,40 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [GIT PULL] Please pull the Hexagon branch
-Date: Fri, 19 Oct 2012 13:49:35 -0500
-Message-ID: <20121019184935.GB24832@codeaurora.org>
-References: <20121019001619.GA24832@codeaurora.org>
- <CA+55aFwqB7KcPTLuiirTS9rSz1YiUfxJQ6BNbLR2SupfBt5UWg@mail.gmail.com>
+From: Shuah Khan <shuah.khan@hp.com>
+Subject: [PATCH RFT] hexagon: dma-mapping: support debug_dma_mapping_error
+Date: Thu, 25 Oct 2012 17:12:11 -0600
+Message-ID: <1351206731.6851.10.camel@lorien2>
+Reply-To: shuah.khan@hp.com
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CA+55aFwqB7KcPTLuiirTS9rSz1YiUfxJQ6BNbLR2SupfBt5UWg@mail.gmail.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+To: rkuo@codeaurora.org, arnd@arndb.de, linas@codeaurora.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com
+Cc: linux-hexagon@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, shuahkhan@gmail.com
 
-On Fri, Oct 19, 2012 at 11:08:40AM -0700, Linus Torvalds wrote:
-> On Thu, Oct 18, 2012 at 5:16 PM, Richard Kuo <rkuo@codeaurora.org> wrote:
-> >
-> > Please pull the following small changes for the Hexagon arch.  It includes
-> > the Hexagon UAPI changes from David Howells and some CR marking changes for
-> > the transition from Code Aurora to Linux Foundation.
-> 
-> Can you please also check Al Viro's email titled "new
-> execve/kernel_thread design". He has hexagon changes he'd like tested,
-> and you were cc'd on the emails. There's a "arch-hexagon" branch in
-> his tree that needs testing and then fixing-or-acking.
-> 
->              Linus
+Add support for debug_dma_mapping_error() call to avoid warning from
+debug_dma_unmap() interface when it checks for mapping error checked
+status. Without this patch, device driver failed to check map error
+warning is generated.
 
-Yes, I will give it a shot ASAP.
+Signed-off-by: Shuah Khan <shuah.khan@hp.com>
+---
+ arch/hexagon/include/asm/dma-mapping.h |    1 +
+ 1 file changed, 1 insertion(+)
 
-
-Thanks,
-Richard Kuo
-
-
-
+diff --git a/arch/hexagon/include/asm/dma-mapping.h b/arch/hexagon/include/asm/dma-mapping.h
+index 85e9935..1957c4c 100644
+--- a/arch/hexagon/include/asm/dma-mapping.h
++++ b/arch/hexagon/include/asm/dma-mapping.h
+@@ -65,6 +65,7 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+ {
+ 	struct dma_map_ops *dma_ops = get_dma_ops(dev);
+ 
++	debug_dma_mapping_error(dev, dma_addr);
+ 	if (dma_ops->mapping_error)
+ 		return dma_ops->mapping_error(dev, dma_addr);
+ 
 -- 
+1.7.9.5
 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-hosted by The Linux Foundation
+
