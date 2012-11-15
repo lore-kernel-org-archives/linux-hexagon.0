@@ -1,66 +1,65 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH 1/1] arch Kconfig: remove references to IRQ_PER_CPU
-Date: Tue, 13 Nov 2012 18:53:41 -0600
-Message-ID: <20121114005341.GA6917@codeaurora.org>
-References: <1352807948-26920-1-git-send-email-james.hogan@imgtec.com>
+From: Shuah Khan <shuah.khan@hp.com>
+Subject: Re: [PATCH RFT RESEND linux-next] hexagon: dma-mapping: support
+ debug_dma_mapping_error
+Date: Thu, 15 Nov 2012 10:57:29 -0700
+Message-ID: <1353002249.2532.36.camel@lorien2>
+References: <1351206731.6851.10.camel@lorien2>
+	 <1351266197.4013.3.camel@lorien2> <1351874901.2721.18.camel@lorien2>
+	 <20121105010859.GA20521@codeaurora.org>
+Reply-To: shuah.khan@hp.com
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1352807948-26920-1-git-send-email-james.hogan@imgtec.com>
+In-Reply-To: <20121105010859.GA20521@codeaurora.org>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: James Hogan <james.hogan@imgtec.com>
-Cc: linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, linux-arch@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Mike Frysinger <vapier@gentoo.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Ralf Baechle <ralf@linux-mips.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Mundt <lethal@linux-sh.org>
+To: Richard Kuo <rkuo@codeaurora.org>, m.szyprowski@samsung.com
+Cc: Andrew Morton <akpm@linux-foundation.org>, arnd@arndb.de, kyungmin.park@samsung.com, linas@codeaurora.org, linux-hexagon@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, shuahkhan@gmail.com
 
-On Tue, Nov 13, 2012 at 11:59:08AM +0000, James Hogan wrote:
-> The IRQ_PER_CPU Kconfig symbol was removed in the following commit:
+On Sun, 2012-11-04 at 19:08 -0600, Richard Kuo wrote:
+> On Fri, Nov 02, 2012 at 10:48:21AM -0600, Shuah Khan wrote:
+> > On Fri, 2012-10-26 at 09:43 -0600, Shuah Khan wrote:
+> > > Add support for debug_dma_mapping_error() call to avoid warning from
+> > > debug_dma_unmap() interface when it checks for mapping error checked
+> > > status. Without this patch, device driver failed to check map error
+> > > warning is generated.
+> > > 
+> > > Signed-off-by: Shuah Khan <shuah.khan@hp.com>
+> > > ---
+> > >  arch/hexagon/include/asm/dma-mapping.h |    1 +
+> > >  1 file changed, 1 insertion(+)
+> > 
+> > Would you like se this patch go through arch tree or linux-next? Please
+> > let me know your preference.
+> > 
+> > -- Shuah
+> > > 
+> > > diff --git a/arch/hexagon/include/asm/dma-mapping.h b/arch/hexagon/include/asm/dma-mapping.h
+> > > index 85e9935..1957c4c 100644
+> > > --- a/arch/hexagon/include/asm/dma-mapping.h
+> > > +++ b/arch/hexagon/include/asm/dma-mapping.h
+> > > @@ -65,6 +65,7 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+> > >  {
+> > >  	struct dma_map_ops *dma_ops = get_dma_ops(dev);
+> > >  
+> > > +	debug_dma_mapping_error(dev, dma_addr);
+> > >  	if (dma_ops->mapping_error)
+> > >  		return dma_ops->mapping_error(dev, dma_addr);
+> > >  
+> > 
+> > 
 > 
-> Commit 6a58fb3bad099076f36f0f30f44507bc3275cdb6 ("genirq: Remove
-> CONFIG_IRQ_PER_CPU") merged in v2.6.39-rc1.
+> This looks fine; I'm OK with this going through linux-next.  Thanks!
 > 
-> But IRQ_PER_CPU wasn't removed from any of the architecture Kconfig
-> files where it was defined or selected. It's completely unused so remove
-> the remaining references.
-> 
-> Signed-off-by: James Hogan <james.hogan@imgtec.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Mike Frysinger <vapier@gentoo.org>
-> Cc: Richard Kuo <rkuo@codeaurora.org>
-> Cc: Tony Luck <tony.luck@intel.com>
-> Cc: Fenghua Yu <fenghua.yu@intel.com>
-> Cc: Ralf Baechle <ralf@linux-mips.org>
-> Cc: "James E.J. Bottomley" <jejb@parisc-linux.org>
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Paul Mundt <lethal@linux-sh.org>
-> ---
-> Based on v3.7-rc5.
-> 
-> Compile tested defconfigs for bfin, ia64, mips, parisc, powerpc, sh, but
-> not hexagon.
-> 
-> Grepped entire tree to check no references to CONFIG_IRQ_PER_CPU, and
-> grepped arch/ for Kconfig files referencing IRQ_PER_CPU.
-> 
->  arch/blackfin/Kconfig |    1 -
->  arch/hexagon/Kconfig  |    1 -
->  arch/ia64/Kconfig     |    1 -
->  arch/mips/Kconfig     |    1 -
->  arch/parisc/Kconfig   |    1 -
->  arch/powerpc/Kconfig  |    1 -
->  arch/sh/Kconfig       |    3 ---
->  7 files changed, 0 insertions(+), 9 deletions(-)
+> Acked-by: Richard Kuo <rkuo@codeaurora.org>
 > 
 
-Hexagon's was commented out anyways, but thanks for pointing it out.
+Marek,
 
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
+This one is for hexagon to go through your tree with the other arch
+patches for debug_dma_mapping_error().
 
--- 
+Thanks,
+-- Shuah
 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-hosted by The Linux Foundation
