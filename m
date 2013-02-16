@@ -1,123 +1,93 @@
-From: cotulla@yandex.ua
+From: Linas Vepstas <linasvepstas@gmail.com>
 Subject: Re: [DISCUSSION] Hexagon code inside kernel
-Date: Sat, 16 Feb 2013 05:35:13 +0400
-Message-ID: <1433341360978513@web2h.yandex.ru>
-References: <1093431360938494@web22d.yandex.ru> <CAHrUA364XES66kXhr0Gg1dh_MQBAS0+R8Q4x+EY3dgz6s=QRww@mail.gmail.com> <CAHrUA36mN-a6BTCp7DP-QgWA5ii86YbmpvZbBTnv__f0mqft6g@mail.gmail.com>
+Date: Fri, 15 Feb 2013 20:34:23 -0600
+Message-ID: <CAHrUA3676_qeiAR7MXbYd6aFAgFpr6GC9k3Xz+wyvHk56ebXiA@mail.gmail.com>
+References: <1093431360938494@web22d.yandex.ru> <CAHrUA364XES66kXhr0Gg1dh_MQBAS0+R8Q4x+EY3dgz6s=QRww@mail.gmail.com>
+ <CAHrUA36mN-a6BTCp7DP-QgWA5ii86YbmpvZbBTnv__f0mqft6g@mail.gmail.com> <1433341360978513@web2h.yandex.ru>
+Reply-To: linasvepstas@gmail.com
 Mime-Version: 1.0
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1360978513; bh=udiA8kPVRe09QHo26lvmKDV/JLaDp9MOmGLWa7QMaC0=;
-	h=From:To:In-Reply-To:References:Subject:Date;
-	b=IWjpfdCal7IJpa14TzBqv4ptcUp2xs6ixqD6F2QYuW4nUApO/A/k3tVqPJWEu9QIR
-	 mJkT54NlpV55MEfVIZhv2o7m7ebcI0W1z3H5Ja/8JTQPRw4XnEL+Acs+LSKH/32WIH
-	 jEIVSs8Q1PZ2ANm3kTfLWSDOXyCnUNYQwKnKpAG0=
-In-Reply-To: <CAHrUA36mN-a6BTCp7DP-QgWA5ii86YbmpvZbBTnv__f0mqft6g@mail.gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=x-received:mime-version:reply-to:in-reply-to:references:from:date
+         :message-id:subject:to:cc:content-type;
+        bh=zwEy7hOJX58Ud7pLQL5QDQSfgiDoFJLkB7JR7WJ1hIc=;
+        b=smCHiiKT1lXnUyWIoEof3XhEdwoBwaAO0lWES0jnIo+Byc7yUPEDQSD2CkFVjwFwzK
+         GzGxw4A18xCt4d0W7HI06pNTQdEoyfsjTd6fBezJ6oFSTLzcYYg0TCRMQ8+eyV4Vmv7t
+         C7XZAIWNlAJGZLUvPiYZ9wQSdDYNQiGWyTI9LaM88cuMjuxU/1gQuIsNCq1f9LbA8jP9
+         zHdLEmvTwoxr+JEa3rRSpWNK74j/PFpYYPV1lsAjXAN/vvXjsO3GRegxtk/SiD5lgzxO
+         Tfz6ytIK2ht+iBPhqIC2y1Q9VQPuHmAdLX2bD0O6qLbYPrpfOGC43rE6FaPXo5mFZTSN
+         VDOw==
+In-Reply-To: <1433341360978513@web2h.yandex.ru>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="windows-1252"
-To: linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: cotulla@yandex.ua
+Cc: linux-hexagon@vger.kernel.org
 
-Hello,
+On 15 February 2013 19:35,  <cotulla@yandex.ua> wrote:
 
+>>  Its far more
+>>  power-efficient than even the most efficient ARM's (I'm guessing it might be
+>>  the most power-efficient (32/64-bit) processor ever?), and that was going to
+>>  be its selling point.  I think they could not figure out how to sell
+>>  it, or to whom.
+>
+> Interesting. But is it rather slow?
 
-> =9AIts documented at https://developer.qualcomm.com/hexagon-processor
-> =9Ahttps://developer.qualcomm.com/download/80-nb419-3ahexagonvirtualm=
-achinespec.pdf
+For the qdsp6v3 the effective clock rate was 300MHz per core, so yes.
+It might be even slower for v2, not sure.  (the chip clock rate is 1.8
+GHz, there are 6 interleaved cores, so 1.8/6 = 300  The power savings
+are not from the clock rate, but from the tiny transistor count. The
+performance efficiency is from keeping all of those transistors
+constantly wiggling, which is what the interleaved pipeline does.)
 
-Yes, I saw and active using that document. But it's only a specificatio=
-n.
-A lot of things are not really described there. And kernel implementati=
-on is rather messy -=20
-for example, in some places it's using HVM interface for cache operatio=
-ns and in the another it is executing native commands.=20
+> Especially a memory access?
 
+Noo .. in fact, that slow clock rate meant it's more or less the same
+speed as DRAM.  So low penalty for cache miss.  But there's also a bus
+between here and there, and I think it was selected for simplicity not
+speed...
 
-> =9AI think it was supposed to be, I'm not sure why its not. =9AThere =
-had been some
-> =9Agrand plans for hexagon, but they never quite materialized. =9AIts=
- far more
-> =9Apower-efficient than even the most efficient ARM's (I'm guessing i=
-t might be
-> =9Athe most power-efficient (32/64-bit) processor ever?), and that wa=
-s going to
-> =9Abe its selling point. =9AI think they could not figure out how to =
-sell
-> =9Ait, or to whom.
+> No, it doesn't present in any ROM. I already checked that.
+> As well as it is useless inside without actual Linux image.
 
-Interesting. But is it rather slow? Especially a memory access?
+Oh, well, no, the VM wasn't created for linux, it was created for all
+the other junk they try to run on there (eg audio processing, noise
+cancellation, etc.), so that there would be a forward migration path
+for that software with each new chip generation.  Whether those other
+software parts actually used the thing, and in what time-frame or
+release .. hey .. typical big-company inter-divisional politics,
+bickering, etc.  The truly daring wanted all those other parts to run
+on the linux kernel.  The old-school was like "hell no we don't need
+no stinkin OS, we'll hand code everything in assembly" which sounds
+great until you have ten support staff helping them kludge up a really
+really badly designed home-grown linker/loader/scheduler/irq-handler.
+Sometimes, really smart people just don't get it.
 
+> One important part is a software MMU implementation, because Hexagon doesn't have hardware MMU, only standalone TLB entries.
+> But HVM provides that functionality to the guest.
 
-> =9AWell, I'm not sure, but I'm guessing that if you prowl around on t=
-he ROM,
-> =9Ayou'll find a copy of it in there somewhere.=20
+Don't know v2. But v3 had a 'real' MMU
 
-No, it doesn't present in any ROM. I already checked that.
-As well as it is useless inside without actual Linux image.
+> As well as most supervisor mode registers are not really defined, like "bit 18 of SSR is interrupt mask flag".
 
+:-)
 
->=9AAnd if you don't, its actually a=9Amini-VM, its maybe a few hundred=
- lines of assembly. =9AIt really did very little
-> =9Aother than enabling and dispatching first-level interrupts. Perhap=
-s I'm not
-> =9Athinking clearly, but I'm guessing that you can hack around having=
- it at all.
-> =9AI don't remember if there's some must-use-it-or-die undocumented =9A=
-register
-> =9Ain there or not.
+> I already can run QDSP6 code in polling-bootloader mode.
 
-One important part is a software MMU implementation, because Hexagon do=
-esn't have hardware MMU, only standalone TLB entries.
-But HVM provides that functionality to the guest.
-As well as most supervisor mode registers are not really defined, like =
-"bit 18 of SSR is interrupt mask flag".
+Good, because the bootloader was going to be the other issue.
 
-Of course it's not a problem for myself, I already researched most thin=
-gs.
-It should be enough to bring native Hexagon kernel instead of fake hype=
-rvisor one.
-I am working with HTC LEO which has QSD8250B/QDSP6v2.=20
-I already can run QDSP6 code in polling-bootloader mode.
+> Well, it sounds well. But what reason to push code to _mainline_ before all that is done?
+> Is it really good to include random bullshit into kernel to make it cluttered?
 
+I'd done the patches for glibc (yes, they're publicly available on
+some website, don't know if they got merged or not), got 98% of the
+many hundreds of glibc unit tests to pass, including most or all of
+the thread tests including TLS. Someone had bootstrapped hundreds of
+.debs and both python and perl passed 100% of their tests.  I'm sure
+no one cares, but even guile worked, and I was about to start fiddling
+with haskell :-)
 
-> =9AMost of the other vendors do it to. Certainly, most of the powerpc
-> =9Acode requires
-> =9Aan extremely large and complicated hypervisor -- something like mi=
-llions of
-> =9Alines of code -- and its extremely proprietary.
-Well, I guess they provide those hypervisors with hardware kinda like B=
-IOS?
-In Hexagon case it's actually dead code.=20
-What is the point to include such thing inside mainline kernel?
-
-
-> =9AWhile I was at Qualcomm, I saw development boards that were suppos=
-ed
-> =9Ato be generally available for a few hundred $$. =9AThey were basic=
-ally
-> =9Acell-phones
-> =9Awith the radio disabled (to avoid complications with the carriers)=
- and some
-> =9Aextra headers soldered on for hardware debuggers. =9AQualcomm was =
-even
-> =9Afunding someone to build a very low-cost (sub $500) semi/mostly(?)=
- open-source
-> =9Ahardware debugger, =9Asomething that could read the JTAG bits and
-> =9Ahalt/single-step
-> =9Athe CPU. =9A=9AThe point of the low-cost was to allow hobbyists to=
- get
-> =9Ainto it .. =9Asince
-> =9Apaying $5K to debug a $200 board only makes sense for NDA-signing =
-corporations
-> =9Awho can afford it.
-
-Well, it sounds well. But what reason to push code to _mainline_ before=
- all that is done?
-Is it really good to include random bullshit into kernel to make it clu=
-ttered?
-As well in the neighboring mail list people tells that QCT camera code =
-can not be included to the mainline because it has private service for =
-userspace.
-
-
--Cotulla
+--linas
