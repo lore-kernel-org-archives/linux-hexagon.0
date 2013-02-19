@@ -1,57 +1,57 @@
-From: Rob Landley <rob@landley.net>
-Subject: Re: [DISCUSSION] Running linux-hexagon on the Qualcomm Galaxy S3?
-Date: Sat, 16 Feb 2013 21:37:57 -0600
-Message-ID: <1361072277.11760.2@driftwood>
-References: <loom.20130214T082052-714@post.gmane.org>
+From: rkuo <rkuo@codeaurora.org>
+Subject: Re: [DISCUSSION] Hexagon code inside kernel
+Date: Mon, 18 Feb 2013 22:36:05 -0600
+Message-ID: <20130219043605.GB12127@codeaurora.org>
+References: <1093431360938494@web22d.yandex.ru>
+ <CAHrUA364XES66kXhr0Gg1dh_MQBAS0+R8Q4x+EY3dgz6s=QRww@mail.gmail.com>
+ <CAHrUA36mN-a6BTCp7DP-QgWA5ii86YbmpvZbBTnv__f0mqft6g@mail.gmail.com>
+ <1433341360978513@web2h.yandex.ru>
+ <CAHrUA3676_qeiAR7MXbYd6aFAgFpr6GC9k3Xz+wyvHk56ebXiA@mail.gmail.com>
+ <1163031361018389@web26d.yandex.ru>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <loom.20130214T082052-714@post.gmane.org> (from
-	erappleman@gmail.com on Thu Feb 14 01:29:14 2013)
 Content-Disposition: inline
+In-Reply-To: <1163031361018389@web26d.yandex.ru>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; delsp="Yes"; format="Flowed"
-To: Eric Appleman <erappleman@gmail.com>
+Content-Type: text/plain; charset="iso-8859-1"
+To: cotulla@yandex.ua
 Cc: linux-hexagon@vger.kernel.org
 
-On 02/14/2013 01:29:14 AM, Eric Appleman wrote:
-> Good idea? Bad idea?
-> 
-> A bunch of people Freenode (#d2common and #htc-linux) have begun a  
-> port.
-> 
-> https://github.com/detule/linux-hexagon
-> 
-> Thoughts?
+On Sat, Feb 16, 2013 at 04:39:49PM +0400, cotulla@yandex.ua wrote:
+> > =A0Don't know v2. But v3 had a 'real' MMU
+> Hm, are you sure in that?=20
+> I had never seen any usage of it. As well as binutils registers defin=
+ition doesn't include any suitable registers for that.=20
 
-Please keep me in the loop!
+Both have an MMU, but both are software managed.  That's one of the
+functions that the hypervisor provides for us.
 
-The trick is:
+=20
+> > =A0Good, because the bootloader was going to be the other issue.
+> Yes, in my case it's working :)
+> But another guys who also want participate in this project with MSM89=
+60/APQ8064 they still can't run any unsigned code on Q6.
+> In modern phones it's often locked from changes :(
 
-A) Getting a bootloader that runs hexagon code. In snapdragon there are  
-4 processors, and the "boot processor" is actually an old armv5l that  
-bogs off to run radio code after initial boot. It has to hand off  
-control to another processor, by default this is the Scorpion Armv7, it  
-has to be reprogrammed to instead wake up the hexagon and give it  
-control.
+Congrats on getting the bootloader working.
 
-2) Last I checked some of the Snapdragon SoC drivers were only in the  
-Android tree, under arch/arm. The hexagon will need these moved to a  
-generic directory in the vanilla tree so hexagon can find the USB port  
-and stick a serial console on it. (USB gadget for the win!)
+Linas already answered some of your questions (thanks Linas!)
 
-III) Qualcomm's soft MMU code is binary-only because their lawyers  
-think nobody's ever done a soft MMU before and thus their patents on it  
-won't be invalidated if it's a secret what they are. (Last I checked  
-objdump could disassemble the magic instructions, there was just no  
-documentation on TLB loading and such.)
+Hexagon Linux so far has been just used on internal projects; it's
+not a part of any products even though the processor itself is.  A
+non-hypervisor port is certainly possible, but for our purposes
+around here, it's always running under the hypervisor.
 
-Also, back in 2010 there was a brief effort to get hexagon support in  
-QEMU (just one thread, but it had to do the 4-issue VLIW since the  
-different cores run different instructions and there's synchronization  
-issues with jumps and such), which would simplify open source  
-development _enormously_. Alas, it did not bear fruit that I'm aware  
-of. Adding Hexagon support to TCG would be awesome.
 
-Rob
+Thanks,
+Richard Kuo
+
+
+--=20
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora For=
+um,
+hosted by The Linux Foundation
