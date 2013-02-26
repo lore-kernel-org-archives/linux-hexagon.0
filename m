@@ -1,64 +1,64 @@
-From: cotulla@yandex.ua
+From: Linas Vepstas <linasvepstas@gmail.com>
 Subject: Re: [DISCUSSION] Hexagon code inside kernel
-Date: Tue, 26 Feb 2013 23:30:05 +0400
-Message-ID: <143591361907005@web4e.yandex.ru>
-References: <1163031361018389@web26d.yandex.ru>
-	<1361593470.29465.17@driftwood> <1982671361708622@web15h.yandex.ru> <1361861719.15497.0@driftwood>
+Date: Tue, 26 Feb 2013 13:59:54 -0600
+Message-ID: <CAHrUA35uwyu5mX3MPxC7AV6qWZ_R6DdBJLp=s78m-1hd3S2RCg@mail.gmail.com>
+References: <1163031361018389@web26d.yandex.ru> <1361593470.29465.17@driftwood>
+ <1982671361708622@web15h.yandex.ru> <1361861719.15497.0@driftwood> <195171361907160@web18e.yandex.ru>
+Reply-To: linasvepstas@gmail.com
 Mime-Version: 1.0
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1361907005; bh=yDQBBzrrSakdx7C48o+rHJYhDnRi1GNeW0o0cSnnvsM=;
-	h=From:To:In-Reply-To:References:Subject:Date;
-	b=E1DUnwAh/hRo3RAFKoWcF4htZco9gNFnWPwGL6msxORmi1ST7HZllzjFvhOOU6iH7
-	 agA38VMksQ3AdNfkBUwDGkGP7CmMd0B6/2DdMZerW71G0Z1H3LUEbaUL8znCuj0mTZ
-	 k5YUoiR3zIfoynnHmbXnt4zm2EDbSYws2nBg56YA=
-In-Reply-To: <1361861719.15497.0@driftwood>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=x-received:mime-version:reply-to:in-reply-to:references:from:date
+         :message-id:subject:to:cc:content-type;
+        bh=fIMmjKyx0tNPwJZJFbSUGaodLG8aDwSgnHL1eSN/fds=;
+        b=PAj9f9VU1zGnMnoD7bYk+0Z0b2e5lTm8NyFBJ6fBltHi3N7QTi8gdlNXiJNW6I6tmf
+         H5/rhzZmHwKuqxfDBv85iu1TKsLSCz25jmVrIqeBP3gxGtbvzxMjQrBu19gm2EaCg5bt
+         wg+b+ZEWdHQIXs5QFEN98cz5XC5Z3XKFNzrWyKhsszJUchn53qi8QuRC4m56qhG703DN
+         CNemw2zIgs99xmrMtjxIHdyBD7zyjhUIl/AGbdBokPcRtE9df2zhUjn1Gx5dZ5GB9wuo
+         C50yxm0nYcsnjzVoPdchU9IDPCgNDapySYyqATG+YDhPxy44ZVHOxXav/zrjNC8fJlCe
+         Sl8Q==
+In-Reply-To: <195171361907160@web18e.yandex.ru>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="windows-1252"
-To: linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: cotulla@yandex.ua
+Cc: linux-hexagon@vger.kernel.org
 
+On 26 February 2013 13:32,  <cotulla@yandex.ua> wrote:
+> I am trying to bring up USB garget driver now.
+> Already found that arm/mach-msm is also nosense. In common it's bad, ugly code for something mythic.
 
-> =9AI think I've missed chunks of this conversation: what are you boot=
-ing
-> =9Ait on?
->
-> =9A(Wondering if I can get a test environment together. I haven't had=
- one
-> =9Asince I left qualcomm in 2010.)
->
+Yeah.
 
-Actually at the current time two persons are did some work in that proj=
-ect:
-0)Cotulla (me) - HTC HD2 (HTC LEO) QSD8250B QDSP6v2
-Image load done by custom MAGLDR bootloader.
+One of the worst design errors in that code is that base addresses
+were made into compile-time constants, and then, to add serious injury
+to insult, a lot of complicated macros were written to obtain various
+relative offsets.  The problem being that the hexagon uses exactly the
+same offsets, but just different base addresses -- and they're
+run-time configurable, e.g. by bootloader or by device tree.  Device
+tree support for hexagon was planned, not sure about ARM.
 
-1)jonpry - HP TouchPad (APQ8060) QDSP6v3
-Image load done from kernel via PIL AFAIK.
-He also tried it on APQ8064 with QDSP6v4 but no luck with loading unsig=
-ned LPASS images.
+I had started work on this, but I don't remember that I ever got it
+clean enough to submit upstream.  That plus the fact that interrupt
+routing was different:  hexagon has both second and third-level
+interrupt controllers, with ethernet being on a third-level
+controller.  I'd gotten much/most of the 2nd-level code done, and some
+of the 3rd-level code done, and I think its in the mainline kernel
+now, although I remember planning to do some more simplification and
+cleanup.
 
+> Also I found that adding "volatile" to variable declaration puts all accesses to it as not grouped into packets.
 
-Current kernel code located here in GIT:
-We took clear tree Linux 3.7.6 at the start and started to work with it=
-=2E
-https://github.com/detule/linux-hexagon
+Yes, that sounds right.  Sorry, forgot about that.
 
+> So it can be easy workaround for uncached memory access problem, instead of replacing everything to ioread32 and iowrite32.
 
-I am trying to bring up USB garget driver now.
-Already found that arm/mach-msm is also nosense. In common it's bad, ug=
-ly code for something mythic.=20
-I was trying to use a built in chipidea driver, but it looks extremely =
-overloaded and doesn't really fits for LEO hardware.=20
-I think I will try to port old msm7k_udc.c driver from 2.6.35. It's muc=
-h more simple.
+Hmm. Either that or volatile needs to be added to the upstream
+drivers: this is an issue for a variety of arches, not just hexagon.
+Certainly powerpc treats treats uncached and i/o access in a very
+different way than memory access, and if you don't do it right, life
+will be painful.
 
-
-Also I found that adding "volatile" to variable declaration puts all ac=
-cesses to it as not grouped into packets.
-So it can be easy workaround for uncached memory access problem, instea=
-d of replacing everything to ioread32 and iowrite32.
-
-
--Cotulla
+--linas
