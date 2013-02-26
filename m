@@ -1,18 +1,18 @@
 From: cotulla@yandex.ua
 Subject: Re: [DISCUSSION] Hexagon code inside kernel
-Date: Tue, 26 Feb 2013 23:32:40 +0400
-Message-ID: <195171361907160@web18e.yandex.ru>
+Date: Tue, 26 Feb 2013 23:30:05 +0400
+Message-ID: <143591361907005@web4e.yandex.ru>
 References: <1163031361018389@web26d.yandex.ru>
 	<1361593470.29465.17@driftwood> <1982671361708622@web15h.yandex.ru> <1361861719.15497.0@driftwood>
 Mime-Version: 1.0
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1361907160; bh=yDQBBzrrSakdx7C48o+rHJYhDnRi1GNeW0o0cSnnvsM=;
+	t=1361907005; bh=yDQBBzrrSakdx7C48o+rHJYhDnRi1GNeW0o0cSnnvsM=;
 	h=From:To:In-Reply-To:References:Subject:Date;
-	b=bBiK0GgtNAhO6gHYB/1mZPGBQ7Zlysy3HoCaplvFgwxAy2z8XNlH+AtIShYBQCtOe
-	 x41UtCMevOQDjw/FADiV1E2YJrzfxbZg7X9wyXdG0VKVom5hB5gsKdT1iNIUZjEx53
-	 jllvu6KmxPlEY40XnLbIOi0hGWx3NL+pCt3uxDjs=
+	b=E1DUnwAh/hRo3RAFKoWcF4htZco9gNFnWPwGL6msxORmi1ST7HZllzjFvhOOU6iH7
+	 agA38VMksQ3AdNfkBUwDGkGP7CmMd0B6/2DdMZerW71G0Z1H3LUEbaUL8znCuj0mTZ
+	 k5YUoiR3zIfoynnHmbXnt4zm2EDbSYws2nBg56YA=
 In-Reply-To: <1361861719.15497.0@driftwood>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
