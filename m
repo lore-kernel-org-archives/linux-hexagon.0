@@ -1,67 +1,64 @@
 From: cotulla@yandex.ua
 Subject: Re: [DISCUSSION] Hexagon code inside kernel
-Date: Tue, 26 Feb 2013 22:54:21 +0400
-Message-ID: <5251361904861@web14e.yandex.ru>
-References: <CAHrUA36YTCfedZGxBa+Vgzvz=DBR=PJhcPHe0aZegQiD79gHXQ@mail.gmail.com>
-	(from linasvepstas@gmail.com on Sun Feb 24 15:03:37 2013) <1361813206.27287.1@driftwood>
+Date: Tue, 26 Feb 2013 23:32:40 +0400
+Message-ID: <195171361907160@web18e.yandex.ru>
+References: <1163031361018389@web26d.yandex.ru>
+	<1361593470.29465.17@driftwood> <1982671361708622@web15h.yandex.ru> <1361861719.15497.0@driftwood>
 Mime-Version: 1.0
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1361904861; bh=vLCV4nvVOeJbTBixoLsWRYuGTLfEvdI+Q+FJcIiFDcM=;
+	t=1361907160; bh=yDQBBzrrSakdx7C48o+rHJYhDnRi1GNeW0o0cSnnvsM=;
 	h=From:To:In-Reply-To:References:Subject:Date;
-	b=opNIbR8UsYk62CtNVX8BWTAYzBryOrTKO9QeescVjxFHYPhVuxGo82VB8y0FKxJJN
-	 LYn1JGjcNlfWN8K7bjkrkDtRJCmK7C/57rY8YvWusvRvl/x5T5TbVteHi7v8yWCmcx
-	 /izRN+vEENVsoAtbtTIRP7KIKwdwBQaSZnMXuQoQ=
-In-Reply-To: <1361813206.27287.1@driftwood>
+	b=bBiK0GgtNAhO6gHYB/1mZPGBQ7Zlysy3HoCaplvFgwxAy2z8XNlH+AtIShYBQCtOe
+	 x41UtCMevOQDjw/FADiV1E2YJrzfxbZg7X9wyXdG0VKVom5hB5gsKdT1iNIUZjEx53
+	 jllvu6KmxPlEY40XnLbIOi0hGWx3NL+pCt3uxDjs=
+In-Reply-To: <1361861719.15497.0@driftwood>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="windows-1252"
 To: linux-hexagon@vger.kernel.org
 
 
-> =9AYou're comparing arm performance with QDSP6 by writing pessimal QD=
-SP6
-> =9Acode that does single-byte moves and keeps half the execution unit=
-s
-> =9Aidle. You're going to get some extremely useful numbers out of tha=
-t,
-> =9Aaren't you? (Even their uClibc port had an assembly optimized
-> =9Amemmove().)
-Well, is it simular to usual C/C++ code task and results of compilation=
-?
-Until you will do a manual assembler optimization.
+> =9AI think I've missed chunks of this conversation: what are you boot=
+ing
+> =9Ait on?
+>
+> =9A(Wondering if I can get a test environment together. I haven't had=
+ one
+> =9Asince I left qualcomm in 2010.)
+>
 
-> =9AIs your arm code also doing single byte moves, with the requisite
-> =9Abit-shifting and masking that doing that on arm entails (since las=
-t I
-> =9Achecked arm hasn't actually _got_ instructions that handle bytes,
-> =9Aalthough maybe it went into thumb2 or v7 or v8 when I wasn't
-> =9Alooking...)?
-ARM has LDRB and STRB instructions long time ago (ever in ARMv4)
+Actually at the current time two persons are did some work in that proj=
+ect:
+0)Cotulla (me) - HTC HD2 (HTC LEO) QSD8250B QDSP6v2
+Image load done by custom MAGLDR bootloader.
 
-Okay, seems this is really bad test.
+1)jonpry - HP TouchPad (APQ8060) QDSP6v3
+Image load done from kernel via PIL AFAIK.
+He also tried it on APQ8064 with QDSP6v4 but no luck with loading unsig=
+ned LPASS images.
 
 
-> =9ASpecifically, the v2 hardware (in the snapdragon chipset in the Ne=
-xus
-> =9AOne) has 6 register profiles (for the 6 pipeline stages, acting as
-> =9A6-way SMP) but performance peaked at "make -j 3" which ran very
-> =9Aslightly faster than "make -j 4", and then -j 5 and -j 6 were each
-> =9Anoticeably slower (due to TLB thrashing).
-Intersting to know that.=20
-I want to get SSH access to got console and interaction with system.
+Current kernel code located here in GIT:
+We took clear tree Linux 3.7.6 at the start and started to work with it=
+=2E
+https://github.com/detule/linux-hexagon
 
 
-> =9AI believe that v3 had already taped out by then (late 2010, but it=
- had
-> =9Afewer pipeline stages and thus register profiles anyway), and then=
- v4
-> =9Awas going to increase the TLB entries. What actually shipped was a=
-fter
-> =9Amy time, dunno the details.
-v3 should be rather close to v2, but v4 seems to have few new features.
-At the current moment all v2 source code works on v3.
+I am trying to bring up USB garget driver now.
+Already found that arm/mach-msm is also nosense. In common it's bad, ug=
+ly code for something mythic.=20
+I was trying to use a built in chipidea driver, but it looks extremely =
+overloaded and doesn't really fits for LEO hardware.=20
+I think I will try to port old msm7k_udc.c driver from 2.6.35. It's muc=
+h more simple.
+
+
+Also I found that adding "volatile" to variable declaration puts all ac=
+cesses to it as not grouped into packets.
+So it can be easy workaround for uncached memory access problem, instea=
+d of replacing everything to ioread32 and iowrite32.
 
 
 -Cotulla
