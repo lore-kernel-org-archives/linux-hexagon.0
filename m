@@ -1,75 +1,109 @@
-From: Linas Vepstas <linasvepstas@gmail.com>
+From: Rob Landley <rob@landley.net>
 Subject: Re: [DISCUSSION] Hexagon code inside kernel
-Date: Tue, 26 Feb 2013 14:57:43 -0600
-Message-ID: <CAHrUA36nBSP56wryRx8_7dSBLDSuTB3HgLRSQa5t7hbaKLPQgw@mail.gmail.com>
-References: <1163031361018389@web26d.yandex.ru> <1361593470.29465.17@driftwood>
- <1982671361708622@web15h.yandex.ru> <1361861719.15497.0@driftwood>
- <195171361907160@web18e.yandex.ru> <CAHrUA35uwyu5mX3MPxC7AV6qWZ_R6DdBJLp=s78m-1hd3S2RCg@mail.gmail.com>
- <9881361910350@web24g.yandex.ru>
-Reply-To: linasvepstas@gmail.com
+Date: Tue, 26 Feb 2013 18:58:15 -0600
+Message-ID: <1361926695.18483.1@driftwood>
+References: <5251361904861@web14e.yandex.ru>
 Mime-Version: 1.0
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=x-received:mime-version:reply-to:in-reply-to:references:from:date
-         :message-id:subject:to:cc:content-type;
-        bh=/2e28W8SDNUC6v1eO+uUzp3V6iLYyXcXs9gjjjbDPdg=;
-        b=GSjmOsSa4OjLDseDC/3mlfLwUkmAOsUFi6C+E57yvCZj1CSlaoMFDVwUTyi6KYz/oJ
-         8e4E6o9olvY53mM4ZMl8qcyqzjw6+lx6Kfd0oFvGlcFvN9i+6Hi3B/V32P1CTi5SR7v1
-         OYMM86PZH8/exB/kXjoRpQ2E70Tey593fxvbKhi8EOKMKmxA+U8NXcVMxtYeAVSC4a4O
-         G8HPI+jYNskxT6yZlsP6K6pjKunwit2fiQ98YaltPjW8gwfN1b7oWJuyd/lL+W7btGBx
-         Wz9ZJ6svpzv76dt0vIyyZJPcbzeTBv3zZMgHHvo6Rj6iGbsnQIkyTe8TRdXBdrfpkY8o
-         iV2w==
-In-Reply-To: <9881361910350@web24g.yandex.ru>
+In-Reply-To: <5251361904861@web14e.yandex.ru> (from cotulla@yandex.ua on Tue
+	Feb 26 12:54:21 2013)
+Content-Disposition: inline
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"; delsp="Yes	Format=Flowed"
 To: cotulla@yandex.ua
 Cc: linux-hexagon@vger.kernel.org
 
-On 26 February 2013 14:25,  <cotulla@yandex.ua> wrote:
+On 02/26/2013 12:54:21 PM, cotulla@yandex.ua wrote:
+>=20
+> > =A0You're comparing arm performance with QDSP6 by writing pessimal =
+=20
+> QDSP6
+> > =A0code that does single-byte moves and keeps half the execution un=
+its
+> > =A0idle. You're going to get some extremely useful numbers out of =20
+> that,
+> > =A0aren't you? (Even their uClibc port had an assembly optimized
+> > =A0memmove().)
+> Well, is it simular to usual C/C++ code task and results of =20
+> compilation?
 
-> Hexagon has same addresses for most shared devices except the private ones - like timers and second level interrupt controller.
-> For example, I am using exactly same base address for USB and it works.
+Not for strcpy(), strcat(), memcpy(), memmove(), structure assignment..=
+=2E
 
-Hmm. That's odd. Certainly, the formal specs for the chipset put them
-in different places, but this all depends on how you set up various
-registers during boot.  Note, FYI, that among other things, that there
-are registers than can make devices and address ranges
-appear/disappear  for the various different cpus -- this was meant as
-both a security and convenience feature, so that e.g. the arm and
-hexagon would not both try to use the same device at the same time, or
-that e.g. the radio modem could be hidden.
+> Until you will do a manual assembler optimization.
 
-Again, the whole point of the device tree is to allow base addresses
-to be boot-time configured, so that a given driver could work on a
-variety of different systems.
+No, until your libc does the manual assembler optimization of common =20
+operations _for_ you (which is half the reason there's target-specific =
+=20
+code), and you use the right functions.
 
->>  I had started work on this, but I don't remember that I ever got it
->>  clean enough to submit upstream.  That plus the fact that interrupt
->>  routing was different:  hexagon has both second and third-level
->>  interrupt controllers, with ethernet being on a third-level
->>  controller.  I'd gotten much/most of the 2nd-level code done, and some
->>  of the 3rd-level code done, and I think its in the mainline kernel
->>  now, although I remember planning to do some more simplification and
->>  cleanup.
-> Hm it seems dependent from SoC.
+> > =A0Is your arm code also doing single byte moves, with the requisit=
+e
+> > =A0bit-shifting and masking that doing that on arm entails (since =20
+> last I
+> > =A0checked arm hasn't actually _got_ instructions that handle bytes=
+,
+> > =A0although maybe it went into thumb2 or v7 or v8 when I wasn't
+> > =A0looking...)?
+> ARM has LDRB and STRB instructions long time ago (ever in ARMv4)
+>=20
+> Okay, seems this is really bad test.
 
-Yes, very much so.  And there are many different SoC's.
+That was my point, yes.
 
-> In QDS8250B there are two second level interrupt controllers (SIRC)
-> In common it can handle (32 - 2) + 2 * 32 interrupts.
-> I already got SIRC to work and receive USB interrupts without problems.
+I honestly dunno how good the hexagon optimizer in gcc is. (The =20
+qualcomm guys did extensive hand-hacked assembly, platform hasn't been =
+=20
+all that widely used outside of there.) We've gone a touch beyond =20
+"duff's device" these days...
 
-Yep. And some of the SIRC's are routed to several third-level
-controllers.  I vaguely remember there being 168 interrupts total, or
-something like that.
+> > =A0Specifically, the v2 hardware (in the snapdragon chipset in the =
+=20
+> Nexus
+> > =A0One) has 6 register profiles (for the 6 pipeline stages, acting =
+as
+> > =A06-way SMP) but performance peaked at "make -j 3" which ran very
+> > =A0slightly faster than "make -j 4", and then -j 5 and -j 6 were ea=
+ch
+> > =A0noticeably slower (due to TLB thrashing).
+> Intersting to know that.
+> I want to get SSH access to got console and interaction with system.
 
-And, BTW, there's some craziness, where different devices can be
-multiplexed onto a given interrupt line; its really crazy, but
-everything that you would normally be interested in was default.  I
-don't remember what the other crazy stuff was  ..video controllers or
-dma engines or something like that.
+I miss having that myself. I built Aboriginal Linux on target and built=
+ =20
+Linux From Scratch and chunks of Beyond Linux From Scratch under it and=
+ =20
+the result was a fairly decent machine. I would love to support it in =20
+my upstream vanilla projects, but Qualcomm never gave me (or anyone =20
+else) the tools to do that outside of employee context.
 
---linas
+> > =A0I believe that v3 had already taped out by then (late 2010, but =
+it =20
+> had
+> > =A0fewer pipeline stages and thus register profiles anyway), and th=
+en =20
+> v4
+> > =A0was going to increase the TLB entries. What actually shipped was=
+ =20
+> after
+> > =A0my time, dunno the details.
+> v3 should be rather close to v2, but v4 seems to have few new =20
+> features.
+> At the current moment all v2 source code works on v3.
+
+They're backwards but not forwards compatible. v2 works on v3 and v4, =20
+but v4 may not work on v2. (Most architectures work that way.)
+
+Over in the arm world, moving from armv4l to armv5l gives you about a =20
+25% performance boost (which means 25% more battery life if it races it=
+ =20
+idle faster), and Arm EABI standard requires thumb instructions =20
+(armv4tl). But otherwise, you can run the old code just fine.
+
+Rob--
+To unsubscribe from this list: send the line "unsubscribe linux-hexagon=
+" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
