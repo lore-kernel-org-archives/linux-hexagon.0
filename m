@@ -1,13 +1,13 @@
 From: Rob Landley <rob@landley.net>
 Subject: Re: [DISCUSSION] Hexagon code inside kernel
-Date: Tue, 26 Feb 2013 18:58:15 -0600
-Message-ID: <1361926695.18483.1@driftwood>
-References: <5251361904861@web14e.yandex.ru>
+Date: Tue, 26 Feb 2013 19:06:29 -0600
+Message-ID: <1361927189.18483.2@driftwood>
+References: <195171361907160@web18e.yandex.ru>
 Mime-Version: 1.0
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <5251361904861@web14e.yandex.ru> (from cotulla@yandex.ua on Tue
-	Feb 26 12:54:21 2013)
+In-Reply-To: <195171361907160@web18e.yandex.ru> (from cotulla@yandex.ua on
+	Tue Feb 26 13:32:40 2013)
 Content-Disposition: inline
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
@@ -15,92 +15,88 @@ Content-Type: text/plain; charset="iso-8859-1"; delsp="Yes	Format=Flowed"
 To: cotulla@yandex.ua
 Cc: linux-hexagon@vger.kernel.org
 
-On 02/26/2013 12:54:21 PM, cotulla@yandex.ua wrote:
+On 02/26/2013 01:32:40 PM, cotulla@yandex.ua wrote:
 >=20
-> > =A0You're comparing arm performance with QDSP6 by writing pessimal =
-=20
-> QDSP6
-> > =A0code that does single-byte moves and keeps half the execution un=
-its
-> > =A0idle. You're going to get some extremely useful numbers out of =20
-> that,
-> > =A0aren't you? (Even their uClibc port had an assembly optimized
-> > =A0memmove().)
-> Well, is it simular to usual C/C++ code task and results of =20
-> compilation?
-
-Not for strcpy(), strcat(), memcpy(), memmove(), structure assignment..=
-=2E
-
-> Until you will do a manual assembler optimization.
-
-No, until your libc does the manual assembler optimization of common =20
-operations _for_ you (which is half the reason there's target-specific =
-=20
-code), and you use the right functions.
-
-> > =A0Is your arm code also doing single byte moves, with the requisit=
-e
-> > =A0bit-shifting and masking that doing that on arm entails (since =20
-> last I
-> > =A0checked arm hasn't actually _got_ instructions that handle bytes=
-,
-> > =A0although maybe it went into thumb2 or v7 or v8 when I wasn't
-> > =A0looking...)?
-> ARM has LDRB and STRB instructions long time ago (ever in ARMv4)
+> > =A0I think I've missed chunks of this conversation: what are you =20
+> booting
+> > =A0it on?
+> >
+> > =A0(Wondering if I can get a test environment together. I haven't h=
+ad =20
+> one
+> > =A0since I left qualcomm in 2010.)
+> >
 >=20
-> Okay, seems this is really bad test.
-
-That was my point, yes.
-
-I honestly dunno how good the hexagon optimizer in gcc is. (The =20
-qualcomm guys did extensive hand-hacked assembly, platform hasn't been =
+> Actually at the current time two persons are did some work in that =20
+> project:
+> 0)Cotulla (me) - HTC HD2 (HTC LEO) QSD8250B QDSP6v2
+> Image load done by custom MAGLDR bootloader.
+>=20
+> 1)jonpry - HP TouchPad (APQ8060) QDSP6v3
+> Image load done from kernel via PIL AFAIK.
+> He also tried it on APQ8064 with QDSP6v4 but no luck with loading =20
+> unsigned LPASS images.
+>=20
+>=20
+> Current kernel code located here in GIT:
+> We took clear tree Linux 3.7.6 at the start and started to work with =
 =20
-all that widely used outside of there.) We've gone a touch beyond =20
-"duff's device" these days...
+> it.
+> https://github.com/detule/linux-hexagon
 
-> > =A0Specifically, the v2 hardware (in the snapdragon chipset in the =
+Cool. I haven't got hardware to do anything with it at the moment. =20
+(With the possible exception of my phone, but it's in use as a phone. =20
+Haven't even put cyanogenmod on it.)
+
+> I am trying to bring up USB garget driver now.
+> Already found that arm/mach-msm is also nosense. In common it's bad, =
 =20
-> Nexus
-> > =A0One) has 6 register profiles (for the 6 pipeline stages, acting =
-as
-> > =A06-way SMP) but performance peaked at "make -j 3" which ran very
-> > =A0slightly faster than "make -j 4", and then -j 5 and -j 6 were ea=
-ch
-> > =A0noticeably slower (due to TLB thrashing).
-> Intersting to know that.
-> I want to get SSH access to got console and interaction with system.
+> ugly code for something mythic.
 
-I miss having that myself. I built Aboriginal Linux on target and built=
- =20
-Linux From Scratch and chunks of Beyond Linux From Scratch under it and=
- =20
-the result was a fairly decent machine. I would love to support it in =20
-my upstream vanilla projects, but Qualcomm never gave me (or anyone =20
-else) the tools to do that outside of employee context.
+If you poke Thomas Gleixner, he _might_ be able to help. (He did work =20
+under NDA, but some of the restrictions may have been relaxed when the =
+=20
+code went upstream. If he can't help, he'll say so.)
 
-> > =A0I believe that v3 had already taped out by then (late 2010, but =
-it =20
-> had
-> > =A0fewer pipeline stages and thus register profiles anyway), and th=
-en =20
-> v4
-> > =A0was going to increase the TLB entries. What actually shipped was=
- =20
-> after
-> > =A0my time, dunno the details.
-> v3 should be rather close to v2, but v4 seems to have few new =20
-> features.
-> At the current moment all v2 source code works on v3.
+You won't get a lot of time out of him, but he may be able to answer =20
+questions about where code lives in various public trees...
 
-They're backwards but not forwards compatible. v2 works on v3 and v4, =20
-but v4 may not work on v2. (Most architectures work that way.)
+> I was trying to use a built in chipidea driver, but it looks =20
+> extremely overloaded and doesn't really fits for LEO hardware.
+> I think I will try to port old msm7k_udc.c driver from 2.6.35. It's =20
+> much more simple.
 
-Over in the arm world, moving from armv4l to armv5l gives you about a =20
-25% performance boost (which means 25% more battery life if it races it=
+I really want qemu support for this. Sigh. Are there public assembly =20
+docs anywhere? (I had a giant printout brick circa 2010 but remember =20
+almost nothing from it and gave it back when I left...)
+
+> Also I found that adding "volatile" to variable declaration puts all =
+=20
+> accesses to it
+> as not grouped into packets.
+
+What I _do_ remember is that each instruction is 32 bits, and that one =
+=20
+of those bits is the grouping bit which is either on or off (I forget =20
+which) to indicate the end of a packet.
+
+If you build -O0 it sets the bit on every instruction, _and_ I think =20
+feeds in NOPS to position instructions to go to the "right" cores when =
+=20
+you need to do something the first or second core can't do. (I think #3=
  =20
-idle faster), and Arm EABI standard requires thumb instructions =20
-(armv4tl). But otherwise, you can run the old code just fine.
+and #4 are identical, but could easily be wrong.)
+
+> So it can be easy workaround for uncached memory access problem, =20
+> instead of replacing
+> everything to ioread32 and iowrite32.
+
+Oh there's a CPU cache. The problem is the instruction dispatch is a =20
+fraction of the clock speed, and the clock speed's low to begin with =20
+(both to keep power consumption down). The speed comes entirely from =20
+parallelism, you really need to take advantage of that on this chip or =
+=20
+performance is going to suck.
 
 Rob--
 To unsubscribe from this list: send the line "unsubscribe linux-hexagon=
