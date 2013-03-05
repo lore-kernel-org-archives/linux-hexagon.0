@@ -1,16 +1,16 @@
 From: cotulla@yandex.ru
-Subject: Serious error in the code
-Date: Sat, 02 Mar 2013 17:59:40 +0400
-Message-ID: <1481681362232780@web23d.yandex.ru>
+Subject: [Q] Guest mode in HVM
+Date: Tue, 05 Mar 2013 21:45:11 +0400
+Message-ID: <139411362505511@web21e.yandex.ru>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1362232780; bh=iAHg58LVgmgAoaDkRdgZKPsV+B3ozIVz94TC9bskTwU=;
+	t=1362505511; bh=yTZ7DYZvlXzqzWpNRzFZ7AKilIR6eCt8ZgOwt3x2MOE=;
 	h=From:To:Subject:Date;
-	b=q6aewxBQO1twTOGNzXXMJrKivNVETmdjq7GGkqEXNqjli/O2FLyZ+heYRCu2V1A0c
-	 sk5mVEYja3kSmnDqD1CvLrhqk3y44B5T0RaS0gIyki501vNlPWalhuoBtDPPJuts0q
-	 41iBkvSA3jb8D22ggsrcM38DW9MYHRmWfWsOhKwo=
+	b=VOYin1twxHOr5DUamuIKk6d9tLTErX1i1kz/bKavI0wJG/50APLVpAZbjVKt1JOss
+	 h3ZH17RgSM0X1nBmwmJbBRPP0zBGoZhpIpIppna77MfmO/BMq27AhGPtJYVsMk+C8R
+	 bog+VCtYg1+0h3jzS03VQnXJO8UYT6hdQbfXQ0+8=
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
@@ -19,29 +19,25 @@ To: linux-hexagon@vger.kernel.org
 Hello,
 
 
-During porting we found a serious error:
-
-Function 
-static inline int __atomic_add_unless(atomic_t *v, int a, int u)
-is implemented wrong.
-Hexagon implementation returns 0 or 1, while it _must_ return old value.
-
-linux/atomic.h defines it as:
-
-static inline int atomic_add_unless(atomic_t *v, int a, int u)
-{
-         return __atomic_add_unless(v, a, u) != u;
-}
-So it's really supposed for __atomic_add_unless return old value, not 0/1 flag.
-And finally atomic_add_unless returns 0/1 flag by comparing values.
-
-I think developer was confused by atomic_add_unless() description which is different from __atomic_add_unless().
-
-This was a very awful error. . .dunno how it worked before.
-
-However this is not the first error in the code - for example hexagon_dma_init() is never called outside.
-I am really surprised that this was ever included to mainline. Dead, not working code with a lot of errors for some abstract private HVM.
+I have a question:
+Did I understand right that "HVM Guest mode" is actually native hexagon user mode?
+And native hexagon super mode is only used inside HVM during trap1 and exception handlers?
 
 
-Best regards,
+We continued to develop our native hexagon Linux port.
+Progress is good so far, we are able to run busybox from intird, but it doesn't work stable with forks
+
+After debugging we found root case of that.
+
+At the current moment we realize that one thing in kernel is totally wrong, out of our concept:
+It's not possible to specify access mode for user/super mode in TLB.
+Access mode works only for user mode, while super mode ignores it.
+That a really bad thing, Linux needs that kind of feature to run.
+For example during write access to usermode memory from kernel to be able to clone RW page after fork() call. fork() sets it as RO and waits page fault to make a clone of it.
+
+Now we are redesigning it to run linux kernel also in hexagon user mode and use hexagon super mode only for small operations which are accessed by trap1calls. Actually it's simular to HVM now, thought we are not following HVM strict.
+
+We are going to emulate separate memory access attributes (RWX) for linux kernel and linux user modes by using two different ASIDs for user and kernel mode per hw thread.  
+
+
 -Cotulla
