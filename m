@@ -1,42 +1,44 @@
-From: Linas Vepstas <linasvepstas@gmail.com>
+From: Jon Pry <jonpry@gmail.com>
 Subject: Re: Serious error in the code
-Date: Tue, 5 Mar 2013 14:09:25 -0600
-Message-ID: <CAHrUA34vZr7Z8DwQMyvOQ4E1X1x8sEqX_Z9tu0vXnhW79An+kw@mail.gmail.com>
-References: <e4970b507ec53673b77261c392ebbbff.squirrel@www.codeaurora.org>
-Reply-To: linasvepstas@gmail.com
+Date: Tue, 5 Mar 2013 15:38:33 -0500
+Message-ID: <CA+3xLx4whFXnzOOBxxPr3rJF=tD-e+tpME4eb3oeq=VjJq+UOA@mail.gmail.com>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20120113;
-        h=x-received:mime-version:reply-to:in-reply-to:references:from:date
-         :message-id:subject:to:cc:content-type;
-        bh=KViGqpYO5mObgzPNWG+TpHxGDHIA+EMxVnFDsOVzuf8=;
-        b=cwLskDv8VrMBvTzL/4HKbR3SPM5zD0IlkVL7JjqKKT5SmqHlMMOYxm/mywBWDw+wM+
-         Mg0477AbvLblZx0bXrX7L8UbdLCQbqd77VbXypptrJiyLp9BcCjn/q1GfRF8jbUBaoJH
-         iCKtZUVMui/ayF1ra0rVNZ847y8FDBaXqeM91niyQp4Cp9jhsHKJg5amZZ5jeMd3PZLM
-         eqdiScSqItVCp1UlkrN4t+Toa0RdwK7XDZc91FkUVMURh06xXn/wxAZDbfPGuBes3P2L
-         t6OEubwOv0z5qgReNW1Zf8gD+fLdP2NSe9rrhHF2TduA6qBBGKoZrpHx06bfJk/BjZxh
-         JTiQ==
-In-Reply-To: <e4970b507ec53673b77261c392ebbbff.squirrel@www.codeaurora.org>
+        h=mime-version:x-received:date:message-id:subject:from:to
+         :content-type;
+        bh=X6lAyCfCoW889XZiP88O06vaGztDqfw02IhERwSt5Ss=;
+        b=GG4PodWHsqdzbcxSE7IJLQEyS1+wdz08FSquO3ng1rCeQStcE9iX3PIQkAqvfDsa8y
+         uQ4SV+d3mAEZVV7uk91QDD6fx3jhG8L86OZtt0oxM5JNUGfUeG4AxszrBzAcuK7MhNJX
+         YxfyJP73sFysrNgZ+t9JjjzO11d78CeEN7kNMRAO5YgnPhiUhZG1/oZYoh19hOu6UtVJ
+         I+od91ht92/8Stmw5/VeoLlzeYraN18wG8/GjpXLd4q94YszPhk9fEESB3goQgmrZ5e+
+         YC/tEJCkSUy97n2zdCN2qsVV79brob5+WJNq8Z/o0IGimlbY5fhTjuXMl0j7jMRIlCvV
+         e5DA==
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: rkuo@codeaurora.org
-Cc: cotulla@yandex.ru, linux-hexagon@vger.kernel.org
+To: linux-hexagon@vger.kernel.org
 
-On 5 March 2013 13:19,  <rkuo@codeaurora.org> wrote:
-> On Sat, Mar 2, 2013 at 7:59 AM, <cotulla@yandex.ru> wrote:
->> Hello,
->
-> If you find other stuff or have questions, feel free to post about it.  It
-> sounds like you've made pretty good progress.
+> Well, the meta-issue is that he has code that runs on bare-metal
+> hexagon, without the hypervisor, and the question becomes "should
+> this code be accepted and merged?" (I think the answer is yes) and
+> "how?" (I'm thinking this would be with ifdef's and CONFIG_HVM)
+> and finally, "when?" (he claims not to be ready yet, with cleanup required.
+> but I'm very much in the "push early and push often" camp).
 
-Well, the meta-issue is that he has code that runs on bare-metal
-hexagon, without the hypervisor, and the question becomes "should
-this code be accepted and merged?" (I think the answer is yes) and
-"how?" (I'm thinking this would be with ifdef's and CONFIG_HVM)
-and finally, "when?" (he claims not to be ready yet, with cleanup required.
-but I'm very much in the "push early and push often" camp).
+Originally we thought that the "bare metal" hexagon port would be
+substantially different from HVM. To the extent that #ifdef's would
+not be possible. But with the recent developments about the processors
+strange behavior in supervisor mode, it now seems like our kernel will
+be very similar to the HVM port. This new code is just being written
+though. Everything is broke, so we will at least need some time before
+any patches can be proposed. I am personally interested in trying to
+upstream some of this work. Any advice from the community on how it
+should be architected and what will be acceptable or not would be
+welcome.
 
--- Linas
+Regards,
+
+Jon Pry
