@@ -1,44 +1,71 @@
-From: Jon Pry <jonpry@gmail.com>
-Subject: Re: Serious error in the code
-Date: Tue, 5 Mar 2013 15:38:33 -0500
-Message-ID: <CA+3xLx4whFXnzOOBxxPr3rJF=tD-e+tpME4eb3oeq=VjJq+UOA@mail.gmail.com>
+From: rkuo@codeaurora.org
+Subject: Re:  [Q] Guest mode in HVM
+Date: Tue, 5 Mar 2013 15:53:09 -0800
+Message-ID: <48b776bf823f2b3c978065ccc6bce7b0.squirrel@www.codeaurora.org>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=mime-version:x-received:date:message-id:subject:from:to
-         :content-type;
-        bh=X6lAyCfCoW889XZiP88O06vaGztDqfw02IhERwSt5Ss=;
-        b=GG4PodWHsqdzbcxSE7IJLQEyS1+wdz08FSquO3ng1rCeQStcE9iX3PIQkAqvfDsa8y
-         uQ4SV+d3mAEZVV7uk91QDD6fx3jhG8L86OZtt0oxM5JNUGfUeG4AxszrBzAcuK7MhNJX
-         YxfyJP73sFysrNgZ+t9JjjzO11d78CeEN7kNMRAO5YgnPhiUhZG1/oZYoh19hOu6UtVJ
-         I+od91ht92/8Stmw5/VeoLlzeYraN18wG8/GjpXLd4q94YszPhk9fEESB3goQgmrZ5e+
-         YC/tEJCkSUy97n2zdCN2qsVV79brob5+WJNq8Z/o0IGimlbY5fhTjuXMl0j7jMRIlCvV
-         e5DA==
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: linux-hexagon@vger.kernel.org
+To: cotulla@yandex.ru
+Cc: linux-hexagon@vger.kernel.org, erappleman@gmail.com, jonpry@gmail.com, linasvepstas@gmail.com
 
-> Well, the meta-issue is that he has code that runs on bare-metal
-> hexagon, without the hypervisor, and the question becomes "should
-> this code be accepted and merged?" (I think the answer is yes) and
-> "how?" (I'm thinking this would be with ifdef's and CONFIG_HVM)
-> and finally, "when?" (he claims not to be ready yet, with cleanup required.
-> but I'm very much in the "push early and push often" camp).
+On Tue, Mar 5, 2013 at 11:45 AM, <cotulla@yandex.ru> wrote:
+> I have a question:
+> Did I understand right that "HVM Guest mode" is actually native hexagon
+> user mode?
+> And native hexagon super mode is only used inside HVM during trap1 and
+> exception handlers?
 
-Originally we thought that the "bare metal" hexagon port would be
-substantially different from HVM. To the extent that #ifdef's would
-not be possible. But with the recent developments about the processors
-strange behavior in supervisor mode, it now seems like our kernel will
-be very similar to the HVM port. This new code is just being written
-though. Everything is broke, so we will at least need some time before
-any patches can be proposed. I am personally interested in trying to
-upstream some of this work. Any advice from the community on how it
-should be architected and what will be acceptable or not would be
-welcome.
+On certain versions of the architecture, yes, it effectively is pushed
+into user mode.
 
-Regards,
+> It's not possible to specify access mode for user/super mode in TLB.
+> ...
+> We are going to emulate separate memory access attributes (RWX) for linux
+> kernel and linux user modes by using two different ASIDs for user and
+> kernel mode per hw thread.
 
-Jon Pry
+Right, the supervisor isn't subject to RWX bits, but it is still subject
+to ASIDs.  I think there was some other nuance to the fault handling, but
+that was the gist of it.
+
+This brings us to hypervisors which we've sort of skirted in other emails.
+ There will be changes in the Hexagon architecture from one version to
+another, some of which will affect the guest operation and compatibility. 
+Long term, "we" would like to have Linux just deal with the hypervisor
+interface.
+
+Of course, that isn't useful to anybody without the actual hypervisor.  We
+recognize this and are working hard to try to release some version of a
+functioning hypervisor for the community to continue tinkering with.  If
+we get that out, perhaps that will be more preferable for you to work
+on...
+
+That said, I think it's great that you all are motivated enough to go for
+a bare metal port in the first place (and it looks like you've made great
+progress).  I see no reason to reject bare metal patches, but we would
+need to keep things clean with ifdefs/config switches...
+
+
+Thanks,
+Richard Kuo
+
+
+--
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation
+
+
+
+
+
+
+
+
+
+
+
+
