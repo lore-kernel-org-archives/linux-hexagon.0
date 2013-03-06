@@ -1,77 +1,73 @@
-From: Jon Pry <jonpry@gmail.com>
+From: cotulla@ya.ru
 Subject: Re: [Q] Guest mode in HVM
-Date: Wed, 6 Mar 2013 15:48:28 -0500
-Message-ID: <CA+3xLx6zQK81t83vhzafJ=OpFmh19NjUHQ-1Fe_KtThA7GjODw@mail.gmail.com>
+Date: Thu, 07 Mar 2013 03:27:28 +0400
+Message-ID: <312941362612448@web11f.yandex.ru>
 References: <48b776bf823f2b3c978065ccc6bce7b0.squirrel@www.codeaurora.org>
-	<1362595316.2980.0@driftwood>
 Mime-Version: 1.0
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=mime-version:x-received:in-reply-to:references:date:message-id
-         :subject:from:to:cc:content-type;
-        bh=SVSpVpI/p+bDzOOSxuOPdz0wyfIt9Dae5fpi6asXs6k=;
-        b=gxeqqAY/phwAmpOw3ToQg6RmUVluV1a7fEwkrdGrMgFQ2OgMZXrbKyQni5Dwp79sfW
-         WSO1gR2wDzJ9FdZ7v608XlGKw8u5oH110ovquR2jKX67U/BDnAnzagIJj0lN6P6r0vjT
-         LII1XzkTu5Wgaqlt9A7syGte5y2F5yHavjEBX20NixlDuSV0dRKj1RuHkqMPGKAROCHQ
-         404qwSkIGkSp4czstEJxqbaugcm0UAGZEevKl+69Uqd0g3NMIrTWENa57AXXB7bAUBR1
-         rPnFj/JbEY2eRuEmRJfKCFjDA7ZqY+Y+WCigGGpjbqPgWvntiE1WBX7PM4pskFAbDE9r
-         wo0A==
-In-Reply-To: <1362595316.2980.0@driftwood>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
+	t=1362612448; bh=MSVpXd03RgImQKWtgzliODw+4i8PaqfNJrvayIQGsNM=;
+	h=From:To:In-Reply-To:References:Subject:Date;
+	b=CbU/lrQRxH38qfL67Hy5+TcCsD3gK+BGzW5WklFG6I9xQ4qNCfGWpYzzvXfl2KGqy
+	 kRUzl0FV1Rqrov80p99BQbbFcDco9VdOyeDSt4rnuq0WQEIxMIa4tRFCs92i0eKhPl
+	 KwnM2Z6TqmkUmz5rz0C/Bg/iHj9DHBIxtk9T4SMM=
+In-Reply-To: <48b776bf823f2b3c978065ccc6bce7b0.squirrel@www.codeaurora.org>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Rob Landley <rob@landley.net>
-Cc: linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+To: linux-hexagon@vger.kernel.org
 
-> I would very much like to test this once you can boot a shell prompt on it.
-> Is there some kind of README about what hardware to try to snag off ebay or
-> prospects for getting support in qemu? (If there's a prebuilt toolchain an
-> actual URL to that would be great too.)
+Hello,
+
+
+> =9ARight, the supervisor isn't subject to RWX bits, but it is still s=
+ubject
+> =9Ato ASIDs. =9AI think there was some other nuance to the fault hand=
+ling, but
+> =9Athat was the gist of it.
+That's sadly :(
+
 >
-> Rob
+> =9AThis brings us to hypervisors which we've sort of skirted in other=
+ emails.
+> =9A=9AThere will be changes in the Hexagon architecture from one vers=
+ion to
+> =9Aanother, some of which will affect the guest operation and compati=
+bility.
+> =9ALong term, "we" would like to have Linux just deal with the hyperv=
+isor
+> =9Ainterface.
+>
+> =9AOf course, that isn't useful to anybody without the actual hypervi=
+sor. =9AWe
+> =9Arecognize this and are working hard to try to release some version=
+ of a
+> =9Afunctioning hypervisor for the community to continue tinkering wit=
+h. =9A
+Will it be releases as binary or as source code?
 
-In theory we can run a shell prompt now. However the only console
-driver is a ram console type thing, so output only. Cotulla also has
-some kind of screen driver working which has the same problem.
-The big issue with these devices is getting access to the registers
-required to cause the processor to boot. This is not only dependent on
-the processor model, but the specific version of the baseband software
-installed. Really more so on the latter since any processor could at
-least in theory provide access. My HP touchpad just happens to use
-unsigned firmware for the Hexagon. Not many people have tried, so
-there is no data on other devices with support. At this moment. the
-touchpad is the only device known to have unlocked access to the DSP
-boot registers.
+> If =9Awe get that out, perhaps that will be more preferable for you t=
+o work
+> =9Aon...
+Well, we already [i]somehow[/i] almost got full working ;-)
+But can be useful for another hobby developers.
 
-If your really inspired it is possible to figure out if a given
-android device can run unsigned firmware by examining the
-/lib/firmware/Q6.mdt file on the device. Location kind of varies, but
-it's somewhere. That file is an ELF header, and if you open it up in a
-hex editor it will either have a couple thousand bytes of certificate
-stuff at the end or not.  The NSA would be proud to see how well these
-Hexagons are protected from their owners.
 
-There may be some devices that have firmware signatures but still
-allow access to the registers. Some modification to the arm side
-kernel is probably required to prevent it from trying to use the DSP
-for audio stuff.  I have patches for doing that on the touchpad.
+> =9AThat said, I think it's great that you all are motivated enough to=
+ go for
+> =9Aa bare metal port in the first place (and it looks like you've mad=
+e great
+> =9Aprogress). =9AI see no reason to reject bare metal patches, but we=
+ would
+> =9Aneed to keep things clean with ifdefs/config switches...
+>
+Yes, we got busybox to run rather good as well. Most tests are passed.
+Under "we" I mean me and Jonpry. I am working with QDSP6v2 (QSD8250B) a=
+nd he is working with QDSP6v3 (APQ8060).
 
-There is a toolchain here:
-https://www.codeaurora.org/patches/quic/hexagon/4.0/
+Another question which I want to know - QDSP6 has PIPT cache or VIPT?
 
-That toolchain is horrible, and it can't compile anything except the
-kernel. However it is the only one that can compile the kernel for >V2
 
-Mentor graphics makes one that can actually build programs, what a
-concept. LD is kind of messed up for greater than > V2 so whatever
-your building must use gcc to do the linking.
-
-https://sourcery.mentor.com/GNUToolchain/release2194
-
-I used that for making userland stuff like busybox.
-
-Cheers,
-
-Jon
+Best regards,
+-Cotulla
