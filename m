@@ -1,77 +1,77 @@
-From: Rob Landley <rob@landley.net>
+From: Jon Pry <jonpry@gmail.com>
 Subject: Re: [Q] Guest mode in HVM
-Date: Wed, 06 Mar 2013 12:41:56 -0600
-Message-ID: <1362595316.2980.0@driftwood>
+Date: Wed, 6 Mar 2013 15:48:28 -0500
+Message-ID: <CA+3xLx6zQK81t83vhzafJ=OpFmh19NjUHQ-1Fe_KtThA7GjODw@mail.gmail.com>
 References: <48b776bf823f2b3c978065ccc6bce7b0.squirrel@www.codeaurora.org>
+	<1362595316.2980.0@driftwood>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8BIT
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <48b776bf823f2b3c978065ccc6bce7b0.squirrel@www.codeaurora.org>
-	(from rkuo@codeaurora.org on Tue Mar  5 17:53:09 2013)
-Content-Disposition: inline
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:x-received:in-reply-to:references:date:message-id
+         :subject:from:to:cc:content-type;
+        bh=SVSpVpI/p+bDzOOSxuOPdz0wyfIt9Dae5fpi6asXs6k=;
+        b=gxeqqAY/phwAmpOw3ToQg6RmUVluV1a7fEwkrdGrMgFQ2OgMZXrbKyQni5Dwp79sfW
+         WSO1gR2wDzJ9FdZ7v608XlGKw8u5oH110ovquR2jKX67U/BDnAnzagIJj0lN6P6r0vjT
+         LII1XzkTu5Wgaqlt9A7syGte5y2F5yHavjEBX20NixlDuSV0dRKj1RuHkqMPGKAROCHQ
+         404qwSkIGkSp4czstEJxqbaugcm0UAGZEevKl+69Uqd0g3NMIrTWENa57AXXB7bAUBR1
+         rPnFj/JbEY2eRuEmRJfKCFjDA7ZqY+Y+WCigGGpjbqPgWvntiE1WBX7PM4pskFAbDE9r
+         wo0A==
+In-Reply-To: <1362595316.2980.0@driftwood>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; delsp="Yes"; format="Flowed"
-To: rkuo@codeaurora.org
-Cc: cotulla@yandex.ru, linux-hexagon@vger.kernel.org, erappleman@gmail.com, jonpry@gmail.com, linasvepstas@gmail.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Rob Landley <rob@landley.net>
+Cc: linux-hexagon@vger.kernel.org
 
-On 03/05/2013 05:53:09 PM, rkuo@codeaurora.org wrote:
-> On Tue, Mar 5, 2013 at 11:45 AM, <cotulla@yandex.ru> wrote:
-> > I have a question:
-> > Did I understand right that "HVM Guest mode" is actually native  
-> hexagon
-> > user mode?
-> > And native hexagon super mode is only used inside HVM during trap1  
-> and
-> > exception handlers?
-> 
-> On certain versions of the architecture, yes, it effectively is pushed
-> into user mode.
-> 
-> > It's not possible to specify access mode for user/super mode in TLB.
-> > ...
-> > We are going to emulate separate memory access attributes (RWX) for  
-> linux
-> > kernel and linux user modes by using two different ASIDs for user  
-> and
-> > kernel mode per hw thread.
-> 
-> Right, the supervisor isn't subject to RWX bits, but it is still  
-> subject
-> to ASIDs.  I think there was some other nuance to the fault handling,  
-> but
-> that was the gist of it.
-> 
-> This brings us to hypervisors which we've sort of skirted in other  
-> emails.
->  There will be changes in the Hexagon architecture from one version to
-> another, some of which will affect the guest operation and  
-> compatibility.
-> Long term, "we" would like to have Linux just deal with the hypervisor
-> interface.
-> 
-> Of course, that isn't useful to anybody without the actual  
-> hypervisor.  We
-> recognize this and are working hard to try to release some version of  
-> a
-> functioning hypervisor for the community to continue tinkering with.   
-> If
-> we get that out, perhaps that will be more preferable for you to work
-> on...
-> 
-> That said, I think it's great that you all are motivated enough to go  
-> for
-> a bare metal port in the first place (and it looks like you've made  
-> great
-> progress).  I see no reason to reject bare metal patches, but we would
-> need to keep things clean with ifdefs/config switches...
-> 
-> Thanks,
-> Richard Kuo
+> I would very much like to test this once you can boot a shell prompt on it.
+> Is there some kind of README about what hardware to try to snag off ebay or
+> prospects for getting support in qemu? (If there's a prebuilt toolchain an
+> actual URL to that would be great too.)
+>
+> Rob
 
-I would very much like to test this once you can boot a shell prompt on  
-it. Is there some kind of README about what hardware to try to snag off  
-ebay or prospects for getting support in qemu? (If there's a prebuilt  
-toolchain an actual URL to that would be great too.)
+In theory we can run a shell prompt now. However the only console
+driver is a ram console type thing, so output only. Cotulla also has
+some kind of screen driver working which has the same problem.
+The big issue with these devices is getting access to the registers
+required to cause the processor to boot. This is not only dependent on
+the processor model, but the specific version of the baseband software
+installed. Really more so on the latter since any processor could at
+least in theory provide access. My HP touchpad just happens to use
+unsigned firmware for the Hexagon. Not many people have tried, so
+there is no data on other devices with support. At this moment. the
+touchpad is the only device known to have unlocked access to the DSP
+boot registers.
 
-Rob
+If your really inspired it is possible to figure out if a given
+android device can run unsigned firmware by examining the
+/lib/firmware/Q6.mdt file on the device. Location kind of varies, but
+it's somewhere. That file is an ELF header, and if you open it up in a
+hex editor it will either have a couple thousand bytes of certificate
+stuff at the end or not.  The NSA would be proud to see how well these
+Hexagons are protected from their owners.
+
+There may be some devices that have firmware signatures but still
+allow access to the registers. Some modification to the arm side
+kernel is probably required to prevent it from trying to use the DSP
+for audio stuff.  I have patches for doing that on the touchpad.
+
+There is a toolchain here:
+https://www.codeaurora.org/patches/quic/hexagon/4.0/
+
+That toolchain is horrible, and it can't compile anything except the
+kernel. However it is the only one that can compile the kernel for >V2
+
+Mentor graphics makes one that can actually build programs, what a
+concept. LD is kind of messed up for greater than > V2 so whatever
+your building must use gcc to do the linking.
+
+https://sourcery.mentor.com/GNUToolchain/release2194
+
+I used that for making userland stuff like busybox.
+
+Cheers,
+
+Jon
