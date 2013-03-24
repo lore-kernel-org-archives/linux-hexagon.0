@@ -1,22 +1,22 @@
 From: Jiang Liu <liuj97@gmail.com>
-Subject: [RFC PATCH v2, part4 18/39] mm/hexagon: prepare for removing num_physpages and simplify mem_init()
-Date: Sun, 24 Mar 2013 15:24:54 +0800
-Message-ID: <1364109934-7851-29-git-send-email-jiang.liu@huawei.com>
+Subject: [RFC PATCH v2, part4 19/39] mm/hexagon: prepare for removing num_physpages and simplify mem_init()
+Date: Sun, 24 Mar 2013 15:24:55 +0800
+Message-ID: <1364109934-7851-30-git-send-email-jiang.liu@huawei.com>
 References: <1364109934-7851-1-git-send-email-jiang.liu@huawei.com>
-Return-path: <owner-linux-mm@kvack.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20120113;
         h=x-received:from:to:cc:subject:date:message-id:x-mailer:in-reply-to
          :references;
         bh=51nqSG+AeVAHtis6fS6ccZxsFFLw7tU/AEuKxqluETc=;
-        b=VsLN5Y+e0lm/s9jLdu4FP9au5KyImiue2as0y2BcVusf1kb09+x8LEJZjcST4EdASX
-         ewP8+Lk/M8Oi3HJERLo6lwsf8BHwZVg1UtVjotC2ob6U0ThwniR4CF+NEmc8Z3d9SpsX
-         BOqeYUxVElhS95EVosaWspqVnK+ErBQiN3TCSkPxQPIf+cI+/q3hugxDhYldXrbQrl/2
-         DiRX+Qt1n0JjuxwIKq6vqnckxbK9ad9ijzgYbbAU1HeX0DM+FetlbCFi4XddLdcqZ799
-         WR8g5Z3/DWsXX0Lojh3XPn0CGoU9m/XvlsgP7HerUuSRiJJz5x9Xv3kLIZFzLyuX7OQC
-         0/WQ==
+        b=HQPoWgN9Tli1OyQBE9oO4WPhvV1YnXF9zQ5676KjxhFzRBluBOjiv9tc6W3UHsuVRg
+         3zWUIhGTeULlj6jc0LPN2NmJJzy8RXn/zBYtjEKP34eDeQD04/nZSp0stNhTi3dsbeaI
+         nz11oT3SqnTZU3dnRG2GPUYZ0S/wBqjLQMNsawLVjF+9VpXLayabeWl5PdF0Z1SDvAjw
+         rta2yvqmKKhUQfClqTIhmFIS9omZIxmJR2CHNkFUPRzxdFTN0imFOkVehEGr6w9qWJbU
+         lpGP0RhzTLHyWr6PccDwUjLGBM8QP4iTwMd20S0TA28tqSjHHKZobnhRQPCvm0wi1zOo
+         yWSA==
 In-Reply-To: <1364109934-7851-1-git-send-email-jiang.liu@huawei.com>
-Sender: owner-linux-mm@kvack.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -51,9 +51,3 @@ index c048d06e..c0f0781 100644
  	 *  To-Do:  someone somewhere should wipe out the bootmem map
 -- 
 1.7.9.5
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
