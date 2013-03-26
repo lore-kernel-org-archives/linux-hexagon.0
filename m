@@ -1,53 +1,52 @@
-From: Jiang Liu <liuj97@gmail.com>
-Subject: [RFC PATCH v2, part4 19/39] mm/hexagon: prepare for removing num_physpages and simplify mem_init()
-Date: Sun, 24 Mar 2013 15:24:55 +0800
-Message-ID: <1364109934-7851-30-git-send-email-jiang.liu@huawei.com>
-References: <1364109934-7851-1-git-send-email-jiang.liu@huawei.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=x-received:from:to:cc:subject:date:message-id:x-mailer:in-reply-to
-         :references;
-        bh=51nqSG+AeVAHtis6fS6ccZxsFFLw7tU/AEuKxqluETc=;
-        b=HQPoWgN9Tli1OyQBE9oO4WPhvV1YnXF9zQ5676KjxhFzRBluBOjiv9tc6W3UHsuVRg
-         3zWUIhGTeULlj6jc0LPN2NmJJzy8RXn/zBYtjEKP34eDeQD04/nZSp0stNhTi3dsbeaI
-         nz11oT3SqnTZU3dnRG2GPUYZ0S/wBqjLQMNsawLVjF+9VpXLayabeWl5PdF0Z1SDvAjw
-         rta2yvqmKKhUQfClqTIhmFIS9omZIxmJR2CHNkFUPRzxdFTN0imFOkVehEGr6w9qWJbU
-         lpGP0RhzTLHyWr6PccDwUjLGBM8QP4iTwMd20S0TA28tqSjHHKZobnhRQPCvm0wi1zOo
-         yWSA==
-In-Reply-To: <1364109934-7851-1-git-send-email-jiang.liu@huawei.com>
-Sender: linux-kernel-owner@vger.kernel.org
+From: rkuo@codeaurora.org
+Subject: Re: [PATCH] arch: remove CONFIG_GENERIC_FIND_NEXT_BIT again
+Date: Mon, 25 Mar 2013 19:53:37 -0700
+Message-ID: <ed19f23c22d5a92cda8e3622060bed61.squirrel@www.codeaurora.org>
+References: <1363872898.1390.143.camel@x61.thuisdomein>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+In-Reply-To: <1363872898.1390.143.camel@x61.thuisdomein>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Andrew Morton <akpm@linux-foundation.org>, David Rientjes <rientjes@google.com>
-Cc: Jiang Liu <jiang.liu@huawei.com>, Wen Congyang <wency@cn.fujitsu.com>, Mel Gorman <mgorman@suse.de>, Minchan Kim <minchan@kernel.org>, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Michal Hocko <mhocko@suse.cz>, Jianguo Wu <wujianguo@huawei.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+To: Paul Bolle <pebolle@tiscali.nl>
+Cc: Richard Kuo <rkuo@codeaurora.org>, Jonas Bonn <jonas@southpole.se>, linux-hexagon@vger.kernel.org, linux@lists.openrisc.net, linux-kernel@vger.kernel.org
 
-Prepare for removing num_physpages and simplify mem_init().
+> CONFIG_GENERIC_FIND_NEXT_BIT was removed in v3.0, but reappeared in two
+> architectures. Remove it again.
+>
+> Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
+> ---
+> 0) Untested.
+>
+> 1) See commit 63e424c84429903c92a0f1e9654c31ccaf6694d0 ("arch: remove
+> CONFIG_GENERIC_FIND_{NEXT_BIT,BIT_LE,LAST_BIT}") for the removal of this
+> Kconfig symbol.
+>
+> 2) Sent as one patch. Feel free to tell me to split it up in two
+> patches.
+>
+>  arch/hexagon/Kconfig  | 3 ---
+>  arch/openrisc/Kconfig | 3 ---
+>  2 files changed, 6 deletions(-)
+>
 
-Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
-Cc: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- arch/hexagon/mm/init.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+I'd be fine pulling these into my tree to go with my next batch of
+changes, or the OpenRISC folks can if they want.  Ack would be nice.
 
-diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
-index c048d06e..c0f0781 100644
---- a/arch/hexagon/mm/init.c
-+++ b/arch/hexagon/mm/init.c
-@@ -70,9 +70,8 @@ unsigned long long kmap_generation;
- void __init mem_init(void)
- {
- 	free_all_bootmem();
--	num_physpages = bootmem_lastpg;	/*  seriously, what?  */
- 
--	printk(KERN_INFO "totalram_pages = %ld\n", totalram_pages);
-+	mem_init_print_info(NULL);
- 
- 	/*
- 	 *  To-Do:  someone somewhere should wipe out the bootmem map
--- 
-1.7.9.5
+Just in case:
+
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
+
+
+Thanks,
+Richard Kuo
+
+
+
+--
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation
+
