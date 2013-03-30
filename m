@@ -1,36 +1,63 @@
-From: Jonas Bonn <jonas@southpole.se>
-Subject: Re: [PATCH] arch: remove CONFIG_GENERIC_FIND_NEXT_BIT again
-Date: Thu, 28 Mar 2013 16:04:27 +0100
-Message-ID: <51545BFB.9010806@southpole.se>
-References: <1363872898.1390.143.camel@x61.thuisdomein> <ed19f23c22d5a92cda8e3622060bed61.squirrel@www.codeaurora.org>
+From: Paul Bolle <pebolle@tiscali.nl>
+Subject: [PATCH] [RESEND] arch: remove CONFIG_GENERIC_FIND_NEXT_BIT again
+Date: Sat, 30 Mar 2013 10:06:06 +0100
+Message-ID: <1364634366.1345.111.camel@x61.thuisdomein>
+References: <1363872898.1390.143.camel@x61.thuisdomein>
+	 <ed19f23c22d5a92cda8e3622060bed61.squirrel@www.codeaurora.org>
+	 <51545BFB.9010806@southpole.se>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <ed19f23c22d5a92cda8e3622060bed61.squirrel@www.codeaurora.org>
+In-Reply-To: <51545BFB.9010806@southpole.se>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: rkuo@codeaurora.org
-Cc: Paul Bolle <pebolle@tiscali.nl>, linux-hexagon@vger.kernel.org, linux@lists.openrisc.net, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: Richard Kuo <rkuo@codeaurora.org>, Jonas Bonn <jonas@southpole.se>
+Cc: linux-hexagon@vger.kernel.org, linux@lists.openrisc.net, linux-kernel@vger.kernel.org
 
-Hi Richard,
+CONFIG_GENERIC_FIND_NEXT_BIT was removed in v3.0, but reappeared in two
+architectures. Remove it again.
 
-On 03/26/2013 03:53 AM, rkuo@codeaurora.org wrote:
->> CONFIG_GENERIC_FIND_NEXT_BIT was removed in v3.0, but reappeared in two
->> architectures. Remove it again.
->>
->
-> I'd be fine pulling these into my tree to go with my next batch of
-> changes, or the OpenRISC folks can if they want.  Ack would be nice.
-
-Go ahead and take this patch via your tree.
-
->
-> Just in case:
->
-> Acked-by: Richard Kuo <rkuo@codeaurora.org>
-
+Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
 Acked-by: Jonas Bonn <jonas@southpole.se>
+---
+0) Richard asked (off list) to resend. There appear to be problems
+locating the patch in the archives for LKML and/or linux-hexagon.
 
-Thanks,
-Jonas
+1) Added Jonas' ACK. Richard will pull the patch in a hexagon tree and
+handle it from there.
+
+ arch/hexagon/Kconfig  | 3 ---
+ arch/openrisc/Kconfig | 3 ---
+ 2 files changed, 6 deletions(-)
+
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index 48130eb..650ef81 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -81,9 +81,6 @@ config RWSEM_GENERIC_SPINLOCK
+ config RWSEM_XCHGADD_ALGORITHM
+ 	def_bool y
+ 
+-config GENERIC_FIND_NEXT_BIT
+-	def_bool y
+-
+ config GENERIC_HWEIGHT
+ 	def_bool y
+ 
+diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
+index 9ab3bf2..81b9ddb 100644
+--- a/arch/openrisc/Kconfig
++++ b/arch/openrisc/Kconfig
+@@ -55,9 +55,6 @@ config TRACE_IRQFLAGS_SUPPORT
+ config GENERIC_CSUM
+         def_bool y
+ 
+-config GENERIC_FIND_NEXT_BIT
+-	def_bool y
+-
+ source "init/Kconfig"
+ 
+ 
+-- 
+1.7.11.7
