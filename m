@@ -1,63 +1,62 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: [PATCH] [RESEND] arch: remove CONFIG_GENERIC_FIND_NEXT_BIT again
-Date: Sat, 30 Mar 2013 10:06:06 +0100
-Message-ID: <1364634366.1345.111.camel@x61.thuisdomein>
-References: <1363872898.1390.143.camel@x61.thuisdomein>
-	 <ed19f23c22d5a92cda8e3622060bed61.squirrel@www.codeaurora.org>
-	 <51545BFB.9010806@southpole.se>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+From: Richard Kuo <rkuo@codeaurora.org>
+Subject: [PATCH 0/6] Hexagon: various signal and return path cleanups
+Date: Wed,  3 Apr 2013 19:02:50 -0500
+Message-ID: <1365033776-21804-1-git-send-email-rkuo@codeaurora.org>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <51545BFB.9010806@southpole.se>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: Richard Kuo <rkuo@codeaurora.org>, Jonas Bonn <jonas@southpole.se>
-Cc: linux-hexagon@vger.kernel.org, linux@lists.openrisc.net, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, viro@ZenIV.linux.org.uk
+Cc: Richard Kuo <rkuo@codeaurora.org>
 
-CONFIG_GENERIC_FIND_NEXT_BIT was removed in v3.0, but reappeared in two
-architectures. Remove it again.
+The following patches clean up various issues with the signal and return
+path parts of the Hexagon arch port, which were pointed out by Al Viro:
 
-Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
-Acked-by: Jonas Bonn <jonas@southpole.se>
----
-0) Richard asked (off list) to resend. There appear to be problems
-locating the patch in the archives for LKML and/or linux-hexagon.
+https://lkml.org/lkml/2012/2/11/128
 
-1) Added Jonas' ACK. Richard will pull the patch in a hexagon tree and
-handle it from there.
+The work pending check was moved into a C routine to make it more
+readable and to make sure we repeat the check when necessary.  Also, various
+arguments and return values for signal handling should now be fixed.
 
- arch/hexagon/Kconfig  | 3 ---
- arch/openrisc/Kconfig | 3 ---
- 2 files changed, 6 deletions(-)
+The patches can also be viewed in the context of my next batch of cleanups
+at my repo:
 
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index 48130eb..650ef81 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -81,9 +81,6 @@ config RWSEM_GENERIC_SPINLOCK
- config RWSEM_XCHGADD_ALGORITHM
- 	def_bool y
- 
--config GENERIC_FIND_NEXT_BIT
--	def_bool y
--
- config GENERIC_HWEIGHT
- 	def_bool y
- 
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 9ab3bf2..81b9ddb 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -55,9 +55,6 @@ config TRACE_IRQFLAGS_SUPPORT
- config GENERIC_CSUM
-         def_bool y
- 
--config GENERIC_FIND_NEXT_BIT
--	def_bool y
--
- source "init/Kconfig"
- 
- 
+git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git
+
+
+Any feedback is appreciated.
+
+
+Thanks,
+Richard Kuo
+
+
+
+
+Richard Kuo (6):
+  Hexagon: Signal and return path fixes
+  Hexagon: fix up int enable/disable at ret_from_fork
+  Hexagon: use correct work mask when checking for more work
+  Hexagon: check to if we will overflow the signal stack
+  Hexagon: break up user fn/arg register setting
+  Hexagon: fix psp/sp macro
+
+ arch/hexagon/include/uapi/asm/registers.h |    3 +-
+ arch/hexagon/include/uapi/asm/signal.h    |    2 +
+ arch/hexagon/kernel/process.c             |   44 ++++++++++++-
+ arch/hexagon/kernel/signal.c              |   33 +++-------
+ arch/hexagon/kernel/traps.c               |   13 +---
+ arch/hexagon/kernel/vm_entry.S            |   96 +++++++++++++----------------
+ 6 files changed, 100 insertions(+), 91 deletions(-)
+
 -- 
-1.7.11.7
+1.7.9.5
+
+
+--
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation
