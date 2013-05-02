@@ -1,58 +1,42 @@
-From: Mark Brown <broonie@kernel.org>
+From: David Brown <davidb@codeaurora.org>
 Subject: Re: [GIT PATCH] char/misc patches for 3.10-rc1
-Date: Wed, 1 May 2013 17:13:50 +0100
-Message-ID: <20130501161350.GS26160@sirena.org.uk>
+Date: Thu, 02 May 2013 13:53:03 -0700
+Message-ID: <8yay5bxums0.fsf@huya.qualcomm.com>
 References: <20130429162115.GA6893@kroah.com>
- <CA+55aFzefpRz2Y8oW9q0ArrR=XW0POBhy8NSNJ3DrCh9EowLqg@mail.gmail.com>
- <8yafvy92gfs.fsf@huya.qualcomm.com>
- <201304292316.28464.arnd@arndb.de>
+	<CA+55aFzefpRz2Y8oW9q0ArrR=XW0POBhy8NSNJ3DrCh9EowLqg@mail.gmail.com>
+	<8yafvy92gfs.fsf@huya.qualcomm.com> <201304292316.28464.arnd@arndb.de>
+	<20130501161350.GS26160@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="daC8KDjlMyCcZyAo"
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <201304292316.28464.arnd@arndb.de>
+In-Reply-To: <20130501161350.GS26160@sirena.org.uk> (Mark Brown's message of
+	"Wed, 1 May 2013 17:13:50 +0100")
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: David Brown <davidb@codeaurora.org>, Linus Torvalds <torvalds@linux-foundation.org>, Greg KH <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Nicolas Pitre <nico@fluxnic.net>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Mark Brown <broonie@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Linus Torvalds <torvalds@linux-foundation.org>, Greg KH <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Nicolas Pitre <nico@fluxnic.net>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
+Mark Brown <broonie@kernel.org> writes:
 
---daC8KDjlMyCcZyAo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Mon, Apr 29, 2013 at 11:16:28PM +0200, Arnd Bergmann wrote:
+>
+>> Well, the only reason I see against putting it into drivers/mfd is that
+>> this place is becoming a dumping ground for stuff that doesn't have a
+>> real home anywhere else. On the other hand, this one would fit better
+>> than a lot of drivers that are already there, and it would actually remove
+>> the need for a global include/linux/*.h header file as the interface.
+>
+> Well, this device should have a bunch of function drivers hanging off it
+> shouldn't it?  That's pretty much the definition of a MFD.
 
-On Mon, Apr 29, 2013 at 11:16:28PM +0200, Arnd Bergmann wrote:
+Perhaps it's better to think of it as the library that other mfd devices
+use to talk to their device.  ssbi is not itself an MFD device, it is
+part of the other drivers.
 
-> Well, the only reason I see against putting it into drivers/mfd is that
-> this place is becoming a dumping ground for stuff that doesn't have a
-> real home anywhere else. On the other hand, this one would fit better
-> than a lot of drivers that are already there, and it would actually remove
-> the need for a global include/linux/*.h header file as the interface.
+David
 
-Well, this device should have a bunch of function drivers hanging off it
-shouldn't it?  That's pretty much the definition of a MFD.
-
---daC8KDjlMyCcZyAo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRgT87AAoJELSic+t+oim98lsP/2S+EDGnTCn3MUbg5XUXpelC
-GKe0eFoV4O8R0QRWYjTYcClm6vXWaryNUNHlg6rZnzLcUQahUqBfLGum+44M2vyX
-J6txbHOT8nwW8JvHXDFN7R2j9b1vi4gigNlhP4+4jWSslgq7w8Ust58xFWil7vt0
-1IZKKSaIy3kh7NI+oXGZy6MqEg/YLxdWEPp9ZMo3Gg0rvwszmKDN4cT1+nFmYRxh
-aJXZuzUVlQnxLpcSblwStzn14VzUwymgZsTYizRTBF9PHzIWUUmaj6BjUf+Vjrvw
-pfmCAHDUUTtfeG5f3K81sdn8AdUeyQzSKBYOEEGI2PUomVO4Ixt+wRMnTjtotnpf
-mw9ShfRRTMDsY1v/7iD+lc+WWOGyTs3xXRTxIidBAnGI7kAeaZI8y7LAvCUhWYMc
-7wtvIwrlzBTI86vLpGiKpUeYi1CMpxp2hFU/3RzG+tm9RLQ5tMODg3nOC9gNZJf/
-8mgTOpYBD0xvGvmjYSim1iWaLo79Pcr2JlpKRdBW/jHHj+s5THvmXvoiQtniEm/H
-0Ap4h7hYqtxSWm9cr56u4H+Ir95h4f496jnVfMym5L5OQJziUJTeZukUhPCPXE5l
-fjmZC97SI0Eq2mclo1WgCT5EnmIPvWssbxfG0sR/8PcnGpUrUGDvM/SHEwKiQ6mY
-1U1HYmXmaTgzjntgpkU+
-=wgs6
------END PGP SIGNATURE-----
-
---daC8KDjlMyCcZyAo--
+-- 
+sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation
