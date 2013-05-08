@@ -1,54 +1,59 @@
-From: rkuo <rkuo@codeaurora.org>
-Subject: [GIT PULL] Hexagon fix/cleanup
-Date: Tue, 7 May 2013 21:34:45 -0500
-Message-ID: <20130508023404.GA776@codeaurora.org>
-Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-hexagon-owner@vger.kernel.org
+From: Jiang Liu <liuj97@gmail.com>
+Subject: [PATCH v5, part4 21/41] mm/hexagon: prepare for removing num_physpages and simplify mem_init()
+Date: Wed,  8 May 2013 23:51:18 +0800
+Message-ID: <1368028298-7401-22-git-send-email-jiang.liu@huawei.com>
+References: <1368028298-7401-1-git-send-email-jiang.liu@huawei.com>
+Return-path: <owner-linux-mm@kvack.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=x-received:from:to:cc:subject:date:message-id:x-mailer:in-reply-to
+         :references;
+        bh=f77W/ry/X0RPEWJK3VuVBGC6mXEu5CPhghwyczqJusY=;
+        b=amCkN0FgFt8gK/naNoHAwBpiiX8PT2qPxQiv/zaEo73Kzf3pg5bWpjqE7pQPkSBqxV
+         2ehKsSsY/+Qb9mEvtxUBkIvCvOYU4qfRFxe6ZD1mP6d+EWcW7tEsmsaCWGlECvVG/KCm
+         1hI2DgeLpFBVy+1jt/d/iH80jkWeTqLTFta5gVfFf80ua6U9wONvaU7s5IuzqaE8aUfZ
+         nW00HcASPPTKxMbPYUDZM2oJHQh35+5xoaO/LSxtL/FfW9iejk5kMO535P6WGdT+63zb
+         rXkJ0rcbBJSvJ0PuGifa1n6M/tP7p+MH2WPl2D5gDgeRJS/cCoLcpjFx+FO2laHyScYh
+         8L/w==
+In-Reply-To: <1368028298-7401-1-git-send-email-jiang.liu@huawei.com>
+Sender: owner-linux-mm@kvack.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: torvalds@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jiang Liu <jiang.liu@huawei.com>, David Rientjes <rientjes@google.com>, Wen Congyang <wency@cn.fujitsu.com>, Mel Gorman <mgorman@suse.de>, Minchan Kim <minchan@kernel.org>, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Michal Hocko <mhocko@suse.cz>, James Bottomley <James.Bottomley@HansenPartnership.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, David Howells <dhowells@redhat.com>, Mark Salter <msalter@redhat.com>, Jianguo Wu <wujianguo@huawei.com>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-Hello Linus,
+Prepare for removing num_physpages and simplify mem_init().
 
-Please pull the following changes for Hexagon; it includes a bug fix and a
-Kconfig cleanup.
+Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ arch/hexagon/mm/init.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-
-Thanks,
-Richard Kuo
-
-
-
-The following changes since commit 426d29ccb2a8d44c18d3167327ee82b38287e7bf:
-
-  Hexagon: add v4 CS regs to core copyout macro (2013-04-30 19:40:29 -0500)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
-
-for you to fetch changes up to de44443a45e36b7467af2518d3bf7ec6ec909549:
-
-  HEXAGON: Remove non existent reference to GENERIC_KERNEL_EXECVE & GENERIC_KERNEL_THREAD (2013-05-07 11:38:12 -0500)
-
-----------------------------------------------------------------
-Alexander Shiyan (1):
-      HEXAGON: Remove non existent reference to GENERIC_KERNEL_EXECVE & GENERIC_KERNEL_THREAD
-
-Richard Kuo (1):
-      Hexagon: fix register used to call do_work_pending
-
- arch/hexagon/Kconfig           |    2 --
- arch/hexagon/kernel/vm_entry.S |   12 ++++++------
- 2 files changed, 6 insertions(+), 8 deletions(-)
-
-
+diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
+index 0ab5b43..88977e4 100644
+--- a/arch/hexagon/mm/init.c
++++ b/arch/hexagon/mm/init.c
+@@ -71,9 +71,7 @@ void __init mem_init(void)
+ {
+ 	/*  No idea where this is actually declared.  Seems to evade LXR.  */
+ 	free_all_bootmem();
+-	num_physpages = bootmem_lastpg-ARCH_PFN_OFFSET;
+-
+-	printk(KERN_INFO "totalram_pages = %ld\n", totalram_pages);
++	mem_init_print_info(NULL);
+ 
+ 	/*
+ 	 *  To-Do:  someone somewhere should wipe out the bootmem map
 -- 
+1.7.9.5
 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-hosted by The Linux Foundation
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
