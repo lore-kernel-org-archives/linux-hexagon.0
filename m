@@ -1,40 +1,50 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH] HEXAGON: Remove non existent reference to GENERIC_KERNEL_EXECVE
- & GENERIC_KERNEL_THREAD
-Date: Mon, 06 May 2013 13:51:57 -0500
-Message-ID: <5187FBCD.5040305@codeaurora.org>
-References: <1367755108-13169-1-git-send-email-shc_work@mail.ru>
+From: rkuo <rkuo@codeaurora.org>
+Subject: [GIT PULL] Hexagon fix/cleanup
+Date: Tue, 7 May 2013 21:34:45 -0500
+Message-ID: <20130508023404.GA776@codeaurora.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <1367755108-13169-1-git-send-email-shc_work@mail.ru>
+Content-Disposition: inline
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Alexander Shiyan <shc_work@mail.ru>
-Cc: linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: torvalds@linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On 05/05/2013 06:58 AM, Alexander Shiyan wrote:
-> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-> ---
->   arch/hexagon/Kconfig | 2 --
->   1 file changed, 2 deletions(-)
->
-> diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-> index b418471..33a9792 100644
-> --- a/arch/hexagon/Kconfig
-> +++ b/arch/hexagon/Kconfig
-> @@ -30,8 +30,6 @@ config HEXAGON
->   	select GENERIC_CLOCKEVENTS_BROADCAST
->   	select MODULES_USE_ELF_RELA
->   	select GENERIC_CPU_DEVICES
-> -	select GENERIC_KERNEL_THREAD
-> -	select GENERIC_KERNEL_EXECVE
->   	---help---
->   	  Qualcomm Hexagon is a processor architecture designed for high
->   	  performance and low power across a wide variety of applications.
+Hello Linus,
 
-Thanks, I'll take this into my tree and send it out at the next opportunity.
+Please pull the following changes for Hexagon; it includes a bug fix and a
+Kconfig cleanup.
+
+
+Thanks,
+Richard Kuo
+
+
+
+The following changes since commit 426d29ccb2a8d44c18d3167327ee82b38287e7bf:
+
+  Hexagon: add v4 CS regs to core copyout macro (2013-04-30 19:40:29 -0500)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
+
+for you to fetch changes up to de44443a45e36b7467af2518d3bf7ec6ec909549:
+
+  HEXAGON: Remove non existent reference to GENERIC_KERNEL_EXECVE & GENERIC_KERNEL_THREAD (2013-05-07 11:38:12 -0500)
+
+----------------------------------------------------------------
+Alexander Shiyan (1):
+      HEXAGON: Remove non existent reference to GENERIC_KERNEL_EXECVE & GENERIC_KERNEL_THREAD
+
+Richard Kuo (1):
+      Hexagon: fix register used to call do_work_pending
+
+ arch/hexagon/Kconfig           |    2 --
+ arch/hexagon/kernel/vm_entry.S |   12 ++++++------
+ 2 files changed, 6 insertions(+), 8 deletions(-)
 
 
 -- 
