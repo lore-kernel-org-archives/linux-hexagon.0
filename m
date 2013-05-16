@@ -1,59 +1,48 @@
-From: Jiang Liu <liuj97@gmail.com>
-Subject: [PATCH v5, part4 21/41] mm/hexagon: prepare for removing num_physpages and simplify mem_init()
-Date: Wed,  8 May 2013 23:51:18 +0800
-Message-ID: <1368028298-7401-22-git-send-email-jiang.liu@huawei.com>
-References: <1368028298-7401-1-git-send-email-jiang.liu@huawei.com>
-Return-path: <owner-linux-mm@kvack.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=x-received:from:to:cc:subject:date:message-id:x-mailer:in-reply-to
-         :references;
-        bh=f77W/ry/X0RPEWJK3VuVBGC6mXEu5CPhghwyczqJusY=;
-        b=amCkN0FgFt8gK/naNoHAwBpiiX8PT2qPxQiv/zaEo73Kzf3pg5bWpjqE7pQPkSBqxV
-         2ehKsSsY/+Qb9mEvtxUBkIvCvOYU4qfRFxe6ZD1mP6d+EWcW7tEsmsaCWGlECvVG/KCm
-         1hI2DgeLpFBVy+1jt/d/iH80jkWeTqLTFta5gVfFf80ua6U9wONvaU7s5IuzqaE8aUfZ
-         nW00HcASPPTKxMbPYUDZM2oJHQh35+5xoaO/LSxtL/FfW9iejk5kMO535P6WGdT+63zb
-         rXkJ0rcbBJSvJ0PuGifa1n6M/tP7p+MH2WPl2D5gDgeRJS/cCoLcpjFx+FO2laHyScYh
-         8L/w==
-In-Reply-To: <1368028298-7401-1-git-send-email-jiang.liu@huawei.com>
-Sender: owner-linux-mm@kvack.org
+From: Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: MFD: move ssbi driver into drivers/mfd
+Date: Thu, 16 May 2013 11:49:17 +0200
+Message-ID: <20130516094917.GD22822@zurbaran>
+References: <20130429162115.GA6893@kroah.com>
+ <8yafvy92gfs.fsf@huya.qualcomm.com>
+ <CA+55aFxaMP+=uMLLvnLHz_E0GStrDf_zO3XhVCDGHbk=tV6CqA@mail.gmail.com>
+ <201304300000.19488.arnd@arndb.de>
+Mime-Version: 1.0
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <201304300000.19488.arnd@arndb.de>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jiang Liu <jiang.liu@huawei.com>, David Rientjes <rientjes@google.com>, Wen Congyang <wency@cn.fujitsu.com>, Mel Gorman <mgorman@suse.de>, Minchan Kim <minchan@kernel.org>, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Michal Hocko <mhocko@suse.cz>, James Bottomley <James.Bottomley@HansenPartnership.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, David Howells <dhowells@redhat.com>, Mark Salter <msalter@redhat.com>, Jianguo Wu <wujianguo@huawei.com>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, David Brown <davidb@codeaurora.org>, Greg KH <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Nicolas Pitre <nico@fluxnic.net>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-Prepare for removing num_physpages and simplify mem_init().
+Hi Arnd,
 
-Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
-Cc: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- arch/hexagon/mm/init.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+On Tue, Apr 30, 2013 at 12:00:19AM +0200, Arnd Bergmann wrote:
+> There is no reason for ssbi to have its own top-level driver directory
+> when the only users of this interface are all MFD drivers. The only
+> mainline driver using it at the moment (PM8921) is marked broken and in
+> fact does not compile. I have verified that fixing the trivial build
+> breakage in pm8921 links in the new ssbi code just fine, but that
+> can be a separate patch.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Cc: Samuel Ortiz <sameo@linux.intel.com>
+> ---
+>  drivers/Kconfig              |  2 --
+>  drivers/Makefile             |  1 -
+>  drivers/mfd/Kconfig          |  3 ++-
+>  drivers/mfd/Makefile         |  2 +-
+>  drivers/{ssbi => mfd}/ssbi.c |  0
+>  drivers/ssbi/Kconfig         | 16 ----------------
+>  drivers/ssbi/Makefile        |  1 -
+>  7 files changed, 3 insertions(+), 22 deletions(-)
+Applied to my mfd-next tree, thanks.
 
-diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
-index 0ab5b43..88977e4 100644
---- a/arch/hexagon/mm/init.c
-+++ b/arch/hexagon/mm/init.c
-@@ -71,9 +71,7 @@ void __init mem_init(void)
- {
- 	/*  No idea where this is actually declared.  Seems to evade LXR.  */
- 	free_all_bootmem();
--	num_physpages = bootmem_lastpg-ARCH_PFN_OFFSET;
--
--	printk(KERN_INFO "totalram_pages = %ld\n", totalram_pages);
-+	mem_init_print_info(NULL);
- 
- 	/*
- 	 *  To-Do:  someone somewhere should wipe out the bootmem map
+Cheers,
+Samuel.
+
 -- 
-1.7.9.5
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+Intel Open Source Technology Centre
+http://oss.intel.com/
