@@ -1,57 +1,58 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH] arch: configuration,
-	deleting 'CONFIG_BUG' since always need it.
-Date: Tue, 28 May 2013 19:20:37 +0200
-Message-ID: <201305281920.37452.arnd@arndb.de>
-References: <519DCBEF.3090208@asianux.com> <201305281743.52649.arnd@arndb.de>
-	<51A4D618.3080208@zytor.com>
-Mime-Version: 1.0
+From: Jiang Liu <liuj97@gmail.com>
+Subject: [PATCH v6, part4 21/41] mm/hexagon: prepare for removing num_physpages and simplify mem_init()
+Date: Wed, 29 May 2013 21:57:39 +0800
+Message-ID: <1369835879-23553-22-git-send-email-jiang.liu@huawei.com>
+References: <1369835879-23553-1-git-send-email-jiang.liu@huawei.com>
+Return-path: <owner-linux-mm@kvack.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=from:to:cc:subject:date:message-id:x-mailer:in-reply-to:references;
+        bh=q38WKLYP7NgRbyB4mKpKaDO4DmUYEnl8XmMGWsvyy0k=;
+        b=G4nYROHuNCRB8+al0KambchBdtoKOIOg7NsJo3cdEyR1fQZs4gcDqAIaOqbPlLAVTS
+         KDmZez3eELnkYYo1LDoCItj0nGkWsaM+ZPCOHLZpTVglTYCvubHJxoYUEnJwMxwCVRG2
+         yPIYAdSHRVR2iXA8TGZ7mfVURJfsF3Keet5l81xFYZEVEuEBIh1C0jwrk5qf4Waq/1xX
+         Cnbq+7tQ7DC14HdSh056UaeAMZB2RQrUM+cgmKbl4hpZPTZsAFsx3xjY3Nmtf9ekyzYP
+         8WR0OG1Iys1ip5crYlO3Tmwwju/6UclqouU4Map5LzFNJsUlzqIR4Et7+iXW+YGPM22A
+         Cc6g==
+In-Reply-To: <1369835879-23553-1-git-send-email-jiang.liu@huawei.com>
+Sender: owner-linux-mm@kvack.org
+List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <51A4D618.3080208-YMNOUZJC4hwAvxtiuMwx3w@public.gmane.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: "H. Peter Anvin" <hpa-YMNOUZJC4hwAvxtiuMwx3w@public.gmane.org>
-Cc: Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Catalin Marinas <Catalin.Marinas-5wv7dgnIgG8@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Chen Gang <gang.chen-bOixZGp5f+dBDgjK7y7TUQ@public.gmane.org>, Heiko Carstens <heiko.carstens-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, "paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org" <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, Michel Lespinasse <walken-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Ingo Molnar <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hans-Christian Egtvedt <egtvedt-BrfabpQBY5qlHtIdYg32fQ@public.gmane.org>, Linux-Arch <linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Yoshinori Sato <ysato-Rn4VEauK+AKRv+LV9MX5uooqe+aC9MnS@public.gmane.org>, Richard Weinberger <richard-/L3Ra7n9ekc@public.gmane.org>, Helge Deller <deller-Mmb7MZpHnFY@public.gmane.org>, the arch/x86 maintainers <x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "James E.J. Bottomley" <jejb-6jwH94ZQLHl74goWV3ctuw@public.gmane.org>, "mingo-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <mingo-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jiang Liu <jiang.liu@huawei.com>, David Rientjes <rientjes@google.com>, Wen Congyang <wency@cn.fujitsu.com>, Mel Gorman <mgorman@suse.de>, Minchan Kim <minchan@kernel.org>, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Michal Hocko <mhocko@suse.cz>, James Bottomley <James.Bottomley@HansenPartnership.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, David Howells <dhowells@redhat.com>, Mark Salter <msalter@redhat.com>, Jianguo Wu <wujianguo@huawei.com>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-On Tuesday 28 May 2013, H. Peter Anvin wrote:
-> On 05/28/2013 08:43 AM, Arnd Bergmann wrote:
-> > 
-> > Right, that is what the patch I just posted does.
-> > 
-> > On a related note, I found that WARN_ON() can no longer be compiled
-> > out since there is already code that relies on the side-effects of
-> > the condition. I assume that was an intentional change I missed,
-> > since it used to be defined so that you could remove it completely.
-> > 
-> 
-> It is possible to define WARN_ON() as:
-> 
-> #define WARN_ON(x) ((void)(x))
-> 
-> ... which preserves side effects.
+Prepare for removing num_physpages and simplify mem_init().
 
-Yes, actually the return value has to be maintained as well.
-The current (!CONFIG_BUG) default implementation is
+Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ arch/hexagon/mm/init.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-#define WARN_ON(condition) ({                                           \
-        int __ret_warn_on = !!(condition);                              \
-        unlikely(__ret_warn_on);                                        \
-})
+diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
+index 0ab5b43..88977e4 100644
+--- a/arch/hexagon/mm/init.c
++++ b/arch/hexagon/mm/init.c
+@@ -71,9 +71,7 @@ void __init mem_init(void)
+ {
+ 	/*  No idea where this is actually declared.  Seems to evade LXR.  */
+ 	free_all_bootmem();
+-	num_physpages = bootmem_lastpg-ARCH_PFN_OFFSET;
+-
+-	printk(KERN_INFO "totalram_pages = %ld\n", totalram_pages);
++	mem_init_print_info(NULL);
+ 
+ 	/*
+ 	 *  To-Do:  someone somewhere should wipe out the bootmem map
+-- 
+1.8.1.2
 
-which seems fine.
-
-#define WARN_ON(condition) unlikely(!!(condition))
-
-is probably just as good.
-
-	Arnd
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
