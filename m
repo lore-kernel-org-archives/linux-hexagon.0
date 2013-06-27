@@ -1,17 +1,17 @@
 From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Subject: [PATCH v2 34/45] hexagon/smp: Use get/put_online_cpus_atomic() to
+Subject: [PATCH v3 34/45] hexagon/smp: Use get/put_online_cpus_atomic() to
  prevent CPU offline
-Date: Wed, 26 Jun 2013 02:02:04 +0530
-Message-ID: <20130625203204.16593.61516.stgit@srivatsabhat.in.ibm.com>
-References: <20130625202452.16593.22810.stgit@srivatsabhat.in.ibm.com>
+Date: Fri, 28 Jun 2013 01:28:31 +0530
+Message-ID: <20130627195830.29830.70085.stgit@srivatsabhat.in.ibm.com>
+References: <20130627195136.29830.10445.stgit@srivatsabhat.in.ibm.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20130625202452.16593.22810.stgit@srivatsabhat.in.ibm.com>
-Sender: linux-pm-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20130627195136.29830.10445.stgit@srivatsabhat.in.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: tglx@linutronix.de, peterz@infradead.org, tj@kernel.org, oleg@redhat.com, paulmck@linux.vnet.ibm.com, rusty@rustcorp.com.au, mingo@kernel.org, akpm@linux-foundation.org, namhyung@kernel.org, walken@google.com, vincent.guittot@linaro.org, laijs@cn.fujitsu.com
+To: tglx@linutronix.de, peterz@infradead.org, tj@kernel.org, oleg@redhat.com, paulmck@linux.vnet.ibm.com, rusty@rustcorp.com.au, mingo@kernel.org, akpm@linux-foundation.org, namhyung@kernel.org, walken@google.com, vincent.guittot@linaro.org, laijs@cn.fujitsu.com, David.Laight@aculab.com
 Cc: rostedt@goodmis.org, wangyun@linux.vnet.ibm.com, xiaoguangrong@linux.vnet.ibm.com, sbw@mit.edu, fweisbec@gmail.com, zhong@linux.vnet.ibm.com, nikunj@linux.vnet.ibm.com, srivatsa.bhat@linux.vnet.ibm.com, linux-pm@vger.kernel.org, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, Thomas Gleixner <tglx@linutronix.de>, linux-hexagon@vger.kernel.org, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
 
 Once stop_machine() is gone from the CPU offline path, we won't be able
@@ -47,4 +47,3 @@ index 0e364ca..30d4318 100644
  }
  
  void arch_send_call_function_single_ipi(int cpu)
-
