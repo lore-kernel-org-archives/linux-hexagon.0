@@ -1,18 +1,20 @@
 From: Akinobu Mita <akinobu.mita@gmail.com>
-Subject: [PATCH 1/2] hexagon: fix return type of ffs()
-Date: Wed,  7 Aug 2013 22:42:38 +0900
-Message-ID: <1375882959-26853-1-git-send-email-akinobu.mita@gmail.com>
+Subject: [PATCH 2/2] cris: fix return type of ffs()
+Date: Wed,  7 Aug 2013 22:42:39 +0900
+Message-ID: <1375882959-26853-2-git-send-email-akinobu.mita@gmail.com>
+References: <1375882959-26853-1-git-send-email-akinobu.mita@gmail.com>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20120113;
-        h=from:to:cc:subject:date:message-id;
-        bh=6Be05+ULKlhuRHx1tKNiXMiVN5XodosSDIQfIGWd0h0=;
-        b=a78cJ8FaMjqtRUFGh/p16RpPSVApZYGQo5t5YA/SjksqrRjU6wdKjx/kk5fBdZF+4+
-         9AdzeX8SlWVBEOUPklI/u9J2kJ4c3cMTx3pblxvZ3V94DlLTp9nShVeokoWefj04Nt4P
-         CHExpsWb/Bv2OX1yMQKSjbIF0Fb/10N72o68lRkKjnYHUAEHIgMGTeswwI6iXupxnUWf
-         yDuXoMturE+2KUnHHSkg3FWOPf8Z9BSCcdmfe/6J4nU+ZsUeAQnTgZsYS6Mh+vmw1l/x
-         35RssuNTRhbOvhwExKwjZqhLdEBjBDBpddWtTVN47xQrHV4E0kms6UytGXBCdu1e5E9u
-         JDYw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=2UugNeVbdLqfOFowgBx41xAh+4cdjAojdyRfGPoO3V8=;
+        b=0k6A+ZCMb7SLvBhOd6KmCjLsSFwWNFLrOrp5PlGJG2wbjlc+cTczsO6evzaXwgww7r
+         16Dr5aBWXtdgS1WYwwJzG7mZfSOoH0o4crc1IEKjHFdGKbnOGYxcAW9ZUeRVtJa5Oo0b
+         15gSHt7F0OaBAabgB8oZPOsfFYp9qKWZryX2o6UzgHHd5464SPQXEiQ7mZQTYKZbSd5K
+         IqieBuxkP5d/RH8Z+/O1hGbV2UG61YVsLua7PhCLBIQw0iYengtLvM3Qzfyxl+rJcXns
+         gotbDzllWqQxN3yfc9odLltPL1PajZrsudfuSnlPKZ3O+77YG3DB2tn+0rpRwNu24VIb
+         PB/w==
+In-Reply-To: <1375882959-26853-1-git-send-email-akinobu.mita@gmail.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -42,24 +44,35 @@ Cc: Richard Kuo <rkuo@codeaurora.org>
 Cc: linux-hexagon@vger.kernel.org
 Cc: linux-arch@vger.kernel.org
 ---
-This patch is not compile tested yet, because I couldn't find cross
-compiler for hexagon.
+ arch/cris/include/arch-v10/arch/bitops.h | 2 +-
+ arch/cris/include/arch-v32/arch/bitops.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
- arch/hexagon/include/asm/bitops.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/hexagon/include/asm/bitops.h b/arch/hexagon/include/asm/bitops.h
-index 9b1e4af..80e34a6 100644
---- a/arch/hexagon/include/asm/bitops.h
-+++ b/arch/hexagon/include/asm/bitops.h
-@@ -234,7 +234,7 @@ static inline long fls(int x)
-  * the libc and compiler builtin ffs routines, therefore
+diff --git a/arch/cris/include/arch-v10/arch/bitops.h b/arch/cris/include/arch-v10/arch/bitops.h
+index 03d9cfd..cc37a22 100644
+--- a/arch/cris/include/arch-v10/arch/bitops.h
++++ b/arch/cris/include/arch-v10/arch/bitops.h
+@@ -65,7 +65,7 @@ static inline unsigned long __ffs(unsigned long word)
   * differs in spirit from the above ffz (man ffs).
   */
--static inline long ffs(int x)
-+static inline int ffs(int x)
- {
- 	int r;
  
+-static inline unsigned long kernel_ffs(unsigned long w)
++static inline int kernel_ffs(unsigned long w)
+ {
+ 	return w ? cris_swapwbrlz (w) + 1 : 0;
+ }
+diff --git a/arch/cris/include/arch-v32/arch/bitops.h b/arch/cris/include/arch-v32/arch/bitops.h
+index 147689d6..a5d0963 100644
+--- a/arch/cris/include/arch-v32/arch/bitops.h
++++ b/arch/cris/include/arch-v32/arch/bitops.h
+@@ -55,7 +55,7 @@ __ffs(unsigned long w)
+ /*
+  * Find First Bit that is set.
+  */
+-static inline unsigned long
++static inline int
+ kernel_ffs(unsigned long w)
+ {
+ 	return w ? cris_swapwbrlz (w) + 1 : 0;
 -- 
 1.8.3.1
