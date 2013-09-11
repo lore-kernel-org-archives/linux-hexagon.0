@@ -1,24 +1,86 @@
-From: Alasdair G Kergon <agk@redhat.com>
-Subject: Re: [PATCH] dm cache: Avoid conflicting remove_mapping() in mq
-	policy
-Date: Fri, 16 Aug 2013 12:38:29 +0100
-Message-ID: <20130816113829.GM1762@agk-dp.fab.redhat.com>
-References: <1374825451-30463-1-git-send-email-geert@linux-m68k.org> <520DE356.9060506@roeck-us.net>
-Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <520DE356.9060506@roeck-us.net>
-Sender: linux-hexagon-owner@vger.kernel.org
+From: Jiang Liu <liuj97@gmail.com>
+Subject: [RFC PATCH v2 07/25] smp, hexagon: kill SMP single function call interrupt
+Date: Thu, 12 Sep 2013 00:07:11 +0800
+Message-ID: <1378915649-16395-8-git-send-email-liuj97@gmail.com>
+References: <1378915649-16395-1-git-send-email-liuj97@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=wuIJM+0VvZW2nuHWP9TCgPrAzgnMODM9tSbbx7P/O94=;
+        b=n9z3HHn6giknkPL9YOvqDWKrdDBzmBFJox7R7ZYb9fsQL0JwWXLHvcu509S7myFkiV
+         8q2vEIHFAFk5RxBM3V9TwRHLu3jOO9mdJT/9POMUB59Pleni1pkkZAjRFcE3Pq5aeYBM
+         p9qaEZytMYZmS2feuOkRGSKerDRvkmf+D1ewPsMmvh/Qxow+LTviTUS3186ATNE6ZPFo
+         2Bjeia8y0z5DFo1bigJR0ecfRcT5+JBh2gGnryUSjl9Pjt5MI6Qzz1B6Hb2akP4gjGij
+         h/tg59x4q7j3PJ0VI7dp9yRbGiZNsTIpTljvpCFtSSYtPc0sXmVCkWMrG6+4XZJDEM7b
+         U9LQ==
+In-Reply-To: <1378915649-16395-1-git-send-email-liuj97@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Alasdair Kergon <agk@redhat.com>, Joe Thornber <ejt@redhat.com>, Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Andrew Morton <akpm@linux-foundation.org>, Shaohua Li <shli@kernel.org>
+Cc: liuj97@gmail.com, Jiang Liu <jiang.liu@huawei.com>, Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Steven Rostedt <rostedt@goodmis.org>, Jiri Kosina <trivial@kernel.org>, Wang YanQing <udknight@gmail.com>, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-On Fri, Aug 16, 2013 at 01:31:18AM -0700, Guenter Roeck wrote:
-> Is this patch going anyhere ? The problem breaks the sparc32:allmodconfig build,
-> so it would be useful to get it fixed.
+From: Jiang Liu <jiang.liu@huawei.com>
 
-We're pulling together a batch of patches today, including this one.
+Commit 9a46ad6d6df3b54 "smp: make smp_call_function_many() use logic
+similar to smp_call_function_single()" has unified the way to handle
+single and multiple cross-CPU function calls. Now only one interrupt
+is needed for architecture specific code to support generic SMP function
+call interfaces, so kill the redundant single function call interrupt.
 
-Alasdair
+Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+Cc: Jiang Liu <liuj97@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Shaohua Li <shli@kernel.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Jiri Kosina <trivial@kernel.org>
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+---
+ arch/hexagon/include/asm/smp.h | 1 -
+ arch/hexagon/kernel/smp.c      | 6 +-----
+ 2 files changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/arch/hexagon/include/asm/smp.h b/arch/hexagon/include/asm/smp.h
+index 2b9b974..ca171c1 100644
+--- a/arch/hexagon/include/asm/smp.h
++++ b/arch/hexagon/include/asm/smp.h
+@@ -29,7 +29,6 @@ enum ipi_message_type {
+ 	IPI_NOP = 0,
+ 	IPI_RESCHEDULE = 1,
+ 	IPI_CALL_FUNC,
+-	IPI_CALL_FUNC_SINGLE,
+ 	IPI_CPU_STOP,
+ 	IPI_TIMER,
+ };
+diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
+index 9faaa94..ff759f2 100644
+--- a/arch/hexagon/kernel/smp.c
++++ b/arch/hexagon/kernel/smp.c
+@@ -64,10 +64,6 @@ static inline void __handle_ipi(unsigned long *ops, struct ipi_data *ipi,
+ 			generic_smp_call_function_interrupt();
+ 			break;
+ 
+-		case IPI_CALL_FUNC_SINGLE:
+-			generic_smp_call_function_single_interrupt();
+-			break;
+-
+ 		case IPI_CPU_STOP:
+ 			/*
+ 			 * call vmstop()
+@@ -248,7 +244,7 @@ void smp_send_stop(void)
+ 
+ void arch_send_call_function_single_ipi(int cpu)
+ {
+-	send_ipi(cpumask_of(cpu), IPI_CALL_FUNC_SINGLE);
++	send_ipi(cpumask_of(cpu), IPI_CALL_FUNC);
+ }
+ 
+ void arch_send_call_function_ipi_mask(const struct cpumask *mask)
+-- 
+1.8.1.2
