@@ -1,86 +1,54 @@
-From: Jiang Liu <liuj97@gmail.com>
-Subject: [RFC PATCH v2 07/25] smp, hexagon: kill SMP single function call interrupt
-Date: Thu, 12 Sep 2013 00:07:11 +0800
-Message-ID: <1378915649-16395-8-git-send-email-liuj97@gmail.com>
-References: <1378915649-16395-1-git-send-email-liuj97@gmail.com>
+From: Rob Herring <robherring2@gmail.com>
+Subject: [PATCH 07/21] hexagon: remove unnecessary prom.h includes
+Date: Thu, 26 Sep 2013 13:50:42 -0500
+Message-ID: <1380221456-11192-8-git-send-email-robherring2@gmail.com>
+References: <1380221456-11192-1-git-send-email-robherring2@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20120113;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=wuIJM+0VvZW2nuHWP9TCgPrAzgnMODM9tSbbx7P/O94=;
-        b=n9z3HHn6giknkPL9YOvqDWKrdDBzmBFJox7R7ZYb9fsQL0JwWXLHvcu509S7myFkiV
-         8q2vEIHFAFk5RxBM3V9TwRHLu3jOO9mdJT/9POMUB59Pleni1pkkZAjRFcE3Pq5aeYBM
-         p9qaEZytMYZmS2feuOkRGSKerDRvkmf+D1ewPsMmvh/Qxow+LTviTUS3186ATNE6ZPFo
-         2Bjeia8y0z5DFo1bigJR0ecfRcT5+JBh2gGnryUSjl9Pjt5MI6Qzz1B6Hb2akP4gjGij
-         h/tg59x4q7j3PJ0VI7dp9yRbGiZNsTIpTljvpCFtSSYtPc0sXmVCkWMrG6+4XZJDEM7b
-         U9LQ==
-In-Reply-To: <1378915649-16395-1-git-send-email-liuj97@gmail.com>
+        bh=8L44g9qWIDdZBX8dFmoQBAOHL8mYJdRYrH3XnXtwD/Q=;
+        b=cx6QBfFQRuOrpuFNiVx1NDq647KxcEn11r0M8Dy5bcpbsGnL4LukWfdDIhuDb1/u/S
+         NnxQ4jmh4J35M/dwNPfKo+0S6USPa/a/mA+evWKKaL/6dRTW4YaPBqcKBHT3yj/CWbdu
+         2EwoCsexJqTfxjP4sPJvKPcUOpgV5A8YdGVq1lsyD8+Nj6avsSPM/uHmkEfbuDSA6gUP
+         neG1Yrp/NtVb6hv5Y8zje3MNCXl2tPTFFct1k7QWAGWR+2FkIefGV/rKv54DoLFrmsUS
+         hQj1SbJVjk+6SOYRkagcEJl4v7hyQwsbHZ1GMMQZRugtDtYRk1c1iftvrl74gKFnDWnr
+         kR9w==
+In-Reply-To: <1380221456-11192-1-git-send-email-robherring2@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Andrew Morton <akpm@linux-foundation.org>, Shaohua Li <shli@kernel.org>
-Cc: liuj97@gmail.com, Jiang Liu <jiang.liu@huawei.com>, Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Steven Rostedt <rostedt@goodmis.org>, Jiri Kosina <trivial@kernel.org>, Wang YanQing <udknight@gmail.com>, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+To: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-From: Jiang Liu <jiang.liu@huawei.com>
+From: Rob Herring <rob.herring@calxeda.com>
 
-Commit 9a46ad6d6df3b54 "smp: make smp_call_function_many() use logic
-similar to smp_call_function_single()" has unified the way to handle
-single and multiple cross-CPU function calls. Now only one interrupt
-is needed for architecture specific code to support generic SMP function
-call interfaces, so kill the redundant single function call interrupt.
+Hexagon does not have a prom.h header, so it is probably broken with
+CONFIG_OF enabled. In any case, remove unnecessary prom.h include in
+preparation to make prom.h optional.
 
-Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
-Cc: Jiang Liu <liuj97@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Shaohua Li <shli@kernel.org>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Jiri Kosina <trivial@kernel.org>
+Signed-off-by: Rob Herring <rob.herring@calxeda.com>
 Cc: Richard Kuo <rkuo@codeaurora.org>
 Cc: linux-hexagon@vger.kernel.org
 ---
- arch/hexagon/include/asm/smp.h | 1 -
- arch/hexagon/kernel/smp.c      | 6 +-----
- 2 files changed, 1 insertion(+), 6 deletions(-)
+ arch/hexagon/kernel/setup.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/hexagon/include/asm/smp.h b/arch/hexagon/include/asm/smp.h
-index 2b9b974..ca171c1 100644
---- a/arch/hexagon/include/asm/smp.h
-+++ b/arch/hexagon/include/asm/smp.h
-@@ -29,7 +29,6 @@ enum ipi_message_type {
- 	IPI_NOP = 0,
- 	IPI_RESCHEDULE = 1,
- 	IPI_CALL_FUNC,
--	IPI_CALL_FUNC_SINGLE,
- 	IPI_CPU_STOP,
- 	IPI_TIMER,
- };
-diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
-index 9faaa94..ff759f2 100644
---- a/arch/hexagon/kernel/smp.c
-+++ b/arch/hexagon/kernel/smp.c
-@@ -64,10 +64,6 @@ static inline void __handle_ipi(unsigned long *ops, struct ipi_data *ipi,
- 			generic_smp_call_function_interrupt();
- 			break;
+diff --git a/arch/hexagon/kernel/setup.c b/arch/hexagon/kernel/setup.c
+index 29d1f1b..0e7c1db 100644
+--- a/arch/hexagon/kernel/setup.c
++++ b/arch/hexagon/kernel/setup.c
+@@ -32,9 +32,6 @@
+ #include <asm/hexagon_vm.h>
+ #include <asm/vm_mmu.h>
+ #include <asm/time.h>
+-#ifdef CONFIG_OF
+-#include <asm/prom.h>
+-#endif
  
--		case IPI_CALL_FUNC_SINGLE:
--			generic_smp_call_function_single_interrupt();
--			break;
--
- 		case IPI_CPU_STOP:
- 			/*
- 			 * call vmstop()
-@@ -248,7 +244,7 @@ void smp_send_stop(void)
- 
- void arch_send_call_function_single_ipi(int cpu)
- {
--	send_ipi(cpumask_of(cpu), IPI_CALL_FUNC_SINGLE);
-+	send_ipi(cpumask_of(cpu), IPI_CALL_FUNC);
- }
- 
- void arch_send_call_function_ipi_mask(const struct cpumask *mask)
+ char cmd_line[COMMAND_LINE_SIZE];
+ static char default_command_line[COMMAND_LINE_SIZE] __initdata = CONFIG_CMDLINE;
 -- 
 1.8.1.2
