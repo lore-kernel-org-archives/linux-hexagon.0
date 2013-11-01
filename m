@@ -1,8 +1,7 @@
 From: Chen Gang <gang.chen@asianux.com>
-Subject: [PATCH] hexagon: kernel: remove useless variables 'dn', 'r' and 'err'
- in time_init_deferred() in "time.c"
-Date: Fri, 01 Nov 2013 19:07:48 +0800
-Message-ID: <52738B84.9080704@asianux.com>
+Subject: [PATCH] hexagon: kernel: kgdb: include related header for pass compiling.
+Date: Fri, 01 Nov 2013 19:54:17 +0800
+Message-ID: <52739669.9000509@asianux.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
@@ -12,34 +11,35 @@ Content-Type: text/plain; charset="us-ascii"
 To: Richard Kuo <rkuo@codeaurora.org>
 Cc: linux-hexagon@vger.kernel.org
 
-Remove them, since they are useless. The related warnings (with
-allmodconfig for v4):
+Need include related headers for pass compiling, the related error
+(with allmodconfig for v4):
 
-    CC      arch/hexagon/kernel/time.o
-  arch/hexagon/kernel/time.c: In function 'time_init_deferred':
-  arch/hexagon/kernel/time.c:196: warning: unused variable 'err'
-  arch/hexagon/kernel/time.c:195: warning: unused variable 'r'
-  arch/hexagon/kernel/time.c:194: warning: unused variable 'dn'
+    CC      arch/hexagon/kernel/kgdb.o
+  arch/hexagon/kernel/kgdb.c:30: error: invalid use of undefined type 'struct pt_regs'
+  arch/hexagon/kernel/kgdb.c:31: error: invalid use of undefined type 'struct pt_regs'
+  ...
+  arch/hexagon/kernel/kgdb.c:220: error: implicit declaration of function 'local_irq_save'
+  arch/hexagon/kernel/kgdb.c:222: error: implicit declaration of function 'local_irq_restore'
+  ...
 
 
 Signed-off-by: Chen Gang <gang.chen@asianux.com>
 ---
- arch/hexagon/kernel/time.c |    3 ---
- 1 files changed, 0 insertions(+), 3 deletions(-)
+ arch/hexagon/kernel/kgdb.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
-index 9903fad..d0c4f5a 100644
---- a/arch/hexagon/kernel/time.c
-+++ b/arch/hexagon/kernel/time.c
-@@ -191,9 +191,6 @@ void __init time_init_deferred(void)
- {
- 	struct resource *resource = NULL;
- 	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
--	struct device_node *dn;
--	struct resource r;
--	int err;
+diff --git a/arch/hexagon/kernel/kgdb.c b/arch/hexagon/kernel/kgdb.c
+index 82d5c25..038580c 100644
+--- a/arch/hexagon/kernel/kgdb.c
++++ b/arch/hexagon/kernel/kgdb.c
+@@ -18,6 +18,8 @@
+  * 02110-1301, USA.
+  */
  
- 	ce_dev->cpumask = cpu_all_mask;
++#include <linux/irq.h>
++#include <linux/sched.h>
+ #include <linux/kdebug.h>
+ #include <linux/kgdb.h>
  
 -- 
 1.7.7.6
