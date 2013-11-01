@@ -1,37 +1,60 @@
-From: Linas Vepstas <linasvepstas@gmail.com>
-Subject: Re: [PATCH] hexagon: kernel: kgdb: include related header for pass compiling.
-Date: Fri, 1 Nov 2013 12:16:00 -0500
-Message-ID: <CAHrUA342CVjhn92pJw16UQX6ReKCpHAXraYXxzCX1DB3Mkcuug@mail.gmail.com>
-References: <52739669.9000509@asianux.com>
-Reply-To: linasvepstas@gmail.com
+From: rkuo <rkuo@codeaurora.org>
+Subject: Re: [Suggestion] are they toolchains' issue?
+Date: Fri, 1 Nov 2013 14:42:38 -0500
+Message-ID: <20131101194238.GA4060@codeaurora.org>
+References: <527396BA.7050906@asianux.com>
+ <52739920.4010905@asianux.com>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
-         :subject:to:cc:content-type;
-        bh=auCs7tZ6T6PJ0R67Ev45tDcov4rqY2M2ypx/fVP99Zs=;
-        b=wRPo3ZHWTfm9H/9WoV8TF6aKPoSYyow0dOtl43cO2WmyyZrrQzbYuX3Yu1VirkShLJ
-         PfJNZNZOi8qDYltdnmhgce0jbuRyv0/rWX7jKxgTHTlSHTfNaYDQlxHopO7qv+cWNzd5
-         CgQWywI6Jio/ABHPVa8Yn6UCY0iZVvF5/SA9dzNVsZSFWp9bSWuu1cBlBne0dwpH6uSQ
-         2mqraQ3nATvFlZTg3gSL00HnWHe4Nypq5dvgjaFiLcW609YRQaKfj7nX0lz3dz3LRa29
-         Drz4t3OE8mbBnJYB+2j/NFv9gPAEHYkUyENqsCzpDMsr/i+O48CBgyUYK8rxJCuR217X
-         QJkg==
-In-Reply-To: <52739669.9000509@asianux.com>
+Content-Disposition: inline
+In-Reply-To: <52739920.4010905@asianux.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Chen Gang <gang.chen@asianux.com>
-Cc: Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
 
-On 1 November 2013 06:54, Chen Gang <gang.chen@asianux.com> wrote:
-> Need include related headers for pass compiling, the related error
-> (with allmodconfig for v4):
->
->     CC      arch/hexagon/kernel/kgdb.o
->   arch/hexagon/kernel/kgdb.c:30: error: invalid use of undefined type 'struct pt_regs'
+On Fri, Nov 01, 2013 at 08:05:52PM +0800, Chen Gang wrote:
+> Hello Maintainers:
+> 
+> When compiling with allmodconfig for v4, an error occurs:
+> 
+>     CC      kernel/fork.o
+>   /tmp/ccTx69dj.s: Assembler messages:
+>   /tmp/ccTx69dj.s:7853: Error: invalid instruction `if (tstbit(r4.new,r0))jump:nt .L242'
+> 
+> Also when with allmodconfig (default for v2), it will cause error:
+> 
+>   /usr/local/bin/hexagon-ld: Relocatable linking with relocations from format elf32-littlehexagon (init/.tmp_main.o) to format elf32-littlehexagon (init/main.o) is not supported
+> 
+> Also when with defconfig, it will cause error:
+> 
+>     LD      init/mounts.o
+>   /usr/local/bin/hexagon-ld: Relocatable linking with relocations from format elf32-littlehexagon (init/do_mounts.o) to format elf32-littlehexagon (init/mounts.o) is not supported
+> 
 
-looks good to me
+Hi Chen,
 
-Acked-by: Linas Vepstas <linasvepstas@gmail.com>
+Thanks for checking all these.  There are newer Hexagon tools available
+here:
+
+https://sourcery.mentor.com/GNUToolchain/release2568?cmpid=7108
+
+You might want to try those out.  The tool prefix is hexagon-linux-, but
+aside from that, a v4 defconfig on 3.12-rc7 compiled for me.
+
+'allmodconfig' does not appear to compile due to DMA related issues...
+
+Anyways, would you mind giving the newer tools a try?
+
+
+Thanks,
+Richard Kuo
+
+
+-- 
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation
