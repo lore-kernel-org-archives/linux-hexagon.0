@@ -1,7 +1,7 @@
 From: Chen Gang <gang.chen@asianux.com>
-Subject: [PATCH] hexagon: kernel: kgdb: include related header for pass compiling.
-Date: Fri, 01 Nov 2013 19:54:17 +0800
-Message-ID: <52739669.9000509@asianux.com>
+Subject: [PATCH] hexagon: include: asm: kgdb: extend DBG_MAX_REG_NUM for "cs0/1"
+Date: Fri, 01 Nov 2013 19:55:38 +0800
+Message-ID: <527396BA.7050906@asianux.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
@@ -11,35 +11,37 @@ Content-Type: text/plain; charset="us-ascii"
 To: Richard Kuo <rkuo@codeaurora.org>
 Cc: linux-hexagon@vger.kernel.org
 
-Need include related headers for pass compiling, the related error
-(with allmodconfig for v4):
+Need extend maximized number for "cs0/1", the related warning (with
+allmodconfig for v4):
 
-    CC      arch/hexagon/kernel/kgdb.o
-  arch/hexagon/kernel/kgdb.c:30: error: invalid use of undefined type 'struct pt_regs'
-  arch/hexagon/kernel/kgdb.c:31: error: invalid use of undefined type 'struct pt_regs'
-  ...
-  arch/hexagon/kernel/kgdb.c:220: error: implicit declaration of function 'local_irq_save'
-  arch/hexagon/kernel/kgdb.c:222: error: implicit declaration of function 'local_irq_restore'
-  ...
+  arch/hexagon/kernel/kgdb.c:79: warning: excess elements in array initializer
+  arch/hexagon/kernel/kgdb.c:79: warning: (near initialization for 'dbg_reg_def')
+  arch/hexagon/kernel/kgdb.c:80: warning: excess elements in array initializer
+  arch/hexagon/kernel/kgdb.c:80: warning: (near initialization for 'dbg_reg_def')
 
 
 Signed-off-by: Chen Gang <gang.chen@asianux.com>
 ---
- arch/hexagon/kernel/kgdb.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ arch/hexagon/include/asm/kgdb.h |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/hexagon/kernel/kgdb.c b/arch/hexagon/kernel/kgdb.c
-index 82d5c25..038580c 100644
---- a/arch/hexagon/kernel/kgdb.c
-+++ b/arch/hexagon/kernel/kgdb.c
-@@ -18,6 +18,8 @@
-  * 02110-1301, USA.
+diff --git a/arch/hexagon/include/asm/kgdb.h b/arch/hexagon/include/asm/kgdb.h
+index 32a6fb6..ccd3ac3 100644
+--- a/arch/hexagon/include/asm/kgdb.h
++++ b/arch/hexagon/include/asm/kgdb.h
+@@ -34,10 +34,11 @@ static inline void arch_kgdb_breakpoint(void)
+  * 32 gpr + sa0/1 + lc0/1 + m0/1 + gp + ugp + pred + pc = 42 total.
+  * vm regs = psp+elr+est+badva = 4
+  * syscall+restart = 2 more
+- * so 48 = 42 +4 + 2
++ * also add cs0/1 = 2
++ * so 48 = 42 + 4 + 2 + 2
   */
+ #define DBG_USER_REGS 42
+-#define DBG_MAX_REG_NUM (DBG_USER_REGS + 6)
++#define DBG_MAX_REG_NUM (DBG_USER_REGS + 8)
+ #define NUMREGBYTES  (DBG_MAX_REG_NUM*4)
  
-+#include <linux/irq.h>
-+#include <linux/sched.h>
- #include <linux/kdebug.h>
- #include <linux/kgdb.h>
- 
+ #endif /* __HEXAGON_KGDB_H__ */
 -- 
 1.7.7.6
