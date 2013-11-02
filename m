@@ -1,32 +1,60 @@
 From: Chen Gang <gang.chen@asianux.com>
-Subject: Re: [PATCH] hexagon: kernel: kgdb: include related header for pass
- compiling.
-Date: Sat, 02 Nov 2013 21:20:08 +0800
-Message-ID: <5274FC08.9010405@asianux.com>
-References: <52739669.9000509@asianux.com> <CAHrUA342CVjhn92pJw16UQX6ReKCpHAXraYXxzCX1DB3Mkcuug@mail.gmail.com>
+Subject: Re: [Suggestion] are they toolchains' issue?
+Date: Sat, 02 Nov 2013 21:29:45 +0800
+Message-ID: <5274FE49.9000104@asianux.com>
+References: <527396BA.7050906@asianux.com> <52739920.4010905@asianux.com> <20131101194238.GA4060@codeaurora.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <CAHrUA342CVjhn92pJw16UQX6ReKCpHAXraYXxzCX1DB3Mkcuug@mail.gmail.com>
+In-Reply-To: <20131101194238.GA4060@codeaurora.org>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linasvepstas@gmail.com
-Cc: Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+To: rkuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
 
-On 11/02/2013 01:16 AM, Linas Vepstas wrote:
-> On 1 November 2013 06:54, Chen Gang <gang.chen@asianux.com> wrote:
->> Need include related headers for pass compiling, the related error
->> (with allmodconfig for v4):
+On 11/02/2013 03:42 AM, rkuo wrote:
+> On Fri, Nov 01, 2013 at 08:05:52PM +0800, Chen Gang wrote:
+>> Hello Maintainers:
 >>
->>     CC      arch/hexagon/kernel/kgdb.o
->>   arch/hexagon/kernel/kgdb.c:30: error: invalid use of undefined type 'struct pt_regs'
+>> When compiling with allmodconfig for v4, an error occurs:
+>>
+>>     CC      kernel/fork.o
+>>   /tmp/ccTx69dj.s: Assembler messages:
+>>   /tmp/ccTx69dj.s:7853: Error: invalid instruction `if (tstbit(r4.new,r0))jump:nt .L242'
+>>
+>> Also when with allmodconfig (default for v2), it will cause error:
+>>
+>>   /usr/local/bin/hexagon-ld: Relocatable linking with relocations from format elf32-littlehexagon (init/.tmp_main.o) to format elf32-littlehexagon (init/main.o) is not supported
+>>
+>> Also when with defconfig, it will cause error:
+>>
+>>     LD      init/mounts.o
+>>   /usr/local/bin/hexagon-ld: Relocatable linking with relocations from format elf32-littlehexagon (init/do_mounts.o) to format elf32-littlehexagon (init/mounts.o) is not supported
+>>
 > 
-> looks good to me
+> Hi Chen,
 > 
-> Acked-by: Linas Vepstas <linasvepstas@gmail.com>
+> Thanks for checking all these.  There are newer Hexagon tools available
+> here:
+> 
+> https://sourcery.mentor.com/GNUToolchain/release2568?cmpid=7108
+> 
+> You might want to try those out.  The tool prefix is hexagon-linux-, but
+> aside from that, a v4 defconfig on 3.12-rc7 compiled for me.
+> 
+
+Thank you for your information.
+
+> 'allmodconfig' does not appear to compile due to DMA related issues...
+> 
+> Anyways, would you mind giving the newer tools a try?
 > 
 > 
+
+I will/should try. try to let our hexagon pass 'allmodconfig' within
+this month (2013-11-30).
+
 
 Thanks.
 -- 
