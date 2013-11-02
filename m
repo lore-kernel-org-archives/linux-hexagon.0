@@ -1,25 +1,28 @@
 From: Chen Gang <gang.chen@asianux.com>
-Subject: Re: [PATCH] hexagon: include: asm: kgdb: extend DBG_MAX_REG_NUM for
- "cs0/1"
-Date: Sat, 02 Nov 2013 21:19:42 +0800
-Message-ID: <5274FBEE.6020507@asianux.com>
-References: <527396BA.7050906@asianux.com> <CAHrUA37bWiYZoSwoqTEQoXu92WK6UpRv9fAG3F0ZvTvS4f97iQ@mail.gmail.com>
+Subject: Re: [PATCH] hexagon: kernel: kgdb: include related header for pass
+ compiling.
+Date: Sat, 02 Nov 2013 21:20:08 +0800
+Message-ID: <5274FC08.9010405@asianux.com>
+References: <52739669.9000509@asianux.com> <CAHrUA342CVjhn92pJw16UQX6ReKCpHAXraYXxzCX1DB3Mkcuug@mail.gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <CAHrUA37bWiYZoSwoqTEQoXu92WK6UpRv9fAG3F0ZvTvS4f97iQ@mail.gmail.com>
+In-Reply-To: <CAHrUA342CVjhn92pJw16UQX6ReKCpHAXraYXxzCX1DB3Mkcuug@mail.gmail.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linasvepstas@gmail.com
 Cc: Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-On 11/02/2013 01:14 AM, Linas Vepstas wrote:
-> On 1 November 2013 06:55, Chen Gang <gang.chen@asianux.com> wrote:
->> Need extend maximized number for "cs0/1", the related warning (with
->> allmodconfig for v4):
+On 11/02/2013 01:16 AM, Linas Vepstas wrote:
+> On 1 November 2013 06:54, Chen Gang <gang.chen@asianux.com> wrote:
+>> Need include related headers for pass compiling, the related error
+>> (with allmodconfig for v4):
+>>
+>>     CC      arch/hexagon/kernel/kgdb.o
+>>   arch/hexagon/kernel/kgdb.c:30: error: invalid use of undefined type 'struct pt_regs'
 > 
-> Looks ok to me.
+> looks good to me
 > 
 > Acked-by: Linas Vepstas <linasvepstas@gmail.com>
 > 
