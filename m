@@ -1,61 +1,41 @@
-From: Chen Gang <gang.chen@asianux.com>
-Subject: Re: [Suggestion] are they toolchains' issue?
-Date: Sat, 02 Nov 2013 21:29:45 +0800
-Message-ID: <5274FE49.9000104@asianux.com>
-References: <527396BA.7050906@asianux.com> <52739920.4010905@asianux.com> <20131101194238.GA4060@codeaurora.org>
+From: rkuo <rkuo@codeaurora.org>
+Subject: Re: [PATCH] hexagon: kernel: remove useless variables 'dn', 'r' and
+ 'err' in time_init_deferred() in "time.c"
+Date: Sun, 3 Nov 2013 19:13:55 -0600
+Message-ID: <20131104011355.GB4060@codeaurora.org>
+References: <52738B84.9080704@asianux.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20131101194238.GA4060@codeaurora.org>
+Content-Disposition: inline
+In-Reply-To: <52738B84.9080704@asianux.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: rkuo <rkuo@codeaurora.org>
+Content-Transfer-Encoding: 7bit
+To: Chen Gang <gang.chen@asianux.com>
 Cc: linux-hexagon@vger.kernel.org
 
-On 11/02/2013 03:42 AM, rkuo wrote:
-> On Fri, Nov 01, 2013 at 08:05:52PM +0800, Chen Gang wrote:
->> Hello Maintainers:
->>
->> When compiling with allmodconfig for v4, an error occurs:
->>
->>     CC      kernel/fork.o
->>   /tmp/ccTx69dj.s: Assembler messages:
->>   /tmp/ccTx69dj.s:7853: Error: invalid instruction `if (tstbit(r4.new,r0))jump:nt .L242'
->>
->> Also when with allmodconfig (default for v2), it will cause error:
->>
->>   /usr/local/bin/hexagon-ld: Relocatable linking with relocations from format elf32-littlehexagon (init/.tmp_main.o) to format elf32-littlehexagon (init/main.o) is not supported
->>
->> Also when with defconfig, it will cause error:
->>
->>     LD      init/mounts.o
->>   /usr/local/bin/hexagon-ld: Relocatable linking with relocations from format elf32-littlehexagon (init/do_mounts.o) to format elf32-littlehexagon (init/mounts.o) is not supported
->>
+On Fri, Nov 01, 2013 at 07:07:48PM +0800, Chen Gang wrote:
+> Remove them, since they are useless. The related warnings (with
+> allmodconfig for v4):
 > 
-> Hi Chen,
+>     CC      arch/hexagon/kernel/time.o
+>   arch/hexagon/kernel/time.c: In function 'time_init_deferred':
+>   arch/hexagon/kernel/time.c:196: warning: unused variable 'err'
+>   arch/hexagon/kernel/time.c:195: warning: unused variable 'r'
+>   arch/hexagon/kernel/time.c:194: warning: unused variable 'dn'
 > 
-> Thanks for checking all these.  There are newer Hexagon tools available
-> here:
 > 
-> https://sourcery.mentor.com/GNUToolchain/release2568?cmpid=7108
-> 
-> You might want to try those out.  The tool prefix is hexagon-linux-, but
-> aside from that, a v4 defconfig on 3.12-rc7 compiled for me.
+> Signed-off-by: Chen Gang <gang.chen@asianux.com>
+> ---
+>  arch/hexagon/kernel/time.c |    3 ---
+>  1 files changed, 0 insertions(+), 3 deletions(-)
 > 
 
-Thank you for your information.
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
 
-> 'allmodconfig' does not appear to compile due to DMA related issues...
-> 
-> Anyways, would you mind giving the newer tools a try?
-> 
-> 
-
-I will/should try. try to let our hexagon pass 'allmodconfig' within
-this month (2013-11-30).
-
-
-Thanks.
 -- 
-Chen Gang
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation
