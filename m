@@ -1,47 +1,48 @@
 From: Chen Gang <gang.chen@asianux.com>
-Subject: Re: [PATCH] hexagon: kernel: kgdb: include related header for pass
- compiling.
-Date: Mon, 04 Nov 2013 09:45:37 +0800
-Message-ID: <5276FC41.8030807@asianux.com>
-References: <52739669.9000509@asianux.com> <20131104011528.GC4060@codeaurora.org>
+Subject: Re: [Suggestion] are they toolchains' issue?
+Date: Wed, 06 Nov 2013 10:56:45 +0800
+Message-ID: <5279AFED.3000600@asianux.com>
+References: <527396BA.7050906@asianux.com> <52739920.4010905@asianux.com> <20131101194238.GA4060@codeaurora.org> <5274FE49.9000104@asianux.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20131104011528.GC4060@codeaurora.org>
+In-Reply-To: <5274FE49.9000104@asianux.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: rkuo <rkuo@codeaurora.org>
 Cc: linux-hexagon@vger.kernel.org
 
-On 11/04/2013 09:15 AM, rkuo wrote:
-> On Fri, Nov 01, 2013 at 07:54:17PM +0800, Chen Gang wrote:
->> Need include related headers for pass compiling, the related error
->> (with allmodconfig for v4):
+On 11/02/2013 09:29 PM, Chen Gang wrote:
+> On 11/02/2013 03:42 AM, rkuo wrote:
 >>
->>     CC      arch/hexagon/kernel/kgdb.o
->>   arch/hexagon/kernel/kgdb.c:30: error: invalid use of undefined type 'struct pt_regs'
->>   arch/hexagon/kernel/kgdb.c:31: error: invalid use of undefined type 'struct pt_regs'
->>   ...
->>   arch/hexagon/kernel/kgdb.c:220: error: implicit declaration of function 'local_irq_save'
->>   arch/hexagon/kernel/kgdb.c:222: error: implicit declaration of function 'local_irq_restore'
->>   ...
+>> Thanks for checking all these.  There are newer Hexagon tools available
+>> here:
 >>
+>> https://sourcery.mentor.com/GNUToolchain/release2568?cmpid=7108
 >>
->> Signed-off-by: Chen Gang <gang.chen@asianux.com>
->> ---
->>  arch/hexagon/kernel/kgdb.c |    2 ++
->>  1 files changed, 2 insertions(+), 0 deletions(-)
+>> You might want to try those out.  The tool prefix is hexagon-linux-, but
+>> aside from that, a v4 defconfig on 3.12-rc7 compiled for me.
 >>
 > 
-> Thanks for the cleanup.  I can take these patches into my tree for my next
-> push, or they can go in one of the other tree.  In that case,
-> 
-> Acked-by: Richard Kuo <rkuo@codeaurora.org>
-> 
+> Thank you for your information.
 > 
 
-For me, both are OK.
+I finish building the new version of gcc and binutils for kernel. And
+now it can continue -- no related issues which mentioned originally
+(should be fixed in this new version).
+
+>> 'allmodconfig' does not appear to compile due to DMA related issues...
+>>
+>> Anyways, would you mind giving the newer tools a try?
+>>
+>>
+> 
+> I will/should try. try to let our hexagon pass 'allmodconfig' within
+> this month (2013-11-30).
+> 
+
+I am continuing, hope we can finish within this month. :-)
 
 Thanks.
 -- 
