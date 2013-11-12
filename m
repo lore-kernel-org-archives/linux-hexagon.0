@@ -1,75 +1,62 @@
 From: Mark Salter <msalter@redhat.com>
-Subject: [PATCH 04/11] hexagon: use generic fixmap.h
-Date: Tue, 12 Nov 2013 08:22:18 -0500
-Message-ID: <1384262545-20875-5-git-send-email-msalter@redhat.com>
-References: <1384262545-20875-1-git-send-email-msalter@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1384262545-20875-1-git-send-email-msalter@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
+Subject: [PATCH 00/11] Consolidate asm/fixmap.h files
+Date: Tue, 12 Nov 2013 08:22:14 -0500
+Message-ID: <1384262545-20875-1-git-send-email-msalter@redhat.com>
+Return-path: <linux-mips-bounce@linux-mips.org>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-Id: <linux-hexagon.vger.kernel.org>
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org
-Cc: Mark Salter <msalter@redhat.com>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+Cc: Mark Salter <msalter@redhat.com>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, linux-arm-kernel@lists.infradead.org, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, James Hogan <james.hogan@imgtec.com>, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, microblaze-uclinux@itee.uq.edu.au, Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, linuxppc-dev@lists.ozlabs.org
 
-Signed-off-by: Mark Salter <msalter@redhat.com>
-CC: Richard Kuo <rkuo@codeaurora.org>
-CC: linux-hexagon@vger.kernel.org
----
- arch/hexagon/include/asm/fixmap.h | 40 +--------------------------------------
- 1 file changed, 1 insertion(+), 39 deletions(-)
+Many architectures provide an asm/fixmap.h which defines support for
+compile-time 'special' virtual mappings which need to be made before
+paging_init() has run. This suport is also used for early ioremap
+on x86. Much of this support is identical across the architectures.
+This patch consolidates all of the common bits into asm-generic/fixmap.h
+which is intended to be included from arch/*/include/asm/fixmap.h.
 
-diff --git a/arch/hexagon/include/asm/fixmap.h b/arch/hexagon/include/asm/fixmap.h
-index b75b6bf..1387f84 100644
---- a/arch/hexagon/include/asm/fixmap.h
-+++ b/arch/hexagon/include/asm/fixmap.h
-@@ -26,45 +26,7 @@
-  */
- #include <asm/mem-layout.h>
- 
--/*
-- * Full fixmap support involves set_fixmap() functions, but
-- * these may not be needed if all we're after is an area for
-- * highmem kernel mappings.
-- */
--#define	__fix_to_virt(x)	(FIXADDR_TOP - ((x) << PAGE_SHIFT))
--#define	__virt_to_fix(x)	((FIXADDR_TOP - ((x)&PAGE_MASK)) >> PAGE_SHIFT)
--
--extern void __this_fixmap_does_not_exist(void);
--
--/**
-- * fix_to_virt -- "index to address" translation.
-- *
-- * If anyone tries to use the idx directly without translation,
-- * we catch the bug with a NULL-deference kernel oops. Illegal
-- * ranges of incoming indices are caught too.
-- */
--static inline unsigned long fix_to_virt(const unsigned int idx)
--{
--	/*
--	 * This branch gets completely eliminated after inlining,
--	 * except when someone tries to use fixaddr indices in an
--	 * illegal way. (such as mixing up address types or using
--	 * out-of-range indices).
--	 *
--	 * If it doesn't get removed, the linker will complain
--	 * loudly with a reasonably clear error message..
--	 */
--	if (idx >= __end_of_fixed_addresses)
--		__this_fixmap_does_not_exist();
--
--	return __fix_to_virt(idx);
--}
--
--static inline unsigned long virt_to_fix(const unsigned long vaddr)
--{
--	BUG_ON(vaddr >= FIXADDR_TOP || vaddr < FIXADDR_START);
--	return __virt_to_fix(vaddr);
--}
-+#include <asm-generic/fixmap.h>
- 
- #define kmap_get_fixmap_pte(vaddr) \
- 	pte_offset_kernel(pmd_offset(pud_offset(pgd_offset_k(vaddr), \
+This has been compiled on x86, arm, powerpc, and sh, but tested
+on x86 only.
+
+Mark Salter (11):
+  Add generic fixmap.h
+  x86: use generic fixmap.h
+  arm: use generic fixmap.h
+  hexagon: use generic fixmap.h
+  metag: use generic fixmap.h
+  microblaze: use generic fixmap.h
+  mips: use generic fixmap.h
+  powerpc: use generic fixmap.h
+  sh: use generic fixmap.h
+  tile: use generic fixmap.h
+  um: use generic fixmap.h
+
+ arch/arm/include/asm/fixmap.h        |  25 ++------
+ arch/hexagon/include/asm/fixmap.h    |  40 +------------
+ arch/metag/include/asm/fixmap.h      |  32 +----------
+ arch/microblaze/include/asm/fixmap.h |  44 +-------------
+ arch/mips/include/asm/fixmap.h       |  33 +----------
+ arch/powerpc/include/asm/fixmap.h    |  44 +-------------
+ arch/sh/include/asm/fixmap.h         |  39 +------------
+ arch/tile/include/asm/fixmap.h       |  33 +----------
+ arch/um/include/asm/fixmap.h         |  40 +------------
+ arch/x86/include/asm/fixmap.h        |  59 +------------------
+ include/asm-generic/fixmap.h         | 107 +++++++++++++++++++++++++++++++++++
+ 11 files changed, 125 insertions(+), 371 deletions(-)
+ create mode 100644 include/asm-generic/fixmap.h
+
 -- 
 1.8.3.1
+
+
