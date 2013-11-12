@@ -1,29 +1,75 @@
-From: Chen Gang <gang.chen@asianux.com>
-Subject: Re: [Suggestion] are they toolchains' issue?
-Date: Sun, 10 Nov 2013 08:38:26 +0800
-Message-ID: <527ED582.6040605@asianux.com>
-References: <527396BA.7050906@asianux.com> <52739920.4010905@asianux.com> <20131101194238.GA4060@codeaurora.org> <5274FE49.9000104@asianux.com> <5279AFED.3000600@asianux.com> <527CAF1A.40907@asianux.com> <20131110002834.GA3879@codeaurora.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20131110002834.GA3879@codeaurora.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+From: Mark Salter <msalter@redhat.com>
+Subject: [PATCH 04/11] hexagon: use generic fixmap.h
+Date: Tue, 12 Nov 2013 08:22:18 -0500
+Message-ID: <1384262545-20875-5-git-send-email-msalter@redhat.com>
+References: <1384262545-20875-1-git-send-email-msalter@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1384262545-20875-1-git-send-email-msalter@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: rkuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Cc: Mark Salter <msalter@redhat.com>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-On 11/10/2013 08:28 AM, rkuo wrote:
-> That's definitely a bug; I reproduced it over here as well.  I've submitted 
-> it to the tools team; I will let you know anything else I find.
-> 
-> 
-> Thanks for reporting this!
+Signed-off-by: Mark Salter <msalter@redhat.com>
+CC: Richard Kuo <rkuo@codeaurora.org>
+CC: linux-hexagon@vger.kernel.org
+---
+ arch/hexagon/include/asm/fixmap.h | 40 +--------------------------------------
+ 1 file changed, 1 insertion(+), 39 deletions(-)
 
-Thank you too, I will/should continue for allmodconfig (at present, I
-will/should by pass this issue, firstly).
-
-
-Thanks.
+diff --git a/arch/hexagon/include/asm/fixmap.h b/arch/hexagon/include/asm/fixmap.h
+index b75b6bf..1387f84 100644
+--- a/arch/hexagon/include/asm/fixmap.h
++++ b/arch/hexagon/include/asm/fixmap.h
+@@ -26,45 +26,7 @@
+  */
+ #include <asm/mem-layout.h>
+ 
+-/*
+- * Full fixmap support involves set_fixmap() functions, but
+- * these may not be needed if all we're after is an area for
+- * highmem kernel mappings.
+- */
+-#define	__fix_to_virt(x)	(FIXADDR_TOP - ((x) << PAGE_SHIFT))
+-#define	__virt_to_fix(x)	((FIXADDR_TOP - ((x)&PAGE_MASK)) >> PAGE_SHIFT)
+-
+-extern void __this_fixmap_does_not_exist(void);
+-
+-/**
+- * fix_to_virt -- "index to address" translation.
+- *
+- * If anyone tries to use the idx directly without translation,
+- * we catch the bug with a NULL-deference kernel oops. Illegal
+- * ranges of incoming indices are caught too.
+- */
+-static inline unsigned long fix_to_virt(const unsigned int idx)
+-{
+-	/*
+-	 * This branch gets completely eliminated after inlining,
+-	 * except when someone tries to use fixaddr indices in an
+-	 * illegal way. (such as mixing up address types or using
+-	 * out-of-range indices).
+-	 *
+-	 * If it doesn't get removed, the linker will complain
+-	 * loudly with a reasonably clear error message..
+-	 */
+-	if (idx >= __end_of_fixed_addresses)
+-		__this_fixmap_does_not_exist();
+-
+-	return __fix_to_virt(idx);
+-}
+-
+-static inline unsigned long virt_to_fix(const unsigned long vaddr)
+-{
+-	BUG_ON(vaddr >= FIXADDR_TOP || vaddr < FIXADDR_START);
+-	return __virt_to_fix(vaddr);
+-}
++#include <asm-generic/fixmap.h>
+ 
+ #define kmap_get_fixmap_pte(vaddr) \
+ 	pte_offset_kernel(pmd_offset(pud_offset(pgd_offset_k(vaddr), \
 -- 
-Chen Gang
+1.8.3.1
