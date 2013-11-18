@@ -1,77 +1,37 @@
-From: Michal Simek <monstr@monstr.eu>
-Subject: Re: [PATCH 00/11] Consolidate asm/fixmap.h files
-Date: Thu, 14 Nov 2013 10:39:49 +0100
-Message-ID: <52849A65.9030500@monstr.eu>
-References: <1384262545-20875-1-git-send-email-msalter@redhat.com>  <52824BBC.9020401@monstr.eu> <1384271711.24631.5.camel@deneb.redhat.com>
-Reply-To: monstr@monstr.eu
+From: rkuo <rkuo@codeaurora.org>
+Subject: Re: [PATCH 04/11] hexagon: use generic fixmap.h
+Date: Sun, 17 Nov 2013 19:53:47 -0600
+Message-ID: <20131118015347.GA14896@codeaurora.org>
+References: <1384262545-20875-1-git-send-email-msalter@redhat.com>
+ <1384262545-20875-5-git-send-email-msalter@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="iQtiGn9GE0PIJmOHe35N72OtEjLmxDLif"
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <1384271711.24631.5.camel@deneb.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1384262545-20875-5-git-send-email-msalter@redhat.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: Mark Salter <msalter@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, linux-arm-kernel@lists.infradead.org, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, James Hogan <james.hogan@imgtec.com>, linux-metag@vger.kernel.org, microblaze-uclinux@itee.uq.edu.au, Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, linuxppc-dev@lists.ozlabs.org
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---iQtiGn9GE0PIJmOHe35N72OtEjLmxDLif
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Tue, Nov 12, 2013 at 08:22:18AM -0500, Mark Salter wrote:
+> Signed-off-by: Mark Salter <msalter@redhat.com>
+> CC: Richard Kuo <rkuo@codeaurora.org>
+> CC: linux-hexagon@vger.kernel.org
+> ---
+>  arch/hexagon/include/asm/fixmap.h | 40 +--------------------------------------
+>  1 file changed, 1 insertion(+), 39 deletions(-)
+> 
 
-On 11/12/2013 04:55 PM, Mark Salter wrote:
-> On Tue, 2013-11-12 at 16:39 +0100, Michal Simek wrote:
->> On 11/12/2013 02:22 PM, Mark Salter wrote:
->>>
->>>  arch/arm/include/asm/fixmap.h        |  25 ++------
->>>  arch/hexagon/include/asm/fixmap.h    |  40 +------------
->>>  arch/metag/include/asm/fixmap.h      |  32 +----------
->>>  arch/microblaze/include/asm/fixmap.h |  44 +-------------
->>>  arch/mips/include/asm/fixmap.h       |  33 +----------
->>>  arch/powerpc/include/asm/fixmap.h    |  44 +-------------
->>>  arch/sh/include/asm/fixmap.h         |  39 +------------
->>>  arch/tile/include/asm/fixmap.h       |  33 +----------
->>>  arch/um/include/asm/fixmap.h         |  40 +------------
->>>  arch/x86/include/asm/fixmap.h        |  59 +------------------
->>>  include/asm-generic/fixmap.h         | 107 +++++++++++++++++++++++++=
-++++++++++
->>>  11 files changed, 125 insertions(+), 371 deletions(-)
->>>  create mode 100644 include/asm-generic/fixmap.h
->>
->> Any repo/branch with all these patches will be helpful.
->=20
-> https://github.com/mosalter/linux (fixmap branch)
-
-Thanks,
-
-For Microblaze
-Tested-by: Michal Simek <monstr@monstr.eu>
-
-Thanks,
-Michal
-
---=20
-Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
-Maintainer of Linux kernel - Xilinx Zynq ARM architecture
-Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
+Thanks for the cleanup!
 
 
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
 
---iQtiGn9GE0PIJmOHe35N72OtEjLmxDLif
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+-- 
 
-iEYEARECAAYFAlKEmmUACgkQykllyylKDCF4AQCgjhFOcr0jquPeAeSfJ6XEBDsZ
-dTIAn2jGHts/85REgK0/IHvrLywyWO8a
-=ZN3C
------END PGP SIGNATURE-----
-
---iQtiGn9GE0PIJmOHe35N72OtEjLmxDLif--
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation
