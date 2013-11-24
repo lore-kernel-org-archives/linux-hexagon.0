@@ -1,7 +1,7 @@
 From: Chen Gang <gang.chen.5i5j@gmail.com>
 Subject: Re: [PATCH] arch: hexagon: include: asm: add "vga.h" in Kbuild
-Date: Sun, 24 Nov 2013 12:23:29 +0800
-Message-ID: <52917F41.8060302@gmail.com>
+Date: Sun, 24 Nov 2013 12:30:19 +0800
+Message-ID: <529180DB.2000400@gmail.com>
 References: <528AF461.4020502@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -11,12 +11,12 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         h=message-id:date:from:user-agent:mime-version:to:cc:subject
          :references:in-reply-to:content-type:content-transfer-encoding;
         bh=mHwBh4kVlgiweqMT27iHU5OyaAiEK/+j64wv3VUwGWY=;
-        b=krCJblhZosnGFhdKLktTNfe57aOyoCRQ+BZyc5DNFtYqJj/HsOHkXaeAYkDhgEOQlf
-         GBrHwiqtvSBMuqh8FSf8RELD8wWv8bipVIP1Q9wXGuPHkl8etG+NKFdvdBINaxQwYyKi
-         mRg03ZsG73X9nmeMbcw+XssjlTtrLKkLaJG1y7a78HXda28jj/Ab/XrjmkGrp2XFMwZs
-         aFfn0m8R/kgIdJun+wnTiB2oyYp6lpZGV8Qd0zLIjF83lC5v31zXuiz4ErcoNRisRrV6
-         l0d/JPSNmfXnvDf6lV9Dm1NwLJkjmV6JqsRBf02SDQ3sinDp3GkFVXZg+EeS/+wRHHPO
-         AmyQ==
+        b=bEMNnualGx3aT4l+94JabxxTnw6+qoH7VuTEMFy1MijxG+kQ2xmjN0PU4q6lCBLzNz
+         LzsJRRGaCVhUY6bA4Vo9MkDzP8k0kzdfwlyJdMQHCJJfKis593chOS2UByrb5tF1pZbL
+         xxlDBvY4thEd8ZKE7A/jULavhK2RBKZga0R2k2+sUPOo/TY3baYHO+9xGcKHeTBcCFOM
+         thORr/yWpwM6pqWz4LXfz65V2LLuL+Mm3VU95vACsdOkdK2JZX3XNwt7JDO1AS3T4her
+         mNy+rmX4gsS7tO+B3zVLAP6Hl5zPyUAUEvQv30RMk7ojiNACnpPdLp/+WCcqoXcMdUIm
+         z/nQ==
 In-Reply-To: <528AF461.4020502@gmail.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
