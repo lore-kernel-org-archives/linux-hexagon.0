@@ -1,51 +1,75 @@
-From: Chen Gang <gang.chen.5i5j@gmail.com>
-Subject: [PATCH 2/2] arch: hexagon: include: asm: use 'affinity' instead of
- 'locdis' for __vmintop_affinity() in "hexagon_vm.h"
-Date: Mon, 25 Nov 2013 10:41:21 +0800
-Message-ID: <5292B8D1.5050407@gmail.com>
-References: <528AEFB7.4060301@gmail.com> <20131125011938.GB18921@codeaurora.org> <5292B845.3010404@gmail.com> <5292B8A0.7020409@gmail.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+From: Mark Salter <msalter@redhat.com>
+Subject: [PATCH v2 04/11] hexagon: use generic fixmap.h
+Date: Mon, 25 Nov 2013 11:13:58 -0500
+Message-ID: <1385396045-15852-5-git-send-email-msalter@redhat.com>
+References: <1385396045-15852-1-git-send-email-msalter@redhat.com>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=message-id:date:from:user-agent:mime-version:to:cc:subject
-         :references:in-reply-to:content-type:content-transfer-encoding;
-        bh=VPfgw1mVGXt9BuuJvDJhohE3rwzKHeCtyE069cCfsx0=;
-        b=b0KKrPgoqz1PXLUSpv3Ko+RHGkbqc5znYj3nFPyoV/uJpPI5CXsePKMA2TJ6NiNRgR
-         Qz5fH/LTn6/83cb2NxcpexAFR6tDyiHTnY1M5k2sBMotSAOU4Dm+Cyk4ubiGpErSUqCU
-         y4p2SmpZimkHeKXk4Nj2OSYpco2iwBb03XuMzrrDyPrJlyc2qgGD5VPQeLkMB1zbjeaz
-         X1zr4S2sYgFyAqV945Ab8ECpARNX8p0Tp2RGSMlBmjYpUaWaWEX9fFOtaKzAUxtVuWs7
-         axmNlRdhKb94hoqR/Vq/jn69SRaR0xaSS20i1oBwB/JvAUpy5GeDVEpHOHjvUuGwWnt6
-         xkRA==
-In-Reply-To: <5292B8A0.7020409@gmail.com>
+In-Reply-To: <1385396045-15852-1-git-send-email-msalter@redhat.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: rkuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Cc: Mark Salter <msalter@redhat.com>, linux-hexagon@vger.kernel.org
 
-All __vmintop_*() use  __vmintop(*, ...), so __vmintop_affinity() need
-use __vmintop(vm_affinity, ...).
-
-
-Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+Signed-off-by: Mark Salter <msalter@redhat.com>
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
+CC: linux-hexagon@vger.kernel.org
 ---
- arch/hexagon/include/asm/hexagon_vm.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/hexagon/include/asm/fixmap.h | 40 +--------------------------------------
+ 1 file changed, 1 insertion(+), 39 deletions(-)
 
-diff --git a/arch/hexagon/include/asm/hexagon_vm.h b/arch/hexagon/include/asm/hexagon_vm.h
-index e1e0470..3ea99c1 100644
---- a/arch/hexagon/include/asm/hexagon_vm.h
-+++ b/arch/hexagon/include/asm/hexagon_vm.h
-@@ -161,7 +161,7 @@ static inline long __vmintop_locdis(long i)
+diff --git a/arch/hexagon/include/asm/fixmap.h b/arch/hexagon/include/asm/fixmap.h
+index b75b6bf..1387f84 100644
+--- a/arch/hexagon/include/asm/fixmap.h
++++ b/arch/hexagon/include/asm/fixmap.h
+@@ -26,45 +26,7 @@
+  */
+ #include <asm/mem-layout.h>
  
- static inline long __vmintop_affinity(long i, long cpu)
- {
--	return __vmintop(locdis, i, cpu, 0, 0);
-+	return __vmintop(vm_affinity, i, cpu, 0, 0);
- }
+-/*
+- * Full fixmap support involves set_fixmap() functions, but
+- * these may not be needed if all we're after is an area for
+- * highmem kernel mappings.
+- */
+-#define	__fix_to_virt(x)	(FIXADDR_TOP - ((x) << PAGE_SHIFT))
+-#define	__virt_to_fix(x)	((FIXADDR_TOP - ((x)&PAGE_MASK)) >> PAGE_SHIFT)
+-
+-extern void __this_fixmap_does_not_exist(void);
+-
+-/**
+- * fix_to_virt -- "index to address" translation.
+- *
+- * If anyone tries to use the idx directly without translation,
+- * we catch the bug with a NULL-deference kernel oops. Illegal
+- * ranges of incoming indices are caught too.
+- */
+-static inline unsigned long fix_to_virt(const unsigned int idx)
+-{
+-	/*
+-	 * This branch gets completely eliminated after inlining,
+-	 * except when someone tries to use fixaddr indices in an
+-	 * illegal way. (such as mixing up address types or using
+-	 * out-of-range indices).
+-	 *
+-	 * If it doesn't get removed, the linker will complain
+-	 * loudly with a reasonably clear error message..
+-	 */
+-	if (idx >= __end_of_fixed_addresses)
+-		__this_fixmap_does_not_exist();
+-
+-	return __fix_to_virt(idx);
+-}
+-
+-static inline unsigned long virt_to_fix(const unsigned long vaddr)
+-{
+-	BUG_ON(vaddr >= FIXADDR_TOP || vaddr < FIXADDR_START);
+-	return __virt_to_fix(vaddr);
+-}
++#include <asm-generic/fixmap.h>
  
- static inline long __vmintop_get(void)
+ #define kmap_get_fixmap_pte(vaddr) \
+ 	pte_offset_kernel(pmd_offset(pud_offset(pgd_offset_k(vaddr), \
 -- 
-1.7.7.6
+1.8.3.1
