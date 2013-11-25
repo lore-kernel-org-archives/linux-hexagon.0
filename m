@@ -1,36 +1,36 @@
 From: rkuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH] arch: hexagon: Kconfig: add HAVE_DMA_ATTR in Kconfig and
- remove "linux/dma-mapping.h" from "asm/dma-mapping.h"
-Date: Sun, 24 Nov 2013 19:19:38 -0600
-Message-ID: <20131125011938.GB18921@codeaurora.org>
-References: <528AEFB7.4060301@gmail.com>
+Subject: Re: [PATCH] arch: hexagon: include: asm: add "vga.h" in Kbuild
+Date: Sun, 24 Nov 2013 19:20:00 -0600
+Message-ID: <20131125012000.GC18921@codeaurora.org>
+References: <528AF461.4020502@gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <528AEFB7.4060301@gmail.com>
-Sender: linux-hexagon-owner@vger.kernel.org
+In-Reply-To: <528AF461.4020502@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Chen Gang <gang.chen.5i5j@gmail.com>
-Cc: linux-hexagon@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, linux-hexagon@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tue, Nov 19, 2013 at 12:57:27PM +0800, Chen Gang wrote:
-> When HAS_DMA, and also need use generic implementation, HAVE_DMA_ATTR
-> must be enabled, or can not pass compiling with allmodconfig, the
-> related error:
+On Tue, Nov 19, 2013 at 01:17:21PM +0800, Chen Gang wrote:
+> Need include generic "vga.h", or can not pass compiling with
+> allmodconfig, the related error:
 > 
->     CC [M]  drivers/ata/libata-core.o
->   drivers/ata/libata-core.c: In function 'ata_sg_clean':
->   drivers/ata/libata-core.c:4598:3: error: implicit declaration of function 'dma_unmap_sg' [-Werror=implicit-function-declaration]
->   drivers/ata/libata-core.c: In function 'ata_sg_setup':
->   drivers/ata/libata-core.c:4708:2: error: implicit declaration of function 'dma_map_sg' [-Werror=implicit-function-declaration]
+>     CC [M]  drivers/gpu/drm/drm_irq.o
+>   In file included from include/linux/vgaarb.h:34:0,
+>                    from drivers/gpu/drm/drm_irq.c:42:
+>   include/video/vga.h:22:21: fatal error: asm/vga.h: No such file or directory
 > 
-> "linux/dma-mapping.h" will include "asm/dma-mapping.h", so need remove
-> "linux/dma-mapping.h" from "asm/dma-mapping.h",
+> Also move "preempt.h" upper to match sort order.
 > 
 > 
 > Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+> ---
+>  arch/hexagon/include/asm/Kbuild |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
+> 
 
 Acked-by: Richard Kuo <rkuo@codeaurora.org>
 
