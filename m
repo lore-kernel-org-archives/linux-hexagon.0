@@ -1,8 +1,9 @@
 From: Chen Gang <gang.chen.5i5j@gmail.com>
-Subject: Re: [PATCH] arch: hexagon: kernel: add export symbol function __delay()
-Date: Mon, 25 Nov 2013 09:50:30 +0800
-Message-ID: <5292ACE6.2020101@gmail.com>
-References: <528AD6B3.1060507@gmail.com> <20131125011908.GA18921@codeaurora.org>
+Subject: [PATCH 0/2] arch: hexagon: include: asm: add prefix "vm_" for all
+ enum members in "hexagon_vm.h"
+Date: Mon, 25 Nov 2013 10:39:01 +0800
+Message-ID: <5292B845.3010404@gmail.com>
+References: <528AEFB7.4060301@gmail.com> <20131125011938.GB18921@codeaurora.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
@@ -10,55 +11,32 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20120113;
         h=message-id:date:from:user-agent:mime-version:to:cc:subject
          :references:in-reply-to:content-type:content-transfer-encoding;
-        bh=tjLdf9Savg3CBh8CVPvpdoVQCqL9dO5JOrWbBphbmag=;
-        b=fIUCHvEgU466CHggK15I7I3cihrityPmz2KI7HP4GOna/yqaGQmnWCmQF1ybOgR7Xr
-         2vjSnse1DZHD69f0JO1ZKZgh4Rbi4qqVT35lDPdG3UeeiLR+Apa4V9dzf7lZdvMwG5NS
-         x9n3WA8xcMdJtjBhtUA8iE3j3YPzOZRBXRmDL/nT0DOYepI4rhAi92WLOcTNPEyP00BU
-         d8b2hvVXpB20O7pFu5dZW6eH3t9xpouoPOYBPxsz8pVhPHlRxRkVednpEhvMFWTWFKWS
-         h/2NWCtgQ5Zq+yhOAb38lOeGwF1jFn19CUXHvYkWyrIa6TsoEAJ0N/fAye+MbHKRosiU
-         Ib+A==
-In-Reply-To: <20131125011908.GA18921@codeaurora.org>
+        bh=C3RpfDch5tC1gfMbM+GTvHcYRDZBKZFZGVzpg2byaqw=;
+        b=rGFAjO6qdjWIKEL9Npm0CDZuDfPZAF5s8XLO955DKSqhZkkVxG4owcvrzNjTDKJSaA
+         foAE7l3VJOpb343o3Z6Y42w8+zzxMLZU9gZ9SHOyEqmaP60y8CIY+yJLE9h6mRsdC8WI
+         2RhvM6eEtx3SdxxDF3jiRLXpK2Cr39EkeKTJY/QXphYnYbF2Bi1vcZXK4+84KblfrioT
+         Lwddyh+599S2zyOcs4GUpJfPwUJL4A659AeFF4BrOa8kuBhG+DVs8d/4DXxLeC4P3VYY
+         0paLz8fsp+w3Jy3OfelGjrXehA6vmUS659Hk3Q4nlgbnsLCV7GCLeHCl2Gh+aCK3ZPgy
+         qijQ==
+In-Reply-To: <20131125011938.GB18921@codeaurora.org>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: rkuo <rkuo@codeaurora.org>
 Cc: linux-hexagon@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On 11/25/2013 09:19 AM, rkuo wrote:
-> On Tue, Nov 19, 2013 at 11:10:43AM +0800, Chen Gang wrote:
->> Need add __delay() implementation, or can not pass allmodconfig in
->> next-20131118 tree.
->>
->> The related error:
->>
->>     CC      kernel/locking/spinlock_debug.o
->>   kernel/locking/spinlock_debug.c: In function '__spin_lock_debug':
->>   kernel/locking/spinlock_debug.c:114:3: error: implicit declaration of function '__delay' [-Werror=implicit-function-declaration]
->>
->>
->> Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
->> ---
->>  arch/hexagon/include/asm/delay.h |    1 +
->>  arch/hexagon/kernel/time.c       |    9 +++++++++
->>  2 files changed, 10 insertions(+), 0 deletions(-)
-> 
-> Thanks again for all the cleanups.  I've tested this and the rest of your
-> patches on my internal tree and everything checks out.
-> 
+Append "vm_" to all enum members (which are too common to make conflict
+with another sub-systems). The related error with allmodconfig:
 
-OK, thanks. I will/should continue. :-)
+    CC [M]  drivers/md/raid1.o
+  drivers/md/raid1.c:1440:13: error: 'status' redeclared as different kind of symbol
+  arch/hexagon/include/asm/hexagon_vm.h:76:2: note: previous definition of 'status' was here
 
-> Also just to let you know, I'm still waiting to hear back on that compiler
-> bug.
-> 
+Also fix a typo issue: use 'affinity' instead of 'locdis' for
+__vmintop_affinity() in "hexagon_vm.h"
 
-If necessary/suitable, can let me join to the related communication.
 
-> 
-> 
-> Acked-by: Richard Kuo <rkuo@codeaurora.org>
-> 
-
-Thanks.
--- 
-Chen Gang
+Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+---
+ arch/hexagon/include/asm/hexagon_vm.h |   72 ++++++++++++++++----------------
+ 1 files changed, 36 insertions(+), 36 deletions(-)
