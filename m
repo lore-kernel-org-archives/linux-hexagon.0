@@ -1,96 +1,83 @@
-From: Chen Gang <gang.chen.5i5j@gmail.com>
-Subject: [PATCH v3] arch: hexagon: kernel: hexagon_ksyms.c: export related
- symbols which various modules need
-Date: Tue, 03 Dec 2013 20:26:46 +0800
-Message-ID: <529DCE06.3040508@gmail.com>
-References: <529811AE.8050502@gmail.com> <20131203011222.GA23175@codeaurora.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+From: Jiang Liu <liuj97@gmail.com>
+Subject: [RFC PATCH v3 07/19] smp, hexagon: kill SMP single function call interrupt
+Date: Thu,  5 Dec 2013 00:12:58 +0800
+Message-ID: <1386173591-28514-8-git-send-email-liuj97@gmail.com>
+References: <1386173591-28514-1-git-send-email-liuj97@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20120113;
-        h=message-id:date:from:user-agent:mime-version:to:cc:subject
-         :references:in-reply-to:content-type:content-transfer-encoding;
-        bh=5jsSC5lqus0I1TasYqgEyaPzu3bFRbW4fUyj80tY0aE=;
-        b=xmiWMN1VaPusRb9sl+nwG9UYlz16Cbd+IqwzHlmvrntMforbCfUwRnKQfGNCDiVfIG
-         uSzdLo6cUEn5k39tZEd0kJieHH3uv/LMriNfP43GkdhS7Y3U7IdJFRvh3cpiJbae+evr
-         B5Wz3Vmpf9+K8QHdxiFgtpRxSqC2eyQBnCfOjJRXIFlI/oNmOlJagqxRk7ffZICTXCn9
-         4SgStrb/Toz14mvbArK7NkaGzSEcTnGtG84umTeXOVO+o/waa24n9cnEzelkTyc8q4rx
-         tfx+7pzcSXZNf5pyljmuOc+AURGk8uvPLp5fjo8hf5AYvsmZiDEB5I1TzIekDp4F+H8c
-         u1wg==
-In-Reply-To: <20131203011222.GA23175@codeaurora.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=jFgAhCXf11kEwwrCtME8CnQCP2SkcWCLDxzZj8Cyhik=;
+        b=PFZv5E6PeiAtS98ZUxNEuz5PiqDTy+ReB1+aU28CNp/pxW3S0JdJYgAmUTzzO5hvxP
+         KumukAPxA84IeWcEnH2Inod5UFtuBtYXuKhTqKXn1/T7iUVfbOooKMttGWyImOAZoNJz
+         QmMWATxqGaat/3N9bUVLpk/5ecM/2YKZvz3jMNb2qTobIRuSgxC7QJnjLGuG1QcGMLaE
+         RGjhvxvGYDxqnfGmPSkqgIjM7HcGSGUuQJsyDWYFu6D13IUF0eSKsjyqotnGriXO4pez
+         uGfrMUUpvmqVt8KPBmxPK/IohkletJwlxdcKqZ8fw8wMWteyCSfB5hcBBQAeQo/QXAE6
+         DmZw==
+In-Reply-To: <1386173591-28514-1-git-send-email-liuj97@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: rkuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@linux-foundation.org>, Shaohua Li <shli@kernel.org>, Richard Kuo <rkuo@codeaurora.org>, Thomas Gleixner <tglx@linutronix.de>, Paul Gortmaker <paul.gortmaker@windriver.com>, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jiang Liu <liuj97@gmail.com>, Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Steven Rostedt <rostedt@goodmis.org>, Jiri Kosina <trivial@kernel.org>, Wang YanQing <udknight@gmail.com>, linux-arch@vger.kernel.org
 
-Need export all related functions and symbols for various modules with
-allmodconfig. The related errors:
+Commit 9a46ad6d6df3b54 "smp: make smp_call_function_many() use logic
+similar to smp_call_function_single()" has unified the way to handle
+single and multiple cross-CPU function calls. Now only one intterupt
+is needed for architecture specific code to support generic SMP function
+call interfaces, so kill the redundant single function call interrupt.
 
-    MODPOST 2879 modules
-  ERROR: "__vmyield" [sound/sound_firmware.ko] undefined!
-  ERROR: "__phys_offset" [sound/drivers/snd-dummy.ko] undefined!
-  ERROR: "ioremap_nocache" [drivers/char/ipmi/ipmi_si.ko] undefined!
-  ERROR: "__iounmap" [drivers/char/ipmi/ipmi_si.ko] undefined!
-  ...
-
-For including files, need "linux/*" first, then "asm/*". All related
-included files and symbols need be sorted by alphabetical order.
-
-
-Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Shaohua Li <shli@kernel.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Jiri Kosina <trivial@kernel.org>
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Signed-off-by: Jiang Liu <liuj97@gmail.com>
 ---
- arch/hexagon/kernel/hexagon_ksyms.c | 24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+ arch/hexagon/include/asm/smp.h | 1 -
+ arch/hexagon/kernel/smp.c      | 6 +-----
+ 2 files changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/arch/hexagon/kernel/hexagon_ksyms.c b/arch/hexagon/kernel/hexagon_ksyms.c
-index 32b1379..c041d8e 100644
---- a/arch/hexagon/kernel/hexagon_ksyms.c
-+++ b/arch/hexagon/kernel/hexagon_ksyms.c
-@@ -18,23 +18,39 @@
-  * 02110-1301, USA.
-  */
+diff --git a/arch/hexagon/include/asm/smp.h b/arch/hexagon/include/asm/smp.h
+index 2b9b974..ca171c1 100644
+--- a/arch/hexagon/include/asm/smp.h
++++ b/arch/hexagon/include/asm/smp.h
+@@ -29,7 +29,6 @@ enum ipi_message_type {
+ 	IPI_NOP = 0,
+ 	IPI_RESCHEDULE = 1,
+ 	IPI_CALL_FUNC,
+-	IPI_CALL_FUNC_SINGLE,
+ 	IPI_CPU_STOP,
+ 	IPI_TIMER,
+ };
+diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
+index 9faaa94..ff759f2 100644
+--- a/arch/hexagon/kernel/smp.c
++++ b/arch/hexagon/kernel/smp.c
+@@ -64,10 +64,6 @@ static inline void __handle_ipi(unsigned long *ops, struct ipi_data *ipi,
+ 			generic_smp_call_function_interrupt();
+ 			break;
  
-+#include <linux/dma-mapping.h>
- #include <asm/hexagon_vm.h>
-+#include <asm/io.h>
- #include <asm/uaccess.h>
+-		case IPI_CALL_FUNC_SINGLE:
+-			generic_smp_call_function_single_interrupt();
+-			break;
+-
+ 		case IPI_CPU_STOP:
+ 			/*
+ 			 * call vmstop()
+@@ -248,7 +244,7 @@ void smp_send_stop(void)
  
-+/* Additional functions */
-+EXPORT_SYMBOL(__clear_user_hexagon);
- EXPORT_SYMBOL(__copy_from_user_hexagon);
- EXPORT_SYMBOL(__copy_to_user_hexagon);
-+EXPORT_SYMBOL(__iounmap);
-+EXPORT_SYMBOL(__strnlen_user);
- EXPORT_SYMBOL(__vmgetie);
- EXPORT_SYMBOL(__vmsetie);
-+EXPORT_SYMBOL(__vmyield);
-+EXPORT_SYMBOL(empty_zero_page);
-+EXPORT_SYMBOL(ioremap_nocache);
- EXPORT_SYMBOL(memcpy);
- EXPORT_SYMBOL(memset);
+ void arch_send_call_function_single_ipi(int cpu)
+ {
+-	send_ipi(cpumask_of(cpu), IPI_CALL_FUNC_SINGLE);
++	send_ipi(cpumask_of(cpu), IPI_CALL_FUNC);
+ }
  
-+/* Additional variables */
-+EXPORT_SYMBOL(__phys_offset);
-+EXPORT_SYMBOL(_dflt_cache_att);
-+EXPORT_SYMBOL(bad_dma_address);
-+
- #define DECLARE_EXPORT(name)     \
- 	extern void name(void); EXPORT_SYMBOL(name)
- 
- /* Symbols found in libgcc that assorted kernel modules need */
- DECLARE_EXPORT(__hexagon_memcpy_likely_aligned_min32bytes_mult8bytes);
- 
--DECLARE_EXPORT(__hexagon_divsi3);
--DECLARE_EXPORT(__hexagon_modsi3);
--DECLARE_EXPORT(__hexagon_udivsi3);
--DECLARE_EXPORT(__hexagon_umodsi3);
-+/* Additional functions */
-+DECLARE_EXPORT(__divsi3);
-+DECLARE_EXPORT(__modsi3);
-+DECLARE_EXPORT(__udivsi3);
-+DECLARE_EXPORT(__umodsi3);
-+DECLARE_EXPORT(csum_tcpudp_magic);
+ void arch_send_call_function_ipi_mask(const struct cpumask *mask)
 -- 
-1.7.11.7
+1.8.1.2
