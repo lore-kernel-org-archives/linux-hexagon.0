@@ -1,52 +1,41 @@
-From: Ilia Mirkin <imirkin@alum.mit.edu>
-Subject: [PATCH] hexagon: correct type on pgd copy
-Date: Thu,  5 Dec 2013 21:13:25 -0500
-Message-ID: <1386296005-2346-1-git-send-email-imirkin@alum.mit.edu>
+From: rkuo <rkuo@codeaurora.org>
+Subject: Re: [PATCH] arch: hexagon: include: asm: add generic macro 'mmiowb'
+ in "io.h"
+Date: Fri, 6 Dec 2013 12:19:20 -0600
+Message-ID: <20131206181920.GA11490@codeaurora.org>
+References: <528AEFB7.4060301@gmail.com>
+ <20131125011938.GB18921@codeaurora.org>
+ <52941E8C.7010909@gmail.com>
+Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=eELR5oTxnZc+CfxsAOpPv+yhm6UnJsWPlfiAS1IboBs=;
-        b=tQaIXUCUWs/uqivJos0O5Ql3f0HMD8QsRix3DAUnns6xHfTsJj0PtIADcyjJe2jG2I
-         JvSwOTqWY6Q569bHVuywBsBrIn82CA/ZXfFCbnTwC2ifz/4yPFQyqkE3NKoF1QJLJrzE
-         MHA4gf8Zq8EX6VAbUATCsob6vNDkiMaAbpJwBrBsm+ysGdcFDsD3WIxTcCm1LtdeK1dc
-         k0C9yGJ3QS8/6PruZKd0ZMtIKwdIPZIS6kzo9VW4EifU/mBrlzV4uIr3Jaya8AGgrVTs
-         0hV1FbmONZAZLEllQYVyInykIztdhSUZeylD7zPqCsgUHxBBQtb/q43GF4oU4do5aXhv
-         RUnw==
+Content-Disposition: inline
+In-Reply-To: <52941E8C.7010909@gmail.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org, Ilia Mirkin <imirkin@alum.mit.edu>
+To: Chen Gang <gang.chen.5i5j@gmail.com>
+Cc: linux-hexagon@vger.kernel.org
 
-swapper_pg_dir is an array of pgd_t, not pgd_t*. This has no actual
-effect since sizeof(pgd_t) == sizeof(pgd_t*), but unconfuses tools that
-check types.
+On Tue, Nov 26, 2013 at 12:07:40PM +0800, Chen Gang wrote:
+> Need dumy mmiowb(), or can not pass compiling, the related error with
+> allmodconfig:
+> 
+>     CC [M]  drivers/mmc/host/sdhci.o
+>   drivers/mmc/host/sdhci.c: In function 'sdhci_request':
+>   drivers/mmc/host/sdhci.c:1409:2: error: implicit declaration of function 'mmiowb' [-Werror=implicit-function-declaration]
+> 
+> 
+> Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+> ---
+>  arch/hexagon/include/asm/io.h |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+> 
 
-Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
----
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
 
-Looks like I wrote this ~2 years ago, when I was playing around with spatch,
-but forgot to send it out (along with a few other patches which no longer
-applied). This still seems valid though.
-
- arch/hexagon/include/asm/pgalloc.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/hexagon/include/asm/pgalloc.h b/arch/hexagon/include/asm/pgalloc.h
-index 4c9d382..77da3b0 100644
---- a/arch/hexagon/include/asm/pgalloc.h
-+++ b/arch/hexagon/include/asm/pgalloc.h
-@@ -45,7 +45,7 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
- 	 * map with a copy of the kernel's persistent map.
- 	 */
- 
--	memcpy(pgd, swapper_pg_dir, PTRS_PER_PGD*sizeof(pgd_t *));
-+	memcpy(pgd, swapper_pg_dir, PTRS_PER_PGD*sizeof(pgd_t));
- 	mm->context.generation = kmap_generation;
- 
- 	/* Physical version is what is passed to virtual machine on switch */
 -- 
-1.8.3.2
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation
