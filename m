@@ -1,50 +1,52 @@
-From: rkuo <rkuo@codeaurora.org>
-Subject: Re: [RFC PATCH v3 07/19] smp, hexagon: kill SMP single function call
- interrupt
-Date: Wed, 4 Dec 2013 19:42:54 -0600
-Message-ID: <20131205014254.GA3188@codeaurora.org>
-References: <1386173591-28514-1-git-send-email-liuj97@gmail.com>
- <1386173591-28514-8-git-send-email-liuj97@gmail.com>
-Mime-Version: 1.0
+From: Ilia Mirkin <imirkin@alum.mit.edu>
+Subject: [PATCH] hexagon: correct type on pgd copy
+Date: Thu,  5 Dec 2013 21:13:25 -0500
+Message-ID: <1386296005-2346-1-git-send-email-imirkin@alum.mit.edu>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1386173591-28514-8-git-send-email-liuj97@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=sender:from:to:cc:subject:date:message-id;
+        bh=eELR5oTxnZc+CfxsAOpPv+yhm6UnJsWPlfiAS1IboBs=;
+        b=tQaIXUCUWs/uqivJos0O5Ql3f0HMD8QsRix3DAUnns6xHfTsJj0PtIADcyjJe2jG2I
+         JvSwOTqWY6Q569bHVuywBsBrIn82CA/ZXfFCbnTwC2ifz/4yPFQyqkE3NKoF1QJLJrzE
+         MHA4gf8Zq8EX6VAbUATCsob6vNDkiMaAbpJwBrBsm+ysGdcFDsD3WIxTcCm1LtdeK1dc
+         k0C9yGJ3QS8/6PruZKd0ZMtIKwdIPZIS6kzo9VW4EifU/mBrlzV4uIr3Jaya8AGgrVTs
+         0hV1FbmONZAZLEllQYVyInykIztdhSUZeylD7zPqCsgUHxBBQtb/q43GF4oU4do5aXhv
+         RUnw==
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Jiang Liu <liuj97@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Shaohua Li <shli@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Paul Gortmaker <paul.gortmaker@windriver.com>, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Steven Rostedt <rostedt@goodmis.org>, Jiri Kosina <trivial@kernel.org>, Wang YanQing <udknight@gmail.com>, linux-arch@vger.kernel.org
+To: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org, Ilia Mirkin <imirkin@alum.mit.edu>
 
-On Thu, Dec 05, 2013 at 12:12:58AM +0800, Jiang Liu wrote:
-> Commit 9a46ad6d6df3b54 "smp: make smp_call_function_many() use logic
-> similar to smp_call_function_single()" has unified the way to handle
-> single and multiple cross-CPU function calls. Now only one intterupt
-> is needed for architecture specific code to support generic SMP function
-> call interfaces, so kill the redundant single function call interrupt.
-> 
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Shaohua Li <shli@kernel.org>
-> Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> Cc: Ingo Molnar <mingo@elte.hu>
-> Cc: Steven Rostedt <rostedt@goodmis.org>
-> Cc: Jiri Kosina <trivial@kernel.org>
-> Cc: Richard Kuo <rkuo@codeaurora.org>
-> Cc: linux-hexagon@vger.kernel.org
-> Signed-off-by: Jiang Liu <liuj97@gmail.com>
-> ---
->  arch/hexagon/include/asm/smp.h | 1 -
->  arch/hexagon/kernel/smp.c      | 6 +-----
->  2 files changed, 1 insertion(+), 6 deletions(-)
+swapper_pg_dir is an array of pgd_t, not pgd_t*. This has no actual
+effect since sizeof(pgd_t) == sizeof(pgd_t*), but unconfuses tools that
+check types.
 
-Seems to work fine for Hexagon.  Thanks!
+Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
+---
 
+Looks like I wrote this ~2 years ago, when I was playing around with spatch,
+but forgot to send it out (along with a few other patches which no longer
+applied). This still seems valid though.
 
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
+ arch/hexagon/include/asm/pgalloc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
+diff --git a/arch/hexagon/include/asm/pgalloc.h b/arch/hexagon/include/asm/pgalloc.h
+index 4c9d382..77da3b0 100644
+--- a/arch/hexagon/include/asm/pgalloc.h
++++ b/arch/hexagon/include/asm/pgalloc.h
+@@ -45,7 +45,7 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+ 	 * map with a copy of the kernel's persistent map.
+ 	 */
+ 
+-	memcpy(pgd, swapper_pg_dir, PTRS_PER_PGD*sizeof(pgd_t *));
++	memcpy(pgd, swapper_pg_dir, PTRS_PER_PGD*sizeof(pgd_t));
+ 	mm->context.generation = kmap_generation;
+ 
+ 	/* Physical version is what is passed to virtual machine on switch */
 -- 
-
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-hosted by The Linux Foundation
+1.8.3.2
