@@ -1,82 +1,94 @@
-From: James Hogan <james.hogan@imgtec.com>
-Subject: Re: [PATCH] asm-generic: add sched_setattr/sched_getattr syscalls
-Date: Mon, 24 Feb 2014 13:52:49 +0000
-Message-ID: <530B4EB1.9000907@imgtec.com>
-References: <1391441617-21518-1-git-send-email-james.hogan@imgtec.com> <20140217184435.GD8361@arm.com>
+From: rkuo <rkuo@codeaurora.org>
+Subject: [GIT PULL] arch/hexagon changes for 3.15
+Date: Fri, 4 Apr 2014 20:01:45 -0500
+Message-ID: <20140405010145.GA28225@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="DSPheHrLGBJJ4VcrXica0DsfFWdjx0VQb"
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20140217184435.GD8361@arm.com>
+Content-Disposition: inline
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Vineet Gupta <vgupta@synopsys.com>, Will Deacon <Will.Deacon@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "msalter@redhat.com" <msalter@redhat.com>, Aurelien Jacquiot <a-jacquiot@ti.com>, "linux-c6x-dev@linux-c6x.org" <linux-c6x-dev@linux-c6x.org>, Richard Kuo <rkuo@codeaurora.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-metag@vger.kernel.org" <linux-metag@vger.kernel.org>, Jonas Bonn <jonas@southpole.se>, "linux@openrisc.net" <linux@openrisc.net>, Chen Liqin <liqin.linux@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Chris Metcalf <cmetcalf@tilera.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: torvalds@linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
---DSPheHrLGBJJ4VcrXica0DsfFWdjx0VQb
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hello Linus,
 
-On 17/02/14 18:44, Catalin Marinas wrote:
-> On Mon, Feb 03, 2014 at 03:33:37PM +0000, James Hogan wrote:
->> Add the sched_setattr and sched_getattr syscalls to the generic syscal=
-l
->> list, which is used by the following architectures: arc, arm64, c6x,
->> hexagon, metag, openrisc, score, tile, unicore32.
->>
->> Signed-off-by: James Hogan <james.hogan@imgtec.com>
->> Cc: Arnd Bergmann <arnd@arndb.de>
->> Cc: linux-arch@vger.kernel.org
->> Cc: Vineet Gupta <vgupta@synopsys.com>
->> Cc: Catalin Marinas <catalin.marinas@arm.com>
->> Cc: Will Deacon <will.deacon@arm.com>
->> Cc: linux-arm-kernel@lists.infradead.org
->> Cc: Mark Salter <msalter@redhat.com>
->> Cc: Aurelien Jacquiot <a-jacquiot@ti.com>
->> Cc: linux-c6x-dev@linux-c6x.org
->> Cc: Richard Kuo <rkuo@codeaurora.org>
->> Cc: linux-hexagon@vger.kernel.org
->> Cc: linux-metag@vger.kernel.org
->> Cc: Jonas Bonn <jonas@southpole.se>
->> Cc: linux@lists.openrisc.net
->> Cc: Chen Liqin <liqin.linux@gmail.com>
->> Cc: Lennox Wu <lennox.wu@gmail.com>
->> Cc: Chris Metcalf <cmetcalf@tilera.com>
->> Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
->=20
-> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Please pull the following changes for Hexagon.  They contain mostly cleanups
+for compilation with allmodconfig and some other miscellaneous fixes.
+
 
 Thanks,
-
-FYI I've applied to my fixes branch which is included in linux-next,
-I'll send Linus the pull request in a few days.
-
-Cheers
-James
+Richard Kuo
 
 
---DSPheHrLGBJJ4VcrXica0DsfFWdjx0VQb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+The following changes since commit 455c6fdbd219161bd09b1165f11699d6d73de11c:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.13 (GNU/Linux)
+  Linux 3.14 (2014-03-30 20:40:15 -0700)
 
-iQIcBAEBAgAGBQJTC06yAAoJEKHZs+irPybfN/0QAKd34rJD7Lf6XqMgKHo7tfRD
-+LLHi/g8OlR1xkPKXmQlmdyGKtW+QmnGq/GLzJ1dTC8HZh/74i3NAtlTXIlujdsT
-ooD0TKqgHPaypdyrHlAO9GSHi241517cdWoai+4bNjg9nxStQ5R69XG4rUYkMkGU
-Tg/K6U8W9GNM1btJPGgrjV+qjmJ7zHOAWG1D631K+qxTn605HMefNbpCCJIV4NTg
-F6oGRAqaqh/NKLWY59zYz6iyE29chf7TPKSWiDJvHc8ZMfgnb3nhUnktUTHDbOqf
-FUfdWnzbvsN2jZFFOzTcoRbwObTYgMz0/Q8l3HZMbFSfLhLvhsZhQPd0SdAVJdzO
-zTaKiNun1hGfRhrFDUjmPf7xVur7N3Jq+62MfF0DFCJJ+23bImpW9+NWtJgcaLsS
-kVY+1M+ruhH628xBbQxvaAXHDpWhm3LYca+9zQ+fg17XcvEIHZeXcPs5tn/6CKqw
-B91Qn+BkAGCaf5QcmI+ZjKONpRtKdKjJPDssAHqmHeLno5/Q1rlDESgTwZriOd8o
-nLTTBSEkuY4xDPvB6GXPq83jKUc0x2hqeIjAziM5HM68IDH/eeWu+VY7tsGZepqW
-WogeiGNd4InXLUUvMljLPS8a0L4Y4e4vQEtbgO9TlUgnoq1/gXBoKvXlBaL98OZ7
-gcQf5gh2u0hqCIZMsbfH
-=8jpm
------END PGP SIGNATURE-----
+are available in the git repository at:
 
---DSPheHrLGBJJ4VcrXica0DsfFWdjx0VQb--
+  git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
+
+for you to fetch changes up to a9a44fdf329668125042055c569656aa83d8cccb:
+
+  Hexagon: update CR year for elf.h (2014-04-04 18:20:02 -0500)
+
+----------------------------------------------------------------
+Chen Gang (12):
+      hexagon: kernel: remove useless variables 'dn', 'r' and 'err' in time_init_deferred() in "time.c"
+      hexagon: kernel: kgdb: include related header for pass compiling.
+      hexagon: include: asm: kgdb: extend DBG_MAX_REG_NUM for "cs0/1"
+      arch: hexagon: kernel: add export symbol function __delay()
+      arch: hexagon: Kconfig: add HAVE_DMA_ATTR in Kconfig and remove "linux/dma-mapping.h" from "asm/dma-mapping.h"
+      arch: hexagon: include: asm: add prefix "hvm[ci]_" for all enum members in "hexagon_vm.h"
+      arch: hexagon: include: uapi: asm: setup.h add swith macro __KERNEL__
+      arch: hexagon: include: asm: Kbuild: add generic "serial.h" in Kbuild
+      arch: hexagon: include: asm: add "vga.h" in Kbuild
+      arch: hexagon: kernel: reset.c: use function pointer instead of function for pm_power_off and export it
+      arch: hexagon: kernel: hexagon_ksyms.c: export related symbols which various modules need
+      arch: hexagon: include: asm: add generic macro 'mmiowb' in "io.h"
+
+Ilia Mirkin (1):
+      hexagon: correct type on pgd copy
+
+Jiang Liu (1):
+      smp, hexagon: kill SMP single function call interrupt
+
+Richard Kuo (6):
+      Hexagon: add screen_info for VGA_CONSOLE
+      Hexagon: fix atomic_set
+      Hexagon: set the e_flags in user regset view for core dumps
+      Hexagon:  set ELF_EXEC_PAGESIZE to PAGE_SIZE
+      Hexagon: remove SP macro
+      Hexagon: update CR year for elf.h
+
+ arch/hexagon/Kconfig                      |    1 +
+ arch/hexagon/include/asm/Kbuild           |    4 +-
+ arch/hexagon/include/asm/atomic.h         |   15 +++++-
+ arch/hexagon/include/asm/delay.h          |    1 +
+ arch/hexagon/include/asm/dma-mapping.h    |    1 -
+ arch/hexagon/include/asm/elf.h            |    4 +-
+ arch/hexagon/include/asm/hexagon_vm.h     |   72 ++++++++++++++---------------
+ arch/hexagon/include/asm/io.h             |    2 +
+ arch/hexagon/include/asm/kgdb.h           |    5 +-
+ arch/hexagon/include/asm/pgalloc.h        |    2 +-
+ arch/hexagon/include/asm/smp.h            |    1 -
+ arch/hexagon/include/uapi/asm/registers.h |    4 +-
+ arch/hexagon/include/uapi/asm/setup.h     |    5 ++
+ arch/hexagon/kernel/Makefile              |    2 +
+ arch/hexagon/kernel/hexagon_ksyms.c       |   24 ++++++++--
+ arch/hexagon/kernel/kgdb.c                |    2 +
+ arch/hexagon/kernel/ptrace.c              |    1 +
+ arch/hexagon/kernel/reset.c               |    5 +-
+ arch/hexagon/kernel/screen_info.c         |    3 ++
+ arch/hexagon/kernel/smp.c                 |    6 +--
+ arch/hexagon/kernel/time.c                |   12 +++--
+ 21 files changed, 109 insertions(+), 63 deletions(-)
+ create mode 100644 arch/hexagon/kernel/screen_info.c
+
+-- 
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation
