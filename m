@@ -1,69 +1,89 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [RFC 3/3] asm-generic: Drop renameat syscall from default list
-Date: Wed, 23 Apr 2014 14:18:04 +0200
-Message-ID: <201404231418.05174.arnd@arndb.de>
-References: <1398247687-13453-1-git-send-email-james.hogan@imgtec.com> <1398247687-13453-4-git-send-email-james.hogan@imgtec.com>
+From: James Hogan <james.hogan@imgtec.com>
+Subject: Re: [RFC 3/3] asm-generic: Drop renameat syscall from
+	default list
+Date: Wed, 23 Apr 2014 13:41:37 +0100
+Message-ID: <CAAG0J9-2=rP3RP08eEjd17R3wEaeiUtGfWD-LeqXV=y9sBamfA@mail.gmail.com>
+References: <1398247687-13453-1-git-send-email-james.hogan@imgtec.com>
+	<1398247687-13453-4-git-send-email-james.hogan@imgtec.com>
+	<201404231418.05174.arnd@arndb.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-metag-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1398247687-13453-4-git-send-email-james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Sender: linux-metag-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: Text/Plain; charset="us-ascii"
-To: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Cc: linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vineet Gupta <vgupta-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Catalin Marinas <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, Will Deacon <will.deacon-5wv7dgnIgG8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Mark Salter <msalter-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Aurelien Jacquiot <a-jacquiot-l0cyMroinI0@public.gmane.org>, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, Richard Kuo <rkuo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-metag-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>, linux-ZwoEplunGu2h2975yA52AaxOck334EZe@public.gmane.org, Chen Liqin <liqin.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lennox Wu <lennox.wu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Chris Metcalf <cmetcalf-kv+TWInifGbQT0dZR+AlfA@public.gmane.org>, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>
+Return-path: <linux-bounces@lists.openrisc.net>
+In-Reply-To: <201404231418.05174.arnd@arndb.de>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.openrisc.net/options/linux>,
+	<mailto:linux-request@lists.openrisc.net?subject=unsubscribe>
+List-Archive: <http://lists.openrisc.net/pipermail/linux>
+List-Post: <mailto:linux@lists.openrisc.net>
+List-Help: <mailto:linux-request@lists.openrisc.net?subject=help>
+List-Subscribe: <http://lists.openrisc.net/listinfo/linux>,
+	<mailto:linux-request@lists.openrisc.net?subject=subscribe>
+Sender: linux-bounces@lists.openrisc.net
+Errors-To: linux-bounces@lists.openrisc.net
+To: Arnd Bergmann <arnd@arndb.de>, Miklos Szeredi <mszeredi@suse.cz>
+Cc: linux-arch@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Aurelien Jacquiot <a-jacquiot@ti.com>, Vineet Gupta <vgupta@synopsys.com>, Mark Salter <msalter@redhat.com>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Chris Metcalf <cmetcalf@tilera.com>, Richard Kuo <rkuo@codeaurora.org>, linux@lists.openrisc.net, Lennox Wu <lennox.wu@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, linux-hexagon@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, Chen Liqin <liqin.linux@gmail.com>, metag <linux-metag@vger.kernel.org>, ARM Kernel List <linux-arm-kernel@lists.infradead.org>
 
-On Wednesday 23 April 2014, James Hogan wrote:
-> The new renameat2 syscall provides all the functionality provided by the
-> renameat syscall and adds flags, so future architectures won't need to
-> include renameat.
-> 
-> Therefore drop the renameat syscall from the generic syscall list unless
-> __ARCH_WANT_RENAMEAT is defined by the architecture's unistd.h prior to
-> including asm-generic/unistd.h, and adjust all architectures using the
-> generic syscall list to define it so that no in-tree architectures are
-> affected.
+On 23 April 2014 13:18, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Wednesday 23 April 2014, James Hogan wrote:
+>> The new renameat2 syscall provides all the functionality provided by the
+>> renameat syscall and adds flags, so future architectures won't need to
+>> include renameat.
+>>
+>> Therefore drop the renameat syscall from the generic syscall list unless
+>> __ARCH_WANT_RENAMEAT is defined by the architecture's unistd.h prior to
+>> including asm-generic/unistd.h, and adjust all architectures using the
+>> generic syscall list to define it so that no in-tree architectures are
+>> affected.
+>
+> I should have read this one before replying to patch 2 ;-)
+>
+>> Signed-off-by: James Hogan <james.hogan@imgtec.com>
+>> Cc: Arnd Bergmann <arnd@arndb.de>
+>> Cc: linux-arch@vger.kernel.org
+>> Cc: Vineet Gupta <vgupta@synopsys.com>
+>> Cc: Catalin Marinas <catalin.marinas@arm.com>
+>> Cc: Will Deacon <will.deacon@arm.com>
+>> Cc: linux-arm-kernel@lists.infradead.org
+>> Cc: Mark Salter <msalter@redhat.com>
+>> Cc: Aurelien Jacquiot <a-jacquiot@ti.com>
+>> Cc: linux-c6x-dev@linux-c6x.org
+>> Cc: Richard Kuo <rkuo@codeaurora.org>
+>> Cc: linux-hexagon@vger.kernel.org
+>> Cc: linux-metag@vger.kernel.org
+>> Cc: Jonas Bonn <jonas@southpole.se>
+>> Cc: linux@lists.openrisc.net
+>> Cc: Chen Liqin <liqin.linux@gmail.com>
+>> Cc: Lennox Wu <lennox.wu@gmail.com>
+>> Cc: Chris Metcalf <cmetcalf@tilera.com>
+>> Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
+>> ---
+>> Is this the approach we want to take to keep the default syscall list
+>> minimal? We could for example have made renameat2 use the renameat
+>> syscall number for new arches, but it seemed best to leave a gap for new
+>> arches to improve consistency of numbering.
+>
+> I think leaving the hole is best.
+>
+>> This patch is a no-op for arches in tree, so there's no harm for this to
+>> wait for the v3.16 merge window.
+>
+> Sounds good. I guess I'll have to put this into my asm-generic tree
+> then, unless I can get the nios2 maintainers to pick it up.
 
-I should have read this one before replying to patch 2 ;-)
+Okay, thanks.
 
-> Signed-off-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-> Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-> Cc: linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: Vineet Gupta <vgupta-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-> Cc: Catalin Marinas <catalin.marinas-5wv7dgnIgG8@public.gmane.org>
-> Cc: Will Deacon <will.deacon-5wv7dgnIgG8@public.gmane.org>
-> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> Cc: Mark Salter <msalter-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> Cc: Aurelien Jacquiot <a-jacquiot-l0cyMroinI0@public.gmane.org>
-> Cc: linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org
-> Cc: Richard Kuo <rkuo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> Cc: linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: linux-metag-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
-> Cc: linux-ZwoEplunGu2h2975yA52AaxOck334EZe@public.gmane.org
-> Cc: Chen Liqin <liqin.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Lennox Wu <lennox.wu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Chris Metcalf <cmetcalf-kv+TWInifGbQT0dZR+AlfA@public.gmane.org>
-> Cc: Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>
-> ---
-> Is this the approach we want to take to keep the default syscall list
-> minimal? We could for example have made renameat2 use the renameat
-> syscall number for new arches, but it seemed best to leave a gap for new
-> arches to improve consistency of numbering.
+> If you don't mind, can you submit the first two patches to Linus
+> directly?
 
-I think leaving the hole is best.
+It appears Miklos Szeredi beat me to it with patch 1 (adding renameat2
+syscall to asm-generic unistd.h), and will be submitting it to Linus
+at some point as part of his renameat2 series.
+Miklos: Do you think it makes sense for you to include my second patch
+in your series too since it's renameat2 related?
+http://marc.info/?l=linux-kernel&m=139824773305016&w=2
 
-> This patch is a no-op for arches in tree, so there's no harm for this to
-> wait for the v3.16 merge window.
+Otherwise I'm happy to take it or both patches for v3.15.
 
-Sounds good. I guess I'll have to put this into my asm-generic tree
-then, unless I can get the nios2 maintainers to pick it up.
-
-If you don't mind, can you submit the first two patches to Linus
-directly?
-
-	Arnd
---
-To unsubscribe from this list: send the line "unsubscribe linux-metag" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers
+James
