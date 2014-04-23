@@ -1,94 +1,74 @@
-From: rkuo <rkuo@codeaurora.org>
-Subject: [GIT PULL] arch/hexagon changes for 3.15
-Date: Fri, 4 Apr 2014 20:01:45 -0500
-Message-ID: <20140405010145.GA28225@codeaurora.org>
+From: James Hogan <james.hogan@imgtec.com>
+Subject: [PATCH 0/3] asm-generic: Add renameat2,
+	drop renameat by default
+Date: Wed, 23 Apr 2014 11:08:04 +0100
+Message-ID: <1398247687-13453-1-git-send-email-james.hogan@imgtec.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-hexagon-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: torvalds@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Return-path: <linux-bounces@lists.openrisc.net>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.openrisc.net/options/linux>,
+	<mailto:linux-request@lists.openrisc.net?subject=unsubscribe>
+List-Archive: <http://lists.openrisc.net/pipermail/linux>
+List-Post: <mailto:linux@lists.openrisc.net>
+List-Help: <mailto:linux-request@lists.openrisc.net?subject=help>
+List-Subscribe: <http://lists.openrisc.net/listinfo/linux>,
+	<mailto:linux-request@lists.openrisc.net?subject=subscribe>
+Sender: linux-bounces@lists.openrisc.net
+Errors-To: linux-bounces@lists.openrisc.net
+To: Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org
+Cc: Chen Liqin <liqin.linux@gmail.com>, James Hogan <james.hogan@imgtec.com>, linux-c6x-dev@linux-c6x.org, Aurelien Jacquiot <a-jacquiot@ti.com>, Vineet Gupta <vgupta@synopsys.com>, Mark Salter <msalter@redhat.com>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Richard Kuo <rkuo@codeaurora.org>, linux@lists.openrisc.net, Lennox Wu <lennox.wu@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, linux-hexagon@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Hello Linus,
+A few patches relating to the renameat2 syscall added for v3.15 and the
+asm-generic syscall list.
 
-Please pull the following changes for Hexagon.  They contain mostly cleanups
-for compilation with allmodconfig and some other miscellaneous fixes.
+The first adds it to the generic syscall list. I'll send this upstream
+for v3.15 (but acks still welcome).
 
+The second and third patches make the renameat syscall optional, since
+renameat2 provides a superset of its functionality, and removes renameat
+from the generic syscall list by default. All existing users now define
+__ARCH_WANT_RENAMEAT so that nothing breaks, but new architectures are
+expected not to define it. Unless anybody requests otherwise I'll await
+an Ack from Arnd for these two and queue them for v3.16.
 
-Thanks,
-Richard Kuo
+James Hogan (3):
+  asm-generic: Add renameat2 syscall
+  scripts/checksyscalls.sh: Make renameat optional
+  asm-generic: Drop renameat syscall from default list
 
+ arch/arc/include/uapi/asm/unistd.h       | 1 +
+ arch/arm64/include/uapi/asm/unistd.h     | 3 +++
+ arch/c6x/include/uapi/asm/unistd.h       | 1 +
+ arch/hexagon/include/uapi/asm/unistd.h   | 1 +
+ arch/metag/include/uapi/asm/unistd.h     | 2 ++
+ arch/openrisc/include/uapi/asm/unistd.h  | 1 +
+ arch/score/include/uapi/asm/unistd.h     | 1 +
+ arch/tile/include/uapi/asm/unistd.h      | 1 +
+ arch/unicore32/include/uapi/asm/unistd.h | 2 ++
+ include/uapi/asm-generic/unistd.h        | 7 ++++++-
+ scripts/checksyscalls.sh                 | 5 ++++-
+ 11 files changed, 23 insertions(+), 2 deletions(-)
 
-The following changes since commit 455c6fdbd219161bd09b1165f11699d6d73de11c:
-
-  Linux 3.14 (2014-03-30 20:40:15 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
-
-for you to fetch changes up to a9a44fdf329668125042055c569656aa83d8cccb:
-
-  Hexagon: update CR year for elf.h (2014-04-04 18:20:02 -0500)
-
-----------------------------------------------------------------
-Chen Gang (12):
-      hexagon: kernel: remove useless variables 'dn', 'r' and 'err' in time_init_deferred() in "time.c"
-      hexagon: kernel: kgdb: include related header for pass compiling.
-      hexagon: include: asm: kgdb: extend DBG_MAX_REG_NUM for "cs0/1"
-      arch: hexagon: kernel: add export symbol function __delay()
-      arch: hexagon: Kconfig: add HAVE_DMA_ATTR in Kconfig and remove "linux/dma-mapping.h" from "asm/dma-mapping.h"
-      arch: hexagon: include: asm: add prefix "hvm[ci]_" for all enum members in "hexagon_vm.h"
-      arch: hexagon: include: uapi: asm: setup.h add swith macro __KERNEL__
-      arch: hexagon: include: asm: Kbuild: add generic "serial.h" in Kbuild
-      arch: hexagon: include: asm: add "vga.h" in Kbuild
-      arch: hexagon: kernel: reset.c: use function pointer instead of function for pm_power_off and export it
-      arch: hexagon: kernel: hexagon_ksyms.c: export related symbols which various modules need
-      arch: hexagon: include: asm: add generic macro 'mmiowb' in "io.h"
-
-Ilia Mirkin (1):
-      hexagon: correct type on pgd copy
-
-Jiang Liu (1):
-      smp, hexagon: kill SMP single function call interrupt
-
-Richard Kuo (6):
-      Hexagon: add screen_info for VGA_CONSOLE
-      Hexagon: fix atomic_set
-      Hexagon: set the e_flags in user regset view for core dumps
-      Hexagon:  set ELF_EXEC_PAGESIZE to PAGE_SIZE
-      Hexagon: remove SP macro
-      Hexagon: update CR year for elf.h
-
- arch/hexagon/Kconfig                      |    1 +
- arch/hexagon/include/asm/Kbuild           |    4 +-
- arch/hexagon/include/asm/atomic.h         |   15 +++++-
- arch/hexagon/include/asm/delay.h          |    1 +
- arch/hexagon/include/asm/dma-mapping.h    |    1 -
- arch/hexagon/include/asm/elf.h            |    4 +-
- arch/hexagon/include/asm/hexagon_vm.h     |   72 ++++++++++++++---------------
- arch/hexagon/include/asm/io.h             |    2 +
- arch/hexagon/include/asm/kgdb.h           |    5 +-
- arch/hexagon/include/asm/pgalloc.h        |    2 +-
- arch/hexagon/include/asm/smp.h            |    1 -
- arch/hexagon/include/uapi/asm/registers.h |    4 +-
- arch/hexagon/include/uapi/asm/setup.h     |    5 ++
- arch/hexagon/kernel/Makefile              |    2 +
- arch/hexagon/kernel/hexagon_ksyms.c       |   24 ++++++++--
- arch/hexagon/kernel/kgdb.c                |    2 +
- arch/hexagon/kernel/ptrace.c              |    1 +
- arch/hexagon/kernel/reset.c               |    5 +-
- arch/hexagon/kernel/screen_info.c         |    3 ++
- arch/hexagon/kernel/smp.c                 |    6 +--
- arch/hexagon/kernel/time.c                |   12 +++--
- 21 files changed, 109 insertions(+), 63 deletions(-)
- create mode 100644 arch/hexagon/kernel/screen_info.c
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arch@vger.kernel.org
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: Mark Salter <msalter@redhat.com>
+Cc: Aurelien Jacquiot <a-jacquiot@ti.com>
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-metag@vger.kernel.org
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: linux@lists.openrisc.net
+Cc: Chen Liqin <liqin.linux@gmail.com>
+Cc: Lennox Wu <lennox.wu@gmail.com>
+Cc: Chris Metcalf <cmetcalf@tilera.com>
+Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
 
 -- 
-
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-hosted by The Linux Foundation
+1.8.1.2
