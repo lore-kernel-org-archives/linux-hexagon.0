@@ -1,29 +1,74 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 2/2] Hexagon: Delete stale barrier.h
-Date: Thu, 01 May 2014 14:20:53 -0700
-Message-ID: <5362BAB5.7060703@roeck-us.net>
-References: <1397808515-8013-1-git-send-email-vgupta@synopsys.com>	<1397808515-8013-3-git-send-email-vgupta@synopsys.com>	<20140501161005.GA6212@roeck-us.net> <CA+55aFwCOW+bZHfAYMJsFQqEiX7bE79B-JwcJxZ67UVtEQgpcA@mail.gmail.com>
+From: Ley Foon Tan <lftan@altera.com>
+Subject: [PATCH 09/25] hexagon: Add 32 bit time_t and clock_t
+Date: Tue, 13 May 2014 17:03:29 +0800
+Message-ID: <1399971809-4300-1-git-send-email-lftan@altera.com>
+References: <1399971456-3941-1-git-send-email-lftan@altera.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <CA+55aFwCOW+bZHfAYMJsFQqEiX7bE79B-JwcJxZ67UVtEQgpcA@mail.gmail.com>
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1399971456-3941-1-git-send-email-lftan@altera.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Vineet Gupta <Vineet.Gupta1@synopsys.com>, Peter Zijlstra <peterz@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ley Foon Tan <lftan@altera.com>, lftan.linux@gmail.com, cltang@codesourcery.com, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-On 05/01/2014 10:10 AM, Linus Torvalds wrote:
-> On Thu, May 1, 2014 at 9:10 AM, Guenter Roeck <linux@roeck-us.net> wrote:
->>
->> Hexagon build is still broken with 3.15-rc3 and with the latest upstream.
->> This patch fixes the (build) problem. Would be great if the arch maintainer
->> could apply this (or a similar) patch and send it to Linus.
->
-> I took it directly, since you compile-tested it.
->
+Override time_t and clock_t in include/uapi/asm-generic.
 
-Great, thanks!
+Signed-off-by: Ley Foon Tan <lftan@altera.com>
+---
+ arch/hexagon/include/asm/Kbuild             |  1 -
+ arch/hexagon/include/uapi/asm/Kbuild        |  1 +
+ arch/hexagon/include/uapi/asm/posix_types.h | 17 +++++++++++++++++
+ 3 files changed, 18 insertions(+), 1 deletion(-)
+ create mode 100644 arch/hexagon/include/uapi/asm/posix_types.h
 
-Guenter
-
+diff --git a/arch/hexagon/include/asm/Kbuild b/arch/hexagon/include/asm/Kbuild
+index 0e69796..fbceaf8 100644
+--- a/arch/hexagon/include/asm/Kbuild
++++ b/arch/hexagon/include/asm/Kbuild
+@@ -33,7 +33,6 @@ generic-y += msgbuf.h
+ generic-y += pci.h
+ generic-y += percpu.h
+ generic-y += poll.h
+-generic-y += posix_types.h
+ generic-y += preempt.h
+ generic-y += resource.h
+ generic-y += rwsem.h
+diff --git a/arch/hexagon/include/uapi/asm/Kbuild b/arch/hexagon/include/uapi/asm/Kbuild
+index c31706c..336a2d0 100644
+--- a/arch/hexagon/include/uapi/asm/Kbuild
++++ b/arch/hexagon/include/uapi/asm/Kbuild
+@@ -5,6 +5,7 @@ header-y += bitsperlong.h
+ header-y += byteorder.h
+ header-y += kvm_para.h
+ header-y += param.h
++header-y += posix_types.h
+ header-y += ptrace.h
+ header-y += registers.h
+ header-y += setup.h
+diff --git a/arch/hexagon/include/uapi/asm/posix_types.h b/arch/hexagon/include/uapi/asm/posix_types.h
+new file mode 100644
+index 0000000..01e6b1c
+--- /dev/null
++++ b/arch/hexagon/include/uapi/asm/posix_types.h
+@@ -0,0 +1,17 @@
++#ifndef __ARCH_HEXAGON_POSIX_TYPES_H
++#define __ARCH_HEXAGON_POSIX_TYPES_H
++
++/*
++ * This file is generally used by user-level software, so you need to
++ * be a little careful about namespace pollution etc. Also, we cannot
++ * assume GCC is being used.
++ */
++typedef long	__kernel_time_t;
++#define __kernel_time_t __kernel_time_t
++
++typedef long	__kernel_clock_t;
++#define __kernel_clock_t __kernel_clock_t
++
++#include <asm-generic/posix_types.h>
++
++#endif
+-- 
+1.8.2.1
