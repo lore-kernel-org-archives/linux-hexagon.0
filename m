@@ -1,74 +1,44 @@
-From: Ley Foon Tan <lftan@altera.com>
-Subject: [PATCH 09/25] hexagon: Add 32 bit time_t and clock_t
-Date: Tue, 13 May 2014 17:03:29 +0800
-Message-ID: <1399971809-4300-1-git-send-email-lftan@altera.com>
-References: <1399971456-3941-1-git-send-email-lftan@altera.com>
+From: James Hogan <james.hogan@imgtec.com>
+Subject: Re: [RFC 3/3] asm-generic: Drop renameat syscall from
+	default list
+Date: Wed, 14 May 2014 17:16:57 +0100
+Message-ID: <537396F9.3090704@imgtec.com>
+References: <1398247687-13453-1-git-send-email-james.hogan@imgtec.com>	<1398247687-13453-4-git-send-email-james.hogan@imgtec.com>	<201404231418.05174.arnd@arndb.de>	<CAAG0J9-2=rP3RP08eEjd17R3wEaeiUtGfWD-LeqXV=y9sBamfA@mail.gmail.com>
+	<CAELBmZB=74foyc_b-MTVOXeP6rVAD2x4=um2RVezTb68DifEbA@mail.gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1399971456-3941-1-git-send-email-lftan@altera.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Ley Foon Tan <lftan@altera.com>, lftan.linux@gmail.com, cltang@codesourcery.com, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+Return-path: <linux-bounces@lists.openrisc.net>
+In-Reply-To: <CAELBmZB=74foyc_b-MTVOXeP6rVAD2x4=um2RVezTb68DifEbA@mail.gmail.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.openrisc.net/options/linux>,
+	<mailto:linux-request@lists.openrisc.net?subject=unsubscribe>
+List-Archive: <http://lists.openrisc.net/pipermail/linux>
+List-Post: <mailto:linux@lists.openrisc.net>
+List-Help: <mailto:linux-request@lists.openrisc.net?subject=help>
+List-Subscribe: <http://lists.openrisc.net/listinfo/linux>,
+	<mailto:linux-request@lists.openrisc.net?subject=subscribe>
+Sender: linux-bounces@lists.openrisc.net
+Errors-To: linux-bounces@lists.openrisc.net
+To: Szeredi Miklos <miklos@szeredi.hu>
+Cc: linux-arch@vger.kernel.org, Miklos Szeredi <mszeredi@suse.cz>, linux-c6x-dev@linux-c6x.org, Arnd Bergmann <arnd@arndb.de>, Aurelien Jacquiot <a-jacquiot@ti.com>, Vineet Gupta <vgupta@synopsys.com>, linux@openrisc.net, Mark Salter <msalter@redhat.com>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Chris Metcalf <cmetcalf@tilera.com>, Richard Kuo <rkuo@codeaurora.org>, Lennox Wu <lennox.wu@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, linux-hexagon@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, Chen Liqin <liqin.linux@gmail.com>, metag <linux-metag@vger.kernel.org>, ARM Kernel List <linux-arm-kernel@lists.infradead.org>
 
-Override time_t and clock_t in include/uapi/asm-generic.
+Hi Miklos,
 
-Signed-off-by: Ley Foon Tan <lftan@altera.com>
----
- arch/hexagon/include/asm/Kbuild             |  1 -
- arch/hexagon/include/uapi/asm/Kbuild        |  1 +
- arch/hexagon/include/uapi/asm/posix_types.h | 17 +++++++++++++++++
- 3 files changed, 18 insertions(+), 1 deletion(-)
- create mode 100644 arch/hexagon/include/uapi/asm/posix_types.h
+On 29/04/14 12:24, Szeredi Miklos wrote:
+> On Wed, Apr 23, 2014 at 2:41 PM, James Hogan <james.hogan@imgtec.com> wrote:
+> 
+>> It appears Miklos Szeredi beat me to it with patch 1 (adding renameat2
+>> syscall to asm-generic unistd.h), and will be submitting it to Linus
+>> at some point as part of his renameat2 series.
+>> Miklos: Do you think it makes sense for you to include my second patch
+>> in your series too since it's renameat2 related?
+>> http://marc.info/?l=linux-kernel&m=139824773305016&w=2
+> 
+> I've queued up the first two patches with acks from Arnd.
 
-diff --git a/arch/hexagon/include/asm/Kbuild b/arch/hexagon/include/asm/Kbuild
-index 0e69796..fbceaf8 100644
---- a/arch/hexagon/include/asm/Kbuild
-+++ b/arch/hexagon/include/asm/Kbuild
-@@ -33,7 +33,6 @@ generic-y += msgbuf.h
- generic-y += pci.h
- generic-y += percpu.h
- generic-y += poll.h
--generic-y += posix_types.h
- generic-y += preempt.h
- generic-y += resource.h
- generic-y += rwsem.h
-diff --git a/arch/hexagon/include/uapi/asm/Kbuild b/arch/hexagon/include/uapi/asm/Kbuild
-index c31706c..336a2d0 100644
---- a/arch/hexagon/include/uapi/asm/Kbuild
-+++ b/arch/hexagon/include/uapi/asm/Kbuild
-@@ -5,6 +5,7 @@ header-y += bitsperlong.h
- header-y += byteorder.h
- header-y += kvm_para.h
- header-y += param.h
-+header-y += posix_types.h
- header-y += ptrace.h
- header-y += registers.h
- header-y += setup.h
-diff --git a/arch/hexagon/include/uapi/asm/posix_types.h b/arch/hexagon/include/uapi/asm/posix_types.h
-new file mode 100644
-index 0000000..01e6b1c
---- /dev/null
-+++ b/arch/hexagon/include/uapi/asm/posix_types.h
-@@ -0,0 +1,17 @@
-+#ifndef __ARCH_HEXAGON_POSIX_TYPES_H
-+#define __ARCH_HEXAGON_POSIX_TYPES_H
-+
-+/*
-+ * This file is generally used by user-level software, so you need to
-+ * be a little careful about namespace pollution etc. Also, we cannot
-+ * assume GCC is being used.
-+ */
-+typedef long	__kernel_time_t;
-+#define __kernel_time_t __kernel_time_t
-+
-+typedef long	__kernel_clock_t;
-+#define __kernel_clock_t __kernel_clock_t
-+
-+#include <asm-generic/posix_types.h>
-+
-+#endif
--- 
-1.8.2.1
+Were you planning to send a pull request for your renameat2 patches for
+v3.15?
+
+Cheers
+James
