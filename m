@@ -1,44 +1,92 @@
-From: James Hogan <james.hogan@imgtec.com>
-Subject: Re: [RFC 3/3] asm-generic: Drop renameat syscall from
-	default list
-Date: Wed, 14 May 2014 17:16:57 +0100
-Message-ID: <537396F9.3090704@imgtec.com>
-References: <1398247687-13453-1-git-send-email-james.hogan@imgtec.com>	<1398247687-13453-4-git-send-email-james.hogan@imgtec.com>	<201404231418.05174.arnd@arndb.de>	<CAAG0J9-2=rP3RP08eEjd17R3wEaeiUtGfWD-LeqXV=y9sBamfA@mail.gmail.com>
-	<CAELBmZB=74foyc_b-MTVOXeP6rVAD2x4=um2RVezTb68DifEbA@mail.gmail.com>
-Mime-Version: 1.0
+From: Richard Weinberger <richard@nod.at>
+Subject: [PATCH 11/27] hexagon: Use common bits from generic tlb.h
+Date: Wed, 14 May 2014 20:59:43 +0200
+Message-ID: <1400093999-18703-12-git-send-email-richard@nod.at>
+References: <1400093999-18703-1-git-send-email-richard@nod.at>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1400093999-18703-1-git-send-email-richard@nod.at>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-bounces@lists.openrisc.net>
-In-Reply-To: <CAELBmZB=74foyc_b-MTVOXeP6rVAD2x4=um2RVezTb68DifEbA@mail.gmail.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.openrisc.net/options/linux>,
-	<mailto:linux-request@lists.openrisc.net?subject=unsubscribe>
-List-Archive: <http://lists.openrisc.net/pipermail/linux>
-List-Post: <mailto:linux@lists.openrisc.net>
-List-Help: <mailto:linux-request@lists.openrisc.net?subject=help>
-List-Subscribe: <http://lists.openrisc.net/listinfo/linux>,
-	<mailto:linux-request@lists.openrisc.net?subject=subscribe>
-Sender: linux-bounces@lists.openrisc.net
-Errors-To: linux-bounces@lists.openrisc.net
-To: Szeredi Miklos <miklos@szeredi.hu>
-Cc: linux-arch@vger.kernel.org, Miklos Szeredi <mszeredi@suse.cz>, linux-c6x-dev@linux-c6x.org, Arnd Bergmann <arnd@arndb.de>, Aurelien Jacquiot <a-jacquiot@ti.com>, Vineet Gupta <vgupta@synopsys.com>, linux@openrisc.net, Mark Salter <msalter@redhat.com>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, Chris Metcalf <cmetcalf@tilera.com>, Richard Kuo <rkuo@codeaurora.org>, Lennox Wu <lennox.wu@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, linux-hexagon@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, Chen Liqin <liqin.linux@gmail.com>, metag <linux-metag@vger.kernel.org>, ARM Kernel List <linux-arm-kernel@lists.infradead.org>
+To: linux-arch@vger.kernel.org, arnd@arndb.de, linux-kernel@vger.kernel.org
+Cc: Richard Weinberger <richard@nod.at>, Richard Kuo <rkuo@codeaurora.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Tim Chen <tim.c.chen@linux.intel.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Chen Gang <gang.chen.5i5j@gmail.com>, linux-hexagon@vger.kernel.org
 
-Hi Miklos,
+It is no longer needed to define them on our own.
 
-On 29/04/14 12:24, Szeredi Miklos wrote:
-> On Wed, Apr 23, 2014 at 2:41 PM, James Hogan <james.hogan@imgtec.com> wrote:
-> 
->> It appears Miklos Szeredi beat me to it with patch 1 (adding renameat2
->> syscall to asm-generic unistd.h), and will be submitting it to Linus
->> at some point as part of his renameat2 series.
->> Miklos: Do you think it makes sense for you to include my second patch
->> in your series too since it's renameat2 related?
->> http://marc.info/?l=linux-kernel&m=139824773305016&w=2
-> 
-> I've queued up the first two patches with acks from Arnd.
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Chen Gang <gang.chen.5i5j@gmail.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Richard Weinberger <richard@nod.at>
+---
+ arch/hexagon/include/asm/Kbuild |  1 +
+ arch/hexagon/include/asm/tlb.h  | 39 ---------------------------------------
+ 2 files changed, 1 insertion(+), 39 deletions(-)
+ delete mode 100644 arch/hexagon/include/asm/tlb.h
 
-Were you planning to send a pull request for your renameat2 patches for
-v3.15?
-
-Cheers
-James
+diff --git a/arch/hexagon/include/asm/Kbuild b/arch/hexagon/include/asm/Kbuild
+index 0e69796..7397e1a 100644
+--- a/arch/hexagon/include/asm/Kbuild
++++ b/arch/hexagon/include/asm/Kbuild
+@@ -52,6 +52,7 @@ generic-y += stat.h
+ generic-y += statfs.h
+ generic-y += termbits.h
+ generic-y += termios.h
++generic-y += tlb.h
+ generic-y += topology.h
+ generic-y += trace_clock.h
+ generic-y += types.h
+diff --git a/arch/hexagon/include/asm/tlb.h b/arch/hexagon/include/asm/tlb.h
+deleted file mode 100644
+index 2f00772..0000000
+--- a/arch/hexagon/include/asm/tlb.h
++++ /dev/null
+@@ -1,39 +0,0 @@
+-/*
+- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 and
+- * only version 2 as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+- * 02110-1301, USA.
+- */
+-
+-#ifndef _ASM_TLB_H
+-#define _ASM_TLB_H
+-
+-#include <linux/pagemap.h>
+-#include <asm/tlbflush.h>
+-
+-/*
+- * We don't need any special per-pte or per-vma handling...
+- */
+-#define tlb_start_vma(tlb, vma)				do { } while (0)
+-#define tlb_end_vma(tlb, vma)				do { } while (0)
+-#define __tlb_remove_tlb_entry(tlb, ptep, address)	do { } while (0)
+-
+-/*
+- * .. because we flush the whole mm when it fills up
+- */
+-#define tlb_flush(tlb)		flush_tlb_mm((tlb)->mm)
+-
+-#include <asm-generic/tlb.h>
+-
+-#endif
+-- 
+1.8.4.2
