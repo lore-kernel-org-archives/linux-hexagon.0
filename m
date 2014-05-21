@@ -1,43 +1,86 @@
 From: rkuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH 11/27] hexagon: Use common bits from generic tlb.h
-Date: Tue, 20 May 2014 18:58:07 -0500
-Message-ID: <20140520235807.GE12698@codeaurora.org>
-References: <1400093999-18703-1-git-send-email-richard@nod.at>
- <1400093999-18703-12-git-send-email-richard@nod.at>
+Subject: Re: hexagon: CONFIG_PAGE_SIZE_1MB?
+Date: Tue, 20 May 2014 19:25:24 -0500
+Message-ID: <20140521002524.GF12698@codeaurora.org>
+References: <1400326363.13824.8.camel@x220>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1400093999-18703-12-git-send-email-richard@nod.at>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1400326363.13824.8.camel@x220>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Richard Weinberger <richard@nod.at>
-Cc: linux-arch@vger.kernel.org, arnd@arndb.de, linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Tim Chen <tim.c.chen@linux.intel.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Chen Gang <gang.chen.5i5j@gmail.com>, linux-hexagon@vger.kernel.org
+To: Paul Bolle <pebolle@tiscali.nl>
+Cc: linux-hexagon@vger.kernel.org
 
-On Wed, May 14, 2014 at 08:59:43PM +0200, Richard Weinberger wrote:
-> It is no longer needed to define them on our own.
+On Sat, May 17, 2014 at 01:32:43PM +0200, Paul Bolle wrote:
+> Richard,
 > 
-> Cc: Richard Kuo <rkuo@codeaurora.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Ingo Molnar <mingo@kernel.org>
-> Cc: Tim Chen <tim.c.chen@linux.intel.com>
-> Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-> Cc: Chen Gang <gang.chen.5i5j@gmail.com>
-> Cc: Richard Weinberger <richard@nod.at>
-> Cc: linux-hexagon@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Richard Weinberger <richard@nod.at>
-> ---
->  arch/hexagon/include/asm/Kbuild |  1 +
->  arch/hexagon/include/asm/tlb.h  | 39 ---------------------------------------
->  2 files changed, 1 insertion(+), 39 deletions(-)
->  delete mode 100644 arch/hexagon/include/asm/tlb.h
+> 0) There are two checks for CONFIG_PAGE_SIZE_1MB in Linux' hexagon code.
+> But there's no Kconfig symbol PAGE_SIZE_1MB.
 > 
+> 1) There are two trivial solutions to this issue:
+>     diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+>     index 0fd6138f6203..fe3c235930a5 100644
+>     --- a/arch/hexagon/Kconfig
+>     +++ b/arch/hexagon/Kconfig
+>     @@ -148,6 +148,9 @@ config PAGE_SIZE_64KB
+>      config PAGE_SIZE_256KB
+>             bool "256KB"
+>     
+>     +config PAGE_SIZE_1MB
+>     +       bool "1MB"
+>     +
+>      endchoice
+>  
+>      source "mm/Kconfig"
+> 
+> and
+>     diff --git a/arch/hexagon/include/asm/page.h b/arch/hexagon/include/asm/page.h
+>     index 93f5669b4aa1..7bcec3c0447c 100644
+>     --- a/arch/hexagon/include/asm/page.h
+>     +++ b/arch/hexagon/include/asm/page.h
+>     @@ -45,11 +45,6 @@
+>      #define HEXAGON_L1_PTE_SIZE __HVM_PDE_S_256KB
+>      #endif
+>      
+>     -#ifdef CONFIG_PAGE_SIZE_1MB
+>     -#define PAGE_SHIFT 20
+>     -#define HEXAGON_L1_PTE_SIZE __HVM_PDE_S_1MB
+>     -#endif
+>     -
+>      /*
+>       *  These should be defined in hugetlb.h, but apparently not.
+>       *  "Huge" for us should be 4MB or 16MB, which are both represented
+>     diff --git a/arch/hexagon/include/asm/pgtable.h b/arch/hexagon/include/asm/pgtable.h
+>     index d8bd54fa431e..861a993afb7e 100644
+>     --- a/arch/hexagon/include/asm/pgtable.h
+>     +++ b/arch/hexagon/include/asm/pgtable.h
+>     @@ -111,10 +111,6 @@ extern unsigned long zero_page_mask;
+>      #define PTRS_PER_PTE 16
+>      #endif
+>      
+>     -#ifdef CONFIG_PAGE_SIZE_1MB
+>     -#define PTRS_PER_PTE 4
+>     -#endif
+>     -
+>      /*  Any bigger and the PTE disappears.  */
+>      #define pgd_ERROR(e) \
+>             printk(KERN_ERR "%s:%d: bad pgd %08lx.\n", __FILE__, __LINE__,\
+> 
+> 
+> 2) Which trivial solution would you prefer?
 
-Worked for Hexagon, thanks.
+I'd go with just removing it from pgtable.h.  The last time we
+tried anything that large, there were...  adverse side effects, like
+overrunning one of the object counters in the slab allocator.
 
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
+
+Thanks,
+Richard Kuo
+
+
 
 -- 
 
