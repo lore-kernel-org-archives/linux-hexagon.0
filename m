@@ -1,64 +1,44 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: [PATCH] Hexagon: remove checks for CONFIG_PAGE_SIZE_1MB
-Date: Fri, 23 May 2014 16:37:25 +0200
-Message-ID: <1400855845.31526.40.camel@x220>
+From: rkuo <rkuo@codeaurora.org>
+Subject: Re: [PATCH] Hexagon: remove checks for CONFIG_PAGE_SIZE_1MB
+Date: Wed, 28 May 2014 21:31:50 -0500
+Message-ID: <20140529023150.GA9736@codeaurora.org>
 References: <1400326363.13824.8.camel@x220>
-	 <20140521002524.GF12698@codeaurora.org>
+ <20140521002524.GF12698@codeaurora.org>
+ <1400855845.31526.40.camel@x220>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140521002524.GF12698@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1400855845.31526.40.camel@x220>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Richard Kuo <rkuo@codeaurora.org>
+Content-Transfer-Encoding: 7bit
+To: Paul Bolle <pebolle@tiscali.nl>
 Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-There are two checks for CONFIG_PAGE_SIZE_1MB in hexagon's code. But
-there is no Kconfig symbol PAGE_SIZE_1MB. Remove these unneeded checks
-and the code they hide.
+On Fri, May 23, 2014 at 04:37:25PM +0200, Paul Bolle wrote:
+> There are two checks for CONFIG_PAGE_SIZE_1MB in hexagon's code. But
+> there is no Kconfig symbol PAGE_SIZE_1MB. Remove these unneeded checks
+> and the code they hide.
+> 
+> Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
+> ---
+> Untested.
+> 
+> Richard preferred this over the equally trivial patch to add an entry
+> for PAGE_SIZE_1MB.
+> 
+>  arch/hexagon/include/asm/page.h    | 5 -----
+>  arch/hexagon/include/asm/pgtable.h | 4 ----
+>  2 files changed, 9 deletions(-)
+> 
 
-Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
----
-Untested.
+Thanks!
 
-Richard preferred this over the equally trivial patch to add an entry
-for PAGE_SIZE_1MB.
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
 
- arch/hexagon/include/asm/page.h    | 5 -----
- arch/hexagon/include/asm/pgtable.h | 4 ----
- 2 files changed, 9 deletions(-)
-
-diff --git a/arch/hexagon/include/asm/page.h b/arch/hexagon/include/asm/page.h
-index 93f5669b4aa1..7bcec3c0447c 100644
---- a/arch/hexagon/include/asm/page.h
-+++ b/arch/hexagon/include/asm/page.h
-@@ -45,11 +45,6 @@
- #define HEXAGON_L1_PTE_SIZE __HVM_PDE_S_256KB
- #endif
- 
--#ifdef CONFIG_PAGE_SIZE_1MB
--#define PAGE_SHIFT 20
--#define HEXAGON_L1_PTE_SIZE __HVM_PDE_S_1MB
--#endif
--
- /*
-  *  These should be defined in hugetlb.h, but apparently not.
-  *  "Huge" for us should be 4MB or 16MB, which are both represented
-diff --git a/arch/hexagon/include/asm/pgtable.h b/arch/hexagon/include/asm/pgtable.h
-index d8bd54fa431e..861a993afb7e 100644
---- a/arch/hexagon/include/asm/pgtable.h
-+++ b/arch/hexagon/include/asm/pgtable.h
-@@ -111,10 +111,6 @@ extern unsigned long zero_page_mask;
- #define PTRS_PER_PTE 16
- #endif
- 
--#ifdef CONFIG_PAGE_SIZE_1MB
--#define PTRS_PER_PTE 4
--#endif
--
- /*  Any bigger and the PTE disappears.  */
- #define pgd_ERROR(e) \
- 	printk(KERN_ERR "%s:%d: bad pgd %08lx.\n", __FILE__, __LINE__,\
 -- 
-1.9.0
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation
