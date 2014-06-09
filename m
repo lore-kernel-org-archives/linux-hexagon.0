@@ -1,44 +1,46 @@
-From: rkuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH] Hexagon: remove checks for CONFIG_PAGE_SIZE_1MB
-Date: Wed, 28 May 2014 21:31:50 -0500
-Message-ID: <20140529023150.GA9736@codeaurora.org>
-References: <1400326363.13824.8.camel@x220>
- <20140521002524.GF12698@codeaurora.org>
- <1400855845.31526.40.camel@x220>
-Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1400855845.31526.40.camel@x220>
-Sender: linux-hexagon-owner@vger.kernel.org
+From: Pranith Kumar <bobby.prani@gmail.com>
+Subject: [PATCH 4/6] update reference, kerneltrap.org no longer works
+Date: Mon,  9 Jun 2014 11:51:26 -0400
+Message-ID: <1402329088-4802-4-git-send-email-bobby.prani@gmail.com>
+References: <1402329088-4802-1-git-send-email-bobby.prani@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=from:to:subject:date:message-id:in-reply-to:references;
+        bh=Zde7GaRhKc+qo8pBe/6lwaGMEplysi1LtWuXs+nTDBI=;
+        b=i+ZKfshr7IUyloHmXPzNu+Xl8Zg/hU+7/cN9f6xgWl8TsGw+49uhp6hyuZdMXhmyVQ
+         qAw0xthJ37/TCgAEnj+Oukkk+AfDOEfqobiOaNti9qYmzRgyQizcpO4DhwSvw5PZoMvu
+         9KAAHGk1YtXO2rsYfFn+6p05RnbE078i9DyBxe4lKjF/A9zFbIOF/43aT5QlM4sGWZii
+         /b7an28hRcu9eOzFIwpmxl+4YLwWuRokQJYPcNE/CDaObgLQcfHhCbwpiafpQqYxsnNB
+         O+bfdg4GjY5CUQIvsZ4NqDaQd1xsrW7CdcAYwaqcULhSCKgV/JtlFRic3Rhk428DXchg
+         3SYg==
+In-Reply-To: <1402329088-4802-1-git-send-email-bobby.prani@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Paul Bolle <pebolle@tiscali.nl>
-Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+To: trivial@rustcorp.com.au, Richard Kuo <rkuo@codeaurora.org>, "GitAuthor: Pranith Kumar" <bobby.prani@gmail.com>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 
-On Fri, May 23, 2014 at 04:37:25PM +0200, Paul Bolle wrote:
-> There are two checks for CONFIG_PAGE_SIZE_1MB in hexagon's code. But
-> there is no Kconfig symbol PAGE_SIZE_1MB. Remove these unneeded checks
-> and the code they hide.
-> 
-> Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
-> ---
-> Untested.
-> 
-> Richard preferred this over the equally trivial patch to add an entry
-> for PAGE_SIZE_1MB.
-> 
->  arch/hexagon/include/asm/page.h    | 5 -----
->  arch/hexagon/include/asm/pgtable.h | 4 ----
->  2 files changed, 9 deletions(-)
-> 
+kerneltrap.org no longer works, update to a working reference
 
-Thanks!
+Signed-off-by: Pranith Kumar <bobby.prani@gmail.com>
+---
+ arch/hexagon/include/asm/cache.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
-
+diff --git a/arch/hexagon/include/asm/cache.h b/arch/hexagon/include/asm/cache.h
+index f4ca594..2635117 100644
+--- a/arch/hexagon/include/asm/cache.h
++++ b/arch/hexagon/include/asm/cache.h
+@@ -28,7 +28,7 @@
+ #define __cacheline_aligned	__aligned(L1_CACHE_BYTES)
+ #define ____cacheline_aligned	__aligned(L1_CACHE_BYTES)
+ 
+-/* See http://kerneltrap.org/node/15100  */
++/* See http://lwn.net/Articles/262554/ */
+ #define __read_mostly
+ 
+ #endif
 -- 
-
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-hosted by The Linux Foundation
+1.9.1
