@@ -1,139 +1,67 @@
-From: Richard Weinberger <richard@sigma-star.at>
-Subject: [PATCH 08/43] hexagon: Use get_signal() signal_setup_done()
-Date: Mon, 21 Jul 2014 16:02:54 +0200
-Message-ID: <1405951409-16953-9-git-send-email-richard@sigma-star.at>
-References: <1405951409-16953-1-git-send-email-richard@sigma-star.at>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <1405951409-16953-1-git-send-email-richard@sigma-star.at>
-Sender: linux-arch-owner@vger.kernel.org
+From: rkuo <rkuo@codeaurora.org>
+Subject: Re: Building a hexagon cross compiler
+Date: Mon, 21 Jul 2014 15:43:06 -0500
+Message-ID: <20140721204306.GA22381@codeaurora.org>
+References: <20577.1405434250@warthog.procyon.org.uk>
+ <CAHrUA374VW4j1tDUzss3L4Xezp0-g21b7zCYgw-2gafheaS+sQ@mail.gmail.com>
+Mime-Version: 1.0
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAHrUA374VW4j1tDUzss3L4Xezp0-g21b7zCYgw-2gafheaS+sQ@mail.gmail.com>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: akpm@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, Richard Weinberger <richard@nod.at>, rkuo@codeaurora.org, linux-hexagon@vger.kernel.org
+To: Linas Vepstas <linasvepstas@gmail.com>
+Cc: David Howells <dhowells@redhat.com>, linux-hexagon@vger.kernel.org, richard.weinberger@gmail.com
 
-From: Richard Weinberger <richard@nod.at>
+On Tue, Jul 15, 2014 at 02:03:02PM -0500, Linas Vepstas wrote:
+> If I remember correctly, Mentor's Code Sourcercy division was supposed to
+> be maintaining and merging the hexagon gcc patches upstream. glibc too.
+> Last time I used this (many years ago) it all worked great, with almost all
+> of the glibc test suite passing, including the wild tangle of thread-local
+> storage, thread joins, thrown exceptions, stack unwinding, gdb and signals
+> all happening at the same time. There were only a handful of rare, obscure
+> cases that didn't pass.  I know, as I did the work to make this all go.
+> 
+> I hope all this work isn't slowly being lost ...
+> 
+> --linas
+> 
+> 
+> 
+> On 15 July 2014 09:24, David Howells <dhowells@redhat.com> wrote:
+> 
+> > Hi Richard,
+> >
+> > I'd like to build a Hexagon cross-compiler to go with the other Fedora
+> > cross
+> > compilers that I have.  I don't see support in binutils-2.24 and gcc-4.9.0
+> > though.  Do I take it that Hexagon has its own special cross compiler
+> > build?
+> >
+> > David
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-hexagon" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
 
-Use the more generic functions get_signal() signal_setup_done()
-for signal delivery.
 
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
-Signed-off-by: Richard Weinberger <richard@nod.at>
----
- arch/hexagon/kernel/signal.c | 45 ++++++++++++++++++--------------------------
- 1 file changed, 18 insertions(+), 27 deletions(-)
+Sorry for the late response.  As Linas mentioned, Mentor maintains the that
+set of tools.  That latest version that was released can be found here:
 
-diff --git a/arch/hexagon/kernel/signal.c b/arch/hexagon/kernel/signal.c
-index d7c7387..6525358 100644
---- a/arch/hexagon/kernel/signal.c
-+++ b/arch/hexagon/kernel/signal.c
-@@ -112,20 +112,20 @@ static int restore_sigcontext(struct pt_regs *regs,
- /*
-  * Setup signal stack frame with siginfo structure
-  */
--static int setup_rt_frame(int signr, struct k_sigaction *ka, siginfo_t *info,
--			  sigset_t *set,  struct pt_regs *regs)
-+static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
-+			  struct pt_regs *regs)
- {
- 	int err = 0;
- 	struct rt_sigframe __user *frame;
- 	struct hexagon_vdso *vdso = current->mm->context.vdso;
- 
--	frame = get_sigframe(ka, regs, sizeof(struct rt_sigframe));
-+	frame = get_sigframe(&ksig->ka, regs, sizeof(struct rt_sigframe));
- 
- 	if (!access_ok(VERIFY_WRITE, frame, sizeof(struct rt_sigframe)))
--		goto	sigsegv;
-+		return -EFAULT;
- 
--	if (copy_siginfo_to_user(&frame->info, info))
--		goto	sigsegv;
-+	if (copy_siginfo_to_user(&frame->info, &ksig->info))
-+		return -EFAULT;
- 
- 	/* The on-stack signal trampoline is no longer executed;
- 	 * however, the libgcc signal frame unwinding code checks for
-@@ -137,29 +137,26 @@ static int setup_rt_frame(int signr, struct k_sigaction *ka, siginfo_t *info,
- 	err |= __copy_to_user(&frame->uc.uc_sigmask, set, sizeof(*set));
- 	err |= __save_altstack(&frame->uc.uc_stack, user_stack_pointer(regs));
- 	if (err)
--		goto sigsegv;
-+		return -EFAULT;
- 
- 	/* Load r0/r1 pair with signumber/siginfo pointer... */
- 	regs->r0100 = ((unsigned long long)((unsigned long)&frame->info) << 32)
--		| (unsigned long long)signr;
-+		| (unsigned long long)ksig->sig;
- 	regs->r02 = (unsigned long) &frame->uc;
- 	regs->r31 = (unsigned long) vdso->rt_signal_trampoline;
- 	pt_psp(regs) = (unsigned long) frame;
--	pt_set_elr(regs, (unsigned long)ka->sa.sa_handler);
-+	pt_set_elr(regs, (unsigned long)ksig->ka.sa.sa_handler);
- 
- 	return 0;
--
--sigsegv:
--	force_sigsegv(signr, current);
--	return -EFAULT;
- }
- 
- /*
-  * Setup invocation of signal handler
-  */
--static void handle_signal(int sig, siginfo_t *info, struct k_sigaction *ka,
--			 struct pt_regs *regs)
-+static void handle_signal(struct ksignal *ksig, struct pt_regs *regs)
- {
-+	int ret;
-+
- 	/*
- 	 * If we're handling a signal that aborted a system call,
- 	 * set up the error return value before adding the signal
-@@ -173,7 +170,7 @@ static void handle_signal(int sig, siginfo_t *info, struct k_sigaction *ka,
- 			regs->r00 = -EINTR;
- 			break;
- 		case -ERESTARTSYS:
--			if (!(ka->sa.sa_flags & SA_RESTART)) {
-+			if (!(ksig->ka.sa.sa_flags & SA_RESTART)) {
- 				regs->r00 = -EINTR;
- 				break;
- 			}
-@@ -193,11 +190,9 @@ static void handle_signal(int sig, siginfo_t *info, struct k_sigaction *ka,
- 	 * only set up the rt_frame flavor.
- 	 */
- 	/* If there was an error on setup, no signal was delivered. */
--	if (setup_rt_frame(sig, ka, info, sigmask_to_save(), regs) < 0)
--		return;
-+	ret = setup_rt_frame(ksig, sigmask_to_save(), regs);
- 
--	signal_delivered(sig, info, ka, regs,
--			test_thread_flag(TIF_SINGLESTEP));
-+	signal_setup_done(ret, ksig, test_thread_flag(TIF_SINGLESTEP));
- }
- 
- /*
-@@ -205,17 +200,13 @@ static void handle_signal(int sig, siginfo_t *info, struct k_sigaction *ka,
-  */
- void do_signal(struct pt_regs *regs)
- {
--	struct k_sigaction sigact;
--	siginfo_t info;
--	int signo;
-+	struct ksignal ksig;
- 
- 	if (!user_mode(regs))
- 		return;
- 
--	signo = get_signal_to_deliver(&info, &sigact, regs, NULL);
--
--	if (signo > 0) {
--		handle_signal(signo, &info, &sigact, regs);
-+	if (get_signal(&ksig)) {
-+		handle_signal(&ksig, regs);
- 		return;
- 	}
- 
+https://sourcery.mentor.com/GNUToolchain/release2800
+
+I haven't had a chance to test these tools myself though.
+
+Hope that helps.
+
+-Richard Kuo
+
+
 -- 
-1.8.4.5
+
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation
