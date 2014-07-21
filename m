@@ -1,47 +1,60 @@
-From: Linas Vepstas <linasvepstas@gmail.com>
-Subject: Re: Building a hexagon cross compiler
-Date: Tue, 15 Jul 2014 14:05:32 -0500
-Message-ID: <CAHrUA3677sZSn=NPcXwp8q6FzA3MKHM0PQ+W2hqufAy4Pwf3zQ@mail.gmail.com>
-References: <20577.1405434250@warthog.procyon.org.uk> <CAHrUA374VW4j1tDUzss3L4Xezp0-g21b7zCYgw-2gafheaS+sQ@mail.gmail.com>
-Reply-To: linasvepstas@gmail.com
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
-         :subject:to:cc:content-type:content-transfer-encoding;
-        bh=O2+qzHXwYam9JZc9y4Jp2Gl2+8ThtIahdDisl46lRqA=;
-        b=PU2gkT/vsa92f4LWk24pUveEHqjIPV1aoV3vJjNfcAYGtHleF2s/ulRKqHX/sHP9dU
-         t4uWkg7oXe8eAYjxIorr70nwMtyZ8iRPkeQdWcn0DIHNI8BmIt02vQ86yIVKblOBThuQ
-         uo2DZJezcuD6wBttSUVmPy65h6n2m9VsBoDLww9N/Ej5wfy23GHQAEn1JLMeGcHhCMeY
-         8qytdumXs58I6aBupyOGD1RjAtKRJnjxOKUNwldJGoYGR1iwdeJGC0ScuInCDM9x2n+5
-         CIgD3+37rP/XctlsGaKp2Pn9h2KCNCVZG71rqvlIURFa73uCuGMvhp81WGDo8qhQQOHA
-         9vHg==
-In-Reply-To: <CAHrUA374VW4j1tDUzss3L4Xezp0-g21b7zCYgw-2gafheaS+sQ@mail.gmail.com>
-Sender: linux-hexagon-owner@vger.kernel.org
+From: Richard Weinberger <richard@sigma-star.at>
+Subject: [PATCH 35/43] hexagon: Use sigsp()
+Date: Mon, 21 Jul 2014 16:03:21 +0200
+Message-ID: <1405951409-16953-36-git-send-email-richard@sigma-star.at>
+References: <1405951409-16953-1-git-send-email-richard@sigma-star.at>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1405951409-16953-1-git-send-email-richard@sigma-star.at>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: David Howells <dhowells@redhat.com>
-Cc: Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, richard.weinberger@gmail.com
+Content-Transfer-Encoding: 7bit
+To: akpm@linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, Richard Weinberger <richard@nod.at>, rkuo@codeaurora.org, linux-hexagon@vger.kernel.org
 
-Resending, with the html markup turned off.
+From: Richard Weinberger <richard@nod.at>
 
---linas
+Use sigsp() instead of the open coded variant.
 
-> On 15 July 2014 09:24, David Howells <dhowells@redhat.com> wrote:
->>
->> Hi Richard,
->>
->> I'd like to build a Hexagon cross-compiler to go with the other Fedora cross
->> compilers that I have.  I don't see support in binutils-2.24 and gcc-4.9.0
->> though.  Do I take it that Hexagon has its own special cross compiler build?
->>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+---
+ arch/hexagon/kernel/signal.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-On 15 July 2014 14:03, Linas Vepstas <linasvepstas@gmail.com> wrote:
->
-> If I remember correctly, Mentor's Code Sourcercy division was supposed to be maintaining and merging the hexagon gcc patches upstream. glibc too. Last time I used this (many years ago) it all worked great, with almost all of the glibc test suite passing, including the wild tangle of thread-local storage, thread joins, thrown exceptions, stack unwinding, gdb and signals all happening at the same time. There were only a handful of rare, obscure cases that didn't pass.  I know, as I did the work to make this all go.
->
-> I hope all this work isn't slowly being lost ...
->
-> --linas
+diff --git a/arch/hexagon/kernel/signal.c b/arch/hexagon/kernel/signal.c
+index 6525358..eadd70e 100644
+--- a/arch/hexagon/kernel/signal.c
++++ b/arch/hexagon/kernel/signal.c
+@@ -36,18 +36,10 @@ struct rt_sigframe {
+ 	struct ucontext uc;
+ };
+ 
+-static void __user *get_sigframe(struct k_sigaction *ka, struct pt_regs *regs,
++static void __user *get_sigframe(struct ksignal *ksig, struct pt_regs *regs,
+ 			  size_t frame_size)
+ {
+-	unsigned long sp = regs->r29;
+-
+-	/* check if we would overflow the alt stack */
+-	if (on_sig_stack(sp) && !likely(on_sig_stack(sp - frame_size)))
+-		return (void __user __force *)-1UL;
+-
+-	/* Switch to signal stack if appropriate */
+-	if ((ka->sa.sa_flags & SA_ONSTACK) && (sas_ss_flags(sp) == 0))
+-		sp = current->sas_ss_sp + current->sas_ss_size;
++	unsigned long sp = sigsp(regs->r29, ksig);
+ 
+ 	return (void __user *)((sp - frame_size) & ~(sizeof(long long) - 1));
+ }
+@@ -119,7 +111,7 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
+ 	struct rt_sigframe __user *frame;
+ 	struct hexagon_vdso *vdso = current->mm->context.vdso;
+ 
+-	frame = get_sigframe(&ksig->ka, regs, sizeof(struct rt_sigframe));
++	frame = get_sigframe(ksig, regs, sizeof(struct rt_sigframe));
+ 
+ 	if (!access_ok(VERIFY_WRITE, frame, sizeof(struct rt_sigframe)))
+ 		return -EFAULT;
+-- 
+1.8.4.5
