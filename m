@@ -1,8 +1,8 @@
 From: Chen Gang <gang.chen.5i5j@gmail.com>
 Subject: Re: [PATCH v3] arch: Kconfig: Let all architectures set endian explicitly
-Date: Fri, 15 Aug 2014 06:14:38 +0800
-Message-ID: <53ED34CE.3040001@gmail.com>
-References: <53ECE9DD.80004@gmail.com> <20140814180418.GA20777@linux-mips.org>
+Date: Fri, 15 Aug 2014 06:22:35 +0800
+Message-ID: <53ED36AB.8020703@gmail.com>
+References: <53ECE9DD.80004@gmail.com> <C2D7FE5348E1B147BCA15975FBA230753C4BA528@IN01WEMBXA.internal.synopsys.com> <CAF0htA6qfhyVXEuLbruiz+dfxnieF-309NdxSDhoEYHM=aBhQA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-mips-bounce@linux-mips.org>
@@ -10,14 +10,14 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20120113;
         h=message-id:date:from:user-agent:mime-version:to:cc:subject
          :references:in-reply-to:content-type:content-transfer-encoding;
-        bh=TGPFs9RQ2cUF5I1wQWl0OPsiei0CYNVN8jj+AO+LXqc=;
-        b=o7MLWAEKuMX/JjdrMZND/OFKuXjUuHTbU8nvD5SWQnzX8Su5hGFE+k+s7WS/bqChjy
-         m12C/38Cn39gZyHTajCZ0GOHZbBXP+y0aeslhPl2Rt4mgL2oJgy6ijvO/9tlLwAhfHro
-         lEze1o9ZR8kYMJMLtBrf1GT0tTkgIKq+IABm1OgNjycINuUjdU04nz4A0RTWiIiU4Ap6
-         lPvGqkPQn7X/DnShnvlfQrzrZkZU6m8dQGFlAdDOx3Zs6G6ejJbTUT7ngzjWs78eWz/1
-         WMMkmhxqRnstgWRTQVoz6cnhxQsG9+HHo9XEGOMEyfUu1AkM6JkAfZp7U2zHUs+kKqtv
-         yLWg==
-In-Reply-To: <20140814180418.GA20777@linux-mips.org>
+        bh=3nzQZTqA3gZs/buEqy2I49eTrxCes76fxE0EE0gouqQ=;
+        b=Nidk833Lh8/nl7p3QYwcytHHrbMDJWOTtQbEMUMc8F41EiXums5/AiXulOq5nCFATw
+         pGngNZFql4NenkVbkLndpej7YSlwmx/xmnxKYnVQPRiq+mseOTDFVv2L6sB47Ri8xloU
+         mxBfvU0ZjGfAz3Nb++aLwY7jAVtHqX2IPqFFrNdzZ0lVdiyZQLz0taIYS7Ju9a/3rhpi
+         lc5tuoD1L3k2aLYEHI8xbEZ6RRhbb3Z1JuaxSyTNSzo0rxXFTaA+V1P7Z3khh7CfRfLT
+         60naZP6z5REzRQVCduBHAiVRiTgkVrCb5J4WHHn688cMfJoWRCg35eE/6yswBQHHWaWT
+         5Dbg==
+In-Reply-To: <CAF0htA6qfhyVXEuLbruiz+dfxnieF-309NdxSDhoEYHM=aBhQA@mail.gmail.com>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 List-help: <mailto:ecartis@linux-mips.org?Subject=help>
@@ -29,63 +29,40 @@ List-owner: <mailto:ralf@linux-mips.org>
 List-post: <mailto:linux-mips@linux-mips.org>
 List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 Content-Type: text/plain; charset="us-ascii"
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, akpm@linux-foundation.org, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@synopsys.com, Geert Uytterhoeven <geert@linux-m68k.org>, Jean Delvare <jdelvare@suse.de>, linux@arm.linux.org.uk, catalin.marinas@arm.com, will.deacon@arm.com, hskinnemoen@gmail.com, egtvedt@samfundet.no, realmz6@gmail.com, msalter@redhat.com, a-jacquiot@ti.com, starvik@axis.com, jesper.nilsson@axis.com, dhowells@redhat.com, rkuo@codeaurora.org, tony.luck@intel.com, fenghua.yu@intel.com, takata@linux-m32r.org, james.hogan@imgtec.com, Michal Simek <monstr@monstr.eu>, yasutake.koichi@jp.panasonic.com, jonas@southpole.se, jejb@parisc-linux.org, deller@gmx.de, Benjamin Herrenschmidt <benh@kernel.crashing.org>, paulus@samba.org, mpe@ellerman.id.au, Mart
+To: Lennox Wu <lennox.wu@gmail.com>
+Cc: Vineet Gupta <Vineet.Gupta1@synopsys.com>, Arnd Bergmann <arnd@arndb.de>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>, "ink@jurassic.park.msu.ru" <ink@jurassic.park.msu.ru>, "mattst88@gmail.com" <mattst88@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Jean Delvare <jdelvare@suse.de>, "linux@arm.linux.org.uk" <linux@arm.linux.org.uk>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "hskinnemoen@gmail.com" <hskinnemoen@gmail.com>, "egtvedt@samfundet.no" <egtvedt@samfundet.no>, "realmz6@gmail.com" <realmz6@gmail.com>, "msalter@redhat.com" <msalter@redhat.com>, "a-jacquiot@ti.com" <a-jacquiot@ti.com>, "starvik@axis.com" <starvik@axis.com>, jesper.n
 
-On 08/15/2014 02:04 AM, Ralf Baechle wrote:
-> On Fri, Aug 15, 2014 at 12:54:53AM +0800, Chen Gang wrote:
+On 08/15/2014 02:27 AM, Lennox Wu wrote:
+> I don't think it's necessary, what's the benfit?
 > 
->> Normal architectures:
+> 2014-08-15 2:21 GMT+08:00 Vineet Gupta <Vineet.Gupta1@synopsys.com>:
+> 
+>> On Thursday 14 August 2014 09:55 AM, Chen Gang wrote:
+[...]
+>>> diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
+>>> index 9596b0a..e939abd 100644
+>>> --- a/arch/arc/Kconfig
+>>> +++ b/arch/arc/Kconfig
+>>> @@ -35,6 +35,7 @@ config ARC
+>>>       select OF_EARLY_FLATTREE
+>>>       select PERF_USE_VMALLOC
+>>>       select HAVE_DEBUG_STACKOVERFLOW
+>>> +     select CPU_LITTLE_ENDIAN if !CPU_BIG_ENDIAN
 >>
->>  - Big endian: avr32, frv, m68k, openrisc, parisc, s390, sparc
+>> It is not clear what exactly are you trying to fix. What doesn't work w/o
+>> this
+>> patch !
 >>
->>  - Little endian: alpha, blackfin, cris, hexagon, ia64, metag, mn10300,
->>                   score, unicore32, x86
->>
->>  - Choose in config time: arc, arm, arm64, c6x, m32r, mips, powerpc, sh
-> 
-> Nak for MIPS.  On MIPS Kconfig already always sets one of CPU_BIG_ENDIAN
-> and CPU_LITTLE_ENDIAN depending on platforms and where both endianess are
-> supported by a platform, user choice:
-> 
-> config FOO
-> 	bool "foo"
-> 	select SYS_SUPPORTS_LITTLE_ENDIAN
-> 
-> config FOO
-> 	bool "foo"
-> 	select SYS_SUPPORTS_BIG_ENDIAN
-> 	select SYS_SUPPORTS_LITTLE_ENDIAN
-> [...]
-> choice
->         prompt "Endianess selection"
->         help
->           Some MIPS machines can be configured for either little or big endian
->           byte order. These modes require different kernels and a different
->           Linux distribution.  In general there is one preferred byteorder for a
->           particular system but some systems are just as commonly used in the
->           one or the other endianness.
-> 
-> config CPU_BIG_ENDIAN
->         bool "Big endian"
->         depends on SYS_SUPPORTS_BIG_ENDIAN
-> 
-> config CPU_LITTLE_ENDIAN
->         bool "Little endian"
->         depends on SYS_SUPPORTS_LITTLE_ENDIAN
->         help
-> 
-> endchoice
-> 
 
-OK, thanks, I assumes when support both endian, the default choice is
-CPU_BIG_ENDIAN, although no default value for choice (originally, I did
-worry about it).
+For many individual modules may need check CPU_LITTLE_ENDIAN or
+CPU_BIG_ENDIAN, which is an architecture's attribute.
 
-> So I think you can just drop the MIPS segment from your patch.
-> 
+Or they have to list many architectures which they support, which they
+don't support. And still, it is not precise.
 
-If what I assumes is correct, what you said sounds reasonable to me.
+For architecture API, endian is a main architecture's attribute which
+may be used by outside, so every architecture need let outside know
+about it, explicitly.
 
 
 Thanks.
