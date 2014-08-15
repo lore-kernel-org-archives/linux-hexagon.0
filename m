@@ -1,122 +1,79 @@
-From: Chen Gang <gang.chen.5i5j@gmail.com>
-Subject: Re: [PATCH v3] arch: Kconfig: Let all architectures set endian explicitly
-Date: Fri, 15 Aug 2014 09:29:49 +0800
-Message-ID: <53ED628D.8010807@gmail.com>
-References: <53ECE9DD.80004@gmail.com> <C2D7FE5348E1B147BCA15975FBA230753C4BA528@IN01WEMBXA.internal.synopsys.com> <CAF0htA6qfhyVXEuLbruiz+dfxnieF-309NdxSDhoEYHM=aBhQA@mail.gmail.com> <53ED36AB.8020703@gmail.com> <C2D7FE5348E1B147BCA15975FBA230753C4BA673@IN01WEMBXA.internal.synopsys.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
+Subject: Re: [PATCH v3] arch: Kconfig: Let all architectures set
+	endian explicitly
+Date: Fri, 15 Aug 2014 05:47:15 +0400
+Message-ID: <CAMo8BfLuXZ8zyEoKdo8yb6nd+pZUnx0YEL9nqHx98kt76ezfYg@mail.gmail.com>
+References: <53ECE9DD.80004@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=message-id:date:from:user-agent:mime-version:to:cc:subject
-         :references:in-reply-to:content-type:content-transfer-encoding;
-        bh=/6zf3D4Ih6dfHuLdyxDcep0ykhMuWPtXTUKNOOnGnw0=;
-        b=KySmjueBfoQWlsUyz0Oy/2sNik7PndzeCpk7hyr+cRNjFHpxk7ddYKFl8LMYT9IX5L
-         Kd0xyBs7ngq98T/c2RNMahsUwVxMyCjJKiho+eGf/1NHTf53lJw+tZ4f2ka3cwRhfrR1
-         hwZg7E/IutfmPBputyXtRbtzvUNzJ/3yD9RAx+dHiWM2n9qzy3Dr4FLo6aFbYoz7NDXE
-         fM4XvRZo9LeKO3QK3ygSL19yo7bH2IeCgazx/kwqr5QBhJaazKStpDhRar78Jn6r2nxV
-         0igRBspIJNGNcEDApx7j/vPZhS9MQ43DNxda1/pBs17U+UPHFM0qBJ4Q2S5RH6Filsev
-         rtLQ==
-In-Reply-To: <C2D7FE5348E1B147BCA15975FBA230753C4BA673@IN01WEMBXA.internal.synopsys.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-Id: <linux-hexagon.vger.kernel.org>
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 Content-Type: text/plain; charset="us-ascii"
-To: Vineet Gupta <Vineet.Gupta1@synopsys.com>, Lennox Wu <lennox.wu@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "rth@twiddle.net" <rth@twiddle.net>, "ink@jurassic.park.msu.ru" <ink@jurassic.park.msu.ru>, "mattst88@gmail.com" <mattst88@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Jean Delvare <jdelvare@suse.de>, "linux@arm.linux.org.uk" <linux@arm.linux.org.uk>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "hskinnemoen@gmail.com" <hskinnemoen@gmail.com>, "egtvedt@samfundet.no" <egtvedt@samfundet.no>, "realmz6@gmail.com" <realmz6@gmail.com>, "msalter@redhat.com" <msalter@redhat.com>, "a-jacquiot@ti.com" <a-jacquiot@ti.com>, "starvik@axis.com" <starvik@axis.com>, "jesper.nilsson@axis.com" <jesper.nilsson@axis.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bounces@lists.openrisc.net>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
+	:cc:content-type;
+	bh=p8c4rjMSSJdO1Xt7FMqsuCj+8awOdO+1GFFG//IUgYk=;
+	b=nbUSgkhiizo2fohmCn/J0WStyLeXGaWbRH8sO16lxa1TEe1eAZ9HkKUGeISo8BnCl+
+	Ybr4G5EaPm7dMaQkvkCnx2VX7kqm0UgCDreGcUNfDzY3817HwDpzTd3jBAUgiV3QHAc5
+	tidYn43KOw5rIToqRXqKRmhKCt02uy5mDRLOG1eOR/1EyYcR2ctUjBRYl6e5CZr9Mldn
+	FVOrASo/1X4ymAvx3WdxUNXgQG32xaBHzd3yQWErDDbGFfm/mLRwtKrDs+Wxq5L6lW6k
+	cjbCWK5U3+vS1KgdvXHp6k6tW+KVrvjHqxK2+X8xrhRHv4TK1G7amCunLRCq39rDbrsZ
+	EOvw==
+In-Reply-To: <53ECE9DD.80004@gmail.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.openrisc.net/options/linux>,
+	<mailto:linux-request@lists.openrisc.net?subject=unsubscribe>
+List-Archive: <http://lists.openrisc.net/pipermail/linux>
+List-Post: <mailto:linux@lists.openrisc.net>
+List-Help: <mailto:linux-request@lists.openrisc.net?subject=help>
+List-Subscribe: <http://lists.openrisc.net/listinfo/linux>,
+	<mailto:linux-request@lists.openrisc.net?subject=subscribe>
+Sender: linux-bounces@lists.openrisc.net
+Errors-To: linux-bounces@lists.openrisc.net
+To: Chen Gang <gang.chen.5i5j@gmail.com>
+Cc: linux-m32r-ja@ml.linux-m32r.org, Linux/MIPS Mailing List <linux-mips@linux-mips.org>, linux-s390@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Aurelien Jacquiot <a-jacquiot@ti.com>, Catalin Marinas <catalin.marinas@arm.com>, linux@lists.openrisc.net, Will Deacon <will.deacon@arm.com>, David Howells <dhowells@redhat.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, Jean Delvare <jdelvare@suse.de>, egtvedt@samfundet.no, Liqin Chen <liqin.linux@gmail.com>, jesper.nilsson@axis.com, linux-am33-list@redhat.com, Russell King <linux@arm.linux.org.uk>, linux-c6x-dev@linux-c6x.org, "David S. Miller" <davem@davemloft.net>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, Michael Ellerman <mpe@ellerman.id.au>, takata@linux-m32
 
+Hi Chen,
 
+On Thu, Aug 14, 2014 at 8:54 PM, Chen Gang <gang.chen.5i5j@gmail.com> wrote:
+> Normal architectures:
+>
+>  - Big endian: avr32, frv, m68k, openrisc, parisc, s390, sparc
+>
+>  - Little endian: alpha, blackfin, cris, hexagon, ia64, metag, mn10300,
+>                   score, unicore32, x86
+>
+>  - Choose in config time: arc, arm, arm64, c6x, m32r, mips, powerpc, sh
+>
+> Special architectures:
+>
+>  - Deside by compiler: microblaze, tile, xtensa.
+>
+>  - Deside by building host: um
+>
+>  - Next, need improve Kbuild to probe endian to deside whether need mark
+>    __BUILDING_TIME_BIG_ENDIAN__ before real config.
 
-On 8/15/14 7:12, Vineet Gupta wrote:
-> On Thursday 14 August 2014 03:22 PM, Chen Gang wrote:
->> For many individual modules may need check CPU_LITTLE_ENDIAN or
->> CPU_BIG_ENDIAN, which is an architecture's attribute.
->>
->> Or they have to list many architectures which they support, which they
->> don't support. And still, it is not precise.
->>
->> For architecture API, endian is a main architecture's attribute which
->> may be used by outside, so every architecture need let outside know
->> about it, explicitly.
-> 
-> I don't think that is correct. The modules need to use standard API e.g. swab
-> which will take care of proper endian handling anyways. Why would a module do
-> anything endian specific outside of those APIs.
-> 
+[...]
 
-For building time, modules can check endians with various API. But for
-config time, at present, we have no related standard API for it.
+> diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
+> index 3a617af..a3e8f7e 100644
+> --- a/arch/xtensa/Kconfig
+> +++ b/arch/xtensa/Kconfig
+> @@ -22,6 +22,8 @@ config XTENSA
+>         select HAVE_IRQ_TIME_ACCOUNTING
+>         select HAVE_PERF_EVENTS
+>         select COMMON_CLK
+> +       select CPU_BIG_ENDIAN if __BUILDING_TIME_BIG_ENDIAN__
+> +       select CPU_LITTLE_ENDIAN if !CPU_BIG_ENDIAN
+>         help
+>           Xtensa processors are 32-bit RISC machines designed by Tensilica
+>           primarily for embedded systems.  These processors are both
 
-> And again is this churn just theoretical or do you really have a issue at hand ! I
-> would not accept a change for ARC unless you prove that something is broken (or
-> atleast potentially broken) !
-> 
+I've tested this part and it doesn't select neither CPU_BIG_ENDIAN,
+nor CPU_LITTLE_ENDIAN. And looking into the Kconfig/Kbuild I cound't
+find anything related to __BUILDING_TIME_BIG_ENDIAN__. Am I missing
+something?
 
-An issue for allmodconfig under microblaze, the original patch is below
-(I guess, not only one module may match this case):
-
-
--------- Forwarded Message --------
-Subject: [PATCH] drivers/isdn/hisax/Kconfig: Let HISAX_NETJET skip microblaze architecture
-Date: Tue, 05 Aug 2014 02:24:09 +0800
-From: Chen Gang <gang.chen.5i5j@gmail.com>
-To: isdn@linux-pingi.de
-CC: davem@davemloft.net, Jean Delvare <jdelvare@suse.de>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org <linux-kernel@vger.kernel.org>, monstr@monstr.eu
-
-For HISAX_NETJET, HISAX_NETJET_U or related config needs !__BIG_ENDIAN,
-so skip microblaze, just like skip all other architectures which have
-no CONFIG_*_ENDIAN.
-
-The related error (with allmodconfig under microblaze):
-
-    CC [M]  drivers/isdn/hisax/nj_s.o
-  drivers/isdn/hisax/nj_s.c: In function 'setup_netjet_s':
-  drivers/isdn/hisax/nj_s.c:265:2: error: #error "not running on big endian machines now"
-   #error "not running on big endian machines now"
-    ^
-
-Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
----
- drivers/isdn/hisax/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/isdn/hisax/Kconfig b/drivers/isdn/hisax/Kconfig
-index 97465ac..eb83d94 100644
---- a/drivers/isdn/hisax/Kconfig
-+++ b/drivers/isdn/hisax/Kconfig
-@@ -237,7 +237,7 @@ config HISAX_MIC
- 
- config HISAX_NETJET
- 	bool "NETjet card"
--	depends on PCI && (BROKEN || !(PPC || PARISC || M68K || (MIPS && !CPU_LITTLE_ENDIAN) || FRV || (XTENSA && !CPU_LITTLE_ENDIAN)))
-+	depends on PCI && (BROKEN || !(PPC || PARISC || M68K || (MIPS && !CPU_LITTLE_ENDIAN) || FRV || (XTENSA && !CPU_LITTLE_ENDIAN) || MICROBLAZE))
- 	depends on VIRT_TO_BUS
- 	help
- 	  This enables HiSax support for the NetJet from Traverse
-@@ -249,7 +249,7 @@ config HISAX_NETJET
- 
- config HISAX_NETJET_U
- 	bool "NETspider U card"
--	depends on PCI && (BROKEN || !(PPC || PARISC || M68K || (MIPS && !CPU_LITTLE_ENDIAN) || FRV || (XTENSA && !CPU_LITTLE_ENDIAN)))
-+	depends on PCI && (BROKEN || !(PPC || PARISC || M68K || (MIPS && !CPU_LITTLE_ENDIAN) || FRV || (XTENSA && !CPU_LITTLE_ENDIAN) || MICROBLAZE))
- 	depends on VIRT_TO_BUS
- 	help
- 	  This enables HiSax support for the Netspider U interface ISDN card
-
-
-
-
-
-Thanks.
 -- 
-Chen Gang
-
-Open, share, and attitude like air, water, and life which God blessed
-
+Thanks.
+-- Max
