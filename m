@@ -1,69 +1,101 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [PATCH] flush_icache_range: Export symbol to fix build errors
-Date: Mon, 18 Aug 2014 08:59:59 +0200
-Message-ID: <CAMuHMdWSO6V5Ln=Yp5yEQ0YHyH38yU5uyQytxJbmazZuL-=1DQ@mail.gmail.com>
-References: <1408335898-3109-1-git-send-email-bobby.prani@gmail.com>
-	<CAMo8Bf++rGnUkeOy3_gCimv9moStOx+fOtGAAeCXT8Hz2RsvBg@mail.gmail.com>
-Mime-Version: 1.0
-Return-path: <linux-metag-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Pranith Kumar <bobby.prani@gmail.com>
+Subject: [PATCH v2] flush_icache_range: Export symbol to fix build errors
+Date: Mon, 18 Aug 2014 11:59:13 -0400
+Message-ID: <1408377559-30775-1-git-send-email-bobby.prani@gmail.com>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20120113;
-        h=mime-version:sender:in-reply-to:references:date:message-id:subject
-         :from:to:cc:content-type;
-        bh=1f0jQMZLwmb959weXSi/EKTXWI1l4kYNGjMwEmxLj9g=;
-        b=btu+CtVkspaiBxJ8b+CZ0gfWC6o5kZBY5cviGBp72JrngQjrQPPoRRwLTo1SAY9FVO
-         +hOwsnyHwVfMKAND4alyyBOKttNa/jL1zd+rYEDXqNm9ZZOK5qUfSj2/fw2yQLb+HuC0
-         Ty+Q2vp3opITdI+A7TVwgao0RKpaAsdmxhBDmwp7nUTgdXg/M2R5N94NyqHgm8CVT/cd
-         k+/sJ6wr1YhSiVYiZnGg1HFvUwq//8W3eqTPq4NV8dt7idvNykhRe8cSfzyG9xuILNnm
-         WEHNcD7dVth5kf/XdSIObijkpeFuNziXJz2xzLkFUIp2VkH5qaVBMAPVaWvkijHiyEMA
-         +YRw==
-In-Reply-To: <CAMo8Bf++rGnUkeOy3_gCimv9moStOx+fOtGAAeCXT8Hz2RsvBg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-metag-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+        h=from:to:subject:date:message-id;
+        bh=iAKQxXqyCD1EcxRwOtXI0Eq3ofsr0x98iRdaWmJl9qo=;
+        b=FRTEFYTsMhTGI5Cx8zhK0ZS/wz4NYSUflimd/MV17gZDJHG6Pchcrd6gvbu77RHgFo
+         V0nF2UGmd19f0/A86GvjgBfBhb+IS8THL6R38wKZ83j+w/bYlGtaph+TBzC+0IZEdYCr
+         cXvgViVoEc9Af/cTY7dHupvkZHXnj0pM8BOZCe+FEu1+uBEX4bJLaOEszB3gcpNbe72U
+         ua56z87K+zuZY8zUGJ+2DATC62ryOugpihifN01cTit5LFU7B6dA01ocD+ecoCn6ljOx
+         MDmvsnuA2TxuRyLFdsOZXBQp9CDoj6zZptM9EPA4LFq8wtnDYy+/bvvp1qFy6xLHev3C
+         lt0g==
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Pranith Kumar <bobby.prani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Vineet Gupta <vgupta-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Steven Miao <realmz6-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Richard Kuo <rkuo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Chris Metcalf <cmetcalf-kv+TWInifGbQT0dZR+AlfA@public.gmane.org>, Chris Zankel <chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org>, Noam Camus <noamc-d5a29ZRxExrQT0dZR+AlfA@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Masami Hiramatsu <masami.hiramatsu.pt-FCd8Q96Dh0JBDgjK7y7TUQ@public.gmane.org>, Tony Lu <zlu-kv+TWInifGbQT0dZR+AlfA@public.gmane.org>, Kirill Tkhai <tkhai-o+MxOtu4lMCHXe+LvDLADg@public.gmane.org>, open list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "moderated list:BLACKFIN ARCHITEC..." <adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "open list:METAG ARCHITECTURE" <linux-metag-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "open list:SUPERH" <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "open list:TENSILICA XTENSA..." <linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org>
+To: Vineet Gupta <vgupta@synopsys.com>, Richard Kuo <rkuo@codeaurora.org>, Chris Metcalf <cmetcalf@tilera.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, Noam Camus <noamc@ezchip.com>, Andrew Morton <akpm@linux-foundation.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Tony Lu <zlu@tilera.com>, Kirill Tkhai <tkhai@yandex.ru>, open list <linux-kernel@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, "open list:SUPERH" <linux-sh@vger.kernel.org>, "open list:TENSILICA XTENSA..." <linux-xtensa@linux-xtensa.org>
 
-On Mon, Aug 18, 2014 at 8:35 AM, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On Mon, Aug 18, 2014 at 8:24 AM, Pranith Kumar <bobby.prani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->> Fix building errors occuring due to a missing export of flush_icache_range() in
->> architectures missing the export.
->
-> Can you be a little more specific here, what build errors?
+Fix building errors occuring due to a missing export of flush_icache_range() in
 
 kisskb.ellerman.id.au/kisskb/buildresult/11677809/
 
 ERROR: "flush_icache_range" [drivers/misc/lkdtm.ko] undefined!
 
-> [...]
->
->> diff --git a/arch/frv/include/asm/cacheflush.h b/arch/frv/include/asm/cacheflush.h
->> index edbac54..07ee4b3 100644
->> --- a/arch/frv/include/asm/cacheflush.h
->> +++ b/arch/frv/include/asm/cacheflush.h
->> @@ -72,6 +72,7 @@ static inline void flush_icache_range(unsigned long start, unsigned long end)
->>  {
->>         frv_cache_wback_inv(start, end);
->>  }
->> +EXPORT_SYMBOL(flush_icache_range);
->
-> EXPORT_SYMBOL should not be placed into header file as it defines
-> a non-static variable.
+Signed-off-by: Pranith Kumar <bobby.prani@gmail.com>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+CC: Andrew Morton <akpm@linux-foundation.org>
+---
+ arch/arc/mm/cache_arc700.c | 1 +
+ arch/hexagon/mm/cache.c    | 1 +
+ arch/sh/mm/cache.c         | 1 +
+ arch/tile/kernel/smp.c     | 1 +
+ arch/xtensa/kernel/smp.c   | 1 +
+ 5 files changed, 5 insertions(+)
 
-Indeed.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe linux-metag" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/arch/arc/mm/cache_arc700.c b/arch/arc/mm/cache_arc700.c
+index 4670afc..e88ddbf 100644
+--- a/arch/arc/mm/cache_arc700.c
++++ b/arch/arc/mm/cache_arc700.c
+@@ -581,6 +581,7 @@ void flush_icache_range(unsigned long kstart, unsigned long kend)
+ 		tot_sz -= sz;
+ 	}
+ }
++EXPORT_SYMBOL(flush_icache_range);
+ 
+ /*
+  * General purpose helper to make I and D cache lines consistent.
+diff --git a/arch/hexagon/mm/cache.c b/arch/hexagon/mm/cache.c
+index fe14ccf..0c76c80 100644
+--- a/arch/hexagon/mm/cache.c
++++ b/arch/hexagon/mm/cache.c
+@@ -68,6 +68,7 @@ void flush_icache_range(unsigned long start, unsigned long end)
+ 	);
+ 	local_irq_restore(flags);
+ }
++EXPORT_SYMBOL(flush_icache_range);
+ 
+ void hexagon_clean_dcache_range(unsigned long start, unsigned long end)
+ {
+diff --git a/arch/sh/mm/cache.c b/arch/sh/mm/cache.c
+index 097c2cd..f770e39 100644
+--- a/arch/sh/mm/cache.c
++++ b/arch/sh/mm/cache.c
+@@ -229,6 +229,7 @@ void flush_icache_range(unsigned long start, unsigned long end)
+ 
+ 	cacheop_on_each_cpu(local_flush_icache_range, (void *)&data, 1);
+ }
++EXPORT_SYMBOL(flush_icache_range);
+ 
+ void flush_icache_page(struct vm_area_struct *vma, struct page *page)
+ {
+diff --git a/arch/tile/kernel/smp.c b/arch/tile/kernel/smp.c
+index 01e8ab2..19eaa62 100644
+--- a/arch/tile/kernel/smp.c
++++ b/arch/tile/kernel/smp.c
+@@ -183,6 +183,7 @@ void flush_icache_range(unsigned long start, unsigned long end)
+ 		preempt_enable();
+ 	}
+ }
++EXPORT_SYMBOL(flush_icache_range);
+ 
+ 
+ /* Called when smp_send_reschedule() triggers IRQ_RESCHEDULE. */
+diff --git a/arch/xtensa/kernel/smp.c b/arch/xtensa/kernel/smp.c
+index 40b5a37..4d02e38 100644
+--- a/arch/xtensa/kernel/smp.c
++++ b/arch/xtensa/kernel/smp.c
+@@ -571,6 +571,7 @@ void flush_icache_range(unsigned long start, unsigned long end)
+ 	};
+ 	on_each_cpu(ipi_flush_icache_range, &fd, 1);
+ }
++EXPORT_SYMBOL(flush_icache_range);
+ 
+ /* ------------------------------------------------------------------------- */
+ 
+-- 
+1.9.1
