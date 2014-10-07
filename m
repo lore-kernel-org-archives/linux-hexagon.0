@@ -1,68 +1,45 @@
-From: rkuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH] Hexagon: Remove useless select of NO_IOPORT_MAP
-Date: Mon, 29 Sep 2014 20:25:35 -0500
-Message-ID: <20140930012535.GA28236@codeaurora.org>
-References: <1411586511.19525.38.camel@x220>
-Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1411586511.19525.38.camel@x220>
-Sender: linux-hexagon-owner@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 03/44] hibernate: Call have_kernel_poweroff instead of checking pm_power_off
+Date: Mon,  6 Oct 2014 22:28:05 -0700
+Message-ID: <1412659726-29957-4-git-send-email-linux@roeck-us.net>
+References: <1412659726-29957-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=roeck-us.net; s=default;
+	h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=I3SR4Q/d4aHJTkUJ5Y3TcLRykrT2is/gOCrUpJykK/E=;
+	b=2AVU1WSm5W7j+0O6Np81P10ByPdZ5awONROIedEfs8wY4bXEI844lwiNtZrzuMM5D7gbI6Z6ac32sJowU/I3p6tpafFWZMocKRX7+XlZVDaRh172hpVd1anq17NVZa5p9x4Mog6tiGhehLXD2P7BkpvHQwUH/mEoNJ/7HqM8rfE=;
+In-Reply-To: <1412659726-29957-1-git-send-email-linux@roeck-us.net>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Paul Bolle <pebolle@tiscali.nl>
-Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: adi-buildroot-devel@lists.sourceforge.net, devel@driverdev.osuosl.org, devicetree@vger.kernel.org, lguest@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org, linux-am33-list@redhat.com, linux-cris-kernel@axis.com, linux-efi@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m32r-ja@ml.linux-m32r.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, linux-xtensa@linux-xtensa.org, openipmi-developer@lists.sourceforge.net, user-mode-linux-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org, linux-sh@vger.kernel.org, xen-devel@lists.xenproject.org, Guenter Roeck <linux@roeck-us.net>, Rafael J. W
 
-On Wed, Sep 24, 2014 at 09:21:51PM +0200, Paul Bolle wrote:
-> Hexagon's primary Kconfig entry has a select for NO_IOPORT_MAP. But
-> because hexagon never defines a Kconfig symbol NO_IOPORT_MAP this select
-> is a nop. It can be removed.
-> 
-> Perhaps hexagon should add its own Kconfig entry for NO_IOPORT_MAP and
-> have it default to 'y'. But since no one apparently had any problems
-> with HAS_IOPORT_MAP defaulting to 'y' on hexagon, as it currently does,
-> that is unlikely.
-> 
-> Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
-> ---
-> Tested by playing with arch/hexagon/configs/comet_defconfig. After "make
-> oldconfig" the .config contains CONFIG_HAS_IOPORT_MAP=y both before and
-> after this patch, as is expected.
-> 
-> Actually, the only difference I found in the .config file was that after
-> this patch the .config file contained
->     CONFIG_HEXAGON=y
-> 
-> I have no idea why. Did I botch my test?
-> 
->  arch/hexagon/Kconfig | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-> index 4dc89d1f9c48..f1817eae107a 100644
-> --- a/arch/hexagon/Kconfig
-> +++ b/arch/hexagon/Kconfig
-> @@ -19,7 +19,6 @@ config HEXAGON
->  	select GENERIC_IRQ_SHOW
->  	select HAVE_ARCH_KGDB
->  	select HAVE_ARCH_TRACEHOOK
-> -	select NO_IOPORT_MAP
->  	select GENERIC_IOMAP
->  	select GENERIC_SMP_IDLE_THREAD
->  	select STACKTRACE_SUPPORT
-> -- 
-> 1.9.3
-> 
+Poweroff handlers may now be installed with register_poweroff_handler.
+Use the new API function have_kernel_poweroff to determine if a poweroff
+handler has been installed.
 
-There seemed to be a convoluted history behind the ioport options, but yes this
-is no longer needed/doesn't actually do anything.  Thanks!
+Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Len Brown <len.brown@intel.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ kernel/power/hibernate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
-
-
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index a9dfa79..20353c5 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -602,7 +602,7 @@ static void power_down(void)
+ 	case HIBERNATION_PLATFORM:
+ 		hibernation_platform_enter();
+ 	case HIBERNATION_SHUTDOWN:
+-		if (pm_power_off)
++		if (have_kernel_poweroff())
+ 			kernel_power_off();
+ 		break;
+ #ifdef CONFIG_SUSPEND
 -- 
-
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-hosted by The Linux Foundation
+1.9.1
