@@ -1,30 +1,20 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v5 08/48] kernel: Move pm_power_off to common code
-Date: Thu,  6 Nov 2014 08:42:52 -0800
-Message-ID: <1415292213-28652-9-git-send-email-linux@roeck-us.net>
-References: <1415292213-28652-1-git-send-email-linux@roeck-us.net>
-Mime-Version: 1.0
+Subject: [PATCH v6 08/48] kernel: Move pm_power_off to common code
+Date: Sun,  9 Nov 2014 17:42:25 -0800
+Message-ID: <1415583785-6980-9-git-send-email-linux@roeck-us.net>
+References: <1415583785-6980-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=roeck-us.net; s=default;
+	h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=cHZZ9ehbHT9KuRkSB6KpCsrzlzh5bGiaCmG8fTZy42s=;
+	b=J6+AbJ2EFT1hVcHFlJgpy7IprT2xo6+ep0hs65MceTtTCYhjVCBIbsPyiExAMJE8r396XV84a/hBckUsy18zDMRDH9sFBx8V36Nvr9sBqf6OSC8VS53qEY+gCIUhgBULiOAleJQvAtWyu9WzsQu7wr4HY5pIyxkLpQBqQQnZ9o0=;
+In-Reply-To: <1415583785-6980-1-git-send-email-linux@roeck-us.net>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=roeck-us.net;
- s=default; 
- h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From;
- bh=1Go5vcjEmM3rzRrnnyPNMi30qCyKVF5mQcViOm/0gAY=; 
- b=m0IhrRUCnZkzb0L8Pez5tFfZL0VPPcJcsaC3i5pOfqftTRMW4o5arVQnFd15YNB4+1zbzRMJHfojOVsO8vUbPfyiadkqT3MtXN9NCTPpwIjRQWOymhEkpdFD2LzEwcLRKKH3VXsrJY0rKqKfHCOOKs3q3zCEBR30A6XIUKMpVr8=;
-In-Reply-To: <1415292213-28652-1-git-send-email-linux@roeck-us.net>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, linux@lists.openrisc.net, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-am33-list@redhat.com, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, xen-devel@lists.xenproject.org, Guenter Roeck <linux@roeck-us.net>, linux-xtensa@linux-xtensa.org, user-mode-linux-devel@lists.sourceforge.net, linux-pm@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-m68k@lists.linux-m68k.org, user-mode-linux-user@lists.sourceforge.net, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-alpha@vger.kernel.org, linux390@de.ibm.com, linuxppc-dev@lists.ozlabs.org
+Cc: linux-pm@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, adi-buildroot-devel@lists.sourceforge.net, linux390@de.ibm.com, linux-alpha@vger.kernel.org, linux-am33-list@redhat.com, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux@lists.openrisc.net, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, x86@kernel.org, xen-devel@lists.xenproject.org
 
 pm_power_off is defined for all architectures. Move it to common code.
 
@@ -44,6 +34,8 @@ Acked-by: Xuetao Guan <gxt@mprc.pku.edu.cn>
 Acked-by: Ralf Baechle <ralf@linux-mips.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
+v6:
+- No change.
 v5:
 - Rebase to v3.18-rc3
 - Update powerpc code to reflect merged power-off handler changes
@@ -888,7 +880,7 @@ index ef31b77..f10cf92 100644
  	}
  }
 diff --git a/kernel/power/power_off_handler.c b/kernel/power/power_off_handler.c
-index e576534..e283ea1 100644
+index c19e72b..d80a337 100644
 --- a/kernel/power/power_off_handler.c
 +++ b/kernel/power/power_off_handler.c
 @@ -23,6 +23,12 @@
@@ -904,7 +896,7 @@ index e576534..e283ea1 100644
   * List of handlers for kernel code which wants to be called
   * to power off the system.
   */
-@@ -272,6 +278,9 @@ void do_kernel_power_off(void)
+@@ -291,6 +297,9 @@ void do_kernel_power_off(void)
  	 * that risk.
  	 */
  
