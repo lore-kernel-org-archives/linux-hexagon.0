@@ -1,183 +1,67 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] hexagon: Fix build failures in linux-next
-Date: Tue,  9 Dec 2014 14:21:45 -0800
-Message-ID: <1418163705-1816-1-git-send-email-linux@roeck-us.net>
+From: rkuo <rkuo@codeaurora.org>
+Subject: Re: [PATCH] hexagon: Fix build failures in linux-next
+Date: Tue, 9 Dec 2014 18:25:23 -0600
+Message-ID: <20141210002523.GA17946@codeaurora.org>
+References: <1418163705-1816-1-git-send-email-linux@roeck-us.net>
+Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=roeck-us.net; s=default;
-	h=Message-Id:Date:Subject:Cc:To:From; bh=5ZGPSdviPldyzpLLv01j8K/gDnAC/csE4XQN2/SRT7U=;
-	b=wNe5laXw6xz/Fv18nEWldzK3yB8BrbjGpXrA/1CTSkN6UfH7olLzJ0v0tcwZxDU+7x0MHrfh7y8f0a6YdHjVEq1MwpQ0w6TEULFIyIk7H/aahP6I0vAn1rDNNLtdu5UXCkjnTSPlARaapYDRjqqo2JLFLO9MYZ75X9HwzlNWzfY=;
+Content-Disposition: inline
+In-Reply-To: <1418163705-1816-1-git-send-email-linux@roeck-us.net>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Kevin Cernekee <cernekee@gmail.com>, Jason Cooper <jason@lakedaemon.net>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Kevin Cernekee <cernekee@gmail.com>, Jason Cooper <jason@lakedaemon.net>
 
-hexagon:defconfig fails to build in linux-next since commit 332fd7c4fef5
-("genirq: Generic chip: Change irq_reg_{readl,writel} arguments").
+On Tue, Dec 09, 2014 at 02:21:45PM -0800, Guenter Roeck wrote:
+> hexagon:defconfig fails to build in linux-next since commit 332fd7c4fef5
+> ("genirq: Generic chip: Change irq_reg_{readl,writel} arguments").
+> 
+> The primary build failure is
+> 
+> arch/hexagon/include/asm/cacheflush.h: In function 'copy_to_user_page':
+> arch/hexagon/include/asm/cacheflush.h:89:22: error: 'VM_EXEC' undeclared
+> 
+> This is the result of including of <linux/io.h> from <linux/irq.h>,
+> which is now necessary due to the use of readl and writel from irq.h.
+> This causes recursive inclusions in hexagon code; cacheflush.h is included
+> from mm.h prior to the definition of VM_EXEC.
+> 
+> Fix the problem by moving copy_to_user_page from the hexagon include file to
+> arch/hexagon/mm/cache.c, similar to other architectures. After this change,
+> several redefinitions of readl and writel are reported. Those are caused
+> by recursive inclusions of io.h and asm/cacheflush.h. Fix those problems by
+> reducing the number of files included from those files. Also, it was necessary
+> to stop including asm-generic/cacheflush.h from asm/cacheflush.h. Instead,
+> functionality originally provided by asm-generic/cacheflush.h is now coded
+> in asm/cacheflush.h directly.
+> 
+> Cc: Kevin Cernekee <cernekee@gmail.com>
+> Cc: Jason Cooper <jason@lakedaemon.net>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+> Compile tested only. Applies to linux-next as well as mainline.
+> 
+>  arch/hexagon/include/asm/cacheflush.h | 36 ++++++++++++++++++-----------------
+>  arch/hexagon/include/asm/io.h         |  5 -----
+>  arch/hexagon/kernel/setup.c           |  1 +
+>  arch/hexagon/mm/cache.c               | 10 ++++++++++
+>  arch/hexagon/mm/ioremap.c             |  1 +
+>  5 files changed, 31 insertions(+), 22 deletions(-)
+> 
 
-The primary build failure is
+Thanks for the cleanup; tested working on hardware.
 
-arch/hexagon/include/asm/cacheflush.h: In function 'copy_to_user_page':
-arch/hexagon/include/asm/cacheflush.h:89:22: error: 'VM_EXEC' undeclared
+I'm fine taking this into my tree, or it can go via another tree if more
+expedient.
 
-This is the result of including of <linux/io.h> from <linux/irq.h>,
-which is now necessary due to the use of readl and writel from irq.h.
-This causes recursive inclusions in hexagon code; cacheflush.h is included
-from mm.h prior to the definition of VM_EXEC.
 
-Fix the problem by moving copy_to_user_page from the hexagon include file to
-arch/hexagon/mm/cache.c, similar to other architectures. After this change,
-several redefinitions of readl and writel are reported. Those are caused
-by recursive inclusions of io.h and asm/cacheflush.h. Fix those problems by
-reducing the number of files included from those files. Also, it was necessary
-to stop including asm-generic/cacheflush.h from asm/cacheflush.h. Instead,
-functionality originally provided by asm-generic/cacheflush.h is now coded
-in asm/cacheflush.h directly.
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
 
-Cc: Kevin Cernekee <cernekee@gmail.com>
-Cc: Jason Cooper <jason@lakedaemon.net>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-Compile tested only. Applies to linux-next as well as mainline.
 
- arch/hexagon/include/asm/cacheflush.h | 36 ++++++++++++++++++-----------------
- arch/hexagon/include/asm/io.h         |  5 -----
- arch/hexagon/kernel/setup.c           |  1 +
- arch/hexagon/mm/cache.c               | 10 ++++++++++
- arch/hexagon/mm/ioremap.c             |  1 +
- 5 files changed, 31 insertions(+), 22 deletions(-)
 
-diff --git a/arch/hexagon/include/asm/cacheflush.h b/arch/hexagon/include/asm/cacheflush.h
-index 49e0896..b86f9f3 100644
---- a/arch/hexagon/include/asm/cacheflush.h
-+++ b/arch/hexagon/include/asm/cacheflush.h
-@@ -21,10 +21,7 @@
- #ifndef _ASM_CACHEFLUSH_H
- #define _ASM_CACHEFLUSH_H
- 
--#include <linux/cache.h>
--#include <linux/mm.h>
--#include <asm/string.h>
--#include <asm-generic/cacheflush.h>
-+#include <linux/mm_types.h>
- 
- /* Cache flushing:
-  *
-@@ -41,6 +38,20 @@
- #define LINESIZE	32
- #define LINEBITS	5
- 
-+#define flush_cache_all()			do { } while (0)
-+#define flush_cache_mm(mm)			do { } while (0)
-+#define flush_cache_dup_mm(mm)			do { } while (0)
-+#define flush_cache_range(vma, start, end)	do { } while (0)
-+#define flush_cache_page(vma, vmaddr, pfn)	do { } while (0)
-+#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 0
-+#define flush_dcache_page(page)			do { } while (0)
-+#define flush_dcache_mmap_lock(mapping)		do { } while (0)
-+#define flush_dcache_mmap_unlock(mapping)	do { } while (0)
-+#define flush_icache_page(vma, pg)		do { } while (0)
-+#define flush_icache_user_range(vma, pg, adr, len)	do { } while (0)
-+#define flush_cache_vmap(start, end)		do { } while (0)
-+#define flush_cache_vunmap(start, end)		do { } while (0)
-+
- /*
-  * Flush Dcache range through current map.
-  */
-@@ -49,7 +60,6 @@ extern void flush_dcache_range(unsigned long start, unsigned long end);
- /*
-  * Flush Icache range through current map.
-  */
--#undef flush_icache_range
- extern void flush_icache_range(unsigned long start, unsigned long end);
- 
- /*
-@@ -79,19 +89,11 @@ static inline void update_mmu_cache(struct vm_area_struct *vma,
- 	/*  generic_ptrace_pokedata doesn't wind up here, does it?  */
- }
- 
--#undef copy_to_user_page
--static inline void copy_to_user_page(struct vm_area_struct *vma,
--					     struct page *page,
--					     unsigned long vaddr,
--					     void *dst, void *src, int len)
--{
--	memcpy(dst, src, len);
--	if (vma->vm_flags & VM_EXEC) {
--		flush_icache_range((unsigned long) dst,
--		(unsigned long) dst + len);
--	}
--}
-+void copy_to_user_page(struct vm_area_struct *vma, struct page *page,
-+		       unsigned long vaddr, void *dst, void *src, int len);
- 
-+#define copy_from_user_page(vma, page, vaddr, dst, src, len) \
-+	memcpy(dst, src, len)
- 
- extern void hexagon_inv_dcache_range(unsigned long start, unsigned long end);
- extern void hexagon_clean_dcache_range(unsigned long start, unsigned long end);
-diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
-index 7029899..66f5e9a 100644
---- a/arch/hexagon/include/asm/io.h
-+++ b/arch/hexagon/include/asm/io.h
-@@ -24,14 +24,9 @@
- #ifdef __KERNEL__
- 
- #include <linux/types.h>
--#include <linux/delay.h>
--#include <linux/vmalloc.h>
--#include <asm/string.h>
--#include <asm/mem-layout.h>
- #include <asm/iomap.h>
- #include <asm/page.h>
- #include <asm/cacheflush.h>
--#include <asm/tlbflush.h>
- 
- /*
-  * We don't have PCI yet.
-diff --git a/arch/hexagon/kernel/setup.c b/arch/hexagon/kernel/setup.c
-index 0e7c1db..6981949 100644
---- a/arch/hexagon/kernel/setup.c
-+++ b/arch/hexagon/kernel/setup.c
-@@ -19,6 +19,7 @@
-  */
- 
- #include <linux/init.h>
-+#include <linux/delay.h>
- #include <linux/bootmem.h>
- #include <linux/mmzone.h>
- #include <linux/mm.h>
-diff --git a/arch/hexagon/mm/cache.c b/arch/hexagon/mm/cache.c
-index 0c76c80..a7c6d82 100644
---- a/arch/hexagon/mm/cache.c
-+++ b/arch/hexagon/mm/cache.c
-@@ -127,3 +127,13 @@ void flush_cache_all_hexagon(void)
- 	local_irq_restore(flags);
- 	mb();
- }
-+
-+void copy_to_user_page(struct vm_area_struct *vma, struct page *page,
-+		       unsigned long vaddr, void *dst, void *src, int len)
-+{
-+	memcpy(dst, src, len);
-+	if (vma->vm_flags & VM_EXEC) {
-+		flush_icache_range((unsigned long) dst,
-+		(unsigned long) dst + len);
-+	}
-+}
-diff --git a/arch/hexagon/mm/ioremap.c b/arch/hexagon/mm/ioremap.c
-index 5905fd5..d27d672 100644
---- a/arch/hexagon/mm/ioremap.c
-+++ b/arch/hexagon/mm/ioremap.c
-@@ -20,6 +20,7 @@
- 
- #include <linux/io.h>
- #include <linux/vmalloc.h>
-+#include <linux/mm.h>
- 
- void __iomem *ioremap_nocache(unsigned long phys_addr, unsigned long size)
- {
 -- 
-1.9.1
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
+a Linux Foundation Collaborative Project
