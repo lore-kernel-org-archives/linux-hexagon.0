@@ -1,58 +1,62 @@
-From: rkuo <rkuo@codeaurora.org>
-Subject: [GIT PULL] Hexagon changes for v3.19
-Date: Fri, 19 Dec 2014 19:31:17 -0600
-Message-ID: <20141220013117.GC21871@codeaurora.org>
-Mime-Version: 1.0
+From: Alex Dowad <alexinbeijing@gmail.com>
+Subject: [PATCH 12/32] hexagon: copy_thread(): rename 'arg' argument to 'kthread_arg'
+Date: Fri, 13 Mar 2015 20:14:35 +0200
+Message-ID: <1426270496-26362-2-git-send-email-alexinbeijing@gmail.com>
+References: <1426270496-26362-1-git-send-email-alexinbeijing@gmail.com>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=oq7apnlTylkjiDGiCPhaiX6nNWbxJxFSzqpQ17NU764=;
+        b=DfE2rAwo+gvEKk4HXfKfmoqXsGSPGXYl2nqUp2gi5L1KpSBMm0mT5GA1FSkJjIkPVC
+         en8sAlyDs8u1sAxPkreUx1H8JamQCWdXp0rTGxiZCsbWb/AaD/fc+04oRN1sZJaTUjin
+         HFIfKl0S+1bz93itgSmMaIN1Ws0bI2s//XgqRbHz+osdJw9wiQaGqRNra7ts5MOMoOvc
+         Mx+6duW9viI97GMbZ70yD7vtDd5VmBnQNksgNbkS4UOP6VVrFhG6dG8U+VD/Kbck0qde
+         3oe0mr/G0LjALH23Al+Jg8L0XqKgcl9bod1SEtR2zUBqe7I4/jamMH6YBKV/BhjHvBcz
+         cE8A==
+In-Reply-To: <1426270496-26362-1-git-send-email-alexinbeijing@gmail.com>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Richard Kuo <rkuo@codeaurora.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>
 
-Linus,
+The 'arg' argument to copy_thread() is only ever used when forking a new
+kernel thread. Hence, rename it to 'kthread_arg' for clarity (and consistency
+with do_fork() and other arch-specific implementations of copy_thread()).
 
-Please pull the following changes for the Hexagon architecture.  It
-includes build cleanup and a few misc fixes.
+Signed-off-by: Alex Dowad <alexinbeijing@gmail.com>
+---
+ arch/hexagon/kernel/process.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Thanks,
-Richard Kuo
-
-
-The following changes since commit b2776bf7149bddd1f4161f14f79520f17fc1d71d:
-
-  Linux 3.18 (2014-12-07 14:21:05 -0800)
-
-are available in the git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
-
-for you to fetch changes up to 8914d7e857807e1e60975000cba3750c9b2643e8:
-
-  Hexagon: fix signal delivery for debug traps (2014-12-16 13:27:39 -0600)
-
-----------------------------------------------------------------
-Guenter Roeck (1):
-      hexagon: Fix build failures in linux-next
-
-Richard Kuo (3):
-      Hexagon: fix alignment of init_task in RW_DATA_SECTION
-      Hexagon: set ARCH_DMA_MINALIGN
-      Hexagon: fix signal delivery for debug traps
-
- arch/hexagon/include/asm/cache.h      |  4 +++-
- arch/hexagon/include/asm/cacheflush.h | 36 ++++++++++++++++++-----------------
- arch/hexagon/include/asm/io.h         |  5 -----
- arch/hexagon/kernel/setup.c           |  1 +
- arch/hexagon/kernel/traps.c           |  4 ++--
- arch/hexagon/kernel/vmlinux.lds.S     |  4 ++--
- arch/hexagon/mm/cache.c               | 10 ++++++++++
- arch/hexagon/mm/ioremap.c             |  1 +
- 8 files changed, 38 insertions(+), 27 deletions(-)
-
-
+diff --git a/arch/hexagon/kernel/process.c b/arch/hexagon/kernel/process.c
+index 0a0dd5c..6f27358 100644
+--- a/arch/hexagon/kernel/process.c
++++ b/arch/hexagon/kernel/process.c
+@@ -71,7 +71,7 @@ unsigned long thread_saved_pc(struct task_struct *tsk)
+  * Copy architecture-specific thread state
+  */
+ int copy_thread(unsigned long clone_flags, unsigned long usp,
+-		unsigned long arg, struct task_struct *p)
++		unsigned long kthread_arg, struct task_struct *p)
+ {
+ 	struct thread_info *ti = task_thread_info(p);
+ 	struct hexagon_switch_stack *ss;
+@@ -94,10 +94,11 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
+ 	ss->lr = (unsigned long)ret_from_fork;
+ 	p->thread.switch_sp = ss;
+ 	if (unlikely(p->flags & PF_KTHREAD)) {
++		/* kernel thread */
+ 		memset(childregs, 0, sizeof(struct pt_regs));
+ 		/* r24 <- fn, r25 <- arg */
+ 		ss->r24 = usp;
+-		ss->r25 = arg;
++		ss->r25 = kthread_arg;
+ 		pt_set_kmode(childregs);
+ 		return 0;
+ 	}
 -- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
-a Linux Foundation Collaborative Project
+2.0.0.GIT
