@@ -1,85 +1,81 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Subject: Re: [PATCH] Revert "Hexagon: fix signal.c compile error"
-Date: Thu, 23 Apr 2015 23:59:25 -0400
-Message-ID: <20150424035925.GU12496@vapier>
-References: <1429752484-14499-1-git-send-email-vapier@gentoo.org>
- <20150423204036.GA5404@codeaurora.org>
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+Subject: Generic kernel features that need architecture(hexagon) support
+Date: Wed, 10 Jun 2015 12:34:35 +0200
+Message-ID: <557812BB.7090901@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="O9T4zNOkGnr0n+A/"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150423204036.GA5404@codeaurora.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=message-id:date:from:mime-version:to:subject:content-type
+         :content-transfer-encoding;
+        bh=i/hCPz0TdCTvSetxYLvcqnhVafylz08iPBKA90h4H2E=;
+        b=c7q2fsJDA9JrLOvs9IQZaPpyrvMnOQxwV1vl28qWmmcqdWP3uWQu5So+Yae+t6g3fs
+         f/UCzCKAy/3E56kJS1hH04D5BmkjmU99OktDd2wCvpZY3HhG8rD5yqQkzXLEA4EnHP+S
+         u/nixZyelD/Aoh1UBMQijBXaaSsB7aU12dOZcVlz9eAsOAnUkL8hvDqjd02mVZ7tkJyD
+         0LQvAzcnIpddVheT0mz6bwYZ7h2fNd/5XXIPQ5brHWsRejG4XcL6urfHVJ82F8V2BK+W
+         /5CcBGYIdHr7aiqSTIFqEA78f6VFEHpFzWJtFb9Q5r84o8lG+90kYqODFSLP+BgZ0NC1
+         UaFA==
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-To: rkuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+To: linux-hexagon@vger.kernel.org
+
+Hi,
+
+If there is anything wrong, please report it in this thread:
+https://marc.info/?t=143332955700003
 
 
---O9T4zNOkGnr0n+A/
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The meaning of entries in the tables is:
 
-On 23 Apr 2015 15:40, rkuo wrote:
-> On Wed, Apr 22, 2015 at 09:28:04PM -0400, Mike Frysinger wrote:
-> > This reverts commit f3f601c1d2728f02544cfd143eaa82e5398b3e9b.
-> >=20
-> > UAPI headers cannot use "uapi/" in their paths by design -- when they're
-> > installed, they do not have the uapi/ prefix.  Otherwise doing so breaks
-> > userland badly.
-> >=20
-> > Signed-off-by: Mike Frysinger <vapier@gentoo.org>
-> > ---
-> >  arch/hexagon/include/uapi/asm/signal.h | 2 --
-> >  1 file changed, 2 deletions(-)
-> >=20
-> > diff --git a/arch/hexagon/include/uapi/asm/signal.h b/arch/hexagon/incl=
-ude/uapi/asm/signal.h
-> > index 98106e5..24b9988 100644
-> > --- a/arch/hexagon/include/uapi/asm/signal.h
-> > +++ b/arch/hexagon/include/uapi/asm/signal.h
-> > @@ -19,8 +19,6 @@
-> >  #ifndef _ASM_SIGNAL_H
-> >  #define _ASM_SIGNAL_H
-> > =20
-> > -#include <uapi/asm/registers.h>
-> > -
-> >  extern unsigned long __rt_sigtramp_template[2];
-> > =20
-> >  void do_signal(struct pt_regs *regs);
-> > --=20
-> > 2.3.5
-> >=20
->=20
-> I'll need to actually fix the thing the original commit was trying to fix,
-> but I can follow up with another patch.
+    | ok |  # feature supported by the architecture
+    |TODO|  # feature not yet supported by the architecture
+    | .. |  # feature cannot be supported by the hardware
 
-i was throwing the revert up as a straw man of sorts.  i've never used hexa=
-gon=20
-myself, so if someone wants to put together a better fix, then by all means.
--mike
-
---O9T4zNOkGnr0n+A/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJVOb+dAAoJEEFjO5/oN/WBcS0P/iVOJYUoT5MUOitSo80MiIhm
-omovtd0j2KtyAtY6NPKaFxvUPU4APhxLIVA0Is+/lqeUM/sfcJDxQkjzEXV7HyJW
-zYOfOMrMqEboWerxOvmkcZfvkYz3dHuX7ehFm/q8Boi47RxsVDWOfStXrep+qssD
-eoGkjGhAzbQzrxLV0//o/BzMhLGvGlMYd0B/eSzH4hefZaEVt1yrXDJo0MhIjPaL
-rZP9tqXB44u9ylnybBOjmAw2SDvSVCHa9ZiI9bmOCT95gkny2SvjWKdYmgiDQUkU
-IX1hW7PhtfwqoxRy7SP9g9zx47EByN6oB7MiTkpsF8l6Gkt+1pnv06b4SnunWOIK
-jHQS2Jwa4gX1cCZdWnQViXJtKukySo6AWTzn56O2u6Ev3T4usQ938iEHjuI8H6TR
-hS36nsHXd1CakQMwWf6N7I/bOKbYzisgqSduXxZ755q3xR0its7q1V8LGPKqYULb
-Wip6+uIpLUuK3nksb3RmWN1Xxwqj7zHThulpixOjO8EvMpODOBC/BEf0mBXlLnb8
-ZWsTClUsxUluTm8Rf6uTC0EYnG8GsY3kkuXcFdtAtKliHPUzWJDjZ16GFhMSzo28
-c3NSgng0COAeceLIbmZD4CiZMQBUCIJ3vRx/0286Ec7iWwk2DLVfuak9r4iqVCxz
-+GoVOPNlQZB7r/1Jryri
-=+15w
------END PGP SIGNATURE-----
-
---O9T4zNOkGnr0n+A/--
+#
+# Kernel feature support matrix of the 'hexagon' architecture:
+#
+     sched/ numa-balancing       :  ..  |        ARCH_SUPPORTS_NUMA_BALANCING #  arch supports NUMA balancing
+        vm/ numa-memblock        :  ..  |              HAVE_MEMBLOCK_NODE_MAP #  arch supports NUMA aware memblocks
+        vm/ THP                  :  ..  |      HAVE_ARCH_TRANSPARENT_HUGEPAGE #  arch supports transparent hugepages
+      core/ generic-idle-thread  :  ok  |             GENERIC_SMP_IDLE_THREAD #  arch makes use of the generic SMP idle thread facility
+      core/ tracehook            :  ok  |                 HAVE_ARCH_TRACEHOOK #  arch supports tracehook (ptrace) register handling APIs
+     debug/ kgdb                 :  ok  |                      HAVE_ARCH_KGDB #  arch supports the kGDB kernel debugger
+        io/ dma_map_attrs        :  ok  |                      HAVE_DMA_ATTRS #  arch provides dma_*map*_attrs() APIs
+   locking/ lockdep              :  ok  |                     LOCKDEP_SUPPORT #  arch supports the runtime locking correctness debug facility
+      perf/ kprobes-event        :  ok  |      HAVE_REGS_AND_STACK_ACCESS_API #  arch supports kprobes with perf events
+      time/ clockevents          :  ok  |                 GENERIC_CLOCKEVENTS #  arch support generic clock events
+      time/ modern-timekeeping   :  ok  |            !ARCH_USES_GETTIMEOFFSET #  arch does not use arch_gettimeoffset() anymore
+      core/ BPF-JIT              : TODO |                        HAVE_BPF_JIT #  arch supports BPF JIT optimizations
+      core/ jump-labels          : TODO |                HAVE_ARCH_JUMP_LABEL #  arch supports live patched, high efficiency branches
+     debug/ gcov-profile-all     : TODO |           ARCH_HAS_GCOV_PROFILE_ALL #  arch supports whole-kernel GCOV code coverage profiling
+     debug/ KASAN                : TODO |                     HAVE_ARCH_KASAN #  arch supports the KASAN runtime memory checker
+     debug/ kprobes              : TODO |                        HAVE_KPROBES #  arch supports live patched kernel probe
+     debug/ kprobes-on-ftrace    : TODO |              HAVE_KPROBES_ON_FTRACE #  arch supports combined kprobes and ftrace live patching
+     debug/ kretprobes           : TODO |                     HAVE_KRETPROBES #  arch supports kernel function-return probes
+     debug/ optprobes            : TODO |                      HAVE_OPTPROBES #  arch supports live patched optprobes
+     debug/ stackprotector       : TODO |              HAVE_CC_STACKPROTECTOR #  arch supports compiler driven stack overflow protection
+     debug/ uprobes              : TODO |               ARCH_SUPPORTS_UPROBES #  arch supports live patched user probes
+     debug/ user-ret-profiler    : TODO |           HAVE_USER_RETURN_NOTIFIER #  arch supports user-space return from system call profiler
+        io/ dma-api-debug        : TODO |                  HAVE_DMA_API_DEBUG #  arch supports DMA debug facilities
+        io/ dma-contiguous       : TODO |                 HAVE_DMA_CONTIGUOUS #  arch supports the DMA CMA (continuous memory allocator)
+        io/ sg-chain             : TODO |                   ARCH_HAS_SG_CHAIN #  arch supports chained scatter-gather lists
+       lib/ strncasecmp          : TODO |             __HAVE_ARCH_STRNCASECMP #  arch provides an optimized strncasecmp() function
+   locking/ cmpxchg-local        : TODO |                  HAVE_CMPXCHG_LOCAL #  arch supports the this_cpu_cmpxchg() API
+   locking/ queued-rwlocks       : TODO |             ARCH_USE_QUEUED_RWLOCKS #  arch supports queued rwlocks
+   locking/ queued-spinlocks     : TODO |           ARCH_USE_QUEUED_SPINLOCKS #  arch supports queued spinlocks
+   locking/ rwsem-optimized      : TODO |               Optimized asm/rwsem.h #  arch provides optimized rwsem APIs
+      perf/ perf-regs            : TODO |                      HAVE_PERF_REGS #  arch supports perf events register access
+      perf/ perf-stackdump       : TODO |           HAVE_PERF_USER_STACK_DUMP #  arch supports perf events stack dumps
+   seccomp/ seccomp-filter       : TODO |            HAVE_ARCH_SECCOMP_FILTER #  arch supports seccomp filters
+      time/ arch-tick-broadcast  : TODO |             ARCH_HAS_TICK_BROADCAST #  arch provides tick_broadcast()
+      time/ context-tracking     : TODO |               HAVE_CONTEXT_TRACKING #  arch supports context tracking for NO_HZ_FULL
+      time/ irq-time-acct        : TODO |            HAVE_IRQ_TIME_ACCOUNTING #  arch supports precise IRQ time accounting
+      time/ virt-cpuacct         : TODO |            HAVE_VIRT_CPU_ACCOUNTING #  arch supports precise virtual CPU time accounting
+        vm/ ELF-ASLR             : TODO |              ARCH_HAS_ELF_RANDOMIZE #  arch randomizes the stack, heap and binary images of ELF binaries
+        vm/ huge-vmap            : TODO |                 HAVE_ARCH_HUGE_VMAP #  arch supports the ioremap_pud_enabled() and ioremap_pmd_enabled() VM APIs
+        vm/ ioremap_prot         : TODO |                   HAVE_IOREMAP_PROT #  arch has ioremap_prot()
+        vm/ PG_uncached          : TODO |               ARCH_USES_PG_UNCACHED #  arch supports the PG_uncached page flag
+        vm/ pmdp_splitting_flush : TODO |    __HAVE_ARCH_PMDP_SPLITTING_FLUSH #  arch supports the pmdp_splitting_flush() VM API
+        vm/ pte_special          : TODO |             __HAVE_ARCH_PTE_SPECIAL #  arch supports the pte_special()/pte_mkspecial() VM APIs
