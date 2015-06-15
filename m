@@ -1,81 +1,48 @@
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Subject: Generic kernel features that need architecture(hexagon) support
-Date: Wed, 10 Jun 2015 12:34:35 +0200
-Message-ID: <557812BB.7090901@gmail.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=message-id:date:from:mime-version:to:subject:content-type
-         :content-transfer-encoding;
-        bh=i/hCPz0TdCTvSetxYLvcqnhVafylz08iPBKA90h4H2E=;
-        b=c7q2fsJDA9JrLOvs9IQZaPpyrvMnOQxwV1vl28qWmmcqdWP3uWQu5So+Yae+t6g3fs
-         f/UCzCKAy/3E56kJS1hH04D5BmkjmU99OktDd2wCvpZY3HhG8rD5yqQkzXLEA4EnHP+S
-         u/nixZyelD/Aoh1UBMQijBXaaSsB7aU12dOZcVlz9eAsOAnUkL8hvDqjd02mVZ7tkJyD
-         0LQvAzcnIpddVheT0mz6bwYZ7h2fNd/5XXIPQ5brHWsRejG4XcL6urfHVJ82F8V2BK+W
-         /5CcBGYIdHr7aiqSTIFqEA78f6VFEHpFzWJtFb9Q5r84o8lG+90kYqODFSLP+BgZ0NC1
-         UaFA==
-Sender: linux-hexagon-owner@vger.kernel.org
+From: David Long <dave.long@linaro.org>
+Subject: [PATCH 0/2] Consolidate redundant register/stack access code
+Date: Mon, 15 Jun 2015 12:42:57 -0400
+Message-ID: <1434386579-6045-1-git-send-email-dave.long@linaro.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: linux-hexagon@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@amacapital.net>, Anton Blanchard <anton@samba.org>, Behan Webster <behanw@converseincode.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Eric Paris <eparis@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Willeke <willeke@de.ibm.com>, Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Nikolay Borisov <Nikolay.Borisov@arm.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Richard Kuo <rkuo@codeaurora.org>, Robert Richter <rric@kernel.org>, Roland McGrath <roland@hack.frob.com>, Russell King <linux@arm.linux.org.uk>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, 
 
-Hi,
+From: "David A. Long" <dave.long@linaro.org>
 
-If there is anything wrong, please report it in this thread:
-https://marc.info/?t=143332955700003
+Move duplicate and functionally equivalent code for accessing registers
+and stack (CONFIG_HAVE_REGS_AND_STACK_ACCESS_API) from arch subdirs into
+common kernel files.
 
+Note: Help regression testing s390, hexagon, and sh would be appreciated.
+      Powerpc builds but I have not verified the functionality.
 
-The meaning of entries in the tables is:
+David A. Long (2):
+  Move the pt_regs_offset struct definition from arch to common include
+    file
+  Consolidate redundant register/stack access code
 
-    | ok |  # feature supported by the architecture
-    |TODO|  # feature not yet supported by the architecture
-    | .. |  # feature cannot be supported by the hardware
+ arch/arm/include/asm/ptrace.h          |  6 ---
+ arch/arm/kernel/ptrace.c               | 72 +---------------------------------
+ arch/hexagon/include/uapi/asm/ptrace.h |  3 --
+ arch/powerpc/include/asm/ptrace.h      | 38 ------------------
+ arch/powerpc/kernel/ptrace.c           | 39 +-----------------
+ arch/s390/include/asm/ptrace.h         |  3 --
+ arch/s390/kernel/ptrace.c              | 70 ++++++++++-----------------------
+ arch/sh/include/asm/ptrace.h           | 44 ---------------------
+ arch/sh/kernel/Makefile                |  2 +-
+ arch/sh/kernel/ptrace.c                | 33 ----------------
+ arch/sh/kernel/ptrace_32.c             |  2 +-
+ arch/sh/kernel/ptrace_64.c             |  2 +-
+ arch/x86/include/asm/ptrace.h          | 37 -----------------
+ arch/x86/kernel/ptrace.c               | 39 +-----------------
+ include/linux/ptrace.h                 | 51 ++++++++++++++++++++++++
+ kernel/ptrace.c                        | 38 ++++++++++++++++++
+ 16 files changed, 116 insertions(+), 363 deletions(-)
+ delete mode 100644 arch/sh/kernel/ptrace.c
 
-#
-# Kernel feature support matrix of the 'hexagon' architecture:
-#
-     sched/ numa-balancing       :  ..  |        ARCH_SUPPORTS_NUMA_BALANCING #  arch supports NUMA balancing
-        vm/ numa-memblock        :  ..  |              HAVE_MEMBLOCK_NODE_MAP #  arch supports NUMA aware memblocks
-        vm/ THP                  :  ..  |      HAVE_ARCH_TRANSPARENT_HUGEPAGE #  arch supports transparent hugepages
-      core/ generic-idle-thread  :  ok  |             GENERIC_SMP_IDLE_THREAD #  arch makes use of the generic SMP idle thread facility
-      core/ tracehook            :  ok  |                 HAVE_ARCH_TRACEHOOK #  arch supports tracehook (ptrace) register handling APIs
-     debug/ kgdb                 :  ok  |                      HAVE_ARCH_KGDB #  arch supports the kGDB kernel debugger
-        io/ dma_map_attrs        :  ok  |                      HAVE_DMA_ATTRS #  arch provides dma_*map*_attrs() APIs
-   locking/ lockdep              :  ok  |                     LOCKDEP_SUPPORT #  arch supports the runtime locking correctness debug facility
-      perf/ kprobes-event        :  ok  |      HAVE_REGS_AND_STACK_ACCESS_API #  arch supports kprobes with perf events
-      time/ clockevents          :  ok  |                 GENERIC_CLOCKEVENTS #  arch support generic clock events
-      time/ modern-timekeeping   :  ok  |            !ARCH_USES_GETTIMEOFFSET #  arch does not use arch_gettimeoffset() anymore
-      core/ BPF-JIT              : TODO |                        HAVE_BPF_JIT #  arch supports BPF JIT optimizations
-      core/ jump-labels          : TODO |                HAVE_ARCH_JUMP_LABEL #  arch supports live patched, high efficiency branches
-     debug/ gcov-profile-all     : TODO |           ARCH_HAS_GCOV_PROFILE_ALL #  arch supports whole-kernel GCOV code coverage profiling
-     debug/ KASAN                : TODO |                     HAVE_ARCH_KASAN #  arch supports the KASAN runtime memory checker
-     debug/ kprobes              : TODO |                        HAVE_KPROBES #  arch supports live patched kernel probe
-     debug/ kprobes-on-ftrace    : TODO |              HAVE_KPROBES_ON_FTRACE #  arch supports combined kprobes and ftrace live patching
-     debug/ kretprobes           : TODO |                     HAVE_KRETPROBES #  arch supports kernel function-return probes
-     debug/ optprobes            : TODO |                      HAVE_OPTPROBES #  arch supports live patched optprobes
-     debug/ stackprotector       : TODO |              HAVE_CC_STACKPROTECTOR #  arch supports compiler driven stack overflow protection
-     debug/ uprobes              : TODO |               ARCH_SUPPORTS_UPROBES #  arch supports live patched user probes
-     debug/ user-ret-profiler    : TODO |           HAVE_USER_RETURN_NOTIFIER #  arch supports user-space return from system call profiler
-        io/ dma-api-debug        : TODO |                  HAVE_DMA_API_DEBUG #  arch supports DMA debug facilities
-        io/ dma-contiguous       : TODO |                 HAVE_DMA_CONTIGUOUS #  arch supports the DMA CMA (continuous memory allocator)
-        io/ sg-chain             : TODO |                   ARCH_HAS_SG_CHAIN #  arch supports chained scatter-gather lists
-       lib/ strncasecmp          : TODO |             __HAVE_ARCH_STRNCASECMP #  arch provides an optimized strncasecmp() function
-   locking/ cmpxchg-local        : TODO |                  HAVE_CMPXCHG_LOCAL #  arch supports the this_cpu_cmpxchg() API
-   locking/ queued-rwlocks       : TODO |             ARCH_USE_QUEUED_RWLOCKS #  arch supports queued rwlocks
-   locking/ queued-spinlocks     : TODO |           ARCH_USE_QUEUED_SPINLOCKS #  arch supports queued spinlocks
-   locking/ rwsem-optimized      : TODO |               Optimized asm/rwsem.h #  arch provides optimized rwsem APIs
-      perf/ perf-regs            : TODO |                      HAVE_PERF_REGS #  arch supports perf events register access
-      perf/ perf-stackdump       : TODO |           HAVE_PERF_USER_STACK_DUMP #  arch supports perf events stack dumps
-   seccomp/ seccomp-filter       : TODO |            HAVE_ARCH_SECCOMP_FILTER #  arch supports seccomp filters
-      time/ arch-tick-broadcast  : TODO |             ARCH_HAS_TICK_BROADCAST #  arch provides tick_broadcast()
-      time/ context-tracking     : TODO |               HAVE_CONTEXT_TRACKING #  arch supports context tracking for NO_HZ_FULL
-      time/ irq-time-acct        : TODO |            HAVE_IRQ_TIME_ACCOUNTING #  arch supports precise IRQ time accounting
-      time/ virt-cpuacct         : TODO |            HAVE_VIRT_CPU_ACCOUNTING #  arch supports precise virtual CPU time accounting
-        vm/ ELF-ASLR             : TODO |              ARCH_HAS_ELF_RANDOMIZE #  arch randomizes the stack, heap and binary images of ELF binaries
-        vm/ huge-vmap            : TODO |                 HAVE_ARCH_HUGE_VMAP #  arch supports the ioremap_pud_enabled() and ioremap_pmd_enabled() VM APIs
-        vm/ ioremap_prot         : TODO |                   HAVE_IOREMAP_PROT #  arch has ioremap_prot()
-        vm/ PG_uncached          : TODO |               ARCH_USES_PG_UNCACHED #  arch supports the PG_uncached page flag
-        vm/ pmdp_splitting_flush : TODO |    __HAVE_ARCH_PMDP_SPLITTING_FLUSH #  arch supports the pmdp_splitting_flush() VM API
-        vm/ pte_special          : TODO |             __HAVE_ARCH_PTE_SPECIAL #  arch supports the pte_special()/pte_mkspecial() VM APIs
+-- 
+1.8.1.2
+
