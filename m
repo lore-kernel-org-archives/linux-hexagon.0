@@ -1,56 +1,38 @@
-From: rkuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH 2/2] Consolidate redundant register/stack access code
-Date: Thu, 18 Jun 2015 13:13:05 -0500
-Message-ID: <20150618181304.GA9557@codeaurora.org>
-References: <1434386579-6045-1-git-send-email-dave.long@linaro.org>
- <1434386579-6045-3-git-send-email-dave.long@linaro.org>
+From: Stephen Boyd <sboyd@codeaurora.org>
+Subject: Re: [PATCH 01/44] kernel: Add support for poweroff handler call chain
+Date: Thu, 18 Jun 2015 14:40:18 -0700
+Message-ID: <55833AC2.5080700@codeaurora.org>
+References: <1412659726-29957-1-git-send-email-linux@roeck-us.net> <1412659726-29957-2-git-send-email-linux@roeck-us.net> <55821936.4040704@codeaurora.org> <20150618153003.GA19224@roeck-us.net>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1434386579-6045-3-git-send-email-dave.long@linaro.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-m68k-owner@vger.kernel.org>
+In-Reply-To: <20150618153003.GA19224@roeck-us.net>
+Sender: linux-m68k-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: David Long <dave.long@linaro.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@amacapital.net>, Anton Blanchard <anton@samba.org>, Behan Webster <behanw@converseincode.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Eric Paris <eparis@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Willeke <willeke@de.ibm.com>, Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Nikolay Borisov <Nikolay.Borisov@arm.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Robert Richter <rric@kernel.org>, Roland McGrath <roland@hack.frob.com>, Russell King <linux@arm.linux.org.uk>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.k
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org, linux-m32r-ja@ml.linux-m32r.org, linux-mips@linux-mips.org, linux-efi@vger.kernel.org, linux-ia64@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>, Len Brown <len.brown@intel.com>, linux-xtensa@linux-xtensa.org, Pavel Machek <pavel@ucw.cz>, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-sh@vger.kernel.org, Alexander Graf <agraf@suse.de>, linux-acpi@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, xen-devel@lists.xenproject.org, devicetree@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, linux-pm@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-m68k@lists.linux-m68k.org, linux-am33-list@redhat.com, linux-tegra@vger.kernel.org, openipmi-developer@lists.sourceforge.net, linux-metag@vger.kernel.org, li
 
-On Mon, Jun 15, 2015 at 12:42:59PM -0400, David Long wrote:
-> From: "David A. Long" <dave.long@linaro.org>
-> 
-> Several architectures have identical or functionally equivalent code
-> implementing parts of the HAVE_REGS_AND_STACK_ACCESS_API feature.  Move
-> that code out of the architecture directories.
-> 
-> Signed-off-by: David A. Long <dave.long@linaro.org>
-> ---
->  arch/arm/include/asm/ptrace.h          |  6 ---
->  arch/arm/kernel/ptrace.c               | 67 +-------------------------------
->  arch/hexagon/include/uapi/asm/ptrace.h |  3 --
->  arch/powerpc/include/asm/ptrace.h      | 38 ------------------
->  arch/powerpc/kernel/ptrace.c           | 34 +----------------
->  arch/s390/include/asm/ptrace.h         |  3 --
->  arch/s390/kernel/ptrace.c              | 70 ++++++++++------------------------
->  arch/sh/include/asm/ptrace.h           | 39 -------------------
->  arch/sh/kernel/Makefile                |  2 +-
->  arch/sh/kernel/ptrace.c                | 33 ----------------
->  arch/sh/kernel/ptrace_32.c             |  2 +-
->  arch/sh/kernel/ptrace_64.c             |  2 +-
->  arch/x86/include/asm/ptrace.h          | 37 ------------------
->  arch/x86/kernel/ptrace.c               | 34 +----------------
->  include/linux/ptrace.h                 | 42 ++++++++++++++++++++
->  kernel/ptrace.c                        | 38 ++++++++++++++++++
->  16 files changed, 107 insertions(+), 343 deletions(-)
->  delete mode 100644 arch/sh/kernel/ptrace.c
-> 
+On 06/18/2015 08:30 AM, Guenter Roeck wrote:
+> On Wed, Jun 17, 2015 at 06:04:54PM -0700, Stephen Boyd wrote:
+> [ ... ]
+>> What happened to this series? I want to add shutdown support to my
+>> platform and I need to write a register on the PMIC in one driver to
+>> configure it for shutdown instead of restart and then write an MMIO
+>> register to tell the PMIC to actually do the shutdown in another driver.
+>> It seems that the notifier solves this case for me, albeit with the
+>> slight complication that I need to order the two with some priority.
+>>
+> Can you use the .shutdown driver callback instead ?
+>
+> I see other drivers use that, and check for system_state == SYSTEM_POWER_OFF
+> to power off the hardware.
+>
 
-(And in some cases, the architecture didn't have the code in the first place!)
-
-For Hexagon:
-
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
+Yes I think that will work. I'll still have to hook pm_power_off() for
+the mmio register, but I guess that's ok and I don't need to worry about
+this series then.
 
 -- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
 a Linux Foundation Collaborative Project
