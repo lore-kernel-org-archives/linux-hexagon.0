@@ -1,37 +1,75 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 01/44] kernel: Add support for poweroff handler call chain
-Date: Thu, 18 Jun 2015 08:30:03 -0700
-Message-ID: <20150618153003.GA19224@roeck-us.net>
-References: <1412659726-29957-1-git-send-email-linux@roeck-us.net>
- <1412659726-29957-2-git-send-email-linux@roeck-us.net>
- <55821936.4040704@codeaurora.org>
+From: rkuo <rkuo@codeaurora.org>
+Subject: Re: [PATCH] Hexagon: kernel: use IRQCHIP_SKIP_SET_WAKE instead of
+ irq_set_wake callback
+Date: Thu, 18 Jun 2015 12:45:46 -0500
+Message-ID: <20150618174546.GA6764@codeaurora.org>
+References: <1434387377-17183-1-git-send-email-sudeep.holla@arm.com>
 Mime-Version: 1.0
-Return-path: <linux-ia64-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=roeck-us.net; s=default;
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date; bh=8KzQFR+Vsf++blfoYfgvP0eZeAT7wqiHyjKE5pHJm6c=;
-	b=ozkLHJKnwCMl3ePuPZeWr+8fH9L9AAKDlIxW3gUui0LLXG1Zb1qLuzwaKiGspoG+7ob0E7tRzIXUKhY1NYbB6XIZCoZg6r06+xyD9tua45ZUrKPfOk5xHqJGd7aZ615aDyMuce/SPc3xXlSd1mt6bo+wAFRGujJzGjUeEiVaP+A=;
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <55821936.4040704@codeaurora.org>
-Sender: linux-ia64-owner@vger.kernel.org
+In-Reply-To: <1434387377-17183-1-git-send-email-sudeep.holla@arm.com>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Stephen Boyd <sboyd@codeaurora.org>
-Cc: linux-kernel@vger.kernel.org, linux-m32r-ja@ml.linux-m32r.org, linux-mips@linux-mips.org, linux-efi@vger.kernel.org, linux-ia64@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>, Len Brown <len.brown@intel.com>, linux-xtensa@linux-xtensa.org, Pavel Machek <pavel@ucw.cz>, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, lguest@lists.ozlabs.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-sh@vger.kernel.org, Alexander Graf <agraf@suse.de>, linux-acpi@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, xen-devel@lists.xenproject.org, devicetree@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, linux-pm@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-m68k@lists.linux-m68k.org, linux-am33-list@redhat.com, linux-tegra@vger.kernel.org, openipmi-developer@lists.sourceforge.net, linux-metag@vger.kernel.org, li
+To: Sudeep Holla <sudeep.holla@arm.com>
+Cc: linux-hexagon@vger.kernel.org
 
-On Wed, Jun 17, 2015 at 06:04:54PM -0700, Stephen Boyd wrote:
-[ ... ]
+On Mon, Jun 15, 2015 at 05:56:17PM +0100, Sudeep Holla wrote:
+> Commit 60f96b41f71d ("genirq: Add IRQCHIP_SKIP_SET_WAKE flag")
+> introduced a new flag to skip the irq_set_wake callback in the irqchip
+> core to avoid adding dummy irq_set_wake in the irqchip implementations.
 > 
-> What happened to this series? I want to add shutdown support to my
-> platform and I need to write a register on the PMIC in one driver to
-> configure it for shutdown instead of restart and then write an MMIO
-> register to tell the PMIC to actually do the shutdown in another driver.
-> It seems that the notifier solves this case for me, albeit with the
-> slight complication that I need to order the two with some priority.
+> This patch removes the dummy callback and sets the IRQCHIP_SKIP_SET_WAKE
+> flags.
 > 
-Can you use the .shutdown driver callback instead ?
+> Cc: Richard Kuo <rkuo@codeaurora.org>
+> Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+> ---
+>  arch/hexagon/kernel/irq_cpu.c | 16 ++--------------
+>  1 file changed, 2 insertions(+), 14 deletions(-)
+> 
+> diff --git a/arch/hexagon/kernel/irq_cpu.c b/arch/hexagon/kernel/irq_cpu.c
+> index 85883e1fdc12..36b8ccfda43a 100644
+> --- a/arch/hexagon/kernel/irq_cpu.c
+> +++ b/arch/hexagon/kernel/irq_cpu.c
+> @@ -43,24 +43,12 @@ static void eoi_irq(struct irq_data *data)
+>  	__vmintop_globen((long) data->irq);
+>  }
+>  
+> -/* Power mamangement wake call. We don't need this, however,
+> - * if this is absent, then an -ENXIO error is returned to the
+> - * msm_serial driver, and it fails to correctly initialize.
+> - * This is a bug in the msm_serial driver, but, for now, we
+> - * work around it here, by providing this bogus handler.
+> - * XXX FIXME!!! remove this when msm_serial is fixed.
+> - */
+> -static int set_wake(struct irq_data *data, unsigned int on)
+> -{
+> -	return 0;
+> -}
+> -
+>  static struct irq_chip hexagon_irq_chip = {
+>  	.name		= "HEXAGON",
+>  	.irq_mask	= mask_irq,
+>  	.irq_unmask	= unmask_irq,
+> -	.irq_set_wake	= set_wake,
+> -	.irq_eoi	= eoi_irq
+> +	.irq_eoi	= eoi_irq,
+> +	.flags		= IRQCHIP_SKIP_SET_WAKE,
+>  };
+>  
+>  /**
+> -- 
+> 1.9.1
+> 
 
-I see other drivers use that, and check for system_state == SYSTEM_POWER_OFF
-to power off the hardware.
+Thanks!
 
-Guenter
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
+
+
+-- 
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
+a Linux Foundation Collaborative Project
