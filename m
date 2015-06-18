@@ -1,73 +1,54 @@
 From: rkuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH] Hexagon: kernel: use IRQCHIP_SKIP_SET_WAKE instead of
- irq_set_wake callback
-Date: Thu, 18 Jun 2015 12:45:46 -0500
-Message-ID: <20150618174546.GA6764@codeaurora.org>
-References: <1434387377-17183-1-git-send-email-sudeep.holla@arm.com>
+Subject: Re: [PATCH 2/2] Consolidate redundant register/stack access code
+Date: Thu, 18 Jun 2015 13:13:05 -0500
+Message-ID: <20150618181304.GA9557@codeaurora.org>
+References: <1434386579-6045-1-git-send-email-dave.long@linaro.org>
+ <1434386579-6045-3-git-send-email-dave.long@linaro.org>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1434387377-17183-1-git-send-email-sudeep.holla@arm.com>
+In-Reply-To: <1434386579-6045-3-git-send-email-dave.long@linaro.org>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Sudeep Holla <sudeep.holla@arm.com>
-Cc: linux-hexagon@vger.kernel.org
+To: David Long <dave.long@linaro.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@amacapital.net>, Anton Blanchard <anton@samba.org>, Behan Webster <behanw@converseincode.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Eric Paris <eparis@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Willeke <willeke@de.ibm.com>, Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Nikolay Borisov <Nikolay.Borisov@arm.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Robert Richter <rric@kernel.org>, Roland McGrath <roland@hack.frob.com>, Russell King <linux@arm.linux.org.uk>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.k
 
-On Mon, Jun 15, 2015 at 05:56:17PM +0100, Sudeep Holla wrote:
-> Commit 60f96b41f71d ("genirq: Add IRQCHIP_SKIP_SET_WAKE flag")
-> introduced a new flag to skip the irq_set_wake callback in the irqchip
-> core to avoid adding dummy irq_set_wake in the irqchip implementations.
+On Mon, Jun 15, 2015 at 12:42:59PM -0400, David Long wrote:
+> From: "David A. Long" <dave.long@linaro.org>
 > 
-> This patch removes the dummy callback and sets the IRQCHIP_SKIP_SET_WAKE
-> flags.
+> Several architectures have identical or functionally equivalent code
+> implementing parts of the HAVE_REGS_AND_STACK_ACCESS_API feature.  Move
+> that code out of the architecture directories.
 > 
-> Cc: Richard Kuo <rkuo@codeaurora.org>
-> Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+> Signed-off-by: David A. Long <dave.long@linaro.org>
 > ---
->  arch/hexagon/kernel/irq_cpu.c | 16 ++--------------
->  1 file changed, 2 insertions(+), 14 deletions(-)
-> 
-> diff --git a/arch/hexagon/kernel/irq_cpu.c b/arch/hexagon/kernel/irq_cpu.c
-> index 85883e1fdc12..36b8ccfda43a 100644
-> --- a/arch/hexagon/kernel/irq_cpu.c
-> +++ b/arch/hexagon/kernel/irq_cpu.c
-> @@ -43,24 +43,12 @@ static void eoi_irq(struct irq_data *data)
->  	__vmintop_globen((long) data->irq);
->  }
->  
-> -/* Power mamangement wake call. We don't need this, however,
-> - * if this is absent, then an -ENXIO error is returned to the
-> - * msm_serial driver, and it fails to correctly initialize.
-> - * This is a bug in the msm_serial driver, but, for now, we
-> - * work around it here, by providing this bogus handler.
-> - * XXX FIXME!!! remove this when msm_serial is fixed.
-> - */
-> -static int set_wake(struct irq_data *data, unsigned int on)
-> -{
-> -	return 0;
-> -}
-> -
->  static struct irq_chip hexagon_irq_chip = {
->  	.name		= "HEXAGON",
->  	.irq_mask	= mask_irq,
->  	.irq_unmask	= unmask_irq,
-> -	.irq_set_wake	= set_wake,
-> -	.irq_eoi	= eoi_irq
-> +	.irq_eoi	= eoi_irq,
-> +	.flags		= IRQCHIP_SKIP_SET_WAKE,
->  };
->  
->  /**
-> -- 
-> 1.9.1
+>  arch/arm/include/asm/ptrace.h          |  6 ---
+>  arch/arm/kernel/ptrace.c               | 67 +-------------------------------
+>  arch/hexagon/include/uapi/asm/ptrace.h |  3 --
+>  arch/powerpc/include/asm/ptrace.h      | 38 ------------------
+>  arch/powerpc/kernel/ptrace.c           | 34 +----------------
+>  arch/s390/include/asm/ptrace.h         |  3 --
+>  arch/s390/kernel/ptrace.c              | 70 ++++++++++------------------------
+>  arch/sh/include/asm/ptrace.h           | 39 -------------------
+>  arch/sh/kernel/Makefile                |  2 +-
+>  arch/sh/kernel/ptrace.c                | 33 ----------------
+>  arch/sh/kernel/ptrace_32.c             |  2 +-
+>  arch/sh/kernel/ptrace_64.c             |  2 +-
+>  arch/x86/include/asm/ptrace.h          | 37 ------------------
+>  arch/x86/kernel/ptrace.c               | 34 +----------------
+>  include/linux/ptrace.h                 | 42 ++++++++++++++++++++
+>  kernel/ptrace.c                        | 38 ++++++++++++++++++
+>  16 files changed, 107 insertions(+), 343 deletions(-)
+>  delete mode 100644 arch/sh/kernel/ptrace.c
 > 
 
-Thanks!
+(And in some cases, the architecture didn't have the code in the first place!)
+
+For Hexagon:
 
 Acked-by: Richard Kuo <rkuo@codeaurora.org>
-
 
 -- 
 Qualcomm Innovation Center, Inc.
