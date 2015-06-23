@@ -1,104 +1,74 @@
-From: Kees Cook <keescook@chromium.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 Subject: Re: [PATCH 1/2] Move the pt_regs_offset struct definition from arch
  to common include file
-Date: Fri, 19 Jun 2015 09:58:45 -0700
-Message-ID: <CAGXu5jJFkv=ma0SJ-5N+GKQ3xoPw8193+kxO0F3M0c0_c=ZTtg@mail.gmail.com>
+Date: Tue, 23 Jun 2015 13:32:08 +1000
+Message-ID: <1435030328.28070.5.camel@ellerman.id.au>
 References: <1434386579-6045-1-git-send-email-dave.long@linaro.org>
-	<1434386579-6045-2-git-send-email-dave.long@linaro.org>
-	<1434687583.23771.5.camel@ellerman.id.au>
-	<5584234E.2040701@linaro.org>
+		 <1434386579-6045-2-git-send-email-dave.long@linaro.org>
+	 <1434687583.23771.5.camel@ellerman.id.au> <5584234E.2040701@linaro.org>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-sh-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20120113;
-        h=mime-version:sender:in-reply-to:references:date:message-id:subject
-         :from:to:cc:content-type;
-        bh=zzgXkdpN61hYOVX+QnZLztquSri8F6L7BqLVwFOCu3Y=;
-        b=XA0Ybe0RgaIzbq9xfpPEV3dvUKPIIZHlLRK4NfTEG2+6h3Saxpes5I8uXh3RmHFPHN
-         nC4KSvJ+YecZIBTWdWsOD53RgY4QtzVCTHJbElAVHKrFhx+/YWe868evB1bxz7CHEmNH
-         lPoyrbpXOt3xiDA3cqtgA93t+kZVEpsmP5RmulYlmfwLEb0nHBwTRXyZHZwKi5iDY4Cy
-         4ara9QNK5RFQ9UoJVE0ztQXYnDfG4xZ5aijmsVXsPgjw0wURea19qTuI99N6tHLsLVHa
-         Vbp/mUzrAFpQ+E28h74VEgbPFXRUyXu87Y5UR2/uvzAimsCEPq7mlFiMNL+7crdXNTzN
-         9iyw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:sender:in-reply-to:references:date:message-id:subject
-         :from:to:cc:content-type;
-        bh=zzgXkdpN61hYOVX+QnZLztquSri8F6L7BqLVwFOCu3Y=;
-        b=BLVypo1CPvStMw3vhf5N4lhd0X3bpQ4ZRllIP9I6BLeerm7d1/E/+4F9coMzm7nbIE
-         LIMlGwmUT5nQUzWVW2ItNmpQMD5fl+4TIJhThILCZHgWkN6B9VDprKH/r0WjpukWNPLY
-         l3zxqb5L3i/IsBJK6KeFLfRuM1njhh5Inml2Y=
 In-Reply-To: <5584234E.2040701@linaro.org>
 Sender: linux-sh-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 To: David Long <dave.long@linaro.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>, "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@amacapital.net>, Anton Blanchard <anton@samba.org>, Behan Webster <behanw@converseincode.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Eric Paris <eparis@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Willeke <willeke@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Nikolay Borisov <Nikolay.Borisov@arm.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Richard Kuo <rkuo@codeaurora.org>, Robert Richter <rric@kernel.org>, Roland McGrath <roland@hack.frob.com>, Russell King <linux@arm.linux.org.uk>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-h
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@amacapital.net>, Anton Blanchard <anton@samba.org>, Behan Webster <behanw@converseincode.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Eric Paris <eparis@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Willeke <willeke@de.ibm.com>, Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Nikolay Borisov <Nikolay.Borisov@arm.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Richard Kuo <rkuo@codeaurora.org>, Robert Richter <rric@kernel.org>, Roland McGrath <roland@hack.frob.com>, Russell King <linux@arm.linux.org.uk>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kerne
 
-On Fri, Jun 19, 2015 at 7:12 AM, David Long <dave.long@linaro.org> wrote:
+On Fri, 2015-06-19 at 10:12 -0400, David Long wrote:
 > On 06/19/15 00:19, Michael Ellerman wrote:
->>
->> On Mon, 2015-06-15 at 12:42 -0400, David Long wrote:
->>>
->>> From: "David A. Long" <dave.long@linaro.org>
->>>
->>> The pt_regs_offset structure is used for HAVE_REGS_AND_STACK_ACCESS_API
->>>   feature and has identical definitions in four different arch ptrace.h
->>> include files. It seems unlikely that definition would ever need to be
->>> changed regardless of architecture so lets move it into
->>> include/linux/ptrace.h.
->>>
->>> Signed-off-by: David A. Long <dave.long@linaro.org>
->>> ---
->>>   arch/powerpc/kernel/ptrace.c | 5 -----
->>
->>
->> Built and booted on powerpc, but is there an easy way to actually test the
->> code
->> paths in question?
->>
->
-> There is an easy way to "smoke test" it on all archiectures that also
-> implement kprobes (which powerpc does).  If I'm understanding the powerpc
-> code correctly (WRT register naming conventions) just do the following:
->
+> > On Mon, 2015-06-15 at 12:42 -0400, David Long wrote:
+> >> From: "David A. Long" <dave.long@linaro.org>
+> >>
+> >> The pt_regs_offset structure is used for HAVE_REGS_AND_STACK_ACCESS_API
+> >>   feature and has identical definitions in four different arch ptrace.h
+> >> include files. It seems unlikely that definition would ever need to be
+> >> changed regardless of architecture so lets move it into
+> >> include/linux/ptrace.h.
+> >>
+> >> Signed-off-by: David A. Long <dave.long@linaro.org>
+> >> ---
+> >>   arch/powerpc/kernel/ptrace.c | 5 -----
+> >
+> > Built and booted on powerpc, but is there an easy way to actually test the code
+> > paths in question?
+> >
+> 
+> There is an easy way to "smoke test" it on all archiectures that also 
+> implement kprobes (which powerpc does).  If I'm understanding the 
+> powerpc code correctly (WRT register naming conventions) just do the 
+> following:
+> 
 > cd /sys/kernel/debug/tracing
 > echo 'p do_fork %gpr0' > kprobe_events
 > echo 1 > events/kprobes/enable
 > ls
 > cat trace
 > echo 0 > events/kprobes/enable
->
-> Every fork() call done on the system between those two echo commands (hence
-> the "ls") should append a line to the trace file.  For a more exhaustive
-> test one could repeat this sequence for every register in the architecture.
->
-> This should work the same on all architectures supporting kprobes.  You just
-> have to use the appropriate register names for your architecture after the
-> "%".
+> 
+> Every fork() call done on the system between those two echo commands 
+> (hence the "ls") should append a line to the trace file.  For a more 
+> exhaustive test one could repeat this sequence for every register in the 
+> architecture.
 
-Is this something we could codify into the selftests directory? It
-seems like a great thing to capture in a single place somewhere (the
-register lists, that is).
+OK, so I went the whole hog and did:
 
--Kees
+$ echo 'p do_fork %gpr0 %gpr1 %gpr2 %gpr3 %gpr4 %gpr5 %gpr6 %gpr7 %gpr8 %gpr9 %gpr10 %gpr11 %gpr12 %gpr13 %gpr14 %gpr15 %gpr16 %gpr17 %gpr18 %gpr19 %gpr20 %gpr21 %gpr22 %gpr23 %gpr24 %gpr25 %gpr26 %gpr27 %gpr28 %gpr29 %gpr30 %gpr31 %nip %msr %ctr %link %xer %ccr %softe %trap %dar %dsisr' > kprobe_events
 
->
->> Acked-by: Michael Ellerman <mpe@ellerman.id.au>
->>
->> cheers
->>
->>
->
-> Thanks,
-> -dl
->
+And I get:
+
+            bash-2057  [001] d...   535.433941: p_do_fork_0: (do_fork+0x8/0x490) arg1=0xc0000000000094d0 arg2=0xc0000001fbe9be30 arg3=0xc000000001133bb8 arg4=0x1200011 arg5=0x0 arg6=0x0 arg7=0x0 arg8=0x3fff7c885940 arg9=0x1 arg10=0xc0000001fbe9bea0 arg11=0x0 arg12=0xc01 arg13=0xc0000000000094c8 arg14=0xc00000000fdc0480 arg15=0x0 arg16=0x22000000 arg17=0x1016d6e8 arg18=0x0 arg19=0x44000000 arg20=0x0 arg21=0x10037c82208 arg22=0x1017b008 arg23=0x10143d18 arg24=0x10178854 arg25=0x10144f90 arg26=0x10037c821e8 arg27=0x0 arg28=0x0 arg29=0x0 arg30=0x0 arg31=0x809 arg32=0x3ffff788c010 arg33=0xc0000000000a7fe8 arg34=0x8000000000029033 arg35=0xc0000000000094c8 arg36=0xc0000000000094d0 arg37=0x0 arg38=0x42222844 arg39=0x1 arg40=0x700 arg41=0xc0000001fbe9bd50 arg42=0xc0000001fbe9bd30
+
+Which is ugly as hell, but appears unchanged since before your patch.
+
+I take it it's expected that the names are not decoded in the output?
+
+Also I wonder why we choose "gpr" when "r" is the more usual prefix on powerpc.
+I guess we can add new aliases to the table.
+
+cheers
 
 
-
--- 
-Kees Cook
-Chrome OS Security
 --
 To unsubscribe from this list: send the line "unsubscribe linux-sh" in
