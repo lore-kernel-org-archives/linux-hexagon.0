@@ -1,87 +1,85 @@
-From: David Long <dave.long@linaro.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 Subject: Re: [PATCH 1/2] Move the pt_regs_offset struct definition from arch
  to common include file
-Date: Tue, 23 Jun 2015 09:48:19 -0400
-Message-ID: <558963A3.4070503@linaro.org>
-References: <1434386579-6045-1-git-send-email-dave.long@linaro.org>		
- <1434386579-6045-2-git-send-email-dave.long@linaro.org>	
- <1434687583.23771.5.camel@ellerman.id.au> <5584234E.2040701@linaro.org>
- <1435030328.28070.5.camel@ellerman.id.au>
+Date: Wed, 24 Jun 2015 14:07:59 +1000
+Message-ID: <1435118879.3620.5.camel@ellerman.id.au>
+References: <1434386579-6045-1-git-send-email-dave.long@linaro.org>
+			 <1434386579-6045-2-git-send-email-dave.long@linaro.org>
+		 <1434687583.23771.5.camel@ellerman.id.au> <5584234E.2040701@linaro.org>
+	 <1435030328.28070.5.camel@ellerman.id.au> <558963A3.4070503@linaro.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <1435030328.28070.5.camel@ellerman.id.au>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: linux-sh@vger.kernel.org, Will Deacon <will.deacon@arm.com>, Jan Willeke <willeke@de.ibm.com>, linux-kernel@vger.kernel.org, Nikolay Borisov <Nikolay.Borisov@arm.com>, Behan Webster <behanw@converseincode.com>, "H. Peter Anvin" <hpa@zytor.com>, Richard Kuo <rkuo@codeaurora.org>, linux-s390@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, linux-hexagon@vger.kernel.org, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, mahesh@linux.vnet.ibm.com, Robert Richter <rric@kernel.org>, Kees Cook <keescook@chromium.org>, Roland McGrath <roland@hack.frob.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Anton Blanchard <anton@samba.org>, linux390@de.ibm.com, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Oleg Nesterov <oleg@redhat.com>, Eric Paris <eparis@redhat.com>, Andy Lutomirski <luto@amacapital.net>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+In-Reply-To: <558963A3.4070503@linaro.org>
+Sender: linux-hexagon-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: David Long <dave.long@linaro.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@amacapital.net>, Anton Blanchard <anton@samba.org>, Behan Webster <behanw@converseincode.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Eric Paris <eparis@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Willeke <willeke@de.ibm.com>, Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Nikolay Borisov <Nikolay.Borisov@arm.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Richard Kuo <rkuo@codeaurora.org>, Robert Richter <rric@kernel.org>, Roland McGrath <roland@hack.frob.com>, Russell King <linux@arm.linux.org.uk>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kerne
 
-T24gMDYvMjIvMTUgMjM6MzIsIE1pY2hhZWwgRWxsZXJtYW4gd3JvdGU6Cj4gT24gRnJpLCAyMDE1
-LTA2LTE5IGF0IDEwOjEyIC0wNDAwLCBEYXZpZCBMb25nIHdyb3RlOgo+PiBPbiAwNi8xOS8xNSAw
-MDoxOSwgTWljaGFlbCBFbGxlcm1hbiB3cm90ZToKPj4+IE9uIE1vbiwgMjAxNS0wNi0xNSBhdCAx
-Mjo0MiAtMDQwMCwgRGF2aWQgTG9uZyB3cm90ZToKPj4+PiBGcm9tOiAiRGF2aWQgQS4gTG9uZyIg
-PGRhdmUubG9uZ0BsaW5hcm8ub3JnPgo+Pj4+Cj4+Pj4gVGhlIHB0X3JlZ3Nfb2Zmc2V0IHN0cnVj
-dHVyZSBpcyB1c2VkIGZvciBIQVZFX1JFR1NfQU5EX1NUQUNLX0FDQ0VTU19BUEkKPj4+PiAgICBm
-ZWF0dXJlIGFuZCBoYXMgaWRlbnRpY2FsIGRlZmluaXRpb25zIGluIGZvdXIgZGlmZmVyZW50IGFy
-Y2ggcHRyYWNlLmgKPj4+PiBpbmNsdWRlIGZpbGVzLiBJdCBzZWVtcyB1bmxpa2VseSB0aGF0IGRl
-ZmluaXRpb24gd291bGQgZXZlciBuZWVkIHRvIGJlCj4+Pj4gY2hhbmdlZCByZWdhcmRsZXNzIG9m
-IGFyY2hpdGVjdHVyZSBzbyBsZXRzIG1vdmUgaXQgaW50bwo+Pj4+IGluY2x1ZGUvbGludXgvcHRy
-YWNlLmguCj4+Pj4KPj4+PiBTaWduZWQtb2ZmLWJ5OiBEYXZpZCBBLiBMb25nIDxkYXZlLmxvbmdA
-bGluYXJvLm9yZz4KPj4+PiAtLS0KPj4+PiAgICBhcmNoL3Bvd2VycGMva2VybmVsL3B0cmFjZS5j
-IHwgNSAtLS0tLQo+Pj4KPj4+IEJ1aWx0IGFuZCBib290ZWQgb24gcG93ZXJwYywgYnV0IGlzIHRo
-ZXJlIGFuIGVhc3kgd2F5IHRvIGFjdHVhbGx5IHRlc3QgdGhlIGNvZGUKPj4+IHBhdGhzIGluIHF1
-ZXN0aW9uPwo+Pj4KPj4KPj4gVGhlcmUgaXMgYW4gZWFzeSB3YXkgdG8gInNtb2tlIHRlc3QiIGl0
-IG9uIGFsbCBhcmNoaWVjdHVyZXMgdGhhdCBhbHNvCj4+IGltcGxlbWVudCBrcHJvYmVzICh3aGlj
-aCBwb3dlcnBjIGRvZXMpLiAgSWYgSSdtIHVuZGVyc3RhbmRpbmcgdGhlCj4+IHBvd2VycGMgY29k
-ZSBjb3JyZWN0bHkgKFdSVCByZWdpc3RlciBuYW1pbmcgY29udmVudGlvbnMpIGp1c3QgZG8gdGhl
-Cj4+IGZvbGxvd2luZzoKPj4KPj4gY2QgL3N5cy9rZXJuZWwvZGVidWcvdHJhY2luZwo+PiBlY2hv
-ICdwIGRvX2ZvcmsgJWdwcjAnID4ga3Byb2JlX2V2ZW50cwo+PiBlY2hvIDEgPiBldmVudHMva3By
-b2Jlcy9lbmFibGUKPj4gbHMKPj4gY2F0IHRyYWNlCj4+IGVjaG8gMCA+IGV2ZW50cy9rcHJvYmVz
-L2VuYWJsZQo+Pgo+PiBFdmVyeSBmb3JrKCkgY2FsbCBkb25lIG9uIHRoZSBzeXN0ZW0gYmV0d2Vl
-biB0aG9zZSB0d28gZWNobyBjb21tYW5kcwo+PiAoaGVuY2UgdGhlICJscyIpIHNob3VsZCBhcHBl
-bmQgYSBsaW5lIHRvIHRoZSB0cmFjZSBmaWxlLiAgRm9yIGEgbW9yZQo+PiBleGhhdXN0aXZlIHRl
-c3Qgb25lIGNvdWxkIHJlcGVhdCB0aGlzIHNlcXVlbmNlIGZvciBldmVyeSByZWdpc3RlciBpbiB0
-aGUKPj4gYXJjaGl0ZWN0dXJlLgo+Cj4gT0ssIHNvIEkgd2VudCB0aGUgd2hvbGUgaG9nIGFuZCBk
-aWQ6Cj4KPiAkIGVjaG8gJ3AgZG9fZm9yayAlZ3ByMCAlZ3ByMSAlZ3ByMiAlZ3ByMyAlZ3ByNCAl
-Z3ByNSAlZ3ByNiAlZ3ByNyAlZ3ByOCAlZ3ByOSAlZ3ByMTAgJWdwcjExICVncHIxMiAlZ3ByMTMg
-JWdwcjE0ICVncHIxNSAlZ3ByMTYgJWdwcjE3ICVncHIxOCAlZ3ByMTkgJWdwcjIwICVncHIyMSAl
-Z3ByMjIgJWdwcjIzICVncHIyNCAlZ3ByMjUgJWdwcjI2ICVncHIyNyAlZ3ByMjggJWdwcjI5ICVn
-cHIzMCAlZ3ByMzEgJW5pcCAlbXNyICVjdHIgJWxpbmsgJXhlciAlY2NyICVzb2Z0ZSAldHJhcCAl
-ZGFyICVkc2lzcicgPiBrcHJvYmVfZXZlbnRzCj4KPiBBbmQgSSBnZXQ6Cj4KPiAgICAgICAgICAg
-ICAgYmFzaC0yMDU3ICBbMDAxXSBkLi4uICAgNTM1LjQzMzk0MTogcF9kb19mb3JrXzA6IChkb19m
-b3JrKzB4OC8weDQ5MCkgYXJnMT0weGMwMDAwMDAwMDAwMDk0ZDAgYXJnMj0weGMwMDAwMDAxZmJl
-OWJlMzAgYXJnMz0weGMwMDAwMDAwMDExMzNiYjggYXJnND0weDEyMDAwMTEgYXJnNT0weDAgYXJn
-Nj0weDAgYXJnNz0weDAgYXJnOD0weDNmZmY3Yzg4NTk0MCBhcmc5PTB4MSBhcmcxMD0weGMwMDAw
-MDAxZmJlOWJlYTAgYXJnMTE9MHgwIGFyZzEyPTB4YzAxIGFyZzEzPTB4YzAwMDAwMDAwMDAwOTRj
-OCBhcmcxND0weGMwMDAwMDAwMGZkYzA0ODAgYXJnMTU9MHgwIGFyZzE2PTB4MjIwMDAwMDAgYXJn
-MTc9MHgxMDE2ZDZlOCBhcmcxOD0weDAgYXJnMTk9MHg0NDAwMDAwMCBhcmcyMD0weDAgYXJnMjE9
-MHgxMDAzN2M4MjIwOCBhcmcyMj0weDEwMTdiMDA4IGFyZzIzPTB4MTAxNDNkMTggYXJnMjQ9MHgx
-MDE3ODg1NCBhcmcyNT0weDEwMTQ0ZjkwIGFyZzI2PTB4MTAwMzdjODIxZTggYXJnMjc9MHgwIGFy
-ZzI4PTB4MCBhcmcyOT0weDAgYXJnMzA9MHgwIGFyZzMxPTB4ODA5IGFyZzMyPTB4M2ZmZmY3ODhj
-MDEwIGFyZzMzPTB4YzAwMDAwMDAwMDBhN2ZlOCBhcmczND0weDgwMDAwMDAwMDAwMjkwMzMgYXJn
-MzU9MHhjMDAwMDAwMDAwMDA5NGM4IGFyZzM2PTB4YzAwMDAwMDAwMDAwOTRkMCBhcmczNz0weDAg
-YXJnMzg9MHg0MjIyMjg0NCBhcmczOT0weDEgYXJnNDA9MHg3MDAgYXJnNDE9MHhjMDAwMDAwMWZi
-ZTliZDUwIGFyZzQyPTB4YzAwMDAwMDFmYmU5YmQzMAo+Cj4gV2hpY2ggaXMgdWdseSBhcyBoZWxs
-LCBidXQgYXBwZWFycyB1bmNoYW5nZWQgc2luY2UgYmVmb3JlIHlvdXIgcGF0Y2guCj4KCkV4Y2Vs
-bGVudC4gIE1hbnkgdGhhbmtzLgoKPiBJIHRha2UgaXQgaXQncyBleHBlY3RlZCB0aGF0IHRoZSBu
-YW1lcyBhcmUgbm90IGRlY29kZWQgaW4gdGhlIG91dHB1dD8KPgoKWWVzLgoKPiBBbHNvIEkgd29u
-ZGVyIHdoeSB3ZSBjaG9vc2UgImdwciIgd2hlbiAiciIgaXMgdGhlIG1vcmUgdXN1YWwgcHJlZml4
-IG9uIHBvd2VycGMuCj4gSSBndWVzcyB3ZSBjYW4gYWRkIG5ldyBhbGlhc2VzIHRvIHRoZSB0YWJs
-ZS4KPgoKWWVhaCBJIGNhbid0IGFuc3dlciB0aGF0LCB0aGlzIGlzIGp1c3Qgd2hhdCB0aGUgcHJl
-ZXhpc3RpbmcgY29kZSBpcyAKd3JpdHRlbiB0byBkby4gSSBiZWxpZXZlIHlvdSBjb3VsZCBhZGQg
-YWxpYXNlcyB0byB0aGUgdGFibGUsIHBlcmhhcHMgYXMgCmEgc3RlcCBpbiBtaWdyYXRpbmcgdG8g
-c3VwcG9ydGluZyBvbmx5IHRoZSBtb3JlIGNvbW1vbiBuYW1pbmcuICBUaGUgCnJldmVyc2UgdHJh
-bnNsYXRpb24gd291bGQgaGF2ZSB0byByZXR1cm4gb25lIG9yIHRoZSBvdGhlciB0aG91Z2guCgot
-ZGwKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpMaW51
-eHBwYy1kZXYgbWFpbGluZyBsaXN0CkxpbnV4cHBjLWRldkBsaXN0cy5vemxhYnMub3JnCmh0dHBz
-Oi8vbGlzdHMub3psYWJzLm9yZy9saXN0aW5mby9saW51eHBwYy1kZXY=
+On Tue, 2015-06-23 at 09:48 -0400, David Long wrote:
+> On 06/22/15 23:32, Michael Ellerman wrote:
+> > On Fri, 2015-06-19 at 10:12 -0400, David Long wrote:
+> >> On 06/19/15 00:19, Michael Ellerman wrote:
+> >>> On Mon, 2015-06-15 at 12:42 -0400, David Long wrote:
+> >>>> From: "David A. Long" <dave.long@linaro.org>
+> >>>>
+> >>>> The pt_regs_offset structure is used for HAVE_REGS_AND_STACK_ACCESS_API
+> >>>>    feature and has identical definitions in four different arch ptrace.h
+> >>>> include files. It seems unlikely that definition would ever need to be
+> >>>> changed regardless of architecture so lets move it into
+> >>>> include/linux/ptrace.h.
+> >>>>
+> >>>> Signed-off-by: David A. Long <dave.long@linaro.org>
+> >>>> ---
+> >>>>    arch/powerpc/kernel/ptrace.c | 5 -----
+> >>>
+> >>> Built and booted on powerpc, but is there an easy way to actually test the code
+> >>> paths in question?
+> >>
+> >> There is an easy way to "smoke test" it on all archiectures that also
+> >> implement kprobes (which powerpc does).  If I'm understanding the
+> >> powerpc code correctly (WRT register naming conventions) just do the
+> >> following:
+> >>
+> >> cd /sys/kernel/debug/tracing
+> >> echo 'p do_fork %gpr0' > kprobe_events
+> >> echo 1 > events/kprobes/enable
+> >> ls
+> >> cat trace
+> >> echo 0 > events/kprobes/enable
+> >>
+> >> Every fork() call done on the system between those two echo commands
+> >> (hence the "ls") should append a line to the trace file.  For a more
+> >> exhaustive test one could repeat this sequence for every register in the
+> >> architecture.
+> >
+> > OK, so I went the whole hog and did:
+> >
+> > $ echo 'p do_fork %gpr0 %gpr1 %gpr2 %gpr3 %gpr4 %gpr5 %gpr6 %gpr7 %gpr8 %gpr9 %gpr10 %gpr11 %gpr12 %gpr13 %gpr14 %gpr15 %gpr16 %gpr17 %gpr18 %gpr19 %gpr20 %gpr21 %gpr22 %gpr23 %gpr24 %gpr25 %gpr26 %gpr27 %gpr28 %gpr29 %gpr30 %gpr31 %nip %msr %ctr %link %xer %ccr %softe %trap %dar %dsisr' > kprobe_events
+> >
+> > And I get:
+> >
+> >              bash-2057  [001] d...   535.433941: p_do_fork_0: (do_fork+0x8/0x490) arg1=0xc0000000000094d0 arg2=0xc0000001fbe9be30 arg3=0xc000000001133bb8 arg4=0x1200011 arg5=0x0 arg6=0x0 arg7=0x0 arg8=0x3fff7c885940 arg9=0x1 arg10=0xc0000001fbe9bea0 arg11=0x0 arg12=0xc01 arg13=0xc0000000000094c8 arg14=0xc00000000fdc0480 arg15=0x0 arg16=0x22000000 arg17=0x1016d6e8 arg18=0x0 arg19=0x44000000 arg20=0x0 arg21=0x10037c82208 arg22=0x1017b008 arg23=0x10143d18 arg24=0x10178854 arg25=0x10144f90 arg26=0x10037c821e8 arg27=0x0 arg28=0x0 arg29=0x0 arg30=0x0 arg31=0x809 arg32=0x3ffff788c010 arg33=0xc0000000000a7fe8 arg34=0x8000000000029033 arg35=0xc0000000000094c8 arg36=0xc0000000000094d0 arg37=0x0 arg38=0x42222844 arg39=0x1 arg40=0x700 arg41=0xc0000001fbe9bd50 arg42=0xc0000001fbe9bd30
+> >
+> > Which is ugly as hell, but appears unchanged since before your patch.
+> >
+> 
+> Excellent.  Many thanks.
+
+No worries.
+
+Did I already send you an ack? Have another one in case:
+
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+
+
+> > I take it it's expected that the names are not decoded in the output?
+>
+> Yes.
+
+In fact I don't see anywhere that uses the reverse decoding, ie.
+regs_query_register_name().
+
+cheers
+
