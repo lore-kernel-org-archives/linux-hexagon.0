@@ -1,89 +1,59 @@
-From: David Long <dave.long@linaro.org>
+From: Michael Ellerman <michael@ellerman.id.au>
 Subject: Re: [PATCH 1/2] Move the pt_regs_offset struct definition from arch
  to common include file
-Date: Fri, 26 Jun 2015 14:35:29 -0400
-Message-ID: <558D9B71.2080605@linaro.org>
-References: <1434386579-6045-1-git-send-email-dave.long@linaro.org>	<1434386579-6045-2-git-send-email-dave.long@linaro.org>	<1434687583.23771.5.camel@ellerman.id.au>	<5584234E.2040701@linaro.org> <CAGXu5jJFkv=ma0SJ-5N+GKQ3xoPw8193+kxO0F3M0c0_c=ZTtg@mail.gmail.com>
+Date: Tue, 30 Jun 2015 13:29:05 +1000
+Message-ID: <1435634945.24866.2.camel@ellerman.id.au>
+References: <1434386579-6045-1-git-send-email-dave.long@linaro.org>
+	 <1434386579-6045-2-git-send-email-dave.long@linaro.org>
+	 <CAL_JsqK3L9Hv9bhAtwAAXVYjLJBTOG9=4ddOo-SFqnD-_KieCQ@mail.gmail.com>
+	 <5581BCD0.2040405@linaro.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <CAGXu5jJFkv=ma0SJ-5N+GKQ3xoPw8193+kxO0F3M0c0_c=ZTtg@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+In-Reply-To: <5581BCD0.2040405@linaro.org>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Kees Cook <keescook@chromium.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>, "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@amacapital.net>, Anton Blanchard <anton@samba.org>, Behan Webster <behanw@converseincode.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Eric Paris <eparis@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Willeke <willeke@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Nikolay Borisov <Nikolay.Borisov@arm.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Richard Kuo <rkuo@codeaurora.org>, Robert Richter <rric@kernel.org>, Roland McGrath <roland@hack.frob.com>, Russell King <linux@arm.linux.org.uk>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-h
+Content-Type: text/plain; charset="us-ascii"
+To: David Long <dave.long@linaro.org>
+Cc: Rob Herring <robherring2@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@amacapital.net>, Anton Blanchard <anton@samba.org>, Behan Webster <behanw@converseincode.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Eric Paris <eparis@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Willeke <willeke@de.ibm.com>, Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Nikolay Borisov <Nikolay.Borisov@arm.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Richard Kuo <rkuo@codeaurora.org>, Robert Richter <rric@kernel.org>, Roland McGrath <roland@hack.frob.com>, Russell King <linux@arm.linux.org.uk>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-ker>
 
-On 06/19/15 12:58, Kees Cook wrote:
-> On Fri, Jun 19, 2015 at 7:12 AM, David Long <dave.long@linaro.org> wrote:
->> On 06/19/15 00:19, Michael Ellerman wrote:
->>>
->>> On Mon, 2015-06-15 at 12:42 -0400, David Long wrote:
->>>>
->>>> From: "David A. Long" <dave.long@linaro.org>
->>>>
->>>> The pt_regs_offset structure is used for HAVE_REGS_AND_STACK_ACCESS_API
->>>>    feature and has identical definitions in four different arch ptrace.h
->>>> include files. It seems unlikely that definition would ever need to be
->>>> changed regardless of architecture so lets move it into
->>>> include/linux/ptrace.h.
->>>>
->>>> Signed-off-by: David A. Long <dave.long@linaro.org>
->>>> ---
->>>>    arch/powerpc/kernel/ptrace.c | 5 -----
->>>
->>>
->>> Built and booted on powerpc, but is there an easy way to actually test the
->>> code
->>> paths in question?
->>>
->>
->> There is an easy way to "smoke test" it on all archiectures that also
->> implement kprobes (which powerpc does).  If I'm understanding the powerpc
->> code correctly (WRT register naming conventions) just do the following:
->>
->> cd /sys/kernel/debug/tracing
->> echo 'p do_fork %gpr0' > kprobe_events
->> echo 1 > events/kprobes/enable
->> ls
->> cat trace
->> echo 0 > events/kprobes/enable
->>
->> Every fork() call done on the system between those two echo commands (hence
->> the "ls") should append a line to the trace file.  For a more exhaustive
->> test one could repeat this sequence for every register in the architecture.
->>
->> This should work the same on all architectures supporting kprobes.  You just
->> have to use the appropriate register names for your architecture after the
->> "%".
->
-> Is this something we could codify into the selftests directory? It
-> seems like a great thing to capture in a single place somewhere (the
-> register lists, that is).
-> e
-> -Kees
->
+On Wed, 2015-06-17 at 14:30 -0400, David Long wrote:
+> On 06/16/15 09:17, Rob Herring wrote:
+> > On Mon, Jun 15, 2015 at 11:42 AM, David Long <dave.long@linaro.org> wrote:
+> >>
+> >>   #define REG_OFFSET_NAME(r) \
+> >>          {.name = #r, .offset = offsetof(struct pt_regs, ARM_##r)}
+> >>   #define REG_OFFSET_END {.name = NULL, .offset = 0}
+> >
+> > Can't you also move these? ARM is complicated with the "ARM_"
+> > prefixing, but the others appear to be the same. Maybe you can remove
+> > the prefix or redefine the macro for ARM.
+> 
+> That would mandate that all the architecture-specific pt_regs structures 
+> would have to use a top-level named field for each named register.
 
-Due to the architecture-specific naming of registers this would have to 
-be added to the architecture subdirectories.  I only see powerpc and x86 
-subdirs at this time so extending that infrastructure would have to be 
-part of this.  Verifying the register contents would also require some 
-change to the kernel, possibly a simple test module, which would have to 
-be unique to each architecture.  Without that we could only check for 
-recognition of the register name, although maybe that's good enough.
+Why does it mandate that?
 
->>
->>> Acked-by: Michael Ellerman <mpe@ellerman.id.au>
->>>
->>> cheers
->>>
->>>
->>
->> Thanks,
->> -dl
->>
+See eg. powerpc where we use REG_OFFSET_NAME for the top-level named fields and
+then a different macro for the array elements:
+
+  #define REG_OFFSET_NAME(r) {.name = #r, .offset = offsetof(struct pt_regs, r)}
+  #define GPR_OFFSET_NAME(num)	\
+  	{.name = STR(gpr##num), .offset = offsetof(struct pt_regs, gpr[num])}
+  
+  static const struct pt_regs_offset regoffset_table[] = {
+  	GPR_OFFSET_NAME(0),
+  	GPR_OFFSET_NAME(1),
+  	GPR_OFFSET_NAME(2),
+  	GPR_OFFSET_NAME(3),
+  	...
+  	REG_OFFSET_NAME(nip),
+  	REG_OFFSET_NAME(msr),
 
 
--dl
+So I don't see why REG_OFFSET_NAME couldn't be common.
+
+cheers
+
 
 
