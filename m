@@ -1,59 +1,84 @@
-From: Michael Ellerman <michael@ellerman.id.au>
-Subject: Re: [PATCH 1/2] Move the pt_regs_offset struct definition from arch
- to common include file
-Date: Tue, 30 Jun 2015 13:29:05 +1000
-Message-ID: <1435634945.24866.2.camel@ellerman.id.au>
-References: <1434386579-6045-1-git-send-email-dave.long@linaro.org>
-	 <1434386579-6045-2-git-send-email-dave.long@linaro.org>
-	 <CAL_JsqK3L9Hv9bhAtwAAXVYjLJBTOG9=4ddOo-SFqnD-_KieCQ@mail.gmail.com>
-	 <5581BCD0.2040405@linaro.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <5581BCD0.2040405@linaro.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 07/23] hexagon/time: Migrate to new 'set-state' interface
+Date: Thu, 16 Jul 2015 16:56:19 +0530
+Message-ID: <519cb907e596d13b9f1e3fd1ee689acbbbeb56c7.1437044517.git.viresh.kumar@linaro.org>
+References: <cover.1437044517.git.viresh.kumar@linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1437044517.git.viresh.kumar@linaro.org>
+In-Reply-To: <cover.1437044517.git.viresh.kumar@linaro.org>
+References: <cover.1437044517.git.viresh.kumar@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: David Long <dave.long@linaro.org>
-Cc: Rob Herring <robherring2@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@amacapital.net>, Anton Blanchard <anton@samba.org>, Behan Webster <behanw@converseincode.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Eric Paris <eparis@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Willeke <willeke@de.ibm.com>, Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Nikolay Borisov <Nikolay.Borisov@arm.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Richard Kuo <rkuo@codeaurora.org>, Robert Richter <rric@kernel.org>, Roland McGrath <roland@hack.frob.com>, Russell King <linux@arm.linux.org.uk>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-ker>
+Content-Transfer-Encoding: 7bit
+To: Thomas Gleixner <tglx@linutronix.de>, Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: linaro-kernel@lists.linaro.org, linux-kernel@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-On Wed, 2015-06-17 at 14:30 -0400, David Long wrote:
-> On 06/16/15 09:17, Rob Herring wrote:
-> > On Mon, Jun 15, 2015 at 11:42 AM, David Long <dave.long@linaro.org> wrote:
-> >>
-> >>   #define REG_OFFSET_NAME(r) \
-> >>          {.name = #r, .offset = offsetof(struct pt_regs, ARM_##r)}
-> >>   #define REG_OFFSET_END {.name = NULL, .offset = 0}
-> >
-> > Can't you also move these? ARM is complicated with the "ARM_"
-> > prefixing, but the others appear to be the same. Maybe you can remove
-> > the prefix or redefine the macro for ARM.
-> 
-> That would mandate that all the architecture-specific pt_regs structures 
-> would have to use a top-level named field for each named register.
+Migrate hexagon driver to the new 'set-state' interface provided by
+clockevents core, the earlier 'set-mode' interface is marked obsolete
+now.
 
-Why does it mandate that?
+This also enables us to implement callbacks for new states of clockevent
+devices, for example: ONESHOT_STOPPED.
 
-See eg. powerpc where we use REG_OFFSET_NAME for the top-level named fields and
-then a different macro for the array elements:
+We weren't doing anything in the ->set_mode() callback. So, this patch
+doesn't provide any set-state callbacks.
 
-  #define REG_OFFSET_NAME(r) {.name = #r, .offset = offsetof(struct pt_regs, r)}
-  #define GPR_OFFSET_NAME(num)	\
-  	{.name = STR(gpr##num), .offset = offsetof(struct pt_regs, gpr[num])}
-  
-  static const struct pt_regs_offset regoffset_table[] = {
-  	GPR_OFFSET_NAME(0),
-  	GPR_OFFSET_NAME(1),
-  	GPR_OFFSET_NAME(2),
-  	GPR_OFFSET_NAME(3),
-  	...
-  	REG_OFFSET_NAME(nip),
-  	REG_OFFSET_NAME(msr),
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+ arch/hexagon/kernel/time.c | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
-
-So I don't see why REG_OFFSET_NAME couldn't be common.
-
-cheers
-
-
-
+diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
+index 17fbf45bf150..a6a1d1f8309a 100644
+--- a/arch/hexagon/kernel/time.c
++++ b/arch/hexagon/kernel/time.c
+@@ -97,20 +97,6 @@ static int set_next_event(unsigned long delta, struct clock_event_device *evt)
+ 	return 0;
+ }
+ 
+-/*
+- * Sets the mode (periodic, shutdown, oneshot, etc) of a timer.
+- */
+-static void set_mode(enum clock_event_mode mode,
+-	struct clock_event_device *evt)
+-{
+-	switch (mode) {
+-	case CLOCK_EVT_MODE_SHUTDOWN:
+-		/* XXX implement me */
+-	default:
+-		break;
+-	}
+-}
+-
+ #ifdef CONFIG_SMP
+ /*  Broadcast mechanism  */
+ static void broadcast(const struct cpumask *mask)
+@@ -119,13 +105,13 @@ static void broadcast(const struct cpumask *mask)
+ }
+ #endif
+ 
++/* XXX Implement set_state_shutdown() */
+ static struct clock_event_device hexagon_clockevent_dev = {
+ 	.name		= "clockevent",
+ 	.features	= CLOCK_EVT_FEAT_ONESHOT,
+ 	.rating		= 400,
+ 	.irq		= RTOS_TIMER_INT,
+ 	.set_next_event = set_next_event,
+-	.set_mode	= set_mode,
+ #ifdef CONFIG_SMP
+ 	.broadcast	= broadcast,
+ #endif
+@@ -146,7 +132,6 @@ void setup_percpu_clockdev(void)
+ 
+ 	dummy_clock_dev->features = CLOCK_EVT_FEAT_DUMMY;
+ 	dummy_clock_dev->cpumask = cpumask_of(cpu);
+-	dummy_clock_dev->mode = CLOCK_EVT_MODE_UNUSED;
+ 
+ 	clockevents_register_device(dummy_clock_dev);
+ }
+-- 
+2.4.0
