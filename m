@@ -1,44 +1,79 @@
-From: rkuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH 07/23] hexagon/time: Migrate to new 'set-state' interface
-Date: Tue, 21 Jul 2015 17:28:51 -0500
-Message-ID: <20150721222851.GB29874@codeaurora.org>
-References: <cover.1437044517.git.viresh.kumar@linaro.org>
- <519cb907e596d13b9f1e3fd1ee689acbbbeb56c7.1437044517.git.viresh.kumar@linaro.org>
+From: David Long <dave.long@linaro.org>
+Subject: Re: [PATCH 1/2] Move the pt_regs_offset struct definition from arch
+ to common include file
+Date: Wed, 22 Jul 2015 00:46:47 -0400
+Message-ID: <55AF2037.2000803@linaro.org>
+References: <1434386579-6045-1-git-send-email-dave.long@linaro.org>	 <1434386579-6045-2-git-send-email-dave.long@linaro.org>	 <CAL_JsqK3L9Hv9bhAtwAAXVYjLJBTOG9=4ddOo-SFqnD-_KieCQ@mail.gmail.com>	 <5581BCD0.2040405@linaro.org> <1435634945.24866.2.camel@ellerman.id.au>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <519cb907e596d13b9f1e3fd1ee689acbbbeb56c7.1437044517.git.viresh.kumar@linaro.org>
+In-Reply-To: <1435634945.24866.2.camel@ellerman.id.au>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Daniel Lezcano <daniel.lezcano@linaro.org>, linaro-kernel@lists.linaro.org, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: Michael Ellerman <michael@ellerman.id.au>
+Cc: Rob Herring <robherring2@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@amacapital.net>, Anton Blanchard <anton@samba.org>, Behan Webster <behanw@converseincode.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Eric Paris <eparis@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Willeke <willeke@de.ibm.com>, Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Nikolay Borisov <Nikolay.Borisov@arm.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Richard Kuo <rkuo@codeaurora.org>, Robert Richter <rric@kernel.org>, Roland McGrath <roland@hack.frob.com>, Russell King <linux@arm.linux.org.uk>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-ker>
 
-On Thu, Jul 16, 2015 at 04:56:19PM +0530, Viresh Kumar wrote:
-> Migrate hexagon driver to the new 'set-state' interface provided by
-> clockevents core, the earlier 'set-mode' interface is marked obsolete
-> now.
-> 
-> This also enables us to implement callbacks for new states of clockevent
-> devices, for example: ONESHOT_STOPPED.
-> 
-> We weren't doing anything in the ->set_mode() callback. So, this patch
-> doesn't provide any set-state callbacks.
-> 
-> Cc: Richard Kuo <rkuo@codeaurora.org>
-> Cc: linux-hexagon@vger.kernel.org
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> ---
->  arch/hexagon/kernel/time.c | 17 +----------------
->  1 file changed, 1 insertion(+), 16 deletions(-)
-> 
+On 06/29/15 23:29, Michael Ellerman wrote:
+> On Wed, 2015-06-17 at 14:30 -0400, David Long wrote:
+>> On 06/16/15 09:17, Rob Herring wrote:
+>>> On Mon, Jun 15, 2015 at 11:42 AM, David Long <dave.long@linaro.org> wrote:
+>>>>
+>>>>    #define REG_OFFSET_NAME(r) \
+>>>>           {.name = #r, .offset = offsetof(struct pt_regs, ARM_##r)}
+>>>>    #define REG_OFFSET_END {.name = NULL, .offset = 0}
+>>>
+>>> Can't you also move these? ARM is complicated with the "ARM_"
+>>> prefixing, but the others appear to be the same. Maybe you can remove
+>>> the prefix or redefine the macro for ARM.
+>>
+>> That would mandate that all the architecture-specific pt_regs structures
+>> would have to use a top-level named field for each named register.
+>
+> Why does it mandate that?
+>
+> See eg. powerpc where we use REG_OFFSET_NAME for the top-level named fields and
+> then a different macro for the array elements:
+>
+>    #define REG_OFFSET_NAME(r) {.name = #r, .offset = offsetof(struct pt_regs, r)}
+>    #define GPR_OFFSET_NAME(num)	\
+>    	{.name = STR(gpr##num), .offset = offsetof(struct pt_regs, gpr[num])}
+>
+>    static const struct pt_regs_offset regoffset_table[] = {
+>    	GPR_OFFSET_NAME(0),
+>    	GPR_OFFSET_NAME(1),
+>    	GPR_OFFSET_NAME(2),
+>    	GPR_OFFSET_NAME(3),
+>    	...
+>    	REG_OFFSET_NAME(nip),
+>    	REG_OFFSET_NAME(msr),
+>
+>
+> So I don't see why REG_OFFSET_NAME couldn't be common.
+>
 
-Hexagon bits look fine to me, thanks!
+Sorry for the delay in responding to this.
 
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
+OK, so you're saying architectures that don't want this constraint can 
+make their own macro.  Seems to make this whole exercise slightly less 
+useful, but whatever.
 
--- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
-a Linux Foundation Collaborative Project
+I see three ways to go here:
+
+1) Leave it as is.
+2) Force all architectures to use a common definition.
+3) Provide a common definition that all architectures (except "arm") 
+currently using this functionality will use.
+
+I have a v2 patch to implement #3, ready to post.  Do we think this is 
+the way to go? I don't like #2 because I really don't want to rename all 
+uses of the current register fields for arm since this is 
+architecture-specific code to begin with and since it affects code in 39 
+arm source files.
+
+> cheers
+>
+
+
+Thanks,
+-dl
