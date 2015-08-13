@@ -1,460 +1,365 @@
-From: David Long <dave.long@linaro.org>
-Subject: [PATCH v2 1/2] Move the pt_regs_offset struct definition from arch to common include file
-Date: Mon, 27 Jul 2015 00:39:33 -0400
-Message-ID: <1437971974-2434-2-git-send-email-dave.long@linaro.org>
-References: <1437971974-2434-1-git-send-email-dave.long@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1437971974-2434-1-git-send-email-dave.long@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 4/5] dma-mapping: consolidate dma_supported
+Date: Thu, 13 Aug 2015 17:04:07 +0200
+Message-ID: <1439478248-15183-5-git-send-email-hch@lst.de>
+References: <1439478248-15183-1-git-send-email-hch@lst.de>
+Return-path: <linux-ia64-owner@vger.kernel.org>
+In-Reply-To: <1439478248-15183-1-git-send-email-hch@lst.de>
+Sender: linux-ia64-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@amacapital.net>, Anton Blanchard <anton@samba.org>, Behan Webster <behanw@converseincode.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Eric Paris <eparis@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Jan Willeke <willeke@de.ibm.com>, Kees Cook <keescook@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Nikolay Borisov <Nikolay.Borisov@arm.com>, Oleg Nesterov <oleg@redhat.com>, Paul Mackerras <paulus@samba.org>, Richard Kuo <rkuo@codeaurora.org>, Robert Richter <rric@kernel.org>, Roland McGrath <roland@hack.frob.com>, Russell King <linux@arm.linux.org.uk>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, 
+To: akpm@linux-foundation.org
+Cc: arnd@arndb.de, linux@arm.linux.org.uk, catalin.marinas@arm.com, will.deacon@arm.com, ysato@users.sourceforge.jp, monstr@monstr.eu, jonas@southpole.se, cmetcalf@ezchip.com, gxt@mprc.pku.edu.cn, x86@kernel.org, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: "David A. Long" <dave.long@linaro.org>
+Most architectures just call into ->dma_supported, but some also return 1
+if the method is not present, or 0 if no dma ops are present (although
+that should never happeb). Consolidate this more broad version into
+common code.
 
-The pt_regs_offset structure is used for the HAVE_REGS_AND_STACK_ACCESS_API
-feature and has identical definitions in four different arch ptrace.h
-include files. It seems unlikely that definition would ever need to be
-changed regardless of architecture so lets move it into
-include/linux/ptrace.h, along with macros commonly used to access it.
+Also fix h8300 which inorrectly always returned 0, which would have been
+a problem if it's dma_set_mask implementation wasn't a similarly buggy
+noop.
 
-Signed-off-by: David A. Long <dave.long@linaro.org>
+As a few architectures have much more elaborate implementations, we
+still allow for arch overrides.
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/arm/kernel/ptrace.c     |   7 +-
- arch/powerpc/kernel/ptrace.c |  31 ++++-----
- arch/sh/include/asm/ptrace.h |   9 +--
- arch/sh/kernel/ptrace_32.c   |  48 +++++++-------
- arch/sh/kernel/ptrace_64.c   | 152 +++++++++++++++++++++----------------------
- arch/x86/kernel/ptrace.c     |  59 ++++++++---------
- include/linux/ptrace.h       |  12 ++++
- 7 files changed, 152 insertions(+), 166 deletions(-)
+ arch/alpha/include/asm/dma-mapping.h      |  5 -----
+ arch/arm/include/asm/dma-mapping.h        |  5 +++--
+ arch/arm64/include/asm/dma-mapping.h      |  6 ------
+ arch/h8300/include/asm/dma-mapping.h      |  5 -----
+ arch/hexagon/include/asm/dma-mapping.h    |  1 +
+ arch/ia64/include/asm/dma-mapping.h       |  6 ------
+ arch/microblaze/include/asm/dma-mapping.h | 11 -----------
+ arch/mips/include/asm/dma-mapping.h       |  6 ------
+ arch/openrisc/include/asm/dma-mapping.h   |  5 +++--
+ arch/powerpc/include/asm/dma-mapping.h    | 11 -----------
+ arch/s390/include/asm/dma-mapping.h       |  9 ---------
+ arch/sh/include/asm/dma-mapping.h         | 10 ----------
+ arch/sparc/include/asm/dma-mapping.h      |  1 +
+ arch/tile/include/asm/dma-mapping.h       |  6 ------
+ arch/unicore32/include/asm/dma-mapping.h  | 10 ----------
+ arch/x86/include/asm/dma-mapping.h        |  4 +++-
+ include/asm-generic/dma-mapping-common.h  | 13 +++++++++++++
+ 17 files changed, 24 insertions(+), 90 deletions(-)
 
-diff --git a/arch/arm/kernel/ptrace.c b/arch/arm/kernel/ptrace.c
-index ef9119f..3b5a2ba 100644
---- a/arch/arm/kernel/ptrace.c
-+++ b/arch/arm/kernel/ptrace.c
-@@ -59,14 +59,9 @@
- #define BREAKINST_THUMB	0xde01
- #endif
+diff --git a/arch/alpha/include/asm/dma-mapping.h b/arch/alpha/include/asm/dma-mapping.h
+index 80ac3e8..9d763e5 100644
+--- a/arch/alpha/include/asm/dma-mapping.h
++++ b/arch/alpha/include/asm/dma-mapping.h
+@@ -12,11 +12,6 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
  
--struct pt_regs_offset {
--	const char *name;
--	int offset;
--};
+ #include <asm-generic/dma-mapping-common.h>
  
- #define REG_OFFSET_NAME(r) \
- 	{.name = #r, .offset = offsetof(struct pt_regs, ARM_##r)}
--#define REG_OFFSET_END {.name = NULL, .offset = 0}
+-static inline int dma_supported(struct device *dev, u64 mask)
+-{
+-	return get_dma_ops(dev)->dma_supported(dev, mask);
+-}
+-
+ static inline int dma_set_mask(struct device *dev, u64 mask)
+ {
+ 	return get_dma_ops(dev)->set_dma_mask(dev, mask);
+diff --git a/arch/arm/include/asm/dma-mapping.h b/arch/arm/include/asm/dma-mapping.h
+index 2fa33d7..b90d247 100644
+--- a/arch/arm/include/asm/dma-mapping.h
++++ b/arch/arm/include/asm/dma-mapping.h
+@@ -38,6 +38,9 @@ static inline void set_dma_ops(struct device *dev, struct dma_map_ops *ops)
+ 	dev->archdata.dma_ops = ops;
+ }
  
- static const struct pt_regs_offset regoffset_table[] = {
- 	REG_OFFSET_NAME(r0),
-@@ -87,7 +82,7 @@ static const struct pt_regs_offset regoffset_table[] = {
- 	REG_OFFSET_NAME(pc),
- 	REG_OFFSET_NAME(cpsr),
- 	REG_OFFSET_NAME(ORIG_r0),
--	REG_OFFSET_END,
-+	REGS_OFFSET_END,
- };
++#define HAVE_ARCH_DMA_SUPPORTED 1
++extern int dma_supported(struct device *dev, u64 mask);
++
+ #include <asm-generic/dma-mapping-common.h>
+ 
+ static inline int dma_set_mask(struct device *dev, u64 mask)
+@@ -166,8 +169,6 @@ static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
+ 
+ static inline void dma_mark_clean(void *addr, size_t size) { }
+ 
+-extern int dma_supported(struct device *dev, u64 mask);
+-
+ extern int arm_dma_set_mask(struct device *dev, u64 dma_mask);
  
  /**
-diff --git a/arch/powerpc/kernel/ptrace.c b/arch/powerpc/kernel/ptrace.c
-index f21897b..b8f054c 100644
---- a/arch/powerpc/kernel/ptrace.c
-+++ b/arch/powerpc/kernel/ptrace.c
-@@ -52,16 +52,9 @@
- #define PARAMETER_SAVE_AREA_OFFSET	48  /* bytes */
- #endif
+diff --git a/arch/arm64/include/asm/dma-mapping.h b/arch/arm64/include/asm/dma-mapping.h
+index f45f444..f519a58 100644
+--- a/arch/arm64/include/asm/dma-mapping.h
++++ b/arch/arm64/include/asm/dma-mapping.h
+@@ -84,12 +84,6 @@ static inline phys_addr_t dma_to_phys(struct device *dev, dma_addr_t dev_addr)
+ 	return (phys_addr_t)dev_addr;
+ }
  
--struct pt_regs_offset {
--	const char *name;
--	int offset;
--};
+-static inline int dma_supported(struct device *dev, u64 mask)
+-{
+-	struct dma_map_ops *ops = get_dma_ops(dev);
+-	return ops->dma_supported(dev, mask);
+-}
 -
- #define STR(s)	#s			/* convert to string */
--#define REG_OFFSET_NAME(r) {.name = #r, .offset = offsetof(struct pt_regs, r)}
- #define GPR_OFFSET_NAME(num)	\
- 	{.name = STR(gpr##num), .offset = offsetof(struct pt_regs, gpr[num])}
--#define REG_OFFSET_END {.name = NULL, .offset = 0}
+ static inline int dma_set_mask(struct device *dev, u64 mask)
+ {
+ 	if (!dev->dma_mask || !dma_supported(dev, mask))
+diff --git a/arch/h8300/include/asm/dma-mapping.h b/arch/h8300/include/asm/dma-mapping.h
+index 5eef053..48d652e 100644
+--- a/arch/h8300/include/asm/dma-mapping.h
++++ b/arch/h8300/include/asm/dma-mapping.h
+@@ -10,11 +10,6 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
  
- static const struct pt_regs_offset regoffset_table[] = {
- 	GPR_OFFSET_NAME(0),
-@@ -96,21 +89,21 @@ static const struct pt_regs_offset regoffset_table[] = {
- 	GPR_OFFSET_NAME(29),
- 	GPR_OFFSET_NAME(30),
- 	GPR_OFFSET_NAME(31),
--	REG_OFFSET_NAME(nip),
--	REG_OFFSET_NAME(msr),
--	REG_OFFSET_NAME(ctr),
--	REG_OFFSET_NAME(link),
--	REG_OFFSET_NAME(xer),
--	REG_OFFSET_NAME(ccr),
-+	REGS_OFFSET_NAME(nip),
-+	REGS_OFFSET_NAME(msr),
-+	REGS_OFFSET_NAME(ctr),
-+	REGS_OFFSET_NAME(link),
-+	REGS_OFFSET_NAME(xer),
-+	REGS_OFFSET_NAME(ccr),
- #ifdef CONFIG_PPC64
--	REG_OFFSET_NAME(softe),
-+	REGS_OFFSET_NAME(softe),
- #else
--	REG_OFFSET_NAME(mq),
-+	REGS_OFFSET_NAME(mq),
- #endif
--	REG_OFFSET_NAME(trap),
--	REG_OFFSET_NAME(dar),
--	REG_OFFSET_NAME(dsisr),
--	REG_OFFSET_END,
-+	REGS_OFFSET_NAME(trap),
-+	REGS_OFFSET_NAME(dar),
-+	REGS_OFFSET_NAME(dsisr),
-+	REGS_OFFSET_END,
- };
+ #include <asm-generic/dma-mapping-common.h>
  
- /**
-diff --git a/arch/sh/include/asm/ptrace.h b/arch/sh/include/asm/ptrace.h
-index 2506c7d..523955f 100644
---- a/arch/sh/include/asm/ptrace.h
-+++ b/arch/sh/include/asm/ptrace.h
-@@ -23,17 +23,10 @@
- /*
-  * kprobe-based event tracer support
-  */
--struct pt_regs_offset {
--	const char *name;
--	int offset;
--};
+-static inline int dma_supported(struct device *dev, u64 mask)
+-{
+-	return 0;
+-}
 -
--#define REG_OFFSET_NAME(r) {.name = #r, .offset = offsetof(struct pt_regs, r)}
--#define REGS_OFFSET_NAME(num)	\
-+#define REG_OFFSET_NAME(num)	\
- 	{.name = __stringify(r##num), .offset = offsetof(struct pt_regs, regs[num])}
- #define TREGS_OFFSET_NAME(num)	\
- 	{.name = __stringify(tr##num), .offset = offsetof(struct pt_regs, tregs[num])}
--#define REG_OFFSET_END {.name = NULL, .offset = 0}
+ static inline int dma_set_mask(struct device *dev, u64 mask)
+ {
+ 	return 0;
+diff --git a/arch/hexagon/include/asm/dma-mapping.h b/arch/hexagon/include/asm/dma-mapping.h
+index e661192..36e8de7 100644
+--- a/arch/hexagon/include/asm/dma-mapping.h
++++ b/arch/hexagon/include/asm/dma-mapping.h
+@@ -43,6 +43,7 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
+ 	return dma_ops;
+ }
  
- /* Query offset/name of register from its name/offset */
- extern int regs_query_register_offset(const char *name);
-diff --git a/arch/sh/kernel/ptrace_32.c b/arch/sh/kernel/ptrace_32.c
-index c1a6b89..e6fe4f4 100644
---- a/arch/sh/kernel/ptrace_32.c
-+++ b/arch/sh/kernel/ptrace_32.c
-@@ -277,30 +277,30 @@ static int dspregs_active(struct task_struct *target,
- #endif
++#define HAVE_ARCH_DMA_SUPPORTED 1
+ extern int dma_supported(struct device *dev, u64 mask);
+ extern int dma_set_mask(struct device *dev, u64 mask);
+ extern int dma_is_consistent(struct device *dev, dma_addr_t dma_handle);
+diff --git a/arch/ia64/include/asm/dma-mapping.h b/arch/ia64/include/asm/dma-mapping.h
+index 27b713d..7982caa 100644
+--- a/arch/ia64/include/asm/dma-mapping.h
++++ b/arch/ia64/include/asm/dma-mapping.h
+@@ -27,12 +27,6 @@ extern void machvec_dma_sync_sg(struct device *, struct scatterlist *, int,
  
- const struct pt_regs_offset regoffset_table[] = {
--	REGS_OFFSET_NAME(0),
--	REGS_OFFSET_NAME(1),
--	REGS_OFFSET_NAME(2),
--	REGS_OFFSET_NAME(3),
--	REGS_OFFSET_NAME(4),
--	REGS_OFFSET_NAME(5),
--	REGS_OFFSET_NAME(6),
--	REGS_OFFSET_NAME(7),
--	REGS_OFFSET_NAME(8),
--	REGS_OFFSET_NAME(9),
--	REGS_OFFSET_NAME(10),
--	REGS_OFFSET_NAME(11),
--	REGS_OFFSET_NAME(12),
--	REGS_OFFSET_NAME(13),
--	REGS_OFFSET_NAME(14),
--	REGS_OFFSET_NAME(15),
--	REG_OFFSET_NAME(pc),
--	REG_OFFSET_NAME(pr),
--	REG_OFFSET_NAME(sr),
--	REG_OFFSET_NAME(gbr),
--	REG_OFFSET_NAME(mach),
--	REG_OFFSET_NAME(macl),
--	REG_OFFSET_NAME(tra),
--	REG_OFFSET_END,
-+	REG_OFFSET_NAME(0),
-+	REG_OFFSET_NAME(1),
-+	REG_OFFSET_NAME(2),
-+	REG_OFFSET_NAME(3),
-+	REG_OFFSET_NAME(4),
-+	REG_OFFSET_NAME(5),
-+	REG_OFFSET_NAME(6),
-+	REG_OFFSET_NAME(7),
-+	REG_OFFSET_NAME(8),
-+	REG_OFFSET_NAME(9),
-+	REG_OFFSET_NAME(10),
-+	REG_OFFSET_NAME(11),
-+	REG_OFFSET_NAME(12),
-+	REG_OFFSET_NAME(13),
-+	REG_OFFSET_NAME(14),
-+	REG_OFFSET_NAME(15),
-+	REGS_OFFSET_NAME(pc),
-+	REGS_OFFSET_NAME(pr),
-+	REGS_OFFSET_NAME(sr),
-+	REGS_OFFSET_NAME(gbr),
-+	REGS_OFFSET_NAME(mach),
-+	REGS_OFFSET_NAME(macl),
-+	REGS_OFFSET_NAME(tra),
-+	REGS_OFFSET_END,
- };
+ #include <asm-generic/dma-mapping-common.h>
  
- /*
-diff --git a/arch/sh/kernel/ptrace_64.c b/arch/sh/kernel/ptrace_64.c
-index 5cea973..af55bb6 100644
---- a/arch/sh/kernel/ptrace_64.c
-+++ b/arch/sh/kernel/ptrace_64.c
-@@ -253,82 +253,82 @@ static int fpregs_active(struct task_struct *target,
- #endif
- 
- const struct pt_regs_offset regoffset_table[] = {
--	REG_OFFSET_NAME(pc),
--	REG_OFFSET_NAME(sr),
--	REG_OFFSET_NAME(syscall_nr),
--	REGS_OFFSET_NAME(0),
--	REGS_OFFSET_NAME(1),
--	REGS_OFFSET_NAME(2),
--	REGS_OFFSET_NAME(3),
--	REGS_OFFSET_NAME(4),
--	REGS_OFFSET_NAME(5),
--	REGS_OFFSET_NAME(6),
--	REGS_OFFSET_NAME(7),
--	REGS_OFFSET_NAME(8),
--	REGS_OFFSET_NAME(9),
--	REGS_OFFSET_NAME(10),
--	REGS_OFFSET_NAME(11),
--	REGS_OFFSET_NAME(12),
--	REGS_OFFSET_NAME(13),
--	REGS_OFFSET_NAME(14),
--	REGS_OFFSET_NAME(15),
--	REGS_OFFSET_NAME(16),
--	REGS_OFFSET_NAME(17),
--	REGS_OFFSET_NAME(18),
--	REGS_OFFSET_NAME(19),
--	REGS_OFFSET_NAME(20),
--	REGS_OFFSET_NAME(21),
--	REGS_OFFSET_NAME(22),
--	REGS_OFFSET_NAME(23),
--	REGS_OFFSET_NAME(24),
--	REGS_OFFSET_NAME(25),
--	REGS_OFFSET_NAME(26),
--	REGS_OFFSET_NAME(27),
--	REGS_OFFSET_NAME(28),
--	REGS_OFFSET_NAME(29),
--	REGS_OFFSET_NAME(30),
--	REGS_OFFSET_NAME(31),
--	REGS_OFFSET_NAME(32),
--	REGS_OFFSET_NAME(33),
--	REGS_OFFSET_NAME(34),
--	REGS_OFFSET_NAME(35),
--	REGS_OFFSET_NAME(36),
--	REGS_OFFSET_NAME(37),
--	REGS_OFFSET_NAME(38),
--	REGS_OFFSET_NAME(39),
--	REGS_OFFSET_NAME(40),
--	REGS_OFFSET_NAME(41),
--	REGS_OFFSET_NAME(42),
--	REGS_OFFSET_NAME(43),
--	REGS_OFFSET_NAME(44),
--	REGS_OFFSET_NAME(45),
--	REGS_OFFSET_NAME(46),
--	REGS_OFFSET_NAME(47),
--	REGS_OFFSET_NAME(48),
--	REGS_OFFSET_NAME(49),
--	REGS_OFFSET_NAME(50),
--	REGS_OFFSET_NAME(51),
--	REGS_OFFSET_NAME(52),
--	REGS_OFFSET_NAME(53),
--	REGS_OFFSET_NAME(54),
--	REGS_OFFSET_NAME(55),
--	REGS_OFFSET_NAME(56),
--	REGS_OFFSET_NAME(57),
--	REGS_OFFSET_NAME(58),
--	REGS_OFFSET_NAME(59),
--	REGS_OFFSET_NAME(60),
--	REGS_OFFSET_NAME(61),
--	REGS_OFFSET_NAME(62),
--	REGS_OFFSET_NAME(63),
--	TREGS_OFFSET_NAME(0),
--	TREGS_OFFSET_NAME(1),
--	TREGS_OFFSET_NAME(2),
--	TREGS_OFFSET_NAME(3),
--	TREGS_OFFSET_NAME(4),
--	TREGS_OFFSET_NAME(5),
--	TREGS_OFFSET_NAME(6),
--	TREGS_OFFSET_NAME(7),
--	REG_OFFSET_END,
-+	REGS_OFFSET_NAME(pc),
-+	REGS_OFFSET_NAME(sr),
-+	REGS_OFFSET_NAME(syscall_nr),
-+	REG_OFFSET_NAME(0),
-+	REG_OFFSET_NAME(1),
-+	REG_OFFSET_NAME(2),
-+	REG_OFFSET_NAME(3),
-+	REG_OFFSET_NAME(4),
-+	REG_OFFSET_NAME(5),
-+	REG_OFFSET_NAME(6),
-+	REG_OFFSET_NAME(7),
-+	REG_OFFSET_NAME(8),
-+	REG_OFFSET_NAME(9),
-+	REG_OFFSET_NAME(10),
-+	REG_OFFSET_NAME(11),
-+	REG_OFFSET_NAME(12),
-+	REG_OFFSET_NAME(13),
-+	REG_OFFSET_NAME(14),
-+	REG_OFFSET_NAME(15),
-+	REG_OFFSET_NAME(16),
-+	REG_OFFSET_NAME(17),
-+	REG_OFFSET_NAME(18),
-+	REG_OFFSET_NAME(19),
-+	REG_OFFSET_NAME(20),
-+	REG_OFFSET_NAME(21),
-+	REG_OFFSET_NAME(22),
-+	REG_OFFSET_NAME(23),
-+	REG_OFFSET_NAME(24),
-+	REG_OFFSET_NAME(25),
-+	REG_OFFSET_NAME(26),
-+	REG_OFFSET_NAME(27),
-+	REG_OFFSET_NAME(28),
-+	REG_OFFSET_NAME(29),
-+	REG_OFFSET_NAME(30),
-+	REG_OFFSET_NAME(31),
-+	REG_OFFSET_NAME(32),
-+	REG_OFFSET_NAME(33),
-+	REG_OFFSET_NAME(34),
-+	REG_OFFSET_NAME(35),
-+	REG_OFFSET_NAME(36),
-+	REG_OFFSET_NAME(37),
-+	REG_OFFSET_NAME(38),
-+	REG_OFFSET_NAME(39),
-+	REG_OFFSET_NAME(40),
-+	REG_OFFSET_NAME(41),
-+	REG_OFFSET_NAME(42),
-+	REG_OFFSET_NAME(43),
-+	REG_OFFSET_NAME(44),
-+	REG_OFFSET_NAME(45),
-+	REG_OFFSET_NAME(46),
-+	REG_OFFSET_NAME(47),
-+	REG_OFFSET_NAME(48),
-+	REG_OFFSET_NAME(49),
-+	REG_OFFSET_NAME(50),
-+	REG_OFFSET_NAME(51),
-+	REG_OFFSET_NAME(52),
-+	REG_OFFSET_NAME(53),
-+	REG_OFFSET_NAME(54),
-+	REG_OFFSET_NAME(55),
-+	REG_OFFSET_NAME(56),
-+	REG_OFFSET_NAME(57),
-+	REG_OFFSET_NAME(58),
-+	REG_OFFSET_NAME(59),
-+	REG_OFFSET_NAME(60),
-+	REG_OFFSET_NAME(61),
-+	REG_OFFSET_NAME(62),
-+	REG_OFFSET_NAME(63),
-+	TREG_OFFSET_NAME(0),
-+	TREG_OFFSET_NAME(1),
-+	TREG_OFFSET_NAME(2),
-+	TREG_OFFSET_NAME(3),
-+	TREG_OFFSET_NAME(4),
-+	TREG_OFFSET_NAME(5),
-+	TREG_OFFSET_NAME(6),
-+	TREG_OFFSET_NAME(7),
-+	REGS_OFFSET_END,
- };
- 
- /*
-diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
-index a7bc794..2efc6aa 100644
---- a/arch/x86/kernel/ptrace.c
-+++ b/arch/x86/kernel/ptrace.c
-@@ -53,45 +53,38 @@ enum x86_regset {
- 	REGSET_IOPERM32,
- };
- 
--struct pt_regs_offset {
--	const char *name;
--	int offset;
--};
+-static inline int dma_supported(struct device *dev, u64 mask)
+-{
+-	struct dma_map_ops *ops = platform_dma_get_ops(dev);
+-	return ops->dma_supported(dev, mask);
+-}
 -
--#define REG_OFFSET_NAME(r) {.name = #r, .offset = offsetof(struct pt_regs, r)}
--#define REG_OFFSET_END {.name = NULL, .offset = 0}
+ static inline int
+ dma_set_mask (struct device *dev, u64 mask)
+ {
+diff --git a/arch/microblaze/include/asm/dma-mapping.h b/arch/microblaze/include/asm/dma-mapping.h
+index e5b8438..0aa5d8a 100644
+--- a/arch/microblaze/include/asm/dma-mapping.h
++++ b/arch/microblaze/include/asm/dma-mapping.h
+@@ -44,17 +44,6 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
+ 	return &dma_direct_ops;
+ }
  
- static const struct pt_regs_offset regoffset_table[] = {
- #ifdef CONFIG_X86_64
--	REG_OFFSET_NAME(r15),
--	REG_OFFSET_NAME(r14),
--	REG_OFFSET_NAME(r13),
--	REG_OFFSET_NAME(r12),
--	REG_OFFSET_NAME(r11),
--	REG_OFFSET_NAME(r10),
--	REG_OFFSET_NAME(r9),
--	REG_OFFSET_NAME(r8),
-+	REGS_OFFSET_NAME(r15),
-+	REGS_OFFSET_NAME(r14),
-+	REGS_OFFSET_NAME(r13),
-+	REGS_OFFSET_NAME(r12),
-+	REGS_OFFSET_NAME(r11),
-+	REGS_OFFSET_NAME(r10),
-+	REGS_OFFSET_NAME(r9),
-+	REGS_OFFSET_NAME(r8),
+-static inline int dma_supported(struct device *dev, u64 mask)
+-{
+-	struct dma_map_ops *ops = get_dma_ops(dev);
+-
+-	if (unlikely(!ops))
+-		return 0;
+-	if (!ops->dma_supported)
+-		return 1;
+-	return ops->dma_supported(dev, mask);
+-}
+-
+ static inline int dma_set_mask(struct device *dev, u64 dma_mask)
+ {
+ 	struct dma_map_ops *ops = get_dma_ops(dev);
+diff --git a/arch/mips/include/asm/dma-mapping.h b/arch/mips/include/asm/dma-mapping.h
+index 158bb36..8bf8ec3 100644
+--- a/arch/mips/include/asm/dma-mapping.h
++++ b/arch/mips/include/asm/dma-mapping.h
+@@ -31,12 +31,6 @@ static inline void dma_mark_clean(void *addr, size_t size) {}
+ 
+ #include <asm-generic/dma-mapping-common.h>
+ 
+-static inline int dma_supported(struct device *dev, u64 mask)
+-{
+-	struct dma_map_ops *ops = get_dma_ops(dev);
+-	return ops->dma_supported(dev, mask);
+-}
+-
+ static inline int
+ dma_set_mask(struct device *dev, u64 mask)
+ {
+diff --git a/arch/openrisc/include/asm/dma-mapping.h b/arch/openrisc/include/asm/dma-mapping.h
+index 7dfe9d5..8fc08b8 100644
+--- a/arch/openrisc/include/asm/dma-mapping.h
++++ b/arch/openrisc/include/asm/dma-mapping.h
+@@ -35,14 +35,15 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
+ 	return &or1k_dma_map_ops;
+ }
+ 
+-#include <asm-generic/dma-mapping-common.h>
+-
++#define HAVE_ARCH_DMA_SUPPORTED 1
+ static inline int dma_supported(struct device *dev, u64 dma_mask)
+ {
+ 	/* Support 32 bit DMA mask exclusively */
+ 	return dma_mask == DMA_BIT_MASK(32);
+ }
+ 
++#include <asm-generic/dma-mapping-common.h>
++
+ static inline int dma_set_mask(struct device *dev, u64 dma_mask)
+ {
+ 	if (!dev->dma_mask || !dma_supported(dev, dma_mask))
+diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
+index 72d05ab..e2ff85c 100644
+--- a/arch/powerpc/include/asm/dma-mapping.h
++++ b/arch/powerpc/include/asm/dma-mapping.h
+@@ -124,17 +124,6 @@ static inline void set_dma_offset(struct device *dev, dma_addr_t off)
+ 
+ #include <asm-generic/dma-mapping-common.h>
+ 
+-static inline int dma_supported(struct device *dev, u64 mask)
+-{
+-	struct dma_map_ops *dma_ops = get_dma_ops(dev);
+-
+-	if (unlikely(dma_ops == NULL))
+-		return 0;
+-	if (dma_ops->dma_supported == NULL)
+-		return 1;
+-	return dma_ops->dma_supported(dev, mask);
+-}
+-
+ extern int dma_set_mask(struct device *dev, u64 dma_mask);
+ extern int __dma_set_mask(struct device *dev, u64 dma_mask);
+ extern u64 __dma_get_required_mask(struct device *dev);
+diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
+index 3c29329..1f42489 100644
+--- a/arch/s390/include/asm/dma-mapping.h
++++ b/arch/s390/include/asm/dma-mapping.h
+@@ -27,15 +27,6 @@ static inline void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
+ 
+ #include <asm-generic/dma-mapping-common.h>
+ 
+-static inline int dma_supported(struct device *dev, u64 mask)
+-{
+-	struct dma_map_ops *dma_ops = get_dma_ops(dev);
+-
+-	if (dma_ops->dma_supported == NULL)
+-		return 1;
+-	return dma_ops->dma_supported(dev, mask);
+-}
+-
+ static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
+ {
+ 	if (!dev->dma_mask)
+diff --git a/arch/sh/include/asm/dma-mapping.h b/arch/sh/include/asm/dma-mapping.h
+index 98308c4..088f6e5 100644
+--- a/arch/sh/include/asm/dma-mapping.h
++++ b/arch/sh/include/asm/dma-mapping.h
+@@ -13,16 +13,6 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
+ 
+ #include <asm-generic/dma-mapping-common.h>
+ 
+-static inline int dma_supported(struct device *dev, u64 mask)
+-{
+-	struct dma_map_ops *ops = get_dma_ops(dev);
+-
+-	if (ops->dma_supported)
+-		return ops->dma_supported(dev, mask);
+-
+-	return 1;
+-}
+-
+ static inline int dma_set_mask(struct device *dev, u64 mask)
+ {
+ 	struct dma_map_ops *ops = get_dma_ops(dev);
+diff --git a/arch/sparc/include/asm/dma-mapping.h b/arch/sparc/include/asm/dma-mapping.h
+index 5069d13..184651b 100644
+--- a/arch/sparc/include/asm/dma-mapping.h
++++ b/arch/sparc/include/asm/dma-mapping.h
+@@ -7,6 +7,7 @@
+ 
+ #define DMA_ERROR_CODE	(~(dma_addr_t)0x0)
+ 
++#define HAVE_ARCH_DMA_SUPPORTED 1
+ int dma_supported(struct device *dev, u64 mask);
+ 
+ static inline void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
+diff --git a/arch/tile/include/asm/dma-mapping.h b/arch/tile/include/asm/dma-mapping.h
+index f8f7a05..559ed4a 100644
+--- a/arch/tile/include/asm/dma-mapping.h
++++ b/arch/tile/include/asm/dma-mapping.h
+@@ -75,12 +75,6 @@ static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
+ }
+ 
+ static inline int
+-dma_supported(struct device *dev, u64 mask)
+-{
+-	return get_dma_ops(dev)->dma_supported(dev, mask);
+-}
+-
+-static inline int
+ dma_set_mask(struct device *dev, u64 mask)
+ {
+ 	struct dma_map_ops *dma_ops = get_dma_ops(dev);
+diff --git a/arch/unicore32/include/asm/dma-mapping.h b/arch/unicore32/include/asm/dma-mapping.h
+index 175d7e3..21231c1 100644
+--- a/arch/unicore32/include/asm/dma-mapping.h
++++ b/arch/unicore32/include/asm/dma-mapping.h
+@@ -28,16 +28,6 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
+ 	return &swiotlb_dma_map_ops;
+ }
+ 
+-static inline int dma_supported(struct device *dev, u64 mask)
+-{
+-	struct dma_map_ops *dma_ops = get_dma_ops(dev);
+-
+-	if (unlikely(dma_ops == NULL))
+-		return 0;
+-
+-	return dma_ops->dma_supported(dev, mask);
+-}
+-
+ #include <asm-generic/dma-mapping-common.h>
+ 
+ static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
+diff --git a/arch/x86/include/asm/dma-mapping.h b/arch/x86/include/asm/dma-mapping.h
+index bbca62e..b1fbf58 100644
+--- a/arch/x86/include/asm/dma-mapping.h
++++ b/arch/x86/include/asm/dma-mapping.h
+@@ -43,9 +43,11 @@ static inline struct dma_map_ops *get_dma_ops(struct device *dev)
+ bool arch_dma_alloc_attrs(struct device **dev, gfp_t *gfp);
+ #define arch_dma_alloc_attrs arch_dma_alloc_attrs
+ 
++#define HAVE_ARCH_DMA_SUPPORTED 1
++extern int dma_supported(struct device *hwdev, u64 mask);
++
+ #include <asm-generic/dma-mapping-common.h>
+ 
+-extern int dma_supported(struct device *hwdev, u64 mask);
+ extern int dma_set_mask(struct device *dev, u64 mask);
+ 
+ extern void *dma_generic_alloc_coherent(struct device *dev, size_t size,
+diff --git a/include/asm-generic/dma-mapping-common.h b/include/asm-generic/dma-mapping-common.h
+index cdaa241..67fa6bc 100644
+--- a/include/asm-generic/dma-mapping-common.h
++++ b/include/asm-generic/dma-mapping-common.h
+@@ -327,4 +327,17 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
  #endif
--	REG_OFFSET_NAME(bx),
--	REG_OFFSET_NAME(cx),
--	REG_OFFSET_NAME(dx),
--	REG_OFFSET_NAME(si),
--	REG_OFFSET_NAME(di),
--	REG_OFFSET_NAME(bp),
--	REG_OFFSET_NAME(ax),
-+	REGS_OFFSET_NAME(bx),
-+	REGS_OFFSET_NAME(cx),
-+	REGS_OFFSET_NAME(dx),
-+	REGS_OFFSET_NAME(si),
-+	REGS_OFFSET_NAME(di),
-+	REGS_OFFSET_NAME(bp),
-+	REGS_OFFSET_NAME(ax),
- #ifdef CONFIG_X86_32
--	REG_OFFSET_NAME(ds),
--	REG_OFFSET_NAME(es),
--	REG_OFFSET_NAME(fs),
--	REG_OFFSET_NAME(gs),
-+	REGS_OFFSET_NAME(ds),
-+	REGS_OFFSET_NAME(es),
-+	REGS_OFFSET_NAME(fs),
-+	REGS_OFFSET_NAME(gs),
- #endif
--	REG_OFFSET_NAME(orig_ax),
--	REG_OFFSET_NAME(ip),
--	REG_OFFSET_NAME(cs),
--	REG_OFFSET_NAME(flags),
--	REG_OFFSET_NAME(sp),
--	REG_OFFSET_NAME(ss),
--	REG_OFFSET_END,
-+	REGS_OFFSET_NAME(orig_ax),
-+	REGS_OFFSET_NAME(ip),
-+	REGS_OFFSET_NAME(cs),
-+	REGS_OFFSET_NAME(flags),
-+	REGS_OFFSET_NAME(sp),
-+	REGS_OFFSET_NAME(ss),
-+	REGS_OFFSET_END,
- };
+ }
  
- /**
-diff --git a/include/linux/ptrace.h b/include/linux/ptrace.h
-index 987a73a..dbb8df1 100644
---- a/include/linux/ptrace.h
-+++ b/include/linux/ptrace.h
-@@ -383,4 +383,16 @@ extern int task_current_syscall(struct task_struct *target, long *callno,
- 				unsigned long args[6], unsigned int maxargs,
- 				unsigned long *sp, unsigned long *pc);
- 
-+#ifdef	CONFIG_HAVE_REGS_AND_STACK_ACCESS_API
++#ifndef HAVE_ARCH_DMA_SUPPORTED
++static inline int dma_supported(struct device *dev, u64 mask)
++{
++	struct dma_map_ops *ops = get_dma_ops(dev);
 +
-+#define REGS_OFFSET_NAME(r) {.name = #r, .offset = offsetof(struct pt_regs, r)}
-+#define REGS_OFFSET_END {.name = NULL, .offset = 0}
-+
-+struct pt_regs_offset {
-+	const char *name;
-+	int offset;
-+};
-+
-+#endif	/* CONFIG_HAVE_REGS_AND_STACK_ACCESS_API */
++	if (!ops)
++		return 0;
++	if (!ops->dma_supported)
++		return 1;
++	return ops->dma_supported(dev, mask);
++}
++#endif
 +
  #endif
 -- 
-1.8.1.2
+1.9.1
+
