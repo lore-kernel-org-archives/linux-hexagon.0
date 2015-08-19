@@ -1,28 +1,37 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [v2, 1/2] Move the pt_regs_offset struct definition from arch to common include file
-Date: Tue, 18 Aug 2015 20:43:30 +1000 (AEST)
-Message-ID: <20150818104330.B24DC14032B@ozlabs.org>
-References: <1437971974-2434-2-git-send-email-dave.long@linaro.org>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1437971974-2434-2-git-send-email-dave.long@linaro.org>
-Sender: linux-sh-owner@vger.kernel.org
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: provide more common DMA API functions V2
+Date: Wed, 19 Aug 2015 10:08:14 +0200
+Message-ID: <20150819080814.GA18115@lst.de>
+References: <1439795216-32189-1-git-send-email-hch@lst.de> <20150817142429.95a3965e0b35d0f35d3c4cfe@linux-foundation.org> <20150818053825.GA20771@lst.de> <20150817224552.43d7267d.akpm@linux-foundation.org> <20150818075107.GA31884@gmail.com>
+Mime-Version: 1.0
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150818075107.GA31884@gmail.com>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: "David A. Long" <dave.long@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux390@de.ibm.com, linuxppc-dev@lists.ozlabs.org, x86@kernel.org
+To: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, arnd@arndb.de, linux@arm.linux.org.uk, catalin.marinas@arm.com, will.deacon@arm.com, ysato@users.sourceforge.jp, monstr@monstr.eu, jonas@southpole.se, cmetcalf@ezchip.com, gxt@mprc.pku.edu.cn, x86@kernel.org, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 2015-27-07 at 04:39:33 UTC, "David A. Long" wrote:
-> From: "David A. Long" <dave.long@linaro.org>
+On Tue, Aug 18, 2015 at 09:51:07AM +0200, Ingo Molnar wrote:
+> I.e. shouldn't this be:
 > 
-> The pt_regs_offset structure is used for the HAVE_REGS_AND_STACK_ACCESS_API
-> feature and has identical definitions in four different arch ptrace.h
-> include files. It seems unlikely that definition would ever need to be
-> changed regardless of architecture so lets move it into
-> include/linux/ptrace.h, along with macros commonly used to access it.
+> > I'll merge these 5 patches for 4.4.  That means I'll release them into 
+> > linux-next after 4.2 is released.
+> >
+> > [...]
+> > 
+> > Linus will be releasing 4.2 in 1-2 weeks and until then, linux-next is supposed 
+> > to contain only 4.3 material.  Once 4.2 is released and the 4.3 merge window 
+> > opens, linux-next is open for 4.4 material.
+> 
+> ?
 
-Thanks for cleaning this up. Tested successfully on powerpc.
+That would make a lot more sense.  But also be said as I intended
+these as the simple part of the dma work I'd like to get into 4.3.
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-
-cheers
+Andrew, if you think it's not 4.3 material I'd rather keep them in
+my git tree for now so that I can stack additional patches I have
+in progress on top.  A non-git based tree like yours is unfortunately
+very bad for patches that are dependencies for others.
