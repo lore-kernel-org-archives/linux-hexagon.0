@@ -1,19 +1,19 @@
 From: Yang Shi <yang.shi@linaro.org>
-Subject: [PATCH 4/4] h8300: set DEBUG_KERNEL in defconfigs
-Date: Mon,  9 Nov 2015 11:21:18 -0800
-Message-ID: <1447096878-13519-5-git-send-email-yang.shi@linaro.org>
+Subject: [PATCH 1/4] m32r: remove redundant FRAME_POINTER kconfig option
+Date: Mon,  9 Nov 2015 11:21:15 -0800
+Message-ID: <1447096878-13519-2-git-send-email-yang.shi@linaro.org>
 References: <1447096878-13519-1-git-send-email-yang.shi@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro_org.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=sKxpyCLJ7rMgaSps7UpPAynPRR7/BGaBvpPRipz87TY=;
-        b=LNqDUElrRf9fGfJX3LUlcT00agCwhc3qAJX7d98uIbTEJQTvoDI7LgR0TPU5hKMR9P
-         JN8CuVI1rq0/Xi+OzhHVq4P8f0l7PDYnX2WPuGLkXIxvNyIETcwEEoR7BBqeMATQo9qg
-         U2po23OXjw7tLg4xLQbadPZPIT/0d7BKONxQEJyV9VckEkyXeXCnhAJy4ahjnNPNAl79
-         ZEIAVy/bVfPa7WP48ku9kSr7aMNxAiomAEIV++FQAebGK4fBcYev5yNxLyUu6abZr5OU
-         8HVWRXrybctt2GLtofKOEqSXAIcHiGXCQST0qUKqOqK/H0/8MRAN+Hi6quxMj5SEpo5X
-         Orjg==
+        bh=7nxuWMsWrRB847JfZXQqTjEPZP91RznmEnx0tAgK+fE=;
+        b=q7LLAIENQmy0586BrtMUsBZWlt1lHLHHpwoxb0LMGh6KB6+QAjre8uFC7hhy3GRbpH
+         LfWQyXliycbyV/IukxXD51klCgRYIQAYIHR9fXjoNsr0FQc3dJMxPVhGYfyFqoCtvbQK
+         CeBusFgesQWTPvA6kjaUAMFXZaKZZF9ccJQMFkYeBi8159PTzRCSIjivwOvvAlvwYloq
+         3MHREhqM4ScRYtYx3bSzPFNPrS/VVDhbxJqcCRdAAUrZRSzhwOopDpvOoaKNcgQLkAoQ
+         ZuR5wGIx2KORMoeAj6fSj3iQ5REdd0oFjENnxIvID5+cR7ukjL30q6XmhBGMAdbrW50v
+         9QVA==
 In-Reply-To: <1447096878-13519-1-git-send-email-yang.shi@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
@@ -23,42 +23,31 @@ Content-Transfer-Encoding: 7bit
 To: linux-kernel@vger.kernel.org
 Cc: uclinux-h8-devel@lists.sourceforge.jp, ysato@users.sourceforge.jp, hskinnemoen@gmail.com, egtvedt@samfundet.no, linux-hexagon@vger.kernel.org, rkuo@codeaurora.org, mingo@redhat.com, yang.shi@linaro.org
 
-h8300 has FRAME_POINTER selected by default, but it depends on DEBUG_KERNEL,
-so set DEBUG_KERNEL in defconfigs.
+FRAME_POINTER is defined in lib/Kconfig.debug, it is unnecessary to redefine
+it in arch/m32r/Kconfig.debug. Actually, the one defined in arch directory
+is never used.
 
 Signed-off-by: Yang Shi <yang.shi@linaro.org>
 ---
- arch/h8300/configs/edosk2674_defconfig  | 1 +
- arch/h8300/configs/h8300h-sim_defconfig | 1 +
- arch/h8300/configs/h8s-sim_defconfig    | 1 +
- 3 files changed, 3 insertions(+)
+ arch/m32r/Kconfig.debug | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/arch/h8300/configs/edosk2674_defconfig b/arch/h8300/configs/edosk2674_defconfig
-index 29fda12..f497cb1 100644
---- a/arch/h8300/configs/edosk2674_defconfig
-+++ b/arch/h8300/configs/edosk2674_defconfig
-@@ -47,3 +47,4 @@ CONFIG_SERIAL_SH_SCI_CONSOLE=y
- CONFIG_DEBUG_INFO=y
- # CONFIG_ENABLE_WARN_DEPRECATED is not set
- # CONFIG_ENABLE_MUST_CHECK is not set
-+CONFIG_DEBUG_KERNEL=y
-diff --git a/arch/h8300/configs/h8300h-sim_defconfig b/arch/h8300/configs/h8300h-sim_defconfig
-index 067bfe9..0b80883 100644
---- a/arch/h8300/configs/h8300h-sim_defconfig
-+++ b/arch/h8300/configs/h8300h-sim_defconfig
-@@ -47,3 +47,4 @@ CONFIG_SERIAL_SH_SCI_CONSOLE=y
- CONFIG_DEBUG_INFO=y
- # CONFIG_ENABLE_WARN_DEPRECATED is not set
- # CONFIG_ENABLE_MUST_CHECK is not set
-+CONFIG_DEBUG_KERNEL=y
-diff --git a/arch/h8300/configs/h8s-sim_defconfig b/arch/h8300/configs/h8s-sim_defconfig
-index 29fda12..f497cb1 100644
---- a/arch/h8300/configs/h8s-sim_defconfig
-+++ b/arch/h8300/configs/h8s-sim_defconfig
-@@ -47,3 +47,4 @@ CONFIG_SERIAL_SH_SCI_CONSOLE=y
- CONFIG_DEBUG_INFO=y
- # CONFIG_ENABLE_WARN_DEPRECATED is not set
- # CONFIG_ENABLE_MUST_CHECK is not set
-+CONFIG_DEBUG_KERNEL=y
+diff --git a/arch/m32r/Kconfig.debug b/arch/m32r/Kconfig.debug
+index 6c612b7..a991aeb2 100644
+--- a/arch/m32r/Kconfig.debug
++++ b/arch/m32r/Kconfig.debug
+@@ -10,12 +10,4 @@ config DEBUG_PAGEALLOC
+ 	  This results in a large slowdown, but helps to find certain types
+ 	  of memory corruptions.
+ 
+-config FRAME_POINTER
+-	bool "Compile the kernel with frame pointers"
+-	help
+-	  If you say Y here the resulting kernel image will be slightly larger
+-	  and slower, but it will give very useful debugging information.
+-	  If you don't debug the kernel, you can say N, but we may not be able
+-	  to solve problems without frame pointers.
+-
+ endmenu
 -- 
 2.0.2
