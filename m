@@ -1,133 +1,55 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 3.12 035/123] arc,hexagon: Delete asm/barrier.h
-Date: Wed, 28 Oct 2015 14:50:52 +0100
-Message-ID: <0cc61f06057ad62801bf72b384850f1f201dd034.1446021555.git.jslaby@suse.cz>
-References: <a6f39d84d08b0e9d7f7e8bcb3d845ed676dd4e52.1446021555.git.jslaby@suse.cz>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a6f39d84d08b0e9d7f7e8bcb3d845ed676dd4e52.1446021555.git.jslaby@suse.cz>
-In-Reply-To: <cover.1446021555.git.jslaby@suse.cz>
-References: <cover.1446021555.git.jslaby@suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Yang Shi <yang.shi@linaro.org>
+Subject: [PATCH 0/4] cleanup FRAME_POINTER kconfig option use
+Date: Mon,  9 Nov 2015 11:21:14 -0800
+Message-ID: <1447096878-13519-1-git-send-email-yang.shi@linaro.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro_org.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id;
+        bh=tBHoGmCJGLAQFR6zfiqtaV/7xSxpXLG3cZp/xZfBsVE=;
+        b=jIWBmFR8BzEgNF4+GzNgqLr/iRjg2mGIKsedCuWwJxIpf9bmemoitMNwVkrcZklA12
+         dQAR1zIpvrDAyCKBHWBmWGVEDQCzYC1ADe3K/T5/eHr/3FXnzdu0HBFofle8I1+Y1Epm
+         KiCbKq4vXiyd/7iv4qJeU9cnUOliIPa56DtugK8Whr03YpyV3OQKqa7Y7WOPdVbx+jmL
+         VzKZA1ESBo1fONtNj3lRNxsn3BI7COja1WLhnPouri5i8sNigLxrK0DAH1XALDbqfu5Z
+         75dET0tN2WiUg+oa/cwjo34fRtzKmR+kXDqTMlPLVp5HCXymBj5j0vdMLPIDUzksuO/u
+         xuQw==
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: stable@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Linus Torvalds <torvalds@linux-foundation.org>, Richard Kuo <rkuo@codeaurora.org>, Vineet Gupta <vgupta@synopsys.com>, linux-hexagon@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jslaby@suse.cz>
+To: linux-kernel@vger.kernel.org
+Cc: uclinux-h8-devel@lists.sourceforge.jp, ysato@users.sourceforge.jp, hskinnemoen@gmail.com, egtvedt@samfundet.no, linux-hexagon@vger.kernel.org, rkuo@codeaurora.org, mingo@redhat.com, yang.shi@linaro.org
 
-From: Peter Zijlstra <peterz@infradead.org>
 
-3.12-stable review patch.  If anyone has any objections, please let me know.
+When I cleanup FRME_POINTER use for arm64 arch, I found some other
+architectures need the similar cleanup. So, I came up with the patch series
+for them.
 
-===============
+Yang Shi (4):
+      m32r: remove redundant FRAME_POINTER kconfig option
+      hexagon: select ARCH_WANT_FRAME_POINTERS instead of defining FRAME_POINTER
+      avr32: select ARCH_WANT_FRAME_POINTERS and set DEBUG_KERNEL in defconfigs
+      h8300: set DEBUG_KERNEL in defconfigs
 
-commit 2ab08ee9f0a4eba27c7c4ce0b6d5118e8a18554b upstream.
-
-Both already use asm-generic/barrier.h as per their
-include/asm/Kbuild. Remove the stale files.
-
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Acked-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Link: http://lkml.kernel.org/n/tip-c7vlkshl3tblim0o8z2p70kt@git.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Richard Kuo <rkuo@codeaurora.org>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: linux-hexagon@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
----
- arch/arc/include/asm/barrier.h     | 37 -------------------------------------
- arch/hexagon/include/asm/barrier.h | 37 -------------------------------------
- 2 files changed, 74 deletions(-)
- delete mode 100644 arch/arc/include/asm/barrier.h
- delete mode 100644 arch/hexagon/include/asm/barrier.h
-
-diff --git a/arch/arc/include/asm/barrier.h b/arch/arc/include/asm/barrier.h
-deleted file mode 100644
-index c32245c3d1e9..000000000000
---- a/arch/arc/include/asm/barrier.h
-+++ /dev/null
-@@ -1,37 +0,0 @@
--/*
-- * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-- */
--
--#ifndef __ASM_BARRIER_H
--#define __ASM_BARRIER_H
--
--#ifndef __ASSEMBLY__
--
--/* TODO-vineetg: Need to see what this does, don't we need sync anywhere */
--#define mb() __asm__ __volatile__ ("" : : : "memory")
--#define rmb() mb()
--#define wmb() mb()
--#define set_mb(var, value)  do { var = value; mb(); } while (0)
--#define set_wmb(var, value) do { var = value; wmb(); } while (0)
--#define read_barrier_depends()  mb()
--
--/* TODO-vineetg verify the correctness of macros here */
--#ifdef CONFIG_SMP
--#define smp_mb()        mb()
--#define smp_rmb()       rmb()
--#define smp_wmb()       wmb()
--#else
--#define smp_mb()        barrier()
--#define smp_rmb()       barrier()
--#define smp_wmb()       barrier()
--#endif
--
--#define smp_read_barrier_depends()      do { } while (0)
--
--#endif
--
--#endif
-diff --git a/arch/hexagon/include/asm/barrier.h b/arch/hexagon/include/asm/barrier.h
-deleted file mode 100644
-index 4e863daea25b..000000000000
---- a/arch/hexagon/include/asm/barrier.h
-+++ /dev/null
-@@ -1,37 +0,0 @@
--/*
-- * Memory barrier definitions for the Hexagon architecture
-- *
-- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 and
-- * only version 2 as published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-- * 02110-1301, USA.
-- */
--
--#ifndef _ASM_BARRIER_H
--#define _ASM_BARRIER_H
--
--#define rmb()				barrier()
--#define read_barrier_depends()		barrier()
--#define wmb()				barrier()
--#define mb()				barrier()
--#define smp_rmb()			barrier()
--#define smp_read_barrier_depends()	barrier()
--#define smp_wmb()			barrier()
--#define smp_mb()			barrier()
--
--/*  Set a value and use a memory barrier.  Used by the scheduler somewhere.  */
--#define set_mb(var, value) \
--	do { var = value; mb(); } while (0)
--
--#endif /* _ASM_BARRIER_H */
--- 
-2.6.2
+ arch/avr32/Kconfig                                  | 1 +
+ arch/avr32/configs/atngw100_defconfig               | 1 +
+ arch/avr32/configs/atngw100_evklcd100_defconfig     | 1 +
+ arch/avr32/configs/atngw100_evklcd101_defconfig     | 1 +
+ arch/avr32/configs/atngw100_mrmt_defconfig          | 1 +
+ arch/avr32/configs/atngw100mkii_defconfig           | 1 +
+ arch/avr32/configs/atngw100mkii_evklcd100_defconfig | 1 +
+ arch/avr32/configs/atngw100mkii_evklcd101_defconfig | 1 +
+ arch/avr32/configs/atstk1002_defconfig              | 1 +
+ arch/avr32/configs/atstk1003_defconfig              | 1 +
+ arch/avr32/configs/atstk1004_defconfig              | 1 +
+ arch/avr32/configs/atstk1006_defconfig              | 1 +
+ arch/avr32/configs/favr-32_defconfig                | 1 +
+ arch/avr32/configs/hammerhead_defconfig             | 1 +
+ arch/avr32/configs/mimc200_defconfig                | 1 +
+ arch/h8300/configs/edosk2674_defconfig              | 1 +
+ arch/h8300/configs/h8300h-sim_defconfig             | 1 +
+ arch/h8300/configs/h8s-sim_defconfig                | 1 +
+ arch/hexagon/Kconfig                                | 4 +---
+ arch/m32r/Kconfig.debug                             | 8 --------
+ 20 files changed, 19 insertions(+), 11 deletions(-)
