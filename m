@@ -1,58 +1,51 @@
-From: Yang Shi <yang.shi@linaro.org>
-Subject: [PATCH 2/4] hexagon: select ARCH_WANT_FRAME_POINTERS instead of defining FRAME_POINTER
-Date: Mon,  9 Nov 2015 11:21:16 -0800
-Message-ID: <1447096878-13519-3-git-send-email-yang.shi@linaro.org>
+From: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
+Subject: Re: [PATCH 3/4] avr32: select ARCH_WANT_FRAME_POINTERS and set
+ DEBUG_KERNEL in defconfigs
+Date: Tue, 10 Nov 2015 07:43:08 +0100
+Message-ID: <20151110064308.GA22108@samfundet.no>
 References: <1447096878-13519-1-git-send-email-yang.shi@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro_org.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=gjO+LxlLUoFXv9zohMlSYJzudM1CFMIjjm1iYPsJSJA=;
-        b=KeckGm8H2Bj6hrP5gglEYBxO3/WjQG9TiqzQLWMCNZCpp3rpB06uRSrcsIWwfmnU6V
-         /zyW8bqudZ1kZMElBWRzsjWe9JwXwOuU1J7JCnDUtCer8o0jfkTd6tIEby1YOC9JSEG+
-         4EyK8mng6bQNubwQ/VygVCFdPNBNjK2IbAGkGlFfA6icNoCtF7mDi6+NnCzH09+y7eV0
-         Bn7+0KF+RUmuy8u/vyQL6AjTK1R+NbcDAl2Bwi2EFdpt8c+EnqmDd0EhCpQC+51u9ne+
-         2yFtjFvfAme1sRbkSDgW/krdyhVr/Z+PjUxR3mq8Q/bESvybyaF2nZaXKns0ktupXKXB
-         MeyQ==
-In-Reply-To: <1447096878-13519-1-git-send-email-yang.shi@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
+ <1447096878-13519-4-git-send-email-yang.shi@linaro.org>
+Mime-Version: 1.0
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1447096878-13519-4-git-send-email-yang.shi@linaro.org>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: linux-kernel@vger.kernel.org
-Cc: uclinux-h8-devel@lists.sourceforge.jp, ysato@users.sourceforge.jp, hskinnemoen@gmail.com, egtvedt@samfundet.no, linux-hexagon@vger.kernel.org, rkuo@codeaurora.org, mingo@redhat.com, yang.shi@linaro.org
+To: Yang Shi <yang.shi@linaro.org>
+Cc: linux-kernel@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, ysato@users.sourceforge.jp, hskinnemoen@gmail.com, linux-hexagon@vger.kernel.org, rkuo@codeaurora.org, mingo@redhat.com
 
-FRAME_POINTER is set by default if ARCH_WANT_FRAME_POINTERS is selcted,
-this is the standard way to include FRAME_POINTER used by all of other
-architectures.
+Around Mon 09 Nov 2015 11:21:17 -0800 or thereabout, Yang Shi wrote:
+> FRAME_POINTER is set by default if ARCH_WANT_FRAME_POINTERS and DEBUG_KERNEL
+> are  selcted, this is the standard way to include FRAME_POINTER used by all
+> of other architectures.
+> 
+> And, set DEBUG_KERNEL=y in defconfigs otherwise FRAME_POINTER won't be enabled
+> at all.
+> 
+> Signed-off-by: Yang Shi <yang.shi@linaro.org>
+> ---
+>  arch/avr32/Kconfig                                  | 1 +
+>  arch/avr32/configs/atngw100_defconfig               | 1 +
+>  arch/avr32/configs/atngw100_evklcd100_defconfig     | 1 +
+>  arch/avr32/configs/atngw100_evklcd101_defconfig     | 1 +
+>  arch/avr32/configs/atngw100_mrmt_defconfig          | 1 +
+>  arch/avr32/configs/atngw100mkii_defconfig           | 1 +
+>  arch/avr32/configs/atngw100mkii_evklcd100_defconfig | 1 +
+>  arch/avr32/configs/atngw100mkii_evklcd101_defconfig | 1 +
+>  arch/avr32/configs/atstk1002_defconfig              | 1 +
+>  arch/avr32/configs/atstk1003_defconfig              | 1 +
+>  arch/avr32/configs/atstk1004_defconfig              | 1 +
+>  arch/avr32/configs/atstk1006_defconfig              | 1 +
+>  arch/avr32/configs/favr-32_defconfig                | 1 +
+>  arch/avr32/configs/hammerhead_defconfig             | 1 +
+>  arch/avr32/configs/mimc200_defconfig                | 1 +
+>  15 files changed, 15 insertions(+)
 
-Signed-off-by: Yang Shi <yang.shi@linaro.org>
----
- arch/hexagon/Kconfig | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+<snipp diff>
 
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index 4dc89d1..87d6dc6 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -28,6 +28,7 @@ config HEXAGON
- 	select MODULES_USE_ELF_RELA
- 	select GENERIC_CPU_DEVICES
- 	select HAVE_DMA_ATTRS
-+	select ARCH_WANT_FRAME_POINTERS
- 	---help---
- 	  Qualcomm Hexagon is a processor architecture designed for high
- 	  performance and low power across a wide variety of applications.
-@@ -37,9 +38,6 @@ config HEXAGON_PHYS_OFFSET
- 	---help---
- 	  Platforms that don't load the kernel at zero set this.
- 
--config FRAME_POINTER
--	def_bool y
--
- config LOCKDEP_SUPPORT
- 	def_bool y
- 
+Acked-by: Hans-Christian Egtvedt <egtvedt@samfundet.no>
+
 -- 
-2.0.2
+Best regards, Hans-Christian Noren Egtvedt
