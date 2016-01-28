@@ -1,51 +1,51 @@
-From: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
-Subject: Re: [PATCH 3/4] avr32: select ARCH_WANT_FRAME_POINTERS and set
- DEBUG_KERNEL in defconfigs
-Date: Tue, 10 Nov 2015 07:43:08 +0100
-Message-ID: <20151110064308.GA22108@samfundet.no>
-References: <1447096878-13519-1-git-send-email-yang.shi@linaro.org>
- <1447096878-13519-4-git-send-email-yang.shi@linaro.org>
-Mime-Version: 1.0
+From: Jeffrey Merkey <jeffmerkey@gmail.com>
+Subject: [PATCH 26/31] Add debugger entry points for HEXAGON
+Date: Thu, 28 Jan 2016 12:47:34 -0700
+Message-ID: <1454010454-29483-1-git-send-email-jeffmerkey@gmail.com>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1447096878-13519-4-git-send-email-yang.shi@linaro.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=from:to:cc:subject:date:message-id;
+        bh=ckhTUnr4jBPdMZ6Vxtosmrr303Xfph3d0ECtAIkI5cU=;
+        b=TcWoRWanEK9xNancSfilKDzP65t3N+sWiTo/KBsJNouPaC6RH6FrE8napR26WE0Ej2
+         U1XJJQs9hZPiXh/Li/A4/rC9h5yeEapb4fnAEl+Kg8lfQlQBlYWjUFGSGz+kiGXKfrZu
+         Ta7q036y6xxvo/UMaReoYgEszkC/pa9cGyGwB9uHa2t1ncjlCuvf6K8zLxRZMmPqSapa
+         x7pM10JfIMvumJti1p40zkFItolLOE/I7kTi05ANebTyq/P0zFQd3G5peSnFiUq11R1P
+         OZ8UXEaIcdJX+kJUgYqFmh8CITewbrm63+bk++bjqr3guzG3ne0ckIoE6KBu48l+Pni0
+         C9qg==
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Yang Shi <yang.shi@linaro.org>
-Cc: linux-kernel@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, ysato@users.sourceforge.jp, hskinnemoen@gmail.com, linux-hexagon@vger.kernel.org, rkuo@codeaurora.org, mingo@redhat.com
+To: linux-kernel@vger.kernel.org
+Cc: rkuo@codeaurora.org, linux.mdb@gmail.com, linux-hexagon@vger.kernel.org
 
-Around Mon 09 Nov 2015 11:21:17 -0800 or thereabout, Yang Shi wrote:
-> FRAME_POINTER is set by default if ARCH_WANT_FRAME_POINTERS and DEBUG_KERNEL
-> are  selcted, this is the standard way to include FRAME_POINTER used by all
-> of other architectures.
-> 
-> And, set DEBUG_KERNEL=y in defconfigs otherwise FRAME_POINTER won't be enabled
-> at all.
-> 
-> Signed-off-by: Yang Shi <yang.shi@linaro.org>
-> ---
->  arch/avr32/Kconfig                                  | 1 +
->  arch/avr32/configs/atngw100_defconfig               | 1 +
->  arch/avr32/configs/atngw100_evklcd100_defconfig     | 1 +
->  arch/avr32/configs/atngw100_evklcd101_defconfig     | 1 +
->  arch/avr32/configs/atngw100_mrmt_defconfig          | 1 +
->  arch/avr32/configs/atngw100mkii_defconfig           | 1 +
->  arch/avr32/configs/atngw100mkii_evklcd100_defconfig | 1 +
->  arch/avr32/configs/atngw100mkii_evklcd101_defconfig | 1 +
->  arch/avr32/configs/atstk1002_defconfig              | 1 +
->  arch/avr32/configs/atstk1003_defconfig              | 1 +
->  arch/avr32/configs/atstk1004_defconfig              | 1 +
->  arch/avr32/configs/atstk1006_defconfig              | 1 +
->  arch/avr32/configs/favr-32_defconfig                | 1 +
->  arch/avr32/configs/hammerhead_defconfig             | 1 +
->  arch/avr32/configs/mimc200_defconfig                | 1 +
->  15 files changed, 15 insertions(+)
+This patch series adds an export which can be set by system debuggers to
+direct the hard lockup and soft lockup detector to trigger a breakpoint
+exception and enter a debugger if one is active.  It is assumed that if
+someone sets this variable, then an breakpoint handler of some sort will
+be actively loaded or registered via the notify die handler chain.
 
-<snipp diff>
+This addition is extremely useful for debugging hard and soft lockups
+real time and quickly from a console debugger.
 
-Acked-by: Hans-Christian Egtvedt <egtvedt@samfundet.no>
+Signed-off-by: Jeffrey Merkey <jeffmerkey@gmail.com>
+---
+ arch/hexagon/include/asm/kdebug.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+ create mode 100644 arch/hexagon/include/asm/kdebug.h
 
+diff --git a/arch/hexagon/include/asm/kdebug.h b/arch/hexagon/include/asm/kdebug.h
+new file mode 100644
+index 0000000..2014f33
+--- /dev/null
++++ b/arch/hexagon/include/asm/kdebug.h
+@@ -0,0 +1,5 @@
++
++static inline void arch_breakpoint(void)
++{
++	asm("trap0(#0xDB)");
++}
 -- 
-Best regards, Hans-Christian Noren Egtvedt
+1.8.3.1
