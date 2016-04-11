@@ -1,20 +1,16 @@
-From: zengzhaoxiu@163.com
-Subject: [PATCH v2 02/30] Include generic parity.h in some architectures'
- bitops.h
-Date: Wed,  6 Apr 2016 16:41:26 +0800
-Message-ID: <1459932086-6394-1-git-send-email-zengzhaoxiu@163.com>
+From: Alexey Brodkin <Alexey.Brodkin@synopsys.com>
+Subject: Re: [PATCH v2 02/30] Include generic parity.h in some
+ architectures' bitops.h
+Date: Mon, 11 Apr 2016 17:31:47 +0000
+Message-ID: <1460395905.5119.43.camel@synopsys.com>
 References: <57033DBB.6060600@gmail.com>
+ <1459932086-6394-1-git-send-email-zengzhaoxiu@163.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
- s=s110527; h=From:Subject:Date:Message-Id; bh=q+tzrUaLEqZ6qMVuWp
- bMeXM1a9IWDYjsnUHBwYbXRLU=; b=NUhwMds2+0TD+2QLLWVRO3OPSuC7c21hGe
- 4iWZ2EWd/b8U+SENwwrLLMA4UUKGeFnCeHEALbDRIzoSGvpcwWgiL3i8UHMokqdI
- vruvORvu4+8Lmf+W7hNRb6tFMndRgRLbp/QclC4mek8iSNTITb1KtuimO5wmAiOS
- vMth8BSDc=
-In-Reply-To: <57033DBB.6060600@gmail.com>
+In-Reply-To: <1459932086-6394-1-git-send-email-zengzhaoxiu@163.com>
+Content-Language: en-US
+Content-ID: <73E3AD6D2661E84D82658B32CA39C6C3@internal.synopsys.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
@@ -25,250 +21,39 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
 Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: vgupta@synopsys.com, linux@arm.linux.org.uk, catalin.marinas@arm.com, will.deacon@arm.com, hskinnemoen@gmail.com, egtvedt@samfundet.no, msalter@redhat.com, a-jacquiot@ti.com, starvik@axis.com, jesper.nilsson@axis.com, ysato@users.sourceforge.jp, rkuo@codeaurora.org, geert@linux-m68k.org, james.hogan@imgtec.com, dhowells@redhat.com, yasutake.koichi@jp.panasonic.com, jonas@southpole.se, jejb@parisc-linux.org, deller@gmx.de, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, dalias@libc.org, chris@zankel.net, jcmvbkbc@gmail.com, peterz@infradead.org, yamada.masahiro@socionext.com, tglx@linutronix.de, brueckner@linux.vnet.ibm.com
-Cc: uclinux-h8-devel@lists.sourceforge.jp, linux-s390@vger.kernel.org, linux-am33-list@redhat.com, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-parisc@vger.kernel.org, linux@lists.openrisc.net, linux-snps-arc@lists.infradead.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+To: "zengzhaoxiu@163.com" <zengzhaoxiu@163.com>
+Cc: "dalias@libc.org" <dalias@libc.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "peterz@infradead.org" <peterz@infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "dhowells@redhat.com" <dhowells@redhat.com>, "jcmvbkbc@gmail.com" <jcmvbkbc@gmail.com>, "brueckner@linux.vnet.ibm.com" <brueckner@linux.vnet.ibm.com>, "linux@lists.openrisc.net" <linux@lists.openrisc.net>, "egtvedt@samfundet.no" <egtvedt@samfundet.no>, "jonas@southpole.se" <jonas@southpole.se>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "jesper.nilsson@axis.com" <jesper.nilsson@axis.com>, "linux-am33-list@redhat.com" <linux-am33-list@redhat.com>, "linux@arm.linux.org.uk" <linux@arm.linux.org.uk>, "linux-c6x-dev@linux-c6x.org" <linux-c6x-dev@linux-c6x.org>, "ysato@users.sourceforge.jp" <ysato@users.sourceforge.jp>, lin
 
-From: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
-
-Use the generic version
-
-Signed-off-by: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
----
- arch/arc/include/asm/bitops.h      | 1 +
- arch/arm/include/asm/bitops.h      | 1 +
- arch/arm64/include/asm/bitops.h    | 1 +
- arch/avr32/include/asm/bitops.h    | 1 +
- arch/c6x/include/asm/bitops.h      | 1 +
- arch/cris/include/asm/bitops.h     | 1 +
- arch/frv/include/asm/bitops.h      | 1 +
- arch/h8300/include/asm/bitops.h    | 1 +
- arch/hexagon/include/asm/bitops.h  | 1 +
- arch/m32r/include/asm/bitops.h     | 1 +
- arch/m68k/include/asm/bitops.h     | 1 +
- arch/metag/include/asm/bitops.h    | 1 +
- arch/mn10300/include/asm/bitops.h  | 1 +
- arch/openrisc/include/asm/bitops.h | 1 +
- arch/parisc/include/asm/bitops.h   | 1 +
- arch/s390/include/asm/bitops.h     | 1 +
- arch/sh/include/asm/bitops.h       | 1 +
- arch/xtensa/include/asm/bitops.h   | 1 +
- 18 files changed, 18 insertions(+)
-
-diff --git a/arch/arc/include/asm/bitops.h b/arch/arc/include/asm/bitops.h
-index 0352fb8..7967e47 100644
---- a/arch/arc/include/asm/bitops.h
-+++ b/arch/arc/include/asm/bitops.h
-@@ -370,6 +370,7 @@ static inline __attribute__ ((const)) int __ffs(unsigned long x)
- #define ffz(x)	__ffs(~(x))
- 
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/lock.h>
-diff --git a/arch/arm/include/asm/bitops.h b/arch/arm/include/asm/bitops.h
-index e943e6c..99f28a6 100644
---- a/arch/arm/include/asm/bitops.h
-+++ b/arch/arm/include/asm/bitops.h
-@@ -313,6 +313,7 @@ static inline unsigned long __ffs(unsigned long x)
- 
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #ifdef __ARMEB__
-diff --git a/arch/arm64/include/asm/bitops.h b/arch/arm64/include/asm/bitops.h
-index 9c19594..eac4965 100644
---- a/arch/arm64/include/asm/bitops.h
-+++ b/arch/arm64/include/asm/bitops.h
-@@ -44,6 +44,7 @@ extern int test_and_change_bit(int nr, volatile unsigned long *p);
- 
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #include <asm-generic/bitops/non-atomic.h>
-diff --git a/arch/avr32/include/asm/bitops.h b/arch/avr32/include/asm/bitops.h
-index 910d537..9f4a2ce 100644
---- a/arch/avr32/include/asm/bitops.h
-+++ b/arch/avr32/include/asm/bitops.h
-@@ -298,6 +298,7 @@ static inline int ffs(unsigned long word)
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- extern unsigned long find_next_zero_bit_le(const void *addr,
-diff --git a/arch/c6x/include/asm/bitops.h b/arch/c6x/include/asm/bitops.h
-index f0ab012..94eb0d1 100644
---- a/arch/c6x/include/asm/bitops.h
-+++ b/arch/c6x/include/asm/bitops.h
-@@ -87,6 +87,7 @@ static inline int ffs(int x)
- 
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #include <asm-generic/bitops/atomic.h>
-diff --git a/arch/cris/include/asm/bitops.h b/arch/cris/include/asm/bitops.h
-index 8062cb5..06bc246 100644
---- a/arch/cris/include/asm/bitops.h
-+++ b/arch/cris/include/asm/bitops.h
-@@ -36,6 +36,7 @@
- #include <asm-generic/bitops/__fls.h>
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/lock.h>
- 
-diff --git a/arch/frv/include/asm/bitops.h b/arch/frv/include/asm/bitops.h
-index 0df8e95..f2a7ee8 100644
---- a/arch/frv/include/asm/bitops.h
-+++ b/arch/frv/include/asm/bitops.h
-@@ -314,6 +314,7 @@ int __ilog2_u64(u64 n)
- 
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #include <asm-generic/bitops/le.h>
-diff --git a/arch/h8300/include/asm/bitops.h b/arch/h8300/include/asm/bitops.h
-index 05999ab..e392db2 100644
---- a/arch/h8300/include/asm/bitops.h
-+++ b/arch/h8300/include/asm/bitops.h
-@@ -172,6 +172,7 @@ static inline unsigned long __ffs(unsigned long word)
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #include <asm-generic/bitops/le.h>
- #include <asm-generic/bitops/ext2-atomic.h>
-diff --git a/arch/hexagon/include/asm/bitops.h b/arch/hexagon/include/asm/bitops.h
-index 5e4a59b..2df614e 100644
---- a/arch/hexagon/include/asm/bitops.h
-+++ b/arch/hexagon/include/asm/bitops.h
-@@ -290,6 +290,7 @@ static inline unsigned long __fls(unsigned long word)
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- 
- #include <asm-generic/bitops/le.h>
- #include <asm-generic/bitops/ext2-atomic.h>
-diff --git a/arch/m32r/include/asm/bitops.h b/arch/m32r/include/asm/bitops.h
-index 86ba2b4..e3cf46b 100644
---- a/arch/m32r/include/asm/bitops.h
-+++ b/arch/m32r/include/asm/bitops.h
-@@ -259,6 +259,7 @@ static __inline__ int test_and_change_bit(int nr, volatile void * addr)
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/ffs.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #endif /* __KERNEL__ */
-diff --git a/arch/m68k/include/asm/bitops.h b/arch/m68k/include/asm/bitops.h
-index b4a9b0d..fd673ea 100644
---- a/arch/m68k/include/asm/bitops.h
-+++ b/arch/m68k/include/asm/bitops.h
-@@ -519,6 +519,7 @@ static inline int __fls(int x)
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #endif /* __KERNEL__ */
- 
-diff --git a/arch/metag/include/asm/bitops.h b/arch/metag/include/asm/bitops.h
-index 2671134..ad13087 100644
---- a/arch/metag/include/asm/bitops.h
-+++ b/arch/metag/include/asm/bitops.h
-@@ -118,6 +118,7 @@ static inline int test_and_change_bit(unsigned int bit,
- #include <asm-generic/bitops/__fls.h>
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/le.h>
-diff --git a/arch/mn10300/include/asm/bitops.h b/arch/mn10300/include/asm/bitops.h
-index fe6f8e2..60761b7 100644
---- a/arch/mn10300/include/asm/bitops.h
-+++ b/arch/mn10300/include/asm/bitops.h
-@@ -225,6 +225,7 @@ int ffs(int x)
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/ext2-atomic-setbit.h>
- #include <asm-generic/bitops/le.h>
- 
-diff --git a/arch/openrisc/include/asm/bitops.h b/arch/openrisc/include/asm/bitops.h
-index 3003cda..8c97642 100644
---- a/arch/openrisc/include/asm/bitops.h
-+++ b/arch/openrisc/include/asm/bitops.h
-@@ -43,6 +43,7 @@
- #include <asm-generic/bitops/sched.h>
- #include <asm/bitops/ffs.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #include <asm-generic/bitops/atomic.h>
-diff --git a/arch/parisc/include/asm/bitops.h b/arch/parisc/include/asm/bitops.h
-index 3f9406d..867ba10 100644
---- a/arch/parisc/include/asm/bitops.h
-+++ b/arch/parisc/include/asm/bitops.h
-@@ -211,6 +211,7 @@ static __inline__ int fls(int x)
- #include <asm-generic/bitops/__fls.h>
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #include <asm-generic/bitops/sched.h>
- 
-diff --git a/arch/s390/include/asm/bitops.h b/arch/s390/include/asm/bitops.h
-index 8043f10..198eead 100644
---- a/arch/s390/include/asm/bitops.h
-+++ b/arch/s390/include/asm/bitops.h
-@@ -460,6 +460,7 @@ static inline int fls(int word)
- #include <asm-generic/bitops/ffz.h>
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/le.h>
- #include <asm-generic/bitops/ext2-atomic-setbit.h>
-diff --git a/arch/sh/include/asm/bitops.h b/arch/sh/include/asm/bitops.h
-index fc8e652..4bf0c35 100644
---- a/arch/sh/include/asm/bitops.h
-+++ b/arch/sh/include/asm/bitops.h
-@@ -86,6 +86,7 @@ static inline unsigned long ffz(unsigned long word)
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/ffs.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/le.h>
-diff --git a/arch/xtensa/include/asm/bitops.h b/arch/xtensa/include/asm/bitops.h
-index 3f44fa2..981fa83 100644
---- a/arch/xtensa/include/asm/bitops.h
-+++ b/arch/xtensa/include/asm/bitops.h
-@@ -229,6 +229,7 @@ test_and_change_bit(unsigned int bit, volatile unsigned long *p)
- #include <asm-generic/bitops/ext2-atomic-setbit.h>
- 
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #include <asm-generic/bitops/sched.h>
- 
--- 
-2.5.0
+SGkrQUtBLVpoYW94aXUsCgpPbiBXZWQsIDIwMTYtMDQtMDYgYXQgMTY6NDEgKy0wODAwLCB6ZW5n
+emhhb3hpdUAxNjMuY29tIHdyb3RlOgo+IEZyb206IFpoYW94aXUgWmVuZyA8emhhb3hpdS56ZW5n
+QGdtYWlsLmNvbT4KPiAKPiBVc2UgdGhlIGdlbmVyaWMgdmVyc2lvbgo+IAo+IFNpZ25lZC1vZmYt
+Ynk6IFpoYW94aXUgWmVuZyA8emhhb3hpdS56ZW5nQGdtYWlsLmNvbT4KPiAtLS0KPiArQUtBLWFy
+Y2gvYXJjL2luY2x1ZGUvYXNtL2JpdG9wcy5oK0FLQUFvQUNnQUtBQW9BQ2d8IDEgKy0KPiArQUtB
+LWFyY2gvYXJtL2luY2x1ZGUvYXNtL2JpdG9wcy5oK0FLQUFvQUNnQUtBQW9BQ2d8IDEgKy0KPiAr
+QUtBLWFyY2gvYXJtNjQvaW5jbHVkZS9hc20vYml0b3BzLmgrQUtBQW9BQ2dBS0F8IDEgKy0KPiAr
+QUtBLWFyY2gvYXZyMzIvaW5jbHVkZS9hc20vYml0b3BzLmgrQUtBQW9BQ2dBS0F8IDEgKy0KPiAr
+QUtBLWFyY2gvYzZ4L2luY2x1ZGUvYXNtL2JpdG9wcy5oK0FLQUFvQUNnQUtBQW9BQ2d8IDEgKy0K
+PiArQUtBLWFyY2gvY3Jpcy9pbmNsdWRlL2FzbS9iaXRvcHMuaCtBS0FBb0FDZ0FLQUFvQXwgMSAr
+LQo+ICtBS0EtYXJjaC9mcnYvaW5jbHVkZS9hc20vYml0b3BzLmgrQUtBQW9BQ2dBS0FBb0FDZ3wg
+MSArLQo+ICtBS0EtYXJjaC9oODMwMC9pbmNsdWRlL2FzbS9iaXRvcHMuaCtBS0FBb0FDZ0FLQXwg
+MSArLQo+ICtBS0EtYXJjaC9oZXhhZ29uL2luY2x1ZGUvYXNtL2JpdG9wcy5oK0FLQUFvQXwgMSAr
+LQo+ICtBS0EtYXJjaC9tMzJyL2luY2x1ZGUvYXNtL2JpdG9wcy5oK0FLQUFvQUNnQUtBQW9BfCAx
+ICstCj4gK0FLQS1hcmNoL202OGsvaW5jbHVkZS9hc20vYml0b3BzLmgrQUtBQW9BQ2dBS0FBb0F8
+IDEgKy0KPiArQUtBLWFyY2gvbWV0YWcvaW5jbHVkZS9hc20vYml0b3BzLmgrQUtBQW9BQ2dBS0F8
+IDEgKy0KPiArQUtBLWFyY2gvbW4xMDMwMC9pbmNsdWRlL2FzbS9iaXRvcHMuaCtBS0FBb0F8IDEg
+Ky0KPiArQUtBLWFyY2gvb3BlbnJpc2MvaW5jbHVkZS9hc20vYml0b3BzLmggfCAxICstCj4gK0FL
+QS1hcmNoL3BhcmlzYy9pbmNsdWRlL2FzbS9iaXRvcHMuaCtBS0FBb0FDZ3wgMSArLQo+ICtBS0Et
+YXJjaC9zMzkwL2luY2x1ZGUvYXNtL2JpdG9wcy5oK0FLQUFvQUNnQUtBQW9BfCAxICstCj4gK0FL
+QS1hcmNoL3NoL2luY2x1ZGUvYXNtL2JpdG9wcy5oK0FLQUFvQUNnQUtBQW9BQ2dBS0F8IDEgKy0K
+PiArQUtBLWFyY2gveHRlbnNhL2luY2x1ZGUvYXNtL2JpdG9wcy5oK0FLQUFvQUNnfCAxICstCj4g
+K0FLQS0xOCBmaWxlcyBjaGFuZ2VkLCAxOCBpbnNlcnRpb25zKCstKQoKQ291bGQgeW91IHBsZWFz
+ZSBpbmNsdWRlIGEgY2hhbmdlbG9nIGJlbG93IHlvdXIgY29tbWl0IG1lc3NhZ2U/Ck90aGVyd2lz
+ZSBpdCdzIGJhcmVseSBwb3NzaWJsZSB0byB1bmRlcnN0YW5kIHdoYXQgdGhhdCB2MiBpbXByb3Zl
+cy9maXhlcy4KCkFsc28gaXQgbWFrZXMgc2Vuc2UgdG8gc2VuZCBhdCBsZWFzdCBjb3ZlciBsZXR0
+ZXIgdG8gYWxsIHBlb3BsZSBtZW50aW9uZWQKYXQgbGVhc3QgaW4gb25lIHBhdGNoIG9mIHRoZSBz
+ZXJpZXMuIFRoYXQgZ2l2ZXMgYW4gaWRlYSB3aGF0IHRoaXMgc2VyaWVzCmRvZXMgYW5kIGluIHBh
+cnRpY3VsYXIgd2h5IHBhdGNoIEknbSBtZW50aW9uZWQgaW4gaXMgcmVxdWlyZWQuCgotQWxleGV5
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LXNu
+cHMtYXJjIG1haWxpbmcgbGlzdApsaW51eC1zbnBzLWFyY0BsaXN0cy5pbmZyYWRlYWQub3JnCmh0
+dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtc25wcy1hcmM=
