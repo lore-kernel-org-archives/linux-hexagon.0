@@ -1,272 +1,183 @@
 From: zengzhaoxiu@163.com
-Subject: [PATCH V3 02/29] Include generic parity.h in some architectures'
- bitops.h
-Date: Thu, 14 Apr 2016 11:04:31 +0800
-Message-ID: <1460603098-4466-1-git-send-email-zengzhaoxiu@163.com>
+Subject: [PATCH V3 00/29] bitops: add parity functions
+Date: Thu, 14 Apr 2016 12:18:40 +0800
+Message-ID: <1460607523-6560-1-git-send-email-zengzhaoxiu@163.com>
 References: <1460601525-3822-1-git-send-email-zengzhaoxiu@163.com>
-Mime-Version: 1.0
+Return-path: <linux-mips-bounce@linux-mips.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+        s=s110527; h=From:Subject:Date:Message-Id; bh=zmjvkGCK9cl9dxpbLY
+        wgljnqLHp0pzoajC0e68EFGCs=; b=HlUGfZQwJrx7KwFmhL728TZt2urucdv0pn
+        Q766dZ87BlT5OJ9lOTqzPPK0cdTfWBYSav9Mw9379PqhjX+Ik3ZTMlQhCT+lS99o
+        pcbBdSPKoTpDXb8sDgl72bk14oE440h+Moc25JxGKu11Q35Cr2Q/q+S+l8Ne3Bua
+        3XoWlXRv0=
+In-Reply-To: <1460601525-3822-1-git-send-email-zengzhaoxiu@163.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-Id: <linux-hexagon.vger.kernel.org>
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
- s=s110527; h=From:Subject:Date:Message-Id; bh=5brpFEkLxt9yHqclC/
- r3T7u/DTpNexvyYUpPhiKr7c0=; b=A6847GYtGFOaAURxa+Iubuql7fGn0eYt5h
- luMcT4ECRCWRuKes2PIN6alZBIOFLAmchd0XODx2naduAbd0x5YJwaQllLDWvgZk
- bJXr7Ff2JgIWXjqmkQTBEZ0qQ/9KfsxU+v0PwevDTm+NtX8FxcN6QB7UBiHeS7Zb
- v9C8qxvq8=
-In-Reply-To: <1460601525-3822-1-git-send-email-zengzhaoxiu@163.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: Rich Felker <dalias@libc.org>, Aurelien Jacquiot <a-jacquiot@ti.com>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, David Howells <dhowells@redhat.com>, Max Filippov <jcmvbkbc@gmail.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, linux@lists.openrisc.net, Hans-Christian Egtvedt <egtvedt@samfundet.no>, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, Jesper Nilsson <jesper.nilsson@axis.com>, linux-am33-list@redhat.com, Russell King <linux@arm.linux.org.uk>, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, linux-sh@vger.kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Mark Salter <msalter@redhat.com>, linux-snps-arc@lists.infradead.org
+Cc: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, uclinux-h8-devel@lists.sourceforge.jp, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-am33-list@redhat.com, linux@lists.openrisc.net, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, qat-linux@i
 
 From: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
 
-Signed-off-by: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
----
- arch/arc/include/asm/bitops.h      | 1 +
- arch/arm/include/asm/bitops.h      | 1 +
- arch/arm64/include/asm/bitops.h    | 1 +
- arch/avr32/include/asm/bitops.h    | 1 +
- arch/c6x/include/asm/bitops.h      | 1 +
- arch/cris/include/asm/bitops.h     | 1 +
- arch/frv/include/asm/bitops.h      | 1 +
- arch/h8300/include/asm/bitops.h    | 1 +
- arch/hexagon/include/asm/bitops.h  | 1 +
- arch/m32r/include/asm/bitops.h     | 1 +
- arch/m68k/include/asm/bitops.h     | 1 +
- arch/metag/include/asm/bitops.h    | 1 +
- arch/mn10300/include/asm/bitops.h  | 1 +
- arch/openrisc/include/asm/bitops.h | 1 +
- arch/parisc/include/asm/bitops.h   | 1 +
- arch/s390/include/asm/bitops.h     | 1 +
- arch/sh/include/asm/bitops.h       | 1 +
- arch/xtensa/include/asm/bitops.h   | 1 +
- 18 files changed, 18 insertions(+)
+When I do "grep parity -r linux", I found many parity calculations
+distributed in many drivers.
 
-diff --git a/arch/arc/include/asm/bitops.h b/arch/arc/include/asm/bitops.h
-index 0352fb8..7967e47 100644
---- a/arch/arc/include/asm/bitops.h
-+++ b/arch/arc/include/asm/bitops.h
-@@ -370,6 +370,7 @@ static inline __attribute__ ((const)) int __ffs(unsigned long x)
- #define ffz(x)	__ffs(~(x))
- 
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/lock.h>
-diff --git a/arch/arm/include/asm/bitops.h b/arch/arm/include/asm/bitops.h
-index e943e6c..99f28a6 100644
---- a/arch/arm/include/asm/bitops.h
-+++ b/arch/arm/include/asm/bitops.h
-@@ -313,6 +313,7 @@ static inline unsigned long __ffs(unsigned long x)
- 
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #ifdef __ARMEB__
-diff --git a/arch/arm64/include/asm/bitops.h b/arch/arm64/include/asm/bitops.h
-index 9c19594..eac4965 100644
---- a/arch/arm64/include/asm/bitops.h
-+++ b/arch/arm64/include/asm/bitops.h
-@@ -44,6 +44,7 @@ extern int test_and_change_bit(int nr, volatile unsigned long *p);
- 
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #include <asm-generic/bitops/non-atomic.h>
-diff --git a/arch/avr32/include/asm/bitops.h b/arch/avr32/include/asm/bitops.h
-index 910d537..9f4a2ce 100644
---- a/arch/avr32/include/asm/bitops.h
-+++ b/arch/avr32/include/asm/bitops.h
-@@ -298,6 +298,7 @@ static inline int ffs(unsigned long word)
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- extern unsigned long find_next_zero_bit_le(const void *addr,
-diff --git a/arch/c6x/include/asm/bitops.h b/arch/c6x/include/asm/bitops.h
-index f0ab012..94eb0d1 100644
---- a/arch/c6x/include/asm/bitops.h
-+++ b/arch/c6x/include/asm/bitops.h
-@@ -87,6 +87,7 @@ static inline int ffs(int x)
- 
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #include <asm-generic/bitops/atomic.h>
-diff --git a/arch/cris/include/asm/bitops.h b/arch/cris/include/asm/bitops.h
-index 8062cb5..06bc246 100644
---- a/arch/cris/include/asm/bitops.h
-+++ b/arch/cris/include/asm/bitops.h
-@@ -36,6 +36,7 @@
- #include <asm-generic/bitops/__fls.h>
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/lock.h>
- 
-diff --git a/arch/frv/include/asm/bitops.h b/arch/frv/include/asm/bitops.h
-index 0df8e95..f2a7ee8 100644
---- a/arch/frv/include/asm/bitops.h
-+++ b/arch/frv/include/asm/bitops.h
-@@ -314,6 +314,7 @@ int __ilog2_u64(u64 n)
- 
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #include <asm-generic/bitops/le.h>
-diff --git a/arch/h8300/include/asm/bitops.h b/arch/h8300/include/asm/bitops.h
-index 05999ab..e392db2 100644
---- a/arch/h8300/include/asm/bitops.h
-+++ b/arch/h8300/include/asm/bitops.h
-@@ -172,6 +172,7 @@ static inline unsigned long __ffs(unsigned long word)
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #include <asm-generic/bitops/le.h>
- #include <asm-generic/bitops/ext2-atomic.h>
-diff --git a/arch/hexagon/include/asm/bitops.h b/arch/hexagon/include/asm/bitops.h
-index 5e4a59b..2df614e 100644
---- a/arch/hexagon/include/asm/bitops.h
-+++ b/arch/hexagon/include/asm/bitops.h
-@@ -290,6 +290,7 @@ static inline unsigned long __fls(unsigned long word)
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- 
- #include <asm-generic/bitops/le.h>
- #include <asm-generic/bitops/ext2-atomic.h>
-diff --git a/arch/m32r/include/asm/bitops.h b/arch/m32r/include/asm/bitops.h
-index 86ba2b4..e3cf46b 100644
---- a/arch/m32r/include/asm/bitops.h
-+++ b/arch/m32r/include/asm/bitops.h
-@@ -259,6 +259,7 @@ static __inline__ int test_and_change_bit(int nr, volatile void * addr)
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/ffs.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #endif /* __KERNEL__ */
-diff --git a/arch/m68k/include/asm/bitops.h b/arch/m68k/include/asm/bitops.h
-index b4a9b0d..fd673ea 100644
---- a/arch/m68k/include/asm/bitops.h
-+++ b/arch/m68k/include/asm/bitops.h
-@@ -519,6 +519,7 @@ static inline int __fls(int x)
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #endif /* __KERNEL__ */
- 
-diff --git a/arch/metag/include/asm/bitops.h b/arch/metag/include/asm/bitops.h
-index 2671134..ad13087 100644
---- a/arch/metag/include/asm/bitops.h
-+++ b/arch/metag/include/asm/bitops.h
-@@ -118,6 +118,7 @@ static inline int test_and_change_bit(unsigned int bit,
- #include <asm-generic/bitops/__fls.h>
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/le.h>
-diff --git a/arch/mn10300/include/asm/bitops.h b/arch/mn10300/include/asm/bitops.h
-index fe6f8e2..60761b7 100644
---- a/arch/mn10300/include/asm/bitops.h
-+++ b/arch/mn10300/include/asm/bitops.h
-@@ -225,6 +225,7 @@ int ffs(int x)
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/ext2-atomic-setbit.h>
- #include <asm-generic/bitops/le.h>
- 
-diff --git a/arch/openrisc/include/asm/bitops.h b/arch/openrisc/include/asm/bitops.h
-index 3003cda..8c97642 100644
---- a/arch/openrisc/include/asm/bitops.h
-+++ b/arch/openrisc/include/asm/bitops.h
-@@ -43,6 +43,7 @@
- #include <asm-generic/bitops/sched.h>
- #include <asm/bitops/ffs.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- 
- #include <asm-generic/bitops/atomic.h>
-diff --git a/arch/parisc/include/asm/bitops.h b/arch/parisc/include/asm/bitops.h
-index 3f9406d..867ba10 100644
---- a/arch/parisc/include/asm/bitops.h
-+++ b/arch/parisc/include/asm/bitops.h
-@@ -211,6 +211,7 @@ static __inline__ int fls(int x)
- #include <asm-generic/bitops/__fls.h>
- #include <asm-generic/bitops/fls64.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #include <asm-generic/bitops/sched.h>
- 
-diff --git a/arch/s390/include/asm/bitops.h b/arch/s390/include/asm/bitops.h
-index 8043f10..198eead 100644
---- a/arch/s390/include/asm/bitops.h
-+++ b/arch/s390/include/asm/bitops.h
-@@ -460,6 +460,7 @@ static inline int fls(int word)
- #include <asm-generic/bitops/ffz.h>
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/le.h>
- #include <asm-generic/bitops/ext2-atomic-setbit.h>
-diff --git a/arch/sh/include/asm/bitops.h b/arch/sh/include/asm/bitops.h
-index fc8e652..4bf0c35 100644
---- a/arch/sh/include/asm/bitops.h
-+++ b/arch/sh/include/asm/bitops.h
-@@ -86,6 +86,7 @@ static inline unsigned long ffz(unsigned long word)
- #include <asm-generic/bitops/find.h>
- #include <asm-generic/bitops/ffs.h>
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/le.h>
-diff --git a/arch/xtensa/include/asm/bitops.h b/arch/xtensa/include/asm/bitops.h
-index 3f44fa2..981fa83 100644
---- a/arch/xtensa/include/asm/bitops.h
-+++ b/arch/xtensa/include/asm/bitops.h
-@@ -229,6 +229,7 @@ test_and_change_bit(unsigned int bit, volatile unsigned long *p)
- #include <asm-generic/bitops/ext2-atomic-setbit.h>
- 
- #include <asm-generic/bitops/hweight.h>
-+#include <asm-generic/bitops/parity.h>
- #include <asm-generic/bitops/lock.h>
- #include <asm-generic/bitops/sched.h>
- 
+This patch series does:
+  1. provide generic and architecture-specific parity calculations
+  2. remove drivers' local parity calculations, use bitops' parity
+     functions instead
+  3. replace "hweightN(x) & 1" with "parityN(x)" to improve readability,
+     and improve performance on some CPUs that without popcount support
+
+I did not use GCC's __builtin_parity* functions, based on the following reasons:
+  1. I don't know where to identify which version of GCC from the beginning
+     supported __builtin_parity for the architecture.
+  2. For the architecture that doesn't has popcount instruction, GCC instead use
+     "call __paritysi2" (__paritydi2 for 64-bits). So if use __builtin_parity, we must
+     provide __paritysi2 and __paritydi2 functions for these architectures.
+     Additionally, parity4,8,16 might be "__builtin_parity(x & mask)", but the "& mask"
+     operation is totally unnecessary.
+  3. For the architecture that has popcount instruction, we do the same things.
+  4. For powerpc, sparc, and x86, we do runtime patching to use popcount instruction
+     if the CPU support.
+
+I have compiled successfully with x86_64_defconfig, i386_defconfig, pseries_defconfig
+and sparc64_defconfig.
+
+Changes to v2:
+- Add constant PARITY_MAGIC (proposals by Sam Ravnborg)
+- Add include/asm-generic/bitops/popc-parity.h (proposals by Chris Metcalf)
+- Tile uses popc-parity.h directly
+- Mips uses popc-parity.h if has usable __builtin_popcount
+- Add few comments in powerpc's and sparc's parity.S
+- X86, remove custom calling convention
+
+Changes to v1:
+- Add runtime patching for powerpc, sparc, and x86
+- Avr32 use grenric parity too
+- Fix error in ssfdc's patch, and add commit message
+- Don't change the original code composition of drivers/iio/gyro/adxrs450.c
+- Directly assignement to phy_cap.parity in drivers/scsi/isci/phy.c
+
+Regards,
+
+=== diffstat ===
+
+Zhaoxiu Zeng (29):
+  bitops: add parity functions
+  Include generic parity.h in some architectures' bitops.h
+  Add alpha-specific parity functions
+  Add blackfin-specific parity functions
+  Add ia64-specific parity functions
+  Tile and MIPS (if has usable __builtin_popcount) use popcount parity
+    functions
+  Add powerpc-specific parity functions
+  Add sparc-specific parity functions
+  Add x86-specific parity functions
+  sunrpc: use parity8
+  mips: use parity functions in cerr-sb1.c
+  bch: use parity32
+  media: use parity8 in vivid-vbi-gen.c
+  media: use parity functions in saa7115
+  input: use parity32 in grip_mp
+  input: use parity64 in sidewinder
+  input: use parity16 in ams_delta_serio
+  scsi: use parity32 in isci's phy
+  mtd: use parity16 in ssfdc
+  mtd: use parity functions in inftlcore
+  crypto: use parity functions in qat_hal
+  mtd: use parity16 in sm_ftl
+  ethernet: use parity8 in sun/niu.c
+  input: use parity8 in pcips2
+  input: use parity8 in sa1111ps2
+  iio: use parity32 in adxrs450
+  serial: use parity32 in max3100
+  input: use parity8 in elantech
+  ethernet: use parity8 in broadcom/tg3.c
+
+ arch/alpha/include/asm/bitops.h              |  27 +++++
+ arch/arc/include/asm/bitops.h                |   1 +
+ arch/arm/include/asm/bitops.h                |   1 +
+ arch/arm64/include/asm/bitops.h              |   1 +
+ arch/avr32/include/asm/bitops.h              |   1 +
+ arch/blackfin/include/asm/bitops.h           |  31 ++++++
+ arch/c6x/include/asm/bitops.h                |   1 +
+ arch/cris/include/asm/bitops.h               |   1 +
+ arch/frv/include/asm/bitops.h                |   1 +
+ arch/h8300/include/asm/bitops.h              |   1 +
+ arch/hexagon/include/asm/bitops.h            |   1 +
+ arch/ia64/include/asm/bitops.h               |  31 ++++++
+ arch/m32r/include/asm/bitops.h               |   1 +
+ arch/m68k/include/asm/bitops.h               |   1 +
+ arch/metag/include/asm/bitops.h              |   1 +
+ arch/mips/include/asm/bitops.h               |   7 ++
+ arch/mips/mm/cerr-sb1.c                      |  67 ++++---------
+ arch/mn10300/include/asm/bitops.h            |   1 +
+ arch/openrisc/include/asm/bitops.h           |   1 +
+ arch/parisc/include/asm/bitops.h             |   1 +
+ arch/powerpc/include/asm/bitops.h            |  11 +++
+ arch/powerpc/lib/Makefile                    |   2 +-
+ arch/powerpc/lib/parity_64.S                 | 142 +++++++++++++++++++++++++++
+ arch/powerpc/lib/ppc_ksyms.c                 |   5 +
+ arch/s390/include/asm/bitops.h               |   1 +
+ arch/sh/include/asm/bitops.h                 |   1 +
+ arch/sparc/include/asm/bitops_32.h           |   1 +
+ arch/sparc/include/asm/bitops_64.h           |  18 ++++
+ arch/sparc/kernel/sparc_ksyms_64.c           |   6 ++
+ arch/sparc/lib/Makefile                      |   2 +-
+ arch/sparc/lib/parity.S                      | 128 ++++++++++++++++++++++++
+ arch/tile/include/asm/bitops.h               |   2 +
+ arch/x86/include/asm/arch_hweight.h          |   5 +
+ arch/x86/include/asm/arch_parity.h           | 117 ++++++++++++++++++++++
+ arch/x86/include/asm/bitops.h                |   4 +-
+ arch/xtensa/include/asm/bitops.h             |   1 +
+ drivers/crypto/qat/qat_common/qat_hal.c      |  32 ++----
+ drivers/iio/gyro/adxrs450.c                  |   4 +-
+ drivers/input/joystick/grip_mp.c             |  16 +--
+ drivers/input/joystick/sidewinder.c          |  24 +----
+ drivers/input/mouse/elantech.c               |  10 +-
+ drivers/input/mouse/elantech.h               |   1 -
+ drivers/input/serio/ams_delta_serio.c        |   8 +-
+ drivers/input/serio/pcips2.c                 |   2 +-
+ drivers/input/serio/sa1111ps2.c              |   2 +-
+ drivers/media/i2c/saa7115.c                  |  17 +---
+ drivers/media/platform/vivid/vivid-vbi-gen.c |   9 +-
+ drivers/mtd/inftlcore.c                      |  17 +---
+ drivers/mtd/sm_ftl.c                         |   5 +-
+ drivers/mtd/ssfdc.c                          |  31 ++----
+ drivers/net/ethernet/broadcom/tg3.c          |   6 +-
+ drivers/net/ethernet/sun/niu.c               |  10 +-
+ drivers/scsi/isci/phy.c                      |  15 +--
+ drivers/tty/serial/max3100.c                 |   2 +-
+ include/asm-generic/bitops.h                 |   1 +
+ include/asm-generic/bitops/arch_parity.h     |  39 ++++++++
+ include/asm-generic/bitops/const_parity.h    |  36 +++++++
+ include/asm-generic/bitops/parity.h          |   7 ++
+ include/asm-generic/bitops/popc-parity.h     |  32 ++++++
+ include/linux/bitops.h                       |  10 ++
+ lib/bch.c                                    |  14 +--
+ net/sunrpc/auth_gss/gss_krb5_keys.c          |   6 +-
+ 62 files changed, 745 insertions(+), 235 deletions(-)
+ create mode 100644 arch/powerpc/lib/parity_64.S
+ create mode 100644 arch/sparc/lib/parity.S
+ create mode 100644 arch/x86/include/asm/arch_parity.h
+ create mode 100644 include/asm-generic/bitops/arch_parity.h
+ create mode 100644 include/asm-generic/bitops/const_parity.h
+ create mode 100644 include/asm-generic/bitops/parity.h
+ create mode 100644 include/asm-generic/bitops/popc-parity.h
+
 -- 
 2.5.0
+
+
+
