@@ -1,53 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V3 00/29] bitops: add parity functions
-Date: Sun, 17 Apr 2016 05:38:57 -0700
-Message-ID: <20160417123857.GD33215@dtor-ws>
-References: <1460601525-3822-1-git-send-email-zengzhaoxiu@163.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 08/23] hexagon: update TODO list
+Date: Wed, 20 Apr 2016 10:58:06 +0200
+Message-ID: <1461142701-21096-9-git-send-email-linus.walleij@linaro.org>
+References: <1461142701-21096-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Return-path: <linux-mips-bounce@linux-mips.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-gpio-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=rF8tBR6FeVKmNAFmTqMzkb6ZmHXyqas7YHtcuM09CVM=;
-        b=V7pNzT7xeuViB4xZOm2JrSU0tSeVXJntYg5RhBPcD7zHw7IoZ2OYcfO9sEsjXwLn22
-         ING2eDG0+QXUAP+EMYRTujmlTpaCXBVezK2Ih+BXbVGMwHotL5iNbtmLCs7iWmKQxyfz
-         8KCByXPfPT47Y7bP+5iNuDnnbdzZh2UKiJAm7pMeHO5Blrwv3hVadksTe9yoxTWfttJg
-         JThYcaJjltSG4HlK1ZC4zAGjTJfVLabSBV1ErVe53vST21wOTDceV7JGTI4e06Nkv3y4
-         MRr9tamYLjIVkUz3De/VMUQbBeLtfKh3gKxt5jYcmkYtkca9WYREBjdKTke6JIATNKUx
-         o8+Q==
-Content-Disposition: inline
-In-Reply-To: <1460601525-3822-1-git-send-email-zengzhaoxiu@163.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-Id: <linux-hexagon.vger.kernel.org>
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: zengzhaoxiu@163.com
-Cc: linux-kernel@vger.kernel.org, Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, Andrew Morton <akpm@linux-foundation.org>, Anton Blanchard <anton@samba.org>, Arnd Bergmann <arnd@arndb.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Borislav Petkov <bp@suse.de>, Bruce Allan <bruce.w.allan@intel.com>, Christophe Leroy <christophe.leroy@c-s.fr>, David Herrmann <dh.herrmann@gmail.com>, "David S. Miller" <davem@davemloft.net>, Denys Vlasenko <dvlasenk@redhat.com>, Duson Lin <dusonlin@emc.com.tw>, Guenter Roeck <linux@roeck-us.net>, Hans de Goede <hdegoede@redhat.com>, Hans Verkuil <hans.verkuil@cisco.com>, Hartmut Knaack <knaack.h@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Hendrik
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=ffHBsJQ9fpDQDaD35C/GFrPCvWHnZVBYA7CAsX0cGe4=;
+        b=FJJtkQgtR1ORbhIRrSihfHXcA/W8mHjqjDWhsMyTXAc73TjpIXys3HgPsuaqbTJxcF
+         kj6IiEs6E57beNoJ8Nzu8VxwP41Yb1wcOHs9VcBm/ilCDk9qOBa8uchIU5YMLzUF//Wa
+         mEGogPKE2Snxu44whRxHR+ygpgxxn7ynwC9Ls=
+In-Reply-To: <1461142701-21096-1-git-send-email-linus.walleij@linaro.org>
+Sender: linux-gpio-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+To: linux-gpio@vger.kernel.org, Alexandre Courbot <acourbot@nvidia.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-On Thu, Apr 14, 2016 at 10:36:41AM +0800, zengzhaoxiu@163.com wrote:
->  drivers/input/joystick/grip_mp.c             |  16 +--
->  drivers/input/joystick/sidewinder.c          |  24 +----
->  drivers/input/mouse/elantech.c               |  10 +-
->  drivers/input/mouse/elantech.h               |   1 -
->  drivers/input/serio/ams_delta_serio.c        |   8 +-
->  drivers/input/serio/pcips2.c                 |   2 +-
->  drivers/input/serio/sa1111ps2.c              |   2 +-
+The symbol that will be selected when GPIO is implemented
+for Hexagon will be GPIOLIB, we have removed
+ARCH_REQUIRE_GPIOLIB and ARCH_WANT_OPTIONAL_GPIOLIB.
 
-For input bits:
+Cc: Michael B=C3=BCsch <m@bues.ch>
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+Various arch maintainers:
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+either ACK this and I will merge it into the GPIO tree for v4.7
+anticipating no clashes, or you wait until I have the enabling patch
+upstream (patch 1 in this series, removing deps on
+ARCH_[WANTS_OPTIONAL|REQUIRES]_GPIOLIB), and you will be able to
+merge it to your arch trees yourselves for late v4.7
+(post GPIO tree merge) or for v4.8.
 
-Thanks.
+You can also ask me for an immutable branch if you prefer that, I
+will put the enabling patch on a branch and the patch for your arch
+on top and ask you to pull it.
 
--- 
-Dmitry
+Select your option from the menu, silence probably means I will
+merge it to the GPIO tree. Unless you are X86 or ARM in which case
+I will be cautious.
+---
+ arch/hexagon/Kconfig | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index 57298e7b4867..1941e4baaee6 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -8,8 +8,7 @@ config HEXAGON
+ 	# select HAVE_REGS_AND_STACK_ACCESS_API
+ 	# select HAVE_HW_BREAKPOINT if PERF_EVENTS
+ 	# select ARCH_HAS_CPU_IDLE_WAIT
+-	# select ARCH_WANT_OPTIONAL_GPIOLIB
+-	# select ARCH_REQUIRE_GPIOLIB
++	# select GPIOLIB
+ 	# select HAVE_CLK
+ 	# select GENERIC_PENDING_IRQ if SMP
+ 	select GENERIC_ATOMIC64
+--=20
+2.4.11
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
