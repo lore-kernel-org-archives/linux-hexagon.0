@@ -1,18 +1,18 @@
 From: Andrea Gelmini <andrea.gelmini@gelma.net>
-Subject: [PATCH 0145/1529] Fix typo
-Date: Sat, 21 May 2016 13:55:21 +0200
-Message-ID: <20160521115521.7050-1-andrea.gelmini@gelma.net>
+Subject: [PATCH 0146/1529] Fix typo
+Date: Sat, 21 May 2016 13:55:29 +0200
+Message-ID: <20160521115529.7104-1-andrea.gelmini@gelma.net>
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20120113;
         h=sender:from:to:cc:subject:date:message-id;
-        bh=bkl2+F2JjMLt/7x64pE8cEljC2EDfrLRAXQJVBZA29o=;
-        b=UX9l0V6l9nPk+L/PzQXG8+l08ajLBhYReYMHs5/Q/IGfhLD1aP+K4Lh1QJTUBIBjN1
-         me5tlWwGNvdULbktmIgKiCKT1QjJPcjzZMrE2WvuZd/biuZxsW4an+f6eWYvkODFjkzl
-         7cr2ZAN2lZWjo4+HJoUjlDNleMXFFyaXd4n98Vy2jPWuk2IlGOAeTdTNqEORXpzeRs9V
-         VmUOnD2xwhsexGHA1bA+pTSbrlVPVN6bHqT0TFCjp8N75/QqCR9c7mYn9ZdCmM0xSDan
-         v8TAnpKrSSYLySP6A8NiDB1oNa7gNc4vVDQs9nWahX/kcKmaxTsbhk9KXSSUMOqNyqgD
-         OcAg==
+        bh=a9sjUWpmh9Z6kXRIH8ahJ/Lbp+wpzpmrt/wR81JooBk=;
+        b=pTp/VjOtj947Bf/9u4V67RRpX8VeaiCI4tbOtx05qv7oHsLwOXZLaFCpqkotYv1Mop
+         2rtfsuJ+RISs2sTZi8a2/Wtij9iVePPqjvFLrKuPtPbH0OjkyKzDq8x8HIvsZae56rgV
+         x4KP820QqHVaFNc6noEKYM5/ExEfw6SpbRuGdGoBXUSl0cBobWF6EHQnh/XwTcVFm2p7
+         kgmFB/m7eRzz4OrXG8Byq3Xwj3DDcVVdTiXmNO24pCPgxXwq3zKGj95xdWbGMpkK0eB2
+         N1MC/mRK7q0sOJqXAkJR4eYhMo9pGAYUnUrLJAx3fwZv28Zgu7HeHi+wBhjJzjXmnOG7
+         f92Q==
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -23,21 +23,21 @@ Cc: trivial@kernel.org, rkuo@codeaurora.org, linux-hexagon@vger.kernel.org
 
 Signed-off-by: Andrea Gelmini <andrea.gelmini@gelma.net>
 ---
- arch/hexagon/include/asm/cacheflush.h | 2 +-
+ arch/hexagon/kernel/module.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/hexagon/include/asm/cacheflush.h b/arch/hexagon/include/asm/cacheflush.h
-index b86f9f3..34bc468 100644
---- a/arch/hexagon/include/asm/cacheflush.h
-+++ b/arch/hexagon/include/asm/cacheflush.h
-@@ -76,7 +76,7 @@ extern void flush_cache_all_hexagon(void);
+diff --git a/arch/hexagon/kernel/module.c b/arch/hexagon/kernel/module.c
+index 477d07a..d7aa9d0 100644
+--- a/arch/hexagon/kernel/module.c
++++ b/arch/hexagon/kernel/module.c
+@@ -56,7 +56,7 @@ int module_frob_arch_sections(Elf_Ehdr *hdr, Elf_Shdr *sechdrs,
+ 			found = i+1;
+ 	}
  
- /*
-  * This may or may not ever have to be non-null, depending on the
-- * virtual machine MMU.  For a native kernel, it's definitiely  a no-op
-+ * virtual machine MMU.  For a native kernel, it's definitely a no-op
-  *
-  * This is also the place where deferred cache coherency stuff seems
-  * to happen, classically...  but instead we do it like ia64 and
+-	/* At this time, we don't support modules comiled with -shared */
++	/* At this time, we don't support modules compiled with -shared */
+ 	if (found) {
+ 		printk(KERN_WARNING
+ 			"Module '%s' contains unexpected .plt/.got sections.\n",
 -- 
 2.8.2.534.g1f66975
