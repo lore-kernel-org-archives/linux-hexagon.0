@@ -1,30 +1,43 @@
-From: Mark Salter <msalter@redhat.com>
-Subject: Re: [patch V4 02/31] bitops: Include generic parity.h in some
- architectures' bitops.h
-Date: Wed, 11 May 2016 11:24:12 -0400
-Message-ID: <1462980252.9978.33.camel@redhat.com>
-References: <1462955158-28394-1-git-send-email-zengzhaoxiu@163.com>
-	 <1462957641-24241-1-git-send-email-zengzhaoxiu@163.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1462957641-24241-1-git-send-email-zengzhaoxiu@163.com>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Andrea Gelmini <andrea.gelmini@gelma.net>
+Subject: [PATCH 0144/1529] Fix typo
+Date: Sat, 21 May 2016 13:55:14 +0200
+Message-ID: <20160521115514.6991-1-andrea.gelmini@gelma.net>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=sender:from:to:cc:subject:date:message-id;
+        bh=Rgw7tJfYMCtuq6j/zLbatMFTUPiPJdHRac8gFbjL3us=;
+        b=OH0pmzWYXz07jefo3n7xbDDYklTgEPgZATBxI8wOsKWp4A/TWJgF3ZncHq4nQ8qQsY
+         EUMPl/pODeeB20aq57Xy4jDsKldCKTXXotIOQgAgXrK90lQ/r34XOFx7yK+2RffQjhRg
+         D0Ej02yt8hoArM26nw07PmUhAZ9fBgwaKji8zsERd+4tNJD9bF5vb2eYfYrBg+R9X5QH
+         +U+UyBEaamTos6IuPah+B4UJoES9Dg4QfWHOwA8c71qDutxpQYIBkQqC1pfENYWrz7jq
+         UlvmeuKxQLHVVPMKJwQ3KEh2Uw6yhLmfxARKNbT5hg/BtIgg9HHf417WJ5A+2Kd16yix
+         fqXw==
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: zengzhaoxiu@163.com, linux-kernel@vger.kernel.org
-Cc: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Hans-Christian Egtvedt <egtvedt@samfundet.no>, Aurelien Jacquiot <a-jacquiot@ti.com>, Mikael Starvik <starvik@axis.com>, Jesper Nilsson <jesper.nilsson@axis.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Kuo <rkuo@codeaurora.org>, Geert Uytterhoeven <geert@linux-m68k.org>, James Hogan <james.hogan@imgtec.com>, David Howells <dhowells@redhat.com>, Koichi Yasutake <yasutake.koichi@jp.panasonic.com>, Jonas Bonn <jonas@southpole.se>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Rich Felker <dalias@libc.or>
+Content-Transfer-Encoding: 7bit
+To: andrea.gelmini@gelma.net
+Cc: trivial@kernel.org, rkuo@codeaurora.org, linux-hexagon@vger.kernel.org
 
-On Wed, 2016-05-11 at 17:06 +0800, zengzhaoxiu@163.com wrote:
-> From: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
-> 
-> Simply use the generic version.
-> 
-> Signed-off-by: Zhaoxiu Zeng <zhaoxiu.zeng@gmail.com>
-> Acked-by: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no> [for avr32]
-> ---
+Signed-off-by: Andrea Gelmini <andrea.gelmini@gelma.net>
+---
+ arch/hexagon/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-For c6x:
-
-Acked-by: Mark Salter <msalter@redhat.com>
-
+diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile
+index 207711a0..71bc857 100644
+--- a/arch/hexagon/Makefile
++++ b/arch/hexagon/Makefile
+@@ -25,7 +25,7 @@ KBUILD_AFLAGS += $(aflags-y)
+ #  no KBUILD_LDFLAGS?
+ LDFLAGS += $(ldflags-y)
+ 
+-# Thread-info register will be r19.  This value is not configureable;
++# Thread-info register will be r19.  This value is not configurable;
+ # it is hard-coded in several files.
+ TIR_NAME := r19
+ KBUILD_CFLAGS += -ffixed-$(TIR_NAME) -DTHREADINFO_REG=$(TIR_NAME) -D__linux__
+-- 
+2.8.2.534.g1f66975
