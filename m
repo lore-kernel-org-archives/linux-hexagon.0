@@ -1,43 +1,68 @@
-From: Andrea Gelmini <andrea.gelmini@gelma.net>
-Subject: [PATCH 0147/1529] Fix typo
-Date: Sat, 21 May 2016 13:55:37 +0200
-Message-ID: <20160521115537.7155-1-andrea.gelmini@gelma.net>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=EJ/sAy7zaTJgIgLODmPwXXjSBB9ukGexzsdYBxla3oY=;
-        b=s61J94wub50rpwWqQY/2p+0gpVrdf5+3vXtTW4JN3Lh3sRMGMJvCOB82a+SBGTMYW4
-         eUTNu7uVWSZ1E3Bn/A8UD+UZFFDw9eqqF+hT5EsQv7Ot0ZPZiaGXgEdAhJsLAV8icHJ5
-         f5XWPoEP/IMBTVjLA9CtH0nPP8Hz6u7bnX7K9e4DKtXu2DrAEX6fkRnQURDRj88mr+c0
-         t6Jz/ZU0rPkpbRKgD+wOSOgJRXxxdkWylY3J+DpDFkURytp60zBEkTYVZvMBj43hOWCD
-         zKJGJf7izaMF3RekQvY8MQh5rfoBN5/SjAELyqOxvkMy7JUyevNBaECKry2pBIPDS6RQ
-         Bn7Q==
-Sender: linux-hexagon-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: Re: [RFC v3 02/45] dma-mapping: Use unsigned long for dma_attrs
+Date: Fri, 3 Jun 2016 09:17:00 +0200
+Message-ID: <CAMuHMdXWMf7Dt77wSUj8NytQqb99jzDiAz46kJkAEz+6BX3Uvw@mail.gmail.com>
+References: <1464881987-13203-1-git-send-email-k.kozlowski@samsung.com>
+	<1464881987-13203-3-git-send-email-k.kozlowski@samsung.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: andrea.gelmini@gelma.net
-Cc: trivial@kernel.org, rkuo@codeaurora.org, linux-hexagon@vger.kernel.org
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20120113;
+	h=mime-version:sender:in-reply-to:references:from:date:message-id
+	:subject:to:cc;
+	bh=uCnxmB1T8a+4D+O4zpeSlaaz1Cfb9og2oC3TvgHjcRE=;
+	b=XIORJNb9acrmFYpTUR+IydSRCx8p6NgGzpCDttIL5VB/L08CUzbSmTqpRHktZyYUZk
+	Go4zRKJacq1XlR3GT11LQgHQA01kmYoADP4XCzXbsprp9X+xuzWcfEq3nPpJSSmma0Ei
+	gKX0mAfwzQs6bSr+KsOv17G1rSmnnUpKoN27qXpI3bSGAMN8Blv3fUGD01NZA9wpqD/W
+	su2VN8g+513h7RqBGkULEsGhpmHyEVyMEBc0jI2g0r21XTZXJyfQPAKuQWmunmUGSynV
+	OO6U5Mk+Rcu7XK3z2sf+o0382n0j1kJtR7CRg3XHQWb32Dp16dsTNrxFhYhefbMSpbOx
+	5onw==
+In-Reply-To: <1464881987-13203-3-git-send-email-k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Linux MIPS Mailing List <linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Aurelien Jacquiot <a-jacquiot-l0cyMroinI0@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Will Deacon <will.deacon-5wv7dgnIgG8@public.gmane.org>, DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, "linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "James E.J. Bottomley" <jejb-6jwH94ZQLHl74goWV3ctuw@public.gmane.org>, Christoph Hellwig <hch-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Catalin Marinas <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, xen-devel-GuqFBffKawtpuQazS67q72D2FQJk+8+b@public.gmane.org, Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, uclinux-h8-devel-5NWGOfrQmneRv+LV9MX5uooqe+aC9MnS@public.gmane.org, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, "adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org" <adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 
-Signed-off-by: Andrea Gelmini <andrea.gelmini@gelma.net>
----
- arch/hexagon/kernel/traps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi Krzysztof,
 
-diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
-index 110dab1..b12a080 100644
---- a/arch/hexagon/kernel/traps.c
-+++ b/arch/hexagon/kernel/traps.c
-@@ -415,7 +415,7 @@ void do_trap0(struct pt_regs *regs)
- 			info.si_signo = SIGTRAP;
- 			info.si_errno = 0;
- 			/*
--			 * Some architecures add some per-thread state
-+			 * Some architectures add some per-thread state
- 			 * to distinguish between breakpoint traps and
- 			 * trace traps.  We may want to do that, and
- 			 * set the si_code value appropriately, or we
--- 
-2.8.2.534.g1f66975
+On Thu, Jun 2, 2016 at 5:39 PM, Krzysztof Kozlowski
+<k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
+> --- a/include/linux/dma-mapping.h
+> +++ b/include/linux/dma-mapping.h
+> @@ -5,13 +5,25 @@
+
+> +/**
+> + * List of possible attributes associated with a DMA mapping. The semantics
+> + * of each attribute should be defined in Documentation/DMA-attributes.txt.
+> + */
+> +#define DMA_ATTR_WRITE_BARRIER         (1UL << 1)
+
+Any particular reason they start at 2, not 1?
+
+> +#define DMA_ATTR_WEAK_ORDERING         (1UL << 2)
+> +#define DMA_ATTR_WRITE_COMBINE         (1UL << 3)
+> +#define DMA_ATTR_NON_CONSISTENT                (1UL << 4)
+> +#define DMA_ATTR_NO_KERNEL_MAPPING     (1UL << 5)
+> +#define DMA_ATTR_SKIP_CPU_SYNC         (1UL << 6)
+> +#define DMA_ATTR_FORCE_CONTIGUOUS      (1UL << 7)
+> +#define DMA_ATTR_ALLOC_SINGLE_PAGES    (1UL << 8)
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
