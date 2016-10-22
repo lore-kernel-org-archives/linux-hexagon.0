@@ -1,45 +1,223 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: Re: Hexagon-setup: Combine four seq_printf() calls into one call in
- show_cpuinfo()
-Date: Fri, 21 Oct 2016 20:50:11 +0200
-Message-ID: <20c77dde-a1a0-8383-f344-a6f788af68d9@users.sourceforge.net>
-References: <c19c69d5-600c-f08b-f448-0420e677db63@users.sourceforge.net>
- <alpine.DEB.2.10.1610210918420.3212@hadrien>
- <e9daa136-c6ab-2f96-3d20-6e143fa1170b@users.sourceforge.net>
- <20161021154624.maiwbgjmzlzhin2l@thunk.org>
- <48d54097-6be3-d39d-2af9-d4ad90c3c417@users.sourceforge.net>
- <20161021175317.nnb2keq7m3phwgbv@thunk.org>
+From: Yury Norov <ynorov@caviumnetworks.com>
+Subject: [PATCH] asm-generic: Drop getrlimit and setrlimit syscalls from default list
+Date: Sat, 22 Oct 2016 15:14:04 +0300
+Message-ID: <1477138444-14993-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20161021175317.nnb2keq7m3phwgbv@thunk.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=CAVIUMNETWORKS.onmicrosoft.com; s=selector1-caviumnetworks-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
+ bh=6W3x4UiyiebSni1L48f/gv9hTPidFskz3reQO20KcEY=;
+ b=t0bYLuIEQ4qCtMMg3ZItrQQ3eYqPwjRL/UrWsV8COf8hmEe6AeQu8c6mJXXKV2NZ1Yms0EcLMCAtCdO1tI7xb55WkPzcauFPGEHe6/EmR+KS8vwYY1tOlhi8/ggpM9cbK2pjCsTubXEf1P5f45KhvjYgHDA9GLotZFP0nFp5eH4=
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Theodore Ts'o <tytso@mit.edu>, Julia Lawall <julia.lawall@lip6.fr>
-Cc: linux-hexagon@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: Arnd Bergmann <arnd@arndb.de>, James Hogan <james.hogan@imgtec.com>, linux-arch@vger.kernel.or
+Cc: Yury Norov <ynorov@caviumnetworks.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Mark Salter <msalter@redhat.com>, Aurelien Jacquiot <a-jacquiot@ti.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Kuo <rkuo@codeaurora.org>, Ley Foon Tan <lftan@altera.com>, Jonas Bonn <jonas@southpole.se>, Chen Liqin <liqin.linux@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Chris Metcalf <cmetcalf@mellanox.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Andrew Pinski <Andrew.Pinski@cavium.com>, linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, uclinux-h8-devel@lists.sourceforge.jp
 
-> When the author of the semantic patch language is telling you to stand down,
+The newer prlimit64 syscall provides all the functionality provided by
+the getrlimit and setrlimit syscalls and adds the pid of target process,
+so future architectures won't need to include getrlimit and setrlimit.
 
-The collaboration evolved between Julia and me during the years somehow.
-Different software development opinions occur then as usual.
-Further opinions from contributors like you can eventually show variations
-between disagreement and acceptance.
+Therefore drop getrlimit and setrlimit syscalls from the generic syscall
+list unless __ARCH_WANT_SET_GET_RLIMIT is defined by the architecture's
+unistd.h prior to including asm-generic/unistd.h, and adjust all
+architectures using the generic syscall list to define it so that no
+in-tree architectures are affected.
 
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Mark Salter <msalter@redhat.com>
+Cc: Aurelien Jacquiot <a-jacquiot@ti.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: James Hogan <james.hogan@imgtec.com>
+Cc: Ley Foon Tan <lftan@altera.com>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Chen Liqin <liqin.linux@gmail.com>
+Cc: Lennox Wu <lennox.wu@gmail.com>
+Cc: Chris Metcalf <cmetcalf@mellanox.com>
+Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Andrew Pinski <Andrew.Pinski@cavium.com>
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: uclinux-h8-devel@lists.sourceforge.jp
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-metag@vger.kernel.org
+Cc: nios2-dev@lists.rocketboards.org
+Cc: linux-arch@vger.kernel.or
+Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
 
-> and you still want to try to argue for blind application of patches,
+---
+ arch/arc/include/uapi/asm/unistd.h       | 1 +
+ arch/arm64/include/uapi/asm/unistd.h     | 1 +
+ arch/c6x/include/uapi/asm/unistd.h       | 1 +
+ arch/h8300/include/uapi/asm/unistd.h     | 1 +
+ arch/hexagon/include/uapi/asm/unistd.h   | 1 +
+ arch/metag/include/uapi/asm/unistd.h     | 1 +
+ arch/nios2/include/uapi/asm/unistd.h     | 1 +
+ arch/openrisc/include/uapi/asm/unistd.h  | 1 +
+ arch/score/include/uapi/asm/unistd.h     | 1 +
+ arch/tile/include/uapi/asm/unistd.h      | 1 +
+ arch/unicore32/include/uapi/asm/unistd.h | 1 +
+ include/uapi/asm-generic/unistd.h        | 5 +++++
+ 12 files changed, 16 insertions(+)
 
-I guess that we have got different views about "blind" tries.
+diff --git a/arch/arc/include/uapi/asm/unistd.h b/arch/arc/include/uapi/asm/unistd.h
+index 41fa2ec..928546d 100644
+--- a/arch/arc/include/uapi/asm/unistd.h
++++ b/arch/arc/include/uapi/asm/unistd.h
+@@ -16,6 +16,7 @@
+ #define _UAPI_ASM_ARC_UNISTD_H
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #define __ARCH_WANT_SYS_EXECVE
+ #define __ARCH_WANT_SYS_CLONE
+ #define __ARCH_WANT_SYS_VFORK
+diff --git a/arch/arm64/include/uapi/asm/unistd.h b/arch/arm64/include/uapi/asm/unistd.h
+index 043d17a..48355a6 100644
+--- a/arch/arm64/include/uapi/asm/unistd.h
++++ b/arch/arm64/include/uapi/asm/unistd.h
+@@ -15,5 +15,6 @@
+  */
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ 
+ #include <asm-generic/unistd.h>
+diff --git a/arch/c6x/include/uapi/asm/unistd.h b/arch/c6x/include/uapi/asm/unistd.h
+index 12d73d9..f676231 100644
+--- a/arch/c6x/include/uapi/asm/unistd.h
++++ b/arch/c6x/include/uapi/asm/unistd.h
+@@ -15,6 +15,7 @@
+  */
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #define __ARCH_WANT_SYS_CLONE
+ 
+ /* Use the standard ABI for syscalls. */
+diff --git a/arch/h8300/include/uapi/asm/unistd.h b/arch/h8300/include/uapi/asm/unistd.h
+index 7dd20ef..2f98394 100644
+--- a/arch/h8300/include/uapi/asm/unistd.h
++++ b/arch/h8300/include/uapi/asm/unistd.h
+@@ -1,5 +1,6 @@
+ #define __ARCH_NOMMU
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ 
+ #include <asm-generic/unistd.h>
+diff --git a/arch/hexagon/include/uapi/asm/unistd.h b/arch/hexagon/include/uapi/asm/unistd.h
+index 2151760..52d585c 100644
+--- a/arch/hexagon/include/uapi/asm/unistd.h
++++ b/arch/hexagon/include/uapi/asm/unistd.h
+@@ -28,6 +28,7 @@
+ 
+ #define sys_mmap2 sys_mmap_pgoff
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #define __ARCH_WANT_SYS_EXECVE
+ #define __ARCH_WANT_SYS_CLONE
+ #define __ARCH_WANT_SYS_VFORK
+diff --git a/arch/metag/include/uapi/asm/unistd.h b/arch/metag/include/uapi/asm/unistd.h
+index 459b6ec..16b5cb3 100644
+--- a/arch/metag/include/uapi/asm/unistd.h
++++ b/arch/metag/include/uapi/asm/unistd.h
+@@ -8,6 +8,7 @@
+  */
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ 
+ /* Use the standard ABI for syscalls. */
+ #include <asm-generic/unistd.h>
+diff --git a/arch/nios2/include/uapi/asm/unistd.h b/arch/nios2/include/uapi/asm/unistd.h
+index 51a32c7..b0dda4d 100644
+--- a/arch/nios2/include/uapi/asm/unistd.h
++++ b/arch/nios2/include/uapi/asm/unistd.h
+@@ -18,6 +18,7 @@
+  #define sys_mmap2 sys_mmap_pgoff
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ 
+ /* Use the standard ABI for syscalls */
+ #include <asm-generic/unistd.h>
+diff --git a/arch/openrisc/include/uapi/asm/unistd.h b/arch/openrisc/include/uapi/asm/unistd.h
+index 471905b..6812d81 100644
+--- a/arch/openrisc/include/uapi/asm/unistd.h
++++ b/arch/openrisc/include/uapi/asm/unistd.h
+@@ -21,6 +21,7 @@
+ #define sys_mmap2 sys_mmap_pgoff
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #define __ARCH_WANT_SYS_FORK
+ #define __ARCH_WANT_SYS_CLONE
+ 
+diff --git a/arch/score/include/uapi/asm/unistd.h b/arch/score/include/uapi/asm/unistd.h
+index d4008c3..7ad1bdc 100644
+--- a/arch/score/include/uapi/asm/unistd.h
++++ b/arch/score/include/uapi/asm/unistd.h
+@@ -1,6 +1,7 @@
+ #define __ARCH_HAVE_MMU
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #define __ARCH_WANT_SYSCALL_NO_AT
+ #define __ARCH_WANT_SYSCALL_NO_FLAGS
+ #define __ARCH_WANT_SYSCALL_OFF_T
+diff --git a/arch/tile/include/uapi/asm/unistd.h b/arch/tile/include/uapi/asm/unistd.h
+index 24e9187..cf0505f 100644
+--- a/arch/tile/include/uapi/asm/unistd.h
++++ b/arch/tile/include/uapi/asm/unistd.h
+@@ -13,6 +13,7 @@
+  */
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #if !defined(__LP64__) || defined(__SYSCALL_COMPAT)
+ /* Use the flavor of this syscall that matches the 32-bit API better. */
+ #define __ARCH_WANT_SYNC_FILE_RANGE2
+diff --git a/arch/unicore32/include/uapi/asm/unistd.h b/arch/unicore32/include/uapi/asm/unistd.h
+index 1f63c47..ef25aec 100644
+--- a/arch/unicore32/include/uapi/asm/unistd.h
++++ b/arch/unicore32/include/uapi/asm/unistd.h
+@@ -11,6 +11,7 @@
+  */
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ 
+ /* Use the standard ABI for syscalls. */
+ #include <asm-generic/unistd.h>
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index 9b1462e..bbaeac0 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -465,10 +465,15 @@ __SYSCALL(__NR_uname, sys_newuname)
+ __SYSCALL(__NR_sethostname, sys_sethostname)
+ #define __NR_setdomainname 162
+ __SYSCALL(__NR_setdomainname, sys_setdomainname)
++
++#ifdef __ARCH_WANT_SET_GET_RLIMIT
++/* getrlimit and setrlimit are superseded with prlimit64 */
+ #define __NR_getrlimit 163
+ __SC_COMP(__NR_getrlimit, sys_getrlimit, compat_sys_getrlimit)
+ #define __NR_setrlimit 164
+ __SC_COMP(__NR_setrlimit, sys_setrlimit, compat_sys_setrlimit)
++#endif
++
+ #define __NR_getrusage 165
+ __SC_COMP(__NR_getrusage, sys_getrusage, compat_sys_getrusage)
+ #define __NR_umask 166
+-- 
+2.7.4
 
-
-> we have a really big problem.
-
-I hope that potential communication difficulties can still be resolved.
-
-
-> Especially when some of your patches have actually introduced bugs.
-
-I assume that these incidents could be clarified further, couldn't they?
-
-Regards,
-Markus
