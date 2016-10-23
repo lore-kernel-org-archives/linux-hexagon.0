@@ -1,71 +1,44 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: Re: Hexagon-setup: Combine four seq_printf() calls into one call in
- show_cpuinfo()
-Date: Fri, 21 Oct 2016 20:28:00 +0200
-Message-ID: <4263abec-0a2c-d37d-7a35-47648ae0dcac@users.sourceforge.net>
-References: <c19c69d5-600c-f08b-f448-0420e677db63@users.sourceforge.net>
- <alpine.DEB.2.10.1610210918420.3212@hadrien>
- <e9daa136-c6ab-2f96-3d20-6e143fa1170b@users.sourceforge.net>
- <20161021154624.maiwbgjmzlzhin2l@thunk.org>
- <48d54097-6be3-d39d-2af9-d4ad90c3c417@users.sourceforge.net>
- <20161021175317.nnb2keq7m3phwgbv@thunk.org>
+From: Vineet Gupta <vgupta@synopsys.com>
+Subject: Re: [PATCH] asm-generic: Drop getrlimit and setrlimit syscalls from
+ default list
+Date: Sun, 23 Oct 2016 13:57:27 -0700
+Message-ID: <4e1a4e68-5c84-ce9d-73df-b7da312cc884@synopsys.com>
+References: <1477138444-14993-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20161021175317.nnb2keq7m3phwgbv@thunk.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=sender:subject:to:references:cc:from:organization:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding;
+        bh=ELj5s/+k+d1r6aDJu/QXfIpZkzZOC+e/LhuhFtj791c=;
+        b=brAlnI4X+WXtpLTX5Gn83zVb0pJaUghhyedv/d/+VMUPWzBxaghJc6KxRYBgJqYjc0
+         X2qDTHnqjCBvX17rwh0uTuzO8Lh9UQAvvRa7ISE/3SVExBSJroUVDjo2eBYho4IMWkVG
+         fiGfeDLJT5VFBbFlQgn36jdW4aOU7NpQJB7EANED6F4+/xbpWMFNjH/MXWXuED/I1c0T
+         TyL1qAqWQkFLWKlSbsPJia75Q5eKMtgIfzFtuLzGJ+kxWLPH/VAZFv9m8uRgqCDdOukN
+         du7J1U6BkUT5T/FE4njcElehX28yl8y4QHGoswVjY5qas/s/o58feC2WwopX1CGu3jG/
+         Z72g==
+In-Reply-To: <1477138444-14993-1-git-send-email-ynorov@caviumnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Theodore Ts'o <tytso@mit.edu>, Julia Lawall <julia.lawall@lip6.fr>
-Cc: linux-hexagon@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Yury Norov <ynorov@caviumnetworks.com>, Arnd Bergmann <arnd@arndb.de>, James Hogan <james.hogan@imgtec.com>, "linux-arch@vger.kernel.or" <linux-arch@vger.kernel.or>
+Cc: Vineet Gupta <Vineet.Gupta1@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Mark Salter <msalter@redhat.com>, Aurelien Jacquiot <a-jacquiot@ti.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Kuo <rkuo@codeaurora.org>, Ley Foon Tan <lftan@altera.com>, Jonas Bonn <jonas@southpole.se>, Chen Liqin <liqin.linux@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Chris Metcalf <cmetcalf@mellanox.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Andrew Pinski <Andrew.Pinski@cavium.com>, "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-Am 21.10.2016 um 19:53 schrieb Theodore Ts'o:
-> On Fri, Oct 21, 2016 at 07:33:30PM +0200, SF Markus Elfring wrote:
->>
->>> but (a) this isn't performance critical,
->>
->> This can be.
-> 
-> In this case, no, it really can't possibly be performance critical.
-> If you can't see why, you have no business trying to send patches.
-> 
->>> and (b) the number of bytes saved is really tiny.
->>
->> I imagine that the corresponding code and data size reduction could
->> be occasionally useful, couldn't it?
-> 
-> Note that in some cases, attempts to shirnk the code by tiny amounts
-> can actually, paradoxically, cause the code to actually *expand*.  In
-> any case, shrinking the kernel by 0.00015% really won't matter, since
-> for no other reason, we round memory used to 4k pages.
-> 
-> So keeping the code easily readible is aslo a consideration that needs
-> to be taken into acconut.
-> 
->>> But at least if the compiler was doing the work, it would at least deal with
->>> it everywhere.
->>
->> I would find such an optimisation possibility also nice.
->>
->> Can it become acceptable to achieve a similar effect by the application
->> of scripts for the semantic patch language in the meantime?
-> 
-> The problem with scripts like this is that they very clearly don't
-> have any human judgement.  And when the person using the scripts also
-> doesn't seem to have good judgement, it's a real problem.
-> 
-> When the author of the semantic patch language is telling you to stand down,
+On 10/22/2016 05:14 AM, Yury Norov wrote:
+> The newer prlimit64 syscall provides all the functionality provided by
+> the getrlimit and setrlimit syscalls and adds the pid of target process,
+> so future architectures won't need to include getrlimit and setrlimit.
+>
+> Therefore drop getrlimit and setrlimit syscalls from the generic syscall
+> list unless __ARCH_WANT_SET_GET_RLIMIT is defined by the architecture's
+> unistd.h prior to including asm-generic/unistd.h, and adjust all
+> architectures using the generic syscall list to define it so that no
+> in-tree architectures are affected.
+>
+> Cc: Vineet Gupta <vgupta@synopsys.com>
 
-A collaboration evolved between Julia and me during the years
-where different software development opinions can be usual.
-There are eventually further opinions from Linux contributors like you.
+Acked-by: Vineet Gupta <vgupta@synopsys.com> #arch/arc bits
 
-
-> and you still want to try to argue for blind application of patches,
-
-
-> we have a really big problem. 
-> Especially when some of your patches have actually introduced bugs.
-> 
-> 					- Ted
-> 
+Thx,
+-Vineet
