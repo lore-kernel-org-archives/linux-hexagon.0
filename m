@@ -1,57 +1,85 @@
-From: Alexander Duyck <alexander.h.duyck@intel.com>
-Subject: [net-next PATCH 10/27] arch/hexagon: Add option to skip DMA sync as
- a part of mapping
-Date: Tue, 25 Oct 2016 11:37:41 -0400
-Message-ID: <20161025153741.4815.68818.stgit@ahduyck-blue-test.jf.intel.com>
-References: <20161025153220.4815.61239.stgit@ahduyck-blue-test.jf.intel.com>
+From: Richard Kuo <rkuo@codeaurora.org>
+Subject: Re: Hexagon-setup: Combine four seq_printf() calls into one call in
+ show_cpuinfo()
+Date: Tue, 25 Oct 2016 16:37:35 -0500
+Message-ID: <20161025213735.GA27715@codeaurora.org>
+References: <c19c69d5-600c-f08b-f448-0420e677db63@users.sourceforge.net>
+ <alpine.DEB.2.10.1610210918420.3212@hadrien>
+ <e9daa136-c6ab-2f96-3d20-6e143fa1170b@users.sourceforge.net>
+ <20161021154624.maiwbgjmzlzhin2l@thunk.org>
+ <48d54097-6be3-d39d-2af9-d4ad90c3c417@users.sourceforge.net>
+ <20161021175317.nnb2keq7m3phwgbv@thunk.org>
+ <20c77dde-a1a0-8383-f344-a6f788af68d9@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20161025153220.4815.61239.stgit@ahduyck-blue-test.jf.intel.com>
-Sender: owner-linux-mm@kvack.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1477431462;
+        bh=u3f30TvGgM1CqemrjxaPM7B6YPCdIZjcxlUAlJsvA/g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bqj4rBQ0AsONpxRAVRG1CjUncq7udby4uaI1SbVjJ6MiQvIX4ih+mul+qwnk864qT
+         gtXSGt7YRHlQ7pMXcjaS0mCqTPnd8MDFudErqxMF0tKWloqc1dAjolISYfs3ukr4f0
+         z7ot3FqGZdi8nQ/CVvnsZBn7eHU93Fqa8Dru9vOY=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1477431457;
+        bh=u3f30TvGgM1CqemrjxaPM7B6YPCdIZjcxlUAlJsvA/g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fZY25pkjfh9kVAK+1THcdeGTpbtmaPjmcxK1gInnZ3HnpXFk2CXDvWkrizDHII3/a
+         RLs7mh+IqZhghnQZTqeIkxI34nJHS5waflY8P6buKXzd4H+9z0ukZLpgiX82Bs0oat
+         s1uLuyJqcoJJ2Wzie8aq7HLVZ16IweMCwek9wqrY=
+Content-Disposition: inline
+In-Reply-To: <20c77dde-a1a0-8383-f344-a6f788af68d9@users.sourceforge.net>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Cc: linux-hexagon@vger.kernel.org, brouer@redhat.com, davem@davemloft.net, Richard Kuo <rkuo@codeaurora.org>
+Content-Transfer-Encoding: 7bit
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: Theodore Ts'o <tytso@mit.edu>, Julia Lawall <julia.lawall@lip6.fr>, linux-hexagon@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-This change allows us to pass DMA_ATTR_SKIP_CPU_SYNC which allows us to
-avoid invoking cache line invalidation if the driver will just handle it
-later via a sync_for_cpu or sync_for_device call.
+I wrote it the original way precisely for readability; it's easier, at least
+to me, to read and modify the old way.
 
-Cc: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
-Signed-off-by: Alexander Duyck <alexander.h.duyck@intel.com>
----
- arch/hexagon/kernel/dma.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+However, in my development version I happen to be printing a lot more
+stuff.
 
-diff --git a/arch/hexagon/kernel/dma.c b/arch/hexagon/kernel/dma.c
-index b901778..dbc4f10 100644
---- a/arch/hexagon/kernel/dma.c
-+++ b/arch/hexagon/kernel/dma.c
-@@ -119,6 +119,9 @@ static int hexagon_map_sg(struct device *hwdev, struct scatterlist *sg,
- 
- 		s->dma_length = s->length;
- 
-+		if (attrs & DMA_ATTR_SKIP_CPU_SYNC)
-+			continue;
-+
- 		flush_dcache_range(dma_addr_to_virt(s->dma_address),
- 				   dma_addr_to_virt(s->dma_address + s->length));
- 	}
-@@ -180,7 +183,8 @@ static dma_addr_t hexagon_map_page(struct device *dev, struct page *page,
- 	if (!check_addr("map_single", dev, bus, size))
- 		return bad_dma_address;
- 
--	dma_sync(dma_addr_to_virt(bus), size, dir);
-+	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
-+		dma_sync(dma_addr_to_virt(bus), size, dir);
- 
- 	return bus;
- }
+To test, I collapsed 18 of my seq_printf's into one call.  That reduced the
+function size by a couple hundred bytes.  (Didn't do anything for the final
+kernel size though.)
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+If it makes things better, even if only slightly, doesn't introduce bugs, 
+and doesn't otherwise violate any other rules (correct me if I'm wrong), I
+would personally accept the minor readability tradeoff in this case.
+
+
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
+
+
+
+On Fri, Oct 21, 2016 at 08:50:11PM +0200, SF Markus Elfring wrote:
+> > When the author of the semantic patch language is telling you to stand down,
+> 
+> The collaboration evolved between Julia and me during the years somehow.
+> Different software development opinions occur then as usual.
+> Further opinions from contributors like you can eventually show variations
+> between disagreement and acceptance.
+> 
+> 
+> > and you still want to try to argue for blind application of patches,
+> 
+> I guess that we have got different views about "blind" tries.
+> 
+> 
+> > we have a really big problem.
+> 
+> I hope that potential communication difficulties can still be resolved.
+> 
+> 
+> > Especially when some of your patches have actually introduced bugs.
+> 
+> I assume that these incidents could be clarified further, couldn't they?
+> 
+> Regards,
+> Markus
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-hexagon" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
