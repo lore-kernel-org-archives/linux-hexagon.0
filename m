@@ -1,85 +1,40 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: Hexagon-setup: Combine four seq_printf() calls into one call in
- show_cpuinfo()
-Date: Tue, 25 Oct 2016 16:37:35 -0500
-Message-ID: <20161025213735.GA27715@codeaurora.org>
-References: <c19c69d5-600c-f08b-f448-0420e677db63@users.sourceforge.net>
- <alpine.DEB.2.10.1610210918420.3212@hadrien>
- <e9daa136-c6ab-2f96-3d20-6e143fa1170b@users.sourceforge.net>
- <20161021154624.maiwbgjmzlzhin2l@thunk.org>
- <48d54097-6be3-d39d-2af9-d4ad90c3c417@users.sourceforge.net>
- <20161021175317.nnb2keq7m3phwgbv@thunk.org>
- <20c77dde-a1a0-8383-f344-a6f788af68d9@users.sourceforge.net>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] asm-generic: Drop getrlimit and setrlimit syscalls from
+ default list
+Date: Sat, 29 Oct 2016 23:02:40 +0200
+Message-ID: <2502005.4risrb1P1I@wuerfel>
+References: <1477138444-14993-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1477431462;
-        bh=u3f30TvGgM1CqemrjxaPM7B6YPCdIZjcxlUAlJsvA/g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bqj4rBQ0AsONpxRAVRG1CjUncq7udby4uaI1SbVjJ6MiQvIX4ih+mul+qwnk864qT
-         gtXSGt7YRHlQ7pMXcjaS0mCqTPnd8MDFudErqxMF0tKWloqc1dAjolISYfs3ukr4f0
-         z7ot3FqGZdi8nQ/CVvnsZBn7eHU93Fqa8Dru9vOY=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1477431457;
-        bh=u3f30TvGgM1CqemrjxaPM7B6YPCdIZjcxlUAlJsvA/g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fZY25pkjfh9kVAK+1THcdeGTpbtmaPjmcxK1gInnZ3HnpXFk2CXDvWkrizDHII3/a
-         RLs7mh+IqZhghnQZTqeIkxI34nJHS5waflY8P6buKXzd4H+9z0ukZLpgiX82Bs0oat
-         s1uLuyJqcoJJ2Wzie8aq7HLVZ16IweMCwek9wqrY=
-Content-Disposition: inline
-In-Reply-To: <20c77dde-a1a0-8383-f344-a6f788af68d9@users.sourceforge.net>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: Theodore Ts'o <tytso@mit.edu>, Julia Lawall <julia.lawall@lip6.fr>, linux-hexagon@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1477138444-14993-1-git-send-email-ynorov@caviumnetworks.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
+To: Yury Norov <ynorov@caviumnetworks.com>
+Cc: Aurelien Jacquiot <a-jacquiot@ti.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Lennox Wu <lennox.wu@gmail.com>, linux-arch@vger.kernel.org, Chen Liqin <liqin.linux@gmail.com>, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Mark Salter <msalter@redhat.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, Jonas Bonn <jonas@southpole.se>, James Hogan <james.hogan@imgtec.com>, Chris Metcalf <cmetcalf@mellanox.com>, nios2-dev@lists.rocketboards.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andrew Pinski <Andrew.Pinski@cavium.com>, Vineet Gupta <vgupta@synopsys.com>, linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, Ley Foon Tan <lftan@altera.com>
 
-I wrote it the original way precisely for readability; it's easier, at least
-to me, to read and modify the old way.
+On Saturday, October 22, 2016 3:14:04 PM CEST Yury Norov wrote:
+> The newer prlimit64 syscall provides all the functionality provided by
+> the getrlimit and setrlimit syscalls and adds the pid of target process,
+> so future architectures won't need to include getrlimit and setrlimit.
+> 
+> Therefore drop getrlimit and setrlimit syscalls from the generic syscall
+> list unless __ARCH_WANT_SET_GET_RLIMIT is defined by the architecture's
+> unistd.h prior to including asm-generic/unistd.h, and adjust all
+> architectures using the generic syscall list to define it so that no
+> in-tree architectures are affected.
 
-However, in my development version I happen to be printing a lot more
-stuff.
+The patch looks good, but shouldn't we also hide the actual syscall
+implementation if the symbol is not set? It's just dead code otherwise
+for new architectures.
 
-To test, I collapsed 18 of my seq_printf's into one call.  That reduced the
-function size by a couple hundred bytes.  (Didn't do anything for the final
-kernel size though.)
-
-If it makes things better, even if only slightly, doesn't introduce bugs, 
-and doesn't otherwise violate any other rules (correct me if I'm wrong), I
-would personally accept the minor readability tradeoff in this case.
-
-
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
-
-
-
-On Fri, Oct 21, 2016 at 08:50:11PM +0200, SF Markus Elfring wrote:
-> > When the author of the semantic patch language is telling you to stand down,
-> 
-> The collaboration evolved between Julia and me during the years somehow.
-> Different software development opinions occur then as usual.
-> Further opinions from contributors like you can eventually show variations
-> between disagreement and acceptance.
-> 
-> 
-> > and you still want to try to argue for blind application of patches,
-> 
-> I guess that we have got different views about "blind" tries.
-> 
-> 
-> > we have a really big problem.
-> 
-> I hope that potential communication difficulties can still be resolved.
-> 
-> 
-> > Especially when some of your patches have actually introduced bugs.
-> 
-> I assume that these incidents could be clarified further, couldn't they?
-> 
-> Regards,
-> Markus
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-hexagon" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	Arnd
