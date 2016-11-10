@@ -1,57 +1,55 @@
-From: Alexander Duyck <alexander.h.duyck@intel.com>
-Subject: [mm PATCH v3 07/23] arch/hexagon: Add option to skip DMA sync as a
- part of mapping
-Date: Thu, 10 Nov 2016 06:34:52 -0500
-Message-ID: <20161110113452.76501.45864.stgit@ahduyck-blue-test.jf.intel.com>
+From: Richard Kuo <rkuo@codeaurora.org>
+Subject: Re: [mm PATCH v3 07/23] arch/hexagon: Add option to skip DMA sync as
+ a part of mapping
+Date: Thu, 10 Nov 2016 12:40:14 -0600
+Message-ID: <20161110184014.GA30680@codeaurora.org>
 References: <20161110113027.76501.63030.stgit@ahduyck-blue-test.jf.intel.com>
+ <20161110113452.76501.45864.stgit@ahduyck-blue-test.jf.intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20161110113027.76501.63030.stgit@ahduyck-blue-test.jf.intel.com>
-Sender: owner-linux-mm@kvack.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1478803216;
+        bh=uT4V1aOTgvHOtwh+geoTTTtpmFBonF7xXz+7lKi2tRE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BEUcmMCkHhzkkD+vb1mVAE3tVX5N4LyxetinLM5tys45FxaAEy9vRCUaHgD8ceXF+
+         e8TaqO609iyH+4bd8imltm5eUQqnIGlCNTunO+WPZu/eUdHPgCPYQO/HAGg8x3tEiL
+         9b/hlcIjg1uP0k9uIivfjk81jlYBPFPtEu88p3+s=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1478803216;
+        bh=uT4V1aOTgvHOtwh+geoTTTtpmFBonF7xXz+7lKi2tRE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BEUcmMCkHhzkkD+vb1mVAE3tVX5N4LyxetinLM5tys45FxaAEy9vRCUaHgD8ceXF+
+         e8TaqO609iyH+4bd8imltm5eUQqnIGlCNTunO+WPZu/eUdHPgCPYQO/HAGg8x3tEiL
+         9b/hlcIjg1uP0k9uIivfjk81jlYBPFPtEu88p3+s=
+Content-Disposition: inline
+In-Reply-To: <20161110113452.76501.45864.stgit@ahduyck-blue-test.jf.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-mm@kvack.org, akpm@linux-foundation.org
-Cc: linux-hexagon@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>
+Content-Transfer-Encoding: 7bit
+To: Alexander Duyck <alexander.h.duyck@intel.com>
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, linux-hexagon@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This change allows us to pass DMA_ATTR_SKIP_CPU_SYNC which allows us to
-avoid invoking cache line invalidation if the driver will just handle it
-later via a sync_for_cpu or sync_for_device call.
+On Thu, Nov 10, 2016 at 06:34:52AM -0500, Alexander Duyck wrote:
+> This change allows us to pass DMA_ATTR_SKIP_CPU_SYNC which allows us to
+> avoid invoking cache line invalidation if the driver will just handle it
+> later via a sync_for_cpu or sync_for_device call.
+> 
+> Cc: Richard Kuo <rkuo@codeaurora.org>
+> Cc: linux-hexagon@vger.kernel.org
+> Signed-off-by: Alexander Duyck <alexander.h.duyck@intel.com>
+> ---
+>  arch/hexagon/kernel/dma.c |    6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+> 
 
-Cc: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
-Signed-off-by: Alexander Duyck <alexander.h.duyck@intel.com>
----
- arch/hexagon/kernel/dma.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+For Hexagon:
 
-diff --git a/arch/hexagon/kernel/dma.c b/arch/hexagon/kernel/dma.c
-index b901778..dbc4f10 100644
---- a/arch/hexagon/kernel/dma.c
-+++ b/arch/hexagon/kernel/dma.c
-@@ -119,6 +119,9 @@ static int hexagon_map_sg(struct device *hwdev, struct scatterlist *sg,
- 
- 		s->dma_length = s->length;
- 
-+		if (attrs & DMA_ATTR_SKIP_CPU_SYNC)
-+			continue;
-+
- 		flush_dcache_range(dma_addr_to_virt(s->dma_address),
- 				   dma_addr_to_virt(s->dma_address + s->length));
- 	}
-@@ -180,7 +183,8 @@ static dma_addr_t hexagon_map_page(struct device *dev, struct page *page,
- 	if (!check_addr("map_single", dev, bus, size))
- 		return bad_dma_address;
- 
--	dma_sync(dma_addr_to_virt(bus), size, dir);
-+	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
-+		dma_sync(dma_addr_to_virt(bus), size, dir);
- 
- 	return bus;
- }
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+
+
+-- 
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
+a Linux Foundation Collaborative Project
