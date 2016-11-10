@@ -1,13 +1,13 @@
 From: Alexander Duyck <alexander.h.duyck@intel.com>
-Subject: [mm PATCH v2 10/26] arch/hexagon: Add option to skip DMA sync as a
+Subject: [mm PATCH v3 07/23] arch/hexagon: Add option to skip DMA sync as a
  part of mapping
-Date: Wed, 02 Nov 2016 07:14:09 -0400
-Message-ID: <20161102111407.79519.26259.stgit@ahduyck-blue-test.jf.intel.com>
-References: <20161102111031.79519.14741.stgit@ahduyck-blue-test.jf.intel.com>
+Date: Thu, 10 Nov 2016 06:34:52 -0500
+Message-ID: <20161110113452.76501.45864.stgit@ahduyck-blue-test.jf.intel.com>
+References: <20161110113027.76501.63030.stgit@ahduyck-blue-test.jf.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20161102111031.79519.14741.stgit@ahduyck-blue-test.jf.intel.com>
+In-Reply-To: <20161110113027.76501.63030.stgit@ahduyck-blue-test.jf.intel.com>
 Sender: owner-linux-mm@kvack.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
