@@ -1,20 +1,16 @@
-From: Jeff Epler <jepler@unpythonic.net>
-Subject: Re: [PATCH v2 7/7] uapi: export all headers under uapi directories
-Date: Thu, 12 Jan 2017 19:04:27 -0600
-Message-ID: <20170113010427.GA22650@unpythonic.net>
-References: <bf83da6b-01ef-bf44-b3e1-ca6fc5636818@6wind.com>
- <1483695839-18660-1-git-send-email-nicolas.dichtel@6wind.com>
- <1483695839-18660-8-git-send-email-nicolas.dichtel@6wind.com>
- <20170109125638.GA15506@infradead.org>
- <464a1323-4450-e563-ff59-9e6d57b75959@6wind.com>
- <alpine.LSU.2.20.1701121727180.19188@erq.vanv.qr>
- <9d68af8a-a609-d7b1-58a9-f1155313b077@6wind.com>
+From: "Xuetao Guan" <gxt@mprc.pku.edu.cn>
+Subject: Re: [PATCH 03/20] asm-generic: Drop getrlimit and setrlimit 
+ syscalls from default list
+Date: Fri, 13 Jan 2017 10:51:44 +0800 (CST)
+Message-ID: <16049.175.43.247.167.1484275904.squirrel@mprc.pku.edu.cn>
+References: <1483961397-8599-1-git-send-email-ynorov@caviumnetworks.com>
+ <1483961397-8599-4-git-send-email-ynorov@caviumnetworks.com>
+Reply-To: gxt@mprc.pku.edu.cn
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <9d68af8a-a609-d7b1-58a9-f1155313b077@6wind.com>
+In-Reply-To: <1483961397-8599-4-git-send-email-ynorov@caviumnetworks.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
@@ -25,15 +21,67 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
 Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Cc: linux-mips@linux-mips.org, alsa-devel@alsa-project.org, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, airlied@linux.ie, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-mtd@lists.infradead.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-am33-list@redhat.com, linux-c6x-dev@linux-c6x.org, linux-rdma@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-sh@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, coreteam@netfilter.org, fcoe-devel@open-fcoe.org, xen-devel@lists.xenproject.org, linux-snps-arc@lists.infradead.org, linux-media@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, linux-xtensa@linux-xtensa.org, arnd@arndb.de, linux-kbuild@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-raid@vger.kernel.org, linux-m68k@lists.linux-m68k.org, mmarek@suse.com, linux-metag@v
+To: Yury Norov <ynorov@caviumnetworks.com>
+Cc: linux-doc@vger.kernel.org, Andrew Pinski <andrew.pinski@caviumnetworks.com>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Chris Metcalf <cmetcalf@ezchip.com>, Yury Norov <ynorov@caviumnetworks.com>, linux@lists.openrisc.net, linux-hexagon@vger.kernel.org, philipp.tomsich@theobroma-systems.com, Joseph Myers <joseph@codesourcery.com>, linux-arch@vger.kernel.org, Chen Liqin <liqin.linux@gmail.com>, zhouchengming1@huawei.com, Guan Xuetao <gxt@mprc.pku.edu.cn>, Steve Ellcey <sellcey@caviumnetworks.com>, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, prasun.kapoor@caviumnetworks.com, Andreas Schwab <schwab@suse.de>, Aurelien Jacquiot <a-jacquiot@ti.com>, agraf@suse.de, szabolcs.nagy@arm.com, geert@linux-m68k.org, Lennox Wu <lennox.wu@gmail.com>, Mark Salter <msalter@redhat.com>, linux-snps-arc@lists.infradead
 
-On Thu, Jan 12, 2017 at 05:32:09PM +0100, Nicolas Dichtel wrote:
-> What I was trying to say is that I export those directories like other are.
-> Removing those files is not related to that series.
+> The newer prlimit64 syscall provides all the functionality provided by
+> the getrlimit and setrlimit syscalls and adds the pid of target process,
+> so future architectures won't need to include getrlimit and setrlimit.
+>
+> Therefore drop getrlimit and setrlimit syscalls from the generic syscall
+> list unless __ARCH_WANT_SET_GET_RLIMIT is defined by the architecture's
+> unistd.h prior to including asm-generic/unistd.h, and adjust all
+> architectures
+> using the generic syscall list to define it so that no in-tree
+> architectures
+> are affected.
+>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: James Hogan <james.hogan@imgtec.com>
+> Cc: linux-arch@vger.kernel.org
+> Cc: linux-snps-arc@lists.infradead.org
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will.deacon@arm.com>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: Mark Salter <msalter@redhat.com>
+> Cc: Aurelien Jacquiot <a-jacquiot@ti.com>
+> Cc: linux-c6x-dev@linux-c6x.org
+> Cc: Richard Kuo <rkuo@codeaurora.org>
+> Cc: linux-hexagon@vger.kernel.org
+> Cc: linux-metag@vger.kernel.org
+> Cc: Jonas Bonn <jonas@southpole.se>
+> Cc: linux@lists.openrisc.net
+> Cc: Chen Liqin <liqin.linux@gmail.com>
+> Cc: Lennox Wu <lennox.wu@gmail.com>
+> Cc: Chris Metcalf <cmetcalf@mellanox.com>
+> Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
+> Cc: Ley Foon Tan <lftan@altera.com>
+> Cc: nios2-dev@lists.rocketboards.org
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: uclinux-h8-devel@lists.sourceforge.jp
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> Acked-by: Mark Salter <msalter@redhat.com> [c6x]
+> Acked-by: James Hogan <james.hogan@imgtec.com> [metag]
+> Acked-by: Ley Foon Tan <lftan@altera.com> [nios2]
+> Acked-by: Stafford Horne <shorne@gmail.com> [openrisc]
+> Acked-by: Vineet Gupta <vgupta@synopsys.com> #arch/arc bits
+> Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+> ---
+>  arch/arc/include/uapi/asm/unistd.h       | 1 +
+>  arch/arm64/include/uapi/asm/unistd.h     | 1 +
+>  arch/c6x/include/uapi/asm/unistd.h       | 1 +
+>  arch/h8300/include/uapi/asm/unistd.h     | 1 +
+>  arch/hexagon/include/uapi/asm/unistd.h   | 1 +
+>  arch/metag/include/uapi/asm/unistd.h     | 1 +
+>  arch/nios2/include/uapi/asm/unistd.h     | 1 +
+>  arch/openrisc/include/uapi/asm/unistd.h  | 1 +
+>  arch/score/include/uapi/asm/unistd.h     | 1 +
+>  arch/tile/include/uapi/asm/unistd.h      | 1 +
+>  arch/unicore32/include/uapi/asm/unistd.h | 1 +
+>  include/uapi/asm-generic/unistd.h        | 5 +++++
+>  12 files changed, 16 insertions(+)
 
-Perhaps the correct solution is to only copy files matching "*.h" to
-reduce the risk of copying files incidentally created by kbuild but
-which shouldn't be installed as uapi headers.
+For UniCore32:
+Acked-by: Guan Xuetao <gxt@mprc.pku.edu.cn>
 
-jeff
+Thanks.
