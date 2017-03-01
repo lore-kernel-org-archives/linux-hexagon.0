@@ -1,11 +1,31 @@
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: [PATCH v3 00/20] Finalize separation of extable.h from module.h
-Date: Sun, 22 Jan 2017 11:32:24 -0500
-Message-ID: <20170122163244.11740-1-paul.gortmaker@windriver.com>
+From: Yury Norov <ynorov@caviumnetworks.com>
+Subject: [PATCH 03/20] asm-generic: Drop getrlimit and setrlimit syscalls from
+ default list
+Date: Thu,  2 Mar 2017 00:49:11 +0530
+Message-ID: <1488395968-14313-4-git-send-email-ynorov@caviumnetworks.com>
+References: <1488395968-14313-1-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
+	Message-Id:Date:Subject:To:From:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=12sk2yUUNCd7N31AdQ4Q4XWdxkyIHjnq5fFJfK3+vv4=; b=YJYmu6iICCLdir
+	iR4IEr5EGWUZDKMWH2YSpiPPmUp6U3RhGsnVAeisWbP2x5Wi1uEfYxi1eZCnsbPCLn3iZYYqfXPBB
+	kxJz4icfW45oFkJRN0omhtbI5TJxoyNQWj/Nm7sqdB6POI6UBG8IvqOfqLeZEbS9zoqKBk9Q8mULn
+	7aAgz+fgjrR5wBZIFAfwyGIrxw6p6Oo7js1eyWNOV/5QpvfKMagX8l9A/XawjdTWLpGovEXrI/xY4
+	/jNDT+2j0GtQwgrBZIyZcHjOqz3UywJDg7J2D43YyFSo5ysE7EMubPj3xilgsakCiMifiPDEUFJFC
+	Epq6NlEdT9ae4QtUiQJA==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=CAVIUMNETWORKS.onmicrosoft.com; s=selector1-caviumnetworks-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
+ bh=y4ANma2U3x7SbCCjVzTVCGHrPwHbCBb2Leeo7Pb8x3w=;
+ b=rf4b3+9ISULQO5q8rQTAD9D/U+J+zq7mOOjffH8HfFWSe+HLo/0vGEPyvnOi0XYcRZGsprLOK8c2c5oBs15ZSNUdMGcKkyemN7gC32ZKkVD46qXq5hxYkahxgOFcl2NXWCDIyYamVtvzze83hOpVGO69ZEa4Y/PjI46fEYdW2uw=
+In-Reply-To: <1488395968-14313-1-git-send-email-ynorov@caviumnetworks.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
@@ -16,148 +36,213 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
 Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, David Howells <dhowells@redhat.com>, Max Filippov <jcmvbkbc@gmail.com>, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, Lennox Wu <lennox.wu@gmail.com>, Jonas Bonn <jonas@southpole.se>, Chen Liqin <liqin.linux@gmail.com>, linux-am33-list@redhat.com, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Russell King <linux@armlinux.org.uk>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, linux-xtensa@linux-xtensa.org, Rusty Russell <rusty@rustcorp.com.au>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, openrisc@lists.librecores.org, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Al Viro <viro@zeniv.linux.org.uk>, nios2-dev@lists.rocketboards.org, Staff
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>
+Cc: Aurelien Jacquiot <a-jacquiot@ti.com>, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Chris Metcalf <cmetcalf@ezchip.com>, Yury Norov <ynorov@caviumnetworks.com>, linux@lists.openrisc.net, linux-hexagon@vger.kernel.org, philipp.tomsich@theobroma-systems.com, Joseph Myers <joseph@codesourcery.com>, linux-arch@vger.kernel.org, Chen Liqin <liqin.linux@gmail.com>, zhouchengming1@huawei.com, Guan Xuetao <gxt@mprc.pku.edu.cn>, Steve Ellcey <sellcey@caviumnetworks.com>, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Prasun.Kapoor@caviumnetworks.com, Andreas Schwab <schwab@suse.de>, agraf@suse.de, szabolcs.nagy@arm.com, geert@linux-m68k.org, Lennox Wu <lennox.wu@gmail.com>, Mark Salter <msalter@redhat.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, Adam Borowski <kilobyte@a>
 
-If you already read the v2 00/NN, then you can skip this v3; the only
-change is to add new arch specific patches that extended build coverage
-and more intelligent regex patterns lead to.
+The newer prlimit64 syscall provides all the functionality provided by
+the getrlimit and setrlimit syscalls and adds the pid of target process,
+so future architectures won't need to include getrlimit and setrlimit.
 
-Updated copy of the original v2 00/NN text follows:
+Therefore drop getrlimit and setrlimit syscalls from the generic syscall
+list unless __ARCH_WANT_SET_GET_RLIMIT is defined by the architecture's
+unistd.h prior to including asm-generic/unistd.h, and adjust all architectures
+using the generic syscall list to define it so that no in-tree architectures
+are affected.
 
-Some of the arch specific changes have already been picked up by the
-arch maintainers in v1, so I'm assuming the other folks just figured I'd
-ask Linus to pull the remainder.  Which is the current plan ; soak this
-in linux-next on 4.10-rcN and request a pull in the next merge window.
-
-So please shout if you are an arch maintainer and see something here you
-have questions or comments on.  Otherwise, you don't have to do anything.
-
-Once all the old users who expected extable content via module.h are
-gone, then and only then can we remove the back compat line as done in
-the final patch in this series.
-
-I've been build testing this locally on a regular basis in with my other
-pending work, on a bunch of different architectures, so hopefully we
-don't see anything go pear shaped when it goes into sfr's linux-next.
-
-The only real change in the v1 ---> v2 aside from dropping merged
-content was the restructuring in the ia64 based on comments from Al
-Viro to improve some header separation at the same time.  I'd resent
-just those two for follow up comments and nobody seemed to have further 
-suggestions.  Note that I'm not able to run test ia64; just compile.
-
-There was also a minor context refresh required due to the recent
-treewide asm/uaccess --> linux/uaccess change, which gave me the
-motivation to get this out of my queue and finalized.
-
-RFC/V1: https://lkml.kernel.org/r/CA+55aFyDw_jK609LcjpWvVMTzCWuH6nLUXiZDeYC2tpSaZqhXA@mail.gmail.com
-V2: https://lkml.kernel.org/r/20170109204010.5047-1-paul.gortmaker@windriver.com
-ia64: https://lkml.kernel.org/r/20160920022924.9537-1-paul.gortmaker@windriver.com
-
----
-
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Chen Liqin <liqin.linux@gmail.com>
-Cc: Chris Zankel <chris@zankel.net>
-Cc: David Howells <dhowells@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Arnd Bergmann <arnd@arndb.de>
 Cc: James Hogan <james.hogan@imgtec.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Lennox Wu <lennox.wu@gmail.com>
-Cc: Ley Foon Tan <lftan@altera.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Richard Kuo <rkuo@codeaurora.org>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-am33-list@redhat.com
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-hexagon@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
 Cc: linux-snps-arc@lists.infradead.org
-Cc: linux-xtensa@linux-xtensa.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: Mark Salter <msalter@redhat.com>
+Cc: Aurelien Jacquiot <a-jacquiot@ti.com>
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-metag@vger.kernel.org
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: linux@lists.openrisc.net
+Cc: Chen Liqin <liqin.linux@gmail.com>
+Cc: Lennox Wu <lennox.wu@gmail.com>
+Cc: Chris Metcalf <cmetcalf@mellanox.com>
+Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
+Cc: Ley Foon Tan <lftan@altera.com>
 Cc: nios2-dev@lists.rocketboards.org
-Cc: openrisc@lists.librecores.org
-Cc: sparclinux@vger.kernel.org
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: uclinux-h8-devel@lists.sourceforge.jp
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Mark Salter <msalter@redhat.com> [c6x]
+Acked-by: James Hogan <james.hogan@imgtec.com> [metag]
+Acked-by: Ley Foon Tan <lftan@altera.com> [nios2]
+Acked-by: Stafford Horne <shorne@gmail.com> [openrisc]
+Acked-by: Vineet Gupta <vgupta@synopsys.com> #arch/arc bits
+Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+---
+ arch/arc/include/uapi/asm/unistd.h       | 1 +
+ arch/arm64/include/uapi/asm/unistd.h     | 1 +
+ arch/c6x/include/uapi/asm/unistd.h       | 1 +
+ arch/h8300/include/uapi/asm/unistd.h     | 1 +
+ arch/hexagon/include/uapi/asm/unistd.h   | 1 +
+ arch/metag/include/uapi/asm/unistd.h     | 1 +
+ arch/nios2/include/uapi/asm/unistd.h     | 1 +
+ arch/openrisc/include/uapi/asm/unistd.h  | 1 +
+ arch/score/include/uapi/asm/unistd.h     | 1 +
+ arch/tile/include/uapi/asm/unistd.h      | 1 +
+ arch/unicore32/include/uapi/asm/unistd.h | 1 +
+ include/uapi/asm-generic/unistd.h        | 5 +++++
+ 12 files changed, 16 insertions(+)
 
-Paul Gortmaker (20):
-  ia64: move ia64_done_with_exception out of asm/uaccess.h
-  ia64: ensure exception table search users include extable.h
-  m32r: migrate exception table users off module.h and onto extable.h
-  arm: migrate exception table users off module.h and onto extable.h
-  alpha: migrate exception table users off module.h and onto extable.h
-  mn10300: migrate exception table users off module.h and onto extable.h
-  xtensa: migrate exception table users off module.h and onto extable.h
-  sh: migrate exception table users off module.h and onto extable.h
-  frv: migrate exception table users off module.h and onto extable.h
-  openrisc: migrate exception table users off module.h and onto extable.h
-  sparc: migrate exception table users onto extable.h
-  nios2: migrate exception table users off module.h and onto extable.h
-  arc: migrate exception table users off module.h and onto extable.h
-  metag: migrate exception table users off module.h and onto extable.h
-  score: migrate exception table users off module.h and onto extable.h
-  unicore32: migrate exception table users off module.h and onto extable.h
-  microblaze: migrate exception table users off module.h and onto extable.h
-  hexagon: migrate exception table users off module.h and onto extable.h
-  core: migrate exception table users off module.h and onto extable.h
-  module.h: remove extable.h include now users have migrated
-
- arch/alpha/kernel/traps.c         |  2 +-
- arch/alpha/mm/fault.c             |  2 +-
- arch/arc/mm/extable.c             |  3 ++-
- arch/arm/mm/extable.c             |  2 +-
- arch/arm/mm/fault.c               |  2 +-
- arch/frv/mm/extable.c             |  2 +-
- arch/hexagon/mm/vm_fault.c        |  2 +-
- arch/ia64/include/asm/exception.h | 35 +++++++++++++++++++++++++++++++++++
- arch/ia64/include/asm/uaccess.h   | 15 ---------------
- arch/ia64/kernel/kprobes.c        |  4 ++--
- arch/ia64/kernel/traps.c          |  6 ++++--
- arch/ia64/kernel/unaligned.c      |  4 +++-
- arch/ia64/mm/fault.c              |  2 ++
- arch/m32r/mm/extable.c            |  2 +-
- arch/m32r/mm/fault.c              |  2 +-
- arch/metag/mm/extable.c           |  3 +--
- arch/microblaze/mm/fault.c        |  2 +-
- arch/mn10300/mm/extable.c         |  2 +-
- arch/mn10300/mm/misalignment.c    |  2 +-
- arch/nios2/mm/extable.c           |  2 +-
- arch/nios2/mm/fault.c             |  2 +-
- arch/openrisc/mm/fault.c          |  2 +-
- arch/score/mm/extable.c           |  2 +-
- arch/score/mm/fault.c             |  2 +-
- arch/sh/include/asm/uaccess.h     |  1 -
- arch/sh/kernel/kprobes.c          |  2 +-
- arch/sh/kernel/traps.c            |  3 ++-
- arch/sh/mm/extable_32.c           |  2 +-
- arch/sh/mm/extable_64.c           |  2 +-
- arch/sparc/mm/extable.c           |  1 +
- arch/unicore32/mm/extable.c       |  2 +-
- arch/unicore32/mm/fault.c         |  2 +-
- arch/xtensa/mm/fault.c            |  2 +-
- include/linux/module.h            |  1 -
- init/main.c                       |  1 +
- kernel/extable.c                  |  1 +
- kernel/module.c                   |  1 +
- 37 files changed, 77 insertions(+), 48 deletions(-)
- create mode 100644 arch/ia64/include/asm/exception.h
-
+diff --git a/arch/arc/include/uapi/asm/unistd.h b/arch/arc/include/uapi/asm/unistd.h
+index 9a34136..ac64965 100644
+--- a/arch/arc/include/uapi/asm/unistd.h
++++ b/arch/arc/include/uapi/asm/unistd.h
+@@ -16,6 +16,7 @@
+ #define _UAPI_ASM_ARC_UNISTD_H
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #define __ARCH_WANT_SYS_EXECVE
+ #define __ARCH_WANT_SYS_CLONE
+ #define __ARCH_WANT_SYS_VFORK
+diff --git a/arch/arm64/include/uapi/asm/unistd.h b/arch/arm64/include/uapi/asm/unistd.h
+index 043d17a..48355a6 100644
+--- a/arch/arm64/include/uapi/asm/unistd.h
++++ b/arch/arm64/include/uapi/asm/unistd.h
+@@ -15,5 +15,6 @@
+  */
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ 
+ #include <asm-generic/unistd.h>
+diff --git a/arch/c6x/include/uapi/asm/unistd.h b/arch/c6x/include/uapi/asm/unistd.h
+index 12d73d9..f676231 100644
+--- a/arch/c6x/include/uapi/asm/unistd.h
++++ b/arch/c6x/include/uapi/asm/unistd.h
+@@ -15,6 +15,7 @@
+  */
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #define __ARCH_WANT_SYS_CLONE
+ 
+ /* Use the standard ABI for syscalls. */
+diff --git a/arch/h8300/include/uapi/asm/unistd.h b/arch/h8300/include/uapi/asm/unistd.h
+index 7dd20ef..2f98394 100644
+--- a/arch/h8300/include/uapi/asm/unistd.h
++++ b/arch/h8300/include/uapi/asm/unistd.h
+@@ -1,5 +1,6 @@
+ #define __ARCH_NOMMU
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ 
+ #include <asm-generic/unistd.h>
+diff --git a/arch/hexagon/include/uapi/asm/unistd.h b/arch/hexagon/include/uapi/asm/unistd.h
+index 2151760..52d585c 100644
+--- a/arch/hexagon/include/uapi/asm/unistd.h
++++ b/arch/hexagon/include/uapi/asm/unistd.h
+@@ -28,6 +28,7 @@
+ 
+ #define sys_mmap2 sys_mmap_pgoff
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #define __ARCH_WANT_SYS_EXECVE
+ #define __ARCH_WANT_SYS_CLONE
+ #define __ARCH_WANT_SYS_VFORK
+diff --git a/arch/metag/include/uapi/asm/unistd.h b/arch/metag/include/uapi/asm/unistd.h
+index 459b6ec..16b5cb3 100644
+--- a/arch/metag/include/uapi/asm/unistd.h
++++ b/arch/metag/include/uapi/asm/unistd.h
+@@ -8,6 +8,7 @@
+  */
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ 
+ /* Use the standard ABI for syscalls. */
+ #include <asm-generic/unistd.h>
+diff --git a/arch/nios2/include/uapi/asm/unistd.h b/arch/nios2/include/uapi/asm/unistd.h
+index 51a32c7..b0dda4d 100644
+--- a/arch/nios2/include/uapi/asm/unistd.h
++++ b/arch/nios2/include/uapi/asm/unistd.h
+@@ -18,6 +18,7 @@
+  #define sys_mmap2 sys_mmap_pgoff
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ 
+ /* Use the standard ABI for syscalls */
+ #include <asm-generic/unistd.h>
+diff --git a/arch/openrisc/include/uapi/asm/unistd.h b/arch/openrisc/include/uapi/asm/unistd.h
+index 471905b..6812d81 100644
+--- a/arch/openrisc/include/uapi/asm/unistd.h
++++ b/arch/openrisc/include/uapi/asm/unistd.h
+@@ -21,6 +21,7 @@
+ #define sys_mmap2 sys_mmap_pgoff
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #define __ARCH_WANT_SYS_FORK
+ #define __ARCH_WANT_SYS_CLONE
+ 
+diff --git a/arch/score/include/uapi/asm/unistd.h b/arch/score/include/uapi/asm/unistd.h
+index d4008c3..7ad1bdc 100644
+--- a/arch/score/include/uapi/asm/unistd.h
++++ b/arch/score/include/uapi/asm/unistd.h
+@@ -1,6 +1,7 @@
+ #define __ARCH_HAVE_MMU
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #define __ARCH_WANT_SYSCALL_NO_AT
+ #define __ARCH_WANT_SYSCALL_NO_FLAGS
+ #define __ARCH_WANT_SYSCALL_OFF_T
+diff --git a/arch/tile/include/uapi/asm/unistd.h b/arch/tile/include/uapi/asm/unistd.h
+index 24e9187..cf0505f 100644
+--- a/arch/tile/include/uapi/asm/unistd.h
++++ b/arch/tile/include/uapi/asm/unistd.h
+@@ -13,6 +13,7 @@
+  */
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ #if !defined(__LP64__) || defined(__SYSCALL_COMPAT)
+ /* Use the flavor of this syscall that matches the 32-bit API better. */
+ #define __ARCH_WANT_SYNC_FILE_RANGE2
+diff --git a/arch/unicore32/include/uapi/asm/unistd.h b/arch/unicore32/include/uapi/asm/unistd.h
+index 9cf71c7..76ece52 100644
+--- a/arch/unicore32/include/uapi/asm/unistd.h
++++ b/arch/unicore32/include/uapi/asm/unistd.h
+@@ -11,6 +11,7 @@
+  */
+ 
+ #define __ARCH_WANT_RENAMEAT
++#define __ARCH_WANT_SET_GET_RLIMIT
+ 
+ #ifndef CONFIG_UNICORE32_OLDABI
+ 
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index a6062be..d65e232 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -465,10 +465,15 @@ __SYSCALL(__NR_uname, sys_newuname)
+ __SYSCALL(__NR_sethostname, sys_sethostname)
+ #define __NR_setdomainname 162
+ __SYSCALL(__NR_setdomainname, sys_setdomainname)
++
++#ifdef __ARCH_WANT_SET_GET_RLIMIT
++/* getrlimit and setrlimit are superseded with prlimit64 */
+ #define __NR_getrlimit 163
+ __SC_COMP(__NR_getrlimit, sys_getrlimit, compat_sys_getrlimit)
+ #define __NR_setrlimit 164
+ __SC_COMP(__NR_setrlimit, sys_setrlimit, compat_sys_setrlimit)
++#endif
++
+ #define __NR_getrusage 165
+ __SC_COMP(__NR_getrusage, sys_getrusage, compat_sys_getrusage)
+ #define __NR_umask 166
 -- 
-2.11.0
+2.7.4
