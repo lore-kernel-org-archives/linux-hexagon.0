@@ -1,57 +1,79 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH 1/3] futex: remove duplicated code
-Date: Wed, 08 Mar 2017 20:36:30 -0800
-Message-ID: <201703090437.v294b0RE021699__36330.0863690258$1489036084$gmane$org@mail.zytor.com>
-References: <20170303122712.13353-1-jslaby@suse.cz> <20170304130550.GT21222@n2100.armlinux.org.uk> <23e5808b-2a20-518d-b49a-4d95dd23cfde@landley.net>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH 03/20] asm-generic: Drop getrlimit and setrlimit syscalls
+ from default list
+Date: Fri, 10 Mar 2017 18:09:39 +0000
+Message-ID: <20170310180938.GG18894@arm.com>
+References: <1488395968-14313-1-git-send-email-ynorov@caviumnetworks.com>
+ <1488395968-14313-4-git-send-email-ynorov@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <23e5808b-2a20-518d-b49a-4d95dd23cfde@landley.net>
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-arch-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1488395968-14313-4-git-send-email-ynorov@caviumnetworks.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Rob Landley <rob@landley.net>, Russell King - ARM Linux <linux@armlinux.org.uk>, Jiri Slaby <jslaby@suse.cz>
-Cc: akpm@linux-foundation.org, linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Michal Simek <monstr@monstr.eu>, Ralf Baechle <ralf@linux-mips.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>
+Content-Transfer-Encoding: 7bit
+To: Yury Norov <ynorov@caviumnetworks.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>, Andrew Pinski <pinskia@gmail.com>, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, Adam Borowski <kilobyte@angband.pl>, Chris Metcalf <cmetcalf@ezchip.com>, Steve Ellcey <sellcey@caviumnetworks.com>, Maxim Kuvyrkov <maxim.kuvyrkov@linaro.org>, Ramana Radhakrishnan <ramana.gcc@googlemail.com>, Florian Weimer <fweimer@redhat.com>, Bamvor Zhangjian <bamvor.zhangjian@huawei.com>, Andreas Schwab <schwab@suse.de>, Chris Metcalf <cmetcalf@mellanox.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, schwidefsky@de.ibm.com, broonie@kernel.org, Joseph Myers <joseph@codesourcery.com>, christoph.
 
-<cmetcalf@mellanox.com>,Thomas Gleixner <tglx@linutronix.de>,Ingo Molnar <mingo@redhat.com>,Chris Zankel <chris@zankel.net>,Max Filippov <jcmvbkbc@gmail.com>,Arnd Bergmann <arnd@arndb.de>,x86@kernel.org,linux-alpha@vger.kernel.org,linux-snps-arc@lists.infradead.org,linux-arm-kernel@lists.infradead.org,linux-hexagon@vger.kernel.org,linux-ia64@vger.kernel.org,linux-mips@linux-mips.org,openrisc@lists.librecores.org,linux-parisc@vger.kernel.org,linuxppc-dev@lists.ozlabs.org,linux-s390@vger.kernel.org,linux-sh@vger.kernel.org,sparclinux@vger.kernel.org,linux-xtensa@linux-xtensa.org,linux-arch@vger.kernel.org
-From: hpa@zytor.com
-Message-ID: <83324528-AAA1-4BED-B0C7-48426ECBA261@zytor.com>
+On Thu, Mar 02, 2017 at 12:49:11AM +0530, Yury Norov wrote:
+> The newer prlimit64 syscall provides all the functionality provided by
+> the getrlimit and setrlimit syscalls and adds the pid of target process,
+> so future architectures won't need to include getrlimit and setrlimit.
+> 
+> Therefore drop getrlimit and setrlimit syscalls from the generic syscall
+> list unless __ARCH_WANT_SET_GET_RLIMIT is defined by the architecture's
+> unistd.h prior to including asm-generic/unistd.h, and adjust all architectures
+> using the generic syscall list to define it so that no in-tree architectures
+> are affected.
+> 
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: James Hogan <james.hogan@imgtec.com>
+> Cc: linux-arch@vger.kernel.org
+> Cc: linux-snps-arc@lists.infradead.org
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will.deacon@arm.com>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: Mark Salter <msalter@redhat.com>
+> Cc: Aurelien Jacquiot <a-jacquiot@ti.com>
+> Cc: linux-c6x-dev@linux-c6x.org
+> Cc: Richard Kuo <rkuo@codeaurora.org>
+> Cc: linux-hexagon@vger.kernel.org
+> Cc: linux-metag@vger.kernel.org
+> Cc: Jonas Bonn <jonas@southpole.se>
+> Cc: linux@lists.openrisc.net
+> Cc: Chen Liqin <liqin.linux@gmail.com>
+> Cc: Lennox Wu <lennox.wu@gmail.com>
+> Cc: Chris Metcalf <cmetcalf@mellanox.com>
+> Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
+> Cc: Ley Foon Tan <lftan@altera.com>
+> Cc: nios2-dev@lists.rocketboards.org
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: uclinux-h8-devel@lists.sourceforge.jp
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> Acked-by: Mark Salter <msalter@redhat.com> [c6x]
+> Acked-by: James Hogan <james.hogan@imgtec.com> [metag]
+> Acked-by: Ley Foon Tan <lftan@altera.com> [nios2]
+> Acked-by: Stafford Horne <shorne@gmail.com> [openrisc]
+> Acked-by: Vineet Gupta <vgupta@synopsys.com> #arch/arc bits
+> Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+> ---
+>  arch/arc/include/uapi/asm/unistd.h       | 1 +
+>  arch/arm64/include/uapi/asm/unistd.h     | 1 +
+>  arch/c6x/include/uapi/asm/unistd.h       | 1 +
+>  arch/h8300/include/uapi/asm/unistd.h     | 1 +
+>  arch/hexagon/include/uapi/asm/unistd.h   | 1 +
+>  arch/metag/include/uapi/asm/unistd.h     | 1 +
+>  arch/nios2/include/uapi/asm/unistd.h     | 1 +
+>  arch/openrisc/include/uapi/asm/unistd.h  | 1 +
+>  arch/score/include/uapi/asm/unistd.h     | 1 +
+>  arch/tile/include/uapi/asm/unistd.h      | 1 +
+>  arch/unicore32/include/uapi/asm/unistd.h | 1 +
+>  include/uapi/asm-generic/unistd.h        | 5 +++++
+>  12 files changed, 16 insertions(+)
 
-On March 8, 2017 8:16:49 PM PST, Rob Landley <rob@landley.net> wrote:
->On 03/04/2017 07:05 AM, Russell King - ARM Linux wrote:
->> On Fri, Mar 03, 2017 at 01:27:10PM +0100, Jiri Slaby wrote:
->>> diff --git a/kernel/futex.c b/kernel/futex.c
->>> index b687cb22301c..c5ff9850952f 100644
->>> --- a/kernel/futex.c
->>> +++ b/kernel/futex.c
->>> @@ -1457,6 +1457,42 @@ futex_wake(u32 __user *uaddr, unsigned int
->flags, int nr_wake, u32 bitset)
->>>  	return ret;
->>>  }
->>>  
->>> +static int futex_atomic_op_inuser(int encoded_op, u32 __user
->*uaddr)
->>> +{
->>> +	int op = (encoded_op >> 28) & 7;
->>> +	int cmp = (encoded_op >> 24) & 15;
->>> +	int oparg = (encoded_op << 8) >> 20;
->>> +	int cmparg = (encoded_op << 20) >> 20;
->> 
->> Hmm.  oparg and cmparg look like they're doing these shifts to get
->sign
->> extension of the 12-bit values by assuming that "int" is 32-bit -
->> probably worth a comment, or for safety, they should be "s32" so it's
->> not dependent on the bit-width of "int".
->
->I thought Linux depended on the LP64 standard for all architectures?
->
->Standard: http://www.unix.org/whitepapers/64bit.html
->Rationale: http://www.unix.org/version2/whatsnew/lp64_wp.html
->
->So int has a defined bit width (32) on linux?
->
->Rob
+For the arm64 part:
 
-Linux is ILP32 on 32-bit architectures and LP64 on 64-bit architectures, but that doesn't inherently make this stuff clear.
--- 
-Sent from my Android device with K-9 Mail. Please excuse my brevity.
+Acked-by: Will Deacon <will.deacon@arm.com>
+
+Will
