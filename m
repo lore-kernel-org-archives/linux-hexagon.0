@@ -1,79 +1,231 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH 03/20] asm-generic: Drop getrlimit and setrlimit syscalls
- from default list
-Date: Fri, 10 Mar 2017 18:09:39 +0000
-Message-ID: <20170310180938.GG18894@arm.com>
-References: <1488395968-14313-1-git-send-email-ynorov@caviumnetworks.com>
- <1488395968-14313-4-git-send-email-ynorov@caviumnetworks.com>
-Mime-Version: 1.0
-Return-path: <linux-arch-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1488395968-14313-4-git-send-email-ynorov@caviumnetworks.com>
-Sender: linux-arch-owner@vger.kernel.org
+From: Till Smejkal <till.smejkal@googlemail.com>
+Subject: [RFC PATCH 00/13] Introduce first class virtual address spaces
+Date: Mon, 13 Mar 2017 15:14:02 -0700
+Message-ID: <20170313221415.9375-1-till.smejkal@gmail.com>
+Return-path: <owner-linux-aio@kvack.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=HB6Ee28SXSHB4qLeQezigkg1cTeU5gQ+C8I9CspDT+M=;
+        b=RSVTSqGhd2BncvA+hd8bB0MZ5pJrz2sKI5NB7hduUe+IehtHnd9cUuiwQnEp22mTLe
+         rVtJT3xcGXW5xtblwSnQM9LPUU4Akx6M3xKUtPSEsKNhiYbNJOJ3vb3+duK5RORbhUl/
+         MH82/5bjFAD4GzqfIXinhC8SH/Xc3iBBO0bLXmB6YIgRyEBe2AE8w2valkukqnLtiguU
+         q72qUMSz0e65cNcDXw2Xa7QWlrY4py6kjSPOJV22PToCim7KZy/KAV+2AoUDyKDXsoCT
+         p4+OrUHATbCSPR2C3xAVRZnF6RII7LE5TyAdLcBsSaWB55Mw8NumD+b/s9GsMfBN0mC2
+         xx5g==
+Sender: owner-linux-aio@kvack.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Yury Norov <ynorov@caviumnetworks.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>, Andrew Pinski <pinskia@gmail.com>, Andrew Pinski <Andrew.Pinski@caviumnetworks.com>, Adam Borowski <kilobyte@angband.pl>, Chris Metcalf <cmetcalf@ezchip.com>, Steve Ellcey <sellcey@caviumnetworks.com>, Maxim Kuvyrkov <maxim.kuvyrkov@linaro.org>, Ramana Radhakrishnan <ramana.gcc@googlemail.com>, Florian Weimer <fweimer@redhat.com>, Bamvor Zhangjian <bamvor.zhangjian@huawei.com>, Andreas Schwab <schwab@suse.de>, Chris Metcalf <cmetcalf@mellanox.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, schwidefsky@de.ibm.com, broonie@kernel.org, Joseph Myers <joseph@codesourcery.com>, christoph.
+To: Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Steven Miao <realmz6@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Ralf Baechle <ralf@linux-mips.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@dave>
+Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-metag@vger.kernel.org, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-media@vger.kernel.org, linux-mtd@lists.infradead.org, linux-usb@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, linux-mm@kvack.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, alsa-devel@alsa-project.org
 
-On Thu, Mar 02, 2017 at 12:49:11AM +0530, Yury Norov wrote:
-> The newer prlimit64 syscall provides all the functionality provided by
-> the getrlimit and setrlimit syscalls and adds the pid of target process,
-> so future architectures won't need to include getrlimit and setrlimit.
-> 
-> Therefore drop getrlimit and setrlimit syscalls from the generic syscall
-> list unless __ARCH_WANT_SET_GET_RLIMIT is defined by the architecture's
-> unistd.h prior to including asm-generic/unistd.h, and adjust all architectures
-> using the generic syscall list to define it so that no in-tree architectures
-> are affected.
-> 
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: James Hogan <james.hogan@imgtec.com>
-> Cc: linux-arch@vger.kernel.org
-> Cc: linux-snps-arc@lists.infradead.org
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will.deacon@arm.com>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: Mark Salter <msalter@redhat.com>
-> Cc: Aurelien Jacquiot <a-jacquiot@ti.com>
-> Cc: linux-c6x-dev@linux-c6x.org
-> Cc: Richard Kuo <rkuo@codeaurora.org>
-> Cc: linux-hexagon@vger.kernel.org
-> Cc: linux-metag@vger.kernel.org
-> Cc: Jonas Bonn <jonas@southpole.se>
-> Cc: linux@lists.openrisc.net
-> Cc: Chen Liqin <liqin.linux@gmail.com>
-> Cc: Lennox Wu <lennox.wu@gmail.com>
-> Cc: Chris Metcalf <cmetcalf@mellanox.com>
-> Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
-> Cc: Ley Foon Tan <lftan@altera.com>
-> Cc: nios2-dev@lists.rocketboards.org
-> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-> Cc: uclinux-h8-devel@lists.sourceforge.jp
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-> Acked-by: Mark Salter <msalter@redhat.com> [c6x]
-> Acked-by: James Hogan <james.hogan@imgtec.com> [metag]
-> Acked-by: Ley Foon Tan <lftan@altera.com> [nios2]
-> Acked-by: Stafford Horne <shorne@gmail.com> [openrisc]
-> Acked-by: Vineet Gupta <vgupta@synopsys.com> #arch/arc bits
-> Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
-> ---
->  arch/arc/include/uapi/asm/unistd.h       | 1 +
->  arch/arm64/include/uapi/asm/unistd.h     | 1 +
->  arch/c6x/include/uapi/asm/unistd.h       | 1 +
->  arch/h8300/include/uapi/asm/unistd.h     | 1 +
->  arch/hexagon/include/uapi/asm/unistd.h   | 1 +
->  arch/metag/include/uapi/asm/unistd.h     | 1 +
->  arch/nios2/include/uapi/asm/unistd.h     | 1 +
->  arch/openrisc/include/uapi/asm/unistd.h  | 1 +
->  arch/score/include/uapi/asm/unistd.h     | 1 +
->  arch/tile/include/uapi/asm/unistd.h      | 1 +
->  arch/unicore32/include/uapi/asm/unistd.h | 1 +
->  include/uapi/asm-generic/unistd.h        | 5 +++++
->  12 files changed, 16 insertions(+)
+First class virtual address spaces (also called VAS) are a new functionality of
+the Linux kernel allowing address spaces to exist independently of processes.
+The general idea behind this feature is described in a paper at ASPLOS16 with
+the title 'SpaceJMP: Programming with Multiple Virtual Address Spaces' [1].
 
-For the arm64 part:
+This patchset extends the kernel memory management subsystem with a new
+type of address spaces (called VAS) which can be created and destroyed
+independently of processes by a user in the system. During its lifetime
+such a VAS can be attached to processes by the user which allows a process
+to have multiple address spaces and thereby multiple, potentially
+different, views on the system's main memory. During its execution the
+threads belonging to the process are able to switch freely between the
+different attached VAS and the process' original AS enabling them to
+utilize the different available views on the memory. These multiple virtual
+address spaces per process and the possibility to switch between them
+freely can be used in multiple interesting ways as also outlined in the
+mentioned paper. Some of the many possible applications are for example to
+compartmentalize a process for security reasons, to improve the performance
+of data-centric applications and to introduce new application models [1].
 
-Acked-by: Will Deacon <will.deacon@arm.com>
+In addition to the concept of first class virtual address spaces, this
+patchset introduces yet another feature called VAS segments. VAS segments
+are memory regions which have a fixed size and position in the virtual
+address space and can be shared between multiple first class virtual
+address spaces. Such shareable memory regions are especially useful for
+in-memory pointer-based data structures or other pure in-memory data.
 
-Will
+First class virtual address spaces have a significant advantage compared to
+forking a process and using inter process communication mechanism, namely
+that creating and switching between VAS is significant faster than creating
+and switching between processes. As it can be seen in the following table,
+measured on an Intel Xeon E5620 CPU with 2.40GHz, creating a VAS is about 7
+times faster than forking and switching between VAS is up to 4 times faster
+than switching between processes.
+
+            |     VAS     |  processes  |
+    -------------------------------------
+    switch  |       468ns |      1944ns |
+    create  |     20003ns |    150491ns |
+
+Hence, first class virtual address spaces provide a fast mechanism for
+applications to utilize multiple virtual address spaces in parallel with a
+higher performance than splitting up the application into multiple
+independent processes.
+
+Both VAS and VAS segments have another significant advantage when combined
+with non-volatile memory. Because of their independent life cycle from
+processes and other kernel data structures, they can be used to save
+special memory regions or even whole AS into non-volatile memory making it
+possible to reuse them across multiple system reboots.
+
+At the current state of the development, first class virtual address spaces
+have one limitation, that we haven't been able to solve so far. The feature
+allows, that different threads of the same process can execute in different
+AS at the same time. This is possible, because the VAS-switch operation
+only changes the active mm_struct for the task_struct of the calling
+thread. However, when a thread switches into a first class virtual address
+space, some parts of its original AS are duplicated into the new one to
+allow the thread to continue its execution at its current state.
+Accordingly, parts of the processes AS (e.g. the code section, data
+section, heap section and stack sections) exist in multiple AS if the
+process has a VAS attached to it. Changes to these shared memory regions
+are synchronized between the address spaces whenever a thread switches
+between two of them. Unfortunately, in some scenarios the kernel is not
+able to properly synchronize all these shared memory regions because of
+conflicting changes. One such example happens if there are two threads, one
+executing in an attached first class virtual address space, the other in
+the tasks original address space. If both threads make changes to the heap
+section that cause expansion of the underlying vm_area_struct, the kernel
+cannot correctly synchronize these changes, because that would cause parts
+of the virtual address space to be overwritten with unrelated data. In the
+current implementation such conflicts are only detected but not resolved
+and result in an error code being returned by the kernel during the VAS
+switch operation. Unfortunately, that means for the particular thread that
+tried to make the switch, that it cannot do this anymore in the future and
+accordingly has to be killed.
+
+This code was developed during an internship at Hewlett Packard Enterprise.
+
+[1] http://impact.crhc.illinois.edu/shared/Papers/ASPLOS16-SpaceJMP.pdf
+
+Till Smejkal (13):
+  mm: Add mm_struct argument to 'mmap_region'
+  mm: Add mm_struct argument to 'do_mmap' and 'do_mmap_pgoff'
+  mm: Rename 'unmap_region' and add mm_struct argument
+  mm: Add mm_struct argument to 'get_unmapped_area' and
+    'vm_unmapped_area'
+  mm: Add mm_struct argument to 'mm_populate' and '__mm_populate'
+  mm/mmap: Export 'vma_link' and 'find_vma_links' to mm subsystem
+  kernel/fork: Split and export 'mm_alloc' and 'mm_init'
+  kernel/fork: Define explicitly which mm_struct to duplicate during
+    fork
+  mm/memory: Add function to one-to-one duplicate page ranges
+  mm: Introduce first class virtual address spaces
+  mm/vas: Introduce VAS segments - shareable address space regions
+  mm/vas: Add lazy-attach support for first class virtual address spaces
+  fs/proc: Add procfs support for first class virtual address spaces
+
+ MAINTAINERS                                  |   10 +
+ arch/alpha/kernel/osf_sys.c                  |   19 +-
+ arch/arc/mm/mmap.c                           |    8 +-
+ arch/arm/kernel/process.c                    |    2 +-
+ arch/arm/mach-rpc/ecard.c                    |    2 +-
+ arch/arm/mm/mmap.c                           |   19 +-
+ arch/arm64/kernel/vdso.c                     |    2 +-
+ arch/blackfin/include/asm/pgtable.h          |    3 +-
+ arch/blackfin/kernel/sys_bfin.c              |    5 +-
+ arch/frv/mm/elf-fdpic.c                      |   11 +-
+ arch/hexagon/kernel/vdso.c                   |    2 +-
+ arch/ia64/kernel/perfmon.c                   |    3 +-
+ arch/ia64/kernel/sys_ia64.c                  |    6 +-
+ arch/ia64/mm/hugetlbpage.c                   |    7 +-
+ arch/metag/mm/hugetlbpage.c                  |   11 +-
+ arch/mips/kernel/vdso.c                      |    4 +-
+ arch/mips/mm/mmap.c                          |   27 +-
+ arch/parisc/kernel/sys_parisc.c              |   19 +-
+ arch/parisc/mm/hugetlbpage.c                 |    7 +-
+ arch/powerpc/include/asm/book3s/64/hugetlb.h |    6 +-
+ arch/powerpc/include/asm/page_64.h           |    3 +-
+ arch/powerpc/kernel/vdso.c                   |    2 +-
+ arch/powerpc/mm/hugetlbpage-radix.c          |    9 +-
+ arch/powerpc/mm/hugetlbpage.c                |    9 +-
+ arch/powerpc/mm/mmap.c                       |   17 +-
+ arch/powerpc/mm/slice.c                      |   25 +-
+ arch/s390/kernel/vdso.c                      |    3 +-
+ arch/s390/mm/mmap.c                          |   42 +-
+ arch/sh/kernel/vsyscall/vsyscall.c           |    2 +-
+ arch/sh/mm/mmap.c                            |   19 +-
+ arch/sparc/include/asm/pgtable_64.h          |    4 +-
+ arch/sparc/kernel/sys_sparc_32.c             |    6 +-
+ arch/sparc/kernel/sys_sparc_64.c             |   31 +-
+ arch/sparc/mm/hugetlbpage.c                  |   26 +-
+ arch/tile/kernel/vdso.c                      |    2 +-
+ arch/tile/mm/elf.c                           |    2 +-
+ arch/tile/mm/hugetlbpage.c                   |   26 +-
+ arch/x86/entry/syscalls/syscall_32.tbl       |   16 +
+ arch/x86/entry/syscalls/syscall_64.tbl       |   16 +
+ arch/x86/entry/vdso/vma.c                    |    2 +-
+ arch/x86/kernel/sys_x86_64.c                 |   19 +-
+ arch/x86/mm/hugetlbpage.c                    |   26 +-
+ arch/x86/mm/mpx.c                            |    6 +-
+ arch/xtensa/kernel/syscall.c                 |    7 +-
+ drivers/char/mem.c                           |   15 +-
+ drivers/dax/dax.c                            |   10 +-
+ drivers/media/usb/uvc/uvc_v4l2.c             |    6 +-
+ drivers/media/v4l2-core/v4l2-dev.c           |    8 +-
+ drivers/media/v4l2-core/videobuf2-v4l2.c     |    5 +-
+ drivers/mtd/mtdchar.c                        |    3 +-
+ drivers/usb/gadget/function/uvc_v4l2.c       |    3 +-
+ fs/aio.c                                     |    4 +-
+ fs/exec.c                                    |    5 +-
+ fs/hugetlbfs/inode.c                         |    8 +-
+ fs/proc/base.c                               |  528 ++++
+ fs/proc/inode.c                              |   11 +-
+ fs/proc/internal.h                           |    1 +
+ fs/ramfs/file-mmu.c                          |    5 +-
+ fs/ramfs/file-nommu.c                        |   10 +-
+ fs/romfs/mmap-nommu.c                        |    3 +-
+ include/linux/fs.h                           |    2 +-
+ include/linux/huge_mm.h                      |   12 +-
+ include/linux/hugetlb.h                      |   10 +-
+ include/linux/mm.h                           |   53 +-
+ include/linux/mm_types.h                     |   16 +-
+ include/linux/sched.h                        |   34 +-
+ include/linux/shmem_fs.h                     |    5 +-
+ include/linux/syscalls.h                     |   21 +
+ include/linux/vas.h                          |  322 +++
+ include/linux/vas_types.h                    |  173 ++
+ include/media/v4l2-dev.h                     |    3 +-
+ include/media/videobuf2-v4l2.h               |    5 +-
+ include/uapi/asm-generic/unistd.h            |   34 +-
+ include/uapi/linux/Kbuild                    |    1 +
+ include/uapi/linux/vas.h                     |   28 +
+ init/main.c                                  |    2 +
+ ipc/shm.c                                    |   22 +-
+ kernel/events/uprobes.c                      |    2 +-
+ kernel/exit.c                                |    2 +
+ kernel/fork.c                                |   99 +-
+ kernel/sys_ni.c                              |   18 +
+ mm/Kconfig                                   |   47 +
+ mm/Makefile                                  |    1 +
+ mm/gup.c                                     |    4 +-
+ mm/huge_memory.c                             |   83 +-
+ mm/hugetlb.c                                 |  205 +-
+ mm/internal.h                                |   19 +
+ mm/memory.c                                  |  469 +++-
+ mm/mlock.c                                   |   21 +-
+ mm/mmap.c                                    |  124 +-
+ mm/mremap.c                                  |   13 +-
+ mm/nommu.c                                   |   17 +-
+ mm/shmem.c                                   |   14 +-
+ mm/util.c                                    |    4 +-
+ mm/vas.c                                     | 3466 ++++++++++++++++++++++++++
+ sound/core/pcm_native.c                      |    3 +-
+ 96 files changed, 5927 insertions(+), 545 deletions(-)
+ create mode 100644 include/linux/vas.h
+ create mode 100644 include/linux/vas_types.h
+ create mode 100644 include/uapi/linux/vas.h
+ create mode 100644 mm/vas.c
+
+-- 
+2.12.0
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-aio' in
+the body to majordomo@kvack.org.  For more info on Linux AIO,
+see: http://www.kvack.org/aio/
+Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
