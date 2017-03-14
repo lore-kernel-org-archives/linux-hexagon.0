@@ -1,78 +1,55 @@
-From: Till Smejkal <till.smejkal@googlemail.com>
-Subject: Re: [RFC PATCH 10/13] mm: Introduce first class virtual address
- spaces
-Date: Mon, 13 Mar 2017 19:34:27 -0700
-Message-ID: <20170314023427.3p4a5qxtl5eh5epi@arch-dev>
-References: <cd1adda8-bf6a-47ad-bff3-5bc6626ac100@synopsys.com>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [RFC PATCH 07/13] kernel/fork: Split and export 'mm_alloc' and
+ 'mm_init'
+Date: Tue, 14 Mar 2017 10:18:03 +0000
+Message-ID: <063D6719AE5E284EB5DD2968C1650D6DCFFB03F4@AcuExch.aculab.com>
+References: <20170313221415.9375-1-till.smejkal@gmail.com>
+ <20170313221415.9375-8-till.smejkal@gmail.com>
 Mime-Version: 1.0
-Return-path: <owner-linux-mm@kvack.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:date:to:cc:subject:message-id:mail-followup-to:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=rzoZ0WpHhTa1ozY/Hj3badVzkI9GlDpY617mrc0W+1o=;
-        b=M3t7EuONgWQOz8TbT50Qy+aUouMzK0R6NmqnkuSIktSdYHIUM+kkZr0t5pydvkcHa5
-         Hv/Qd9N9qJRBwW7t4zc7TJvRwCfwUmzrSxZ1h89mWcLC6JAqxaO4BerX+GB8Xk7bUgoP
-         BxKno65YF+k03QWRqZIB2BxegEwDt/f4Vrtk7Q2G1dzaT3my4cl//clNkckFDFH1YJjX
-         M0dokuHFuQP7reyp/yJ3zdM6V6B521zQ/LNNBrIHCNchiIPE++hpi0y58GOT3oT49zci
-         loEGVM+B+cW3iWHacNsSbBy80T1u2VxKt91jiwD5dl8Leauc5jS8NJZGSfkXzREX+Wiu
-         OSOQ==
-Content-Disposition: inline
-In-Reply-To: <cd1adda8-bf6a-47ad-bff3-5bc6626ac100@synopsys.com>
-Sender: owner-linux-mm@kvack.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <owner-linux-aio@kvack.org>
+In-Reply-To: <20170313221415.9375-8-till.smejkal@gmail.com>
+Content-Language: en-US
+Sender: owner-linux-aio@kvack.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Vineet Gupta <Vineet.Gupta1@synopsys.com>
-Cc: Till Smejkal <till.smejkal@googlemail.com>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Steven Miao <realmz6@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Ralf Baechle <ralf@linux-mips.org>, "James E.J.  Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <dav>
+To: 'Till Smejkal' <till.smejkal@googlemail.com>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will
+ Deacon <will.deacon@arm.com>, Steven Miao <realmz6@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Ralf Baechle <ralf@linux-mips.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <>
+Cc: "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-aio@kvack.org" <linux-aio@kvack.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, "adi-buildroot-devel@lists.sourceforge.net" <adi-build>
 
-Hi Vineet,
+From: Linuxppc-dev Till Smejkal
+> Sent: 13 March 2017 22:14
+> The only way until now to create a new memory map was via the exported
+> function 'mm_alloc'. Unfortunately, this function not only allocates a ne=
+w
+> memory map, but also completely initializes it. However, with the
+> introduction of first class virtual address spaces, some initialization
+> steps done in 'mm_alloc' are not applicable to the memory maps needed for
+> this feature and hence would lead to errors in the kernel code.
+>=20
+> Instead of introducing a new function that can allocate and initialize
+> memory maps for first class virtual address spaces and potentially
+> duplicate some code, I decided to split the mm_alloc function as well as
+> the 'mm_init' function that it uses.
+>=20
+> Now there are four functions exported instead of only one. The new
+> 'mm_alloc' function only allocates a new mm_struct and zeros it out. If o=
+ne
+> want to have the old behavior of mm_alloc one can use the newly introduce=
+d
+> function 'mm_alloc_and_setup' which not only allocates a new mm_struct bu=
+t
+> also fully initializes it.
+...
 
-On Mon, 13 Mar 2017, Vineet Gupta wrote:
-> I've not looked at the patches closely (or read the references paper fully yet),
-> but at first glance it seems on ARC architecture, we can can potentially
-> use/leverage this mechanism to implement the shared TLB entries. Before anyone
-> shouts these are not same as the IA64/x86 protection keys which allow TLB entries
-> with different protection bits across processes etc. These TLB entries are
-> actually *shared* by processes.
-> 
-> Conceptually there's shared address spaces, independent of processes. e.g. ldso
-> code is shared address space #1, libc (code) #2 .... System can support a limited
-> number of shared addr spaces (say 64, enough for typical embedded sys).
-> 
-> While Normal TLB entries are tagged with ASID (Addr space ID) to keep them unique
-> across processes, Shared TLB entries are tagged with Shared address space ID.
-> 
-> A process MMU context consists of ASID (a single number) and a SASID bitmap (to
-> allow "subscription" to multiple Shared spaces. The subscriptions are set up bu
-> userspace ld.so which knows about the libs process wants to map.
-> 
-> The restriction ofcourse is that the spaces are mapped at *same* vaddr is all
-> participating processes. I know this goes against whole security, address space
-> randomization - but it gives much better real time performance. Why does each
-> process need to take a MMU exception for libc code...
-> 
-> So long story short - it seems there can be multiple uses of this infrastructure !
+That looks like bugs waiting to happen.
+You need unchanged code to fail to compile.
 
-During the development of this code, we also looked at shared TLB entries, but
-the other way around. We wanted to use them to prevent flushing of TLB entries of
-shared memory regions when switching between multiple ASes. Unfortunately, we never
-finished this part of the code.
+	David
 
-However, we also investigated into a different use-case for first class virtual
-address spaces that is related to what you propose if I didn't understand something
-wrong. The idea is to move shared libraries into their own first class virtual
-address space and only load some small trampoline code in the application AS. This
-trampoline code performs the VAS switch in the libraries AS and execute the requested
-function there. If we combine this architecture with tagged TLB entries to prevent
-TLB flushes during the switch operation, it can also reach an acceptable performance.
-A side effect of moving the shared library into its own AS is that it can not be used
-by ROP-attacks because it is not accessible in the application's AS.
-
-Till
 
 --
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+To unsubscribe, send a message with 'unsubscribe linux-aio' in
+the body to majordomo@kvack.org.  For more info on Linux AIO,
+see: http://www.kvack.org/aio/
+Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
