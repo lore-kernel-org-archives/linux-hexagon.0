@@ -1,83 +1,70 @@
-From: Till Smejkal <till.smejkal@googlemail.com>
+From: Andy Lutomirski <luto@kernel.org>
 Subject: Re: [RFC PATCH 00/13] Introduce first class virtual address spaces
-Date: Mon, 13 Mar 2017 17:39:35 -0700
-Message-ID: <20170314003935.2jwycgajo7eojmvm@arch-dev>
-References: <73f62aca-d442-9e4b-3e2c-6269e2632e68@twiddle.net>
+Date: Mon, 13 Mar 2017 17:58:01 -0700
+Message-ID: <CALCETrWe8uOi3m8qXUbMA4017+rxbi1C8hzZ0bwjVHmfdE4FnQ@mail.gmail.com>
+References: <20170313221415.9375-1-till.smejkal@gmail.com>
 Mime-Version: 1.0
-Return-path: <owner-linux-aio@kvack.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:date:to:cc:subject:message-id:mail-followup-to:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=kX6sEnfv8YQCir28cNWirD6F6mMiV4RXj8z30zPf8Ak=;
-        b=PjtY74ZQsZ14g6IdKY36EUKX7qoBc5xXUCuNRxfCslG9p0o5QccUpygxJQLqjvd2m0
-         32EWQjGRgq3zYWygIPGt3VTCP/lgfVYd9drRmePhM8HWFK4NP4q4z2/KMCaiULsqMZ1D
-         eVejey3iP8JnKPjl4aXaIKjjIGmCSHKigcT9k6qyipsUUXPN7McrNtM1kaP0jp2Ky9PN
-         X27By7qrbs6ZKA+kFTMGNtKbFHoAAmGe4Hge9WMMMNm94vBI7ikAHgTahWjBFfIg0TxL
-         p4A0bes2GEuNKhcmPtCRP78w7tr56Eesl6j+3Vt/QqxVO0M6i+0pzWNsREuV13bw3wrF
-         Tfog==
-Content-Disposition: inline
-In-Reply-To: <73f62aca-d442-9e4b-3e2c-6269e2632e68@twiddle.net>
-Sender: owner-linux-aio@kvack.org
+Return-path: <owner-linux-mm@kvack.org>
+In-Reply-To: <20170313221415.9375-1-till.smejkal@gmail.com>
+Sender: owner-linux-mm@kvack.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Richard Henderson <rth@twiddle.net>
-Cc: Till Smejkal <till.smejkal@googlemail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Steven Miao <realmz6@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Ralf Baechle <ralf@linux-mips.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem>
+To: Till Smejkal <till.smejkal@googlemail.com>
+Cc: Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Steven Miao <realmz6@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Ralf Baechle <ralf@linux-mips.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@dave>
 
-On Tue, 14 Mar 2017, Richard Henderson wrote:
-> On 03/14/2017 08:14 AM, Till Smejkal wrote:
-> > At the current state of the development, first class virtual address spaces
-> > have one limitation, that we haven't been able to solve so far. The feature
-> > allows, that different threads of the same process can execute in different
-> > AS at the same time. This is possible, because the VAS-switch operation
-> > only changes the active mm_struct for the task_struct of the calling
-> > thread. However, when a thread switches into a first class virtual address
-> > space, some parts of its original AS are duplicated into the new one to
-> > allow the thread to continue its execution at its current state.
-> > Accordingly, parts of the processes AS (e.g. the code section, data
-> > section, heap section and stack sections) exist in multiple AS if the
-> > process has a VAS attached to it. Changes to these shared memory regions
-> > are synchronized between the address spaces whenever a thread switches
-> > between two of them. Unfortunately, in some scenarios the kernel is not
-> > able to properly synchronize all these shared memory regions because of
-> > conflicting changes. One such example happens if there are two threads, one
-> > executing in an attached first class virtual address space, the other in
-> > the tasks original address space. If both threads make changes to the heap
-> > section that cause expansion of the underlying vm_area_struct, the kernel
-> > cannot correctly synchronize these changes, because that would cause parts
-> > of the virtual address space to be overwritten with unrelated data. In the
-> > current implementation such conflicts are only detected but not resolved
-> > and result in an error code being returned by the kernel during the VAS
-> > switch operation. Unfortunately, that means for the particular thread that
-> > tried to make the switch, that it cannot do this anymore in the future and
-> > accordingly has to be killed.
-> 
-> This sounds like a fairly fundamental problem to me.
+On Mon, Mar 13, 2017 at 3:14 PM, Till Smejkal
+<till.smejkal@googlemail.com> wrote:
+> This patchset extends the kernel memory management subsystem with a new
+> type of address spaces (called VAS) which can be created and destroyed
+> independently of processes by a user in the system. During its lifetime
+> such a VAS can be attached to processes by the user which allows a process
+> to have multiple address spaces and thereby multiple, potentially
+> different, views on the system's main memory. During its execution the
+> threads belonging to the process are able to switch freely between the
+> different attached VAS and the process' original AS enabling them to
+> utilize the different available views on the memory.
 
-Yes I agree. This is a significant limitation of first class virtual address spaces.
-However, conflict like this can be mitigated by being careful in the application
-that uses multiple first class virtual address spaces. If all threads make sure that
-they never resize shared memory regions when executing inside a VAS such conflicts do
-not occur. Another possibility that I investigated but not yet finished is that such
-resizes of shared memory regions have to be synchronized more frequently than just at
-every switch between VASes. If one for example "forward" memory region resizes to all
-AS that share this particular memory region during the resize operation, one can
-completely eliminate this problem. Unfortunately, this introduces a significant cost
-and introduces a difficult to handle race condition.
+Sounds like the old SKAS feature for UML.
 
-> Is this an indication that full virtual address spaces are useless?  It
-> would seem like if you only use virtual address segments then you avoid all
-> of the problems with executing code, active stacks, and brk.
+> In addition to the concept of first class virtual address spaces, this
+> patchset introduces yet another feature called VAS segments. VAS segments
+> are memory regions which have a fixed size and position in the virtual
+> address space and can be shared between multiple first class virtual
+> address spaces. Such shareable memory regions are especially useful for
+> in-memory pointer-based data structures or other pure in-memory data.
 
-What do you mean with *virtual address segments*? The nice part of first class
-virtual address spaces is that one can share/reuse collections of address space
-segments easily.
+This sounds rather complicated.  Getting TLB flushing right seems
+tricky.  Why not just map the same thing into multiple mms?
 
-Till
+>
+>             |     VAS     |  processes  |
+>     -------------------------------------
+>     switch  |       468ns |      1944ns |
+
+The solution here is IMO to fix the scheduler.
+
+Also, FWIW, I have patches (that need a little work) that will make
+switch_mm() waaaay faster on x86.
+
+> At the current state of the development, first class virtual address spaces
+> have one limitation, that we haven't been able to solve so far. The feature
+> allows, that different threads of the same process can execute in different
+> AS at the same time. This is possible, because the VAS-switch operation
+> only changes the active mm_struct for the task_struct of the calling
+> thread. However, when a thread switches into a first class virtual address
+> space, some parts of its original AS are duplicated into the new one to
+> allow the thread to continue its execution at its current state.
+
+Ick.  Please don't do this.  Can we please keep an mm as just an mm
+and not make it look magically different depending on which process
+maps it?  If you need a trampoline (which you do, of course), just
+write a trampoline in regular user code and map it manually.
+
+--Andy
 
 --
-To unsubscribe, send a message with 'unsubscribe linux-aio' in
-the body to majordomo@kvack.org.  For more info on Linux AIO,
-see: http://www.kvack.org/aio/
-Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
