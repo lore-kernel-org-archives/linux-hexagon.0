@@ -1,64 +1,91 @@
 From: Till Smejkal <till.smejkal@googlemail.com>
-Subject: Re: [RFC PATCH 07/13] kernel/fork: Split and export 'mm_alloc' and
- 'mm_init'
-Date: Tue, 14 Mar 2017 09:18:55 -0700
-Message-ID: <20170314161855.2g2gc3ff4ifj2lqt@arch-dev>
-References: <063D6719AE5E284EB5DD2968C1650D6DCFFB03F4@AcuExch.aculab.com>
+Subject: Re: [RFC PATCH 00/13] Introduce first class virtual address spaces
+Date: Tue, 14 Mar 2017 14:14:27 -0700
+Message-ID: <20170314211427.7wxdyrholi3mgle5@arch-dev>
+References: <8d9333d6-2f81-a9de-484e-e1d655e1d3c3@mellanox.com>
 Mime-Version: 1.0
 Return-path: <owner-linux-mm@kvack.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:date:to:cc:subject:message-id:mail-followup-to:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=+6H+T1ojThgGAdaNMUOtropB7bl8aLDEx/QCCOeIdEg=;
-        b=CoVN3kv/AUdJXSgkJWNYeIjSVamB9btqVoURw+t8JJgHP1a766xzdtVxAYVCldO8Qm
-         Zxx4ABq6Dm2XNYZ/Vmj+X2iaHb2kEPPkJOl1BTswLReICleF5q59sY8v9Av72ngHSQpS
-         c+cF1HUFDzky3hOyd6JfADNoPY0MmqhRU565axT+e8tMCe/2x5l1TGs8vq2ap9lKtNZN
-         GiGLGl9XDH5q+/uMkpfZU8jYHm2lOyU81eagJE34KfFf9WGZhZ+4f4oeG/bd/PM0b70l
-         zcOUtzfr9NqNcdpuDabZp2lrt9CJx86cGsG+CKkT6sYMnMPG80ZQrP3uzawTzz6HaP7+
-         K9oQ==
+        bh=JafwRDcxtOSTwUrOJIR9EQWOJzc7PxCMBJ3odtqpSl0=;
+        b=RfS3kbOuxCUbirZFYxoIaVis23qjTJu4sIFjSlRZ4KYaq+HJs3KHq3j/k3L569PmZO
+         naPb4+29q91U+wP9s+v0dxrIAUK2nbh+dOsqLFzRE2kNctBWg0x0QqrqdUfkeDQ9tcrN
+         eluP2cD5tfjzQ+VVUAYS1eiTNwyYuZIXg4atPlHdDBrpCSo09GJV0vtj8LrmyfbVlx+w
+         bB806MuC7ec0tS7QQr/fvlco8kLvpgaPwj4P1UHcCikrB8ZMPVzY5EuI6njx0c2davRz
+         N2ur1dsjM4n7oC3Q21+x0qJW7ESvS3U2d06OCSaK1uEtPWn/yXMTTJ2D04/3QQbv6tXs
+         DRdg==
 Content-Disposition: inline
-In-Reply-To: <063D6719AE5E284EB5DD2968C1650D6DCFFB03F4@AcuExch.aculab.com>
+In-Reply-To: <8d9333d6-2f81-a9de-484e-e1d655e1d3c3@mellanox.com>
 Sender: owner-linux-mm@kvack.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: David Laight <David.Laight@ACULAB.COM>
-Cc: 'Till Smejkal' <till.smejkal@googlemail.com>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Steven Miao <realmz6@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Ralf Baechle <ralf@linux-mips.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dal>
+To: Chris Metcalf <cmetcalf@mellanox.com>
+Cc: Andy Lutomirski <luto@amacapital.net>, Andy Lutomirski <luto@kernel.org>, Till Smejkal <till.smejkal@googlemail.com>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Steven Miao <realmz6@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Ralf Baechle <ralf@linux-mips.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de>
 
-On Tue, 14 Mar 2017, David Laight wrote:
-> From: Linuxppc-dev Till Smejkal
-> > Sent: 13 March 2017 22:14
-> > The only way until now to create a new memory map was via the exported
-> > function 'mm_alloc'. Unfortunately, this function not only allocates a new
-> > memory map, but also completely initializes it. However, with the
-> > introduction of first class virtual address spaces, some initialization
-> > steps done in 'mm_alloc' are not applicable to the memory maps needed for
-> > this feature and hence would lead to errors in the kernel code.
-> > 
-> > Instead of introducing a new function that can allocate and initialize
-> > memory maps for first class virtual address spaces and potentially
-> > duplicate some code, I decided to split the mm_alloc function as well as
-> > the 'mm_init' function that it uses.
-> > 
-> > Now there are four functions exported instead of only one. The new
-> > 'mm_alloc' function only allocates a new mm_struct and zeros it out. If one
-> > want to have the old behavior of mm_alloc one can use the newly introduced
-> > function 'mm_alloc_and_setup' which not only allocates a new mm_struct but
-> > also fully initializes it.
-> ...
+On Tue, 14 Mar 2017, Chris Metcalf wrote:
+> On 3/14/2017 12:12 PM, Till Smejkal wrote:
+> > On Mon, 13 Mar 2017, Andy Lutomirski wrote:
+> > > On Mon, Mar 13, 2017 at 7:07 PM, Till Smejkal
+> > > <till.smejkal@googlemail.com> wrote:
+> > > > On Mon, 13 Mar 2017, Andy Lutomirski wrote:
+> > > > > This sounds rather complicated.  Getting TLB flushing right seems
+> > > > > tricky.  Why not just map the same thing into multiple mms?
+> > > > This is exactly what happens at the end. The memory region that is described by the
+> > > > VAS segment will be mapped in the ASes that use the segment.
+> > > So why is this kernel feature better than just doing MAP_SHARED
+> > > manually in userspace?
+> > One advantage of VAS segments is that they can be globally queried by user programs
+> > which means that VAS segments can be shared by applications that not necessarily have
+> > to be related. If I am not mistaken, MAP_SHARED of pure in memory data will only work
+> > if the tasks that share the memory region are related (aka. have a common parent that
+> > initialized the shared mapping). Otherwise, the shared mapping have to be backed by a
+> > file.
 > 
-> That looks like bugs waiting to happen.
-> You need unchanged code to fail to compile.
+> True, but why is this bad?  The shared mapping will be memory resident
+> regardless, even if backed by a file (unless swapped out under heavy
+> memory pressure, but arguably that's a feature anyway).  More importantly,
+> having a file name is a simple and consistent way of identifying such
+> shared memory segments.
+> 
+> With a little work, you can also arrange to map such files into memory
+> at a fixed address in all participating processes, thus making internal
+> pointers work correctly.
 
-Thank you for this hint. I can give the new mm_alloc function a different name so
-that code that uses the *old* mm_alloc function will fail to compile. I just reused
-the old name when I wrote the code, because mm_alloc was only used in very few
-locations in the kernel (2 times in the whole kernel source) which made identifying
-and changing them very easy. I also don't think that there will be many users in the
-kernel for mm_alloc in the future because it is a relatively low level data
-structure. But if it is better to use a different name for the new function, I am
-very happy to change this.
+I don't want to say that the interface provided by MAP_SHARED is bad. I am only
+arguing that VAS segments and the interface that they provide have an advantage over
+the existing ones in my opinion. However, Matthew Wilcox also suggested in some
+earlier mail that VAS segments could be exported to user space via a special purpose
+filesystem. This would enable users of VAS segments to also just use some special
+files to setup the shared memory regions. But since the VAS segment itself already
+knows where at has to be mapped in the virtual address space of the process, the
+establishing of the shared memory region would be very easy for the user.
+
+> > VAS segments on the other side allow sharing of pure in memory data by
+> > arbitrary related tasks without the need of a file. This becomes especially
+> > interesting if one combines VAS segments with non-volatile memory since one can keep
+> > data structures in the NVM and still be able to share them between multiple tasks.
+> 
+> I am not fully up to speed on NV/pmem stuff, but isn't that exactly what
+> the DAX mode is supposed to allow you to do?  If so, isn't sharing a
+> mapped file on a DAX filesystem on top of pmem equivalent to what
+> you're proposing?
+
+If I read the documentation to DAX filesystems correctly, it is indeed possible to us
+them to create files that life purely in NVM. I wasn't fully aware of this feature.
+Thanks for the pointer.
+
+However, the main contribution of this patchset is actually the idea of first class
+virtual address spaces and that they can be used to allow processes to have multiple
+different views on the system's main memory. For us, VAS segments were another logic
+step in the same direction (from first class virtual address spaces to first class
+address space segments). However, if there is already functionality in the Linux
+kernel to achieve the exact same behavior, there is no real need to add VAS segments.
+I will continue thinking about them and either find a different situation where the
+currently available interface is not sufficient/too complicated or drop VAS segments
+from future version of the patch set.
 
 Till
 
