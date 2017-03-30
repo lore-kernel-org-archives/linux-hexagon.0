@@ -1,53 +1,83 @@
-From: Till Smejkal <till.smejkal@googlemail.com>
-Subject: Re: [RFC PATCH 00/13] Introduce first class virtual address spaces
-Date: Thu, 16 Mar 2017 10:50:33 -0700
-Message-ID: <20170316175033.pgkep75iszqy3csb@arch-dev>
-References: <alpine.DEB.2.20.1703161841220.3586@nanos>
-Mime-Version: 1.0
-Return-path: <owner-linux-aio@kvack.org>
+From: Nicolai Stange <nicstange@gmail.com>
+Subject: [PATCH] hexagon/time: set ->min_delta_ticks and ->max_delta_ticks
+Date: Thu, 30 Mar 2017 21:43:32 +0200
+Message-ID: <20170330194332.6915-1-nicstange@gmail.com>
+References: <20170326134403.16226-1-nicstange@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:date:to:cc:subject:message-id:mail-followup-to:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=NqSECOhtIPvGa/ZlYGLRwoaJQiZSEEXcOGoCa/UZC24=;
-        b=fqE6aNHwZq02pkPK/N3+9XVMv5K+sdxBmMVfgacKjoR8GzEsxU9buZiP9cYHpbvT78
-         Up6sWFswahm/vir6xwQhB92G5A4qUCrQ86GTaiLXKYtHLRG8le302oF+I0k6V6pGIRvB
-         5n9lHJpfkQyzAZKIEXI/r3F0RODfSvkODGX2Rfhl9vMxfUX6Qb6UdJwwKZ5SiZTcT1yg
-         wfcCjKuKNmUxfaUor1xUL48KqNLGdHQ0+li5DprAsMx/QJewiJqRYclvJkezklmH/aRW
-         Wg4D3kiiy69JvPZF/WgffZUX/vsQdnx8Ymgzfg4hjO1IgGj+mKtaWP4jrUct7YelcVAk
-         8IlQ==
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.20.1703161841220.3586@nanos>
-Sender: owner-linux-aio@kvack.org
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=ygKoKTbS2rGWQMCFrKFBCJCieFiuuapLzBLEWhL3QUM=;
+        b=hGGoLNUFnmVHvXPNC1EPKCqRngHS1kx1/1WNi5yYZw/0tpvzitOMkqllf0V6o3fvot
+         oSNM/kXJBDd7g/YNQZWT70slw0OF5FsZSDj86lsYUd+uDHdJhQTb8CziqkNjVCZSQ7h7
+         tmV+7L2h796NcehReNw790rX4RvKjSZogOaZDP99vCLk0eWgaMqerRiASp3NYx7uEmPg
+         mOEfL2R/+kEKBRQGEFzPFlx/9W6Dp4cyUU51hMI+MrhW/XI5xjOEmuSDBvky7AgSaKQ5
+         ORB1rJpWriC8oyXCgh7oqtjR+e/vactXUVDv1TABgb716qF4zZnTAikASJLZb2PQaO6X
+         a36A==
+In-Reply-To: <20170326134403.16226-1-nicstange@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Till Smejkal <till.smejkal@googlemail.com>, Andy Lutomirski <luto@amacapital.net>, Andy Lutomirski <luto@kernel.org>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Steven Miao <realmz6@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, James Hogan <james.hogan@imgtec.com>, Ralf Baechle <ralf@linux-mips.org>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de>
+To: Richard Kuo <rkuo@codeaurora.org>
+Cc: John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org, Nicolai Stange <nicstange@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, linux-hexagon@vger.kernel.org
 
-On Thu, 16 Mar 2017, Thomas Gleixner wrote:
-> On Thu, 16 Mar 2017, Till Smejkal wrote:
-> > On Thu, 16 Mar 2017, Thomas Gleixner wrote:
-> > > Why do we need yet another mechanism to represent something which looks
-> > > like a file instead of simply using existing mechanisms and extend them?
-> > 
-> > You are right. I also recognized during the discussion with Andy, Chris,
-> > Matthew, Luck, Rich and the others that there are already other
-> > techniques in the Linux kernel that can achieve the same functionality
-> > when combined. As I said also to the others, I will drop the VAS segments
-> > for future versions. The first class virtual address space feature was
-> > the more interesting part of the patchset anyways.
-> 
-> While you are at it, could you please drop this 'first class' marketing as
-> well? It has zero technical value, really.
+In preparation for making the clockevents core NTP correction aware,
+all clockevent device drivers must set ->min_delta_ticks and
+->max_delta_ticks rather than ->min_delta_ns and ->max_delta_ns: a
+clockevent device's rate is going to change dynamically and thus, the
+ratio of ns to ticks ceases to stay invariant.
 
-Yes of course. I am sorry for the trouble that I caused already.
+Make the hexagon arch's clockevent driver initialize these fields
+properly.
 
-Thanks
-Till
+This patch alone doesn't introduce any change in functionality as the
+clockevents core still looks exclusively at the (untouched) ->min_delta_ns
+and ->max_delta_ns. As soon as this has changed, a followup patch will
+purge the initialization of ->min_delta_ns and ->max_delta_ns from this
+driver.
 
---
-To unsubscribe, send a message with 'unsubscribe linux-aio' in
-the body to majordomo@kvack.org.  For more info on Linux AIO,
-see: http://www.kvack.org/aio/
-Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+Signed-off-by: Nicolai Stange <nicstange@gmail.com>
+---
+
+Notes:
+    This prerequisite patch is part of a larger effort to feed NTP
+    corrections into the clockevent devices' frequencies and thus
+    avoiding their notion of time to diverge from the system's
+    one. If you're interested, the current state of the whole series
+    can be found at [1].
+    
+    If you haven't got any objections and these prerequisites get
+    merged by 4.12 everywhere, I'll proceed with the remainder of
+    this series in 4.13.
+    
+    Applicable to next-20170324 as well as to John' Stultz tree [2].
+    
+    [1]
+      git://nicst.de/linux.git cev-freq-adj.v10.fortglx-4.12-time
+      https://nicst.de/git/?p=linux.git;a=shortlog;h=refs/heads/cev-freq-adj.v10.fortglx-4.12-time
+    
+    [2]
+      https://git.linaro.org/people/john.stultz/linux.git fortglx/4.12/time
+
+ arch/hexagon/kernel/time.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
+index ff4e9bf995e9..29b1f57116c8 100644
+--- a/arch/hexagon/kernel/time.c
++++ b/arch/hexagon/kernel/time.c
+@@ -199,7 +199,9 @@ void __init time_init_deferred(void)
+ 	clockevents_calc_mult_shift(ce_dev, sleep_clk_freq, 4);
+ 
+ 	ce_dev->max_delta_ns = clockevent_delta2ns(0x7fffffff, ce_dev);
++	ce_dev->max_delta_ticks = 0x7fffffff;
+ 	ce_dev->min_delta_ns = clockevent_delta2ns(0xf, ce_dev);
++	ce_dev->min_delta_ticks = 0xf;
+ 
+ #ifdef CONFIG_SMP
+ 	setup_percpu_clockdev();
+-- 
+2.12.0
+
