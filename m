@@ -1,23 +1,23 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 30/44] dma-virt: remove dma_supported and mapping_error methods
-Date: Thu,  8 Jun 2017 15:25:55 +0200
-Message-ID: <20170608132609.32662-31-hch@lst.de>
+Subject: [PATCH 26/44] dma-mapping: remove DMA_ERROR_CODE
+Date: Thu,  8 Jun 2017 15:25:51 +0200
+Message-ID: <20170608132609.32662-27-hch@lst.de>
 References: <20170608132609.32662-1-hch@lst.de>
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
         Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
         Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
         Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
         List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=pxy/uIMvbzQyNNMG1DfsDVw61eq9ByoiTaQKce46mwY=; b=qmcXXA3Se1jQ/3DvTVShpdCFK
-        zpY4wi5BOrw1JhQzcchDDqBkKzZFGmLnjTwqyfkj/Ewa/L3VXqDP/G7SK9jk1q6v+TlIrn7ycJw4h
-        S8CjYiHVkQ4jp0hYQrrKYRAVIPcjz1LCzoBbAOrkz9p8cL3fCjioJk8D8IpUzTQiikJCR01cRuEyp
-        jAs64BPONNPPWbxnnWidGjsoeY+0vNNnFjhgIjpUOXMdgEDWZ8zlIvLiIvzA7QAa4Buk49s/nCdLz
-        NYXNXNid1wbbCmhImk4SgXk6oJoQyFuoUDkQwXBXfoGGngCDSAMIMgN2eaVmkNRWCtlGk66sDVRgn
+         bh=Er/PBxW/tOtoCNR0FHj1VvmeiHjF/tVFU+Dqgf9uoBM=; b=DuQWAeDsdmuE2TG+u3hI7Bt0v
+        NaPkHxkVot5MDGxHwXkca1kuAwmt/IiJzIhVcT+Iocc9fae9anvVEU4nitUGMUC6qDw8Cl3B5jxHs
+        gdkt+0pFn7AgHV+r9SHnqmfG2MXWgEIS+tvaOB4EngemWtjYyX88hizeS/FF7AX0E9AymIqA/CiW4
+        99Ozwe7xu65TRPfeeVYXYb8DbLQ1oK7gcXlOrsbv2F8+zGWr0LQ2UrilO8HFVOCpxSPIAKmkABv/L
+        To43nH3uLe5rMQ4pRR6OV/SZJJpc4Yap1EBZKH+JOq7wZULj+/qF/CIvOCfzWidxiZ8ThubyqB32V
     
 In-Reply-To: <20170608132609.32662-1-hch@lst.de>
-Sender: linux-ia64-owner@vger.kernel.org
+Sender: sparclinux-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,40 +25,74 @@ Content-Transfer-Encoding: 7bit
 To: x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 
-These just duplicate the default behavior if no method is provided.
+And update the documentation - dma_mapping_error has been supported
+everywhere for a long time.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- lib/dma-virt.c | 12 ------------
- 1 file changed, 12 deletions(-)
+ Documentation/DMA-API-HOWTO.txt | 31 +++++--------------------------
+ include/linux/dma-mapping.h     |  5 -----
+ 2 files changed, 5 insertions(+), 31 deletions(-)
 
-diff --git a/lib/dma-virt.c b/lib/dma-virt.c
-index dcd4df1f7174..5c4f11329721 100644
---- a/lib/dma-virt.c
-+++ b/lib/dma-virt.c
-@@ -51,22 +51,10 @@ static int dma_virt_map_sg(struct device *dev, struct scatterlist *sgl,
- 	return nents;
+diff --git a/Documentation/DMA-API-HOWTO.txt b/Documentation/DMA-API-HOWTO.txt
+index 979228bc9035..4ed388356898 100644
+--- a/Documentation/DMA-API-HOWTO.txt
++++ b/Documentation/DMA-API-HOWTO.txt
+@@ -550,32 +550,11 @@ and to unmap it:
+ 	dma_unmap_single(dev, dma_handle, size, direction);
+ 
+ You should call dma_mapping_error() as dma_map_single() could fail and return
+-error. Not all DMA implementations support the dma_mapping_error() interface.
+-However, it is a good practice to call dma_mapping_error() interface, which
+-will invoke the generic mapping error check interface. Doing so will ensure
+-that the mapping code will work correctly on all DMA implementations without
+-any dependency on the specifics of the underlying implementation. Using the
+-returned address without checking for errors could result in failures ranging
+-from panics to silent data corruption. A couple of examples of incorrect ways
+-to check for errors that make assumptions about the underlying DMA
+-implementation are as follows and these are applicable to dma_map_page() as
+-well.
+-
+-Incorrect example 1:
+-	dma_addr_t dma_handle;
+-
+-	dma_handle = dma_map_single(dev, addr, size, direction);
+-	if ((dma_handle & 0xffff != 0) || (dma_handle >= 0x1000000)) {
+-		goto map_error;
+-	}
+-
+-Incorrect example 2:
+-	dma_addr_t dma_handle;
+-
+-	dma_handle = dma_map_single(dev, addr, size, direction);
+-	if (dma_handle == DMA_ERROR_CODE) {
+-		goto map_error;
+-	}
++error.  Doing so will ensure that the mapping code will work correctly on all
++DMA implementations without any dependency on the specifics of the underlying
++implementation. Using the returned address without checking for errors could
++result in failures ranging from panics to silent data corruption.  The same
++applies to dma_map_page() as well.
+ 
+ You should call dma_unmap_single() when the DMA activity is finished, e.g.,
+ from the interrupt which told you that the DMA transfer is done.
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index 4f3eecedca2d..a57875309bfd 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -546,12 +546,7 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+ 
+ 	if (get_dma_ops(dev)->mapping_error)
+ 		return get_dma_ops(dev)->mapping_error(dev, dma_addr);
+-
+-#ifdef DMA_ERROR_CODE
+-	return dma_addr == DMA_ERROR_CODE;
+-#else
+ 	return 0;
+-#endif
  }
  
--static int dma_virt_mapping_error(struct device *dev, dma_addr_t dma_addr)
--{
--	return false;
--}
--
--static int dma_virt_supported(struct device *dev, u64 mask)
--{
--	return true;
--}
--
- const struct dma_map_ops dma_virt_ops = {
- 	.alloc			= dma_virt_alloc,
- 	.free			= dma_virt_free,
- 	.map_page		= dma_virt_map_page,
- 	.map_sg			= dma_virt_map_sg,
--	.mapping_error		= dma_virt_mapping_error,
--	.dma_supported		= dma_virt_supported,
- };
- EXPORT_SYMBOL(dma_virt_ops);
+ #ifndef HAVE_ARCH_DMA_SUPPORTED
 -- 
 2.11.0
 
