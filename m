@@ -1,64 +1,51 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 16/44] arm64: remove DMA_ERROR_CODE
-Date: Thu,  8 Jun 2017 15:25:41 +0200
-Message-ID: <20170608132609.32662-17-hch@lst.de>
+Subject: [PATCH 24/44] x86: remove DMA_ERROR_CODE
+Date: Thu,  8 Jun 2017 15:25:49 +0200
+Message-ID: <20170608132609.32662-25-hch@lst.de>
 References: <20170608132609.32662-1-hch@lst.de>
-Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xen.org>
+Return-path: <netdev-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
- Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
- Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
- Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
- List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=rRlEkq7ccpCu+4ZT4QJ/0G+bz+IYGZZVEmqRXUa5850=; b=EvItnHTNRb8NcG3yORyv5/V/y
- nD3RPNrfoxHXm3gij0+IQJmPupa+/vtC03LBMf0IopMJSbd3x/I7dhgvWnsNObzYIOOCkBe3dDdbM
- TxsDsrhRwVnewdjC4UGUjRBOWM4eGvI2L7KNx8V5wiSYqNtwR3onJaHBtjIQaYk9t6DyUsWbtq7kk
- MseTWDOuNlLz7E/eRaGYbywwpf4v8wNPbYVh+ovVBlbHJJ/JnxokW0tbnL+eGQ4c7k021/a9W3jOY
- qARqK1EQyIag53t6wxOKPhNKOyjk6GT53tWYmvbgMKK6rCLMx5CegBgInJMUuW6ZF4l03VoUw9nQm
- dtHjrgeQA==;
+        d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
+        Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=/hV/3mVXpVDCJ/R2hYg6OruqzMha5mJkHSK85bOIfwg=; b=mL91aWsEzI32++bfOJ+SJNumd
+        ZWkAPuWR74D2pQNWWc5KuiphvcPBbjw+CDYWz2zOsKt62dVaxwOMEcQuOwWKnfmLyFFNczLJWEITb
+        Pnc3pkEsTVSqNFfdDwz6W2HqlhWlz/UCTgAlRM0O4EZF8b3YTpqgxCYFEAQtfIVHMmv/crTqe/8Xd
+        tYuirK2NIQg51FJZDj2nYx0b6V2tL8VW9iyk5UdQK5B/Csq8KZTtt8C/kwHLyTDInDg/drX6lv7eW
+        gNoOAcYy4cPiMkMYvIrk3N3OQ6olH87w6snVvQs1MF2oUZLnLVxm3SLJD0N2pAkhE21gxYBsxJwxU
+    
 In-Reply-To: <20170608132609.32662-1-hch@lst.de>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xen.org>
-List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
-List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xen.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
+Sender: netdev-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 
-VGhlIGRtYSBhbGxvYyBpbnRlcmZhY2UgcmV0dXJucyBhbiBlcnJvciBieSByZXR1cm4gTlVMTCwg
-YW5kIHRoZQptYXBwaW5nIGludGVyZmFjZXMgcmVseSBvbiB0aGUgbWFwcGluZ19lcnJvciBtZXRo
-b2QsIHdoaWNoIHRoZSBkdW1teQpvcHMgYWxyZWFkeSBpbXBsZW1lbnQgY29ycmVjdGx5LgoKVGh1
-cyByZW1vdmUgdGhlIERNQV9FUlJPUl9DT0RFIGRlZmluZS4KClNpZ25lZC1vZmYtYnk6IENocmlz
-dG9waCBIZWxsd2lnIDxoY2hAbHN0LmRlPgotLS0KIGFyY2gvYXJtNjQvaW5jbHVkZS9hc20vZG1h
-LW1hcHBpbmcuaCB8IDEgLQogYXJjaC9hcm02NC9tbS9kbWEtbWFwcGluZy5jICAgICAgICAgIHwg
-MyArLS0KIDIgZmlsZXMgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDMgZGVsZXRpb25zKC0pCgpk
-aWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9pbmNsdWRlL2FzbS9kbWEtbWFwcGluZy5oIGIvYXJjaC9h
-cm02NC9pbmNsdWRlL2FzbS9kbWEtbWFwcGluZy5oCmluZGV4IDUzOTJkYmVmZmE0NS4uY2Y4ZmM4
-ZjA1NTgwIDEwMDY0NAotLS0gYS9hcmNoL2FybTY0L2luY2x1ZGUvYXNtL2RtYS1tYXBwaW5nLmgK
-KysrIGIvYXJjaC9hcm02NC9pbmNsdWRlL2FzbS9kbWEtbWFwcGluZy5oCkBAIC0yNCw3ICsyNCw2
-IEBACiAjaW5jbHVkZSA8eGVuL3hlbi5oPgogI2luY2x1ZGUgPGFzbS94ZW4vaHlwZXJ2aXNvci5o
-PgogCi0jZGVmaW5lIERNQV9FUlJPUl9DT0RFCSh+KGRtYV9hZGRyX3QpMCkKIGV4dGVybiBjb25z
-dCBzdHJ1Y3QgZG1hX21hcF9vcHMgZHVtbXlfZG1hX29wczsKIAogc3RhdGljIGlubGluZSBjb25z
-dCBzdHJ1Y3QgZG1hX21hcF9vcHMgKmdldF9hcmNoX2RtYV9vcHMoc3RydWN0IGJ1c190eXBlICpi
-dXMpCmRpZmYgLS1naXQgYS9hcmNoL2FybTY0L21tL2RtYS1tYXBwaW5nLmMgYi9hcmNoL2FybTY0
-L21tL2RtYS1tYXBwaW5nLmMKaW5kZXggMzIxNmUwOThjMDU4Li4xNDdmYmI5MDdhMmYgMTAwNjQ0
-Ci0tLSBhL2FyY2gvYXJtNjQvbW0vZG1hLW1hcHBpbmcuYworKysgYi9hcmNoL2FybTY0L21tL2Rt
-YS1tYXBwaW5nLmMKQEAgLTE4NCw3ICsxODQsNiBAQCBzdGF0aWMgdm9pZCAqX19kbWFfYWxsb2Mo
-c3RydWN0IGRldmljZSAqZGV2LCBzaXplX3Qgc2l6ZSwKIG5vX21hcDoKIAlfX2RtYV9mcmVlX2Nv
-aGVyZW50KGRldiwgc2l6ZSwgcHRyLCAqZG1hX2hhbmRsZSwgYXR0cnMpOwogbm9fbWVtOgotCSpk
-bWFfaGFuZGxlID0gRE1BX0VSUk9SX0NPREU7CiAJcmV0dXJuIE5VTEw7CiB9CiAKQEAgLTQ4Nyw3
-ICs0ODYsNyBAQCBzdGF0aWMgZG1hX2FkZHJfdCBfX2R1bW15X21hcF9wYWdlKHN0cnVjdCBkZXZp
-Y2UgKmRldiwgc3RydWN0IHBhZ2UgKnBhZ2UsCiAJCQkJICAgZW51bSBkbWFfZGF0YV9kaXJlY3Rp
-b24gZGlyLAogCQkJCSAgIHVuc2lnbmVkIGxvbmcgYXR0cnMpCiB7Ci0JcmV0dXJuIERNQV9FUlJP
-Ul9DT0RFOworCXJldHVybiAwOwogfQogCiBzdGF0aWMgdm9pZCBfX2R1bW15X3VubWFwX3BhZ2Uo
-c3RydWN0IGRldmljZSAqZGV2LCBkbWFfYWRkcl90IGRldl9hZGRyLAotLSAKMi4xMS4wCgoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1h
-aWxpbmcgbGlzdApYZW4tZGV2ZWxAbGlzdHMueGVuLm9yZwpodHRwczovL2xpc3RzLnhlbi5vcmcv
-eGVuLWRldmVsCg==
+All dma_map_ops instances now handle their errors through
+->mapping_error.
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ arch/x86/include/asm/dma-mapping.h | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/arch/x86/include/asm/dma-mapping.h b/arch/x86/include/asm/dma-mapping.h
+index 08a0838b83fb..c35d228aa381 100644
+--- a/arch/x86/include/asm/dma-mapping.h
++++ b/arch/x86/include/asm/dma-mapping.h
+@@ -19,8 +19,6 @@
+ # define ISA_DMA_BIT_MASK DMA_BIT_MASK(32)
+ #endif
+ 
+-#define DMA_ERROR_CODE	0
+-
+ extern int iommu_merge;
+ extern struct device x86_dma_fallback_dev;
+ extern int panic_on_overflow;
+-- 
+2.11.0
+
