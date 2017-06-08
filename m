@@ -1,8 +1,8 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 33/44] openrisc: remove arch-specific
-	dma_supported implementation
-Date: Thu,  8 Jun 2017 15:25:58 +0200
-Message-ID: <20170608132609.32662-34-hch@lst.de>
+Subject: [PATCH 29/44] dma-noop: remove dma_supported and
+	mapping_error methods
+Date: Thu,  8 Jun 2017 15:25:54 +0200
+Message-ID: <20170608132609.32662-30-hch@lst.de>
 References: <20170608132609.32662-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -13,12 +13,12 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
  Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
  List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=q6rrVBavW/g1iseNgi9YxHn0z+ZU/4+zYJi0PfQojcs=; b=dMuhDr7qyOcpaOo1aFdtPegSp
- BGuUJCKJ+94CQkuxu+ulN3p4dXFwSydTQBF3wq9PtQX4TO3JbyoltlpGAJiFzl81L4lLc+dHd6hB7
- /7n/hQbi1sBUODoJ12clAbvp6Ia34XBKPpv3EbkUmFpArHa5CG3yGu0ZceNeQKkVM324+9TzU8hYo
- 1UuMigRxI8bPC2d30X9gIgR07lhtL2OnKAas0+cCHeQLyPFMaPBxd5hxaIO/jOhtM/Exi7fR8kr+g
- o4Q5T2GFLQszL/1SbIh6qOWvvYcPArzFjpZZkZYoItKu0nFfPFNlc21LpafszsKG1nbVG+rK9ehW+
- mL/Y38EBw==;
+ bh=XSYdmvQJNFdXK+xuL8ZHUwT5syGePJpAphlsCPfTcOw=; b=Exnc82WFSkoJmc3h9O7+Td8Cb
+ siiwj6QSN9nmktz/D8wWqMUtxiDvJJm5oQ2Imo+jh/n4mRY0KBE4GDEIXSgKlh8OILDnShUnPZMQ/
+ crA72vkHD6X0JjUdiGExNjswaZo9jsJOits0xSGOv03e1I8N7WE0vn3IOOgeM98/36ONHj6eyHsPH
+ mZbyA9rPWNLlldkhUTQcNVUbBS+sbODQie5KG+UN+0DfBSYQPKSIlMbszk8v3xTxu5XKXtHNhE17v
+ Gnk+Y1wWuBDxp7ahKLq2KWAuI6OhYld1bPDPvilYQUKVbzjABukd2t1pfxv0dtCF8IAjk1lWllLXa
+ NycS9T/qw==;
 In-Reply-To: <20170608132609.32662-1-hch@lst.de>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
@@ -33,21 +33,22 @@ Content-Type: text/plain; charset="us-ascii"
 To: x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 
-VGhpcyBpbXBsZW1lbnRhdGlvbiBpcyBzaW1wbHkgYm9ndXMgLSBoZXhhZ29uIG9ubHkgaGFzIGEg
-c2ltcGxlCmRpcmVjdCBtYXBwZWQgRE1BIGltcGxlbWVudGF0aW9uIGFuZCB0aHVzIGRvZXNuJ3Qg
-Y2FyZSBhYm91dCB0aGUKYWRkcmVzcy4KClNpZ25lZC1vZmYtYnk6IENocmlzdG9waCBIZWxsd2ln
-IDxoY2hAbHN0LmRlPgotLS0KIGFyY2gvb3BlbnJpc2MvaW5jbHVkZS9hc20vZG1hLW1hcHBpbmcu
-aCB8IDcgLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDcgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0
-IGEvYXJjaC9vcGVucmlzYy9pbmNsdWRlL2FzbS9kbWEtbWFwcGluZy5oIGIvYXJjaC9vcGVucmlz
-Yy9pbmNsdWRlL2FzbS9kbWEtbWFwcGluZy5oCmluZGV4IGE0ZWExMzljMmVmOS4uZjQxYmQzY2I3
-NmQ5IDEwMDY0NAotLS0gYS9hcmNoL29wZW5yaXNjL2luY2x1ZGUvYXNtL2RtYS1tYXBwaW5nLmgK
-KysrIGIvYXJjaC9vcGVucmlzYy9pbmNsdWRlL2FzbS9kbWEtbWFwcGluZy5oCkBAIC0zMywxMSAr
-MzMsNCBAQCBzdGF0aWMgaW5saW5lIGNvbnN0IHN0cnVjdCBkbWFfbWFwX29wcyAqZ2V0X2FyY2hf
-ZG1hX29wcyhzdHJ1Y3QgYnVzX3R5cGUgKmJ1cykKIAlyZXR1cm4gJm9yMWtfZG1hX21hcF9vcHM7
-CiB9CiAKLSNkZWZpbmUgSEFWRV9BUkNIX0RNQV9TVVBQT1JURUQgMQotc3RhdGljIGlubGluZSBp
-bnQgZG1hX3N1cHBvcnRlZChzdHJ1Y3QgZGV2aWNlICpkZXYsIHU2NCBkbWFfbWFzaykKLXsKLQkv
-KiBTdXBwb3J0IDMyIGJpdCBETUEgbWFzayBleGNsdXNpdmVseSAqLwotCXJldHVybiBkbWFfbWFz
-ayA9PSBETUFfQklUX01BU0soMzIpOwotfQotCiAjZW5kaWYJLyogX19BU01fT1BFTlJJU0NfRE1B
-X01BUFBJTkdfSCAqLwotLSAKMi4xMS4wCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1haWxpbmcgbGlzdApYZW4tZGV2ZWxAbGlzdHMu
-eGVuLm9yZwpodHRwczovL2xpc3RzLnhlbi5vcmcveGVuLWRldmVsCg==
+VGhlc2UganVzdCBkdXBsaWNhdGUgdGhlIGRlZmF1bHQgYmVoYXZpb3IgaWYgbm8gbWV0aG9kIGlz
+IHByb3ZpZGVkLgoKU2lnbmVkLW9mZi1ieTogQ2hyaXN0b3BoIEhlbGx3aWcgPGhjaEBsc3QuZGU+
+Ci0tLQogbGliL2RtYS1ub29wLmMgfCAxMiAtLS0tLS0tLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAx
+MiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9saWIvZG1hLW5vb3AuYyBiL2xpYi9kbWEtbm9v
+cC5jCmluZGV4IGRlMjZjOGI2OGYzNC4uNjQzYTA3NGYxMzlkIDEwMDY0NAotLS0gYS9saWIvZG1h
+LW5vb3AuYworKysgYi9saWIvZG1hLW5vb3AuYwpAQCAtNTQsMjMgKzU0LDExIEBAIHN0YXRpYyBp
+bnQgZG1hX25vb3BfbWFwX3NnKHN0cnVjdCBkZXZpY2UgKmRldiwgc3RydWN0IHNjYXR0ZXJsaXN0
+ICpzZ2wsIGludCBuZW50CiAJcmV0dXJuIG5lbnRzOwogfQogCi1zdGF0aWMgaW50IGRtYV9ub29w
+X21hcHBpbmdfZXJyb3Ioc3RydWN0IGRldmljZSAqZGV2LCBkbWFfYWRkcl90IGRtYV9hZGRyKQot
+ewotCXJldHVybiAwOwotfQotCi1zdGF0aWMgaW50IGRtYV9ub29wX3N1cHBvcnRlZChzdHJ1Y3Qg
+ZGV2aWNlICpkZXYsIHU2NCBtYXNrKQotewotCXJldHVybiAxOwotfQotCiBjb25zdCBzdHJ1Y3Qg
+ZG1hX21hcF9vcHMgZG1hX25vb3Bfb3BzID0gewogCS5hbGxvYwkJCT0gZG1hX25vb3BfYWxsb2Ms
+CiAJLmZyZWUJCQk9IGRtYV9ub29wX2ZyZWUsCiAJLm1hcF9wYWdlCQk9IGRtYV9ub29wX21hcF9w
+YWdlLAogCS5tYXBfc2cJCQk9IGRtYV9ub29wX21hcF9zZywKLQkubWFwcGluZ19lcnJvcgkJPSBk
+bWFfbm9vcF9tYXBwaW5nX2Vycm9yLAotCS5kbWFfc3VwcG9ydGVkCQk9IGRtYV9ub29wX3N1cHBv
+cnRlZCwKIH07CiAKIEVYUE9SVF9TWU1CT0woZG1hX25vb3Bfb3BzKTsKLS0gCjIuMTEuMAoKCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClhlbi1kZXZlbCBt
+YWlsaW5nIGxpc3QKWGVuLWRldmVsQGxpc3RzLnhlbi5vcmcKaHR0cHM6Ly9saXN0cy54ZW4ub3Jn
+L3hlbi1kZXZlbAo=
