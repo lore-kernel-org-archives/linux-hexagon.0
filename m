@@ -1,63 +1,55 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 22/44] x86/pci-nommu: implement ->mapping_error
-Date: Thu,  8 Jun 2017 15:25:47 +0200
-Message-ID: <20170608132609.32662-23-hch@lst.de>
+Subject: [PATCH 36/44] dma-mapping: remove HAVE_ARCH_DMA_SUPPORTED
+Date: Thu,  8 Jun 2017 15:26:01 +0200
+Message-ID: <20170608132609.32662-37-hch@lst.de>
 References: <20170608132609.32662-1-hch@lst.de>
-Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xen.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
- Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
- Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
- Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
- List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=0wrZqfiUxzIjsMIP+kvG0ZcUFokN2jOk2GMWGR62hvY=; b=Udfuh7CiLVwNIiC/Fgt2z9emo
- WzabRtEQULAaySpysY7GiMg2bBz03srRUIG5jlUSZOvdrl9bV7BwA5YXMQZUqdS8KeKd/m5BgIT9d
- T6/nQARzzq48PnEKtPRAACUplYHICmY51fC06ggLmspnviuQMBlySMRx0gg9g2u0OJDt26Hdh3yGO
- eEo6qHzMRQvwWt6xy4e7p+r2LE7xRO+znPrFOvm1RAx3aIT+gW487L8rKCp1i/88mUPp5GazjK2tG
- S2mEYE+a19mWRkDkdJ58hGY/SCm8QgtNsdLgO9lqj+rpgfyZ6m6sO83q3ufGjTJR6L9/G4ILM+G5o
- 2Lzm5AhsQ==;
+        d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
+        Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=zYODmAsncYnPSpqWa3X1eFFaz2qCC2DqCWNhjLVXGug=; b=PagLSMP2wZledOwi+nnRVcc2h
+        hmDa44Rn5AYaRvZRckIbWneb6xIBRYk1pPxWlmm9cO3G/BeSFG41QB2kIAFJBRhRaee2+Jwtf/8aO
+        Q4Td3owbG79EN6CarJht0wH0UTAuFjbwy/aEMSo3Hi8VKyAPBmgrg7w5vefMk4P6sd3pIE0ORxh2p
+        smzFSoaQzTIzkR9ILR2Ae++R6JOm/A577/eTEz5GmuT2Ovvz31FrINBMvNXha2u49mzJM3T4/o3tN
+        NkTtHzE9jmweJ4r/e6tU7naV2XhBV1PfwdaZAcuJpZmlwDopEJ8OStDqx52H9yzksulBYHgn4LYNe
+    
 In-Reply-To: <20170608132609.32662-1-hch@lst.de>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xen.org>
-List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
-List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xen.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 
-RE1BX0VSUk9SX0NPREUgaXMgZ29pbmcgdG8gZ28gYXdheSwgc28gZG9uJ3QgcmVseSBvbiBpdC4K
-ClNpZ25lZC1vZmYtYnk6IENocmlzdG9waCBIZWxsd2lnIDxoY2hAbHN0LmRlPgotLS0KIGFyY2gv
-eDg2L2tlcm5lbC9wY2ktbm9tbXUuYyB8IDEwICsrKysrKysrKy0KIDEgZmlsZSBjaGFuZ2VkLCA5
-IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9rZXJu
-ZWwvcGNpLW5vbW11LmMgYi9hcmNoL3g4Ni9rZXJuZWwvcGNpLW5vbW11LmMKaW5kZXggYTg4OTUy
-ZWYzNzFjLi4wODVmZTZjZTQwNDkgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2tlcm5lbC9wY2ktbm9t
-bXUuYworKysgYi9hcmNoL3g4Ni9rZXJuZWwvcGNpLW5vbW11LmMKQEAgLTExLDYgKzExLDggQEAK
-ICNpbmNsdWRlIDxhc20vaW9tbXUuaD4KICNpbmNsdWRlIDxhc20vZG1hLmg+CiAKKyNkZWZpbmUg
-Tk9NTVVfTUFQUElOR19FUlJPUgkJMAorCiBzdGF0aWMgaW50CiBjaGVja19hZGRyKGNoYXIgKm5h
-bWUsIHN0cnVjdCBkZXZpY2UgKmh3ZGV2LCBkbWFfYWRkcl90IGJ1cywgc2l6ZV90IHNpemUpCiB7
-CkBAIC0zMyw3ICszNSw3IEBAIHN0YXRpYyBkbWFfYWRkcl90IG5vbW11X21hcF9wYWdlKHN0cnVj
-dCBkZXZpY2UgKmRldiwgc3RydWN0IHBhZ2UgKnBhZ2UsCiAJZG1hX2FkZHJfdCBidXMgPSBwYWdl
-X3RvX3BoeXMocGFnZSkgKyBvZmZzZXQ7CiAJV0FSTl9PTihzaXplID09IDApOwogCWlmICghY2hl
-Y2tfYWRkcigibWFwX3NpbmdsZSIsIGRldiwgYnVzLCBzaXplKSkKLQkJcmV0dXJuIERNQV9FUlJP
-Ul9DT0RFOworCQlyZXR1cm4gTk9NTVVfTUFQUElOR19FUlJPUjsKIAlmbHVzaF93cml0ZV9idWZm
-ZXJzKCk7CiAJcmV0dXJuIGJ1czsKIH0KQEAgLTg4LDYgKzkwLDExIEBAIHN0YXRpYyB2b2lkIG5v
-bW11X3N5bmNfc2dfZm9yX2RldmljZShzdHJ1Y3QgZGV2aWNlICpkZXYsCiAJZmx1c2hfd3JpdGVf
-YnVmZmVycygpOwogfQogCitzdGF0aWMgaW50IG5vbW11X21hcHBpbmdfZXJyb3Ioc3RydWN0IGRl
-dmljZSAqZGV2LCBkbWFfYWRkcl90IGRtYV9hZGRyKQoreworCXJldHVybiBkbWFfYWRkciA9PSBO
-T01NVV9NQVBQSU5HX0VSUk9SOworfQorCiBjb25zdCBzdHJ1Y3QgZG1hX21hcF9vcHMgbm9tbXVf
-ZG1hX29wcyA9IHsKIAkuYWxsb2MJCQk9IGRtYV9nZW5lcmljX2FsbG9jX2NvaGVyZW50LAogCS5m
-cmVlCQkJPSBkbWFfZ2VuZXJpY19mcmVlX2NvaGVyZW50LApAQCAtOTYsNCArMTAzLDUgQEAgY29u
-c3Qgc3RydWN0IGRtYV9tYXBfb3BzIG5vbW11X2RtYV9vcHMgPSB7CiAJLnN5bmNfc2luZ2xlX2Zv
-cl9kZXZpY2UgPSBub21tdV9zeW5jX3NpbmdsZV9mb3JfZGV2aWNlLAogCS5zeW5jX3NnX2Zvcl9k
-ZXZpY2UJPSBub21tdV9zeW5jX3NnX2Zvcl9kZXZpY2UsCiAJLmlzX3BoeXMJCT0gMSwKKwkubWFw
-cGluZ19lcnJvcgkJPSBub21tdV9tYXBwaW5nX2Vycm9yLAogfTsKLS0gCjIuMTEuMAoKCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClhlbi1kZXZlbCBtYWls
-aW5nIGxpc3QKWGVuLWRldmVsQGxpc3RzLnhlbi5vcmcKaHR0cHM6Ly9saXN0cy54ZW4ub3JnL3hl
-bi1kZXZlbAo=
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ include/linux/dma-mapping.h | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index a57875309bfd..3e5908656226 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -549,7 +549,6 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+ 	return 0;
+ }
+ 
+-#ifndef HAVE_ARCH_DMA_SUPPORTED
+ static inline int dma_supported(struct device *dev, u64 mask)
+ {
+ 	const struct dma_map_ops *ops = get_dma_ops(dev);
+@@ -560,7 +559,6 @@ static inline int dma_supported(struct device *dev, u64 mask)
+ 		return 1;
+ 	return ops->dma_supported(dev, mask);
+ }
+-#endif
+ 
+ #ifndef HAVE_ARCH_DMA_SET_MASK
+ static inline int dma_set_mask(struct device *dev, u64 mask)
+-- 
+2.11.0
+
