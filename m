@@ -1,87 +1,50 @@
-From: Dave Jiang <dave.jiang@intel.com>
-Subject: Re: [PATCH 03/44] dmaengine: ioat: don't use DMA_ERROR_CODE
-Date: Thu, 8 Jun 2017 09:32:18 -0700
-Message-ID: <bf0a16a3-75d9-25c9-98d3-f1e7624dc5d7@intel.com>
-References: <20170608132609.32662-1-hch@lst.de>
- <20170608132609.32662-4-hch@lst.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 33/44] openrisc: remove arch-specific dma_supported implementation
+Date: Fri, 9 Jun 2017 14:20:42 +0200
+Message-ID: <CAMuHMdUPeFJJtz8eJkQEAR-2w9oHt-fXeGHvvKFLfU2A4YyviQ@mail.gmail.com>
+References: <20170608132609.32662-1-hch@lst.de> <20170608132609.32662-34-hch@lst.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20170608132609.32662-4-hch@lst.de>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:in-reply-to:references:from:date:message-id
+         :subject:to:cc;
+        bh=U1p0idI0OkA5nNdkhuLOij7RtZTBGGImqiUvCpsPm04=;
+        b=V8Sz/eTqnP4PCXV26/K4Fp7+wZUVR55atM7be/PmeOPkbzuTC29Y6l0uVtS9Hud9+N
+         HGt/1Z0qZBDs9xvFM0iq8ndX6PvO/d7b+1zkjQ9Guh/sc6yK14+Re6caTBdtS9FLEWZR
+         YKJ34LbvooEbopthap4Mj0Qg50PEZItgLRN3OR1h1TCDFJgKLf3WdblL0Mr7c2AVZcIe
+         BFNE8xriO50n9ottXzfgkHgXRvl2fMxwxuMxjcY4RUsdvSE6NCbC8svCYqvOgplxV25i
+         R+uWOtuFKnCh7RwzKtKILS2qHfHwHj6R34dFvMVXeq4ueRAxr7iKs5ETqFKef3GYBPAo
+         C1eQ==
+In-Reply-To: <20170608132609.32662-34-hch@lst.de>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Christoph Hellwig <hch@lst.de>, "x86@kernel.org" <x86@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, "linux-c6x-dev@linux-c6x.org" <linux-c6x-dev@linux-c6x.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-xtensa@linux-xtensa.org" <>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+To: Christoph Hellwig <hch@lst.de>
+Cc: the arch/x86 maintainers <x86@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, openrisc@lists.librecores.org, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, DRI Development <dri-devel@lists.freedesktop.org>, linux-samsung-soc@vg
 
-On 06/08/2017 06:25 AM, Christoph Hellwig wrote:
-> DMA_ERROR_CODE is not a public API and will go away.  Instead properly
-> unwind based on the loop counter.
-> 
+Hi Christoph,
+
+On Thu, Jun 8, 2017 at 3:25 PM, Christoph Hellwig <hch@lst.de> wrote:
+> This implementation is simply bogus - hexagon only has a simple
+
+openrisc?
+
+> direct mapped DMA implementation and thus doesn't care about the
+> address.
+>
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
-
-Acked-by: Dave Jiang <dave.jiang@intel.com>
-
 > ---
->  drivers/dma/ioat/init.c | 24 +++++++-----------------
->  1 file changed, 7 insertions(+), 17 deletions(-)
-> 
-> diff --git a/drivers/dma/ioat/init.c b/drivers/dma/ioat/init.c
-> index 6ad4384b3fa8..ed8ed1192775 100644
-> --- a/drivers/dma/ioat/init.c
-> +++ b/drivers/dma/ioat/init.c
-> @@ -839,8 +839,6 @@ static int ioat_xor_val_self_test(struct ioatdma_device *ioat_dma)
->  		goto free_resources;
->  	}
->  
-> -	for (i = 0; i < IOAT_NUM_SRC_TEST; i++)
-> -		dma_srcs[i] = DMA_ERROR_CODE;
->  	for (i = 0; i < IOAT_NUM_SRC_TEST; i++) {
->  		dma_srcs[i] = dma_map_page(dev, xor_srcs[i], 0, PAGE_SIZE,
->  					   DMA_TO_DEVICE);
-> @@ -910,8 +908,6 @@ static int ioat_xor_val_self_test(struct ioatdma_device *ioat_dma)
->  
->  	xor_val_result = 1;
->  
-> -	for (i = 0; i < IOAT_NUM_SRC_TEST + 1; i++)
-> -		dma_srcs[i] = DMA_ERROR_CODE;
->  	for (i = 0; i < IOAT_NUM_SRC_TEST + 1; i++) {
->  		dma_srcs[i] = dma_map_page(dev, xor_val_srcs[i], 0, PAGE_SIZE,
->  					   DMA_TO_DEVICE);
-> @@ -965,8 +961,6 @@ static int ioat_xor_val_self_test(struct ioatdma_device *ioat_dma)
->  	op = IOAT_OP_XOR_VAL;
->  
->  	xor_val_result = 0;
-> -	for (i = 0; i < IOAT_NUM_SRC_TEST + 1; i++)
-> -		dma_srcs[i] = DMA_ERROR_CODE;
->  	for (i = 0; i < IOAT_NUM_SRC_TEST + 1; i++) {
->  		dma_srcs[i] = dma_map_page(dev, xor_val_srcs[i], 0, PAGE_SIZE,
->  					   DMA_TO_DEVICE);
-> @@ -1017,18 +1011,14 @@ static int ioat_xor_val_self_test(struct ioatdma_device *ioat_dma)
->  	goto free_resources;
->  dma_unmap:
->  	if (op == IOAT_OP_XOR) {
-> -		if (dest_dma != DMA_ERROR_CODE)
-> -			dma_unmap_page(dev, dest_dma, PAGE_SIZE,
-> -				       DMA_FROM_DEVICE);
-> -		for (i = 0; i < IOAT_NUM_SRC_TEST; i++)
-> -			if (dma_srcs[i] != DMA_ERROR_CODE)
-> -				dma_unmap_page(dev, dma_srcs[i], PAGE_SIZE,
-> -					       DMA_TO_DEVICE);
-> +		while (--i >= 0)
-> +			dma_unmap_page(dev, dma_srcs[i], PAGE_SIZE,
-> +				       DMA_TO_DEVICE);
-> +		dma_unmap_page(dev, dest_dma, PAGE_SIZE, DMA_FROM_DEVICE);
->  	} else if (op == IOAT_OP_XOR_VAL) {
-> -		for (i = 0; i < IOAT_NUM_SRC_TEST + 1; i++)
-> -			if (dma_srcs[i] != DMA_ERROR_CODE)
-> -				dma_unmap_page(dev, dma_srcs[i], PAGE_SIZE,
-> -					       DMA_TO_DEVICE);
-> +		while (--i >= 0)
-> +			dma_unmap_page(dev, dma_srcs[i], PAGE_SIZE,
-> +				       DMA_TO_DEVICE);
->  	}
->  free_resources:
->  	dma->device_free_chan_resources(dma_chan);
-> 
+>  arch/openrisc/include/asm/dma-mapping.h | 7 -------
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
