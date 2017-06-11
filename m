@@ -1,63 +1,60 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [PATCH 00/35] defconfig: Cleanup from old entries
-Date: Sat, 10 Jun 2017 18:43:51 +0200
-Message-ID: <20170610164351.7sxzvj4ojj3fbc7h@kozik-lap>
-References: <20170608160836.12196-1-krzk@kernel.org>
- <CAK8P3a3bUeC3H2oNfdBedVY4UTCe8OgKbWmv46d5xfu8tC7tAg@mail.gmail.com>
-Mime-Version: 1.0
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [GIT PULL] hexagon fix for v4.12-rc5
+Date: Sat, 10 Jun 2017 19:24:41 -0700
+Message-ID: <1497147881-1921-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=roeck-us.net; s=default; h=Message-Id:Date:Subject:Cc:To:From:Sender:
+        Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=gTRGx9HwB0u/cfRHd1kSvARaK72bTn+2Xl/GUuKVOA8=; b=hx7r9B0BlMRqJs7HtqAr/e3tiO
+        1RI18zCIvjx5gTrzV6k8WVJ/fds3pG+aXNy1/Bp81tRgFI5H4ReYIdwJihec4lmeSlD49tCbtefmX
+        zjmDYRJe0yUQAPx4OEYuiLp8IInxGH6GgYb+HQsoLN5Z5smE6oj658kOfnyMOq0ZxCE839SLoATzw
+        9c0IRVNN/jh5HDXxAkZbWOnC9IthM32ZNK1HoFtvMNF+iE5mS9FOH4md6j070fhRm3DL6J2qkKNbZ
+        l/omXK174s4gBNhEgdgKzrwtHvbiIM2xngB/xlT0sRfb+8JO57r99rMPJIPDspgrpuNq+Il09VKJs
+        brYk9Q 
+Sender: linux-hexagon-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=AGwK7M5Yrs1spIBoZFOltG+ylHmRliVju4oHy62TRCs=; b=lPmhjfLwirM65m
-	gw5V12frlPY2Zn9uk0jAfoTiWUU127a8Xnnixv6/lKb5qIhwUh4Lx+tcHGuLh4zNAmRDbutREqauB
-	0FNf7SiYnfjIgDGt9pFRPLtuSeDR7Beq7RSqIAzSTI4jR50eEtYf09nAjLdI//vdxQ9fYoM/VEu6X
-	vsTJxmORCp6SNhDrnm3AuvFl3oxUwl3CbBnuUddjQFy8/7CgYEjF1bW8h/EkccHPdMgyJGQvuF30S
-	rfL7TVJtLAPVAkKG44lt/uxlBILU6q6IRObVoL+kJzCjLkr/Evi6BSX0esqkEsszXWYxoATYw1NyD
-	+0r9Rx0vbJWmX1UI7dIA==;
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a3bUeC3H2oNfdBedVY4UTCe8OgKbWmv46d5xfu8tC7tAg@mail.gmail.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "open list:RALINK MIPS ARCHITECTURE" <linux-mips@linux-mips.org>, Rich Felker <dalias@libc.org>, Aurelien Jacquiot <a-jacquiot@ti.com>, Tony Lindgren <tony@atomide.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Liviu Dudau <liviu.dudau@arm.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, David Howells <dhowells@redhat.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux <sparclinux@vger.kernel.org>, linux-hexagon@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>, Lennox Wu <lennox.wu@gmail.com>, Jonas Bonn <jonas@southpole.se>, Chen Liqin <liqin.linux@gmail.com>, Jesper Nilsson <jesper.nilsson@axis.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Aaro Koskinen <aaro.koskinen@iki.fi>, linux-sh@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2017 at 09:59:48PM +0200, Arnd Bergmann wrote:
-> On Thu, Jun 8, 2017 at 6:08 PM, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> > Hi,
-> >
-> > While cleaning Samsung ARM defconfigs with savedefconfig, I encountered
-> > similar obsolete entries in other files.
-> >
-> > Except the ARM, no dependencies.
-> > For ARM, the rest of patches depend on the first change (otherwise
-> > it might not apply cleanly).
-> 
-> Great work!
-> 
-> I looked at all the ARM patches, and everything looks good to me (the
-> changlog linewrapping may be suboptimal for readability in some cases,
-> if I had to say anything negative ;-) ).
-> 
-> Please add my Acked-by to the ARM patches and send a pull request.
+Hi Linus,
 
-Thanks, I'll send you ARM part in pull request.
+Please consider pulling a hexagon fix for Linux v4.12-rc5 from signed tag:
 
-As for the rest, I think respective arch/platform maintainers should
-take it.
+    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git hexagon-for-linus-v4.12-rc5
 
-Best regards,
-Krzysztof
+This patch fixes a build error seen when building hexagon images.
+Richard sent me an Ack, but didn't reply when asked if he wants me
+to send the patch to you directly, so I figured I'd just do it.
+
+Thanks,
+Guenter
+------
+
+The following changes since commit 5faab9e0f03c4eef97886b45436015e107f79f5f:
+
+  Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs (2017-06-10 11:09:23 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/hexagon-for-linus-v4.12-rc5
+
+for you to fetch changes up to 4d801cca0bb7011699c2d29f0139902dcfb3482d:
+
+  hexagon: Use raw_copy_to_user (2017-06-10 19:10:31 -0700)
+
+----------------------------------------------------------------
+Fix hexagon build error
+
+----------------------------------------------------------------
+Guenter Roeck (1):
+      hexagon: Use raw_copy_to_user
+
+ arch/hexagon/mm/uaccess.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
