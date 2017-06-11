@@ -1,60 +1,43 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [GIT PULL] hexagon fix for v4.12-rc5
-Date: Sat, 10 Jun 2017 19:24:41 -0700
-Message-ID: <1497147881-1921-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=roeck-us.net; s=default; h=Message-Id:Date:Subject:Cc:To:From:Sender:
-        Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=gTRGx9HwB0u/cfRHd1kSvARaK72bTn+2Xl/GUuKVOA8=; b=hx7r9B0BlMRqJs7HtqAr/e3tiO
-        1RI18zCIvjx5gTrzV6k8WVJ/fds3pG+aXNy1/Bp81tRgFI5H4ReYIdwJihec4lmeSlD49tCbtefmX
-        zjmDYRJe0yUQAPx4OEYuiLp8IInxGH6GgYb+HQsoLN5Z5smE6oj658kOfnyMOq0ZxCE839SLoATzw
-        9c0IRVNN/jh5HDXxAkZbWOnC9IthM32ZNK1HoFtvMNF+iE5mS9FOH4md6j070fhRm3DL6J2qkKNbZ
-        l/omXK174s4gBNhEgdgKzrwtHvbiIM2xngB/xlT0sRfb+8JO57r99rMPJIPDspgrpuNq+Il09VKJs
-        brYk9Q 
-Sender: linux-hexagon-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH 07/44] xen-swiotlb: consolidate xen_swiotlb_dma_ops
+Date: Sat, 10 Jun 2017 22:36:44 -0400
+Message-ID: <20170611023644.GE30966@char.us.oracle.com>
+References: <20170608132609.32662-1-hch@lst.de>
+ <20170608132609.32662-8-hch@lst.de>
+Mime-Version: 1.0
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <20170608132609.32662-8-hch@lst.de>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-mips@linux-mips.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, dmaengine@vger.kernel.org, iommu@lists.linux-foundation.org, openrisc@lists.librecores.org, netdev@vger.kernel.org, sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 
-Hi Linus,
-
-Please consider pulling a hexagon fix for Linux v4.12-rc5 from signed tag:
-
-    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git hexagon-for-linus-v4.12-rc5
-
-This patch fixes a build error seen when building hexagon images.
-Richard sent me an Ack, but didn't reply when asked if he wants me
-to send the patch to you directly, so I figured I'd just do it.
-
-Thanks,
-Guenter
-------
-
-The following changes since commit 5faab9e0f03c4eef97886b45436015e107f79f5f:
-
-  Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs (2017-06-10 11:09:23 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/hexagon-for-linus-v4.12-rc5
-
-for you to fetch changes up to 4d801cca0bb7011699c2d29f0139902dcfb3482d:
-
-  hexagon: Use raw_copy_to_user (2017-06-10 19:10:31 -0700)
-
-----------------------------------------------------------------
-Fix hexagon build error
-
-----------------------------------------------------------------
-Guenter Roeck (1):
-      hexagon: Use raw_copy_to_user
-
- arch/hexagon/mm/uaccess.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+T24gVGh1LCBKdW4gMDgsIDIwMTcgYXQgMDM6MjU6MzJQTSArMDIwMCwgQ2hyaXN0b3BoIEhlbGx3
+aWcgd3JvdGU6Cj4gQVJNIGFuZCB4ODYgaGFkIGR1cGxpY2F0ZWQgdmVyc2lvbnMgb2YgdGhlIGRt
+YV9vcHMgc3RydWN0dXJlLCB0aGUKPiBvbmx5IGRpZmZlcmVuY2UgaXMgdGhhdCB4ODYgaGFzbid0
+IHdpcmVkIHVwIHRoZSBzZXRfZG1hX21hc2ssCj4gbW1hcCwgYW5kIGdldF9zZ3RhYmxlIG9wcyB5
+ZXQuICBPbiB4ODYgYWxsIG9mIHRoZW0gYXJlIGlkZW50aWNhbAo+IHRvIHRoZSBnZW5lcmljIHZl
+cnNpb24sIHNvIHRoZXkgYXJlbid0IG5lZWRlZCBidXQgaGFybWxlc3MuCj4gCj4gQWxsIHRoZSBz
+eW1ib2xzIHVzZWQgb25seSBmb3IgeGVuX3N3aW90bGJfZG1hX29wcyBjYW4gbm93IGJlIG1hcmtl
+ZAo+IHN0YXRpYyBhcyB3ZWxsLgo+IAo+IFNpZ25lZC1vZmYtYnk6IENocmlzdG9waCBIZWxsd2ln
+IDxoY2hAbHN0LmRlPgo+IC0tLQo+ICBhcmNoL2FybS94ZW4vbW0uYyAgICAgICAgICAgICAgfCAx
+NyAtLS0tLS0tLQo+ICBhcmNoL3g4Ni94ZW4vcGNpLXN3aW90bGIteGVuLmMgfCAxNCAtLS0tLS0t
+Cj4gIGRyaXZlcnMveGVuL3N3aW90bGIteGVuLmMgICAgICB8IDkzICsrKysrKysrKysrKysrKysr
+KysrKystLS0tLS0tLS0tLS0tLS0tLS0tLQo+ICBpbmNsdWRlL3hlbi9zd2lvdGxiLXhlbi5oICAg
+ICAgfCA2MiArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gIDQgZmlsZXMgY2hhbmdlZCwg
+NDkgaW5zZXJ0aW9ucygrKSwgMTM3IGRlbGV0aW9ucygtKQoKWWVlZXkhCgpSZXZpZXdlZC1ieTog
+S29ucmFkIFJ6ZXN6dXRlayBXaWxrIDxrb25yYWQud2lsa0BvcmFjbGUuY29tPgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBs
+aXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVz
+a3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
