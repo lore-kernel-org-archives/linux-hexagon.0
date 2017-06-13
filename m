@@ -1,80 +1,85 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 00/35] defconfig: Cleanup from old entries
-Date: Mon, 12 Jun 2017 11:54:51 +0200
-Message-ID: <CAK8P3a3YN+5aJdqxwnpZaVpuucsmQUE3BuEpAf+q7uPXa1dgZw@mail.gmail.com>
-References: <20170608160836.12196-1-krzk@kernel.org>
- <CAK8P3a3bUeC3H2oNfdBedVY4UTCe8OgKbWmv46d5xfu8tC7tAg@mail.gmail.com>
- <20170610164351.7sxzvj4ojj3fbc7h@kozik-lap>
+From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 01/44] firmware/ivc: use dma_mapping_error
+Date: Tue, 13 Jun 2017 14:35:38 +0200
+Message-ID: <20170613123538.GB16758@ulmo.fritz.box>
+References: <20170608132609.32662-1-hch@lst.de>
+	<20170608132609.32662-2-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:To:Subject:Message-ID:Date:From:
-	References:In-Reply-To:MIME-Version:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=aDCyd+eSYPIHEeGPWiRauiAYT/65IBlcoqSVTcs0X3c=; b=j9NPSCJB6r6UUM
-	HJ8YrX19R2aiNSMTntdl5cUVxjQmOo6PR+zGDNdYF9xAuRROXfBpFB6nY4mrw965IoCAn7+NPWaJW
-	4r10KXRpm+KkvmB7sEcBURVXTxy+sV9pduvLvjB0uBcSVhFYlxsy0dqVjSAoumSNaGA52RwL1o9Hp
-	BJg2RnGb5KkHudLUsQtPau+LhnqZAU2Gw+Tk93urg5zMjBSrywivXxqUlITDcrA831Q94jvxZhDsg
-	DCvJI/DJWxZTKwESQ2vBJv3+4aFTTu7Siq1y9Pfmdoe1sqg3lN1J8mVbqVJ6xUxB5zY2ooFc2RaD2
-	7ddcIVbbdiHb5wi4LDKw==;
+Content-Type: multipart/mixed; boundary="===============3027311718705588637=="
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:sender:in-reply-to:references:from:date:message-id
- :subject:to:cc;
- bh=5UD3gm0jnS4PGM3GtYlJtJw697j54IOqC5FYpDahZCM=;
- b=CI1xk7y/avGUkC4KtVI5MFor5K46ZCeEQCiY5IoPxbVNDYuyCjMahUmchP8+pFBVQg
- BPV75isr8030AyboHjNoz61/WiIw8i1Mfst6is4XbAz6r+my0K4VExPN8GliMm7x8G8s
- Wtt39B4gVkweXsRgop3a2PItVTt+E0Euf+pWejf7AlYheD3q0r+GpJGx1DECcxgPY+n5
- VpVTyc+zuf50s/bgEg6Cfm020aHfwx049vsStyeByCTq5OS9CyH5XV3d8VquWuD4eiYd
- zCsJL0yIVYa65hL/HTvNWIquj1y7C0nUziemlJjJITkaJ+7wjsVkaftUXMtOQ7GU7dB5
- gd9g==
-In-Reply-To: <20170610164351.7sxzvj4ojj3fbc7h@kozik-lap>
+	h=date:from:to:cc:subject:message-id:references:mime-version
+	:content-disposition:in-reply-to:user-agent;
+	bh=IIywL1N/tukcaRGkITD1/xdg8tXcloFz1Z6qg1hejGw=;
+	b=JCXsmJs0pMpJ7oTrajaO1lCH51GGxq05xjrhtVaskuBW7GiJn5ghJ4RGLcsHO8Vldv
+	wnXEpQbVqJSRvUbI7QohavYAsXp4VG6xAgfHONgDThjRqlG/tBIjp6qJinLfZIxNLcPO
+	NRmT4Wi6FGF1x5Zl3MiwiBjHLrPnM0SoS6mMRAGpg3bVvodpOU8CUHKpBRNs7w3+c54n
+	b60RyTOb1pekXScpPLj2uJ1n3E/KQ9cZxbUtz7aHG8J0oiRU2hriDiuli0ZSHaQoj8BW
+	JjGGXZdUuyb1pfep2y3DZXw7UJ1TebOpr+vrKipxk6Wtb8E0irMAbZie7GzpeFpBjOBs
+	yeug==
+In-Reply-To: <20170608132609.32662-2-hch-jcswGhMUV9g@public.gmane.org>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: "open list:RALINK MIPS ARCHITECTURE" <linux-mips@linux-mips.org>, Rich Felker <dalias@libc.org>, Aurelien Jacquiot <a-jacquiot@ti.com>, Tony Lindgren <tony@atomide.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Liviu Dudau <liviu.dudau@arm.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, David Howells <dhowells@redhat.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux <sparclinux@vger.kernel.org>, linux-hexagon@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>, Lennox Wu <lennox.wu@gmail.com>, Jonas Bonn <jonas@southpole.se>, Chen Liqin <liqin.linux@gmail.com>, Jesper Nilsson <jesper.nilsson@axis.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Aaro Koskinen <aaro.koskinen@iki.fi>, linux-sh@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, openrisc-cunTk1MwBs9a3B2Vnqf2dGD2FQJk+8+b@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, xen-devel-GuqFBffKawtpuQazS67q72D2FQJk+8+b@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 
-On Sat, Jun 10, 2017 at 6:43 PM, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> On Fri, Jun 09, 2017 at 09:59:48PM +0200, Arnd Bergmann wrote:
->> On Thu, Jun 8, 2017 at 6:08 PM, Krzysztof Kozlowski <krzk@kernel.org> wrote:
->> > Hi,
->> >
->> > While cleaning Samsung ARM defconfigs with savedefconfig, I encountered
->> > similar obsolete entries in other files.
->> >
->> > Except the ARM, no dependencies.
->> > For ARM, the rest of patches depend on the first change (otherwise
->> > it might not apply cleanly).
->>
->> Great work!
->>
->> I looked at all the ARM patches, and everything looks good to me (the
->> changlog linewrapping may be suboptimal for readability in some cases,
->> if I had to say anything negative ;-) ).
->>
->> Please add my Acked-by to the ARM patches and send a pull request.
->
-> Thanks, I'll send you ARM part in pull request.
 
-Ok
+--===============3027311718705588637==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="2B/JsCI69OhZNC5r"
+Content-Disposition: inline
 
-> As for the rest, I think respective arch/platform maintainers should
-> take it.
 
-I suspect most will apply the patches, but some architectures maintainers
-are not very active. If you are motivated, you could resend the ones
-that missed out to Andrew Morton, or you just leave the architectures
-to bitrot more. ;-)
+--2B/JsCI69OhZNC5r
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-     Arnd
+On Thu, Jun 08, 2017 at 03:25:26PM +0200, Christoph Hellwig wrote:
+> DMA_ERROR_CODE is not supposed to be used by drivers.
+>=20
+> Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+> ---
+>  drivers/firmware/tegra/ivc.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+
+Acked-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+
+--2B/JsCI69OhZNC5r
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlk/3BoACgkQ3SOs138+
+s6HPehAAsPH3WCVEat0HG8XtDXXMKUx9atqqkjijlfz3wzr3Yu8oeWJkmauxBI2J
+xWvBLcQSO632cLKWDXp9sfnjUN9McgOQi4LbbEnJZ3Wzovtn86aaPUXEtbrUImTw
+P57+RXkSbiFiGp8LlUECzxlshCYZHbzvOmqvdxpBqOTjQfv7fehxm+SVPJgkRflE
+EUuCItQsdBhnqBOtq743sf7Ck4QJ3Kz4pLGgntIDINnwiPxWjpMpI06SeVnvK2st
+d5lq46pyBdS3dliCsRcn6jukf79HzS/jStxG8r5YCEkRfCPvw0au5ds8iywvCZrZ
+hJYP0tumPW9j/x0ZC35a6j4dIbotmuhqCE2mYJUjG2mKDtAtdqZKVBvwKUmxzGok
+H7YKQDZN54UOBVg4Rzsbu80eyYc2jFZEWIhICrQUYVM534Psw7LGnA6hMiv5X8aS
+J4T7cOnL+71/iwE9Ey5EdvTbV22/mcx711OcyPbZ7q5Dv4AZE9HdJrPTF1rf1TeA
+WDqgA3BbY6JNflUayq5in0OxeyN8/qKbJr9ozhXgCNKNUUH5nihjT4LZxENEWV2p
+pRCppkKHw9Wmze/9cDuINms2Ef1DlEzxJ9BqE5mtiFFsCq1mn9EUxgMt4vbbfMqC
+Ynk0gIB134Hm0HIXoJcwdQ/27Ltko3nyeRm+28ka/gS8GVgYtec=
+=jGwQ
+-----END PGP SIGNATURE-----
+
+--2B/JsCI69OhZNC5r--
+
+--===============3027311718705588637==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+
+--===============3027311718705588637==--
