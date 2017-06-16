@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 10/44] ia64: remove DMA_ERROR_CODE
-Date: Fri, 16 Jun 2017 20:10:25 +0200
-Message-ID: <20170616181059.19206-11-hch@lst.de>
+Subject: [PATCH 11/44] m32r: remove DMA_ERROR_CODE
+Date: Fri, 16 Jun 2017 20:10:26 +0200
+Message-ID: <20170616181059.19206-12-hch@lst.de>
 References: <20170616181059.19206-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -12,12 +12,12 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
  Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
  List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=Uy6H3+yx5EeAWQfHfPRvhVNeqQCPFpPHV5YVmwy+QSI=; b=fKAsHkfZmPCuHOxxoipJFT2FD
- Onp8qlpmfZTTHehcB6rvxwh/YXsWS7AHRBL4/Wt2jRP281raJQNFWhTs722VhGDkM7py5HfJrfBxy
- bzS1eMCgQa4ONj75QN7BmzLVw3BB8LN1t6q1tTMf2X1DIhWQ/29Eg/LEj7CmWnBPJ8QSv4BpXEfQp
- ZgS2MkLA4P8lqnD6Kygz4C8bjipiXHw9VxWP5w+9nxhY7OxbcAaao9TiUllsIr++d1mGa6tRN+uT+
- FIoQsG3D4k/LzQ8mNOCLLcys8ZunaEaGxv/J+8dh/q9el5GxerxBPp5SF1KzhYd6YodZn8rTTnjeI
- Ex8WHgE2A==;
+ bh=+BimIphw+O/ZeWv5ilcXGOZNr0jC0FIS9166yVuBOCo=; b=aar/hGEgYNDN760LyRQGOkf/c
+ muF7aFh0DgtllPrRo3c8wxtJxCfC6AqYgWxIk0PYRwz603D6psbrFTgHfcfmRH0ibidr7pujlTu34
+ fV23h02D1Ktmi4xFT/ee4A7nL1dt+Xhuk0CJjXosgYfbcmiG5ZFGyIOmdopFiyx9AioD8NlANQV+G
+ 4bApgR0F/BP4Yreisd6zvQ+ByN5YNX3ffICBEDZWdSJ45Bo5QIi2ws6GGz6fQpmI7caiiDfGmN2dM
+ ZIUhm9lG/76+KFCNx0yp+QwUQVlMsFmukfOKgbQ3upwhKdkhZfg3xbYGffum+a9HlYUAPm0gi91JJ
+ ok2iqMXDQ==;
 In-Reply-To: <20170616181059.19206-1-hch@lst.de>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
@@ -33,17 +33,18 @@ Content-Type: text/plain; charset="us-ascii"
 To: x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 
-QWxsIGlhNjQgZG1hX21hcHBpbmdfb3BzIGluc3RhbmNlcyBhbHJlYWR5IGhhdmUgYSBtYXBwaW5n
-X2Vycm9yIG1lbWJlci4KClNpZ25lZC1vZmYtYnk6IENocmlzdG9waCBIZWxsd2lnIDxoY2hAbHN0
-LmRlPgotLS0KIGFyY2gvaWE2NC9pbmNsdWRlL2FzbS9kbWEtbWFwcGluZy5oIHwgMiAtLQogMSBm
-aWxlIGNoYW5nZWQsIDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvYXJjaC9pYTY0L2luY2x1
-ZGUvYXNtL2RtYS1tYXBwaW5nLmggYi9hcmNoL2lhNjQvaW5jbHVkZS9hc20vZG1hLW1hcHBpbmcu
-aAppbmRleCA3M2VjM2M2ZjRjZmUuLjNjZTVhYjQzMzlmMyAxMDA2NDQKLS0tIGEvYXJjaC9pYTY0
-L2luY2x1ZGUvYXNtL2RtYS1tYXBwaW5nLmgKKysrIGIvYXJjaC9pYTY0L2luY2x1ZGUvYXNtL2Rt
-YS1tYXBwaW5nLmgKQEAgLTEyLDggKzEyLDYgQEAKIAogI2RlZmluZSBBUkNIX0hBU19ETUFfR0VU
-X1JFUVVJUkVEX01BU0sKIAotI2RlZmluZSBETUFfRVJST1JfQ09ERSAwCi0KIGV4dGVybiBjb25z
-dCBzdHJ1Y3QgZG1hX21hcF9vcHMgKmRtYV9vcHM7CiBleHRlcm4gc3RydWN0IGlhNjRfbWFjaGlu
-ZV92ZWN0b3IgaWE2NF9tdjsKIGV4dGVybiB2b2lkIHNldF9pb21tdV9tYWNodmVjKHZvaWQpOwot
-LSAKMi4xMS4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcK
-aHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
+ZG1hLW5vb3AgaXMgdGhlIG9ubHkgZG1hX21hcHBpbmdfb3BzIGluc3RhbmNlIGZvciBtMzJyIGFu
+ZCBkb2VzIG5vdCByZXR1cm4KZXJyb3JzLgoKU2lnbmVkLW9mZi1ieTogQ2hyaXN0b3BoIEhlbGx3
+aWcgPGhjaEBsc3QuZGU+Ci0tLQogYXJjaC9tMzJyL2luY2x1ZGUvYXNtL2RtYS1tYXBwaW5nLmgg
+fCAyIC0tCiAxIGZpbGUgY2hhbmdlZCwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9hcmNo
+L20zMnIvaW5jbHVkZS9hc20vZG1hLW1hcHBpbmcuaCBiL2FyY2gvbTMyci9pbmNsdWRlL2FzbS9k
+bWEtbWFwcGluZy5oCmluZGV4IGMwMWQ5ZjUyZDIyOC4uYWZmM2FlOGI2MmY3IDEwMDY0NAotLS0g
+YS9hcmNoL20zMnIvaW5jbHVkZS9hc20vZG1hLW1hcHBpbmcuaAorKysgYi9hcmNoL20zMnIvaW5j
+bHVkZS9hc20vZG1hLW1hcHBpbmcuaApAQCAtOCw4ICs4LDYgQEAKICNpbmNsdWRlIDxsaW51eC9k
+bWEtZGVidWcuaD4KICNpbmNsdWRlIDxsaW51eC9pby5oPgogCi0jZGVmaW5lIERNQV9FUlJPUl9D
+T0RFICh+KGRtYV9hZGRyX3QpMHgwKQotCiBzdGF0aWMgaW5saW5lIGNvbnN0IHN0cnVjdCBkbWFf
+bWFwX29wcyAqZ2V0X2FyY2hfZG1hX29wcyhzdHJ1Y3QgYnVzX3R5cGUgKmJ1cykKIHsKIAlyZXR1
+cm4gJmRtYV9ub29wX29wczsKLS0gCjIuMTEuMAoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4v
+bGlzdGluZm8vZHJpLWRldmVsCg==
