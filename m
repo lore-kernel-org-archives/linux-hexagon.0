@@ -1,54 +1,43 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH 11/35] hexagon: defconfig: Cleanup from old Kconfig
- options
-Date: Thu, 15 Jun 2017 19:22:18 -0500
-Message-ID: <20170616002218.GC7343@codeaurora.org>
-References: <20170608160836.12196-1-krzk@kernel.org>
- <20170608161049.12421-11-krzk@kernel.org>
+From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+Subject: Re: [PATCH 06/44] iommu/dma: don't rely on DMA_ERROR_CODE
+Date: Fri, 16 Jun 2017 10:37:00 +0200
+Message-ID: <20170616083700.GA10582@lst.de>
+References: <20170608132609.32662-1-hch@lst.de>
+	<20170608132609.32662-7-hch@lst.de>
+	<0bfb0841-f054-78de-628d-a0955336bcb4@arm.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1497572540;
-        bh=mn/bnEhbWJQr/yt4UJVV/AOgKPETRehSY4qfKVAR4Qs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Bic6/M/52aUgfaodrzQ4C4OEy64jjrfEKkWlqBheBosc2+dTXklifBrnaeRDk0P+F
-         Uw0Msf8kdNf60Zo+1Mp31t7Ecsxgi7UVJKnLtXkFN2834lGWHl6c970U5PIQ/xU9Re
-         pu7h5Qzog5M4sns6P2A+VCk2rk4s2hEV1Ux1CgMs=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1497572540;
-        bh=mn/bnEhbWJQr/yt4UJVV/AOgKPETRehSY4qfKVAR4Qs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Bic6/M/52aUgfaodrzQ4C4OEy64jjrfEKkWlqBheBosc2+dTXklifBrnaeRDk0P+F
-         Uw0Msf8kdNf60Zo+1Mp31t7Ecsxgi7UVJKnLtXkFN2834lGWHl6c970U5PIQ/xU9Re
-         pu7h5Qzog5M4sns6P2A+VCk2rk4s2hEV1Ux1CgMs=
-Content-Disposition: inline
-In-Reply-To: <20170608161049.12421-11-krzk@kernel.org>
-Sender: linux-hexagon-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <0bfb0841-f054-78de-628d-a0955336bcb4-5wv7dgnIgG8@public.gmane.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>
+Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, openrisc-cunTk1MwBs9a3B2Vnqf2dGD2FQJk+8+b@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, xen-devel-GuqFBffKawtpuQazS67q72D2FQJk+8+b@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 
-On Thu, Jun 08, 2017 at 06:10:22PM +0200, Krzysztof Kozlowski wrote:
-> Remove old, dead Kconfig options (in order appearing in this commit):
->  - EXPERIMENTAL is gone since v3.9;
->  - NETDEV_1000 and NETDEV_10000: commit f860b0522f65 ("drivers/net:
->    Kconfig and Makefile cleanup"); NET_ETHERNET should be replaced with
->    just ETHERNET but that is separate change;
->  - HID_SUPPORT: commit 1f41a6a99476 ("HID: Fix the generic Kconfig
->    options");
->  - INET_LRO: commit 7bbf3cae65b6 ("ipv4: Remove inet_lro library");
+On Thu, Jun 08, 2017 at 02:59:07PM +0100, Robin Murphy wrote:
+> Hi Christoph,
 > 
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> ---
->  arch/hexagon/configs/comet_defconfig | 5 -----
->  1 file changed, 5 deletions(-)
+> On 08/06/17 14:25, Christoph Hellwig wrote:
+> > DMA_ERROR_CODE is not a public API and will go away soon.  dma dma-iommu
+> > driver already implements a proper ->mapping_error method, so it's only
+> > using the value internally.  Add a new local define using the value
+> > that arm64 which is the only current user of dma-iommu.
 > 
+> It would be fine to just use 0, since dma-iommu already makes sure that
+> that will never be allocated for a valid DMA address.
 
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
+I'll change it to 0.
 
--- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
-a Linux Foundation Collaborative Project
+> Otherwise, looks good!
+
+Can you give me a formal ACK or Reviewed-by: ?
