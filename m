@@ -1,57 +1,65 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: clean up and modularize arch dma_mapping interface V2
-Date: Fri, 16 Jun 2017 20:10:15 +0200
-Message-ID: <20170616181059.19206-1-hch@lst.de>
-Return-path: <linux-ia64-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=Message-Id:Date:Subject:Cc:To:From:
-        Sender:Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=41KyiF2F2DWxIRbSvuXvB+YeQ1lQaKy72q70xwqtfwY=; b=jvwxIOJNuTIbiA+Bvx9+xA5YP
-        hm9SWuBM21AkR4HkfU3qGsSsnbHIfzD3V+zzFV8+SIv5ZTA6diCkZ2LKOBfLLxaIxB4kLw525b/jC
-        0C2IxfI/RFHJ7gLyyOQ+PYsYXSN9FfcPQ4mgv0h3uW+WbtIRUCnQpvirj+1kQPJmzbJQfM/062Tjs
-        C8fDBhq6FSyB2lWQ1tP8eERVm8ZPnQOCv5VBB4uzczF92Q8g99m1cUumT3Wu77BCi6TqOspLxtfUg
-        ZAzIUxQbtw0FbDc5NQLm8fjAS0czt2dhQjE+U+PG2kFwkdCGR3T4k3J/bUw6UfMIBV/hYBfP1kFBD
-    
-Sender: linux-ia64-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
+Subject: [PATCH 01/44] firmware/ivc: use dma_mapping_error
+Date: Fri, 16 Jun 2017 20:10:16 +0200
+Message-ID: <20170616181059.19206-2-hch@lst.de>
+References: <20170616181059.19206-1-hch@lst.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Cc:List-Subscribe:
+	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:References:
+	In-Reply-To:Message-Id:Date:Subject:To:From:Reply-To:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Owner;
+	bh=iIuTZxZRt+DyzuE4iRAbyndhKvApdktcamhSPqH2Ixw=; b=QCz5qkf+Uut5OrpspF3cwthUZz
+	YXlSbUsN02Y914spKFA300Ka3xVhPHwgmw7qELmeMXzpJZtvNUbR6wT7QVO2DOSLWvI4LZUa7ySHq
+	kCjIo/8zzzhL89tiqqUYyBCwp+Ojwggkd3ixNlaxN2hqj0DKtI1sxYDefTqB/djJvzI/F6/xnzTid
+	oSqlPaavgDAZi28FlGQ1YBg2hEwg0y8wuza+tSCkp/jFAnecMHvSAtSCOeRWUh6r7lI6Dao4Zd1hY
+	kyCFqMcJt5+GGaD43g1i+l6Ln9R9gMpT5MpUKnTGyVh6zqGToNy5f7EDn7KFch2JiCsaQAuGaDSAD
+	VQCI6c7g==;
+In-Reply-To: <20170616181059.19206-1-hch@lst.de>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 
-Hi all,
+DMA_ERROR_CODE is not supposed to be used by drivers.
 
-for a while we have a generic implementation of the dma mapping routines
-that call into per-arch or per-device operations.  But right now there
-still are various bits in the interfaces where don't clearly operate
-on these ops.  This series tries to clean up a lot of those (but not all
-yet, but the series is big enough).  It gets rid of the DMA_ERROR_CODE
-way of signaling failures of the mapping routines from the
-implementations to the generic code (and cleans up various drivers that
-were incorrectly using it), and gets rid of the ->set_dma_mask routine
-in favor of relying on the ->dma_capable method that can be used in
-the same way, but which requires less code duplication.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Thierry Reding <treding@nvidia.com>
+---
+ drivers/firmware/tegra/ivc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-I've got a good number of reviews last time, but a few are still missing.
-I'd love to not have to re-spam everyone with this patchbomb, so early
-ACKs (or complaints) are welcome.
-
-I plan to create a new dma-mapping tree to collect all this work.
-Any volunteers for co-maintainers, especially from the iommu gang?
-
-The whole series is also available in git:
-
-    git://git.infradead.org/users/hch/misc.git dma-map
-
-Gitweb:
-
-    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-map
-
-Changes since V1:
- - remove two lines of code from arm dmabounce
- - a few commit message tweaks
- - lots of ACKs
+diff --git a/drivers/firmware/tegra/ivc.c b/drivers/firmware/tegra/ivc.c
+index 29ecfd815320..a01461d63f68 100644
+--- a/drivers/firmware/tegra/ivc.c
++++ b/drivers/firmware/tegra/ivc.c
+@@ -646,12 +646,12 @@ int tegra_ivc_init(struct tegra_ivc *ivc, struct device *peer, void *rx,
+ 	if (peer) {
+ 		ivc->rx.phys = dma_map_single(peer, rx, queue_size,
+ 					      DMA_BIDIRECTIONAL);
+-		if (ivc->rx.phys == DMA_ERROR_CODE)
++		if (dma_mapping_error(peer, ivc->rx.phys))
+ 			return -ENOMEM;
+ 
+ 		ivc->tx.phys = dma_map_single(peer, tx, queue_size,
+ 					      DMA_BIDIRECTIONAL);
+-		if (ivc->tx.phys == DMA_ERROR_CODE) {
++		if (dma_mapping_error(peer, ivc->tx.phys)) {
+ 			dma_unmap_single(peer, ivc->rx.phys, queue_size,
+ 					 DMA_BIDIRECTIONAL);
+ 			return -ENOMEM;
+-- 
+2.11.0
