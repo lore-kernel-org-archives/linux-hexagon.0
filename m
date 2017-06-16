@@ -1,79 +1,52 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 44/44] powerpc: merge __dma_set_mask into dma_set_mask
-Date: Fri, 16 Jun 2017 20:10:59 +0200
-Message-ID: <20170616181059.19206-45-hch@lst.de>
+Subject: [PATCH 36/44] dma-mapping: remove
+	HAVE_ARCH_DMA_SUPPORTED
+Date: Fri, 16 Jun 2017 20:10:51 +0200
+Message-ID: <20170616181059.19206-37-hch@lst.de>
 References: <20170616181059.19206-1-hch@lst.de>
-Return-path: <netdev-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xen.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
-        Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=eZHE6yUSAfMLSefbu18rbdpTGXQMlt8s3PB24r4P6cc=; b=JZoNONjpQ2Ds2v9rfZzYVfYuO
-        +z6UHFCnaQMmtWOC0qXuglDEcIpuDvYO2PoRcJUQfw2YwoncyaP3UdtJRHliGSe6q0dnBoyJlVnQf
-        p/K9Eb5i+H8ePY2+REFkworj2km4DW2FKAzU7aYS3+NEL2wJeRJZOVn/PsIOJVqIkJUdN8R7ua+T3
-        D0ytt191cZxz5rpJmuuy7ZUoG3aLZ+fGyhUL8LvmPdQpR0ivDcml9qNKvWZ2TKUbKQqp0Dm0flxiN
-        yTqyRzDqZg+UPGvn5POkplGvzsWdAtaX1RiD8nskOY8nyWbiXE7srYD5ImHpoBhxXw1Lq6ldYKChP
-    
+ d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
+ Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
+ Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+ Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+ List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+ bh=zYODmAsncYnPSpqWa3X1eFFaz2qCC2DqCWNhjLVXGug=; b=BLFKIpJ+b+Ilr09BiGv61a1Hw
+ YFaJ/da795Au+DVGC/24Bo1f/g8C7ZbgaEtOPiXPD3wBEjeeQoew1hpQOTtYfkxdt41WV4anVaBvm
+ QAmUUI/qreVzF08mDchYii3GbQ92Du/6RfFfvdYGXf6ZUdzIkOQ2zZWrno/tf52BNApXIHFuELCBs
+ s9efyIF6SrqLUI/HmBD9UxilJEd+Tb1Xqo4uQ8kzT0QkBVdURPLvIqfisO1bLeh7Htd9QC+NJT3cM
+ Fzkm7qc9H9GiIYoxT7qDlG5YmL8d66rfS21kIzMHYIQad+tb5yLK6MvuD5m6qEQYz/pOqXIDMBoBf
+ a81F/c/jQ==;
 In-Reply-To: <20170616181059.19206-1-hch@lst.de>
-Sender: netdev-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xen.org>
+List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
+List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xen.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 To: x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/powerpc/include/asm/dma-mapping.h |  1 -
- arch/powerpc/kernel/dma.c              | 13 ++++---------
- 2 files changed, 4 insertions(+), 10 deletions(-)
-
-diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
-index 73aedbe6c977..eaece3d3e225 100644
---- a/arch/powerpc/include/asm/dma-mapping.h
-+++ b/arch/powerpc/include/asm/dma-mapping.h
-@@ -112,7 +112,6 @@ static inline void set_dma_offset(struct device *dev, dma_addr_t off)
- #define HAVE_ARCH_DMA_SET_MASK 1
- extern int dma_set_mask(struct device *dev, u64 dma_mask);
- 
--extern int __dma_set_mask(struct device *dev, u64 dma_mask);
- extern u64 __dma_get_required_mask(struct device *dev);
- 
- static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
-diff --git a/arch/powerpc/kernel/dma.c b/arch/powerpc/kernel/dma.c
-index 466c9f07b288..4194bbbbdb10 100644
---- a/arch/powerpc/kernel/dma.c
-+++ b/arch/powerpc/kernel/dma.c
-@@ -314,14 +314,6 @@ EXPORT_SYMBOL(dma_set_coherent_mask);
- 
- #define PREALLOC_DMA_DEBUG_ENTRIES (1 << 16)
- 
--int __dma_set_mask(struct device *dev, u64 dma_mask)
--{
--	if (!dev->dma_mask || !dma_supported(dev, dma_mask))
--		return -EIO;
--	*dev->dma_mask = dma_mask;
--	return 0;
--}
--
- int dma_set_mask(struct device *dev, u64 dma_mask)
- {
- 	if (ppc_md.dma_set_mask)
-@@ -334,7 +326,10 @@ int dma_set_mask(struct device *dev, u64 dma_mask)
- 			return phb->controller_ops.dma_set_mask(pdev, dma_mask);
- 	}
- 
--	return __dma_set_mask(dev, dma_mask);
-+	if (!dev->dma_mask || !dma_supported(dev, dma_mask))
-+		return -EIO;
-+	*dev->dma_mask = dma_mask;
-+	return 0;
- }
- EXPORT_SYMBOL(dma_set_mask);
- 
--- 
-2.11.0
-
+U2lnbmVkLW9mZi1ieTogQ2hyaXN0b3BoIEhlbGx3aWcgPGhjaEBsc3QuZGU+Ci0tLQogaW5jbHVk
+ZS9saW51eC9kbWEtbWFwcGluZy5oIHwgMiAtLQogMSBmaWxlIGNoYW5nZWQsIDIgZGVsZXRpb25z
+KC0pCgpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9kbWEtbWFwcGluZy5oIGIvaW5jbHVkZS9s
+aW51eC9kbWEtbWFwcGluZy5oCmluZGV4IGE1Nzg3NTMwOWJmZC4uM2U1OTA4NjU2MjI2IDEwMDY0
+NAotLS0gYS9pbmNsdWRlL2xpbnV4L2RtYS1tYXBwaW5nLmgKKysrIGIvaW5jbHVkZS9saW51eC9k
+bWEtbWFwcGluZy5oCkBAIC01NDksNyArNTQ5LDYgQEAgc3RhdGljIGlubGluZSBpbnQgZG1hX21h
+cHBpbmdfZXJyb3Ioc3RydWN0IGRldmljZSAqZGV2LCBkbWFfYWRkcl90IGRtYV9hZGRyKQogCXJl
+dHVybiAwOwogfQogCi0jaWZuZGVmIEhBVkVfQVJDSF9ETUFfU1VQUE9SVEVECiBzdGF0aWMgaW5s
+aW5lIGludCBkbWFfc3VwcG9ydGVkKHN0cnVjdCBkZXZpY2UgKmRldiwgdTY0IG1hc2spCiB7CiAJ
+Y29uc3Qgc3RydWN0IGRtYV9tYXBfb3BzICpvcHMgPSBnZXRfZG1hX29wcyhkZXYpOwpAQCAtNTYw
+LDcgKzU1OSw2IEBAIHN0YXRpYyBpbmxpbmUgaW50IGRtYV9zdXBwb3J0ZWQoc3RydWN0IGRldmlj
+ZSAqZGV2LCB1NjQgbWFzaykKIAkJcmV0dXJuIDE7CiAJcmV0dXJuIG9wcy0+ZG1hX3N1cHBvcnRl
+ZChkZXYsIG1hc2spOwogfQotI2VuZGlmCiAKICNpZm5kZWYgSEFWRV9BUkNIX0RNQV9TRVRfTUFT
+Swogc3RhdGljIGlubGluZSBpbnQgZG1hX3NldF9tYXNrKHN0cnVjdCBkZXZpY2UgKmRldiwgdTY0
+IG1hc2spCi0tIAoyLjExLjAKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpYZW4tZGV2ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBsaXN0cy54ZW4ub3Jn
+Cmh0dHBzOi8vbGlzdHMueGVuLm9yZy94ZW4tZGV2ZWwK
