@@ -1,14 +1,13 @@
-From: Arnd Bergmann <arnd@arndb.de>
+From: Yury Norov <ynorov@caviumnetworks.com>
 Subject: Re: [PATCH 03/20] asm-generic: Drop getrlimit and setrlimit syscalls
  from default list
-Date: Tue, 20 Jun 2017 16:20:43 +0200
-Message-ID: <CAK8P3a0kSe_EcZ=5Dq=Pvtth4tTNiNaa=_=rCvaie4jzF58dNw@mail.gmail.com>
+Date: Tue, 20 Jun 2017 17:36:35 +0300
+Message-ID: <20170620143635.nb4iy6fwhedlshcz@yury-thinkpad>
 References: <20170619155003.13218-1-ynorov@caviumnetworks.com>
  <20170619155003.13218-4-ynorov@caviumnetworks.com>
  <20170619214223.GS6973@jhogan-linux.le.imgtec.org>
  <CAK8P3a0M2TkoUY4KBgmtnh3NDNj-oSNOpVagHVFuFBEYnAYp8Q@mail.gmail.com>
  <20170619221023.GT6973@jhogan-linux.le.imgtec.org>
- <20170620133714.j2e3z535xsmphusl@yury-thinkpad>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,26 +15,22 @@ Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infrad
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
 	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:To:Subject:Message-ID:Date:From:
-	References:In-Reply-To:MIME-Version:Reply-To:Content-ID:Content-Description:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=WahwYqofYYCl1Vy9g0E0rBLGVr1e5+bs1LsJs5yk7hM=; b=syrfJhm/r2SI7v
-	7xDEh/srrlwWQypCPdOYpuX2DRjDkTHFRLRe4NfyeJLjDypUKNTA82GnVQeLEBXkVpoYCZl6g7zD9
-	WQIlmg1F7RwH4NYfppGIJ16wR6Jd/TUIBDXxdP1KHB54BjMtZCOdcsnY9HjTyBTF4ZJr0Th2QcmoX
-	xoWqvV4d50G40ely9fLu2PKJEgIavGRf41sobdLJfrlwV66wu6Nbzi+c1Vqe6HytCZrffWSjNxKak
-	dD13SMDBXk7LiM62WcVcHNiTk2O0EetajcwZ/ctIS9Ia0Mk5K2Ci2g0Ansnp1vu9pVXvEdC04dUlK
-	0BYssrYTncmsfzBqAZwQ==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:sender:in-reply-to:references:from:date:message-id
- :subject:to:cc;
- bh=ElnpjS1qm7H7SveuLQ9IdrMNCqlQ+62H9A3/OXLvcOo=;
- b=g9mgUHfI3pbJnDL9/MsfFzC13326FR4J/XQO4t64LSrWHIzIBrw+yl/VSlL9EQJl3n
- rquqmkd0c3o7NvcZhqGUgQG1ZcErUxnM+MhmW8Jk6OqVvJSC+G9dfZxTEtm4D2Ah24/Z
- a/5gw1CorgG7JLwNhSMaIhwx7fCxUZ+GVKRLVMt6MS1BmY4w02XHW2pUjQR4lBt01c/A
- Wx/oyuUBB/HNIjM6uc7NTRkjkotC0N7AlgtWHxGBb4QjZfYDbaWjdvOpIi/1zeQjU4yf
- bwrn6fnuDk3XMZXIV9XRXncafkUUUy+W1h3e/kRNbXzyHVYbADo1qkPUdSNhXidgf+QQ
- 995w==
-In-Reply-To: <20170620133714.j2e3z535xsmphusl@yury-thinkpad>
+	List-Owner; bh=gZHXIPmQgpGvGBknJ07Z5THZlO0Xx2/UNQti6Zt/iTA=; b=YQtYEYpN4sZ24S
+	Jiv51pBILooC4wDQ0KWybWrF5Is1ghEQ92/2a8Pm6XLsU0ItjGQyZQhz4rww0ynYqla9P8271VK6u
+	zreoAPBIpJD5719ZjjHqFWVDsHAS0adOjB1sJFXc6rz950YbksXvjljx6MQPWGLU4qXOuDF+tikW1
+	yfF9CQ291vpgx5WlhtbJLywx4N4falhxk9q9rw7+K/12of2ey3nGV0i8emxDU7V0OdZGWNwYtZHI3
+	kxeCU95/dwnlJPaHN4VMxZ2E1+Si+W5lMusu9DGuXFbKoGNMDaLMfiDlnUOVsWmBbyeEpwqd1PuyH
+	PMbYhwZ01N6zsPq65+FA==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=CAVIUMNETWORKS.onmicrosoft.com; s=selector1-cavium-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
+ bh=/LT7BscOaQgd4jIFIeEJdNvFWoojrRWXeLoqeciUMA8=;
+ b=dIQ8YvwPDewxXS0I+WIorb8wFShKNe2M/TAWH+6YQl8y5qhpVyXeNrt/F71WonoTnCW6MeOcRAyYI/bj0/1CxxnXp4Vx9dFwPAekNC7oh8kSD/szlI7rwoQgPvksRBkP5XY8lAxdyFW9qRQRzEI8KpU9dD4UPayaPNkpoc4oGNY=
+Content-Disposition: inline
+In-Reply-To: <20170619221023.GT6973@jhogan-linux.le.imgtec.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
@@ -46,80 +41,74 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
 Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Yury Norov <ynorov@caviumnetworks.com>
+To: James Hogan <james.hogan@imgtec.com>
 Cc: linux-doc@vger.kernel.org, szabolcs.nagy@arm.com, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, David Howells <dhowells@redhat.com>, Chris Metcalf <cmetcalf@ezchip.com>, linux@lists.openrisc.net, linux-hexagon@vger.kernel.org, Philipp Tomsich <philipp.tomsich@theobroma-systems.com>, Joseph Myers <joseph@codesourcery.com>, linux-arch <linux-arch@vger.kernel.org>, Chen Liqin <liqin.linux@gmail.com>, zhouchengming1@huawei.com, Guan Xuetao <gxt@mprc.pku.edu.cn>, Steve Ellcey <sellcey@caviumnetworks.com>, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Prasun Kapoor <Prasun.Kapoor@caviumnetworks.com>, Andreas Schwab <schwab@suse.de>, Aurelien Jacquiot <a-jacquiot@ti.com>, Alexander Graf <agraf@suse.de>, Geert Uytterhoeven <geert@linux-m68k.org>, Lennox Wu <lennox.wu@gmail.com>, Mark Salter <msalter@redhat.com>
 
-On Tue, Jun 20, 2017 at 3:37 PM, Yury Norov <ynorov@caviumnetworks.com> wrote:
-> On Mon, Jun 19, 2017 at 11:10:23PM +0100, James Hogan wrote:
->> On Mon, Jun 19, 2017 at 11:58:41PM +0200, Arnd Bergmann wrote:
->> > On Mon, Jun 19, 2017 at 11:42 PM, James Hogan <james.hogan@imgtec.com> wrote:
->> > > On Mon, Jun 19, 2017 at 06:49:46PM +0300, Yury Norov wrote:
->> > > Subject: [PATCH] Deprecate stat syscalls superseded by statx
->> > >
->> > > Various stat system calls can now be implemented as userland wrappers
->> > > around the new statx system call, so allow them to be removed from the
->> > > kernel by default for new architectures / ABIs.
->> > >
->> > > This involves adding __ARCH_WANT_SYSCALL_UNXSTAT to each existing
->> > > architecture, which enables the relevant stat system calls in the
->> > > generic system call list (if used). It also conditionally defines the
->> > > syscalls in fs/stat.c and struct stat / struct stat64 in
->> > > asm-generic/stat.h.
->> > >
->> > > Signed-off-by: James Hogan <james.hogan@imgtec.com>
->> > > Cc: David Howells <dhowells@redhat.com>
->> > > Cc: Alexander Viro <viro@zeniv.linux.org.uk>
->> > > Cc: Arnd Bergmann <arnd@arndb.de>
->> > > Cc: linux-fsdevel@vger.kernel.org
->> > > Cc: linux-arch@vger.kernel.org
->> > > Cc: linux-api@vger.kernel.org
->> > > Cc: linux-kernel@vger.kernel.org
->> >
->> > Good idea:
->> >
->> > Acked-by:  Arnd Bergmann <arnd@arndb.de>
->> > > +/* statx deprecates the un-extended stat syscalls which use struct stat[64] */
->> > > +#ifdef __ARCH_WANT_SYSCALL_UNXSTAT
->> >
->> > I'm glad you explain what 'UNXSTAT' means here, since I would not
->> > have otherwise guessed it, but I also can't think of anything more
->> > intuitive.
->>
->> Yeh, I renamed that several times while playing around with this :-).
->>
->> The stat syscalls remind me a bit of the Vicar of Dibley episode where
->> the new road named "New Road" necessitates the renaming of the existing
->> "New Road" to "Quite Old Road" and "Quite Old Road" to "Really Quite Old
->> Road" and "Old Road" to "Very Old Road"!
->
-> (Add Palmer Dabbelt <palmer@dabbelt.com>)
->
-> The stat syscalls are full of hacks, and we have to pull that hacks
-> even to new architectures to deal with stat. So I'll be happy to drop
-> it in arm64/ilp32. But it means that I need some time to integrate
-> your patch and fix glibc accordingly. And it also means that we need
-> round 9 for ilp32... :(
->
-> Arnd, once before you told that generic unistd has some duplications
-> and legacy syscalls, and one day we'll have to deal with it. Do you
-> have the list or something on it?
+On Mon, Jun 19, 2017 at 11:10:23PM +0100, James Hogan wrote:
+> On Mon, Jun 19, 2017 at 11:58:41PM +0200, Arnd Bergmann wrote:
+> > On Mon, Jun 19, 2017 at 11:42 PM, James Hogan <james.hogan@imgtec.com> wrote:
+> > > On Mon, Jun 19, 2017 at 06:49:46PM +0300, Yury Norov wrote:
+> > > Subject: [PATCH] Deprecate stat syscalls superseded by statx
+> > >
+> > > Various stat system calls can now be implemented as userland wrappers
+> > > around the new statx system call, so allow them to be removed from the
+> > > kernel by default for new architectures / ABIs.
+> > >
+> > > This involves adding __ARCH_WANT_SYSCALL_UNXSTAT to each existing
+> > > architecture, which enables the relevant stat system calls in the
+> > > generic system call list (if used). It also conditionally defines the
+> > > syscalls in fs/stat.c and struct stat / struct stat64 in
+> > > asm-generic/stat.h.
+> > >
+> > > Signed-off-by: James Hogan <james.hogan@imgtec.com>
+> > > Cc: David Howells <dhowells@redhat.com>
+> > > Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> > > Cc: Arnd Bergmann <arnd@arndb.de>
+> > > Cc: linux-fsdevel@vger.kernel.org
+> > > Cc: linux-arch@vger.kernel.org
+> > > Cc: linux-api@vger.kernel.org
+> > > Cc: linux-kernel@vger.kernel.org
+> > 
+> > Good idea:
+> > 
+> > Acked-by:  Arnd Bergmann <arnd@arndb.de>
+> 
+> Thanks,
+> 
+> > 
+> > > +/* statx deprecates the un-extended stat syscalls which use struct stat[64] */
+> > > +#ifdef __ARCH_WANT_SYSCALL_UNXSTAT
+> > 
+> > I'm glad you explain what 'UNXSTAT' means here, since I would not
+> > have otherwise guessed it, but I also can't think of anything more
+> > intuitive.
+> 
+> Yeh, I renamed that several times while playing around with this :-).
+> 
+> The stat syscalls remind me a bit of the Vicar of Dibley episode where
+> the new road named "New Road" necessitates the renaming of the existing
+> "New Road" to "Quite Old Road" and "Quite Old Road" to "Really Quite Old
+> Road" and "Old Road" to "Very Old Road"!
+> 
+> Cheers
+> James
 
-No, I'd have to do some research for that.
+(Add Palmer Dabbelt <palmer@dabbelt.com>)
 
-> I would also notice riscv people and welcome to the discussion.
->
-> As there is more than 1 arch that goes to be added to linux soon,
-> maybe it's better to upstream my ans James' patches separately
-> from other ilp32 patches? Arnd?
+The stat syscalls are full of hacks, and we have to pull that hacks
+even to new architectures to deal with stat. So I'll be happy to drop
+it in arm64/ilp32. But it means that I need some time to integrate
+your patch and fix glibc accordingly. And it also means that we need
+round 9 for ilp32... :(
 
-Do you mean upstream those two patches slightly later? That's
-fine with me, I don't care much whether the old new stat is part
-of the syscall table for arm64-ilp32 or not, I'd leave that up to
-you, depending on whether you want to do the rework or not.
+Arnd, once before you told that generic unistd has some duplications
+and legacy syscalls, and one day we'll have to deal with it. Do you
+have the list or something on it?
 
-I suppose the arm64-ilp32 could benefit from not having to support
-the old arm32 stat structure, but doing the new syscalls based on
-statx could delay the glibc port some more, as there are some open
-questions about how that would best be integrated.
+I would also notice riscv people and welcome to the discussion.  
 
-       Arnd
+As there is more than 1 arch that goes to be added to linux soon,
+maybe it's better to upstream my ans James' patches separately
+from other ilp32 patches? Arnd?
+
+Yury
