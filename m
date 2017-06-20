@@ -1,134 +1,63 @@
-From: James Hogan <james.hogan@imgtec.com>
-Subject: Re: [PATCH 03/20] asm-generic: Drop getrlimit and setrlimit syscalls
- from default list
-Date: Mon, 19 Jun 2017 23:10:23 +0100
-Message-ID: <20170619221023.GT6973@jhogan-linux.le.imgtec.org>
-References: <20170619155003.13218-1-ynorov@caviumnetworks.com>
- <20170619155003.13218-4-ynorov@caviumnetworks.com>
- <20170619214223.GS6973@jhogan-linux.le.imgtec.org>
- <CAK8P3a0M2TkoUY4KBgmtnh3NDNj-oSNOpVagHVFuFBEYnAYp8Q@mail.gmail.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: clean up and modularize arch dma_mapping interface
+Date: Tue, 20 Jun 2017 11:19:02 +0200
+Message-ID: <20170620091902.2dldmf43vhazq6yh@phenom.ffwll.local>
+References: <20170608132609.32662-1-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6848265903696521177=="
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:Content-Type:Cc:
-	List-Subscribe:List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:
-	In-Reply-To:MIME-Version:References:Message-ID:Subject:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
-	 bh=KRJzxO7RxhTsVofASh1vh5XW18x9Sv+z7YpvEMBxNJg=; b=DCp10HcNYjLIvYOnnGfTp5N+a
-	MivVKI+9DqpKzZXL8AvxX0i4nNrezhUKz/4pAG0CmGZTTak9T10Wx2QNyujsvRihMdjiNM+GzmxsO
-	9I3zs0m9qQPhy6GmHh1JoAk7bTpwevlyLOStBV5rwwP7jdHD2uTYmeSMNBO5E/uHLVvgjfd6PtZCZ
-	9uQrNKT66LfBBRzpnOGQ4Iyis+5YAXTmnSDg4JhtWeU//K0+Re+rdi3GH9TNTaxVye1coONAaWbZQ
-	4JWhPI1aFJfIsipIYxHUwkMiyLDwcOcu1WTiicfeKOmjxiIXSesE2e/cCrkPYs4ObuMfJmJOXdm3j
-	cZ/0Rh90g==;
-In-Reply-To: <CAK8P3a0M2TkoUY4KBgmtnh3NDNj-oSNOpVagHVFuFBEYnAYp8Q@mail.gmail.com>
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
+ h=sender:date:from:to:cc:subject:message-id:mail-followup-to
+ :references:mime-version:content-disposition:in-reply-to:user-agent;
+ bh=RT8xhX7Kl/bRpb+ZIQXTuflmmK0MiiKKO1tsrc1ezAA=;
+ b=CMk7dKePtws7BOKRA9LJPaR8ZrsscuASSh6iuT3KAgHD99jGd+xIqzKAh35lSsx7/X
+ ODzUd2NXf7G9EvYMkDfzuGm2eC2KTh4Qa3m9K33wlCee6PTe04oN+fkzfKvBE+SYqrb5
+ /04+wz+0CJIfluJV2uyTJmkiGOaPC+KOMPBf8=
+Content-Disposition: inline
+In-Reply-To: <20170608132609.32662-1-hch@lst.de>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-doc@vger.kernel.org, szabolcs.nagy@arm.com, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, David Howells <dhowells@redhat.com>, Chris Metcalf <cmetcalf@ezchip.com>, Yury Norov <ynorov@caviumnetworks.com>, linux@lists.openrisc.net, linux-hexagon@vger.kernel.org, Philipp Tomsich <philipp.tomsich@theobroma-systems.com>, Joseph Myers <joseph@codesourcery.com>, linux-arch <linux-arch@vger.kernel.org>, Chen Liqin <liqin.linux@gmail.com>, zhouchengming1@huawei.com, Guan Xuetao <gxt@mprc.pku.edu.cn>, Steve Ellcey <sellcey@caviumnetworks.com>, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Prasun Kapoor <Prasun.Kapoor@caviumnetworks.com>, Andreas Schwab <schwab@suse.de>, Aurelien Jacquiot <a-jacquiot@ti.com>, Alexander Graf <agraf@suse.de>, Geert Uytterhoeven <geert@linux-m68k.org>, Lennox Wu <lennox.wu@gm>
-
---===============6848265903696521177==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="eWt5Jy3V6IQl161k"
-Content-Disposition: inline
-
---eWt5Jy3V6IQl161k
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jun 19, 2017 at 11:58:41PM +0200, Arnd Bergmann wrote:
-> On Mon, Jun 19, 2017 at 11:42 PM, James Hogan <james.hogan@imgtec.com> wr=
-ote:
-> > On Mon, Jun 19, 2017 at 06:49:46PM +0300, Yury Norov wrote:
-> > Subject: [PATCH] Deprecate stat syscalls superseded by statx
-> >
-> > Various stat system calls can now be implemented as userland wrappers
-> > around the new statx system call, so allow them to be removed from the
-> > kernel by default for new architectures / ABIs.
-> >
-> > This involves adding __ARCH_WANT_SYSCALL_UNXSTAT to each existing
-> > architecture, which enables the relevant stat system calls in the
-> > generic system call list (if used). It also conditionally defines the
-> > syscalls in fs/stat.c and struct stat / struct stat64 in
-> > asm-generic/stat.h.
-> >
-> > Signed-off-by: James Hogan <james.hogan@imgtec.com>
-> > Cc: David Howells <dhowells@redhat.com>
-> > Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> > Cc: Arnd Bergmann <arnd@arndb.de>
-> > Cc: linux-fsdevel@vger.kernel.org
-> > Cc: linux-arch@vger.kernel.org
-> > Cc: linux-api@vger.kernel.org
-> > Cc: linux-kernel@vger.kernel.org
->=20
-> Good idea:
->=20
-> Acked-by:  Arnd Bergmann <arnd@arndb.de>
-
-Thanks,
-
->=20
-> > +/* statx deprecates the un-extended stat syscalls which use struct sta=
-t[64] */
-> > +#ifdef __ARCH_WANT_SYSCALL_UNXSTAT
->=20
-> I'm glad you explain what 'UNXSTAT' means here, since I would not
-> have otherwise guessed it, but I also can't think of anything more
-> intuitive.
-
-Yeh, I renamed that several times while playing around with this :-).
-
-The stat syscalls remind me a bit of the Vicar of Dibley episode where
-the new road named "New Road" necessitates the renaming of the existing
-"New Road" to "Quite Old Road" and "Quite Old Road" to "Really Quite Old
-Road" and "Old Road" to "Very Old Road"!
-
-Cheers
-James
-
---eWt5Jy3V6IQl161k
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEd80NauSabkiESfLYbAtpk944dnoFAllIS84ACgkQbAtpk944
-dnqZlhAAtMuoU23vBZbvRvMNdXP3Oux702bAgsOGng8K4deeTLcQz6yud+2/ctc6
-+848RuWv7Oy3g3s7cnXEqYjZ/R3iyBJPHvAhDwaXNzcFwGFjFXI9TDFGDFFLR5P9
-DGjOT4Uqz+UJhzuqVkGXZm+6t9Ym4XFUF8lPbo/XqVXZZkXSvXEPpUqMVd+HXqhA
-LHUplz22w62cv8+/TPfefypRQNn38lNbd2gYpdq8RSQk27A7EzRc61h8edFdV9lk
-c7M3im3w420wub9faRqM34W04GXupOB8oPDdVyLifuug6cyY/g4lD3EmUR098cNh
-oobgw3TMXZyrRi4n5CA2p5Q8AI9/1Ntl6R0tNSM728GLrKPIS3PjlF+2ZUL79srT
-zwb3mmUVQGMy0Sko7bu/7rOfGRjiLEMEdAMYPgdKVHMVCZr80YGrP2bHRGcgq9NV
-9SsMzxBrWZrrp5E0AJbn3747wez4enzYNgygxi0CFUmwNqBojNa6XfB6trvgWcCg
-I6YTi8NB67YiC562J/8rBTpADbyPb9jZN0BkfvrcPdbxD+ELIw0b7558IBVAqvQ5
-i0Vz4tGmhsFFZ4armvFs1rbPR1DoOJCng/ZiqTDWZ0rlsovYd29KF85rT1+VJ95L
-rQ8y9uklKghmcwth8sH5Gmxypt9Buy5W5H0qu12cV0fSOXKC5iQ=
-=+7Vk
------END PGP SIGNATURE-----
-
---eWt5Jy3V6IQl161k--
-
-
---===============6848265903696521177==
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-mips@linux-mips.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, dmaengine@vger.kernel.org, iommu@lists.linux-foundation.org, openrisc@lists.librecores.org, netdev@vger.kernel.org, sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 
-_______________________________________________
-linux-snps-arc mailing list
-linux-snps-arc@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-snps-arc
---===============6848265903696521177==--
-
+T24gVGh1LCBKdW4gMDgsIDIwMTcgYXQgMDM6MjU6MjVQTSArMDIwMCwgQ2hyaXN0b3BoIEhlbGx3
+aWcgd3JvdGU6Cj4gSGkgYWxsLAo+IAo+IGZvciBhIHdoaWxlIHdlIGhhdmUgYSBnZW5lcmljIGlt
+cGxlbWVudGF0aW9uIG9mIHRoZSBkbWEgbWFwcGluZyByb3V0aW5lcwo+IHRoYXQgY2FsbCBpbnRv
+IHBlci1hcmNoIG9yIHBlci1kZXZpY2Ugb3BlcmF0aW9ucy4gIEJ1dCByaWdodCBub3cgdGhlcmUK
+PiBzdGlsbCBhcmUgdmFyaW91cyBiaXRzIGluIHRoZSBpbnRlcmZhY2VzIHdoZXJlIGRvbid0IGNs
+ZWFybHkgb3BlcmF0ZQo+IG9uIHRoZXNlIG9wcy4gIFRoaXMgc2VyaWVzIHRyaWVzIHRvIGNsZWFu
+IHVwIGEgbG90IG9mIHRob3NlIChidXQgbm90IGFsbAo+IHlldCwgYnV0IHRoZSBzZXJpZXMgaXMg
+YmlnIGVub3VnaCkuICBJdCBnZXRzIHJpZCBvZiB0aGUgRE1BX0VSUk9SX0NPREUKPiB3YXkgb2Yg
+c2lnbmFsaW5nIGZhaWx1cmVzIG9mIHRoZSBtYXBwaW5nIHJvdXRpbmVzIGZyb20gdGhlCj4gaW1w
+bGVtZW50YXRpb25zIHRvIHRoZSBnZW5lcmljIGNvZGUgKGFuZCBjbGVhbnMgdXAgdmFyaW91cyBk
+cml2ZXJzIHRoYXQKPiB3ZXJlIGluY29ycmVjdGx5IHVzaW5nIGl0KSwgYW5kIGdldHMgcmlkIG9m
+IHRoZSAtPnNldF9kbWFfbWFzayByb3V0aW5lCj4gaW4gZmF2b3Igb2YgcmVseWluZyBvbiB0aGUg
+LT5kbWFfY2FwYWJsZSBtZXRob2QgdGhhdCBjYW4gYmUgdXNlZCBpbgo+IHRoZSBzYW1lIHdheSwg
+YnV0IHdoaWNoIHJlcXVpcmVzIGxlc3MgY29kZSBkdXBsaWNhdGlvbi4KPiAKPiBCdHcsIHdlIGRv
+bid0IHNlZW0gdG8gaGF2ZSBhIHRyZWUgZXZlcnktZ3Jvd2luZyBhbW91bnQgb2YgY29tbW9uIGRt
+YQo+IG1hcHBpbmcgY29kZSwgYW5kIGdpdmVuIHRoYXQgSSBoYXZlIGEgZmFpciBhbW91bnQgb2Yg
+YWxsIG92ZXIgdGhlIHRyZWUKPiB3b3JrIGluIHRoYXQgYXJlYSBpbiBteSBwbGF0ZSBJJ2QgbGlr
+ZSB0byBzdGFydCBvbmUuICBBbnkgZ29vZCByZWFzb24KPiB0byB0aGF0PyAgQW55b25lIHdpbGxp
+bmcgdG8gdm9sdW50ZWVyIGFzIGNvIG1haW50YWluZXI/Cj4gCj4gVGhlIHdob2xlIHNlcmllcyBp
+cyBhbHNvIGF2YWlsYWJsZSBpbiBnaXQ6Cj4gCj4gICAgIGdpdDovL2dpdC5pbmZyYWRlYWQub3Jn
+L3VzZXJzL2hjaC9taXNjLmdpdCBkbWEtbWFwCgpBY2sgZm9yIHRoZSAyIGRybSBwYXRjaGVzLCBi
+dXQgSSBjYW4gYWxzbyBwaWNrIHRoZW0gdXAgdGhyb3VnaCBkcm0tbWlzYyBpZgp5b3UgcHJlZmVy
+IHRoYXQgKGJ1dCB0aGVuIGl0J2xsIGJlIDQuMTQpLgotRGFuaWVsCgo+IAo+IEdpdHdlYjoKPiAK
+PiAgICAgaHR0cDovL2dpdC5pbmZyYWRlYWQub3JnL3VzZXJzL2hjaC9taXNjLmdpdC9zaG9ydGxv
+Zy9yZWZzL2hlYWRzL2RtYS1tYXAKPiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwo+IGRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKPiBkcmktZGV2ZWxAbGlzdHMu
+ZnJlZWRlc2t0b3Aub3JnCj4gaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9s
+aXN0aW5mby9kcmktZGV2ZWwKCi0tIApEYW5pZWwgVmV0dGVyClNvZnR3YXJlIEVuZ2luZWVyLCBJ
+bnRlbCBDb3Jwb3JhdGlvbgpodHRwOi8vYmxvZy5mZndsbC5jaApfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1k
+ZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcv
+bWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
