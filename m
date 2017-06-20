@@ -1,63 +1,77 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: clean up and modularize arch dma_mapping interface
-Date: Tue, 20 Jun 2017 11:19:02 +0200
-Message-ID: <20170620091902.2dldmf43vhazq6yh@phenom.ffwll.local>
-References: <20170608132609.32662-1-hch@lst.de>
+From: Christoph Hellwig <hch@lst.de>
+Subject: new dma-mapping tree, was Re: clean up and modularize arch
+        dma_mapping interface V2
+Date: Tue, 20 Jun 2017 14:41:40 +0200
+Message-ID: <20170620124140.GA27163@lst.de>
+References: <20170616181059.19206-1-hch@lst.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
- h=sender:date:from:to:cc:subject:message-id:mail-followup-to
- :references:mime-version:content-disposition:in-reply-to:user-agent;
- bh=RT8xhX7Kl/bRpb+ZIQXTuflmmK0MiiKKO1tsrc1ezAA=;
- b=CMk7dKePtws7BOKRA9LJPaR8ZrsscuASSh6iuT3KAgHD99jGd+xIqzKAh35lSsx7/X
- ODzUd2NXf7G9EvYMkDfzuGm2eC2KTh4Qa3m9K33wlCee6PTe04oN+fkzfKvBE+SYqrb5
- /04+wz+0CJIfluJV2uyTJmkiGOaPC+KOMPBf8=
+Return-path: <linux-ia64-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170608132609.32662-1-hch@lst.de>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20170616181059.19206-1-hch@lst.de>
+Sender: linux-ia64-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Christoph Hellwig <hch@lst.de>
-Cc: linux-mips@linux-mips.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, dmaengine@vger.kernel.org, iommu@lists.linux-foundation.org, openrisc@lists.librecores.org, netdev@vger.kernel.org, sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+Content-Transfer-Encoding: 7bit
+To: Stephen Rothwell <sfr@canb.auug.org.au>, Linus Torvalds <torvalds@linux-foundation.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-T24gVGh1LCBKdW4gMDgsIDIwMTcgYXQgMDM6MjU6MjVQTSArMDIwMCwgQ2hyaXN0b3BoIEhlbGx3
-aWcgd3JvdGU6Cj4gSGkgYWxsLAo+IAo+IGZvciBhIHdoaWxlIHdlIGhhdmUgYSBnZW5lcmljIGlt
-cGxlbWVudGF0aW9uIG9mIHRoZSBkbWEgbWFwcGluZyByb3V0aW5lcwo+IHRoYXQgY2FsbCBpbnRv
-IHBlci1hcmNoIG9yIHBlci1kZXZpY2Ugb3BlcmF0aW9ucy4gIEJ1dCByaWdodCBub3cgdGhlcmUK
-PiBzdGlsbCBhcmUgdmFyaW91cyBiaXRzIGluIHRoZSBpbnRlcmZhY2VzIHdoZXJlIGRvbid0IGNs
-ZWFybHkgb3BlcmF0ZQo+IG9uIHRoZXNlIG9wcy4gIFRoaXMgc2VyaWVzIHRyaWVzIHRvIGNsZWFu
-IHVwIGEgbG90IG9mIHRob3NlIChidXQgbm90IGFsbAo+IHlldCwgYnV0IHRoZSBzZXJpZXMgaXMg
-YmlnIGVub3VnaCkuICBJdCBnZXRzIHJpZCBvZiB0aGUgRE1BX0VSUk9SX0NPREUKPiB3YXkgb2Yg
-c2lnbmFsaW5nIGZhaWx1cmVzIG9mIHRoZSBtYXBwaW5nIHJvdXRpbmVzIGZyb20gdGhlCj4gaW1w
-bGVtZW50YXRpb25zIHRvIHRoZSBnZW5lcmljIGNvZGUgKGFuZCBjbGVhbnMgdXAgdmFyaW91cyBk
-cml2ZXJzIHRoYXQKPiB3ZXJlIGluY29ycmVjdGx5IHVzaW5nIGl0KSwgYW5kIGdldHMgcmlkIG9m
-IHRoZSAtPnNldF9kbWFfbWFzayByb3V0aW5lCj4gaW4gZmF2b3Igb2YgcmVseWluZyBvbiB0aGUg
-LT5kbWFfY2FwYWJsZSBtZXRob2QgdGhhdCBjYW4gYmUgdXNlZCBpbgo+IHRoZSBzYW1lIHdheSwg
-YnV0IHdoaWNoIHJlcXVpcmVzIGxlc3MgY29kZSBkdXBsaWNhdGlvbi4KPiAKPiBCdHcsIHdlIGRv
-bid0IHNlZW0gdG8gaGF2ZSBhIHRyZWUgZXZlcnktZ3Jvd2luZyBhbW91bnQgb2YgY29tbW9uIGRt
-YQo+IG1hcHBpbmcgY29kZSwgYW5kIGdpdmVuIHRoYXQgSSBoYXZlIGEgZmFpciBhbW91bnQgb2Yg
-YWxsIG92ZXIgdGhlIHRyZWUKPiB3b3JrIGluIHRoYXQgYXJlYSBpbiBteSBwbGF0ZSBJJ2QgbGlr
-ZSB0byBzdGFydCBvbmUuICBBbnkgZ29vZCByZWFzb24KPiB0byB0aGF0PyAgQW55b25lIHdpbGxp
-bmcgdG8gdm9sdW50ZWVyIGFzIGNvIG1haW50YWluZXI/Cj4gCj4gVGhlIHdob2xlIHNlcmllcyBp
-cyBhbHNvIGF2YWlsYWJsZSBpbiBnaXQ6Cj4gCj4gICAgIGdpdDovL2dpdC5pbmZyYWRlYWQub3Jn
-L3VzZXJzL2hjaC9taXNjLmdpdCBkbWEtbWFwCgpBY2sgZm9yIHRoZSAyIGRybSBwYXRjaGVzLCBi
-dXQgSSBjYW4gYWxzbyBwaWNrIHRoZW0gdXAgdGhyb3VnaCBkcm0tbWlzYyBpZgp5b3UgcHJlZmVy
-IHRoYXQgKGJ1dCB0aGVuIGl0J2xsIGJlIDQuMTQpLgotRGFuaWVsCgo+IAo+IEdpdHdlYjoKPiAK
-PiAgICAgaHR0cDovL2dpdC5pbmZyYWRlYWQub3JnL3VzZXJzL2hjaC9taXNjLmdpdC9zaG9ydGxv
-Zy9yZWZzL2hlYWRzL2RtYS1tYXAKPiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwo+IGRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKPiBkcmktZGV2ZWxAbGlzdHMu
-ZnJlZWRlc2t0b3Aub3JnCj4gaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9s
-aXN0aW5mby9kcmktZGV2ZWwKCi0tIApEYW5pZWwgVmV0dGVyClNvZnR3YXJlIEVuZ2luZWVyLCBJ
-bnRlbCBDb3Jwb3JhdGlvbgpodHRwOi8vYmxvZy5mZndsbC5jaApfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1k
-ZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcv
-bWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
+On Fri, Jun 16, 2017 at 08:10:15PM +0200, Christoph Hellwig wrote:
+> I plan to create a new dma-mapping tree to collect all this work.
+> Any volunteers for co-maintainers, especially from the iommu gang?
+
+Ok, I've created the new tree:
+
+   git://git.infradead.org/users/hch/dma-mapping.git for-next
+
+Gitweb:
+
+   http://git.infradead.org/users/hch/dma-mapping.git/shortlog/refs/heads/for-next
+
+And below is the patch to add the MAINTAINERS entry, additions welcome.
+
+Stephen, can you add this to linux-next?
+
+---
+From 335979c41912e6c101a20b719862b2d837370df1 Mon Sep 17 00:00:00 2001
+From: Christoph Hellwig <hch@lst.de>
+Date: Tue, 20 Jun 2017 11:17:30 +0200
+Subject: MAINTAINERS: add entry for dma mapping helpers
+
+This code has been spread between getting in through arch trees, the iommu
+tree, -mm and the drivers tree.  There will be a lot of work in this area,
+including consolidating various arch implementations into more common
+code, so ensure we have a proper git tree that facilitates cooperation with
+the architecture maintainers.
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ MAINTAINERS | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 09b5ab6a8a5c..56859d53a424 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2595,6 +2595,19 @@ S:	Maintained
+ F:	net/bluetooth/
+ F:	include/net/bluetooth/
+ 
++DMA MAPPING HELPERS
++M:	Christoph Hellwig <hch@lst.de>
++L:	linux-kernel@vger.kernel.org
++T:	git git://git.infradead.org/users/hch/dma-mapping.git
++W:	http://git.infradead.org/users/hch/dma-mapping.git
++S:	Supported
++F:	lib/dma-debug.c
++F:	lib/dma-noop.c
++F:	lib/dma-virt.c
++F:	drivers/base/dma-mapping.c
++F:	drivers/base/dma-coherent.c
++F:	include/linux/dma-mapping.h
++
+ BONDING DRIVER
+ M:	Jay Vosburgh <j.vosburgh@gmail.com>
+ M:	Veaceslav Falico <vfalico@gmail.com>
+-- 
+2.11.0
+
