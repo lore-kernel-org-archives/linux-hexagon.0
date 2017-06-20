@@ -1,8 +1,8 @@
 From: Yury Norov <ynorov@caviumnetworks.com>
 Subject: Re: [PATCH 03/20] asm-generic: Drop getrlimit and setrlimit syscalls
  from default list
-Date: Tue, 20 Jun 2017 16:37:14 +0300
-Message-ID: <20170620133714.j2e3z535xsmphusl@yury-thinkpad>
+Date: Tue, 20 Jun 2017 17:42:59 +0300
+Message-ID: <20170620144259.h537hftz5mhx4t24@yury-thinkpad>
 References: <20170619155003.13218-1-ynorov@caviumnetworks.com>
  <20170619155003.13218-4-ynorov@caviumnetworks.com>
  <20170619214223.GS6973@jhogan-linux.le.imgtec.org>
@@ -18,17 +18,17 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
 	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=gZHXIPmQgpGvGBknJ07Z5THZlO0Xx2/UNQti6Zt/iTA=; b=LVZKE84fPVBu5K
-	FGQU+HwJSCTTbHAu46SZb0NKsK7uxFRnkVgpu5q6Bi+pKl0oCiT7w2rLgV55XZHvTBg+MBf2Wdbjz
-	ZHo9/4PiLKQqmqCgyWJd6tZOOypbKRAhxQNEO4sZjJCQhzIa0gilEVYuzrNBlM1f/QD5eBJqkp9pi
-	eGBegGOqaQ9fEet2keG9W0Wmpg1HLknDDMKzP/ySUtxBcqtmdyoLm3vxyqe/ju9vJ7LP0iPf49PjK
-	ED/G7Qg8u/+cuoegHfCL+4vGrqc5Z4ZkIV9pdhD8BCVD1iCMp124Gkmg86J8HCwRwtvDZbe6037mk
-	OJetKU9LZheI3t98IOmw==;
+	List-Owner; bh=tOxAtmiP+T3q1YEjtsDbxDMD/UWx9AwoSgszPs//uto=; b=PeHdjxrcZceC0G
+	KN/kO/+ZFHWPq1IPMWb9HyhVRNLhl8BxaOpwuek+rU9rhpSnDCsCGQPaM/qUMzvwZGWScoZEz8T00
+	hM37eImFL4LiN+F25xYyxBHHXCFeASg7mvpLrnWofGTUk5G7VO9UPfIiyRBJuRfcVjpb596x4fEGl
+	yvU1wVl8HTyAN2eyN4vxjpjDy0uw+fa9HmoAO0Imusl+5vnXVw4uYw+hgz6tfif3Y1QE9vXUlGmzt
+	Ei2/1RtiQK4XPgrCz15kxybKaVjXwWLUDgfEkFKb1vwB5AsppQbwvXkgJv6DCpduaPIFhG+/4IOoS
+	ZTxFTkPyagVlw4bD/K0Q==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=CAVIUMNETWORKS.onmicrosoft.com; s=selector1-cavium-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
- bh=/LT7BscOaQgd4jIFIeEJdNvFWoojrRWXeLoqeciUMA8=;
- b=ZYBZfL9rgiSm41eOKbus2k5/e8b7AcuAXhtdWWtoR+LdaSDxbzkSFnhOEv4Aq9erg86hLUr9FHuyJNhSHe0EpsmsGmnTqPnkNlnDVyHSjcx5+LqoSphygFYtUdGxPEzzpjP1lfBD8V5SrfBd8g0EFSvw2x/+z7en5GqPxSUn18U=
+ bh=EKuu5jCTQUpPcZdjpaGVwPFKLagKX9Y2jLSMocIss5w=;
+ b=Mgr5YhIeeHTOCDQ8i4Ud2ruzdBsV/LfpyV7WHDS/c50g8GVIMRzANVVj1VDeNkpXdpWAqfDOF0/bZXnN3b1SFUFq2QCzBXATW5BBrJzUbkcClYyBYPURUSkvkEMiue6MJNxJEf8jVsCZh/SorlnJWYcmMkJbuY4Lrr5XmB+5NO0=
 Content-Disposition: inline
 In-Reply-To: <20170619221023.GT6973@jhogan-linux.le.imgtec.org>
 List-Id: <linux-hexagon.vger.kernel.org>
@@ -105,7 +105,7 @@ Arnd, once before you told that generic unistd has some duplications
 and legacy syscalls, and one day we'll have to deal with it. Do you
 have the list or something on it?
 
-I would also notice riscv people and welcome to the discussion.  
+I would also like to notice riscv people and welcome to the discussion.  
 
 As there is more than 1 arch that goes to be added to linux soon,
 maybe it's better to upstream my ans James' patches separately
