@@ -1,75 +1,63 @@
-From: tndave <tushar.n.dave@oracle.com>
-Subject: Re: clean up and modularize arch dma_mapping interface V2
-Date: Wed, 21 Jun 2017 12:24:28 -0700
-Message-ID: <162d7932-5766-4c29-5471-07d1b699190a@oracle.com>
-References: <20170616181059.19206-1-hch@lst.de>
+From: Darren Hart <dvhart@infradead.org>
+Subject: Re: [PATCH 1/1] futex: remove duplicated code and fix UB
+Date: Wed, 21 Jun 2017 20:53:37 -0700
+Message-ID: <20170622035337.GF25900@fury>
+References: <20170621115318.2781-1-jslaby@suse.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <20170616181059.19206-1-hch@lst.de>
-Content-Language: en-US
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=ypKb0x41ANWfrfCRuR+/20TNk9hZPKlr8geJdc2pE0E=; b=jWRp537qzlZNvI
+	7qegdw9q4dAoJrnwgPYBta8GwWBCV1a648ByG7Sf3QKmzKvjs6Rp2HvucyfaBbMkRBIbYHK3+UFkW
+	VSBWAVPYf43j+lGzLGI1cOf9DxHtqghsiKlZuiNIwyxkUoYYdZY7qUYBIQTiO9rMrutHK9zAuRIno
+	5aCBOZaX7xaWY0mIUM+pe3DmkWSsT/J3/6Wb1QdyyUBhnl2TesXV6HK5IuyNeqGvFgWB8OpYMbKZb
+	oWpvIBXy8mIaXwcoiuSgWTNT8YAdOxV3aRvY6a36lN2ITOJMruSIDQK7ZJ205Y+3ZhqHFdHmukrGP
+	L+f36C6qjEBI2oG7uPJQ==;
+Content-Disposition: inline
+In-Reply-To: <20170621115318.2781-1-jslaby@suse.cz>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Christoph Hellwig <hch@lst.de>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
+To: Jiri Slaby <jslaby@suse.cz>
+Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, peterz@infradead.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, tglx@linutronix.de, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, mingo@redhat.com, Catalin Marinas <catalin.marinas@arm.com>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-xtensa@linux-xtensa.org, Stefan Kristiansson <ste>
 
-
-
-On 06/16/2017 11:10 AM, Christoph Hellwig wrote:
-> Hi all,
+On Wed, Jun 21, 2017 at 01:53:18PM +0200, Jiri Slaby wrote:
+> There is code duplicated over all architecture's headers for
+> futex_atomic_op_inuser. Namely op decoding, access_ok check for uaddr,
+> and comparison of the result.
 > 
-> for a while we have a generic implementation of the dma mapping routines
-> that call into per-arch or per-device operations.  But right now there
-> still are various bits in the interfaces where don't clearly operate
-> on these ops.  This series tries to clean up a lot of those (but not all
-> yet, but the series is big enough).  It gets rid of the DMA_ERROR_CODE
-> way of signaling failures of the mapping routines from the
-> implementations to the generic code (and cleans up various drivers that
-> were incorrectly using it), and gets rid of the ->set_dma_mask routine
-> in favor of relying on the ->dma_capable method that can be used in
-> the same way, but which requires less code duplication.
-Chris,
-
-Thanks for doing this.
-So archs can still have their own definition for dma_set_mask() if 
-HAVE_ARCH_DMA_SET_MASK is y?
-(and similarly for dma_set_coherent_mask() when 
-CONFIG_ARCH_HAS_DMA_SET_COHERENT_MASK is y)
-Any plan to change these?
-
-I'm in a process of making some changes to SPARC iommu so it would be 
-good to know. Thanks.
-
--Tushar
-
+> Remove this duplication and leave up to the arches only the needed
+> assembly which is now in arch_futex_atomic_op_inuser.
 > 
-> I've got a good number of reviews last time, but a few are still missing.
-> I'd love to not have to re-spam everyone with this patchbomb, so early
-> ACKs (or complaints) are welcome.
+> This effectively distributes the Will Deacon's arm64 fix for undefined
+> behaviour reported by UBSAN to all architectures. The fix was done in
+> commit 5f16a046f8e1 (arm64: futex: Fix undefined behaviour with
+> FUTEX_OP_OPARG_SHIFT usage).  Look there for an example dump.
 > 
-> I plan to create a new dma-mapping tree to collect all this work.
-> Any volunteers for co-maintainers, especially from the iommu gang?
-> 
-> The whole series is also available in git:
-> 
->      git://git.infradead.org/users/hch/misc.git dma-map
-> 
-> Gitweb:
-> 
->      http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-map
-> 
-> Changes since V1:
->   - remove two lines of code from arm dmabounce
->   - a few commit message tweaks
->   - lots of ACKs
+> Note that s390 removed access_ok check in d12a29703 ("s390/uaccess:
+> remove pointless access_ok() checks") as access_ok there returns true.
+> We introduce it back to the helper for the sake of simplicity (it gets
+> optimized away anyway).
 > 
 
+This required a minor manual merge for ARM on the tip of Linus' tree today. The
+reduced duplication is a welcome improvement.
+
+Reviewed-by: Darren Hart (VMware) <dvhart@infradead.org>
+
+-- 
+Darren Hart
+VMware Open Source Technology Center
