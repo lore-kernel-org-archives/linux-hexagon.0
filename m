@@ -1,33 +1,53 @@
-From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-Subject: Re: clean up and modularize arch dma_mapping interface V2
-Date: Mon, 26 Jun 2017 11:47:39 +0200
-Message-ID: <20170626094739.GB13981@lst.de>
-References: <20170616181059.19206-1-hch@lst.de>
-	<162d7932-5766-4c29-5471-07d1b699190a@oracle.com>
-	<20170624071855.GD14580@lst.de>
-	<1498318616.31581.87.camel@kernel.crashing.org>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: Re: [PATCH 1/1] futex: remove duplicated code and fix UB
+Date: Mon, 26 Jun 2017 14:02:31 +0200
+Message-ID: <80af8d81-4522-de2d-8289-1ab46565505a@suse.cz>
+References: <20170621115318.2781-1-jslaby@suse.cz>
+ <alpine.DEB.2.20.1706230017520.2221@nanos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1498318616.31581.87.camel-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, tndave <tushar.n.dave-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>, xen-devel-GuqFBffKawtpuQazS67q72D2FQJk+8+b@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, openrisc-cunTk1MwBs9a3B2Vnqf2dGD2FQJk+8+b@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Return-path: <linux-alpha-owner@vger.kernel.org>
+In-Reply-To: <alpine.DEB.2.20.1706230017520.2221@nanos>
+Content-Language: en-GB
+Sender: linux-alpha-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>
+Cc: mingo@redhat.com, peterz@infradead.org, dvhart@infradead.org, linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Michal Simek <monstr@monstr.eu>, Ralf Baechle <ralf@linux-mips.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Marti
 
-On Sat, Jun 24, 2017 at 10:36:56AM -0500, Benjamin Herrenschmidt wrote:
-> I think we still need to do it. For example we have a bunch new "funky"
-> cases.
+On 06/23/2017, 09:51 AM, Thomas Gleixner wrote:
+> On Wed, 21 Jun 2017, Jiri Slaby wrote:
+>> diff --git a/arch/arm64/include/asm/futex.h b/arch/arm64/include/asm/futex.h
+>> index f32b42e8725d..5bb2fd4674e7 100644
+>> --- a/arch/arm64/include/asm/futex.h
+>> +++ b/arch/arm64/include/asm/futex.h
+>> @@ -48,20 +48,10 @@ do {									\
+>>  } while (0)
+>>  
+>>  static inline int
+>> -futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *uaddr)
+> 
+> That unsigned int seems to be a change from the arm64 tree in next. It's
+> not upstream and it'll cause a (easy to resolve) conflict.
 
-I have no plan to do away with the selection - I just want a better
-interface than the current one.
+Ugh, I thought the arm64 is in upstream already. Note that this patch
+just takes what is in this arm64 fix and makes it effective for all
+architectures. So I will wait with v2 until it merges upstream.
+
+So, Will, will you incorporate Thomas' comments into your arm64 fix?
+
+...
+
+> Yes, we probably can't change that anymore, but at least we should make it
+> very explicit and add a comment to that effect.
+
+Something like this or do you want a comment yet?
+        unsigned int op =         (encoded_op & 0x70000000) >> 28;
+        unsigned int cmp =        (encoded_op & 0x0f000000) >> 24;
+        int oparg = sign_extend32((encoded_op & 0x00fff000) >> 12, 12);
+        int cmparg = sign_extend32(encoded_op & 0x00000fff, 12);
+
+thanks,
+-- 
+js
+suse labs
