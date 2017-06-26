@@ -1,45 +1,70 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH 1/1] futex: remove duplicated code and fix UB
-Date: Mon, 26 Jun 2017 13:08:14 +0100
-Message-ID: <20170626120814.GF1691@arm.com>
-References: <20170621115318.2781-1-jslaby@suse.cz>
- <alpine.DEB.2.20.1706230017520.2221@nanos>
- <80af8d81-4522-de2d-8289-1ab46565505a@suse.cz>
+From: tndave <tushar.n.dave-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
+Subject: Re: clean up and modularize arch dma_mapping interface V2
+Date: Mon, 26 Jun 2017 15:06:25 -0700
+Message-ID: <91360640-546b-edab-9f4a-952c7a1d0061@oracle.com>
+References: <20170616181059.19206-1-hch@lst.de>
+	<162d7932-5766-4c29-5471-07d1b699190a@oracle.com>
+	<20170624071855.GD14580@lst.de>
+	<1498318616.31581.87.camel@kernel.crashing.org>
+	<20170626094739.GB13981@lst.de>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <80af8d81-4522-de2d-8289-1ab46565505a@suse.cz>
-Sender: linux-hexagon-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: Thomas Gleixner <tglx@linutronix.de>, mingo@redhat.com, peterz@infradead.org, dvhart@infradead.org, linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Richard Kuo <rkuo@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Michal Simek <monstr@monstr.eu>, Ralf Baechle <ralf@linux-mips.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Pa
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20170626094739.GB13981-jcswGhMUV9g@public.gmane.org>
+Content-Language: en-US
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, openrisc-cunTk1MwBs9a3B2Vnqf2dGD2FQJk+8+b@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, xen-devel-GuqFBffKawtpuQazS67q72D2FQJk+8+b@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 
-On Mon, Jun 26, 2017 at 02:02:31PM +0200, Jiri Slaby wrote:
-> On 06/23/2017, 09:51 AM, Thomas Gleixner wrote:
-> > On Wed, 21 Jun 2017, Jiri Slaby wrote:
-> >> diff --git a/arch/arm64/include/asm/futex.h b/arch/arm64/include/asm/futex.h
-> >> index f32b42e8725d..5bb2fd4674e7 100644
-> >> --- a/arch/arm64/include/asm/futex.h
-> >> +++ b/arch/arm64/include/asm/futex.h
-> >> @@ -48,20 +48,10 @@ do {									\
-> >>  } while (0)
-> >>  
-> >>  static inline int
-> >> -futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *uaddr)
-> > 
-> > That unsigned int seems to be a change from the arm64 tree in next. It's
-> > not upstream and it'll cause a (easy to resolve) conflict.
+
+
+On 06/26/2017 02:47 AM, Christoph Hellwig wrote:
+> On Sat, Jun 24, 2017 at 10:36:56AM -0500, Benjamin Herrenschmidt wrote:
+>> I think we still need to do it. For example we have a bunch new "funky"
+>> cases.
 > 
-> Ugh, I thought the arm64 is in upstream already. Note that this patch
-> just takes what is in this arm64 fix and makes it effective for all
-> architectures. So I will wait with v2 until it merges upstream.
+> I have no plan to do away with the selection - I just want a better
+> interface than the current one.
+I agree we need better interface than the current one.
+Like Benjamin mentioned cases for powerpc , sparc also need some special
+treatment for ATU IOMMU depending on device's DMA mask.
+
+For sparc, I am in process of enabling one or more dedicated IOTSB (I/O
+Translation Storage Buffer) per PCI BDF (contrary to current design
+where all PCI device under root complex share a 32bit and/or 64bit IOTSB
+depending on 32bit and/or 64bit DMA). I am planning to use DMA set mask
+APIs as hook where based on device's dma mask values (dma_mask and
+coherent_dma_mask) one or more IOTSB resource will be allocated (and
+released [1]).
+
+Without set_dma_mask ops, I can still rely on HAVE_ARCH_DMA_SET_MASK and
+dma_supported() that allows me to distinguish if device is setting
+its streaming dma_mask and coherent_dma_mask respectively.
+
+-Tushar
+
+[1] By default, every PCI BDF will have one dedicated 32bit IOTSB. This
+is to support default case where some device drivers even don't bother
+to set DMA mask but instead are fine with default 32bit mask.
+A 64bit IOTSB will be allocated when device request 64bit dma_mask.
+However if device wants 64bit dma mask for both coherent and
+non-coherent, a default 32bit IOTSB will be released as well. Wasting an
+IOTSB is not a good idea because there is a hard limit on max number of
+IOTSB per guest domain per root complex.
+
+
+> --
+> To unsubscribe from this list: send the line "unsubscribe sparclinux" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
-> So, Will, will you incorporate Thomas' comments into your arm64 fix?
-
-I wasn't planning to (it's already queued and I think they're just cosmetic
-changes). The easiest thing is probably for you to make the changes in the
-generic version when you post v2.
-
-Will
