@@ -1,30 +1,51 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH -next] hexagon: Fix compile error
-Date: Wed, 28 Jun 2017 15:53:29 +0200
-Message-ID: <20170628135329.GB1268@lst.de>
-References: <1498610594-5993-1-git-send-email-linux@roeck-us.net>
-Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1498610594-5993-1-git-send-email-linux@roeck-us.net>
-Sender: linux-hexagon-owner@vger.kernel.org
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: [PATCH RFC 14/26] hexagon: Remove spin_unlock_wait() arch-specific definitions
+Date: Thu, 29 Jun 2017 17:01:22 -0700
+Message-ID: <1498780894-8253-14-git-send-email-paulmck@linux.vnet.ibm.com>
+References: <20170629235918.GA6445@linux.vnet.ibm.com>
+Return-path: <netfilter-devel-owner@vger.kernel.org>
+In-Reply-To: <20170629235918.GA6445@linux.vnet.ibm.com>
+Sender: netfilter-devel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
+To: linux-kernel@vger.kernel.org
+Cc: netfilter-devel@vger.kernel.org, netdev@vger.kernel.org, oleg@redhat.com, akpm@linux-foundation.org, mingo@redhat.com, dave@stgolabs.net, manfred@colorfullife.com, tj@kernel.org, arnd@arndb.de, linux-arch@vger.kernel.org, will.deacon@arm.com, peterz@infradead.org, stern@rowland.harvard.edu, parri.andrea@gmail.com, torvalds@linux-foundation.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-On Tue, Jun 27, 2017 at 05:43:14PM -0700, Guenter Roeck wrote:
-> Fix:
-> 
-> arch/hexagon/kernel/dma.c: At top level:
-> arch/hexagon/kernel/dma.c:209:40: error: expected '}' before ';' token
-> 
-> Cc: Christoph Hellwig <hch@lst.de>
-> Fixes: 8715a7227c30b ("hexagon: switch to use ->mapping_error for ...")
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
-> Maybe fold into the offending patch if possible ?
+There is no agreed-upon definition of spin_unlock_wait()'s semantics,
+and it appears that all callers could do just as well with a lock/unlock
+pair.  This commit therefore removes the underlying arch-specific
+arch_spin_unlock_wait().
 
-Will do.  So it looks like your build farm builds hexagon, but the
-official build bot doesn't, sigh..
+Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: <linux-hexagon@vger.kernel.org>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andrea Parri <parri.andrea@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+---
+ arch/hexagon/include/asm/spinlock.h | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/arch/hexagon/include/asm/spinlock.h b/arch/hexagon/include/asm/spinlock.h
+index a1c55788c5d6..53a8d5885887 100644
+--- a/arch/hexagon/include/asm/spinlock.h
++++ b/arch/hexagon/include/asm/spinlock.h
+@@ -179,11 +179,6 @@ static inline unsigned int arch_spin_trylock(arch_spinlock_t *lock)
+  */
+ #define arch_spin_lock_flags(lock, flags) arch_spin_lock(lock)
+ 
+-static inline void arch_spin_unlock_wait(arch_spinlock_t *lock)
+-{
+-	smp_cond_load_acquire(&lock->lock, !VAL);
+-}
+-
+ #define arch_spin_is_locked(x) ((x)->lock != 0)
+ 
+ #define arch_read_lock_flags(lock, flags) arch_read_lock(lock)
+-- 
+2.5.2
+
