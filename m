@@ -1,95 +1,68 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 1/1] futex: remove duplicated code and fix UB
-Date: Mon, 3 Jul 2017 12:18:28 +0200 (CEST)
-Message-ID: <alpine.DEB.2.20.1707031211120.2188@nanos>
-References: <20170621115318.2781-1-jslaby@suse.cz>
- <alpine.DEB.2.20.1706230017520.2221@nanos>
- <80af8d81-4522-de2d-8289-1ab46565505a@suse.cz>
-Mime-Version: 1.0
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [RESEND PATCH] hexagon: defconfig: Cleanup from old Kconfig options
+Date: Thu, 20 Jul 2017 06:59:07 +0200
+Message-ID: <1500526747-3682-1-git-send-email-krzk@kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:Message-ID:
-	In-Reply-To:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=XSBNywpf9QrkEtCfFImMHpIf6ZOoiEqNCPxFD9r8vpM=; b=JHiYMPXReiw2Hc
-	OMlyytZgZlgZwBj0vXBSbjoT9TIbpM6DyJ29CEO1B8xsCj25ezMeJe9AEqd320mz09pNBLd4yFUgv
-	WNxlppGcVfyJeGJuYxsNQzvorKCi6+1DBYr7NCyOM5IfbxKbzgu7o9bK9rl+EPcJ/uybW9Ona3i8E
-	WHM4Ee1XzQtELKtwUhDIrvKmnX8oa92RYTfUh1chqSfh5IZl6w4o8T3QvTSz7xMzu3eWoa2x4WKVs
-	Up9NQ5l8wMPrZelchWt74kEoGafE9spmdtcipVnViKeSZbWUEE3M5P8jmpfTYb5VTvCMroIGJ6gCJ
-	jx0eaOQxaLU80WVQoWiQ==;
-In-Reply-To: <80af8d81-4522-de2d-8289-1ab46565505a@suse.cz>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, peterz@infradead.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, mingo@redhat.com, Catalin Marinas <catalin.marinas@arm.com>, dvhart@infradead.org, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-xtensa@linux-xtensa.org, Stefan Kristiansson <>
+To: linux-kernel@vger.kernel.org
+Cc: Krzysztof Kozlowski <krzk@kernel.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-On Mon, 26 Jun 2017, Jiri Slaby wrote:
-> On 06/23/2017, 09:51 AM, Thomas Gleixner wrote:
-> > On Wed, 21 Jun 2017, Jiri Slaby wrote:
-> >> diff --git a/arch/arm64/include/asm/futex.h b/arch/arm64/include/asm/futex.h
-> >> index f32b42e8725d..5bb2fd4674e7 100644
-> >> --- a/arch/arm64/include/asm/futex.h
-> >> +++ b/arch/arm64/include/asm/futex.h
-> >> @@ -48,20 +48,10 @@ do {									\
-> >>  } while (0)
-> >>  
-> >>  static inline int
-> >> -futex_atomic_op_inuser(unsigned int encoded_op, u32 __user *uaddr)
-> > 
-> > That unsigned int seems to be a change from the arm64 tree in next. It's
-> > not upstream and it'll cause a (easy to resolve) conflict.
-> 
-> Ugh, I thought the arm64 is in upstream already. Note that this patch
-> just takes what is in this arm64 fix and makes it effective for all
-> architectures. So I will wait with v2 until it merges upstream.
+Remove old, dead Kconfig options (in order appearing in this commit):
+ - EXPERIMENTAL is gone since v3.9;
+ - NETDEV_1000 and NETDEV_10000: commit f860b0522f65 ("drivers/net:
+   Kconfig and Makefile cleanup"); NET_ETHERNET should be replaced with
+   just ETHERNET but that is separate change;
+ - HID_SUPPORT: commit 1f41a6a99476 ("HID: Fix the generic Kconfig
+   options");
+ - INET_LRO: commit 7bbf3cae65b6 ("ipv4: Remove inet_lro library");
 
-Ok.
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
+---
+ arch/hexagon/configs/comet_defconfig | 5 -----
+ 1 file changed, 5 deletions(-)
 
-> > Yes, we probably can't change that anymore, but at least we should make it
-> > very explicit and add a comment to that effect.
-> 
-> Something like this or do you want a comment yet?
->         unsigned int op =         (encoded_op & 0x70000000) >> 28;
->         unsigned int cmp =        (encoded_op & 0x0f000000) >> 24;
->         int oparg = sign_extend32((encoded_op & 0x00fff000) >> 12, 12);
->         int cmparg = sign_extend32(encoded_op & 0x00000fff, 12);
+diff --git a/arch/hexagon/configs/comet_defconfig b/arch/hexagon/configs/comet_defconfig
+index e324f65f41e7..0db9c1384b32 100644
+--- a/arch/hexagon/configs/comet_defconfig
++++ b/arch/hexagon/configs/comet_defconfig
+@@ -1,7 +1,6 @@
+ CONFIG_SMP=y
+ CONFIG_DEFAULT_MMAP_MIN_ADDR=0
+ CONFIG_HZ_100=y
+-CONFIG_EXPERIMENTAL=y
+ CONFIG_CROSS_COMPILE="hexagon-"
+ CONFIG_LOCALVERSION="-smp"
+ # CONFIG_LOCALVERSION_AUTO is not set
+@@ -27,8 +26,6 @@ CONFIG_NETDEVICES=y
+ CONFIG_MII=y
+ CONFIG_PHYLIB=y
+ CONFIG_NET_ETHERNET=y
+-# CONFIG_NETDEV_1000 is not set
+-# CONFIG_NETDEV_10000 is not set
+ # CONFIG_INPUT_MOUSEDEV is not set
+ # CONFIG_INPUT_KEYBOARD is not set
+ # CONFIG_INPUT_MOUSE is not set
+@@ -42,7 +39,6 @@ CONFIG_SPI_DEBUG=y
+ CONFIG_SPI_BITBANG=y
+ # CONFIG_HWMON is not set
+ # CONFIG_VGA_CONSOLE is not set
+-# CONFIG_HID_SUPPORT is not set
+ # CONFIG_USB_SUPPORT is not set
+ CONFIG_EXT2_FS=y
+ CONFIG_EXT2_FS_XATTR=y
+@@ -68,7 +64,6 @@ CONFIG_INET=y
+ # CONFIG_INET_XFRM_MODE_TRANSPORT is not set
+ # CONFIG_INET_XFRM_MODE_TUNNEL is not set
+ # CONFIG_INET_XFRM_MODE_BEET is not set
+-# CONFIG_INET_LRO is not set
+ # CONFIG_INET_DIAG is not set
+ # CONFIG_IPV6 is not set
+ CONFIG_CRYPTO_MD5=y
+-- 
+2.7.4
 
-Yes, that makes sense.
-
-There is also the issue with the shift. See this thread for further
-reference:
-
-  http://lkml.kernel.org/r/alpine.DEB.2.20.1706282353190.1890@nanos
-
-The gist is:
-
-  "Anything using a shift value < 0 or > 31 will get crap as a
-   result. Rightfully so because it's just undefined.
-
-   Yes I know that the insanity of user space is unlimited, but anything
-   attempting this is so broken that we cannot break it further by making
-   that shift arg unsigned and actually limit it to 0-31"
-
-So we should make that case explicit as well.
-
-        if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28)) {
-		if (oparg < 0 || oparg > 31)
-			return -EINVAL;
-                oparg = 1 << oparg;
-	}
-
-Thanks,
-
-	tglx
