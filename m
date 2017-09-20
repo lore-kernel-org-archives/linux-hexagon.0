@@ -1,50 +1,63 @@
-From: Bhumika Goyal <bhumirks@gmail.com>
-Subject: [PATCH] hexagon/time: make rtos_timer_device __initdata
-Date: Tue, 19 Sep 2017 12:37:21 +0530
-Message-ID: <1505804841-20278-1-git-send-email-bhumirks@gmail.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH] hexagon: get rid of #include <generated/compile.h>
+Date: Thu, 21 Sep 2017 00:17:50 +0900
+Message-ID: <1505920670-8290-1-git-send-email-yamada.masahiro@socionext.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=njLzkGwxYoPVGc1km8m0aCqPPx7Kj6i8D6yuH8YN+lM=;
-        b=B99hxMi5gfA5E2T2BqQ0wfvCmjqlBCRsS6/aXFBXpgKlZkK0Gxk3TV400zsitWv5bQ
-         TZw1agEch3otx4nxstNi0gVTiyAqMGnLdAqzYh1NGtr3iJkvZmuwVafzp7xTKhXXoP7n
-         SuZPv0zFVdNqulSr7PQpBeKVTy5g0Fbl0+r4j8XmkSTP+op8wPOmakm8sO8nhnKyMMa6
-         +WgBbJ14ymM9cEVz8b4nM8pBhryCaACNfU7dnkRONftAoGYqQ+WTJvPsHl4xJJi0i91b
-         jRT7s2vueMOUtSECtYntiyxXNaQ9n9zQLzemSE1XjfVUenxyJTFFhCD0de9kCzdjJb7t
-         xFOQ==
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-08.nifty.com v8KFI2cq007260
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1505920683;
+        bh=sTQU/jjElO/jGM2/Z3BfivLFgh42KULjEqdS92ErDpQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=1KKTyVoJpx14vS+tNC3r1sRitzB6V/ZkUe6VDTF2++2/m2AI3bdjpUE8cZjsnj5FO
+         R3zI/WxWvAr48RaltUhEMl1uNOQhg54PaXz2Od9m62ddt30D0mRWNoNF6vqe3sFSjG
+         +Acp1RpJ+75siu6L+llqXkPVsrGGaIbdHKg/3vATRbUWSnqW2zZtiookLxaIMzs2Ge
+         sQ0g5LqMWFLVY3qYEmBDsL8UMq8asUjqhIPHd0GXHo2PtGJ2KCe7QxbORNA+M2hZAV
+         xmC8YY0z4b5OjVQmnjES6iXgJh5x3bptLsSA657GXwxVlA/HBhLMJGI6fjYUE2+f2E
+         J5jYCy+PRaxFw==
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: julia.lawall@lip6.fr, rkuo@codeaurora.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Bhumika Goyal <bhumirks@gmail.com>
+To: linux-hexagon@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-kbuild@vger.kernel.org, Michal Marek <mmarek@suse.com>, Sam Ravnborg <sam@ravnborg.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Oleg Nesterov <oleg@redhat.com>, linux-kernel@vger.kernel.org
 
-Make this __initdata as it is only modified during the init phase and
-after that the structure and its fields are not referenced anywhere.
+<generated/compile.h> is created (or updated) when Kbuild descends
+into the init/ directory.  In parallel building from a pristine
+source tree, there is no guarantee <generated/compile.h> exists when
+arch/hexagon/kernel/ptrace.c is compiled.
 
-Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+For hexagon architecture, we know UTS_MACHINE is a fixed string
+"hexagon", so let's hard-code it, like many architectures do.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
-Hexagon architecture was not found while cross-compiling, so the
-file is not compile-tested. 
 
- arch/hexagon/kernel/time.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/hexagon/kernel/ptrace.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
-index 29b1f57..5b5a366 100644
---- a/arch/hexagon/kernel/time.c
-+++ b/arch/hexagon/kernel/time.c
-@@ -54,7 +54,7 @@
- 	},
+diff --git a/arch/hexagon/kernel/ptrace.c b/arch/hexagon/kernel/ptrace.c
+index ecd75e2..fa76493 100644
+--- a/arch/hexagon/kernel/ptrace.c
++++ b/arch/hexagon/kernel/ptrace.c
+@@ -18,8 +18,6 @@
+  * 02110-1301, USA.
+  */
+ 
+-#include <generated/compile.h>
+-
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/sched/task_stack.h>
+@@ -180,7 +178,7 @@ static const struct user_regset hexagon_regsets[] = {
  };
  
--static struct platform_device rtos_timer_device = {
-+static struct platform_device rtos_timer_device __initdata = {
- 	.name		= "rtos_timer",
- 	.id		= -1,
- 	.num_resources	= ARRAY_SIZE(rtos_timer_resources),
+ static const struct user_regset_view hexagon_user_view = {
+-	.name = UTS_MACHINE,
++	.name = "hexagon",
+ 	.e_machine = ELF_ARCH,
+ 	.ei_osabi = ELF_OSABI,
+ 	.regsets = hexagon_regsets,
 -- 
-1.9.1
+2.7.4
 
