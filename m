@@ -1,47 +1,51 @@
 From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH] hexagon/time: make rtos_timer_device __initdata
-Date: Wed, 27 Sep 2017 18:23:19 -0500
-Message-ID: <20170927232319.GA5939@codeaurora.org>
-References: <1505804841-20278-1-git-send-email-bhumirks@gmail.com>
+Subject: Re: [PATCH] hexagon: get rid of #include <generated/compile.h>
+Date: Wed, 27 Sep 2017 18:24:15 -0500
+Message-ID: <20170927232415.GB5939@codeaurora.org>
+References: <1505920670-8290-1-git-send-email-yamada.masahiro@socionext.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-kbuild-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1506554601;
-        bh=JFP/FpinwsqEXuh4yH0ygGDqXEOjGpofKmXxrI5kywY=;
+        s=default; t=1506554658;
+        bh=Nc8dSOXJMjgyEip/RaDUmkfvWJ6FqF6beyYsMH2ZyCU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=J1KwFT46BEWTJ8tTv3/G4sM0zzTHpMHzvbQxEQquLlUZ5ZRU6tj17YfvE2zguk7fw
-         FfWvZ6i3Sll1gJyUt5JdvRf1dgdCI4qGZcDDDThxzxHtoyyGoeoASUm8b5YrtlT/Hh
-         CNOEZ6ZhHWO1PhycTCP/qzik68MsXLPeFPeSQTNE=
+        b=QOYjPTqXc+QwQniwmP8g7Mwn2si2hd/3LqNL4JLiRQKCBGDK12mWOb6yc5RPynD2D
+         8AnN6+DghvBfAFyB/qsLQONLVhdAePqQ0w1X7tPT40ptuXAQSgXAmw/A0kq1eTpBfx
+         6w2BJ7uJtk3giAXfNWT/SK5BA1cRnAYk8K/6iZz4=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1506554601;
-        bh=JFP/FpinwsqEXuh4yH0ygGDqXEOjGpofKmXxrI5kywY=;
+        s=default; t=1506554658;
+        bh=Nc8dSOXJMjgyEip/RaDUmkfvWJ6FqF6beyYsMH2ZyCU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=J1KwFT46BEWTJ8tTv3/G4sM0zzTHpMHzvbQxEQquLlUZ5ZRU6tj17YfvE2zguk7fw
-         FfWvZ6i3Sll1gJyUt5JdvRf1dgdCI4qGZcDDDThxzxHtoyyGoeoASUm8b5YrtlT/Hh
-         CNOEZ6ZhHWO1PhycTCP/qzik68MsXLPeFPeSQTNE=
+        b=QOYjPTqXc+QwQniwmP8g7Mwn2si2hd/3LqNL4JLiRQKCBGDK12mWOb6yc5RPynD2D
+         8AnN6+DghvBfAFyB/qsLQONLVhdAePqQ0w1X7tPT40ptuXAQSgXAmw/A0kq1eTpBfx
+         6w2BJ7uJtk3giAXfNWT/SK5BA1cRnAYk8K/6iZz4=
 Content-Disposition: inline
-In-Reply-To: <1505804841-20278-1-git-send-email-bhumirks@gmail.com>
-Sender: linux-hexagon-owner@vger.kernel.org
+In-Reply-To: <1505920670-8290-1-git-send-email-yamada.masahiro@socionext.com>
+Sender: linux-kbuild-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: julia.lawall@lip6.fr, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: linux-hexagon@vger.kernel.org, linux-kbuild@vger.kernel.org, Michal Marek <mmarek@suse.com>, Sam Ravnborg <sam@ravnborg.org>, Oleg Nesterov <oleg@redhat.com>, linux-kernel@vger.kernel.org
 
-On Tue, Sep 19, 2017 at 12:37:21PM +0530, Bhumika Goyal wrote:
-> Make this __initdata as it is only modified during the init phase and
-> after that the structure and its fields are not referenced anywhere.
+On Thu, Sep 21, 2017 at 12:17:50AM +0900, Masahiro Yamada wrote:
+> <generated/compile.h> is created (or updated) when Kbuild descends
+> into the init/ directory.  In parallel building from a pristine
+> source tree, there is no guarantee <generated/compile.h> exists when
+> arch/hexagon/kernel/ptrace.c is compiled.
 > 
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+> For hexagon architecture, we know UTS_MACHINE is a fixed string
+> "hexagon", so let's hard-code it, like many architectures do.
+> 
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 > ---
-> Hexagon architecture was not found while cross-compiling, so the
-> file is not compile-tested. 
 > 
->  arch/hexagon/kernel/time.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  arch/hexagon/kernel/ptrace.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 > 
 
 Acked-by: Richard Kuo <rkuo@codeaurora.org>
+
 
 -- 
 Employee of Qualcomm Innovation Center, Inc.
