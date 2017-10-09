@@ -1,69 +1,69 @@
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: Re: [PATCH] hexagon: get rid of #include <generated/compile.h>
-Date: Mon, 9 Oct 2017 23:25:28 +0900
-Message-ID: <CAK7LNARd6ovx=qmny1micPx7BUXf9uL9soES_OcotF-bYCCQWw@mail.gmail.com>
-References: <1505920670-8290-1-git-send-email-yamada.masahiro@socionext.com>
- <20170927232415.GB5939@codeaurora.org> <CAK7LNAQaGd5h5OHe5ArXV=wms07Zpd4OBPLrPYwZ68KpbjeGcQ@mail.gmail.com>
-Mime-Version: 1.0
-Return-path: <linux-kbuild-owner@vger.kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-03.nifty.com v99EQ9KX011907
+Subject: [PATCH 2/3] hexagon: add KBUILD_ prefix to CFLAGS_MODULE, LDFLAGS_MODULE
+Date: Mon,  9 Oct 2017 23:35:14 +0900
+Message-ID: <1507559715-30918-3-git-send-email-yamada.masahiro@socionext.com>
+References: <1507559715-30918-1-git-send-email-yamada.masahiro@socionext.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-11.nifty.com v99EZVZF018442
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1507559170;
-        bh=kwuGnvtamwrJDmxDCxN28D8QZtD2QQac23bTots6j8o=;
-        h=In-Reply-To:References:From:Date:Subject:To:Cc:From;
-        b=jeZkkQ/SCVxSZthBPGM2mMCuXnoAWB8D4kOhtf+kGqDEUplrseoqs6/hG8QYjpBS/
-         I0ykXuYSba7S4i2X15NpWiEl4m2NR1Nc5QJrRcgD2dYosunBxNo/nOwkrVg7Ztw4TP
-         6gIaEPysJaBfLw1CLsb+YDlwba0tVlzx5COoILpmgZuQLYQ9gSmthwJb4po8P0YABA
-         Yvgs3ppWoTuD1xeEHOmfGor8v+HErPHtJxxhUjjmRvIwlqoUuBlSHqktB3S+pYHAQw
-         kAD6GiTnwCG/mNnRK2ouBJAI57F8GUsSE3MJ//cJIH+k4pdBIre68Aw0qLOITYounv
-         oBvE4a2ET7uVA==
-In-Reply-To: <CAK7LNAQaGd5h5OHe5ArXV=wms07Zpd4OBPLrPYwZ68KpbjeGcQ@mail.gmail.com>
-Sender: linux-kbuild-owner@vger.kernel.org
+        s=dec2015msa; t=1507559733;
+        bh=UsZH4SJbRn2VBEhLQA/xUCVRwLc1HbN7wd8EuVpqrCY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=0i44Cre774G5H218p40rQJsU5QO5zybOBMG4XDgjBbCTc6Km+nPA/YZHLej9lVn4z
+         3uYdDsuPhGSLm6GZESWHQxtzc2xO8HizZzYMFt5/IL6MH3gT5ZGdBsyZWP59ZVxOXL
+         Gx/pARwuHizn3w6OG0TfPvR7IqZWUWbRxfCgIMZcd5SOOcJV2dcsDi4Vq0F/DQX4Pe
+         F0gehvU/stw7xTYBeqU58NDuCX5aTTgi1BbVQ7oeEwW5wR4OSkKczcFz/bhF9wfvL6
+         J6NzKLsiJetY6x1no2CUPJyBFYcW/W11jpfh9ILl7cF0x+SvoB4OvdJWNFOR1f2KF1
+         TMpTL+wFqrKXg==
+In-Reply-To: <1507559715-30918-1-git-send-email-yamada.masahiro@socionext.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Michal Marek <mmarek@suse.com>, Sam Ravnborg <sam@ravnborg.org>, Oleg Nesterov <oleg@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-kbuild@vger.kernel.org
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, Richard Kuo <rkuo@codeaurora.org>, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-2017-10-03 10:26 GMT+09:00 Masahiro Yamada <yamada.masahiro@socionext.com>:
-> Hi Richard,
->
-> 2017-09-28 8:24 GMT+09:00 Richard Kuo <rkuo@codeaurora.org>:
->> On Thu, Sep 21, 2017 at 12:17:50AM +0900, Masahiro Yamada wrote:
->>> <generated/compile.h> is created (or updated) when Kbuild descends
->>> into the init/ directory.  In parallel building from a pristine
->>> source tree, there is no guarantee <generated/compile.h> exists when
->>> arch/hexagon/kernel/ptrace.c is compiled.
->>>
->>> For hexagon architecture, we know UTS_MACHINE is a fixed string
->>> "hexagon", so let's hard-code it, like many architectures do.
->>>
->>> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
->>> ---
->>>
->>>  arch/hexagon/kernel/ptrace.c | 4 +---
->>>  1 file changed, 1 insertion(+), 3 deletions(-)
->>>
->>
->> Acked-by: Richard Kuo <rkuo@codeaurora.org>
->>
->
-> How should this patch be handled?
->
+{CFLAGS,LDFLAGS}_MODULE are supposed to be set by users, not by
+in-kernel makefiles.
 
-I checked
-git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git
+Documentation/kbuild/makefiles.txt clearly explains the difference:
 
-I could not see any patch applied to the tree since last year.
+  KBUILD_CFLAGS_MODULE   Options for $(CC) when building modules
 
-Assuming the tree is unmaintained, I am picking this patch to Kbuild tree.
+      $(KBUILD_CFLAGS_MODULE) is used to add arch-specific options that
+      are used for $(CC).
+      From commandline CFLAGS_MODULE shall be used (see kbuild.txt).
 
+  KBUILD_LDFLAGS_MODULE   Options for $(LD) when linking modules
 
+      $(KBUILD_LDFLAGS_MODULE) is used to add arch-specific options
+      used when linking modules. This is often a linker script.
+      From commandline LDFLAGS_MODULE shall be used (see kbuild.txt).
 
-Applied to linux-kbuild/kbuild with Rechard's Acked.
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
 
+ arch/hexagon/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-
+diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile
+index 207711a0..4f5c84c 100644
+--- a/arch/hexagon/Makefile
++++ b/arch/hexagon/Makefile
+@@ -11,9 +11,9 @@ KBUILD_CFLAGS += -fno-short-enums
+ 
+ # Modules must use either long-calls, or use pic/plt.
+ # Use long-calls for now, it's easier.  And faster.
+-# CFLAGS_MODULE += -fPIC
+-# LDFLAGS_MODULE += -shared
+-CFLAGS_MODULE += -mlong-calls
++# KBUILD_CFLAGS_MODULE += -fPIC
++# KBUILD_LDFLAGS_MODULE += -shared
++KBUILD_CFLAGS_MODULE += -mlong-calls
+ 
+ cflags-y += $(call cc-option,-mv${CONFIG_HEXAGON_ARCH_VERSION})
+ aflags-y += $(call cc-option,-mv${CONFIG_HEXAGON_ARCH_VERSION})
 -- 
-Best Regards
-Masahiro Yamada
+2.7.4
+
