@@ -1,76 +1,59 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [PATCH 3/3] hexagon/kbuild: replace CFLAGS_MODULE with
- KBUILD_CFLAGS_MODULE
-Date: Mon, 9 Oct 2017 20:26:08 -0500
-Message-ID: <20171010012608.GA23555@codeaurora.org>
-References: <1507533107-2069-1-git-send-email-caoj.fnst@cn.fujitsu.com>
- <1507533107-2069-3-git-send-email-caoj.fnst@cn.fujitsu.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: Re: [PATCH 0/3] ARM, hexagon, c6x: build: fix usage of CFLAGS_MODULE, LDFLAGS_MODULE
+Date: Sun, 15 Oct 2017 16:47:16 +0900
+Message-ID: <CAK7LNATsU=tfgDJ6KjmqK7DwcKRL3DrvOPhP9Umn81zRKEO73g@mail.gmail.com>
+References: <1507559715-30918-1-git-send-email-yamada.masahiro@socionext.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1507598771;
-        bh=/9OfxTwIftXwdXPWcu+FNf7UB8wyCOEaaTHKwW1ZyTI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QjZu87CPNkpfhitFicHRSW4TyPB2yH020WPI2f5iOicDhNw6qLXkAlbE4Ho1BB5Bc
-         RpJvj5QToJilSt8He/LELrHqECPYSFHj7YPTkUxudipJKNJgjXVVeUSy1lrwodf7aN
-         QiyRRhbOxTHvp86fOkJ3gLPsdVQTrnJZcmMGilAE=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1507598770;
-        bh=/9OfxTwIftXwdXPWcu+FNf7UB8wyCOEaaTHKwW1ZyTI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MxVpXpdw/4ZnpgxA9pF4zyL+FPIO4lnEcJpe8AmTkLPnPc5u7pOZZOzT0GQzOgYc/
-         D0W3rerPMa5ga3iFehwYU7XpoRp9RDBnfYb1hrLRvPkXXZ6p11ZUoiVh1Ra4LEnsaC
-         t2FzEFY3YYHpNCPpCqkA+B9xBGeXJ1ZTkbi80/Oo=
-Content-Disposition: inline
-In-Reply-To: <1507533107-2069-3-git-send-email-caoj.fnst@cn.fujitsu.com>
-Sender: linux-hexagon-owner@vger.kernel.org
+Return-path: <linux-kbuild-owner@vger.kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-02.nifty.com v9F7lvfs005829
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1508053678;
+        bh=nFGaADYIvlx9urDO3ulHk9uIwBL0DMdjtGeMjA8T2Zo=;
+        h=In-Reply-To:References:From:Date:Subject:To:Cc:From;
+        b=zWurdsg4BEhXViL7hZLXSUSMMRiTb8p1sU/+/+aG4dqKq1mYqk/lNCcOT5Y1IDDdg
+         gNa52bvJO8Z7TWObwCeHhDMXGNRxs0MHNhxs1qpXwZuQlHvBhi2ehu4Fi0OCnVhRON
+         d0NQ7zBKi55Ne70Itmycd3v0p6LcejSoee35wxuaT8Hk/m0OYSsNZWpgjLlq+KNLfq
+         FZRLIOse+69fPpvm0PpJClWMqIKCIVU2FSCGAumjr/aO6/pp/MZmU315/RP/qK6+vt
+         r2YEg74vngz5zWoF6GxY/Bw134HwLkLA9/BZFgmN6pJ8r31tTUEr6oebJoFkK0vLV1
+         k8H6RDWwJMY8A==
+In-Reply-To: <1507559715-30918-1-git-send-email-yamada.masahiro@socionext.com>
+Sender: linux-kbuild-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Cao jin <caoj.fnst@cn.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+To: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Salter <msalter@redhat.com>, Aurelien Jacquiot <jacquiot.aurelien@gmail.com>, Richard Kuo <rkuo@codeaurora.org>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 
-On Mon, Oct 09, 2017 at 03:11:47PM +0800, Cao jin wrote:
-> As kbuild document & commit 6588169d51 says: KBUILD_CFLAGS_MODULE is
-> used to add arch-specific options for $(CC). From commandline,
-> CFLAGS_MODULE shall be used.
-> Doesn't have any functional change, but just follow kbuild rules.
-> 
-> Signed-off-by: Cao jin <caoj.fnst@cn.fujitsu.com>
-> CC: Richard Kuo <rkuo@codeaurora.org>
-> CC: linux-hexagon@vger.kernel.org
-> ---
+2017-10-09 23:35 GMT+09:00 Masahiro Yamada <yamada.masahiro@socionext.com>:
+> CFLAGS_MODULE, AFLAGS_MODULE, and LDFLAGS_MODULE are supposed
+> to be set by users.
+>
+> In-kernel Makefile must use KBUILD_ prefixed variables.
+>
+> This is explained in Documentation/kbuild/{kbuild.txt, makefiles.txt}
+>
+> Most of architectures follow the rule, but I found violations
+> in ARM, hexagone, and c6x.
+>
+> Fix them.
+>
+>
+>
+> Masahiro Yamada (3):
+>   ARM: add KBUILD_ prefix to CFLAGS_MODULE, LDFLAGS_MODULE
+>   hexagon: add KBUILD_ prefix to CFLAGS_MODULE, LDFLAGS_MODULE
+>   c6x: add KBUILD_ prefix to CFLAGS_MODULE
+>
+>  arch/arm/Makefile     | 6 +++---
+>  arch/c6x/Makefile     | 2 +-
 >  arch/hexagon/Makefile | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile
-> index 207711a0..4f5c84c 100644
-> --- a/arch/hexagon/Makefile
-> +++ b/arch/hexagon/Makefile
-> @@ -11,9 +11,9 @@ KBUILD_CFLAGS += -fno-short-enums
->  
->  # Modules must use either long-calls, or use pic/plt.
->  # Use long-calls for now, it's easier.  And faster.
-> -# CFLAGS_MODULE += -fPIC
-> -# LDFLAGS_MODULE += -shared
-> -CFLAGS_MODULE += -mlong-calls
-> +# KBUILD_CFLAGS_MODULE += -fPIC
-> +# KBUILD_LDFLAGS_MODULE += -shared
-> +KBUILD_CFLAGS_MODULE += -mlong-calls
->  
->  cflags-y += $(call cc-option,-mv${CONFIG_HEXAGON_ARCH_VERSION})
->  aflags-y += $(call cc-option,-mv${CONFIG_HEXAGON_ARCH_VERSION})
-> -- 
-> 2.1.0
-> 
-> 
-> 
+>  3 files changed, 7 insertions(+), 7 deletions(-)
+>
 
-For Hexagon:
+Series, applied to linux-kbuild/kbuild.
 
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
+
 
 -- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
-a Linux Foundation Collaborative Project
+Best Regards
+Masahiro Yamada
