@@ -1,76 +1,101 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: Re: [PATCH 3/3] hexagon/kbuild: replace CFLAGS_MODULE with KBUILD_CFLAGS_MODULE
-Date: Tue, 31 Oct 2017 00:43:17 +0900
-Message-ID: <CAK7LNAQvJ3nmef__OZ6dB6AncVY-Z4VrmdHYj5nZfKW2Pi6EOA@mail.gmail.com>
-References: <1507533107-2069-1-git-send-email-caoj.fnst@cn.fujitsu.com>
- <1507533107-2069-3-git-send-email-caoj.fnst@cn.fujitsu.com> <20171010012608.GA23555@codeaurora.org>
+From: Nick Desaulniers <ndesaulniers@google.com>
+Subject: Re: [PATCH v3] kbuild: Set KBUILD_CFLAGS before incl. arch Makefile
+Date: Tue, 28 Nov 2017 10:18:38 -0800
+Message-ID: <CAKwvOdmcthyd1KbxRr54QztBcmeZ7JA=M_7N1xfmVurVOG=77w@mail.gmail.com>
+References: <CAK7LNAS1NaqPRhK6FOXN=YTMhLagpSrR2=tXn-uWZbpzr=NeoQ@mail.gmail.com>
+ <20171115204231.34914-1-ndesaulniers@google.com> <CAK7LNAQNEHRapzFem3nr7=EWJPYvZby9K7vem-R99ijYNoguEg@mail.gmail.com>
+ <CAK7LNASGYZfQFkM3yMRQaHLUwW5Lhp8CxHGX0bJ9sVja0f=n+A@mail.gmail.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-06.nifty.com v9UFhxtO015071
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1509378239;
-        bh=OYukb0SBFwIwN/hik2adRIMrX16SyX9fHLM2OUi7Wqw=;
-        h=In-Reply-To:References:From:Date:Subject:To:Cc:From;
-        b=ojFfADkcVuglrimMlM1arfVRsGIcBRq7ppxwC7PxhwCVkZp4UWPbGc/dfg3+wAQv+
-         v5XNyNu6xhXhyHt38bOsZ/YY8fjbltR+IbA/yMuVKhCZnbXarAmCeyZpDnuHbMreDz
-         dId4Stcozqm1iulusmLNO9uRJDpoVbz7Dhz2cere+jE7O7GhLPQwQ4i5CaLG16PjB+
-         Ju0eqy8Nxsaq7PvP9yIpVJuaMA0WrVAtz4pxTLQR+QWRV6JIU93xorF4umWPg4QFRo
-         89OGXSYvBBsC68xj7aVAssQBnKnIblmmFMpY8Sd+x2Z2ATUWucGwdhy0V0/EvuOi7P
-         DZ/NpS80EwDMA==
-In-Reply-To: <20171010012608.GA23555@codeaurora.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=kiJbfaquJCU5AuNBCHQDLNDUFQDBrNr3cgUeTjtau7E=;
+        b=LxEfKHQGzLTh2UsfF34MrcVhAq/KrYpy16ZCWNypBbHlubuQU/sfGXLJKP1BfazEEK
+         WFXQnTG3m0fXrhjQyGG0loNk3BSx3iy4MK9ogO2dt4mjtgppCIFChDbmQ1UWEMLxEfnP
+         x5vW3uIUWuerJvR8kc6D5xI4denUWG13s7tBKEIEiS8eEWvb4CCRZpwl2Rkc/Q30VulI
+         I4qI/Dp/cF8AxxGWGNXve4OLa9NSy5X29ChoxMb4/msGgh3uIy+3bMwSfhs7ErSiGMrC
+         gNrAjKC4GWuLgi8oOINfcReq4LduL0Wgfk+ED52VxwlJm7ry9fdGc12PFD4UgNz/Pt7+
+         2Okw==
+In-Reply-To: <CAK7LNASGYZfQFkM3yMRQaHLUwW5Lhp8CxHGX0bJ9sVja0f=n+A@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: Cao jin <caoj.fnst@cn.fujitsu.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-hexagon@vger.kernel.org
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Behan Webster <behanw@converseincode.com>, =?UTF-8?Q?Jan=2DSimon_M=C3=B6ller?= <dl9pf@gmx.de>, Mark Charlebois <charlebm@gmail.com>, Greg Hackmann <ghackmann@google.com>, Matthias Kaehlcke <mka@chromium.org>, Douglas Anderson <dianders@chromium.org>, Chris Fries <cfries@google.com>, Michal Marek <mmarek@suse.com>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-mips@linux-mips.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, openrisc@lists.librecores.org
 
-2017-10-10 10:26 GMT+09:00 Richard Kuo <rkuo@codeaurora.org>:
-> On Mon, Oct 09, 2017 at 03:11:47PM +0800, Cao jin wrote:
->> As kbuild document & commit 6588169d51 says: KBUILD_CFLAGS_MODULE is
->> used to add arch-specific options for $(CC). From commandline,
->> CFLAGS_MODULE shall be used.
->> Doesn't have any functional change, but just follow kbuild rules.
->>
->> Signed-off-by: Cao jin <caoj.fnst@cn.fujitsu.com>
->> CC: Richard Kuo <rkuo@codeaurora.org>
->> CC: linux-hexagon@vger.kernel.org
->> ---
->>  arch/hexagon/Makefile | 6 +++---
->>  1 file changed, 3 insertions(+), 3 deletions(-)
->>
->> diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile
->> index 207711a0..4f5c84c 100644
->> --- a/arch/hexagon/Makefile
->> +++ b/arch/hexagon/Makefile
->> @@ -11,9 +11,9 @@ KBUILD_CFLAGS += -fno-short-enums
->>
->>  # Modules must use either long-calls, or use pic/plt.
->>  # Use long-calls for now, it's easier.  And faster.
->> -# CFLAGS_MODULE += -fPIC
->> -# LDFLAGS_MODULE += -shared
->> -CFLAGS_MODULE += -mlong-calls
->> +# KBUILD_CFLAGS_MODULE += -fPIC
->> +# KBUILD_LDFLAGS_MODULE += -shared
->> +KBUILD_CFLAGS_MODULE += -mlong-calls
->>
->>  cflags-y += $(call cc-option,-mv${CONFIG_HEXAGON_ARCH_VERSION})
->>  aflags-y += $(call cc-option,-mv${CONFIG_HEXAGON_ARCH_VERSION})
->> --
->> 2.1.0
->>
->>
->>
+Hi Masahiro,
+
+Thanks for merging Chris' patch, and sorry for taking so long to respond.
+
+On Wed, Nov 22, 2017 at 8:24 PM, Masahiro Yamada
+<yamada.masahiro@socionext.com> wrote:
+> Linus suggests to move compiler flag testing to Kconfig.
+
+Do you have an LKML link for context?
+
+On Wed, Nov 15, 2017 at 6:32 PM, Masahiro Yamada
+<yamada.masahiro@socionext.com> wrote:
+> BTW, I notice another issue.
 >
-> For Hexagon:
+> If we move clang settings before including arch Makefile,
+> "ifneq ($(CROSS_COMPILE),)" comes early.
 >
-> Acked-by: Richard Kuo <rkuo@codeaurora.org>
+> Some arch Makefiles (arch/mips/Makefile, arch/blackfin/Makefile, etc.)
+> set CROSS_COMPILE there if CROSS_COMPILE is not given.
 >
+> Then, we have a conflict between two requirements among arch.
+>
+> [1] arm64, powerpc use ld-option in their Makefile.
+>     So, clang flags must be set before inc. arch Makefile.
+> [2] mips, blackfin, etc. may set CROSS_COMPILE in their Makefile.
+>     So, we want to reference CROSS_COMPILE only after inc. arch Makefile
+>
+> I have no idea how to solve it.
+>
+> At this moment, I guess clang is intended to support
+> only limited architectures.
+>
+> It might be OK to be compromised here.
 
+I definitely find it curious that certain arch's define CROSS_COMPILE
+themselves.  The benefit is one less argument to supply at compile
+time, but it assumes that the toolchain always has a certain prefix.
+This makes sense to me when cross compiling, but seems odd when
+compiling natively on that arch as the host and target.  Maybe those
+arch's use that convention, or simply are always cross compiled for?
 
-Applied to linux-kbuild.  Thanks!
+Taking a survey of all arch's currently in the kernel via `cd arch; ag
+CROSS_COMPILE` and quickly eyeballing the result:
 
+m68k if not set
+arc if not set
+openrisc for some configs (openrisc/configs/or1ksim_defconfig,
+openrisc/configs/simple_smp_defconfig)
+blackfin if not set
+hexagon for some configs (hexagon/configs/comet_defconfig)
+parisc if not set
+sh if not set
+xtensa if not set
+score always
+arm for some configs (arm/configs/lpc18xx_defconfig)
+h8300 if not set
+mips if not set (and explicitly emptied for some configs,
+mips/configs/nlm_xlr_defconfig )
+unicore32 if not set
+tile if not set
 
--- 
-Best Regards
-Masahiro Yamada
+The * if not set (or not being on the list) seems correct, as the top
+level Makefile will handle this correctly.  Setting it for some
+configs seems curious (not necessarily wrong?), emptying it/always
+setting it via config sounds wrong to me, but maybe those hosts don't
+have toolchains and must always be cross compiled for?
+
+For reference, this file in LLVM source defines the supported backend
+targets: https://llvm.org/doxygen/Triple_8h_source.html
+
+Either way, it sounds like we're all set here, I guess I'm just
+curious about the LKML link/context and why some configs set
+CROSS_COMPILE themselves?
