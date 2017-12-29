@@ -1,23 +1,23 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 49/67] swiotlb: refactor coherent buffer freeing
-Date: Fri, 29 Dec 2017 09:18:53 +0100
-Message-ID: <20171229081911.2802-50-hch@lst.de>
+Subject: [PATCH 48/67] swiotlb: rely on dev->coherent_dma_mask
+Date: Fri, 29 Dec 2017 09:18:52 +0100
+Message-ID: <20171229081911.2802-49-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
         Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
         Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
         Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
         List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=p3vgCQXrDnda2/WFmLsq0tbPPXmf96G94BW/MOzrLv0=; b=I8XiC3DCfFX4+km8rB+g26wHe
-        52A70U7Nuw+FUx28Ys2XJasOtPGXnQJftYaUM1FDZOyBNsSHniee76VQeLjDijfHdhqMwC3xSdeg5
-        SeN4UjX2oSWWTagCDv99GINGoJHf+xprTBklKB9Elnwn3AfdxqiYYelB/q87rO5Wtf+jT73KodPWo
-        PJnV757w4tM9JLcVd3IATUGhLK4djTZLTRECDWUzRKu1pH95nLk6k+kLOCvHlVcC/BRm+sACtIcT+
-        85ifwp+jxo9zF1VCsAe7Mllh40LEr6ud/kvJ4mHCjFMIrbLjIxNTe59HtbIAaDeMAoOwnsRtejVm2
+         bh=LRelLG5rQQy1twcwEG5RJGm/fc943jbDguWWiVhJJyM=; b=HsWMhsg8dADDbOL2oim72voZy
+        9X/VBfjDPCTfyzeiOLq/wsI9ln/vO0KnjQ+v6WnuSJgiRtWPaEFH2Oxrpk1BDW7FIdlkRgVVsUieD
+        XUObWQ109YiuT3UbILs7RuMC9iTTECms15TI2Ls+WyFClG1/uJTL24zJsuX4Lonu73qtbmLWIHu9e
+        vZK5K9tLfgf2k3GfD5z1/8bFkcalNw63cMIwkhUyFUz9iCKraRi5/DUOKRSXuxJ1ctz/JL8jppyz6
+        HPcHatAf5gBlumLMs6oe0wV24nQitZF522P/ZVwCYOlSuBGBLZznYQzxrdir0sZWB1zybTclBk49q
     
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
-Sender: linux-arch-owner@vger.kernel.org
+Sender: sparclinux-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,75 +25,47 @@ Content-Transfer-Encoding: 7bit
 To: iommu@lists.linux-foundation.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Factor out a new swiotlb_free_buffer helper that checks if an address
-is allocated from the swiotlb bounce buffer, and if yes frees it.
-
-This allows to simplify the swiotlb_free implemenation that uses
-dma_direct_free to free the non-bounce buffer allocations.
+These days the coherent DMA mask is always set, so don't work around the
+lack of it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- lib/swiotlb.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+ lib/swiotlb.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
 diff --git a/lib/swiotlb.c b/lib/swiotlb.c
-index a14fff30ee9d..adb4dd0091fa 100644
+index e0b8980334c3..a14fff30ee9d 100644
 --- a/lib/swiotlb.c
 +++ b/lib/swiotlb.c
-@@ -773,22 +773,31 @@ swiotlb_alloc_coherent(struct device *hwdev, size_t size,
- }
- EXPORT_SYMBOL(swiotlb_alloc_coherent);
- 
-+static bool swiotlb_free_buffer(struct device *dev, size_t size,
-+		dma_addr_t dma_addr)
-+{
-+	phys_addr_t phys_addr = dma_to_phys(dev, dma_addr);
-+
-+	WARN_ON_ONCE(irqs_disabled());
-+
-+	if (!is_swiotlb_buffer(phys_addr))
-+		return false;
-+
-+	/*
-+	 * DMA_TO_DEVICE to avoid memcpy in swiotlb_tbl_unmap_single.
-+	 * DMA_ATTR_SKIP_CPU_SYNC is optional.
-+	 */
-+	swiotlb_tbl_unmap_single(dev, phys_addr, size, DMA_TO_DEVICE,
-+				 DMA_ATTR_SKIP_CPU_SYNC);
-+	return true;
-+}
-+
- void
- swiotlb_free_coherent(struct device *hwdev, size_t size, void *vaddr,
- 		      dma_addr_t dev_addr)
- {
--	phys_addr_t paddr = dma_to_phys(hwdev, dev_addr);
+@@ -716,15 +716,11 @@ swiotlb_alloc_coherent(struct device *hwdev, size_t size,
+ 	dma_addr_t dev_addr;
+ 	void *ret;
+ 	int order = get_order(size);
+-	u64 dma_mask = DMA_BIT_MASK(32);
 -
--	WARN_ON(irqs_disabled());
--	if (!is_swiotlb_buffer(paddr))
-+	if (!swiotlb_free_buffer(hwdev, size, dev_addr))
- 		free_pages((unsigned long)vaddr, get_order(size));
--	else
--		/*
--		 * DMA_TO_DEVICE to avoid memcpy in swiotlb_tbl_unmap_single.
--		 * DMA_ATTR_SKIP_CPU_SYNC is optional.
--		 */
--		swiotlb_tbl_unmap_single(hwdev, paddr, size, DMA_TO_DEVICE,
--					 DMA_ATTR_SKIP_CPU_SYNC);
- }
- EXPORT_SYMBOL(swiotlb_free_coherent);
+-	if (hwdev && hwdev->coherent_dma_mask)
+-		dma_mask = hwdev->coherent_dma_mask;
  
-@@ -1103,9 +1112,7 @@ void *swiotlb_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
- void swiotlb_free(struct device *dev, size_t size, void *vaddr,
- 		dma_addr_t dma_addr, unsigned long attrs)
- {
--	if (is_swiotlb_buffer(dma_to_phys(dev, dma_addr)))
--		swiotlb_free_coherent(dev, size, vaddr, dma_addr);
--	else
-+	if (!swiotlb_free_buffer(dev, size, dma_addr))
- 		dma_direct_free(dev, size, vaddr, dma_addr, attrs);
- }
+ 	ret = (void *)__get_free_pages(flags, order);
+ 	if (ret) {
+ 		dev_addr = swiotlb_virt_to_bus(hwdev, ret);
+-		if (dev_addr + size - 1 > dma_mask) {
++		if (dev_addr + size - 1 > hwdev->coherent_dma_mask) {
+ 			/*
+ 			 * The allocated memory isn't reachable by the device.
+ 			 */
+@@ -747,9 +743,9 @@ swiotlb_alloc_coherent(struct device *hwdev, size_t size,
+ 		dev_addr = swiotlb_phys_to_dma(hwdev, paddr);
  
+ 		/* Confirm address can be DMA'd by device */
+-		if (dev_addr + size - 1 > dma_mask) {
++		if (dev_addr + size - 1 > hwdev->coherent_dma_mask) {
+ 			printk("hwdev DMA mask = 0x%016Lx, dev_addr = 0x%016Lx\n",
+-			       (unsigned long long)dma_mask,
++			       (unsigned long long)hwdev->coherent_dma_mask,
+ 			       (unsigned long long)dev_addr);
+ 
+ 			/*
 -- 
 2.14.2
 
