@@ -1,23 +1,23 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 58/67] ia64: remove an ifdef around the content of pci-dma.c
-Date: Fri, 29 Dec 2017 09:19:02 +0100
-Message-ID: <20171229081911.2802-59-hch@lst.de>
+Subject: [PATCH 61/67] tile: use generic swiotlb_ops
+Date: Fri, 29 Dec 2017 09:19:05 +0100
+Message-ID: <20171229081911.2802-62-hch@lst.de>
 References: <20171229081911.2802-1-hch@lst.de>
-Return-path: <linux-alpha-owner@vger.kernel.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
         Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
         Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
         Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
         List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=qEJPxY82r722va3wccbE9gkR0QaVccvPVmnX2w6WlZA=; b=Xe3UpygPIT5bZiSJXvkyl3VAL
-        2Y5d7eEJb6WymusDvWnjApj1dC9ZYNNuHIdUZVcg+Vq26jAlsbuk0oPTOawXP0a83tlEDzDS8zPBP
-        tT164QEdL46EFmXr2W2sG17+4fhlsDZ6Es/VrYMXqtHN9zAhTm8Tzvg4pMIL01lPCk0G68HeiXok/
-        WhUolVw9xRw029WO+m9wXVkpbiAVMxzkEiK2j3AYmjQ5IIsPiGwxDRVOZF6KfCAMKylAf9fvELww9
-        s66v3cp2fww50xLhvgjWQdH2eAsiKqm2W40t05voC5eRM5Zhy1+6FlGB9mYdXc4BtIOXSR/McNBAS
+         bh=IhQmNFvS37SrlefQ2IszwATdl4fz37diwdJg0nSvCrY=; b=DcyRZbTpjS2FECkzajuGxJDgL
+        s0orQtXqydM+6bSodmrv/yCYwLb8Nopj6FrkKJTEFT8Ev5zo8z5I2zbpZkcNFQO44pfgEHcvzWCye
+        rqb4w+DP0fO/xbXA7PAqvVnihl+4JgBqfgCd/f1+cTq47sA2pMKOAYXKJeuJ8q/8QsoJsMGHADvOP
+        R/HhvrihrFB7lI64M872QQYvbxghmEExwS+Aaxd0gVTIWBqN6N9BpRRthuLlojtYLZCRKISO08gi4
+        Z5Xi070UTvlekO4gTR+RrxMZCfxspj2lVOY7ZhkTB3mL9iyKNl+7EECHYITTT0X9fYEcvnXKz7/Dk
     
 In-Reply-To: <20171229081911.2802-1-hch@lst.de>
-Sender: linux-alpha-owner@vger.kernel.org
+Sender: linux-sh-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,36 +25,82 @@ Content-Transfer-Encoding: 7bit
 To: iommu@lists.linux-foundation.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The file is only compiled if CONFIG_INTEL_IOMMU is set to start with.
+These are identical to the tile ops, and would also support CMA
+if enabled on tile.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/ia64/kernel/pci-dma.c | 7 -------
- 1 file changed, 7 deletions(-)
+ arch/tile/Kconfig          |  1 +
+ arch/tile/kernel/pci-dma.c | 36 +++---------------------------------
+ 2 files changed, 4 insertions(+), 33 deletions(-)
 
-diff --git a/arch/ia64/kernel/pci-dma.c b/arch/ia64/kernel/pci-dma.c
-index 35e0cad33b7d..b5df084c0af4 100644
---- a/arch/ia64/kernel/pci-dma.c
-+++ b/arch/ia64/kernel/pci-dma.c
-@@ -12,12 +12,7 @@
- #include <asm/iommu.h>
- #include <asm/machvec.h>
- #include <linux/dma-mapping.h>
--
--
--#ifdef CONFIG_INTEL_IOMMU
--
- #include <linux/kernel.h>
--
- #include <asm/page.h>
+diff --git a/arch/tile/Kconfig b/arch/tile/Kconfig
+index 30c586686f29..ef9d403cbbe4 100644
+--- a/arch/tile/Kconfig
++++ b/arch/tile/Kconfig
+@@ -261,6 +261,7 @@ config NEED_SG_DMA_LENGTH
+ config SWIOTLB
+ 	bool
+ 	default TILEGX
++	select DMA_DIRECT_OPS
+ 	select IOMMU_HELPER
+ 	select NEED_SG_DMA_LENGTH
+ 	select ARCH_HAS_DMA_SET_COHERENT_MASK
+diff --git a/arch/tile/kernel/pci-dma.c b/arch/tile/kernel/pci-dma.c
+index a9b48520eeb9..6e9365234b6a 100644
+--- a/arch/tile/kernel/pci-dma.c
++++ b/arch/tile/kernel/pci-dma.c
+@@ -511,39 +511,9 @@ EXPORT_SYMBOL(gx_pci_dma_map_ops);
+ /* PCI DMA mapping functions for legacy PCI devices */
  
- dma_addr_t bad_dma_address __read_mostly;
-@@ -115,5 +110,3 @@ void __init pci_iommu_alloc(void)
- 	}
- #endif /* CONFIG_SWIOTLB */
- }
+ #ifdef CONFIG_SWIOTLB
+-static void *tile_swiotlb_alloc_coherent(struct device *dev, size_t size,
+-					 dma_addr_t *dma_handle, gfp_t gfp,
+-					 unsigned long attrs)
+-{
+-	gfp |= GFP_DMA32;
+-	return swiotlb_alloc_coherent(dev, size, dma_handle, gfp);
+-}
 -
--#endif
+-static void tile_swiotlb_free_coherent(struct device *dev, size_t size,
+-				       void *vaddr, dma_addr_t dma_addr,
+-				       unsigned long attrs)
+-{
+-	swiotlb_free_coherent(dev, size, vaddr, dma_addr);
+-}
+-
+-static const struct dma_map_ops pci_swiotlb_dma_ops = {
+-	.alloc = tile_swiotlb_alloc_coherent,
+-	.free = tile_swiotlb_free_coherent,
+-	.map_page = swiotlb_map_page,
+-	.unmap_page = swiotlb_unmap_page,
+-	.map_sg = swiotlb_map_sg_attrs,
+-	.unmap_sg = swiotlb_unmap_sg_attrs,
+-	.sync_single_for_cpu = swiotlb_sync_single_for_cpu,
+-	.sync_single_for_device = swiotlb_sync_single_for_device,
+-	.sync_sg_for_cpu = swiotlb_sync_sg_for_cpu,
+-	.sync_sg_for_device = swiotlb_sync_sg_for_device,
+-	.dma_supported = swiotlb_dma_supported,
+-	.mapping_error = swiotlb_dma_mapping_error,
+-};
+-
+ static const struct dma_map_ops pci_hybrid_dma_ops = {
+-	.alloc = tile_swiotlb_alloc_coherent,
+-	.free = tile_swiotlb_free_coherent,
++	.alloc = swiotlb_alloc,
++	.free = swiotlb_free,
+ 	.map_page = tile_pci_dma_map_page,
+ 	.unmap_page = tile_pci_dma_unmap_page,
+ 	.map_sg = tile_pci_dma_map_sg,
+@@ -554,7 +524,7 @@ static const struct dma_map_ops pci_hybrid_dma_ops = {
+ 	.sync_sg_for_device = tile_pci_dma_sync_sg_for_device,
+ };
+ 
+-const struct dma_map_ops *gx_legacy_pci_dma_map_ops = &pci_swiotlb_dma_ops;
++const struct dma_map_ops *gx_legacy_pci_dma_map_ops = &swiotlb_dma_ops;
+ const struct dma_map_ops *gx_hybrid_pci_dma_map_ops = &pci_hybrid_dma_ops;
+ #else
+ const struct dma_map_ops *gx_legacy_pci_dma_map_ops;
 -- 
 2.14.2
 
