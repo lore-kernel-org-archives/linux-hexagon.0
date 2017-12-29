@@ -1,68 +1,50 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [RESEND PATCH] hexagon: defconfig: Cleanup from old Kconfig options
-Date: Tue, 26 Dec 2017 14:32:00 +0100
-Message-ID: <1514295122-28521-1-git-send-email-krzk@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
+From: Christoph Hellwig <hch@lst.de>
+Subject: consolidate direct dma mapping and swiotlb support
+Date: Fri, 29 Dec 2017 09:18:04 +0100
+Message-ID: <20171229081911.2802-1-hch@lst.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Cc:List-Subscribe:
+	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:Message-Id:Date:
+	Subject:To:From:Reply-To:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
+	References:List-Owner; bh=Q9kkdNPZKxtO3HM0BAWkcCZdSt2yK4KBYO4rnE91D/g=; b=P1N
+	YMCHNAJZnegLFGxu3IJ8MAgnTprRmLJClFJubajtbP2iWq/Yw4HmK8HAslOwvIfh3Y3UrW5+K2Lsq
+	9bW7wl4Xms/AXItebfax+FmAXdnIQYqVBVRTVVdkD931k1cQhp1HHb5qxLz9OS5OepXi0+ufPQl2r
+	OBu+ol8H0K+BLy9kCCAsYduW3xOclK839hStAeYdk8hcqFwDqF506NnGUFG8rI7ucbgOhtj8wXhHG
+	LmvPtTSzgoEI3pErLKmArf/P47zkUZEKXoDORU+1lrgezUivsV9sPWdPt/gudEKAZgmUnmWrhN7XU
+	Lx5oIcZihI/IIMmYjJXLYozOQd2Ne7w==;
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
+To: iommu@lists.linux-foundation.org
+Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, linux-snps-arc@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-m68k@lists.linux-m68k.org, patches@groups.riscv.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 
-Remove old, dead Kconfig options (in order appearing in this commit):
- - EXPERIMENTAL is gone since v3.9;
- - NETDEV_1000 and NETDEV_10000: commit f860b0522f65 ("drivers/net:
-   Kconfig and Makefile cleanup"); NET_ETHERNET should be replaced with
-   just ETHERNET but that is separate change;
- - HID_SUPPORT: commit 1f41a6a99476 ("HID: Fix the generic Kconfig
-   options");
- - INET_LRO: commit 7bbf3cae65b6 ("ipv4: Remove inet_lro library");
+Almost every architecture supports a direct dma mapping implementation,
+where no iommu is used and the device dma address is a 1:1 mapping to
+the physical address or has a simple linear offset.  Currently the
+code for this implementation is most duplicated over the architectures,
+and the duplicated again in the swiotlb code, and then duplicated again
+for special cases like the x86 memory encryption DMA ops.
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
----
- arch/hexagon/configs/comet_defconfig | 5 -----
- 1 file changed, 5 deletions(-)
+This series takes the existing very simple dma-noop dma mapping
+implementation, enhances it with all the x86 features and quirks, and
+creates a common set of architecture hooks for it and the swiotlb code.
 
-diff --git a/arch/hexagon/configs/comet_defconfig b/arch/hexagon/configs/comet_defconfig
-index e324f65f41e7..0db9c1384b32 100644
---- a/arch/hexagon/configs/comet_defconfig
-+++ b/arch/hexagon/configs/comet_defconfig
-@@ -1,7 +1,6 @@
- CONFIG_SMP=y
- CONFIG_DEFAULT_MMAP_MIN_ADDR=0
- CONFIG_HZ_100=y
--CONFIG_EXPERIMENTAL=y
- CONFIG_CROSS_COMPILE="hexagon-"
- CONFIG_LOCALVERSION="-smp"
- # CONFIG_LOCALVERSION_AUTO is not set
-@@ -27,8 +26,6 @@ CONFIG_NETDEVICES=y
- CONFIG_MII=y
- CONFIG_PHYLIB=y
- CONFIG_NET_ETHERNET=y
--# CONFIG_NETDEV_1000 is not set
--# CONFIG_NETDEV_10000 is not set
- # CONFIG_INPUT_MOUSEDEV is not set
- # CONFIG_INPUT_KEYBOARD is not set
- # CONFIG_INPUT_MOUSE is not set
-@@ -42,7 +39,6 @@ CONFIG_SPI_DEBUG=y
- CONFIG_SPI_BITBANG=y
- # CONFIG_HWMON is not set
- # CONFIG_VGA_CONSOLE is not set
--# CONFIG_HID_SUPPORT is not set
- # CONFIG_USB_SUPPORT is not set
- CONFIG_EXT2_FS=y
- CONFIG_EXT2_FS_XATTR=y
-@@ -68,7 +64,6 @@ CONFIG_INET=y
- # CONFIG_INET_XFRM_MODE_TRANSPORT is not set
- # CONFIG_INET_XFRM_MODE_TUNNEL is not set
- # CONFIG_INET_XFRM_MODE_BEET is not set
--# CONFIG_INET_LRO is not set
- # CONFIG_INET_DIAG is not set
- # CONFIG_IPV6 is not set
- CONFIG_CRYPTO_MD5=y
--- 
-2.7.4
+It then switches a large number of architectures to this generic
+direct map implement and the new generic swiotlb dma_map ops.
 
+Note that for now this only handles architectures that do cache coherent
+DMA, but a similar consolidation for non-coherent architectures is in the
+work for later merge windows.
