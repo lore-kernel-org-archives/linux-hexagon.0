@@ -1,73 +1,33 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 27/67] dma-direct: add dma address sanity checks
-Date: Fri, 29 Dec 2017 15:12:25 +0100
-Message-ID: <CAMuHMdWg3PnTXezMCcr3oGf-83-cjvcj4wGiPk7j2pY1Tgzo9Q@mail.gmail.com>
-References: <20171229081911.2802-1-hch@lst.de> <20171229081911.2802-28-hch@lst.de>
+From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+Subject: Re: consolidate direct dma mapping and swiotlb support
+Date: Sat, 30 Dec 2017 11:56:35 +0100
+Message-ID: <20171230105635.GA23696@lst.de>
+References: <20171229081911.2802-1-hch@lst.de>
+	<23fee3bb-61ce-1735-b264-3acc0109c858@arm.com>
 Mime-Version: 1.0
-Return-path: <linux-alpha-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:in-reply-to:references:from:date:message-id
-         :subject:to:cc;
-        bh=CngtFWMFI86iVviEXbcdKS12rxLXJpnUsJdUNn4d4fY=;
-        b=XQnFdxGErOrDh/3KFwv/XPRIM7J3z3aoW8EU5Mp0bwyGaK5oU6UA7k+/HeXnIMgOlK
-         291ZzntnkxO4scZr3KkjYRSfMxxxRDEYcyv2LF1AYmaAKld/MPufIR70rfOQFZPdQRLV
-         P+PJiK7RbTb9KWovxL6D0c0YAYVjeAIcaKMxVBtb9xwVze+NSUfk/CEqXQlKYqc36P/C
-         fj1NKQ4r4KA3J+/6KZYyO6xAQavfbqFBxiGRGgk1MsVf8aV58DkPeXmM4EizSmstv3kO
-         ewqEVNhC/VVCr1zcXk5fLG7W9cYXRduTJ/Pv6DIjo0R/rM9LW4iWm+6QLNGi7HY6yO6S
-         XTvg==
-In-Reply-To: <20171229081911.2802-28-hch@lst.de>
-Sender: linux-alpha-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Christoph Hellwig <hch@lst.de>
-Cc: iommu@lists.linux-foundation.org, Linux MIPS Mailing List <linux-mips@linux-mips.org>, linux-ia64@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-c6x-dev@linux-c6x.org, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, arcml <linux-snps-arc@lists.infradead.org>, adi-buildroot-devel@lists.sourceforge.net, linux-m68k <linux-m68k@lists.linux-m68k.org>, patches@groups.riscv.org, "open list:METAG ARCHITECTURE" <linux-metag@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, Parisc
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <23fee3bb-61ce-1735-b264-3acc0109c858-5wv7dgnIgG8@public.gmane.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Vladimir Murzin <vladimir.murzin-5wv7dgnIgG8@public.gmane.org>
+Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-snps-arc-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-m68k-cunTk1MwBs8S/qaLPR03pWD2FQJk+8+b@public.gmane.org, patches-q3qR2WxjNRFS9aJRtSZj7A@public.gmane.org, linux-metag-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, linux-cris-kernel-VrBV9hrLPhE@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-alpha-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 
-Hi Christoph,
+On Fri, Dec 29, 2017 at 10:52:14AM +0000, Vladimir Murzin wrote:
+> Is it available in your dma-mapping.git or somewhere else?
 
-On Fri, Dec 29, 2017 at 9:18 AM, Christoph Hellwig <hch@lst.de> wrote:
-> Roughly based on the x86 pci-nommu implementation.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+  git://git.infradead.org/users/hch/misc.git dma-direct
 
-Thanks for your patch!
+Gitweb:
 
-> --- a/lib/dma-direct.c
-> +++ b/lib/dma-direct.c
-> @@ -9,6 +9,24 @@
->  #include <linux/scatterlist.h>
->  #include <linux/pfn.h>
->
-> +#define DIRECT_MAPPING_ERROR           0
-> +
-> +static bool
-> +check_addr(struct device *dev, dma_addr_t dma_addr, size_t size,
-> +               const char *caller)
-> +{
-> +       if (unlikely(dev && !dma_capable(dev, dma_addr, size))) {
-> +               if (*dev->dma_mask >= DMA_BIT_MASK(32)) {
-> +                       dev_err(dev,
-> +                               "%s: overflow %llx+%zu of device mask %llx\n",
-
-Please use "%pad" to format dma_addr_t ...
-
-> +                               caller, (long long)dma_addr, size,
-
-... and use &dma_addr.
-
-> +                               (long long)*dev->dma_mask);
-
-This cast is not needed, as u64 is unsigned long long in kernelspace on
-all architectures.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+  http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-direct
