@@ -1,43 +1,58 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 29/67] dma-direct: use node local allocations for coherent memory
-Date: Tue, 2 Jan 2018 11:29:10 +0100
-Message-ID: <CAMuHMdU0_p4RHSKL891YCgej_L2KM5cxmhXDLXVUBXgWoUosVA@mail.gmail.com>
-References: <20171229081911.2802-1-hch@lst.de> <20171229081911.2802-30-hch@lst.de>
+Subject: Re: [PATCH 02/67] alpha: mark jensen as broken
+Date: Tue, 2 Jan 2018 11:36:00 +0100
+Message-ID: <CAMuHMdUXSMuQ=RoZp86CODVk5Ubd3R+jtqOur_Uqnu+7h_m9AA@mail.gmail.com>
+References: <20171229081911.2802-1-hch@lst.de> <20171229081911.2802-3-hch@lst.de>
 Mime-Version: 1.0
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-m68k-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:sender:in-reply-to:references:from:date:message-id
          :subject:to:cc;
-        bh=qfjKXtZt+M5JKOq/3qU+LNmrxcg5PJqG2jPHSJt088Q=;
-        b=NbZ244SftgiA5W/RcyfKrQSoy2Q7tmtsTwyOyNBGYZTq3MwDsBZ2UiHpEQHGajWfsl
-         nnLru9ngeUEqYYJoLrvzdmymhC4+9nfATMh5SroCKTHQOjKyUi+tXT8KWIVMdyzu6xez
-         29JogSJd1vaJ42PHcuxi/iM4Z0o6C/5dpvjsFrMZRNzTo0AZj0sX7qy1+MzAtoESZ+Wx
-         YDYYpDM0qqeNcEH0BtaTSYFeC8qVC0eh/TuIoy+eLBw5rRrm7KaECEULTNnZALM5Gd2p
-         KShnjL6l+g4rB4BIPBdwnAlFyV9s/rpO8Usffm5+iwlOJW+SiuZLxSmPB87WO1yDGl56
-         0Lgw==
-In-Reply-To: <20171229081911.2802-30-hch@lst.de>
-Sender: linux-ia64-owner@vger.kernel.org
+        bh=FZKEJWEZS/31LsV1MO1SlEiD7JerUxjnXHXxU3c+zE0=;
+        b=b6YNXs5hWyAZW/HzE4futFmtHtipwkKDgY8NwO371+EzdwLxXFVfkKvELjB5gzMe+7
+         OZj7yz6V35Ronbc3pm4Fm2HwOXOLLPYW8nRXcxMEHOc/iaunjI++xL4Ib5bp4s0/4KUO
+         ScbvNaRRRj32kMYDCIWm/U3zRbV7ghZYe8DkocAsPZ0tRJz55CwExLaScATYsYP8++Sd
+         pqcFoqnDgPJy/LqcEAdZRw8csvWJy8bl0XawR1TSw6H4z93We4Dchfv/7COwnT7gBMVQ
+         2noSCS2T90x2bJKVxO71LbNGNSg/tIxea9V8tu/9Uu00hBzebgymnYdZdGTl6aHmdMpR
+         36/g==
+In-Reply-To: <20171229081911.2802-3-hch@lst.de>
+Sender: linux-m68k-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Christoph Hellwig <hch@lst.de>
 Cc: iommu@lists.linux-foundation.org, alpha <linux-alpha@vger.kernel.org>, arcml <linux-snps-arc@lists.infradead.org>, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-c6x-dev@linux-c6x.org, Cris <linux-cris-kernel@axis.com>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, linux-ia64@vger.kernel.org, linux-m68k <linux-m68k@lists.linux-m68k.org>, "open list:METAG ARCHITECTURE" <linux-metag@vger.kernel.org>, Michal Simek <monstr@monstr.eu>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, Parisc List <linux-parisc@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.or>
 
-Missing patch description explaining why this change is desirable.
+Hi Christoph,
 
 On Fri, Dec 29, 2017 at 9:18 AM, Christoph Hellwig <hch@lst.de> wrote:
-> --- a/lib/dma-direct.c
-> +++ b/lib/dma-direct.c
-> @@ -39,7 +39,7 @@ static void *dma_direct_alloc(struct device *dev, size_t size,
->         if (gfpflags_allow_blocking(gfp))
->                 page = dma_alloc_from_contiguous(dev, count, page_order, gfp);
->         if (!page)
-> -               page = alloc_pages(gfp, page_order);
-> +               page = alloc_pages_node(dev_to_node(dev), gfp, page_order);
->         if (!page)
->                 return NULL;
+> CONFIG_ALPHA_JENSEN has failed to compile since commit aca05038
+> ("alpha/dma: use common noop dma ops"), so mark it as broken.
+
+unknown revision or path not in the working tree.
+Ah, you dropped the leading "6":
+6aca0503847f6329460b15b3ab2b0e30bb752793
+is less than 2 years old, though.
+
 >
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/alpha/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+> index b31b974a03cb..e96adcbcab41 100644
+> --- a/arch/alpha/Kconfig
+> +++ b/arch/alpha/Kconfig
+> @@ -209,6 +209,7 @@ config ALPHA_EIGER
+>
+>  config ALPHA_JENSEN
+>         bool "Jensen"
+> +       depends on BROKEN
+>         help
+>           DEC PC 150 AXP (aka Jensen): This is a very old Digital system - one
+>           of the first-generation Alpha systems. A number of these systems
 
 Gr{oetje,eeting}s,
 
