@@ -1,17 +1,14 @@
-From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-Subject: Re: [PATCH 30/67] dma-direct: retry allocations using GFP_DMA for
-	small masks
-Date: Thu, 4 Jan 2018 10:02:51 +0100
-Message-ID: <20180104090251.GE3251@lst.de>
+From: Vineet Gupta <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 09/67] arc: remove CONFIG_ARC_PLAT_NEEDS_PHYS_TO_DMA
+Date: Fri, 5 Jan 2018 11:45:16 -0800
+Message-ID: <2c24bfd1-5f54-4b82-444e-833dc53b6efd@synopsys.com>
 References: <20171229081911.2802-1-hch@lst.de>
-	<20171229081911.2802-31-hch@lst.de>
-	<f6139b03-0a4a-a9fe-4818-9b0bccf419e4@arm.com>
+	<20171229081911.2802-10-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <f6139b03-0a4a-a9fe-4818-9b0bccf419e4-5wv7dgnIgG8@public.gmane.org>
+In-Reply-To: <20171229081911.2802-10-hch-jcswGhMUV9g@public.gmane.org>
+Content-Language: en-US
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
 	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
@@ -22,48 +19,123 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
 	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
 Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
 Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Vladimir Murzin <vladimir.murzin-5wv7dgnIgG8@public.gmane.org>
-Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-snps-arc-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-m68k-cunTk1MwBs8S/qaLPR03pWD2FQJk+8+b@public.gmane.org, patches-q3qR2WxjNRFS9aJRtSZj7A@public.gmane.org, linux-metag-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, linux-cris-kernel-VrBV9hrLPhE@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-alpha-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+Cc: "linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org" <linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, "linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, "linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org" <linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org>, "linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-snps-arc-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-snps-arc-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org" <adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, "linux-m68k-cunTk1MwBs8S/qaLPR03pWD2FQJk+8+b@public.gmane.org" <linux-m68k-cunTk1MwBs8S/qaLPR03pWD2FQJk+8+b@public.gmane.org>, "patches-q3qR2WxjNRFS9aJRtSZj7A@public.gmane.org" <patches-q3qR2WxjNRFS9aJRtSZj7A@public.gmane.org>, "linux-metag-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-metag@vger.k>
 
-On Tue, Jan 02, 2018 at 04:43:15PM +0000, Vladimir Murzin wrote:
-> On 29/12/17 08:18, Christoph Hellwig wrote:
-> > If we got back an allocation that wasn't inside the support coherent mask,
-> > retry the allocation using GFP_DMA.
-> > 
-> > Based on the x86 code.
-> > 
-> > Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-> > ---
-> >  lib/dma-direct.c | 25 ++++++++++++++++++++++++-
-> >  1 file changed, 24 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/lib/dma-direct.c b/lib/dma-direct.c
-> > index ab81de3ac1d3..f8467cb3d89a 100644
-> > --- a/lib/dma-direct.c
-> > +++ b/lib/dma-direct.c
-> > @@ -28,6 +28,11 @@ check_addr(struct device *dev, dma_addr_t dma_addr, size_t size,
-> >  	return true;
-> >  }
-> >  
-> > +static bool dma_coherent_ok(struct device *dev, phys_addr_t phys, size_t size)
-> > +{
-> > +	return phys_to_dma(dev, phys) + size <= dev->coherent_dma_mask;
-> 
-> Shouldn't it be: phys_to_dma(dev, phys) + size - 1 <= dev->coherent_dma_mask ?
+On 12/29/2017 12:25 AM, Christoph Hellwig wrote:
+> We always use the stub definitions, so remove the unused other code.
+>
+> Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
 
-Yes, I think it should.  The existing code was blindly copy and pasted
-from x86.
+Acked-by: Vineet Gupta <vgupta-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
 
-> > +	if (page && !dma_coherent_ok(dev, page_to_phys(page), size)) {
-> > +		__free_pages(page, page_order);
-> > +		page = NULL;
-> > +
-> > +		if (dev->coherent_dma_mask < DMA_BIT_MASK(32) &&
-> > +		    !(gfp & GFP_DMA)) {
-> > +			gfp = (gfp & ~GFP_DMA32) | GFP_DMA;
-> > +			goto again;
-> 
-> Shouldn't we limit number of attempts?
+FWIW, it was removed and reintroduced as one of the customers wanted it, which is 
+not relevant now !
 
-We only retty once anyway, due to the !GFP_DMA check first and then
-ORing in GFP_DMA.
+Thx,
+-Vineet
+
+> ---
+>   arch/arc/Kconfig                   |  3 ---
+>   arch/arc/include/asm/dma-mapping.h |  7 -------
+>   arch/arc/mm/dma.c                  | 14 +++++++-------
+>   3 files changed, 7 insertions(+), 17 deletions(-)
+>
+> diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
+> index 9d5fd00d9e91..f3a80cf164cc 100644
+> --- a/arch/arc/Kconfig
+> +++ b/arch/arc/Kconfig
+> @@ -463,9 +463,6 @@ config ARCH_PHYS_ADDR_T_64BIT
+>   config ARCH_DMA_ADDR_T_64BIT
+>   	bool
+>   
+> -config ARC_PLAT_NEEDS_PHYS_TO_DMA
+> -	bool
+> -
+>   config ARC_KVADDR_SIZE
+>   	int "Kernel Virtual Address Space size (MB)"
+>   	range 0 512
+> diff --git a/arch/arc/include/asm/dma-mapping.h b/arch/arc/include/asm/dma-mapping.h
+> index 94285031c4fb..7a16824bfe98 100644
+> --- a/arch/arc/include/asm/dma-mapping.h
+> +++ b/arch/arc/include/asm/dma-mapping.h
+> @@ -11,13 +11,6 @@
+>   #ifndef ASM_ARC_DMA_MAPPING_H
+>   #define ASM_ARC_DMA_MAPPING_H
+>   
+> -#ifndef CONFIG_ARC_PLAT_NEEDS_PHYS_TO_DMA
+> -#define plat_dma_to_phys(dev, dma_handle) ((phys_addr_t)(dma_handle))
+> -#define plat_phys_to_dma(dev, paddr) ((dma_addr_t)(paddr))
+> -#else
+> -#include <plat/dma.h>
+> -#endif
+> -
+>   extern const struct dma_map_ops arc_dma_ops;
+>   
+>   static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+> diff --git a/arch/arc/mm/dma.c b/arch/arc/mm/dma.c
+> index fad18261ef6a..1d405b86250c 100644
+> --- a/arch/arc/mm/dma.c
+> +++ b/arch/arc/mm/dma.c
+> @@ -60,7 +60,7 @@ static void *arc_dma_alloc(struct device *dev, size_t size,
+>   	/* This is linear addr (0x8000_0000 based) */
+>   	paddr = page_to_phys(page);
+>   
+> -	*dma_handle = plat_phys_to_dma(dev, paddr);
+> +	*dma_handle = paddr;
+>   
+>   	/* This is kernel Virtual address (0x7000_0000 based) */
+>   	if (need_kvaddr) {
+> @@ -92,7 +92,7 @@ static void *arc_dma_alloc(struct device *dev, size_t size,
+>   static void arc_dma_free(struct device *dev, size_t size, void *vaddr,
+>   		dma_addr_t dma_handle, unsigned long attrs)
+>   {
+> -	phys_addr_t paddr = plat_dma_to_phys(dev, dma_handle);
+> +	phys_addr_t paddr = dma_handle;
+>   	struct page *page = virt_to_page(paddr);
+>   	int is_non_coh = 1;
+>   
+> @@ -111,7 +111,7 @@ static int arc_dma_mmap(struct device *dev, struct vm_area_struct *vma,
+>   {
+>   	unsigned long user_count = vma_pages(vma);
+>   	unsigned long count = PAGE_ALIGN(size) >> PAGE_SHIFT;
+> -	unsigned long pfn = __phys_to_pfn(plat_dma_to_phys(dev, dma_addr));
+> +	unsigned long pfn = __phys_to_pfn(dma_addr);
+>   	unsigned long off = vma->vm_pgoff;
+>   	int ret = -ENXIO;
+>   
+> @@ -175,7 +175,7 @@ static dma_addr_t arc_dma_map_page(struct device *dev, struct page *page,
+>   	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+>   		_dma_cache_sync(paddr, size, dir);
+>   
+> -	return plat_phys_to_dma(dev, paddr);
+> +	return paddr;
+>   }
+>   
+>   /*
+> @@ -190,7 +190,7 @@ static void arc_dma_unmap_page(struct device *dev, dma_addr_t handle,
+>   			       size_t size, enum dma_data_direction dir,
+>   			       unsigned long attrs)
+>   {
+> -	phys_addr_t paddr = plat_dma_to_phys(dev, handle);
+> +	phys_addr_t paddr = handle;
+>   
+>   	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+>   		_dma_cache_sync(paddr, size, dir);
+> @@ -224,13 +224,13 @@ static void arc_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
+>   static void arc_dma_sync_single_for_cpu(struct device *dev,
+>   		dma_addr_t dma_handle, size_t size, enum dma_data_direction dir)
+>   {
+> -	_dma_cache_sync(plat_dma_to_phys(dev, dma_handle), size, DMA_FROM_DEVICE);
+> +	_dma_cache_sync(dma_handle, size, DMA_FROM_DEVICE);
+>   }
+>   
+>   static void arc_dma_sync_single_for_device(struct device *dev,
+>   		dma_addr_t dma_handle, size_t size, enum dma_data_direction dir)
+>   {
+> -	_dma_cache_sync(plat_dma_to_phys(dev, dma_handle), size, DMA_TO_DEVICE);
+> +	_dma_cache_sync(dma_handle, size, DMA_TO_DEVICE);
+>   }
+>   
+>   static void arc_dma_sync_sg_for_cpu(struct device *dev,
