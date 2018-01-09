@@ -1,72 +1,39 @@
-From: Richard Kuo <rkuo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: Re: [PATCH 06/67] hexagon: remove unused flush_write_buffers
-	definition
-Date: Mon, 8 Jan 2018 21:13:39 -0600
-Message-ID: <20180109031339.GA4196@codeaurora.org>
-References: <20171229081911.2802-1-hch@lst.de>
-	<20171229081911.2802-7-hch@lst.de>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 16/67] powerpc: rename dma_direct_ to dma_nommu_
+Date: Tue, 9 Jan 2018 16:38:26 +0100
+Message-ID: <20180109153826.GA10086@lst.de>
+References: <20171229081911.2802-1-hch@lst.de> <20171229081911.2802-17-hch@lst.de> <878tdgtwzp.fsf@concordia.ellerman.id.au> <20180104084930.GB3251@lst.de>
 Mime-Version: 1.0
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180104084930.GB3251@lst.de>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-	s=default; t=1515467624;
-	bh=qDmadMIpbbSNwDjLeXmAPKUnirVBzkl+XuhZLBfDG9s=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=EACt1qTUxC+q6/WrRWKatZc+SKKGa3Gk8P2jSneczFrHs81nPJtDBIim0ZpJsUKbI
-	T7giKanW40RTTsKwtrGULygJalEf8to0poyIWEHMrt5V6RPUqZNc4Ojx0achRQaWOd
-	mMe3HuoSbt08rJSojVKfDmhAJMGG4eimmVyBEizw=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-	s=default; t=1515467623;
-	bh=qDmadMIpbbSNwDjLeXmAPKUnirVBzkl+XuhZLBfDG9s=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=CaSD8Xagm9ls9G66PxhEy5W0fs+FE8NYbQzSV5CsqTgn+C+zXDVwdcB/Wb4hoXlkI
-	O671cD0fqdANV8WAuRDyTJWE4wvAZ1sf65r7r1ge1SAvNTPv6XH2r+M7ewEAiLZQFT
-	luRKpcDvBSY7gz1kcTRR7uktQk73kv8CdAvd0cGY=
-Content-Disposition: inline
-In-Reply-To: <20171229081911.2802-7-hch-jcswGhMUV9g@public.gmane.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-snps-arc-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-m68k-cunTk1MwBs8S/qaLPR03pWD2FQJk+8+b@public.gmane.org, patches-q3qR2WxjNRFS9aJRtSZj7A@public.gmane.org, linux-metag-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-cris-kernel-VrBV9hrLPhE@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-alpha-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org, linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, linux-snps-arc@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linux-m68k@lists.linux-m68k.org, patches@groups.riscv.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 
-On Fri, Dec 29, 2017 at 09:18:10AM +0100, Christoph Hellwig wrote:
-> Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-> ---
->  arch/hexagon/include/asm/io.h | 2 --
->  1 file changed, 2 deletions(-)
+On Thu, Jan 04, 2018 at 09:49:30AM +0100, Christoph Hellwig wrote:
+> On Tue, Jan 02, 2018 at 08:45:30PM +1100, Michael Ellerman wrote:
+> > Christoph Hellwig <hch@lst.de> writes:
+> > 
+> > > We want to use the dma_direct_ namespace for a generic implementation,
+> > > so rename powerpc to the second best choice: dma_nommu_.
+> > 
+> > I'm not a fan of "nommu". Some of the users of direct ops *are* using an
+> > IOMMU, they're just setting up a 1:1 mapping once at init time, rather
+> > than mapping dynamically.
+> > 
+> > Though I don't have a good idea for a better name, maybe "1to1",
+> > "linear", "premapped" ?
 > 
-> diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
-> index 66f5e9a61efc..9e8621d94ee9 100644
-> --- a/arch/hexagon/include/asm/io.h
-> +++ b/arch/hexagon/include/asm/io.h
-> @@ -330,8 +330,6 @@ static inline void outsl(unsigned long port, const void *buffer, int count)
->  	}
->  }
->  
-> -#define flush_write_buffers() do { } while (0)
-> -
->  #endif /* __KERNEL__ */
->  
->  #endif
-> -- 
-> 2.14.2
+> It seems like a nice counter part to the dma_iommu_ops used just about
+> anywhere else in ppc.
 > 
+> But I'll happily take any maintainer bike shed decision for the next
+> series.  Remember that in a merge window or two it will hopefully
+> go away in favor of the new generic dma_direct ops.
 
-For Hexagon:
-
-Acked-by: Richard Kuo <rkuo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-
-
--- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
-a Linux Foundation Collaborative Project
+Michael, please suggest what name you want for the next iteration,
+I don't want to hold up the series on a naming bikeshed.
