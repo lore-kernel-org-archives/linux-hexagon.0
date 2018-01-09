@@ -1,52 +1,70 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: Re: [RFC PATCH] hexagon: Make THREAD_SIZE available to vmlinux.lds
-Date: Mon, 8 Jan 2018 20:01:20 -0600
-Message-ID: <20180109020120.GC18623@codeaurora.org>
-References: <151541004841.29074.9658886589645056333.stgit@warthog.procyon.org.uk>
+From: Richard Kuo <rkuo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: Re: [PATCH 06/67] hexagon: remove unused flush_write_buffers
+	definition
+Date: Mon, 8 Jan 2018 21:13:39 -0600
+Message-ID: <20180109031339.GA4196@codeaurora.org>
+References: <20171229081911.2802-1-hch@lst.de>
+	<20171229081911.2802-7-hch@lst.de>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1515463283;
-        bh=pQTeO9Qb2P5yg+pRQ5X66NQ2v3BxQpAWZJ5Rx6K0eC4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SpzzgdwPEl7BKFo2tkKUSXpwL07IxV1Jl8fuuHQPqP9a3PQfLrVIWN7v6l/Nvd5be
-         ianBaKaPDWMkc50/F3lu8uLpygGxNRQycnV3duj8G+bHhZc7RLuoDGgckBDHBX0ckP
-         PIu+CF02/rCkYmE+1DjuvawEQAjwTmcLiW96Ykws=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1515463283;
-        bh=pQTeO9Qb2P5yg+pRQ5X66NQ2v3BxQpAWZJ5Rx6K0eC4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SpzzgdwPEl7BKFo2tkKUSXpwL07IxV1Jl8fuuHQPqP9a3PQfLrVIWN7v6l/Nvd5be
-         ianBaKaPDWMkc50/F3lu8uLpygGxNRQycnV3duj8G+bHhZc7RLuoDGgckBDHBX0ckP
-         PIu+CF02/rCkYmE+1DjuvawEQAjwTmcLiW96Ykws=
-Content-Disposition: inline
-In-Reply-To: <151541004841.29074.9658886589645056333.stgit@warthog.procyon.org.uk>
-Sender: linux-hexagon-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: David Howells <dhowells@redhat.com>
-Cc: linux-hexagon@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+	s=default; t=1515467624;
+	bh=qDmadMIpbbSNwDjLeXmAPKUnirVBzkl+XuhZLBfDG9s=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=EACt1qTUxC+q6/WrRWKatZc+SKKGa3Gk8P2jSneczFrHs81nPJtDBIim0ZpJsUKbI
+	T7giKanW40RTTsKwtrGULygJalEf8to0poyIWEHMrt5V6RPUqZNc4Ojx0achRQaWOd
+	mMe3HuoSbt08rJSojVKfDmhAJMGG4eimmVyBEizw=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+	s=default; t=1515467623;
+	bh=qDmadMIpbbSNwDjLeXmAPKUnirVBzkl+XuhZLBfDG9s=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=CaSD8Xagm9ls9G66PxhEy5W0fs+FE8NYbQzSV5CsqTgn+C+zXDVwdcB/Wb4hoXlkI
+	O671cD0fqdANV8WAuRDyTJWE4wvAZ1sf65r7r1ge1SAvNTPv6XH2r+M7ewEAiLZQFT
+	luRKpcDvBSY7gz1kcTRR7uktQk73kv8CdAvd0cGY=
+Content-Disposition: inline
+In-Reply-To: <20171229081911.2802-7-hch-jcswGhMUV9g@public.gmane.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-snps-arc-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-m68k-cunTk1MwBs8S/qaLPR03pWD2FQJk+8+b@public.gmane.org, patches-q3qR2WxjNRFS9aJRtSZj7A@public.gmane.org, linux-metag-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-cris-kernel-VrBV9hrLPhE@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-alpha-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 
-On Mon, Jan 08, 2018 at 11:14:08AM +0000, David Howells wrote:
-> Make THREAD_SIZE available to vmlinux.lds on hexagon by including
-> asm/thread_info.h the linker script.
-> 
-> This allows init_stack to be allocated in the linker script in a subsequent
-> patch.
-> 
-> Reported-by: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> cc: Guenter Roeck <linux@roeck-us.net>
-> cc: Richard Kuo <rkuo@codeaurora.org>
-> cc: linux-hexagon@vger.kernel.org
+On Fri, Dec 29, 2017 at 09:18:10AM +0100, Christoph Hellwig wrote:
+> Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
 > ---
+>  arch/hexagon/include/asm/io.h | 2 --
+>  1 file changed, 2 deletions(-)
 > 
->  arch/hexagon/kernel/vmlinux.lds.S |    2 ++
->  1 file changed, 2 insertions(+)
+> diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
+> index 66f5e9a61efc..9e8621d94ee9 100644
+> --- a/arch/hexagon/include/asm/io.h
+> +++ b/arch/hexagon/include/asm/io.h
+> @@ -330,8 +330,6 @@ static inline void outsl(unsigned long port, const void *buffer, int count)
+>  	}
+>  }
+>  
+> -#define flush_write_buffers() do { } while (0)
+> -
+>  #endif /* __KERNEL__ */
+>  
+>  #endif
+> -- 
+> 2.14.2
 > 
 
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
+For Hexagon:
+
+Acked-by: Richard Kuo <rkuo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+
 
 -- 
 Employee of Qualcomm Innovation Center, Inc.
