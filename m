@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-Subject: [PATCH 07/33] riscv: remove the unused dma_capable helper
-Date: Wed, 10 Jan 2018 09:00:01 +0100
-Message-ID: <20180110080027.13879-8-hch@lst.de>
+Subject: [PATCH 08/33] s390: remove the unused dma_capable helper
+Date: Wed, 10 Jan 2018 09:00:02 +0100
+Message-ID: <20180110080027.13879-9-hch@lst.de>
 References: <20180110080027.13879-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -14,13 +14,13 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
 	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
 	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=07RuFC1Zfs8Ezi8EsP/bxOpwvBBEoSJ4OYSPIkkVu+U=;
-	b=fIAAaYfY+oJ8HMMK9HtxOZSV6
-	RQwNu8F9URdFXtINNfmxXGknYHwczFDoFspzpqrbVqYb65OXRCgoC5yS/L9HTHI07rmnud5u+onnC
-	daFo5fl8V6mKvgJ/NS6wGo9s+7EKzJVXP9nwxPY9HKLdtVGQmjZgH0RrBQ1fMof4/7cP+MBZxyi2o
-	+iWup2tpyrxTK7YiINVkhJD+cdyYvgcnCCe8hNh6mOEqOKxdxR/5lT46i1fbN2+7F1FB+eY4msem3
-	e6tfL9BzuR4kU+qyI9+UaPV6CQXoMdR1g4pxuuZTQnQT4MkgX2ZMsEsgr8WPuK1kjl7xJPNoyX8Ya
-	2nkJFZpKQ==;
+	bh=m0FQ4a4ZxoB2cHk6bXDHjO6pdh6D5z/ak3wK1MTP8hI=;
+	b=gf2sM1SNMhwTh1OQNKwTKN7ur
+	h5gYlJeIrZwZd+5CCxYmpszd0FUT5FtqNCKaMH3BWuRfUgyxZ9k8xsqmxswkOYbN8LtOYXUsNc+4h
+	M5sR3CXn8bMJo60T/DQFv6yfoa9cFuPDLm6es2WjMhWVVfelwCIkHQUWpjhs4cbG/TFOVoe2/2JB/
+	IjTTuhH3vIbJx3sSajTRH7nNmlPiWaM5enUU76Bywv3pkq160yH8hsHaHyz8LUsXPfKtKBWkjsCeB
+	7LCMReltY3ZlyJJc7f+Gek+AXdeGK9Rv8Eju5AVsyN89/jDeARfz025p7nl6jEz/J4waZCD0qIewd
+	glYYKTtyg==;
 In-Reply-To: <20180110080027.13879-1-hch-jcswGhMUV9g@public.gmane.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
@@ -37,14 +37,14 @@ Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-ia64-u79uwXL29TY76
 
 Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
 ---
- arch/riscv/include/asm/dma-mapping.h | 8 --------
- 1 file changed, 8 deletions(-)
+ arch/s390/include/asm/dma-mapping.h | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/arch/riscv/include/asm/dma-mapping.h b/arch/riscv/include/asm/dma-mapping.h
-index 3eec1000196d..73849e2cc761 100644
---- a/arch/riscv/include/asm/dma-mapping.h
-+++ b/arch/riscv/include/asm/dma-mapping.h
-@@ -27,12 +27,4 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
+index eaf490f9c5bc..2ec7240c1ada 100644
+--- a/arch/s390/include/asm/dma-mapping.h
++++ b/arch/s390/include/asm/dma-mapping.h
+@@ -16,11 +16,4 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
  	return &dma_noop_ops;
  }
  
@@ -52,10 +52,9 @@ index 3eec1000196d..73849e2cc761 100644
 -{
 -	if (!dev->dma_mask)
 -		return false;
--
 -	return addr + size - 1 <= *dev->dma_mask;
 -}
 -
- #endif	/* __ASM_RISCV_DMA_MAPPING_H */
+ #endif /* _ASM_S390_DMA_MAPPING_H */
 -- 
 2.14.2
