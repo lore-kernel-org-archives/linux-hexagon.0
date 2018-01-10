@@ -1,23 +1,23 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 29/33] dma-direct: retry allocations using GFP_DMA for small masks
-Date: Wed, 10 Jan 2018 09:00:23 +0100
-Message-ID: <20180110080027.13879-30-hch@lst.de>
+Subject: [PATCH 33/33] h8300: use dma-direct
+Date: Wed, 10 Jan 2018 09:00:27 +0100
+Message-ID: <20180110080027.13879-34-hch@lst.de>
 References: <20180110080027.13879-1-hch@lst.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-alpha-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
         Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
         Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
         Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
         List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=dC4QDkn6P87UCg+vJleo7MZnua57rTtY7s1pAiXnHFE=; b=CHueTwMhL8BA+MUPWmTltFqRM
-        8pPr4H45IC1qlYdJS0ypLCdMJhXtzFaQCHAd8VGdNWv2oOHFA3wA6WnV8/pYMTTvmpUajwPbOeWqU
-        Ll/FEytYQdc8ngRRZlxrAO4y1LmWuxQOreH5cMTy5Qo5EwBQXZGOg+FISNKxafUOZcnjBxDoQIndm
-        xgfmQyfZYwHwF0ZHzwJ4upHF4Uz4yZhWWGaD68wCJooT6zxiK8110amv57Ig0on+MuAmqACRtnwr2
-        8gxnYB8Pw3c1j54oKuQpUJbSZJFfN9qqFO8FEdOYERy8cb/MlItMIWGGr5lftqW8Plueu/WX3Dd6q
+         bh=qLMBnGBgqkewwHo8PqZ7pyXUSA8cUYYRLu7htx6D/Ks=; b=G5TNQ6zxnv/5ZH98BqOIatX1G
+        mvQlqgOVRoRuuZARKZykgXITyvfUne6kaoIuJ7EdlzoWEYG9TnJIz4zMPl7kW2wVIocDbPz3cUolG
+        YOwzF+j2+bX3PKSe888QG+9hc1md5bGnwZvQ7KbnF4Ere7U6xNCoDDB1jgDGoml5VMN5UBbpz4kDO
+        MkuwcN90NlH8F6Lzu463OxC1JYFC9u/qiaf8JrvBERV5wDa4J6iZYyQfbbipdBjsDeZAVZ1m2z6gz
+        1vuFsx56+BWqYNaFyJaR8GcV0VoDrwF3zjiU2N4jNT5Bykvscvv5PUT/7sXDjai5hOiWb6ILVQWKj
     
 In-Reply-To: <20180110080027.13879-1-hch@lst.de>
-Sender: linux-sh-owner@vger.kernel.org
+Sender: linux-alpha-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,65 +25,147 @@ Content-Transfer-Encoding: 7bit
 To: iommu@lists.linux-foundation.org
 Cc: Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-cris-kernel@axis.com, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-metag@vger.kernel.org, Michal Simek <monstr@monstr.eu>, linux-mips@linux-mips.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, patches@groups.riscv.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-If an attempt to allocate memory succeeded, but isn't inside the
-supported DMA mask, retry the allocation with GFP_DMA set as a
-last resort.
-
-Based on the x86 code, but an off by one error in what is now
-dma_coherent_ok has been fixed vs the x86 code.
+Replace the bare-bones h8300 direct dma mapping implementation with
+the fully featured generic dma-direct one.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- lib/dma-direct.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ arch/h8300/Kconfig                   |  1 +
+ arch/h8300/include/asm/Kbuild        |  1 +
+ arch/h8300/include/asm/dma-mapping.h | 12 -------
+ arch/h8300/kernel/Makefile           |  2 +-
+ arch/h8300/kernel/dma.c              | 66 ------------------------------------
+ 5 files changed, 3 insertions(+), 79 deletions(-)
+ delete mode 100644 arch/h8300/include/asm/dma-mapping.h
+ delete mode 100644 arch/h8300/kernel/dma.c
 
-diff --git a/lib/dma-direct.c b/lib/dma-direct.c
-index 8f76032ebc3c..4e43c2bb7f5f 100644
---- a/lib/dma-direct.c
-+++ b/lib/dma-direct.c
-@@ -35,6 +35,11 @@ check_addr(struct device *dev, dma_addr_t dma_addr, size_t size,
- 	return true;
- }
+diff --git a/arch/h8300/Kconfig b/arch/h8300/Kconfig
+index f8d3fde08190..091d6d04b5e5 100644
+--- a/arch/h8300/Kconfig
++++ b/arch/h8300/Kconfig
+@@ -23,6 +23,7 @@ config H8300
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_HASH
+ 	select CPU_NO_EFFICIENT_FFS
++	select DMA_DIRECT_OPS
  
-+static bool dma_coherent_ok(struct device *dev, phys_addr_t phys, size_t size)
-+{
-+	return phys_to_dma(dev, phys) + size - 1 <= dev->coherent_dma_mask;
-+}
-+
- static void *dma_direct_alloc(struct device *dev, size_t size,
- 		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
- {
-@@ -48,11 +53,29 @@ static void *dma_direct_alloc(struct device *dev, size_t size,
- 	if (dev->coherent_dma_mask <= DMA_BIT_MASK(32) && !(gfp & GFP_DMA))
- 		gfp |= GFP_DMA32;
+ config CPU_BIG_ENDIAN
+ 	def_bool y
+diff --git a/arch/h8300/include/asm/Kbuild b/arch/h8300/include/asm/Kbuild
+index bc077491d299..642752c94306 100644
+--- a/arch/h8300/include/asm/Kbuild
++++ b/arch/h8300/include/asm/Kbuild
+@@ -9,6 +9,7 @@ generic-y += delay.h
+ generic-y += device.h
+ generic-y += div64.h
+ generic-y += dma.h
++generic-y += dma-mapping.h
+ generic-y += emergency-restart.h
+ generic-y += exec.h
+ generic-y += extable.h
+diff --git a/arch/h8300/include/asm/dma-mapping.h b/arch/h8300/include/asm/dma-mapping.h
+deleted file mode 100644
+index 21bb1fc3a6f1..000000000000
+--- a/arch/h8300/include/asm/dma-mapping.h
++++ /dev/null
+@@ -1,12 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef _H8300_DMA_MAPPING_H
+-#define _H8300_DMA_MAPPING_H
+-
+-extern const struct dma_map_ops h8300_dma_map_ops;
+-
+-static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+-{
+-	return &h8300_dma_map_ops;
+-}
+-
+-#endif
+diff --git a/arch/h8300/kernel/Makefile b/arch/h8300/kernel/Makefile
+index b62e830525c6..307aa51576dd 100644
+--- a/arch/h8300/kernel/Makefile
++++ b/arch/h8300/kernel/Makefile
+@@ -7,7 +7,7 @@ extra-y := vmlinux.lds
  
-+again:
- 	/* CMA can be used only in the context which permits sleeping */
--	if (gfpflags_allow_blocking(gfp))
-+	if (gfpflags_allow_blocking(gfp)) {
- 		page = dma_alloc_from_contiguous(dev, count, page_order, gfp);
-+		if (page && !dma_coherent_ok(dev, page_to_phys(page), size)) {
-+			dma_release_from_contiguous(dev, page, count);
-+			page = NULL;
-+		}
-+	}
- 	if (!page)
- 		page = alloc_pages_node(dev_to_node(dev), gfp, page_order);
-+
-+	if (page && !dma_coherent_ok(dev, page_to_phys(page), size)) {
-+		__free_pages(page, page_order);
-+		page = NULL;
-+
-+		if (dev->coherent_dma_mask < DMA_BIT_MASK(32) &&
-+		    !(gfp & GFP_DMA)) {
-+			gfp = (gfp & ~GFP_DMA32) | GFP_DMA;
-+			goto again;
-+		}
-+	}
-+
- 	if (!page)
- 		return NULL;
+ obj-y := process.o traps.o ptrace.o \
+ 	 signal.o setup.o syscalls.o \
+-	 irq.o entry.o dma.o
++	 irq.o entry.o
  
+ obj-$(CONFIG_ROMKERNEL) += head_rom.o
+ obj-$(CONFIG_RAMKERNEL) += head_ram.o
+diff --git a/arch/h8300/kernel/dma.c b/arch/h8300/kernel/dma.c
+deleted file mode 100644
+index d44ba5db4ac3..000000000000
+--- a/arch/h8300/kernel/dma.c
++++ /dev/null
+@@ -1,66 +0,0 @@
+-/*
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file COPYING in the main directory of this archive
+- * for more details.
+- */
+-
+-#include <linux/dma-mapping.h>
+-#include <linux/kernel.h>
+-#include <linux/scatterlist.h>
+-#include <linux/module.h>
+-#include <asm/pgalloc.h>
+-
+-static void *dma_alloc(struct device *dev, size_t size,
+-		       dma_addr_t *dma_handle, gfp_t gfp,
+-		       unsigned long attrs)
+-{
+-	void *ret;
+-
+-	if (dev == NULL || (*dev->dma_mask < 0xffffffff))
+-		gfp |= GFP_DMA;
+-	ret = (void *)__get_free_pages(gfp, get_order(size));
+-
+-	if (ret != NULL) {
+-		memset(ret, 0, size);
+-		*dma_handle = virt_to_phys(ret);
+-	}
+-	return ret;
+-}
+-
+-static void dma_free(struct device *dev, size_t size,
+-		     void *vaddr, dma_addr_t dma_handle,
+-		     unsigned long attrs)
+-
+-{
+-	free_pages((unsigned long)vaddr, get_order(size));
+-}
+-
+-static dma_addr_t map_page(struct device *dev, struct page *page,
+-				  unsigned long offset, size_t size,
+-				  enum dma_data_direction direction,
+-				  unsigned long attrs)
+-{
+-	return page_to_phys(page) + offset;
+-}
+-
+-static int map_sg(struct device *dev, struct scatterlist *sgl,
+-		  int nents, enum dma_data_direction direction,
+-		  unsigned long attrs)
+-{
+-	struct scatterlist *sg;
+-	int i;
+-
+-	for_each_sg(sgl, sg, nents, i) {
+-		sg->dma_address = sg_phys(sg);
+-	}
+-
+-	return nents;
+-}
+-
+-const struct dma_map_ops h8300_dma_map_ops = {
+-	.alloc = dma_alloc,
+-	.free = dma_free,
+-	.map_page = map_page,
+-	.map_sg = map_sg,
+-};
+-EXPORT_SYMBOL(h8300_dma_map_ops);
 -- 
 2.14.2
 
