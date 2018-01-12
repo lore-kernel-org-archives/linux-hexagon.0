@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-Subject: [PATCH 05/34] arc: remove CONFIG_ARC_PLAT_NEEDS_PHYS_TO_DMA
-Date: Fri, 12 Jan 2018 09:42:03 +0100
-Message-ID: <20180112084232.2857-6-hch@lst.de>
+Subject: [PATCH 07/34] riscv: remove the unused dma_capable helper
+Date: Fri, 12 Jan 2018 09:42:05 +0100
+Message-ID: <20180112084232.2857-8-hch@lst.de>
 References: <20180112084232.2857-1-hch@lst.de>
 Return-path: <linux-metag-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
@@ -10,11 +10,11 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
         Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
         List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=2lQf+iUE0etj+DXwQLMAdazaZ3TD1HeSJN/sy8+g38U=; b=PzGzORD6Kc+65PsXfaaEt7nAF
-        5CZ2zxu8RrHV7XWr+LcqJSSOkvlYjm4Wfs9d+2TQc38H/L4fAqRAbZqKpT+nVuKtIDpkqkXD4ecL9
-        cZkXlQur/OF0m8DHUCCyB78zy48ToDR19SyoIxTWbN4yzHonBvOMMdVL+1hQH+voOJpvknFvqlIw5
-        xMC+p+CCcGd4OMd55dzjYwd5nYIlbjs4WSdtGiutKjxb8DesQpHisyJlg5DfmfaxaET54bvxseoWw
-        SzH6gRv6Qby+JQ7CvZZShkLiiQAPpdN77XuPrOyQL8J4tq7KQjnm/tua4g5PO0cCxvpHNj3SHhRvO
+         bh=07RuFC1Zfs8Ezi8EsP/bxOpwvBBEoSJ4OYSPIkkVu+U=; b=cTHrlfZ5HyZpPVcKiPs0kx/YE
+        1ynScaFFpiGshg3MkLwMww5ce+GGHe+4O+82xdw6tvFDIk1b0GQbDu5kefs7/9ynz7JZu1c052KvW
+        LO/LrmMEeFO4csDyF7tVbrw6dbkdW3Ldi0VQETtqMz9odlkXNLq4G5AvVOxoLKTTP7dnjJdMpPz0H
+        Zy1z4dQowrs1KKEwKzra8knDQYxoAY9hPY/1alCvocL29EJHXkNOpb7KghS65cjbrIsZkYXmDv2Se
+        /vn4hPIpXxhTvWV4HEsddSReeTVXdgIAvKmsLQC8bZB/mhmsDoXAyb3B1dM2UJgcGkFe8UprAKlob
     
 In-Reply-To: <20180112084232.2857-1-hch-jcswGhMUV9g@public.gmane.org>
 Sender: linux-metag-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
@@ -25,112 +25,27 @@ Content-Transfer-Encoding: 7bit
 To: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
 Cc: Konrad Rzeszutek Wilk <konrad-Gq0aWv8utHQdnm+yROfE0A@public.gmane.org>, linux-alpha-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-snps-arc-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-cris-kernel-VrBV9hrLPhE@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-m68k-cunTk1MwBs8S/qaLPR03pWD2FQJk+8+b@public.gmane.org, linux-metag-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, patches-q3qR2WxjNRFS9aJRtSZj7A@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 
-We always use the stub definitions, so remove the unused other code.
-
 Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-Acked-by: Vineet Gupta <vgupta-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
 ---
- arch/arc/Kconfig                   |  3 ---
- arch/arc/include/asm/dma-mapping.h |  7 -------
- arch/arc/mm/dma.c                  | 14 +++++++-------
- 3 files changed, 7 insertions(+), 17 deletions(-)
+ arch/riscv/include/asm/dma-mapping.h | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
-index 9d5fd00d9e91..f3a80cf164cc 100644
---- a/arch/arc/Kconfig
-+++ b/arch/arc/Kconfig
-@@ -463,9 +463,6 @@ config ARCH_PHYS_ADDR_T_64BIT
- config ARCH_DMA_ADDR_T_64BIT
- 	bool
+diff --git a/arch/riscv/include/asm/dma-mapping.h b/arch/riscv/include/asm/dma-mapping.h
+index 3eec1000196d..73849e2cc761 100644
+--- a/arch/riscv/include/asm/dma-mapping.h
++++ b/arch/riscv/include/asm/dma-mapping.h
+@@ -27,12 +27,4 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+ 	return &dma_noop_ops;
+ }
  
--config ARC_PLAT_NEEDS_PHYS_TO_DMA
--	bool
+-static inline bool dma_capable(struct device *dev, dma_addr_t addr, size_t size)
+-{
+-	if (!dev->dma_mask)
+-		return false;
 -
- config ARC_KVADDR_SIZE
- 	int "Kernel Virtual Address Space size (MB)"
- 	range 0 512
-diff --git a/arch/arc/include/asm/dma-mapping.h b/arch/arc/include/asm/dma-mapping.h
-index 94285031c4fb..7a16824bfe98 100644
---- a/arch/arc/include/asm/dma-mapping.h
-+++ b/arch/arc/include/asm/dma-mapping.h
-@@ -11,13 +11,6 @@
- #ifndef ASM_ARC_DMA_MAPPING_H
- #define ASM_ARC_DMA_MAPPING_H
- 
--#ifndef CONFIG_ARC_PLAT_NEEDS_PHYS_TO_DMA
--#define plat_dma_to_phys(dev, dma_handle) ((phys_addr_t)(dma_handle))
--#define plat_phys_to_dma(dev, paddr) ((dma_addr_t)(paddr))
--#else
--#include <plat/dma.h>
--#endif
+-	return addr + size - 1 <= *dev->dma_mask;
+-}
 -
- extern const struct dma_map_ops arc_dma_ops;
- 
- static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
-diff --git a/arch/arc/mm/dma.c b/arch/arc/mm/dma.c
-index e9d93604ad0f..1dcc404b5aec 100644
---- a/arch/arc/mm/dma.c
-+++ b/arch/arc/mm/dma.c
-@@ -60,7 +60,7 @@ static void *arc_dma_alloc(struct device *dev, size_t size,
- 	/* This is linear addr (0x8000_0000 based) */
- 	paddr = page_to_phys(page);
- 
--	*dma_handle = plat_phys_to_dma(dev, paddr);
-+	*dma_handle = paddr;
- 
- 	/* This is kernel Virtual address (0x7000_0000 based) */
- 	if (need_kvaddr) {
-@@ -92,7 +92,7 @@ static void *arc_dma_alloc(struct device *dev, size_t size,
- static void arc_dma_free(struct device *dev, size_t size, void *vaddr,
- 		dma_addr_t dma_handle, unsigned long attrs)
- {
--	phys_addr_t paddr = plat_dma_to_phys(dev, dma_handle);
-+	phys_addr_t paddr = dma_handle;
- 	struct page *page = virt_to_page(paddr);
- 	int is_non_coh = 1;
- 
-@@ -111,7 +111,7 @@ static int arc_dma_mmap(struct device *dev, struct vm_area_struct *vma,
- {
- 	unsigned long user_count = vma_pages(vma);
- 	unsigned long count = PAGE_ALIGN(size) >> PAGE_SHIFT;
--	unsigned long pfn = __phys_to_pfn(plat_dma_to_phys(dev, dma_addr));
-+	unsigned long pfn = __phys_to_pfn(dma_addr);
- 	unsigned long off = vma->vm_pgoff;
- 	int ret = -ENXIO;
- 
-@@ -175,7 +175,7 @@ static dma_addr_t arc_dma_map_page(struct device *dev, struct page *page,
- 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
- 		_dma_cache_sync(paddr, size, dir);
- 
--	return plat_phys_to_dma(dev, paddr);
-+	return paddr;
- }
- 
- /*
-@@ -190,7 +190,7 @@ static void arc_dma_unmap_page(struct device *dev, dma_addr_t handle,
- 			       size_t size, enum dma_data_direction dir,
- 			       unsigned long attrs)
- {
--	phys_addr_t paddr = plat_dma_to_phys(dev, handle);
-+	phys_addr_t paddr = handle;
- 
- 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
- 		_dma_cache_sync(paddr, size, dir);
-@@ -224,13 +224,13 @@ static void arc_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
- static void arc_dma_sync_single_for_cpu(struct device *dev,
- 		dma_addr_t dma_handle, size_t size, enum dma_data_direction dir)
- {
--	_dma_cache_sync(plat_dma_to_phys(dev, dma_handle), size, DMA_FROM_DEVICE);
-+	_dma_cache_sync(dma_handle, size, DMA_FROM_DEVICE);
- }
- 
- static void arc_dma_sync_single_for_device(struct device *dev,
- 		dma_addr_t dma_handle, size_t size, enum dma_data_direction dir)
- {
--	_dma_cache_sync(plat_dma_to_phys(dev, dma_handle), size, DMA_TO_DEVICE);
-+	_dma_cache_sync(dma_handle, size, DMA_TO_DEVICE);
- }
- 
- static void arc_dma_sync_sg_for_cpu(struct device *dev,
+ #endif	/* __ASM_RISCV_DMA_MAPPING_H */
 -- 
 2.14.2
