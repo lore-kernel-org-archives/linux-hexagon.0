@@ -1,83 +1,61 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH 22/34] dma-mapping: add an arch_dma_supported hook
-Date: Fri, 2 Feb 2018 09:47:23 -0800
-Message-ID: <5d7dfb29-eeef-2280-13c9-5260e9104f67@infradead.org>
-References: <20180112084232.2857-1-hch@lst.de>
- <20180112084232.2857-23-hch@lst.de>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Removing architectures without upstream gcc support
+Date: Sun, 25 Feb 2018 23:50:02 +0100
+Message-ID: <20180225225002.GA6078@amd>
+References: <CAK8P3a2-6YwRR3j7J78fVHSvDpq8Kf4wRj6d9mnGgAxgkYypxg@mail.gmail.com>
+ <20180222234833.GA3047@roeck-us.net>
+ <CAK8P3a3Y2b-DivYz1ZqhFGUqQaiF=5SDB6RFLtCknwY2--09OQ@mail.gmail.com>
+ <20180223154316.35b26857@alans-desktop>
+ <20180223171019.GA1125@roeck-us.net>
+ <20180225202806.735a6870@alans-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:
-	Message-ID:From:References:To:Subject:Reply-To:Content-ID:Content-Description
-	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=lVIIme6Jt6IhTbkXZiY+PAPS8MQ/8RDT2Vt7EuQJO88=; b=QySTwjJwAvqnh7
-	r4gu4lkTUP9tp/zaluUeEnKdryw6NHNzaQhly68EZQeaTDWBqZ3S3MU895j/wewsRl+nNU4CgNnJg
-	YDT8IykYC3jbtU8kkdniD92TMefRDz6VQgt0Lg+g4KZK2xbA3EokRhFR+KwVLQ3HbL9kV+nX7OI8x
-	u+TTxB2FPcs0v4qhkQafX6kavHVKl5AtzdqbZIzLKEKcsxMctrZLM+3Y9l1+ixu2MrPiGGuyU8jMm
-	9zxbP8yg3eo3lNw3i7iqQEWewfkkHDx8iPEO8DcYgubKcUMBaccl8dULmknoGn5M5UAAWgzmkEzc7
-	kYq3nyazG/jPfhxVKoiA==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:Content-Type:
- In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
- :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
- Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
- List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=wOahYfPH3eqAbGWl///EiVWN8yzu/m5QdifGTHB8Dgc=; b=bWdqdLJiICz/HhEQHmVEEI9V5I
- b2NnwYz3+AT9i6+gB90OLvygXVj+ETZUSoe4TY2NtRL1Ou2id6xAZwEf3UpLgaU44Cpx7JjjkQUP3
- etDxjgstCKm66c3EY/JUQ8XY6Ivaeunqcb+BTwgb8tSrTnTqiOFnsiZlhrFRMwrqTP3Kl+2Qc44Ou
- TEJzNs5IBKctMdwM4eoAEUgV1xZQG08+UMNH/3LlgcjU/Ui7UJL72bQSYxJbnr0VBvgxF0AsSfrsx
- MZiu506SOcRAg/Z80PEz4X36xfUD/2XBHdrL18WV2G9A4x+vZrlAqDWJVfy2nGPbWeBgO1dzgxy7+
- nmOySb5Q==;
-In-Reply-To: <20180112084232.2857-23-hch@lst.de>
-Content-Language: en-US
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org
-Cc: linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Konrad Rzeszutek Wilk <konrad@darnok.org>, linux-snps-arc@lists.infradead.org, linux-m68k@lists.linux-m68k.org, patches@groups.riscv.org, linux-metag@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-cris-kernel@axis.com, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-
-On 01/12/2018 12:42 AM, Christoph Hellwig wrote:
-> To implement the x86 forbid_dac and iommu_sac_force we want an arch hook
-> so that it can apply the global options across all dma_map_ops
-> implementations.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/x86/include/asm/dma-mapping.h |  3 +++
->  arch/x86/kernel/pci-dma.c          | 19 ++++++++++++-------
->  include/linux/dma-mapping.h        | 11 +++++++++++
->  3 files changed, 26 insertions(+), 7 deletions(-)
-
-> diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-> index 88bcb1a8211d..d67742dad904 100644
-> --- a/include/linux/dma-mapping.h
-> +++ b/include/linux/dma-mapping.h
-> @@ -576,6 +576,14 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
->  	return 0;
->  }
->  
-> +/*
-> + * This is a hack for the legacy x86 forbid_dac and iommu_sac_force. Please
-> + * don't use this is new code.
-
-                     in new code.
-
-> + */
-> +#ifndef arch_dma_supported
-> +#define arch_dma_supported(dev, mask)	(1)
-> +#endif
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180225202806.735a6870@alans-desktop>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+To: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
+Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>, linux-arch <linux-arch@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, Chen Liqin <liqin.linux@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Al Viro <viro@zeniv.linux.org.uk>, James Hogan <jhogan@kernel.org>, linux-metag@vger.kernel.org, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, openrisc@lists.librecores.org, David Howells <dhowells@redhat.com>
 
 
--- 
-~Randy
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+On Sun 2018-02-25 20:28:06, Alan Cox wrote:
+> > FWIW, alpha and m68k are known boot with qemu (even though m68k
+> > generates a warning traceback with the mainline kernel).
+>=20
+> M68K works - people actively use it. Crazy people true 8). Alpha I
+> believe one or two people boot. I just need to track down some discs for
+> my Alpha 8)
+
+I guess it would be useful to track who tested what kernel on what
+hardware ... and I created a project for
+that. Feel free to contribute: https://github.com/pavelmachek/missy --
+I'd like to get some data from "big" iron...
+
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--ZPt4rx8FFjLCG7dd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlqTPZoACgkQMOfwapXb+vLKywCgk2z5SVeKJcYPKZ6cWyThLJMR
+OnQAoIPqgq/lzlii0UrakhlWdMkuYyYy
+=Tfvd
+-----END PGP SIGNATURE-----
+
+--ZPt4rx8FFjLCG7dd--
