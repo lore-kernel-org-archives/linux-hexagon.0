@@ -1,61 +1,81 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Removing architectures without upstream gcc support
-Date: Sun, 25 Feb 2018 23:50:02 +0100
-Message-ID: <20180225225002.GA6078@amd>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [OpenRISC] Removing architectures without upstream gcc support
+Date: Mon, 26 Feb 2018 09:00:22 +0100
+Message-ID: <CAK8P3a1Pd5+mGocnpQyPNYEqqqwpDJAb+FnWS6OJxuO1d-R=2A@mail.gmail.com>
 References: <CAK8P3a2-6YwRR3j7J78fVHSvDpq8Kf4wRj6d9mnGgAxgkYypxg@mail.gmail.com>
- <20180222234833.GA3047@roeck-us.net>
- <CAK8P3a3Y2b-DivYz1ZqhFGUqQaiF=5SDB6RFLtCknwY2--09OQ@mail.gmail.com>
- <20180223154316.35b26857@alans-desktop>
- <20180223171019.GA1125@roeck-us.net>
- <20180225202806.735a6870@alans-desktop>
+ <155284c9-7fd4-2f2c-0216-1c43622f88c3@philipp-wagner.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180225202806.735a6870@alans-desktop>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:in-reply-to:references:from:date:message-id
+         :subject:to:cc;
+        bh=pt5etWLRxFZXy8xe+GmFz9GfLlCb7GKD2nthOo8lpaY=;
+        b=g3FqyAwIkw7cWrk5Nyfb3sKLyenQ4Jm42n6oWQSWk7EeQvJk96CzUfz5cnAL5E3myg
+         6l2AViAcmNV+xSs/ESCigZwQj5sbH8CRI3IloeEyIfGbwVb8HoamdGY5gG7Y/FyM4y2Y
+         LoL4aVIICKM0PZmmFTt5xwmAj9HnUCK1i+N7fSrSqe5pPtr6Yun+gePwUPz7+oHOxmP1
+         z996zRi30sfUHzHASxh1bI2MDKcJYkh/jY1j4iAprv2LR88FdCK9N28bPlr48RQ5IRwS
+         HLc/vn08/yHIa9QTT+edm4L9P9Bo3BJUZ+ze0g2hm8j4e21av56Z7S9ptsY4kJHseKhR
+         yJgA==
+In-Reply-To: <155284c9-7fd4-2f2c-0216-1c43622f88c3@philipp-wagner.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
-Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>, linux-arch <linux-arch@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, Chen Liqin <liqin.linux@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Al Viro <viro@zeniv.linux.org.uk>, James Hogan <jhogan@kernel.org>, linux-metag@vger.kernel.org, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, openrisc@lists.librecores.org, David Howells <dhowells@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Philipp Wagner <lists@philipp-wagner.com>
+Cc: linux-arch <linux-arch@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jonas Bonn <jonas@southpole.se>, Chen Liqin <liqin.linux@gmail.com>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, Richard Kuo <rkuo@codeaurora.org>, David Howells <dhowells@redhat.com>, openrisc@lists.librecores.org, Lennox Wu <lennox.wu@gmail.com>, James Hogan <jhogan@kernel.org>, Guan Xuetao <gxt@mprc.pku.edu.cn>, "open list:METAG ARCHITECTURE" <linux-metag@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>, Al Viro <viro@zeniv.linux.org.uk>
 
+On Sun, Feb 25, 2018 at 4:43 PM, Philipp Wagner
+<lists@philipp-wagner.com> wrote:
+> Am 22.02.2018 um 16:45 schrieb Arnd Bergmann:
+>> While building the cross-toolchains, I noticed that overall, we can build almost
+>> all linux target architectures with upstream binutils and gcc these days,
+>> however there are still some exceptions, and I'd like to find out if anyone
+>> has objections to removing the ones that do not have upstream support.
+>> This are the four architectures I found:
+>> [...]
+>> * OpenRISC is a RISC architecture with a free license and an
+>>   active community. It seems to have lost a bit of steam after RISC-V
+>>   is rapidly taking over that niche, but there are chips out there and
+>>   the design isn't going away. Listing it here for completeness only
+>>   because there is no upstream gcc port yet, but this will hopefully
+>>   change in the future based on
+>>   https://lists.librecores.org/pipermail/openrisc/2018-January/000958.html
+>>   and I had no problems locating the gcc-7.x tree for building my
+>>   toolchains. The port is actively being maintained.
+>
+> It's mostly mentioned in the mailing list thread you linked to, but just
+> for completeness in this thread:
+>
+> The OpenRISC GCC port is maintained and regularly updated to newer GCC
+> versions. It is not, however, upstreamed to the FSF due to a single
+> missing FSF copyright assignment from a developer who has written large
+> parts of the initial port. All code which has copyright assignments in
+> place (binutils, GDB, etc.) has been upstreamed lately.
+>
+> For GCC, Stafford Horne is actively working on rewriting the parts which
+> we don't have the FSF copyright assignment for (and unless something
+> very surprising happens, won't get). [If anyone wants to help, there's
+> GSoC project for it as well:
+> https://fossi-foundation.org/gsoc18-ideas#openrisc-gcc-port]
+>
+> So I'd be very sad if the openrisc port gets dropped from Linux upstream.
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, definitely. What I was really trying to say here is I consider openrisc
+an obvious exception to the 'no more ports without upstream gcc' rule
+because of the above.
 
-Hi!
+On a related note, has anyone successfully built an openrisc kernel with
+llvm/clang? As we discussed for arch/hexagon/, that architecture is unlikely
+to ever get an upstream gcc port, but like openrisc does have an upstream
+llvm port and they actually use that.
 
-On Sun 2018-02-25 20:28:06, Alan Cox wrote:
-> > FWIW, alpha and m68k are known boot with qemu (even though m68k
-> > generates a warning traceback with the mainline kernel).
->=20
-> M68K works - people actively use it. Crazy people true 8). Alpha I
-> believe one or two people boot. I just need to track down some discs for
-> my Alpha 8)
+I know that x86 and arm64 mostly work with llvm, arm32 works in some of
+the more common configurations at least (not big-endian or older CPUs
+though) and some others probably work as well. I have already build both
+gcc-5.5 and gcc-7.3 for openrisc and uploaded those to
+https://www.kernel.org/pub/tools/crosstool/files/bin/, but if llvm works as
+well, that could be one more reason to try to build a working set of
+clang based cross toolchains.
 
-I guess it would be useful to track who tested what kernel on what
-hardware ... and I created a project for
-that. Feel free to contribute: https://github.com/pavelmachek/missy --
-I'd like to get some data from "big" iron...
-
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---ZPt4rx8FFjLCG7dd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlqTPZoACgkQMOfwapXb+vLKywCgk2z5SVeKJcYPKZ6cWyThLJMR
-OnQAoIPqgq/lzlii0UrakhlWdMkuYyYy
-=Tfvd
------END PGP SIGNATURE-----
-
---ZPt4rx8FFjLCG7dd--
+     Arnd
