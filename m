@@ -1,75 +1,41 @@
-From: Richard Kuo <rkuo@codeaurora.org>
+From: "Guan Xuetao" <gxt@pku.edu.cn>
 Subject: Re: Removing architectures without upstream gcc support
-Date: Fri, 2 Mar 2018 19:43:06 -0600
-Message-ID: <20180303014306.GA6911@codeaurora.org>
-References: <CAK8P3a2-6YwRR3j7J78fVHSvDpq8Kf4wRj6d9mnGgAxgkYypxg@mail.gmail.com>
- <20180222191758.GB5180@codeaurora.org>
- <CAK8P3a3r=3wDtqV5feLUT-hOkE+9yWOLjLVm+nejqdaN7MtMFw@mail.gmail.com>
- <20180228020631.GB3780@codeaurora.org>
- <CAK8P3a13VDiH8+NG00p5oM2j5KMNU3JnCUurFn6EdJgztZsKHg@mail.gmail.com>
+Date: Fri, 9 Mar 2018 22:18:37 +0800 (GMT+08:00)
+Message-ID: <23bf54ca.a08c.1620b20bd53.Coremail.gxt@pku.edu.cn>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1520041383;
-        bh=Gqh5HMh3c8gaTAlS4HIxH+tEHxLHUp+dbYzkvmuObUQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ozUOulbOBYwzq/bQH3PjtFuygFZD4EL4+vnfEdOoGGkX/hzFiMACstgKrCSe7a4pL
-         EwxGIbLwj5f+KiQdwcXkZLNZASxXxGc6iU0NfoTYfXz8VF8xlHUYqJvS4uY0XukAlk
-         WGLW0+6EkEsri/x2aW1iWAAxtZH5Mq2yxWxi0iJo=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1520041382;
-        bh=Gqh5HMh3c8gaTAlS4HIxH+tEHxLHUp+dbYzkvmuObUQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lbKm5892sP01eNvYapHEjN0YbZnhxIV9vcGrMLYYALNzfTIxFTQqVSUkiq1zBJCSM
-         GQBm30g99sT4HtAu8P/85kgFLDkRttzTh4utDycdMl1rYvm6cz1nTUPfvFvzjGbhZR
-         CPyxc4Vsr413bprpIPVkaEylcmViX0yf+Xkox7w0=
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a13VDiH8+NG00p5oM2j5KMNU3JnCUurFn6EdJgztZsKHg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arch <linux-arch@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, Chen Liqin <liqin.linux@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Guenter Roeck <linux@roeck-us.net>, Al Viro <viro@zeniv.linux.org.uk>, James Hogan <jhogan@kernel.org>, "open list:METAG ARCHITECTURE" <linux-metag@vger.kernel.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, openrisc@lists.librecores.org, David Howells <dhowells@redhat.com>
+Cc: linux-arch <linux-arch@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon <linux-hexagon@vger.kernel.org>, Chen Liqin <liqin.linux@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Guenter Roeck <linux@roeck-us.net>, Al Viro <viro@zeniv.linux.org.uk>, James Hogan <jhogan@kernel.org>, linux-metag <linux-metag@vger.kernel.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, David Howells <dhowells@redhat.com>, openrisc@lists.librecores.org
 
-On Wed, Feb 28, 2018 at 09:37:09AM +0100, Arnd Bergmann wrote:
-> On Wed, Feb 28, 2018 at 3:06 AM, Richard Kuo <rkuo@codeaurora.org> wrote:
-> > On Thu, Feb 22, 2018 at 11:43:10PM +0100, Arnd Bergmann wrote:
-> >> - How do I build an llvm based toolchain for Hexagon? Do I need patches
-> >>   on top of the llvm-6 release branch? Where can I find the corresponding
-> >>   binutils-2.30 sources?
-> >
-> > Just to follow up on this, the closest thing right now to compile the kernel
-> > for Hexagon is the toolchain included with the Hexagon SDK.  However, the
-> > linker will fail because of something in the kernel build process that
-> > I think produces empty sections, which that linker can't handle.  A newer
-> > linker can handle it, but that's not scheduled to be released until much later
-> > this year.
-> >
-> > That's actually the closest option currently.  I tried the upstream source
-> > but it seems to lack some specific patches to support kernel compilation,
-> > so I will need to chase those down.
-> 
-> Thanks for trying it out. Can you point me to the sources? I tried downloading
-> a Hexagon SDK when I first looked at it, but only got a huge chunk of binary
-> java files and gave up before finding the llvm patches.
+Since mprc.pku.edu.cn is blocked, I use this email account to send the email again.
 
+> * unicore32 was a research project at Peking University with a SoC
+>   based on the Intel PXA design. No gcc source code has ever been
+>   published, the only toolchain available is a set of binaries that
+> include
+>   a gcc-4.4 compiler. The project page at
+>   http://mprc.pku.edu.cn/~guanxuetao/linux/ has a TODO list that has
+>   not been modified since 2011. The maintainer still Acks patches
+>   and has last sent a pull request in 2014 and last sent a patch of
+>   his own in 2012 when the project appears to have stalled.
+>   I would suggest removing this one.
+>
+Hi, Arnd.
+I am really sorry to reply so late, since I seldom use this email account
+in recent years. I will add my new email account to related bits.
 
-I don't think the SDK patches are available externally.
+Let me clarify the status of UniCore. It's a real cpu-core product,
+integrated into PKUnity SoC, and sold in a large amount of embedded boxes,
+such as cloud terminals and set top boxes. Surely, we still use the port
+internally and keep doing developments in other projects. So, I really
+appreciate having unicore32 port in the tree.
 
-The good news is I think we're now one patch away from the upstream LLVM
-compiling a functional kernel for Hexagon (a few fixes to LLVM/clang have
-been committed already).  It technically compiles but produces an abort (from
-a null deref) which the linker doesn't like.
-
-The linker itself unfortunately is going to be a different matter.
-
+As to gnu toolchain of UniCore, I have already discussed it in my group,
+and I'll do my best to propel it forward.
 
 Thanks,
-Richard Kuo
-
-
--- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
-a Linux Foundation Collaborative Project
+Guan Xuetao
