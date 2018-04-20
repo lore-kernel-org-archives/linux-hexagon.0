@@ -1,105 +1,120 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH 01/22] dma-debug: move initialization to common code
-Date: Fri, 20 Apr 2018 11:23:43 +0100
-Message-ID: <294a1469-01d6-10fb-5de1-b1d4513a066c@arm.com>
-References: <20180420080313.18796-1-hch@lst.de>
- <20180420080313.18796-2-hch@lst.de>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [REVIEW][PATCH 04/22] signal/hexagon: Use force_sig_fault as appropriate
+Date: Fri, 20 Apr 2018 09:37:53 -0500
+Message-ID: <20180420143811.9994-4-ebiederm@xmission.com>
+References: <87604mhrnb.fsf@xmission.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180420080313.18796-2-hch@lst.de>
-Content-Language: en-GB
+In-Reply-To: <87604mhrnb.fsf@xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Christoph Hellwig <hch@lst.de>
-Cc: linux-arch@vger.kernel.org, linux-xtensa@linux-xtensa.org, Michal Simek <monstr@monstr.eu>, Vincent Chen <deanbo422@gmail.com>, linux-c6x-dev@linux-c6x.org, linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, Greentime Hu <green.hu@gmail.com>, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: linux-arch@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-Hi Christoph,
+Filling in struct siginfo before calling force_sig_info a tedious and
+error prone process, where once in a great while the wrong fields
+are filled out, and siginfo has been inconsistently cleared.
 
-Nice cleanup! Looks good overall, just a couple of nits.
+Simplify this process by using the helper force_sig_fault.  Which
+takes as a parameters all of the information it needs, ensures
+all of the fiddly bits of filling in struct siginfo are done properly
+and then calls force_sig_info.
 
-On 20/04/18 09:02, Christoph Hellwig wrote:
-[...]
-> diff --git a/lib/dma-debug.c b/lib/dma-debug.c
-> index 7f5cdc1e6b29..712a897174e4 100644
-> --- a/lib/dma-debug.c
-> +++ b/lib/dma-debug.c
-> @@ -41,6 +41,11 @@
->   #define HASH_FN_SHIFT   13
->   #define HASH_FN_MASK    (HASH_SIZE - 1)
->   
-> +/* allow architectures to override this if absolutely required */
-> +#ifndef PREALLOC_DMA_DEBUG_ENTRIES
-> +#define PREALLOC_DMA_DEBUG_ENTRIES (1 << 16)
-> +#endif
-> +
->   enum {
->   	dma_debug_single,
->   	dma_debug_page,
-> @@ -1004,18 +1009,16 @@ void dma_debug_add_bus(struct bus_type *bus)
->   	bus_register_notifier(bus, nb);
->   }
->   
-> -/*
-> - * Let the architectures decide how many entries should be preallocated.
-> - */
-> -void dma_debug_init(u32 num_entries)
-> +static int dma_debug_init(void)
->   {
-> +	u32 num_entries;
+In short about a 5 line reduction in code for every time force_sig_info
+is called, which makes the calling function clearer.
 
-Maybe initialise it to PREALLOC_DMA_DEBUG_ENTRIES?
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+---
+ arch/hexagon/kernel/traps.c | 10 ++--------
+ arch/hexagon/mm/vm_fault.c  | 21 +++++++--------------
+ 2 files changed, 9 insertions(+), 22 deletions(-)
 
->   	int i;
->   
->   	/* Do not use dma_debug_initialized here, since we really want to be
->   	 * called to set dma_debug_initialized
->   	 */
->   	if (global_disable)
-> -		return;
-> +		return 0;
->   
->   	for (i = 0; i < HASH_SIZE; ++i) {
->   		INIT_LIST_HEAD(&dma_entry_hash[i].list);
-> @@ -1026,17 +1029,19 @@ void dma_debug_init(u32 num_entries)
->   		pr_err("DMA-API: error creating debugfs entries - disabling\n");
->   		global_disable = true;
->   
-> -		return;
-> +		return 0;
->   	}
->   
->   	if (req_entries)
->   		num_entries = req_entries;
-> +	else
-> +		num_entries = PREALLOC_DMA_DEBUG_ENTRIES;
->   
->   	if (prealloc_memory(num_entries) != 0) {
->   		pr_err("DMA-API: debugging out of memory error - disabled\n");
->   		global_disable = true;
->   
-> -		return;
-> +		return 0;
->   	}
->   
->   	nr_total_entries = num_free_entries;
-> @@ -1044,7 +1049,9 @@ void dma_debug_init(u32 num_entries)
->   	dma_debug_initialized = true;
->   
->   	pr_info("DMA-API: debugging enabled by kernel config\n");
-> +	return 0;
->   }
-> +core_initcall(dma_debug_init);
+diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
+index 1ff6a6a7b97c..91ee04842c22 100644
+--- a/arch/hexagon/kernel/traps.c
++++ b/arch/hexagon/kernel/traps.c
+@@ -412,11 +412,6 @@ void do_trap0(struct pt_regs *regs)
+ 	case TRAP_DEBUG:
+ 		/* Trap0 0xdb is debug breakpoint */
+ 		if (user_mode(regs)) {
+-			struct siginfo info;
+-
+-			clear_siginfo(&info);
+-			info.si_signo = SIGTRAP;
+-			info.si_errno = 0;
+ 			/*
+ 			 * Some architecures add some per-thread state
+ 			 * to distinguish between breakpoint traps and
+@@ -424,9 +419,8 @@ void do_trap0(struct pt_regs *regs)
+ 			 * set the si_code value appropriately, or we
+ 			 * may want to use a different trap0 flavor.
+ 			 */
+-			info.si_code = TRAP_BRKPT;
+-			info.si_addr = (void __user *) pt_elr(regs);
+-			force_sig_info(SIGTRAP, &info, current);
++			force_sig_fault(SIGTRAP, TRAP_BRKPT,
++					(void __user *) pt_elr(regs), current);
+ 		} else {
+ #ifdef CONFIG_KGDB
+ 			kgdb_handle_exception(pt_cause(regs), SIGTRAP,
+diff --git a/arch/hexagon/mm/vm_fault.c b/arch/hexagon/mm/vm_fault.c
+index 2ad92edc877c..933bbcef5363 100644
+--- a/arch/hexagon/mm/vm_fault.c
++++ b/arch/hexagon/mm/vm_fault.c
+@@ -50,13 +50,12 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
+ {
+ 	struct vm_area_struct *vma;
+ 	struct mm_struct *mm = current->mm;
+-	siginfo_t info;
++	int si_signo;
+ 	int si_code = SEGV_MAPERR;
+ 	int fault;
+ 	const struct exception_table_entry *fixup;
+ 	unsigned int flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
+ 
+-	clear_siginfo(&info);
+ 	/*
+ 	 * If we're in an interrupt or have no user context,
+ 	 * then must not take the fault.
+@@ -141,28 +140,22 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
+ 	 * unable to fix up the page fault.
+ 	 */
+ 	if (fault & VM_FAULT_SIGBUS) {
+-		info.si_signo = SIGBUS;
+-		info.si_code = BUS_ADRERR;
++		si_signo = SIGBUS;
++		si_code = BUS_ADRERR;
+ 	}
+ 	/* Address is not in the memory map */
+ 	else {
+-		info.si_signo = SIGSEGV;
+-		info.si_code = SEGV_ACCERR;
++		si_signo = SIGSEGV;
++		si_code  = SEGV_ACCERR;
+ 	}
+-	info.si_errno = 0;
+-	info.si_addr = (void __user *)address;
+-	force_sig_info(info.si_signo, &info, current);
++	force_sig_fault(si_signo, si_code, (void __user *)address, current);
+ 	return;
+ 
+ bad_area:
+ 	up_read(&mm->mmap_sem);
+ 
+ 	if (user_mode(regs)) {
+-		info.si_signo = SIGSEGV;
+-		info.si_errno = 0;
+-		info.si_code = si_code;
+-		info.si_addr = (void *)address;
+-		force_sig_info(info.si_signo, &info, current);
++		force_sig_fault(SIGSEGV, si_code, (void __user *)address, current);
+ 		return;
+ 	}
+ 	/* Kernel-mode fault falls through */
+-- 
+2.14.1
 
-I think it's worth noting that for most users this now happens much 
-earlier than before. In general that's probably good (e.g. on arm64 it 
-should prevent false-positives from the Arm SMMU drivers under ACPI), 
-and I can't imagine it's high-risk, but it is a behaviour change.
-
-Robin.
-
->   
->   static __init int dma_debug_cmdline(char *str)
->   {
-> 
