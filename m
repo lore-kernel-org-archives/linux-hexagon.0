@@ -1,67 +1,56 @@
-From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-Subject: [PATCH 3/3] dma-debug: unexport dma_debug_resize_entries and
-	debug_dma_dump_mappings
-Date: Tue, 24 Apr 2018 16:02:35 +0200
-Message-ID: <20180424140235.9125-4-hch@lst.de>
-References: <20180424140235.9125-1-hch@lst.de>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 13/22] nds32: use generic dma_noncoherent_ops
+Date: Tue, 24 Apr 2018 21:16:40 +0200
+Message-ID: <20180424191640.GA32495@lst.de>
+References: <20180420080313.18796-1-hch@lst.de> <20180420080313.18796-14-hch@lst.de> <CAEbi=3fkakVD2vxGu6SgJM77JnNM8Y79xS8_o6m9d_85BJpMFQ@mail.gmail.com>
 Mime-Version: 1.0
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAEbi=3fkakVD2vxGu6SgJM77JnNM8Y79xS8_o6m9d_85BJpMFQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20170209;
-	h=References:In-Reply-To:Message-Id:
-	Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
-	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=8kQIUw9gDSQdMU1a+kOuWQ9BDQ4IsqyN6cHgGWD6rWA=;
-	b=Flqp82OQKjnL87udDGFvKjqwn
-	trv4XvKR2UPrQVhAazweKB3odeSUDKwy99ssnylB262JfgE20sVU9IVddHZtteg7RFpz5SzmxtFRc
-	43azaV4l3DgGAaQGD0SDTcR87tBJOMfpc5H2cPwzeVGLicMzZ/XOabT+kX5j92T6xJxNc4/Vwo0fs
-	J16gCxuVmVuQ0JFoKgSROCcumNHrAi9ee2kyFozbP3dInvDVCUTaI4fbrVxWMqzmXPoQdVUxYzcJU
-	A861oi/O8xx7uSzKVmLQEnjSPKlI8/yFzNVFmZUwXyaN+m8/tCTRKxoaHlvZarBF9F+rU/CZ+kjuB
-	v4qonGSlQ==;
-In-Reply-To: <20180424140235.9125-1-hch-jcswGhMUV9g@public.gmane.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Cc: linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Vincent Chen <deanbo422-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-m68k-cunTk1MwBs8S/qaLPR03pWD2FQJk+8+b@public.gmane.org, openrisc-cunTk1MwBs9a3B2Vnqf2dGD2FQJk+8+b@public.gmane.org, Greentime Hu <green.hu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-alpha-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2-dev-g9ZBwUv/Ih/yUk5EbOjzuce+I+R0W71w@public.gmane.org, linux-snps-arc-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Greentime Hu <green.hu@gmail.com>
+Cc: Christoph Hellwig <hch@lst.de>, linux-arch <linux-arch@vger.kernel.org>, Michal Simek <monstr@monstr.eu>, Vincent Chen <deanbo422@gmail.com>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux <sparclinux@vger.kernel.org>, linux-xtensa@linux-xtensa.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Only used by the AMD GART driver, which must be built in.
+Hi Greentime,
 
-Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
----
- lib/dma-debug.c | 2 --
- 1 file changed, 2 deletions(-)
+thanks for testing the patch!
 
-diff --git a/lib/dma-debug.c b/lib/dma-debug.c
-index 075253cb613b..6a1ebaa83623 100644
---- a/lib/dma-debug.c
-+++ b/lib/dma-debug.c
-@@ -444,7 +444,6 @@ void debug_dma_dump_mappings(struct device *dev)
- 		spin_unlock_irqrestore(&bucket->lock, flags);
- 	}
- }
--EXPORT_SYMBOL(debug_dma_dump_mappings);
+It looks like nds32 doesn't have a buildbot yet, so this code didn't
+even get syntax checkin, sorry.
+
+Below is the incremental fixes based on this thread.
+
+Can you check if my tree works if you just revert the
+"nds32: use generic dma_noncoherent_ops" commit?
+
+diff --git a/arch/nds32/kernel/dma.c b/arch/nds32/kernel/dma.c
+index 688f1a03dee6..48018275e7f4 100644
+--- a/arch/nds32/kernel/dma.c
++++ b/arch/nds32/kernel/dma.c
+@@ -330,7 +330,7 @@ void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
+ 	void *addr = kmap_atomic_pfn(PHYS_PFN(paddr));
+ 	unsigned long start = (unsigned long)addr;
  
- /*
-  * For each mapping (initial cacheline in the case of
-@@ -753,7 +752,6 @@ int dma_debug_resize_entries(u32 num_entries)
+-	switch (direction) {
++	switch (dir) {
+ 	case DMA_FROM_DEVICE:
+ 		break;
+ 	case DMA_TO_DEVICE:
+@@ -350,12 +350,12 @@ void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
+ 	void *addr = kmap_atomic_pfn(PHYS_PFN(paddr));
+ 	unsigned long start = (unsigned long)addr;
  
- 	return ret;
- }
--EXPORT_SYMBOL(dma_debug_resize_entries);
- 
- /*
-  * DMA-API debugging init code
--- 
-2.17.0
+-	switch (direction) {
++	switch (dir) {
+ 	case DMA_TO_DEVICE:
+ 		break;
+ 	case DMA_FROM_DEVICE:
+ 	case DMA_BIDIRECTIONAL:
+-		cpu_dma_inval_range(start, end);
++		cpu_dma_inval_range(start, start + size);
+ 		break;
+ 	default:
+ 		BUG();
