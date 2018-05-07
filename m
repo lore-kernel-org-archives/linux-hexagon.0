@@ -1,64 +1,37 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [GIT PULL] Hexagon fixes
-Date: Tue, 1 May 2018 21:08:33 -0500
-Message-ID: <20180502020833.GB7239@codeaurora.org>
+From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+Subject: Re: dma-debug cleanups, including removing the arch hook
+Date: Mon, 7 May 2018 12:29:15 +0200
+Message-ID: <20180507102915.GA25974@lst.de>
+References: <20180424140235.9125-1-hch@lst.de>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1525226916;
-        bh=6OXrwR5P+eJId3DPkgQP3nGcpWJ7PXUfV4Gqe5TM0KU=;
-        h=Date:From:To:Subject:From;
-        b=fHAZPAQ1vcge17DK24WSq14OwbyZqqRYu+cHVKIasoWYf/nfA2tyrL8+0vYXgKj7D
-         ZRu4Co+vlbJDnp0J1kOsvlKE9/rdqE8p7itc24iHCJePtuzLXA3WRdx0kjEzRzMwGy
-         qkfDWRynbqf+G6pVEtXxdpXXXuE8SIACJin2vWXE=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1525226915;
-        bh=6OXrwR5P+eJId3DPkgQP3nGcpWJ7PXUfV4Gqe5TM0KU=;
-        h=Date:From:To:Subject:From;
-        b=nhwqOG02uA/2t0WQ2L1oG50L7xyeOzeOfZ+gyx+F+kcfCkpBkBpmubJDBkXfXddkI
-         dte8gzLh9UG4ll6dL1gxxgcq2Hr2YmQuSs54Aqtt+GFNuAwKIUacfHAwU/lgzctgLP
-         Td+0QjAkenAoOSC5zfmMEkmnKI/J52PvVEz2LXZU=
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20180424140235.9125-1-hch-jcswGhMUV9g@public.gmane.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Cc: linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, linux-snps-arc-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-m68k-cunTk1MwBs8S/qaLPR03pWD2FQJk+8+b@public.gmane.org, openrisc-cunTk1MwBs9a3B2Vnqf2dGD2FQJk+8+b@public.gmane.org, Greentime Hu <green.hu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-alpha-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2-dev-g9ZBwUv/Ih/yUk5EbOjzuce+I+R0W71w@public.gmane.org, Vincent Chen <deanbo422-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 
-Linus,
+Any comments?  I'd like to move forward with this rather sooner
+than later, so any reviews welcome!
 
-Please pull the following changes for Hexagon; they contain some small fixes
-for module compilation.
-
-
-Thanks,
-Richard Kuo
-
-
-
-The following changes since commit 6da6c0db5316275015e8cc2959f12a17584aeb64:
-
-  Linux v4.17-rc3 (2018-04-29 14:17:42 -0700)
-
-are available in the git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
-
-for you to fetch changes up to 330e261c35dfb969c48f996dbbc8b334b5ee8d9d:
-
-  hexagon: export csum_partial_copy_nocheck (2018-05-01 15:49:50 -0500)
-
-----------------------------------------------------------------
-Arnd Bergmann (2):
-      hexagon: add memset_io() helper
-      hexagon: export csum_partial_copy_nocheck
-
- arch/hexagon/include/asm/io.h | 6 ++++++
- arch/hexagon/lib/checksum.c   | 1 +
- 2 files changed, 7 insertions(+)
-
-
--- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
-a Linux Foundation Collaborative Project
+On Tue, Apr 24, 2018 at 04:02:32PM +0200, Christoph Hellwig wrote:
+> Hi all,
+> 
+> this series has a few dma-debug cleanups, most notably removing the need
+> for architectures to explicitly initialize dma-debug.
+> _______________________________________________
+> iommu mailing list
+> iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+> https://lists.linuxfoundation.org/mailman/listinfo/iommu
+---end quoted text---
