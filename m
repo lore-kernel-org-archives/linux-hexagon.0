@@ -1,7 +1,8 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: common non-cache coherent direct dma mapping ops
-Date: Fri, 11 May 2018 09:59:25 +0200
-Message-ID: <20180511075945.16548-1-hch@lst.de>
+Subject: [PATCH 01/20] dma-mapping: simplify Kconfig dependencies
+Date: Fri, 11 May 2018 09:59:26 +0200
+Message-ID: <20180511075945.16548-2-hch@lst.de>
+References: <20180511075945.16548-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -9,15 +10,17 @@ Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infrad
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
 	Content-Transfer-Encoding:Content-Type:MIME-Version:Cc:List-Subscribe:
-	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:Message-Id:Date:
-	Subject:To:From:Reply-To:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
-	References:List-Owner; bh=4wx5mKm3C3YIokHdRKpACvmtVmKY5sD2XUoq4d8zIhw=; b=hgo
-	9kH976usDgVuwCXGaqJH0oATyQa5r1lA7h4NkDKT5wcukqf3zkJ+pk7GzdR7fsl/RpPi9IZ9wjbBR
-	iDPQtku5k6nwiXFuqJKE3Y+tuXSmbjmBu8e0hAsoXPuRdgvshgI7IMb21hZCsw8skOctfzqZXxsqh
-	h+kKKubakZ1WiL6H6IOj/X85sM8St/+2W1sDqrUSNufsp7ER2Y3jKuo2TEM/LS2FQ16doBcq8M7Pe
-	2mtEufIwQjEOBnbpJXVXFcWF3FRXMTilYVS+g6H4zVv24TKLsKhaMSBpZ95YLnegHc4RQldnRF7Zw
-	P1BeCwAsG4AWIXU9PhKyuC64u+LjKVg==;
+	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:References:
+	In-Reply-To:Message-Id:Date:Subject:To:From:Reply-To:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Owner;
+	bh=zZhOMUi6Cec72ypBz4eype0xqUtuCBuiCxzdwF7u51s=; b=qoue5rdF/QQhTVrSP2gA2M8y3v
+	ZR/14s5KWL0NBCN6yHYj+wZzBHuSD76jjk9KpUGW5u9MR7Lj2acVJVMW8oGQ4KnHvb0W6IreLG96U
+	rEd7eZdt8seN1SqqNsN8cJ+T/W8y8XIJnjM5WL46rPReiXvQ6e26DThwlib1hVBrtoQz8OdKKex+S
+	eaa93fZHXd4kN509ZnOTgm/boTBWjxnwgLAIZCrM1eqmQdOQdwiuCR5d5a7prZqlRH3dwapKHaqkP
+	bPCL8aT5p1tbEv0QM6G6PbOeLvOOm39heUQq1KtsQxxUKRcn38NzZaCC5aUwKmavlBe5cySD4dr8L
+	29B3u4QQ==;
+In-Reply-To: <20180511075945.16548-1-hch@lst.de>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
@@ -31,35 +34,34 @@ Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead
 To: iommu@lists.linux-foundation.org
 Cc: linux-arch@vger.kernel.org, linux-xtensa@linux-xtensa.org, Michal Simek <monstr@monstr.eu>, Vincent Chen <deanbo422@gmail.com>, linux-c6x-dev@linux-c6x.org, linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, Greentime Hu <green.hu@gmail.com>, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org
 
-Hi all,
+ARCH_DMA_ADDR_T_64BIT is always true for 64-bit architectures now, so we
+can skip the clause requiring it.  'n' is the default default, so no need
+to explicitly state it.
 
-this series continues consolidating the dma-mapping code, with a focus
-on architectures that do not (always) provide cache coherence for DMA.
-Three architectures (arm, mips and powerpc) are still left to be
-converted later due to complexity of their dma ops selection.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ lib/Kconfig | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-The dma-noncoherent ops calls the dma-direct ops for the actual
-translation of streaming mappins and allow the architecture to provide
-any cache flushing required for cpu to device and/or device to cpu
-ownership transfers.  The dma coherent allocator is for now still left
-entirely to architecture supplied implementations due the amount of
-variations.  Hopefully we can do some consolidation for them later on
-as well.
-
-A lot of architectures are currently doing very questionable things
-in their dma mapping routines, which are documented in the changelogs
-for each patch.  Please review them very careful and correct me on
-incorrect assumptions.
-
-Because this series sits on top of two previously submitted series
-a git tree might be useful to actually test it.  It is provided here:
-
-    git://git.infradead.org/users/hch/misc.git generic-dma-noncoherent
-
-Gitweb:
-
-    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/generic-dma-noncoherent
-
-Changes since RFC:
- - fix a typo accidentally disabling the device to cpu transfer sync
- - fixed a few compile failures
+diff --git a/lib/Kconfig b/lib/Kconfig
+index 1d84e61cccfe..6c4e9d0ce5d1 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -443,13 +443,11 @@ config IOMMU_HELPER
+ 
+ config DMA_DIRECT_OPS
+ 	bool
+-	depends on HAS_DMA && (!64BIT || ARCH_DMA_ADDR_T_64BIT)
+-	default n
++	depends on HAS_DMA
+ 
+ config DMA_VIRT_OPS
+ 	bool
+-	depends on HAS_DMA && (!64BIT || ARCH_DMA_ADDR_T_64BIT)
+-	default n
++	depends on HAS_DMA
+ 
+ config SWIOTLB
+ 	bool
+-- 
+2.17.0
