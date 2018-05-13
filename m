@@ -1,55 +1,57 @@
-From: John Garry <john.garry-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 04/20] arm-nommu: use generic dma_noncoherent_ops
-Date: Fri, 11 May 2018 14:56:16 +0100
-Message-ID: <73603c68-da05-22bd-efab-d0387a98225d@huawei.com>
-References: <20180511075945.16548-1-hch@lst.de>
-	<20180511075945.16548-5-hch@lst.de>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH] hexagon: fix printk format warning in setup.c
+Date: Sat, 12 May 2018 18:48:49 -0700
+Message-ID: <adce8db5-4b01-dc10-7fbb-6a64e0787eb5@infradead.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <20180511075945.16548-5-hch-jcswGhMUV9g@public.gmane.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Cc: linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, linux-snps-arc-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-c6x-dev-jPsnJVOj+W6hPH1hqNUYSQ@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-m68k-cunTk1MwBs8S/qaLPR03pWD2FQJk+8+b@public.gmane.org, openrisc-cunTk1MwBs9a3B2Vnqf2dGD2FQJk+8+b@public.gmane.org, Greentime Hu <green.hu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-alpha-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2-dev-g9ZBwUv/Ih/yUk5EbOjzuce+I+R0W71w@public.gmane.org, Vincent Chen <deanbo422-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+        Content-Type:MIME-Version:Date:Message-ID:Subject:From:Cc:To:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=yfxdMOBVsfpbOt27QPans5cYacEarSY4UVqg6HNnMtI=; b=qBNPMs99V10oCHhVPWVqwtHVM
+        xvY05o0iDEohhRLvczRAzhwSIDO2iEXZf80Grr+s/zgmj7N2tR2xJQ0sPYhS4WklOWZhR4BdRiVWe
+        /JoiF1mHj4JjjZS9eXLl9By1PBs3RuVVNWLCbxTNpy6e7ShB/EPTig7jVN5xdEtr8HGInsAXv7qrs
+        F0VbgTMAYa5bEZkoErzw/QHMPy3ok85WBdtOexviMw+YrUK5hDuIV29t3OiqvKWJ+EBAml6B9iLnU
+        VigJ9PvS3iGwcNPsY5DNLBWXX/e6+KtDD3DUap/mFRKWYsw504NwpcgAY0h1WruT5FolDrc+pnaLZ
+    
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: LKML <linux-kernel@vger.kernel.org>, linux-hexagon@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 
-On 11/05/2018 08:59, Christoph Hellwig wrote:
-> Switch to the generic noncoherent direct mapping implementation for
-> the nommu dma map implementation.
->
-> Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-> ---
->  arch/arc/Kconfig                |   1 +
->  arch/arm/Kconfig                |   4 +
->  arch/arm/mm/dma-mapping-nommu.c | 139 +++++---------------------------
->  3 files changed, 23 insertions(+), 121 deletions(-)
->
-> diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
-> index 89d47eac18b2..3a492a9aeaad 100644
-> --- a/arch/arc/Kconfig
-> +++ b/arch/arc/Kconfig
-> @@ -9,6 +9,7 @@
->  config ARC
->  	def_bool y
->  	select ARC_TIMERS
-> +	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
->  	select ARCH_HAS_SYNC_DMA_FOR_CPU
->  	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+From: Randy Dunlap <rdunlap@infradead.org>
 
-I guess that this arc change is here by accident, no? And isn't 
-ARCH_HAS_SYNC_DMA_FOR_DEVICE already selected (by 3/20)?
+Fix printk format warning in hexagon/kernel/setup.c:
 
->  	select ARCH_HAS_SG_CHAIN
-> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-> index c43f5bb55ac8..76ddd0064f87 100644
-> --- a/arch/arm/Kconfig
-> +++ b/arch/arm/Kconfig
+../arch/hexagon/kernel/setup.c: In function 'setup_arch':
+../arch/hexagon/kernel/setup.c:69:2: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'long unsigned int' [-Wformat]
+
+where:
+extern unsigned long	__phys_offset;
+#define PHYS_OFFSET	__phys_offset
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+---
+ arch/hexagon/kernel/setup.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-next-20180510.orig/arch/hexagon/kernel/setup.c
++++ linux-next-20180510/arch/hexagon/kernel/setup.c
+@@ -66,7 +66,7 @@ void __init setup_arch(char **cmdline_p)
+ 	 */
+ 	__vmsetvec(_K_VM_event_vector);
+ 
+-	printk(KERN_INFO "PHYS_OFFSET=0x%08x\n", PHYS_OFFSET);
++	printk(KERN_INFO "PHYS_OFFSET=0x%08lx\n", PHYS_OFFSET);
+ 
+ 	/*
+ 	 * Simulator has a few differences from the hardware.
+
+
