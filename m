@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 01/25] hexagon: remove the sync_single_for_cpu DMA operation
-Date: Tue, 22 May 2018 14:04:06 +0200
-Message-ID: <20180522120430.28709-2-hch@lst.de>
+Subject: [PATCH 02/25] hexagon: implement the sync_sg_for_device DMA operation
+Date: Tue, 22 May 2018 14:04:07 +0200
+Message-ID: <20180522120430.28709-3-hch@lst.de>
 References: <20180522120430.28709-1-hch@lst.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
@@ -10,11 +10,11 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
         Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
         List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=hI3OXgIID5yBx5WeNw19cRYoKq7b3+UClm8FsQoHHIk=; b=I4TTKp0v6J5/WxtJgduy7aeXT
-        TwC4s+iV0nHxXgMJWrwI2sGATDsetf/9YVK7jyVgn7QVs5QKSFQpEzUzMDGMXeaGKaldVkgfhfARX
-        TnbV/gqJECyNUcDlrew/56yQiWwIez7bk0sdm3l/IbypNS8YJ8EclDpLv67zGQPwWaEtz2P6WTVPF
-        1T4LgniTTgHnW85bCHSJHkv3Nk5TcWuqocrWF7YvhgMtb2GNyoOpp5yt8hWWlarVduX8RIQ3Lyu5t
-        HLE5UdLD559liVstaSkQzmz24C91WUXzCLZYlJ2PM66h4BaXtKVvti53VzgIWo5aaktX3vdMHcOkV
+         bh=6QeQfsmxLtvSTWRm2mI425nRKZ7uJXsKokLba0UIzjw=; b=ep/oKIT5Z6y7+Y2RJbbZJXuwp
+        yuVVpysgKfAIsZuZawhuWkeAft+znPbA7VCNm3VGoMtYGQfWfeVIBuiXG276RLLg2MrA/WpGjugwu
+        5ccs4GK1NUddslDUsBltwZRLAtQoe+B6itcSeV1NtbyEWneDKEv3z9rUbxy9iE+n/i1+9f7h8g16A
+        ixBbsxRY5REGwhtfVj6HtQpP3VNSvKYnSzlpaT8Blu7pdTcIz4ubKwswBA7tnEWzS5vgmhcAkfShq
+        rOP8fSVRWmXDrLIX09/G90uShL21t70tBj8e52t99Fh19lyaJuZzFDhidf45+ZgD47nVEiUhfeaAQ
     
 In-Reply-To: <20180522120430.28709-1-hch@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,43 +25,45 @@ Content-Transfer-Encoding: 7bit
 To: iommu@lists.linux-foundation.org
 Cc: linux-arch@vger.kernel.org, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org
 
-hexagon does all the required cache maintainance at dma map time, and none
-at unmap time.  It thus has to implement sync_single_for_device to match
-the map cace for buffer reuse, but there is no point in doing another
-invalidation in the sync_single_cpu_case, which in terms of cache
-maintainance is equivalent to the unmap case.
+This methods needs to provide the equivalent of sync_single_for_device
+for each S/G list element, but was missing.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/hexagon/kernel/dma.c | 8 --------
- 1 file changed, 8 deletions(-)
+ arch/hexagon/kernel/dma.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/arch/hexagon/kernel/dma.c b/arch/hexagon/kernel/dma.c
-index 77459df34e2e..d2b717f352f4 100644
+index d2b717f352f4..9e46556a227d 100644
 --- a/arch/hexagon/kernel/dma.c
 +++ b/arch/hexagon/kernel/dma.c
-@@ -181,13 +181,6 @@ static dma_addr_t hexagon_map_page(struct device *dev, struct page *page,
- 	return bus;
+@@ -188,6 +188,18 @@ static void hexagon_sync_single_for_device(struct device *dev,
+ 	dma_sync(dma_addr_to_virt(dma_handle), size, dir);
  }
  
--static void hexagon_sync_single_for_cpu(struct device *dev,
--					dma_addr_t dma_handle, size_t size,
--					enum dma_data_direction dir)
--{
--	dma_sync(dma_addr_to_virt(dma_handle), size, dir);
--}
--
- static void hexagon_sync_single_for_device(struct device *dev,
- 					dma_addr_t dma_handle, size_t size,
- 					enum dma_data_direction dir)
-@@ -205,7 +198,6 @@ const struct dma_map_ops hexagon_dma_ops = {
- 	.free		= hexagon_free_coherent,
++static void hexagon_sync_sg_for_device(struct device *dev,
++		struct scatterlist *sgl, int nents, enum dma_data_direction dir)
++{
++	struct scatterlist *sg;
++	int i;
++
++	for_each_sg(sgl, sg, nents, i)
++		hexagon_sync_single_for_device(dev, sg_dma_address(sg),
++				sg->length, dir);
++}
++
++
+ static int hexagon_mapping_error(struct device *dev, dma_addr_t dma_addr)
+ {
+ 	return dma_addr == HEXAGON_MAPPING_ERROR;
+@@ -199,6 +211,7 @@ const struct dma_map_ops hexagon_dma_ops = {
  	.map_sg		= hexagon_map_sg,
  	.map_page	= hexagon_map_page,
--	.sync_single_for_cpu = hexagon_sync_single_for_cpu,
  	.sync_single_for_device = hexagon_sync_single_for_device,
++	.sync_sg_for_device = hexagon_sync_sg_for_device,
  	.mapping_error	= hexagon_mapping_error,
  };
+ 
 -- 
 2.17.0
 
