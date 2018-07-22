@@ -1,60 +1,75 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 Subject: Re: [PATCH] arch/h8300: fix kernel/dma.c build warning
-Date: Sun, 22 Jul 2018 11:25:59 +0200
-Message-ID: <CAMuHMdVs4y_BeONEWiAqmNSo+U8um1EZ16sfgdnw8rar6ASzxg@mail.gmail.com>
+Date: Sun, 22 Jul 2018 10:24:58 -0700
+Message-ID: <24723dd8-9d9f-24b7-6fe9-71a776c5d444@infradead.org>
 References: <b4146df6-93ef-5f4d-9302-2040895d62b0@infradead.org>
+ <CAMuHMdVs4y_BeONEWiAqmNSo+U8um1EZ16sfgdnw8rar6ASzxg@mail.gmail.com>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <b4146df6-93ef-5f4d-9302-2040895d62b0@infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:
+        Subject:Sender:Reply-To:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=cGorUSEktgbQnK9D/09bSTRV7t4di2d1RlUMgWkoDZQ=; b=WpOXEXyyH8fsRKz+zPO2j5Tm+
+        RKb79nQ3Q9rtTD+10BB1lQt6w/WxpVeNusigRksuDL3dDtDeyGFkEZU61fL4cnppJe9Bu5NgNzyXP
+        qt3F/o/iiYjjkQQd5vQWWyFS+w68kLzlBBu/MJ8tFEuD9zJqn8Q1LIMz25OaLi+kTlBgZ48z4UsD5
+        WA+H9xP3e06MRWltwbe9xiHlUkfraEQUbWcmEd3TlviS2gagfst7bvq0NwW5Lylhs6FsM4qOTxz/B
+        c9+yoxicGpw/qSzvGvjZLGH1yBEu2s8RyLZjRQGpUwtbm+50OvKc/knh1uYxeQsJ3uNFIIxO63Zsv
+    
+In-Reply-To: <CAMuHMdVs4y_BeONEWiAqmNSo+U8um1EZ16sfgdnw8rar6ASzxg@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Randy Dunlap <rdunlap@infradead.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
 Cc: Richard Kuo <rkuo@codeaurora.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Linux-sh list <linux-sh@vger.kernel.org>
 
-CC hexagon
+On 07/22/2018 02:25 AM, Geert Uytterhoeven wrote:
+> CC hexagon
+> 
+> hexagon != H8/300 != SuperH
 
-hexagon != H8/300 != SuperH
+argh.  Thanks.
 
-On Sat, Jul 21, 2018 at 5:17 AM Randy Dunlap <rdunlap@infradead.org> wrote:
->
-> From: Randy Dunlap <rdunlap@infradead.org>
->
-> Fix build warning in arch/hexagon/kernel/dma.c by casting a void *
-> to unsigned long to match the function parameter type.
->
-> ../arch/hexagon/kernel/dma.c: In function 'arch_dma_alloc':
-> ../arch/hexagon/kernel/dma.c:51:5: warning: passing argument 2 of 'gen_pool_add' makes integer from pointer without a cast [enabled by default]
-> ../include/linux/genalloc.h:112:19: note: expected 'long unsigned int' but argument is of type 'void *'
->
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-> Cc: Rich Felker <dalias@libc.org>
-> Cc: linux-sh@vger.kernel.org
-> ---
->  arch/hexagon/kernel/dma.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> --- linux-next-20180717.orig/arch/hexagon/kernel/dma.c
-> +++ linux-next-20180717/arch/hexagon/kernel/dma.c
-> @@ -47,7 +47,7 @@ void *arch_dma_alloc(struct device *dev,
->                         panic("Can't create %s() memory pool!", __func__);
->                 else
->                         gen_pool_add(coherent_pool,
-> -                               pfn_to_virt(max_low_pfn),
-> +                               (unsigned long)pfn_to_virt(max_low_pfn),
->                                 hexagon_coherent_pool_size, -1);
->         }
->
+> On Sat, Jul 21, 2018 at 5:17 AM Randy Dunlap <rdunlap@infradead.org> wrote:
+>>
+>> From: Randy Dunlap <rdunlap@infradead.org>
+>>
+>> Fix build warning in arch/hexagon/kernel/dma.c by casting a void *
+>> to unsigned long to match the function parameter type.
+>>
+>> ../arch/hexagon/kernel/dma.c: In function 'arch_dma_alloc':
+>> ../arch/hexagon/kernel/dma.c:51:5: warning: passing argument 2 of 'gen_pool_add' makes integer from pointer without a cast [enabled by default]
+>> ../include/linux/genalloc.h:112:19: note: expected 'long unsigned int' but argument is of type 'void *'
+>>
+>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+>> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+>> Cc: Rich Felker <dalias@libc.org>
+>> Cc: linux-sh@vger.kernel.org
+>> ---
+>>  arch/hexagon/kernel/dma.c |    2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> --- linux-next-20180717.orig/arch/hexagon/kernel/dma.c
+>> +++ linux-next-20180717/arch/hexagon/kernel/dma.c
+>> @@ -47,7 +47,7 @@ void *arch_dma_alloc(struct device *dev,
+>>                         panic("Can't create %s() memory pool!", __func__);
+>>                 else
+>>                         gen_pool_add(coherent_pool,
+>> -                               pfn_to_virt(max_low_pfn),
+>> +                               (unsigned long)pfn_to_virt(max_low_pfn),
+>>                                 hexagon_coherent_pool_size, -1);
+>>         }
+>>
+> 
+> Gr{oetje,eeting}s,
+> 
+>                         Geert
+> 
 
-Gr{oetje,eeting}s,
-
-                        Geert
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+~Randy
