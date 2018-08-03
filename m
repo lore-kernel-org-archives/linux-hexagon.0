@@ -1,7 +1,7 @@
 From: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Subject: [PATCH 7/7] unicore32: switch to NO_BOOTMEM
-Date: Fri,  3 Aug 2018 22:58:50 +0300
-Message-ID: <1533326330-31677-8-git-send-email-rppt@linux.vnet.ibm.com>
+Subject: [PATCH 3/7] nios2: use generic early_init_dt_add_memory_arch
+Date: Fri,  3 Aug 2018 22:58:46 +0300
+Message-ID: <1533326330-31677-4-git-send-email-rppt@linux.vnet.ibm.com>
 References: <1533326330-31677-1-git-send-email-rppt@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1533326330-31677-1-git-send-email-rppt@linux.vnet.ibm.com>
@@ -13,106 +13,70 @@ Content-Transfer-Encoding: 7bit
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Richard Kuo <rkuo@codeaurora.org>, Ley Foon Tan <lftan@altera.com>, Richard Weinberger <richard@nod.at>, Guan Xuetao <gxt@pku.edu.cn>, Michal Hocko <mhocko@kernel.org>, linux-hexagon@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-um@lists.infradead.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Mike Rapoport <rppt@linux.vnet.ibm.com>
 
-The unicore32 already supports memblock and uses it for some early memory
-reservations, e.g initrd and the page tables.
-
-At some point unicore32 allocates the bootmem bitmap from the memblock and
-then hands over the memory reservations from memblock to bootmem.
-
-This patch removes the bootmem initialization and leaves memblock as the
-only boot time memory manager for unicore32.
+All we have to do is to enable memblock, the generic FDT code will take
+care of the rest.
 
 Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Acked-by: Guan Xuetao <gxt@pku.edu.cn>
+Acked-by: Ley Foon Tan <ley.foon.tan@intel.com>
 ---
- arch/unicore32/Kconfig   |  1 +
- arch/unicore32/mm/init.c | 54 +-----------------------------------------------
- 2 files changed, 2 insertions(+), 53 deletions(-)
+ arch/nios2/Kconfig        |  1 +
+ arch/nios2/kernel/prom.c  | 10 ----------
+ arch/nios2/kernel/setup.c |  2 ++
+ 3 files changed, 3 insertions(+), 10 deletions(-)
 
-diff --git a/arch/unicore32/Kconfig b/arch/unicore32/Kconfig
-index 03f991e..cff4b9d 100644
---- a/arch/unicore32/Kconfig
-+++ b/arch/unicore32/Kconfig
-@@ -5,6 +5,7 @@ config UNICORE32
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_MIGHT_HAVE_PC_SERIO
- 	select HAVE_MEMBLOCK
-+	select NO_BOOTMEM
- 	select HAVE_GENERIC_DMA_COHERENT
- 	select HAVE_KERNEL_GZIP
- 	select HAVE_KERNEL_BZIP2
-diff --git a/arch/unicore32/mm/init.c b/arch/unicore32/mm/init.c
-index f4950fb..44ccc15 100644
---- a/arch/unicore32/mm/init.c
-+++ b/arch/unicore32/mm/init.c
-@@ -84,58 +84,6 @@ static void __init find_limits(unsigned long *min, unsigned long *max_low,
- 	}
- }
+diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
+index 3d4ec88..5db8fa1 100644
+--- a/arch/nios2/Kconfig
++++ b/arch/nios2/Kconfig
+@@ -19,6 +19,7 @@ config NIOS2
+ 	select SPARSE_IRQ
+ 	select USB_ARCH_HAS_HCD if USB_SUPPORT
+ 	select CPU_NO_EFFICIENT_FFS
++	select HAVE_MEMBLOCK
  
--static void __init uc32_bootmem_init(unsigned long start_pfn,
--	unsigned long end_pfn)
+ config GENERIC_CSUM
+ 	def_bool y
+diff --git a/arch/nios2/kernel/prom.c b/arch/nios2/kernel/prom.c
+index 8d7446a..ba96a49 100644
+--- a/arch/nios2/kernel/prom.c
++++ b/arch/nios2/kernel/prom.c
+@@ -32,16 +32,6 @@
+ 
+ #include <asm/sections.h>
+ 
+-void __init early_init_dt_add_memory_arch(u64 base, u64 size)
 -{
--	struct memblock_region *reg;
--	unsigned int boot_pages;
--	phys_addr_t bitmap;
--	pg_data_t *pgdat;
+-	u64 kernel_start = (u64)virt_to_phys(_text);
 -
--	/*
--	 * Allocate the bootmem bitmap page.  This must be in a region
--	 * of memory which has already been mapped.
--	 */
--	boot_pages = bootmem_bootmap_pages(end_pfn - start_pfn);
--	bitmap = memblock_alloc_base(boot_pages << PAGE_SHIFT, L1_CACHE_BYTES,
--				__pfn_to_phys(end_pfn));
+-	if (!memory_size &&
+-	    (kernel_start >= base) && (kernel_start < (base + size)))
+-		memory_size = size;
 -
--	/*
--	 * Initialise the bootmem allocator, handing the
--	 * memory banks over to bootmem.
--	 */
--	node_set_online(0);
--	pgdat = NODE_DATA(0);
--	init_bootmem_node(pgdat, __phys_to_pfn(bitmap), start_pfn, end_pfn);
--
--	/* Free the lowmem regions from memblock into bootmem. */
--	for_each_memblock(memory, reg) {
--		unsigned long start = memblock_region_memory_base_pfn(reg);
--		unsigned long end = memblock_region_memory_end_pfn(reg);
--
--		if (end >= end_pfn)
--			end = end_pfn;
--		if (start >= end)
--			break;
--
--		free_bootmem(__pfn_to_phys(start), (end - start) << PAGE_SHIFT);
--	}
--
--	/* Reserve the lowmem memblock reserved regions in bootmem. */
--	for_each_memblock(reserved, reg) {
--		unsigned long start = memblock_region_reserved_base_pfn(reg);
--		unsigned long end = memblock_region_reserved_end_pfn(reg);
--
--		if (end >= end_pfn)
--			end = end_pfn;
--		if (start >= end)
--			break;
--
--		reserve_bootmem(__pfn_to_phys(start),
--			(end - start) << PAGE_SHIFT, BOOTMEM_DEFAULT);
--	}
 -}
 -
- static void __init uc32_bootmem_free(unsigned long min, unsigned long max_low,
- 	unsigned long max_high)
+ int __init early_init_dt_reserve_memory_arch(phys_addr_t base, phys_addr_t size,
+ 					     bool nomap)
  {
-@@ -232,7 +180,7 @@ void __init bootmem_init(void)
+diff --git a/arch/nios2/kernel/setup.c b/arch/nios2/kernel/setup.c
+index 926a02b..0946840 100644
+--- a/arch/nios2/kernel/setup.c
++++ b/arch/nios2/kernel/setup.c
+@@ -17,6 +17,7 @@
+ #include <linux/sched/task.h>
+ #include <linux/console.h>
+ #include <linux/bootmem.h>
++#include <linux/memblock.h>
+ #include <linux/initrd.h>
+ #include <linux/of_fdt.h>
+ #include <linux/screen_info.h>
+@@ -147,6 +148,7 @@ void __init setup_arch(char **cmdline_p)
  
- 	find_limits(&min, &max_low, &max_high);
+ 	console_verbose();
  
--	uc32_bootmem_init(min, max_low);
-+	node_set_online(0);
++	memory_size = memblock_phys_mem_size();
+ 	memory_start = PAGE_ALIGN((unsigned long)__pa(_end));
+ 	memory_end = (unsigned long) CONFIG_NIOS2_MEM_BASE + memory_size;
  
- #ifdef CONFIG_SWIOTLB
- 	swiotlb_init(1);
 -- 
 2.7.4
 
