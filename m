@@ -1,10 +1,8 @@
 From: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Subject: [PATCH 2/7] of: ignore sub-page memory regions
-Date: Fri,  3 Aug 2018 22:58:45 +0300
-Message-ID: <1533326330-31677-3-git-send-email-rppt@linux.vnet.ibm.com>
-References: <1533326330-31677-1-git-send-email-rppt@linux.vnet.ibm.com>
+Subject: [PATCH RESEND 0/7] switch several architectures NO_BOOTMEM
+Date: Fri,  3 Aug 2018 22:58:43 +0300
+Message-ID: <1533326330-31677-1-git-send-email-rppt@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1533326330-31677-1-git-send-email-rppt@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -13,45 +11,35 @@ Content-Transfer-Encoding: 7bit
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Richard Kuo <rkuo@codeaurora.org>, Ley Foon Tan <lftan@altera.com>, Richard Weinberger <richard@nod.at>, Guan Xuetao <gxt@pku.edu.cn>, Michal Hocko <mhocko@kernel.org>, linux-hexagon@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-um@lists.infradead.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Mike Rapoport <rppt@linux.vnet.ibm.com>
 
-Memory region size is rounded down to page boundary and with sub-page
-region it becomes 0 and there is no point to add an empty region.
-Moreover, when the base is less than PAGE_SIZE we get a bogus size as
-(base + size - 1) evaluates to -1.
 
-The commit 8cccffc52694 ("of: check for size < 0 after rounding in
-early_init_dt_add_memory_arch") introduced a test for wrap around for the
-case when base is not page aligned, the same test can be used to ignore
-sub-page region sizes.
+Hi,
 
-Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
- drivers/of/fdt.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+These patches perform conversion to NO_BOOTMEM of hexagon, nios2, uml and
+unicore32. The architecture maintainers have acked the patches, but, since
+I've got no confirmation the patches are going through the arch tree I'd
+appreciate if the set would be applied to the -mm tree.
 
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index 6da20b9..e866745 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -1134,12 +1134,13 @@ void __init __weak early_init_dt_add_memory_arch(u64 base, u64 size)
- {
- 	const u64 phys_offset = MIN_MEMBLOCK_ADDR;
- 
-+	if (size < PAGE_SIZE - (base & ~PAGE_MASK)) {
-+		pr_warn("Ignoring memory block 0x%llx - 0x%llx\n",
-+			base, base + size);
-+		return;
-+	}
-+
- 	if (!PAGE_ALIGNED(base)) {
--		if (size < PAGE_SIZE - (base & ~PAGE_MASK)) {
--			pr_warn("Ignoring memory block 0x%llx - 0x%llx\n",
--				base, base + size);
--			return;
--		}
- 		size -= PAGE_SIZE - (base & ~PAGE_MASK);
- 		base = PAGE_ALIGN(base);
- 	}
+Mike Rapoport (7):
+  hexagon: switch to NO_BOOTMEM
+  of: ignore sub-page memory regions
+  nios2: use generic early_init_dt_add_memory_arch
+  nios2: switch to NO_BOOTMEM
+  um: setup_physmem: stop using global variables
+  um: switch to NO_BOOTMEM
+  unicore32: switch to NO_BOOTMEM
+
+ arch/hexagon/Kconfig      |  3 +++
+ arch/hexagon/mm/init.c    | 20 +++++++-----------
+ arch/nios2/Kconfig        |  3 +++
+ arch/nios2/kernel/prom.c  | 17 ---------------
+ arch/nios2/kernel/setup.c | 39 ++++++----------------------------
+ arch/um/Kconfig.common    |  2 ++
+ arch/um/kernel/physmem.c  | 22 +++++++++----------
+ arch/unicore32/Kconfig    |  1 +
+ arch/unicore32/mm/init.c  | 54 +----------------------------------------------
+ drivers/of/fdt.c          | 11 +++++-----
+ 10 files changed, 41 insertions(+), 131 deletions(-)
+
 -- 
 2.7.4
 
