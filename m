@@ -1,82 +1,47 @@
-From: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Subject: [PATCH 3/7] nios2: use generic early_init_dt_add_memory_arch
-Date: Fri,  3 Aug 2018 22:58:46 +0300
-Message-ID: <1533326330-31677-4-git-send-email-rppt@linux.vnet.ibm.com>
-References: <1533326330-31677-1-git-send-email-rppt@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1533326330-31677-1-git-send-email-rppt@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
+From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+Subject: Re: [PATCH 1/3] hexagon: remove the sync_single_for_cpu DMA operation
+Date: Tue, 7 Aug 2018 09:01:36 +0200
+Message-ID: <20180807070136.GA32634@lst.de>
+References: <20180719125635.824-1-hch@lst.de> <20180719125635.824-2-hch@lst.de>
+	<20180725032948.GG12771@codeaurora.org>
+	<20180725043927.GA10827@lst.de> <20180731152229.GA956@lst.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Richard Kuo <rkuo@codeaurora.org>, Ley Foon Tan <lftan@altera.com>, Richard Weinberger <richard@nod.at>, Guan Xuetao <gxt@pku.edu.cn>, Michal Hocko <mhocko@kernel.org>, linux-hexagon@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-um@lists.infradead.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Mike Rapoport <rppt@linux.vnet.ibm.com>
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20180731152229.GA956-jcswGhMUV9g@public.gmane.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Richard Kuo <rkuo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Cc: linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 
-All we have to do is to enable memblock, the generic FDT code will take
-care of the rest.
+On Tue, Jul 31, 2018 at 05:22:29PM +0200, Christoph Hellwig wrote:
+> On Wed, Jul 25, 2018 at 06:39:27AM +0200, Christoph Hellwig wrote:
+> > On Tue, Jul 24, 2018 at 10:29:48PM -0500, Richard Kuo wrote:
+> > > Patch series looks good.  Definitely appreciate the cleanup.
+> > > 
+> > > I can take it through my tree, or if not:
+> > > 
+> > > Acked-by: Richard Kuo <rkuo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+> > 
+> > Please take it through your tree, thanks!
+> 
+> I haven't seen it in linux-next yet, do you still plan to take it?
+> 
+> Otherwise I'll merge it in the dma-mapping tree.
 
-Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Acked-by: Ley Foon Tan <ley.foon.tan@intel.com>
----
- arch/nios2/Kconfig        |  1 +
- arch/nios2/kernel/prom.c  | 10 ----------
- arch/nios2/kernel/setup.c |  2 ++
- 3 files changed, 3 insertions(+), 10 deletions(-)
+Given that I haven't seen this in linux-next nor haven't heard back
+from you I assume you are on your well deserved summer vacation.
 
-diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
-index 3d4ec88..5db8fa1 100644
---- a/arch/nios2/Kconfig
-+++ b/arch/nios2/Kconfig
-@@ -19,6 +19,7 @@ config NIOS2
- 	select SPARSE_IRQ
- 	select USB_ARCH_HAS_HCD if USB_SUPPORT
- 	select CPU_NO_EFFICIENT_FFS
-+	select HAVE_MEMBLOCK
- 
- config GENERIC_CSUM
- 	def_bool y
-diff --git a/arch/nios2/kernel/prom.c b/arch/nios2/kernel/prom.c
-index 8d7446a..ba96a49 100644
---- a/arch/nios2/kernel/prom.c
-+++ b/arch/nios2/kernel/prom.c
-@@ -32,16 +32,6 @@
- 
- #include <asm/sections.h>
- 
--void __init early_init_dt_add_memory_arch(u64 base, u64 size)
--{
--	u64 kernel_start = (u64)virt_to_phys(_text);
--
--	if (!memory_size &&
--	    (kernel_start >= base) && (kernel_start < (base + size)))
--		memory_size = size;
--
--}
--
- int __init early_init_dt_reserve_memory_arch(phys_addr_t base, phys_addr_t size,
- 					     bool nomap)
- {
-diff --git a/arch/nios2/kernel/setup.c b/arch/nios2/kernel/setup.c
-index 926a02b..0946840 100644
---- a/arch/nios2/kernel/setup.c
-+++ b/arch/nios2/kernel/setup.c
-@@ -17,6 +17,7 @@
- #include <linux/sched/task.h>
- #include <linux/console.h>
- #include <linux/bootmem.h>
-+#include <linux/memblock.h>
- #include <linux/initrd.h>
- #include <linux/of_fdt.h>
- #include <linux/screen_info.h>
-@@ -147,6 +148,7 @@ void __init setup_arch(char **cmdline_p)
- 
- 	console_verbose();
- 
-+	memory_size = memblock_phys_mem_size();
- 	memory_start = PAGE_ALIGN((unsigned long)__pa(_end));
- 	memory_end = (unsigned long) CONFIG_NIOS2_MEM_BASE + memory_size;
- 
--- 
-2.7.4
-
+If I don't hear back until tomorrow night I'll merge it through the
+dma-mapping tree, so that I have it in linux-next before heading out
+to my summer vacation.
