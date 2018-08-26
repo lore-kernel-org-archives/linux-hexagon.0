@@ -1,7 +1,7 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [PATCH] treewide: remove current_text_addr
-Date: Sun, 26 Aug 2018 13:25:14 -0700
-Message-ID: <CA+55aFzuSCKfmgT9efHuwtan+m3+bPh4BpwbZwn5gGX_H=Thuw@mail.gmail.com>
+Date: Sun, 26 Aug 2018 16:20:19 -0700
+Message-ID: <e425d208-214b-06a2-a032-7442a10388fc@zytor.com>
 References: <CAKwvOdkWL_2yTnJqM6n6R9UCPwY4iz-9BQYGN2MDAk9EzumUvA@mail.gmail.com>
  <20180821202900.208417-1-ndesaulniers@google.com>
  <207784db-4fcc-85e7-a0b2-fec26b7dab81@gmx.de>
@@ -16,23 +16,17 @@ Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infrad
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
 	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:To:Subject:Message-ID:Date:From:
-	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=Z69Pn20Ng0iqHptL7g3iS+/x9XnS61LzTemJM6xommw=; b=aHWXOadbv5w6AF
-	FfSROyffDm0ZIm/BArs53QiaB1WD8Gc5+muO9j0KUXiqKARF3T/L7c729Wl694169Fh2Ph23/hL+Q
-	nlZe6Rzvyr3ZBP57N8sw/fXi1ga7TIRI7LLKWevLw10LdTy40cWFJtbFvpTHxX86ufItJZIT5ygEM
-	ByR3nTA/skU8im/stWwzQQfB8i3V1WMYS6TwtXpPl1GM3FU2MuWnZifv+KInjFcFNobRQKeNAWreL
-	KeBL6zxYpWKALx+SS0RpzwLijw8U48B/VmlqXlUeR1pkp3Av2SFA5yGxsOPE7ZLge1cMF7xjTRbId
-	4d6yGbdH4eiMFR0WfiUg==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=linux-foundation.org; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=dv1Zcv6yXV8JnerUXBelQioxfreCKhp9x/roL8HAR1I=;
- b=Qv+RrAJ/N6qen72rY9BU1nLz2fhljA6/X1iKITlTVDj2mLNwFWOWN3ypaj2qdf1CH3
- Jd2L1Ze/zarujO4YtXPYCgl/FYaXNv7z/j1xY/1u5dOKOFTwmh0+cLIXEqFNgQMtEaNY
- NIYEnA15J3iItWZpcDjMSTUFsMxSXM5+ctwGg=
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:
+	Message-ID:References:To:From:Subject:Reply-To:Content-ID:Content-Description
+	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=NHD/tWVGBb/ZDH5ekF+1PJSTyALm9mOkPzb68Ok4v3k=; b=f4txQSHN8fNryt
+	sOW8ghOxDx0dEjdHqFvL626n4ZHWLFeNcmfXb7IFA2ZBpTofsoHOiZ3oABczXq6gscATxptXXEXku
+	nqLr/qk6m1hp42IxEinrw+oZQ19Ign6Sq/qp4L2l1FfoYbSyPK3m2MYen0BaPNYO3DPGUB575uAks
+	WsthEyjrI/4pZB83wKJjkzIgRfqlP1PURJ2/qnQxf5oakfpjnjRJRWyJo/AJW5tU1U3jp7hZ01wGi
+	L9pImQs5Kir06aAOAJjrcdh4/aWIkq9xvcoC/yDRvRr3eUK2IwHHTril3yo76AHUZzpuf84nQMgSJ
+	HWL13IaKeXYVm1jjMSXA==;
 In-Reply-To: <6ca8a1d3-ff95-e9f4-f003-0a5af85bcb6f@zytor.com>
+Content-Language: en-US
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
@@ -43,61 +37,62 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
 Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Peter Anvin <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, linux-mips <linux-mips@linux-mips.org>, Linux-sh list <linux-sh@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Catalin Marinas <catalin.marinas@arm.com>, gor@linux.vnet.ibm.com, Matt Turner <mattst88@gmail.com>, "moderated list:H8/300 ARCHITECTURE" <uclinux-h8-devel@lists.sourceforge.jp>, Marc Zyngier <marc.zyngier@arm.com>, Ram Pai <linuxram@us.ibm.com>, linux-um@lists.infradead.org, Nick Piggin <npiggin@gmail.com>, Andrew Lutomirski <luto@kernel.org>, shannon.nelson@oracle.com, Thomas Gleixner <tglx@linutronix.de>, alex.bennee@linaro.org, Richard Henderson <rth@twiddle.net>, Jiri Kosina <jkosina@suse.cz>, N
+To: Helge Deller <deller@gmx.de>, Nick Desaulniers <ndesaulniers@google.com>, torvalds@linux-foundation.org, akpm@linux-foundation.org
+Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, linux-mips@linux-mips.org, linux-sh@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Catalin Marinas <catalin.marinas@arm.com>, Vasily Gorbik <gor@linux.vnet.ibm.com>, Matt Turner <mattst88@gmail.com>, uclinux-h8-devel@lists.sourceforge.jp, Marc Zyngier <marc.zyngier@arm.com>, Ram Pai <linuxram@us.ibm.com>, linux-um@lists.infradead.org, Nicholas Piggin <npiggin@gmail.com>, Andy Lutomirski <luto@kernel.org>, Shannon Nelson <shannon.nelson@oracle.com>, tglx@linutronix.de, =?UTF-8?Q?Alex_Benn=c3=a9e?= <alex.bennee@linaro.org>, Richard Henderson <rth@twiddle.net>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kerne
 
-On Sun, Aug 26, 2018 at 12:32 PM H. Peter Anvin <hpa@zytor.com> wrote:
->
+On 08/26/18 12:30, H. Peter Anvin wrote:
 > Here is a full-blown (user space) test program demonstrating the whole
 > technique and how to use it.
+> 
+> 	-hpa
 
-So while I agree that some _THIS_IP_ users might be better off being
-converted to __builtin_return_address(0) at the caller, I also think
-that the whole "notailcall" thing shows why that can easily be more
-problematic than just our currnet _THIS_IP_ solution.
+Incidentally, it looks like _RET_IP_ really should be defined as:
 
-Honestly, I'd suggest:
 
- - just do the current_text_addr() to _THIS_IP_ conversion
+/*
+ * Is there any reason whatsoever to have _RET_IP_ an unsigned int
+ * rather than a pointer throughout?
+ */
 
- - keep _THIS_IP_ and make it be the generic one, and screw the whole
-"some architectures might implement is better" issue. Nobody cares.
+#define _RET_IP_PTR_ \
+	__builtin_extract_return_addr(__builtin_return_addr(0))
+#define _RET_IP_ ((unsigned long)_RET_IP_PTR_)
 
- - try to convince people to move away from the "we want the kernel
-instruction pointer for the call" model entirely, and consider this a
-"legacy" issue.
+On some architectures __builtin_extract_return_addr() is apparently
+necessary; its a nop on x86.  Why that isn't part of
+__builtin_return_addr() one can really wonder.
 
-The whole instruction pointer is a nasty thing. We should discourage
-it and not make complex infrastructure for it.
+So, checking into all of this, the generic _THIS_IP_ DOES NOT WORK on
+x86.  I have tried a tons of variants, including adding various asm
+volatile(...) instructions, and no matter what I do, it will always
+return the address of the surrounding function rather than any kind of
+local IP.  The only way to get a localized address seems to be in
+assembly, but even so, there is absolutely no guarantee that the value
+of _THIS_IP_ has anything to do with where the code is otherwise
+localized in the function.
 
-Instead, maybe we could encourage something like
+From examining the output of gcc, the fundamental problem seems to be
+that *no matter what* one do with the label, unless gcc actually
+produces a computed goto somewhere in the code, that it can't remove
+with dead-code elimination or constant propagation, it will arbitrarily
+hoist the labels all the way to the beginning of the function. Given
+that, I suspect that other versions of gcc might have similar problems.
 
-  struct kernel_loc { const char *file; const char *fn; int line; };
+This is the closest thing to arch-neutral I have been able to find that
+also works on x86, while not at the same time horribly polluting the
+namespace:
 
-  #define __GEN_LOC__(n) \
-        ({ static const struct kernel_loc n = { \
-                __FILE__, __FUNCTION__, __LINE__  \
-           }; &n; })
+#define __here(n) ___here_ ## n
+#define __hereasm(n) ".L___here_" #n
+#define _THIS_IP_CTR_(n)					\
+	({							\
+		extern const char __here(n) asm(__hereasm(n));	\
+		asm volatile(__hereasm(n) ": /* _THIS_IP_ */"); \
+		(unsigned long)&__here(n);			\
+	})
+#define _THIS_IP_ _THIS_IP_CTR_(__COUNTER__)
 
-  #define _THIS_LOC_ __GEN_LOC__(__UNIQUE_ID(loc))
+The use of asm volatile() to define a label means that the position in
+the instruction stream is at least reasonably well-defined.
 
-which is a hell of a lot nicer to use, and actually allows gcc to
-optimize things (try it: if you pass a _THIS_LOC_ off to an inline
-function, and that inline function uses the name and line number, gcc
-will pick them up directly, without the extra structure dereference.
-
-Wouldn't it be much nicer to pass these kinds of "location pointer"
-around, rather than the nasty _THIS_IP_ thing?
-
-Certainly lockdep looks like it could easily take that "const struct
-kernel_loc *" instead of "unsigned long ip". Makes it easy to print
-out the lockdep info.
-
-Ok, I didn't try to convert anybody, so maybe people who currently use
-_THIS_IP_ or current_text_addr() have some fundamental reason why they
-want just that, but let's not male _THIS_IP_ more complex than it
-needs to be.
-
-Hmm?
-
-             Linus
+	-hpa
