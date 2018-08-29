@@ -1,77 +1,56 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] treewide: remove current_text_addr
-Date: Mon, 27 Aug 2018 06:33:27 -0700
-Message-ID: <4d1a8f35-e2fc-70d2-ca0e-44b8574c86f1@zytor.com>
-References: <20180821202900.208417-1-ndesaulniers@google.com>
- <207784db-4fcc-85e7-a0b2-fec26b7dab81@gmx.de>
- <c62e4e00-fb8f-19a6-f3eb-bde60118cb1a@zytor.com>
- <81141365-8168-799b-f34f-da5f92efaaf9@zytor.com>
- <7f49eeab-a5cc-867f-58fb-abd266f9c2c9@zytor.com>
- <6ca8a1d3-ff95-e9f4-f003-0a5af85bcb6f@zytor.com>
- <CA+55aFzuSCKfmgT9efHuwtan+m3+bPh4BpwbZwn5gGX_H=Thuw@mail.gmail.com>
- <CAKwvOd=wAaPBkFHAcWxgMW91a--9gbvu7xrt3j-q8c+-mT=7Lw@mail.gmail.com>
- <20180827073358.GV24124@hirez.programming.kicks-ass.net>
- <f9896d68-4a49-e666-cea5-a9c0522f1658@zytor.com>
- <20180827131103.GD24124@hirez.programming.kicks-ass.net>
+From: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RESEND 0/7] switch several architectures NO_BOOTMEM
+Date: Wed, 29 Aug 2018 10:20:19 +0300
+Message-ID: <20180829072019.GA13173@rapoport-lnx>
+References: <1533326330-31677-1-git-send-email-rppt@linux.vnet.ibm.com>
 Mime-Version: 1.0
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1533326330-31677-1-git-send-email-rppt@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:
-	Message-ID:From:References:To:Subject:Reply-To:Content-ID:Content-Description
-	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=knRlbtQYy1ffZvN54ygF2wbjswCscYyNJ9Ulo8ehbrg=; b=SoWIO8AuGuPOcr
-	SfeatGbzu6MFNdJVQ+zcLbq5jfbvkZwFCRIfmPoyhvUMdz1h1qMb1ZiAdRyTmkmIi0FdbB0OYWBBA
-	UjYRqMTq/GyN8Sb+F5dOpA0lx2GBbUaMdaR0ZgZ2jkoq+IjqOS2GhhYfXISwjuATbxoIPF6Y/WKCE
-	dw9JC9UY2UvVtVF6AzjLQ+onStmuf1P9SDVs+qTjnTD2rj7Aq4hL/9W6/w2l2JFPGz4wtiqhZ/jg7
-	Rp2/iq/PliFqaCJf0X3zxcns2QMoTTY8vB1ZK2rAiEdFrJvUwoE2e/i2O8FtIIGOA1Cw1Urh9JV2f
-	fBDOHeZxhM47J8+H0jSQ==;
-In-Reply-To: <20180827131103.GD24124@hirez.programming.kicks-ass.net>
-Content-Language: en-US
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: nicolas.pitre@linaro.org, linux-mips@linux-mips.org, linux-sh@vger.kernel.org, benh@kernel.crashing.org, Will Deacon <will.deacon@arm.com>, paulus@samba.org, mpe@ellerman.id.au, jejb@parisc-linux.org, Geert Uytterhoeven <geert@linux-m68k.org>, Catalin Marinas <catalin.marinas@arm.com>, gor@linux.vnet.ibm.com, mattst88@gmail.com, uclinux-h8-devel@lists.sourceforge.jp, Marc Zyngier <marc.zyngier@arm.com>, linuxram@us.ibm.com, linux-um@lists.infradead.org, Nicholas Piggin <npiggin@gmail.com>, luto@kernel.org, shannon.nelson@oracle.com, Thomas Gleixner <tglx@linutronix.de>, alex.bennee@linaro.org, rth@twiddle.net, jkosina@suse.cz, Nick Desaulniers <ndesaulniers@google.com>, LKML <linux-kernel@vger.kernel.org>, ralf@linux-mips.org, rkuo@codeaurora.org, paul.burton@mips.com, aneesh.kumar@linux.vnet.ibm.com, Greg KH <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-found>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Richard Kuo <rkuo@codeaurora.org>, Ley Foon Tan <lftan@altera.com>, Richard Weinberger <richard@nod.at>, Guan Xuetao <gxt@pku.edu.cn>, Michal Hocko <mhocko@kernel.org>, linux-hexagon@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-um@lists.infradead.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
 
-On 08/27/18 06:11, Peter Zijlstra wrote:
-> On Mon, Aug 27, 2018 at 05:26:53AM -0700, H. Peter Anvin wrote:
+Any updates on this?
+
+On Fri, Aug 03, 2018 at 10:58:43PM +0300, Mike Rapoport wrote:
 > 
->> _THIS_IP_, however, is completely ill-defined, other than being an
->> address *somewhere* in the same global function (not even necessarily
->> the same function if the function is static!)  As my experiment show, in
->> many (nearly) cases gcc will hoist the address all the way to the top of
->> the function, at least for the current generic implementation.
+> Hi,
 > 
-> It seems to have mostly worked so far... did anything change?
+> These patches perform conversion to NO_BOOTMEM of hexagon, nios2, uml and
+> unicore32. The architecture maintainers have acked the patches, but, since
+> I've got no confirmation the patches are going through the arch tree I'd
+> appreciate if the set would be applied to the -mm tree.
+> 
+> Mike Rapoport (7):
+>   hexagon: switch to NO_BOOTMEM
+>   of: ignore sub-page memory regions
+>   nios2: use generic early_init_dt_add_memory_arch
+>   nios2: switch to NO_BOOTMEM
+>   um: setup_physmem: stop using global variables
+>   um: switch to NO_BOOTMEM
+>   unicore32: switch to NO_BOOTMEM
+> 
+>  arch/hexagon/Kconfig      |  3 +++
+>  arch/hexagon/mm/init.c    | 20 +++++++-----------
+>  arch/nios2/Kconfig        |  3 +++
+>  arch/nios2/kernel/prom.c  | 17 ---------------
+>  arch/nios2/kernel/setup.c | 39 ++++++----------------------------
+>  arch/um/Kconfig.common    |  2 ++
+>  arch/um/kernel/physmem.c  | 22 +++++++++----------
+>  arch/unicore32/Kconfig    |  1 +
+>  arch/unicore32/mm/init.c  | 54 +----------------------------------------------
+>  drivers/of/fdt.c          | 11 +++++-----
+>  10 files changed, 41 insertions(+), 131 deletions(-)
+> 
+> -- 
+> 2.7.4
 > 
 
-Most likely because the major architectures contain a arch-specific
-assembly implementation.  The generic implementation used in some places
-is completely broken, as my experiments show.
+-- 
+Sincerely yours,
+Mike.
 
->> For the case where _THIS_IP_ is passed to an out-of-line function in all
->> cases, it is extra pointless because all it does is increase the
->> footprint of every caller: _RET_IP_ is inherently passed to the function
->> anyway, and with tailcall protection it will uniquely identify a callsite.
-> 
-> So I think we can convert many of the lockdep _THIS_IP_ calls to
-> _RET_IP_ on the other side, with a wee bit of care.
-> 
-> A little something like so perhaps...
-
-I don't have time to look at this right now (I'm on sabbatical, and I'm
-dealing with personal legal stuff right at the moment), but I think it
-is the right direction.
-
-	-hpa
