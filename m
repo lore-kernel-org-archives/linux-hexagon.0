@@ -1,12 +1,13 @@
 From: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Subject: [PATCH 25/30] memblock: rename free_all_bootmem to memblock_free_all
-Date: Fri, 14 Sep 2018 15:10:40 +0300
-Message-ID: <1536927045-23536-26-git-send-email-rppt@linux.vnet.ibm.com>
+Subject: [PATCH 06/30] memblock: rename memblock_alloc{_nid,
+ _try_nid} to memblock_phys_alloc*
+Date: Fri, 14 Sep 2018 15:10:21 +0300
+Message-ID: <1536927045-23536-7-git-send-email-rppt@linux.vnet.ibm.com>
 References: <1536927045-23536-1-git-send-email-rppt@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
 	Content-Transfer-Encoding:Content-Type:MIME-Version:Cc:List-Subscribe:
@@ -14,565 +15,591 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	References:In-Reply-To:Date:Subject:To:From:Reply-To:Content-ID:
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:List-Owner;
-	bh=iUDNd44rd05SBw5kuBGzUgWOEk6YmnkX9gv/Fb7XhUU=; b=AsJmV5AhaA5V/aDOecJZMv2k5g
-	15Ut2IfJ+APHyTBafUU3IEV7/UjaUOLAYh9Q5bYdD3xzTfbgE8bFFLnmVXbIt/bBWYXDKsCSgzLTv
-	cG8bw/QyqQUxClZxKBbhOoGm1dBTpYX3PDZcTX46IeLHESp9WGd9xng1CnDWDy3YARbXq6CGpgjNY
-	TL5QjYFDRSe8XQAtwr7sWbVQ04hUfKzJQ7BJtPUZ8vhERro/3+J6/TvAj/IQPWlB/6C4lnUdnRGMJ
-	VCz52hRmoIYyHaCaoMUKPiklHNbxc7AyCPJz9raS8tpdT8Pr8kCjiEcJc0DeYlLXlVKJWDqnEOgpf
-	LB0fcpSg==;
+	bh=bdZBCO2N4GbES3xRtBy6wHEeXqTY6C38BhV5xci3R10=; b=s+Fc72r7gFiE3vxKHqg2svPQBZ
+	Y8h+2ntRIrUm7+cEbz3vPLNtLrBR41Gm5u6P3tkjNkx7a8wIOmI1oNtlYtKFpUCtIVK+1bcSB2OXV
+	bhYksbTGkNwjTed6e3PSWpNdwjk9w5Bh7H0E/OaRxJZYkB87pwbLxcZkbxcKF9YuyGXCrf/ckVJDL
+	By26Q6gt7BWWWG/gHYqhCMLWmKKNDqO9AKRL5cUnoIVy4lxGzA5WY9NAqlNYZ2WrziifAUVv2178Z
+	KSDpMO5dQTMb3sDN7sSLs+FWVCFXEFkd7/FIWe++puxSJ7zimKU8gL2Ivvm114r51nAy9UR951pQg
+	eEFHVw2g==;
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Message-Id:References:In-Reply-To:Date:
  Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
  Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
  Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
  List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=uRYUUgiWrb215T3c3tfpThYEPip+8NRO4NVlW1RMJEA=; b=DTooBBJSqS46g0ZD662tPSvLw
- 8+HlWYX8nr+MqOncoMd3lQWWgNz2iYkXHJTMH2K0wdSVZgzk58SK8vpHzfvNUpaCTyvgkA8Abbc7D
- ZNGGBCz9gEedszhSgd6fGlciX9iC7iZNesqVTAkZLmhWF8f9H1xnx/UYPFsaRqU6qFUdeFFRAmSxU
- jE0C9KXQrVHqVO26PjDCm+feckPeq4JMkl1Tx+qMxLzZDPKN+UM0BpN3atnjH3ESNaVm/IRI1bqRf
- y6cqORZ6Aib8Y11gi76ByFeajcglocs5h9U9MCwDfDiKi1dt640ezv7HCtabf8kA3Xyh0dXBf48Vr
- Df+lbIKTA==;
+ bh=fLMaHArG3BYQXI76bkqFsPJ2+puP3+g4/uK8X26bQNQ=; b=hY8qzUOMTDkblC2OtiLn44D/U
+ omiC2cWI0whE0ViGHyx7ti4D0AskmdS36XZAriWvtH37qas4F6Kk/CLOZRIAqDKsr4zvoZYXh5OQN
+ iR2dFAvctUlJyTvCl/dRzqcouCqeRlmSZAw74ECG9mzWXJZ6jHaaxLib47oJKc2KIYLbefFY5bLAO
+ 1Sj5G/tp/MfnNi/u/6zwJF2AApf/0EIpECzLeuHkwRMaqNgdg/eWoANMA+dVMpbEWBpV1gGMxJfR5
+ QZQc0RQ8Bbq+xHT/4TP7C/axy/w6jwQNBuVsc8fzYr3dm0ylsWJpxz9eNRLoWrCAaRNYOduJRxG4j
+ cSMmVq3Wg==;
 In-Reply-To: <1536927045-23536-1-git-send-email-rppt@linux.vnet.ibm.com>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
 To: linux-mm@kvack.org
 Cc: linux-mips@linux-mips.org, Michal Hocko <mhocko@suse.com>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Palmer Dabbelt <palmer@sifive.com>, Russell King <linux@armlinux.org.uk>, Rich Felker <dalias@libc.org>, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Jonathan Corbet <corbet@lwn.net>, Michael Ellerman <mpe@ellerman.id.au>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mark Salter <msalter@redhat.com>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, Mike Rapoport <rppt@linux.vnet.ibm.com>, linux-alpha@vge
 
-The conversion is done using
+Make it explicit that the caller gets a physical address rather than a
+virtual one.
 
-sed -i 's@free_all_bootmem@memblock_free_all@' \
-    $(git grep -l free_all_bootmem)
+This will also allow using meblock_alloc prefix for memblock allocations
+returning virtual address, which is done in the following patches.
+
+The conversion is done using the following semantic patch:
+
+@@
+expression e1, e2, e3;
+@@
+(
+- memblock_alloc(e1, e2)
++ memblock_phys_alloc(e1, e2)
+|
+- memblock_alloc_nid(e1, e2, e3)
++ memblock_phys_alloc_nid(e1, e2, e3)
+|
+- memblock_alloc_try_nid(e1, e2, e3)
++ memblock_phys_alloc_try_nid(e1, e2, e3)
+)
 
 Signed-off-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
 Acked-by: Michal Hocko <mhocko@suse.com>
 ---
- arch/alpha/mm/init.c                   | 2 +-
- arch/arc/mm/init.c                     | 2 +-
- arch/arm/mm/init.c                     | 2 +-
- arch/arm64/mm/init.c                   | 2 +-
- arch/c6x/mm/init.c                     | 2 +-
- arch/h8300/mm/init.c                   | 2 +-
- arch/hexagon/mm/init.c                 | 2 +-
- arch/ia64/mm/init.c                    | 2 +-
- arch/m68k/mm/init.c                    | 2 +-
- arch/microblaze/mm/init.c              | 2 +-
- arch/mips/loongson64/loongson-3/numa.c | 2 +-
- arch/mips/mm/init.c                    | 2 +-
- arch/mips/sgi-ip27/ip27-memory.c       | 2 +-
- arch/nds32/mm/init.c                   | 2 +-
- arch/nios2/mm/init.c                   | 2 +-
- arch/openrisc/mm/init.c                | 2 +-
- arch/parisc/mm/init.c                  | 2 +-
- arch/powerpc/mm/mem.c                  | 2 +-
- arch/riscv/mm/init.c                   | 2 +-
- arch/s390/mm/init.c                    | 2 +-
- arch/sh/mm/init.c                      | 2 +-
- arch/sparc/mm/init_32.c                | 2 +-
- arch/sparc/mm/init_64.c                | 4 ++--
- arch/um/kernel/mem.c                   | 2 +-
- arch/unicore32/mm/init.c               | 2 +-
- arch/x86/mm/highmem_32.c               | 2 +-
- arch/x86/mm/init_32.c                  | 4 ++--
- arch/x86/mm/init_64.c                  | 4 ++--
- arch/x86/xen/mmu_pv.c                  | 2 +-
- arch/xtensa/mm/init.c                  | 2 +-
- include/linux/bootmem.h                | 2 +-
- mm/memblock.c                          | 2 +-
- mm/nobootmem.c                         | 4 ++--
- mm/page_alloc.c                        | 2 +-
- mm/page_poison.c                       | 2 +-
- 35 files changed, 39 insertions(+), 39 deletions(-)
+ arch/arm/mm/mmu.c                     |  2 +-
+ arch/arm64/mm/mmu.c                   |  2 +-
+ arch/arm64/mm/numa.c                  |  2 +-
+ arch/c6x/mm/dma-coherent.c            |  4 ++--
+ arch/nds32/mm/init.c                  |  8 ++++----
+ arch/openrisc/mm/init.c               |  2 +-
+ arch/openrisc/mm/ioremap.c            |  2 +-
+ arch/powerpc/kernel/dt_cpu_ftrs.c     |  4 +---
+ arch/powerpc/kernel/paca.c            |  2 +-
+ arch/powerpc/kernel/prom.c            |  2 +-
+ arch/powerpc/kernel/setup-common.c    |  3 +--
+ arch/powerpc/kernel/setup_32.c        | 10 +++++-----
+ arch/powerpc/mm/numa.c                |  2 +-
+ arch/powerpc/mm/pgtable_32.c          |  2 +-
+ arch/powerpc/mm/ppc_mmu_32.c          |  2 +-
+ arch/powerpc/platforms/pasemi/iommu.c |  2 +-
+ arch/powerpc/platforms/powernv/opal.c |  2 +-
+ arch/powerpc/sysdev/dart_iommu.c      |  2 +-
+ arch/s390/kernel/crash_dump.c         |  2 +-
+ arch/s390/kernel/setup.c              |  3 ++-
+ arch/s390/mm/vmem.c                   |  4 ++--
+ arch/s390/numa/numa.c                 |  2 +-
+ arch/sparc/kernel/mdesc.c             |  2 +-
+ arch/sparc/kernel/prom_64.c           |  2 +-
+ arch/sparc/mm/init_64.c               | 11 ++++++-----
+ arch/unicore32/mm/mmu.c               |  2 +-
+ arch/x86/mm/numa.c                    |  2 +-
+ drivers/firmware/efi/memmap.c         |  2 +-
+ include/linux/memblock.h              |  6 +++---
+ mm/memblock.c                         |  8 ++++----
+ 30 files changed, 50 insertions(+), 51 deletions(-)
 
-diff --git a/arch/alpha/mm/init.c b/arch/alpha/mm/init.c
-index 9d74520..853d153 100644
---- a/arch/alpha/mm/init.c
-+++ b/arch/alpha/mm/init.c
-@@ -282,7 +282,7 @@ mem_init(void)
+diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
+index e46a6a4..f5cc1cc 100644
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -721,7 +721,7 @@ EXPORT_SYMBOL(phys_mem_access_prot);
+ 
+ static void __init *early_alloc_aligned(unsigned long sz, unsigned long align)
  {
- 	set_max_mapnr(max_low_pfn);
- 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
--	free_all_bootmem();
-+	memblock_free_all();
- 	mem_init_print_info(NULL);
+-	void *ptr = __va(memblock_alloc(sz, align));
++	void *ptr = __va(memblock_phys_alloc(sz, align));
+ 	memset(ptr, 0, sz);
+ 	return ptr;
  }
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 8080c9f..b8e037b 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -83,7 +83,7 @@ static phys_addr_t __init early_pgtable_alloc(void)
+ 	phys_addr_t phys;
+ 	void *ptr;
  
-diff --git a/arch/arc/mm/init.c b/arch/arc/mm/init.c
-index ba14506..0f29c65 100644
---- a/arch/arc/mm/init.c
-+++ b/arch/arc/mm/init.c
-@@ -218,7 +218,7 @@ void __init mem_init(void)
- 		free_highmem_page(pfn_to_page(tmp));
- #endif
- 
--	free_all_bootmem();
-+	memblock_free_all();
- 	mem_init_print_info(NULL);
- }
- 
-diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-index 0cc8e04..d421a10 100644
---- a/arch/arm/mm/init.c
-+++ b/arch/arm/mm/init.c
-@@ -508,7 +508,7 @@ void __init mem_init(void)
- 
- 	/* this will put all unused low memory onto the freelists */
- 	free_unused_memmap();
--	free_all_bootmem();
-+	memblock_free_all();
- 
- #ifdef CONFIG_SA1111
- 	/* now that our DMA memory is actually so designated, we can free it */
-diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index e335452..ae21849 100644
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -601,7 +601,7 @@ void __init mem_init(void)
- 	free_unused_memmap();
- #endif
- 	/* this will put all unused low memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- 
- 	kexec_reserve_crashkres_pages();
- 
-diff --git a/arch/c6x/mm/init.c b/arch/c6x/mm/init.c
-index dc369ad..3383df8 100644
---- a/arch/c6x/mm/init.c
-+++ b/arch/c6x/mm/init.c
-@@ -62,7 +62,7 @@ void __init mem_init(void)
- 	high_memory = (void *)(memory_end & PAGE_MASK);
- 
- 	/* this will put all memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- 
- 	mem_init_print_info(NULL);
- }
-diff --git a/arch/h8300/mm/init.c b/arch/h8300/mm/init.c
-index 5d31ac9..f2bf448 100644
---- a/arch/h8300/mm/init.c
-+++ b/arch/h8300/mm/init.c
-@@ -96,7 +96,7 @@ void __init mem_init(void)
- 	max_mapnr = MAP_NR(high_memory);
- 
- 	/* this will put all low memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- 
- 	mem_init_print_info(NULL);
- }
-diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
-index d789b9c..88643fa 100644
---- a/arch/hexagon/mm/init.c
-+++ b/arch/hexagon/mm/init.c
-@@ -68,7 +68,7 @@ unsigned long long kmap_generation;
- void __init mem_init(void)
- {
- 	/*  No idea where this is actually declared.  Seems to evade LXR.  */
--	free_all_bootmem();
-+	memblock_free_all();
- 	mem_init_print_info(NULL);
+-	phys = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
++	phys = memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE);
  
  	/*
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index 2169ca5..43ea4a4 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -627,7 +627,7 @@ mem_init (void)
+ 	 * The FIX_{PGD,PUD,PMD} slots may be in active use, but the FIX_PTE
+diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
+index 146c04c..e5aacd6 100644
+--- a/arch/arm64/mm/numa.c
++++ b/arch/arm64/mm/numa.c
+@@ -237,7 +237,7 @@ static void __init setup_node_data(int nid, u64 start_pfn, u64 end_pfn)
+ 	if (start_pfn >= end_pfn)
+ 		pr_info("Initmem setup node %d [<memory-less node>]\n", nid);
  
- 	set_max_mapnr(max_low_pfn);
- 	high_memory = __va(max_low_pfn * PAGE_SIZE);
--	free_all_bootmem();
-+	memblock_free_all();
- 	mem_init_print_info(NULL);
+-	nd_pa = memblock_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
++	nd_pa = memblock_phys_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
+ 	nd = __va(nd_pa);
  
- 	/*
-diff --git a/arch/m68k/mm/init.c b/arch/m68k/mm/init.c
-index 977363e..ae49ae4 100644
---- a/arch/m68k/mm/init.c
-+++ b/arch/m68k/mm/init.c
-@@ -140,7 +140,7 @@ static inline void init_pointer_tables(void)
- void __init mem_init(void)
- {
- 	/* this will put all memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- 	init_pointer_tables();
- 	mem_init_print_info(NULL);
- }
-diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
-index 8c7f074..9989740 100644
---- a/arch/microblaze/mm/init.c
-+++ b/arch/microblaze/mm/init.c
-@@ -204,7 +204,7 @@ void __init mem_init(void)
- 	high_memory = (void *)__va(memory_start + lowmem_size - 1);
+ 	/* report and initialize */
+diff --git a/arch/c6x/mm/dma-coherent.c b/arch/c6x/mm/dma-coherent.c
+index d0a8e0c..01305c7 100644
+--- a/arch/c6x/mm/dma-coherent.c
++++ b/arch/c6x/mm/dma-coherent.c
+@@ -135,8 +135,8 @@ void __init coherent_mem_init(phys_addr_t start, u32 size)
+ 	if (dma_size & (PAGE_SIZE - 1))
+ 		++dma_pages;
  
- 	/* this will put all memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- #ifdef CONFIG_HIGHMEM
- 	highmem_setup();
- #endif
-diff --git a/arch/mips/loongson64/loongson-3/numa.c b/arch/mips/loongson64/loongson-3/numa.c
-index c1e6ec5..703ad45 100644
---- a/arch/mips/loongson64/loongson-3/numa.c
-+++ b/arch/mips/loongson64/loongson-3/numa.c
-@@ -272,7 +272,7 @@ void __init paging_init(void)
- void __init mem_init(void)
- {
- 	high_memory = (void *) __va(get_num_physpages() << PAGE_SHIFT);
--	free_all_bootmem();
-+	memblock_free_all();
- 	setup_zero_pages();	/* This comes from node 0 */
- 	mem_init_print_info(NULL);
- }
-diff --git a/arch/mips/mm/init.c b/arch/mips/mm/init.c
-index a010fba7..54c36be 100644
---- a/arch/mips/mm/init.c
-+++ b/arch/mips/mm/init.c
-@@ -464,7 +464,7 @@ void __init mem_init(void)
- 	high_memory = (void *) __va(max_low_pfn << PAGE_SHIFT);
+-	bitmap_phys = memblock_alloc(BITS_TO_LONGS(dma_pages) * sizeof(long),
+-				     sizeof(long));
++	bitmap_phys = memblock_phys_alloc(BITS_TO_LONGS(dma_pages) * sizeof(long),
++					  sizeof(long));
  
- 	maar_init();
--	free_all_bootmem();
-+	memblock_free_all();
- 	setup_zero_pages();	/* Setup zeroed pages.  */
- 	mem_init_free_highmem();
- 	mem_init_print_info(NULL);
-diff --git a/arch/mips/sgi-ip27/ip27-memory.c b/arch/mips/sgi-ip27/ip27-memory.c
-index 6f7bef0..cb1f1a6 100644
---- a/arch/mips/sgi-ip27/ip27-memory.c
-+++ b/arch/mips/sgi-ip27/ip27-memory.c
-@@ -475,7 +475,7 @@ void __init paging_init(void)
- void __init mem_init(void)
- {
- 	high_memory = (void *) __va(get_num_physpages() << PAGE_SHIFT);
--	free_all_bootmem();
-+	memblock_free_all();
- 	setup_zero_pages();	/* This comes from node 0 */
- 	mem_init_print_info(NULL);
- }
+ 	dma_bitmap = phys_to_virt(bitmap_phys);
+ 	memset(dma_bitmap, 0, dma_pages * PAGE_SIZE);
 diff --git a/arch/nds32/mm/init.c b/arch/nds32/mm/init.c
-index 5af81b8..66d3e9c 100644
+index c713d2a..5af81b8 100644
 --- a/arch/nds32/mm/init.c
 +++ b/arch/nds32/mm/init.c
-@@ -192,7 +192,7 @@ void __init mem_init(void)
- 	free_highmem();
+@@ -81,7 +81,7 @@ static void __init map_ram(void)
+ 		}
  
- 	/* this will put all low memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- 	mem_init_print_info(NULL);
+ 		/* Alloc one page for holding PTE's... */
+-		pte = (pte_t *) __va(memblock_alloc(PAGE_SIZE, PAGE_SIZE));
++		pte = (pte_t *) __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+ 		memset(pte, 0, PAGE_SIZE);
+ 		set_pmd(pme, __pmd(__pa(pte) + _PAGE_KERNEL_TABLE));
  
- 	pr_info("virtual kernel memory layout:\n"
-diff --git a/arch/nios2/mm/init.c b/arch/nios2/mm/init.c
-index c92fe42..1292350 100644
---- a/arch/nios2/mm/init.c
-+++ b/arch/nios2/mm/init.c
-@@ -73,7 +73,7 @@ void __init mem_init(void)
- 	high_memory = __va(end_mem);
+@@ -114,7 +114,7 @@ static void __init fixedrange_init(void)
+ 	pgd = swapper_pg_dir + pgd_index(vaddr);
+ 	pud = pud_offset(pgd, vaddr);
+ 	pmd = pmd_offset(pud, vaddr);
+-	fixmap_pmd_p = (pmd_t *) __va(memblock_alloc(PAGE_SIZE, PAGE_SIZE));
++	fixmap_pmd_p = (pmd_t *) __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+ 	memset(fixmap_pmd_p, 0, PAGE_SIZE);
+ 	set_pmd(pmd, __pmd(__pa(fixmap_pmd_p) + _PAGE_KERNEL_TABLE));
  
- 	/* this will put all memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- 	mem_init_print_info(NULL);
- }
+@@ -127,7 +127,7 @@ static void __init fixedrange_init(void)
+ 	pgd = swapper_pg_dir + pgd_index(vaddr);
+ 	pud = pud_offset(pgd, vaddr);
+ 	pmd = pmd_offset(pud, vaddr);
+-	pte = (pte_t *) __va(memblock_alloc(PAGE_SIZE, PAGE_SIZE));
++	pte = (pte_t *) __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+ 	memset(pte, 0, PAGE_SIZE);
+ 	set_pmd(pmd, __pmd(__pa(pte) + _PAGE_KERNEL_TABLE));
+ 	pkmap_page_table = pte;
+@@ -153,7 +153,7 @@ void __init paging_init(void)
+ 	fixedrange_init();
+ 
+ 	/* allocate space for empty_zero_page */
+-	zero_page = __va(memblock_alloc(PAGE_SIZE, PAGE_SIZE));
++	zero_page = __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+ 	memset(zero_page, 0, PAGE_SIZE);
+ 	zone_sizes_init();
  
 diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-index b7670de..91a6a9a 100644
+index 6972d5d..b7670de 100644
 --- a/arch/openrisc/mm/init.c
 +++ b/arch/openrisc/mm/init.c
-@@ -213,7 +213,7 @@ void __init mem_init(void)
- 	memset((void *)empty_zero_page, 0, PAGE_SIZE);
+@@ -106,7 +106,7 @@ static void __init map_ram(void)
+ 			}
  
- 	/* this will put all low memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
+ 			/* Alloc one page for holding PTE's... */
+-			pte = (pte_t *) __va(memblock_alloc(PAGE_SIZE, PAGE_SIZE));
++			pte = (pte_t *) __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+ 			set_pmd(pme, __pmd(_KERNPG_TABLE + __pa(pte)));
  
- 	mem_init_print_info(NULL);
+ 			/* Fill the newly allocated page with PTE'S */
+diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
+index 2175e4b..c969752 100644
+--- a/arch/openrisc/mm/ioremap.c
++++ b/arch/openrisc/mm/ioremap.c
+@@ -126,7 +126,7 @@ pte_t __ref *pte_alloc_one_kernel(struct mm_struct *mm,
+ 	if (likely(mem_init_done)) {
+ 		pte = (pte_t *) __get_free_page(GFP_KERNEL);
+ 	} else {
+-		pte = (pte_t *) __va(memblock_alloc(PAGE_SIZE, PAGE_SIZE));
++		pte = (pte_t *) __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+ 	}
  
-diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
-index 74842d2..bc368e9 100644
---- a/arch/parisc/mm/init.c
-+++ b/arch/parisc/mm/init.c
-@@ -612,7 +612,7 @@ void __init mem_init(void)
+ 	if (pte)
+diff --git a/arch/powerpc/kernel/dt_cpu_ftrs.c b/arch/powerpc/kernel/dt_cpu_ftrs.c
+index f432054..8be3721 100644
+--- a/arch/powerpc/kernel/dt_cpu_ftrs.c
++++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
+@@ -1008,9 +1008,7 @@ static int __init dt_cpu_ftrs_scan_callback(unsigned long node, const char
+ 	/* Count and allocate space for cpu features */
+ 	of_scan_flat_dt_subnodes(node, count_cpufeatures_subnodes,
+ 						&nr_dt_cpu_features);
+-	dt_cpu_features = __va(
+-		memblock_alloc(sizeof(struct dt_cpu_feature)*
+-				nr_dt_cpu_features, PAGE_SIZE));
++	dt_cpu_features = __va(memblock_phys_alloc(sizeof(struct dt_cpu_feature) * nr_dt_cpu_features, PAGE_SIZE));
  
- 	high_memory = __va((max_pfn << PAGE_SHIFT));
- 	set_max_mapnr(page_to_pfn(virt_to_page(high_memory - 1)) + 1);
--	free_all_bootmem();
-+	memblock_free_all();
+ 	cpufeatures_setup_start(isa);
  
- #ifdef CONFIG_PA11
- 	if (boot_cpu_data.cpu_type == pcxl2 || boot_cpu_data.cpu_type == pcxl) {
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 5c8530d..c141134 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -348,7 +348,7 @@ void __init mem_init(void)
+diff --git a/arch/powerpc/kernel/paca.c b/arch/powerpc/kernel/paca.c
+index 0ee3e6d..f331a00 100644
+--- a/arch/powerpc/kernel/paca.c
++++ b/arch/powerpc/kernel/paca.c
+@@ -198,7 +198,7 @@ void __init allocate_paca_ptrs(void)
+ 	paca_nr_cpu_ids = nr_cpu_ids;
  
- 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
- 	set_max_mapnr(max_pfn);
--	free_all_bootmem();
-+	memblock_free_all();
- 
- #ifdef CONFIG_HIGHMEM
- 	{
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 58a522f..d58c111 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -55,7 +55,7 @@ void __init mem_init(void)
- #endif /* CONFIG_FLATMEM */
- 
- 	high_memory = (void *)(__va(PFN_PHYS(max_low_pfn)));
--	free_all_bootmem();
-+	memblock_free_all();
- 
- 	mem_init_print_info(NULL);
+ 	paca_ptrs_size = sizeof(struct paca_struct *) * nr_cpu_ids;
+-	paca_ptrs = __va(memblock_alloc(paca_ptrs_size, 0));
++	paca_ptrs = __va(memblock_phys_alloc(paca_ptrs_size, 0));
+ 	memset(paca_ptrs, 0x88, paca_ptrs_size);
  }
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 3fa3e53..67bdba6 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -136,7 +136,7 @@ void __init mem_init(void)
- 	cmma_init();
  
- 	/* this will put all low memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- 	setup_zero_pages();	/* Setup zeroed pages. */
+diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
+index c4d7078..fe758ce 100644
+--- a/arch/powerpc/kernel/prom.c
++++ b/arch/powerpc/kernel/prom.c
+@@ -126,7 +126,7 @@ static void __init move_device_tree(void)
+ 	if ((memory_limit && (start + size) > PHYSICAL_START + memory_limit) ||
+ 			overlaps_crashkernel(start, size) ||
+ 			overlaps_initrd(start, size)) {
+-		p = __va(memblock_alloc(size, PAGE_SIZE));
++		p = __va(memblock_phys_alloc(size, PAGE_SIZE));
+ 		memcpy(p, initial_boot_params, size);
+ 		initial_boot_params = p;
+ 		DBG("Moved device tree to 0x%p\n", p);
+diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
+index 93fa0c9..710ff98 100644
+--- a/arch/powerpc/kernel/setup-common.c
++++ b/arch/powerpc/kernel/setup-common.c
+@@ -459,8 +459,7 @@ void __init smp_setup_cpu_maps(void)
  
- 	cmma_init_nodat();
-diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-index c884b76..21447f8 100644
---- a/arch/sh/mm/init.c
-+++ b/arch/sh/mm/init.c
-@@ -350,7 +350,7 @@ void __init mem_init(void)
- 		high_memory = max_t(void *, high_memory,
- 				    __va(pgdat_end_pfn(pgdat) << PAGE_SHIFT));
+ 	DBG("smp_setup_cpu_maps()\n");
  
--	free_all_bootmem();
-+	memblock_free_all();
+-	cpu_to_phys_id = __va(memblock_alloc(nr_cpu_ids * sizeof(u32),
+-							__alignof__(u32)));
++	cpu_to_phys_id = __va(memblock_phys_alloc(nr_cpu_ids * sizeof(u32), __alignof__(u32)));
+ 	memset(cpu_to_phys_id, 0, nr_cpu_ids * sizeof(u32));
  
- 	/* Set this up early, so we can take care of the zero page */
- 	cpu_cache_init();
-diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
-index 885dd38..8807145 100644
---- a/arch/sparc/mm/init_32.c
-+++ b/arch/sparc/mm/init_32.c
-@@ -277,7 +277,7 @@ void __init mem_init(void)
+ 	for_each_node_by_type(dn, "cpu") {
+diff --git a/arch/powerpc/kernel/setup_32.c b/arch/powerpc/kernel/setup_32.c
+index 8c507be..8190960 100644
+--- a/arch/powerpc/kernel/setup_32.c
++++ b/arch/powerpc/kernel/setup_32.c
+@@ -206,9 +206,9 @@ void __init irqstack_early_init(void)
+ 	 * as the memblock is limited to lowmem by default */
+ 	for_each_possible_cpu(i) {
+ 		softirq_ctx[i] = (struct thread_info *)
+-			__va(memblock_alloc(THREAD_SIZE, THREAD_SIZE));
++			__va(memblock_phys_alloc(THREAD_SIZE, THREAD_SIZE));
+ 		hardirq_ctx[i] = (struct thread_info *)
+-			__va(memblock_alloc(THREAD_SIZE, THREAD_SIZE));
++			__va(memblock_phys_alloc(THREAD_SIZE, THREAD_SIZE));
+ 	}
+ }
  
- 	max_mapnr = last_valid_pfn - pfn_base;
- 	high_memory = __va(max_low_pfn << PAGE_SHIFT);
--	free_all_bootmem();
-+	memblock_free_all();
+@@ -227,12 +227,12 @@ void __init exc_lvl_early_init(void)
+ #endif
  
- 	for (i = 0; sp_banks[i].num_bytes != 0; i++) {
- 		unsigned long start_pfn = sp_banks[i].base_addr >> PAGE_SHIFT;
+ 		critirq_ctx[hw_cpu] = (struct thread_info *)
+-			__va(memblock_alloc(THREAD_SIZE, THREAD_SIZE));
++			__va(memblock_phys_alloc(THREAD_SIZE, THREAD_SIZE));
+ #ifdef CONFIG_BOOKE
+ 		dbgirq_ctx[hw_cpu] = (struct thread_info *)
+-			__va(memblock_alloc(THREAD_SIZE, THREAD_SIZE));
++			__va(memblock_phys_alloc(THREAD_SIZE, THREAD_SIZE));
+ 		mcheckirq_ctx[hw_cpu] = (struct thread_info *)
+-			__va(memblock_alloc(THREAD_SIZE, THREAD_SIZE));
++			__va(memblock_phys_alloc(THREAD_SIZE, THREAD_SIZE));
+ #endif
+ 	}
+ }
+diff --git a/arch/powerpc/mm/numa.c b/arch/powerpc/mm/numa.c
+index 35ac542..5fc0587 100644
+--- a/arch/powerpc/mm/numa.c
++++ b/arch/powerpc/mm/numa.c
+@@ -788,7 +788,7 @@ static void __init setup_node_data(int nid, u64 start_pfn, u64 end_pfn)
+ 	void *nd;
+ 	int tnid;
+ 
+-	nd_pa = memblock_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
++	nd_pa = memblock_phys_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
+ 	nd = __va(nd_pa);
+ 
+ 	/* report and initialize */
+diff --git a/arch/powerpc/mm/pgtable_32.c b/arch/powerpc/mm/pgtable_32.c
+index 120a49b..989a1c2 100644
+--- a/arch/powerpc/mm/pgtable_32.c
++++ b/arch/powerpc/mm/pgtable_32.c
+@@ -50,7 +50,7 @@ __ref pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long address)
+ 	if (slab_is_available()) {
+ 		pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_ZERO);
+ 	} else {
+-		pte = __va(memblock_alloc(PAGE_SIZE, PAGE_SIZE));
++		pte = __va(memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE));
+ 		if (pte)
+ 			clear_page(pte);
+ 	}
+diff --git a/arch/powerpc/mm/ppc_mmu_32.c b/arch/powerpc/mm/ppc_mmu_32.c
+index bea6c54..9ee0357 100644
+--- a/arch/powerpc/mm/ppc_mmu_32.c
++++ b/arch/powerpc/mm/ppc_mmu_32.c
+@@ -224,7 +224,7 @@ void __init MMU_init_hw(void)
+ 	 * Find some memory for the hash table.
+ 	 */
+ 	if ( ppc_md.progress ) ppc_md.progress("hash:find piece", 0x322);
+-	Hash = __va(memblock_alloc(Hash_size, Hash_size));
++	Hash = __va(memblock_phys_alloc(Hash_size, Hash_size));
+ 	memset(Hash, 0, Hash_size);
+ 	_SDR1 = __pa(Hash) | SDR1_LOW_BITS;
+ 
+diff --git a/arch/powerpc/platforms/pasemi/iommu.c b/arch/powerpc/platforms/pasemi/iommu.c
+index f06c83f..f297152 100644
+--- a/arch/powerpc/platforms/pasemi/iommu.c
++++ b/arch/powerpc/platforms/pasemi/iommu.c
+@@ -213,7 +213,7 @@ static int __init iob_init(struct device_node *dn)
+ 	pr_info("IOBMAP L2 allocated at: %p\n", iob_l2_base);
+ 
+ 	/* Allocate a spare page to map all invalid IOTLB pages. */
+-	tmp = memblock_alloc(IOBMAP_PAGE_SIZE, IOBMAP_PAGE_SIZE);
++	tmp = memblock_phys_alloc(IOBMAP_PAGE_SIZE, IOBMAP_PAGE_SIZE);
+ 	if (!tmp)
+ 		panic("IOBMAP: Cannot allocate spare page!");
+ 	/* Empty l1 is marked invalid */
+diff --git a/arch/powerpc/platforms/powernv/opal.c b/arch/powerpc/platforms/powernv/opal.c
+index 38fe408..9431921 100644
+--- a/arch/powerpc/platforms/powernv/opal.c
++++ b/arch/powerpc/platforms/powernv/opal.c
+@@ -171,7 +171,7 @@ int __init early_init_dt_scan_recoverable_ranges(unsigned long node,
+ 	/*
+ 	 * Allocate a buffer to hold the MC recoverable ranges.
+ 	 */
+-	mc_recoverable_range =__va(memblock_alloc(size, __alignof__(u64)));
++	mc_recoverable_range =__va(memblock_phys_alloc(size, __alignof__(u64)));
+ 	memset(mc_recoverable_range, 0, size);
+ 
+ 	for (i = 0; i < mc_recoverable_range_len; i++) {
+diff --git a/arch/powerpc/sysdev/dart_iommu.c b/arch/powerpc/sysdev/dart_iommu.c
+index 5ca3e22..a5b40d1 100644
+--- a/arch/powerpc/sysdev/dart_iommu.c
++++ b/arch/powerpc/sysdev/dart_iommu.c
+@@ -261,7 +261,7 @@ static void allocate_dart(void)
+ 	 * that to work around what looks like a problem with the HT bridge
+ 	 * prefetching into invalid pages and corrupting data
+ 	 */
+-	tmp = memblock_alloc(DART_PAGE_SIZE, DART_PAGE_SIZE);
++	tmp = memblock_phys_alloc(DART_PAGE_SIZE, DART_PAGE_SIZE);
+ 	dart_emptyval = DARTMAP_VALID | ((tmp >> DART_PAGE_SHIFT) &
+ 					 DARTMAP_RPNMASK);
+ 
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index 376f6b6..d17566a 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -61,7 +61,7 @@ struct save_area * __init save_area_alloc(bool is_boot_cpu)
+ {
+ 	struct save_area *sa;
+ 
+-	sa = (void *) memblock_alloc(sizeof(*sa), 8);
++	sa = (void *) memblock_phys_alloc(sizeof(*sa), 8);
+ 	if (is_boot_cpu)
+ 		list_add(&sa->list, &dump_save_areas);
+ 	else
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index c637c12..2f2ee43 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -843,7 +843,8 @@ static void __init setup_randomness(void)
+ {
+ 	struct sysinfo_3_2_2 *vmms;
+ 
+-	vmms = (struct sysinfo_3_2_2 *) memblock_alloc(PAGE_SIZE, PAGE_SIZE);
++	vmms = (struct sysinfo_3_2_2 *) memblock_phys_alloc(PAGE_SIZE,
++							    PAGE_SIZE);
+ 	if (stsi(vmms, 3, 2, 2) == 0 && vmms->count)
+ 		add_device_randomness(&vmms->vm, sizeof(vmms->vm[0]) * vmms->count);
+ 	memblock_free((unsigned long) vmms, PAGE_SIZE);
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index db55561..04638b0 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -36,7 +36,7 @@ static void __ref *vmem_alloc_pages(unsigned int order)
+ 
+ 	if (slab_is_available())
+ 		return (void *)__get_free_pages(GFP_KERNEL, order);
+-	return (void *) memblock_alloc(size, size);
++	return (void *) memblock_phys_alloc(size, size);
+ }
+ 
+ void *vmem_crst_alloc(unsigned long val)
+@@ -57,7 +57,7 @@ pte_t __ref *vmem_pte_alloc(void)
+ 	if (slab_is_available())
+ 		pte = (pte_t *) page_table_alloc(&init_mm);
+ 	else
+-		pte = (pte_t *) memblock_alloc(size, size);
++		pte = (pte_t *) memblock_phys_alloc(size, size);
+ 	if (!pte)
+ 		return NULL;
+ 	memset64((u64 *)pte, _PAGE_INVALID, PTRS_PER_PTE);
+diff --git a/arch/s390/numa/numa.c b/arch/s390/numa/numa.c
+index 5bd3744..297f5d8 100644
+--- a/arch/s390/numa/numa.c
++++ b/arch/s390/numa/numa.c
+@@ -64,7 +64,7 @@ static __init pg_data_t *alloc_node_data(void)
+ {
+ 	pg_data_t *res;
+ 
+-	res = (pg_data_t *) memblock_alloc(sizeof(pg_data_t), 8);
++	res = (pg_data_t *) memblock_phys_alloc(sizeof(pg_data_t), 8);
+ 	memset(res, 0, sizeof(pg_data_t));
+ 	return res;
+ }
+diff --git a/arch/sparc/kernel/mdesc.c b/arch/sparc/kernel/mdesc.c
+index 39a2503..59131e7 100644
+--- a/arch/sparc/kernel/mdesc.c
++++ b/arch/sparc/kernel/mdesc.c
+@@ -170,7 +170,7 @@ static struct mdesc_handle * __init mdesc_memblock_alloc(unsigned int mdesc_size
+ 		       mdesc_size);
+ 	alloc_size = PAGE_ALIGN(handle_size);
+ 
+-	paddr = memblock_alloc(alloc_size, PAGE_SIZE);
++	paddr = memblock_phys_alloc(alloc_size, PAGE_SIZE);
+ 
+ 	hp = NULL;
+ 	if (paddr) {
+diff --git a/arch/sparc/kernel/prom_64.c b/arch/sparc/kernel/prom_64.c
+index baeaeed..c37955d 100644
+--- a/arch/sparc/kernel/prom_64.c
++++ b/arch/sparc/kernel/prom_64.c
+@@ -34,7 +34,7 @@
+ 
+ void * __init prom_early_alloc(unsigned long size)
+ {
+-	unsigned long paddr = memblock_alloc(size, SMP_CACHE_BYTES);
++	unsigned long paddr = memblock_phys_alloc(size, SMP_CACHE_BYTES);
+ 	void *ret;
+ 
+ 	if (!paddr) {
 diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-index 51cd583..c2c8bff 100644
+index f396048..578ec3d 100644
 --- a/arch/sparc/mm/init_64.c
 +++ b/arch/sparc/mm/init_64.c
-@@ -2544,12 +2544,12 @@ void __init mem_init(void)
+@@ -1092,7 +1092,8 @@ static void __init allocate_node_data(int nid)
+ #ifdef CONFIG_NEED_MULTIPLE_NODES
+ 	unsigned long paddr;
+ 
+-	paddr = memblock_alloc_try_nid(sizeof(struct pglist_data), SMP_CACHE_BYTES, nid);
++	paddr = memblock_phys_alloc_try_nid(sizeof(struct pglist_data),
++					    SMP_CACHE_BYTES, nid);
+ 	if (!paddr) {
+ 		prom_printf("Cannot allocate pglist_data for nid[%d]\n", nid);
+ 		prom_halt();
+@@ -1266,8 +1267,8 @@ static int __init grab_mlgroups(struct mdesc_handle *md)
+ 	if (!count)
+ 		return -ENOENT;
+ 
+-	paddr = memblock_alloc(count * sizeof(struct mdesc_mlgroup),
+-			  SMP_CACHE_BYTES);
++	paddr = memblock_phys_alloc(count * sizeof(struct mdesc_mlgroup),
++				    SMP_CACHE_BYTES);
+ 	if (!paddr)
+ 		return -ENOMEM;
+ 
+@@ -1307,8 +1308,8 @@ static int __init grab_mblocks(struct mdesc_handle *md)
+ 	if (!count)
+ 		return -ENOENT;
+ 
+-	paddr = memblock_alloc(count * sizeof(struct mdesc_mblock),
+-			  SMP_CACHE_BYTES);
++	paddr = memblock_phys_alloc(count * sizeof(struct mdesc_mblock),
++				    SMP_CACHE_BYTES);
+ 	if (!paddr)
+ 		return -ENOMEM;
+ 
+diff --git a/arch/unicore32/mm/mmu.c b/arch/unicore32/mm/mmu.c
+index 0c94b7b..18b355a 100644
+--- a/arch/unicore32/mm/mmu.c
++++ b/arch/unicore32/mm/mmu.c
+@@ -144,7 +144,7 @@ static void __init build_mem_type_table(void)
+ 
+ static void __init *early_alloc(unsigned long sz)
  {
- 	high_memory = __va(last_valid_pfn << PAGE_SHIFT);
- 
--	free_all_bootmem();
-+	memblock_free_all();
- 
- 	/*
- 	 * Must be done after boot memory is put on freelist, because here we
- 	 * might set fields in deferred struct pages that have not yet been
--	 * initialized, and free_all_bootmem() initializes all the reserved
-+	 * initialized, and memblock_free_all() initializes all the reserved
- 	 * deferred pages for us.
+-	void *ptr = __va(memblock_alloc(sz, sz));
++	void *ptr = __va(memblock_phys_alloc(sz, sz));
+ 	memset(ptr, 0, sz);
+ 	return ptr;
+ }
+diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
+index fa15085..16e37d7 100644
+--- a/arch/x86/mm/numa.c
++++ b/arch/x86/mm/numa.c
+@@ -196,7 +196,7 @@ static void __init alloc_node_data(int nid)
+ 	 * Allocate node data.  Try node-local memory and then any node.
+ 	 * Never allocate in DMA zone.
  	 */
- 	register_page_bootmem_info();
-diff --git a/arch/um/kernel/mem.c b/arch/um/kernel/mem.c
-index 3555c13..2c672a8 100644
---- a/arch/um/kernel/mem.c
-+++ b/arch/um/kernel/mem.c
-@@ -51,7 +51,7 @@ void __init mem_init(void)
- 	uml_reserved = brk_end;
+-	nd_pa = memblock_alloc_nid(nd_size, SMP_CACHE_BYTES, nid);
++	nd_pa = memblock_phys_alloc_nid(nd_size, SMP_CACHE_BYTES, nid);
+ 	if (!nd_pa) {
+ 		nd_pa = __memblock_alloc_base(nd_size, SMP_CACHE_BYTES,
+ 					      MEMBLOCK_ALLOC_ACCESSIBLE);
+diff --git a/drivers/firmware/efi/memmap.c b/drivers/firmware/efi/memmap.c
+index 5fc7052..ef618bc 100644
+--- a/drivers/firmware/efi/memmap.c
++++ b/drivers/firmware/efi/memmap.c
+@@ -15,7 +15,7 @@
  
- 	/* this will put all low memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- 	max_low_pfn = totalram_pages;
- 	max_pfn = totalram_pages;
- 	mem_init_print_info(NULL);
-diff --git a/arch/unicore32/mm/init.c b/arch/unicore32/mm/init.c
-index 4c572ab..3e5bb45 100644
---- a/arch/unicore32/mm/init.c
-+++ b/arch/unicore32/mm/init.c
-@@ -289,7 +289,7 @@ void __init mem_init(void)
- 	free_unused_memmap(&meminfo);
- 
- 	/* this will put all unused low memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- 
- 	mem_init_print_info(NULL);
- 	printk(KERN_NOTICE "Virtual kernel memory layout:\n"
-diff --git a/arch/x86/mm/highmem_32.c b/arch/x86/mm/highmem_32.c
-index 6d18b70..62915a5 100644
---- a/arch/x86/mm/highmem_32.c
-+++ b/arch/x86/mm/highmem_32.c
-@@ -111,7 +111,7 @@ void __init set_highmem_pages_init(void)
- 
- 	/*
- 	 * Explicitly reset zone->managed_pages because set_highmem_pages_init()
--	 * is invoked before free_all_bootmem()
-+	 * is invoked before memblock_free_all()
- 	 */
- 	reset_all_zones_managed_pages();
- 	for_each_zone(zone) {
-diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
-index 979e0a0..8ee1e64 100644
---- a/arch/x86/mm/init_32.c
-+++ b/arch/x86/mm/init_32.c
-@@ -771,7 +771,7 @@ void __init mem_init(void)
- #endif
- 	/*
- 	 * With CONFIG_DEBUG_PAGEALLOC initialization of highmem pages has to
--	 * be done before free_all_bootmem(). Memblock use free low memory for
-+	 * be done before memblock_free_all(). Memblock use free low memory for
- 	 * temporary data (see find_range_array()) and for this purpose can use
- 	 * pages that was already passed to the buddy allocator, hence marked as
- 	 * not accessible in the page tables when compiled with
-@@ -781,7 +781,7 @@ void __init mem_init(void)
- 	set_highmem_pages_init();
- 
- 	/* this will put all low memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- 
- 	after_bootmem = 1;
- 	x86_init.hyper.init_after_bootmem();
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index f39b512..bfb0bed 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1188,14 +1188,14 @@ void __init mem_init(void)
- 	/* clear_bss() already clear the empty_zero_page */
- 
- 	/* this will put all memory onto the freelists */
--	free_all_bootmem();
-+	memblock_free_all();
- 	after_bootmem = 1;
- 	x86_init.hyper.init_after_bootmem();
- 
- 	/*
- 	 * Must be done after boot memory is put on freelist, because here we
- 	 * might set fields in deferred struct pages that have not yet been
--	 * initialized, and free_all_bootmem() initializes all the reserved
-+	 * initialized, and memblock_free_all() initializes all the reserved
- 	 * deferred pages for us.
- 	 */
- 	register_page_bootmem_info();
-diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
-index 7ada9e4..93b54a8 100644
---- a/arch/x86/xen/mmu_pv.c
-+++ b/arch/x86/xen/mmu_pv.c
-@@ -864,7 +864,7 @@ static int __init xen_mark_pinned(struct mm_struct *mm, struct page *page,
-  * The init_mm pagetable is really pinned as soon as its created, but
-  * that's before we have page structures to store the bits.  So do all
-  * the book-keeping now once struct pages for allocated pages are
-- * initialized. This happens only after free_all_bootmem() is called.
-+ * initialized. This happens only after memblock_free_all() is called.
-  */
- static void __init xen_after_bootmem(void)
+ static phys_addr_t __init __efi_memmap_alloc_early(unsigned long size)
  {
-diff --git a/arch/xtensa/mm/init.c b/arch/xtensa/mm/init.c
-index 34aead7..f7fbe63 100644
---- a/arch/xtensa/mm/init.c
-+++ b/arch/xtensa/mm/init.c
-@@ -152,7 +152,7 @@ void __init mem_init(void)
- 	max_mapnr = max_pfn - ARCH_PFN_OFFSET;
- 	high_memory = (void *)__va(max_low_pfn << PAGE_SHIFT);
- 
--	free_all_bootmem();
-+	memblock_free_all();
- 
- 	mem_init_print_info(NULL);
- 	pr_info("virtual kernel memory layout:\n"
-diff --git a/include/linux/bootmem.h b/include/linux/bootmem.h
-index bcc7e2f..b58873a 100644
---- a/include/linux/bootmem.h
-+++ b/include/linux/bootmem.h
-@@ -26,7 +26,7 @@ extern unsigned long max_pfn;
-  */
- extern unsigned long long max_possible_pfn;
- 
--extern unsigned long free_all_bootmem(void);
-+extern unsigned long memblock_free_all(void);
- extern void reset_node_managed_pages(pg_data_t *pgdat);
- extern void reset_all_zones_managed_pages(void);
- 
-diff --git a/mm/memblock.c b/mm/memblock.c
-index 3a21476..1534edb 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -1411,7 +1411,7 @@ static void * __init memblock_alloc_internal(
- 	/*
- 	 * Detect any accidental use of these APIs after slab is ready, as at
- 	 * this moment memblock may be deinitialized already and its
--	 * internal data may be destroyed (after execution of free_all_bootmem)
-+	 * internal data may be destroyed (after execution of memblock_free_all)
- 	 */
- 	if (WARN_ON_ONCE(slab_is_available()))
- 		return kzalloc_node(size, GFP_NOWAIT, nid);
-diff --git a/mm/nobootmem.c b/mm/nobootmem.c
-index ee0f7fc..bb64b09 100644
---- a/mm/nobootmem.c
-+++ b/mm/nobootmem.c
-@@ -111,11 +111,11 @@ void __init reset_all_zones_managed_pages(void)
+-	return memblock_alloc(size, 0);
++	return memblock_phys_alloc(size, 0);
  }
  
- /**
-- * free_all_bootmem - release free pages to the buddy allocator
-+ * memblock_free_all - release free pages to the buddy allocator
-  *
-  * Return: the number of pages actually released.
-  */
--unsigned long __init free_all_bootmem(void)
-+unsigned long __init memblock_free_all(void)
- {
- 	unsigned long pages;
+ static phys_addr_t __init __efi_memmap_alloc_late(unsigned long size)
+diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+index 4ae91fc..f16833c 100644
+--- a/include/linux/memblock.h
++++ b/include/linux/memblock.h
+@@ -315,10 +315,10 @@ static inline int memblock_get_region_node(const struct memblock_region *r)
+ }
+ #endif /* CONFIG_HAVE_MEMBLOCK_NODE_MAP */
  
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 7658a6f..13e394c 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5472,7 +5472,7 @@ overlap_memmap_init(unsigned long zone, unsigned long *pfn)
+-phys_addr_t memblock_alloc_nid(phys_addr_t size, phys_addr_t align, int nid);
+-phys_addr_t memblock_alloc_try_nid(phys_addr_t size, phys_addr_t align, int nid);
++phys_addr_t memblock_phys_alloc_nid(phys_addr_t size, phys_addr_t align, int nid);
++phys_addr_t memblock_phys_alloc_try_nid(phys_addr_t size, phys_addr_t align, int nid);
+ 
+-phys_addr_t memblock_alloc(phys_addr_t size, phys_addr_t align);
++phys_addr_t memblock_phys_alloc(phys_addr_t size, phys_addr_t align);
  
  /*
-  * Initially all pages are reserved - free ones are freed
-- * up by free_all_bootmem() once the early boot process is
-+ * up by memblock_free_all() once the early boot process is
-  * done. Non-atomic initialization, single-pass.
-  */
- void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
-diff --git a/mm/page_poison.c b/mm/page_poison.c
-index aa2b3d3..f7e2a67 100644
---- a/mm/page_poison.c
-+++ b/mm/page_poison.c
-@@ -21,7 +21,7 @@ bool page_poisoning_enabled(void)
+  * Set the allocation direction to bottom-up or top-down.
+diff --git a/mm/memblock.c b/mm/memblock.c
+index bba8d4e..f8b6b79 100644
+--- a/mm/memblock.c
++++ b/mm/memblock.c
+@@ -1320,7 +1320,7 @@ phys_addr_t __init memblock_alloc_base_nid(phys_addr_t size,
+ 	return memblock_alloc_range_nid(size, align, 0, max_addr, nid, flags);
+ }
+ 
+-phys_addr_t __init memblock_alloc_nid(phys_addr_t size, phys_addr_t align, int nid)
++phys_addr_t __init memblock_phys_alloc_nid(phys_addr_t size, phys_addr_t align, int nid)
  {
- 	/*
- 	 * Assumes that debug_pagealloc_enabled is set before
--	 * free_all_bootmem.
-+	 * memblock_free_all.
- 	 * Page poisoning is debug page alloc for some arches. If
- 	 * either of those options are enabled, enable poisoning.
- 	 */
+ 	enum memblock_flags flags = choose_memblock_flags();
+ 	phys_addr_t ret;
+@@ -1355,14 +1355,14 @@ phys_addr_t __init memblock_alloc_base(phys_addr_t size, phys_addr_t align, phys
+ 	return alloc;
+ }
+ 
+-phys_addr_t __init memblock_alloc(phys_addr_t size, phys_addr_t align)
++phys_addr_t __init memblock_phys_alloc(phys_addr_t size, phys_addr_t align)
+ {
+ 	return memblock_alloc_base(size, align, MEMBLOCK_ALLOC_ACCESSIBLE);
+ }
+ 
+-phys_addr_t __init memblock_alloc_try_nid(phys_addr_t size, phys_addr_t align, int nid)
++phys_addr_t __init memblock_phys_alloc_try_nid(phys_addr_t size, phys_addr_t align, int nid)
+ {
+-	phys_addr_t res = memblock_alloc_nid(size, align, nid);
++	phys_addr_t res = memblock_phys_alloc_nid(size, align, nid);
+ 
+ 	if (res)
+ 		return res;
 -- 
 2.7.4
