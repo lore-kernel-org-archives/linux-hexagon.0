@@ -1,9 +1,9 @@
 From: Sasha Levin <Alexander.Levin@microsoft.com>
-Subject: [PATCH AUTOSEL 4.18 53/65] hexagon: modify ffs() and fls() to return
+Subject: [PATCH AUTOSEL 4.9 18/26] hexagon: modify ffs() and fls() to return
  int
-Date: Mon, 1 Oct 2018 00:38:35 +0000
-Message-ID: <20181001003754.146961-53-alexander.levin@microsoft.com>
-References: <20181001003754.146961-1-alexander.levin@microsoft.com>
+Date: Mon, 1 Oct 2018 00:40:40 +0000
+Message-ID: <20181001004026.147201-18-alexander.levin@microsoft.com>
+References: <20181001004026.147201-1-alexander.levin@microsoft.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,8 +11,8 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
  bh=J7+0pRY0svB9FNfCSgP/f3OrEDCvM73X5Tp09FHOWKg=;
- b=BmPVof1HwmB23AUPDSzQzYLMOBJMbHMURs8SmjE78YymHmaj/anfjpcPNE1kfkf93MvkbBoD4Q5iAIHtNgtUSsW+X70fwaMXrU+/xV9mxHfz1d2dEJP8HUTuTZyOCQ++O1eeiI0YfbbaXcqlixg88VtAyVmcS5DSf+SHM8qHqzg=
-In-Reply-To: <20181001003754.146961-1-alexander.levin@microsoft.com>
+ b=ni8x4x/NtzeAJdFE+lAOdXUdi8kBr4WvF6v3DSHBG7L/pqm0rC/66xQmIk675JO1ARPqItATqVyGnHEMzSK/KTiwsCmcJ8vW58gr21CRL1P5/IucVIuJEOvqvHmE0Eq/Gvtl4Z2JgsCw1HbkuTkxkD2q2avj6zGMGFVYPTlB2M0=
+In-Reply-To: <20181001004026.147201-1-alexander.levin@microsoft.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
