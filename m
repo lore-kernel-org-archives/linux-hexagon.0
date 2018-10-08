@@ -1,26 +1,26 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 101/113] hexagon: modify ffs() and fls() to return int
-Date: Mon,  8 Oct 2018 20:31:42 +0200
-Message-ID: <20181008175536.926591862@linuxfoundation.org>
-References: <20181008175530.864641368@linuxfoundation.org>
+Subject: [PATCH 4.9 43/59] hexagon: modify ffs() and fls() to return int
+Date: Mon,  8 Oct 2018 20:31:50 +0200
+Message-ID: <20181008175550.966186210@linuxfoundation.org>
+References: <20181008175546.620836256@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1539023872;
-        bh=+g/umbrgp6hP2xIIgYzCC0wYAGzRnAbaS2k32awX2V8=;
+        s=default; t=1539024046;
+        bh=tusczBuwlarcGkMJpn4lSeKnx+ZVbGbilHE6+fvVFMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmsSCrjhzkT+dom1YNZwpZEiieuzTVo01YEu+LCpfSHjBzvoLtLftFvw+qNM97ACu
-         cJQYJ2W6+mwDlVoAhC+l0pYZHXicwgWGvplu9aAhl41qEc5oQj+J4vXH4U3nVv1mQ9
-         3DsvgFlOU3ffWh85u3iGzmDMt3L/ZdUIebRzYgb4=
-In-Reply-To: <20181008175530.864641368@linuxfoundation.org>
-Sender: stable-owner@vger.kernel.org
+        b=q6BW912My7wMgqrzM6pQif/2Ux9aQ7ulq3uxXc8GbCyouQXhcYq4jXBs8/cDvZ2H6
+         jGV/MKfFkIC6xRnDTSJZC70MFRG/KHIiJXRhG2wanuLb8KkXrmY2jyaRBsQ6xe0ZTb
+         GyoBMDfhMv2i76DU3tAzt30hsRYRKpDPfxAspTcM=
+In-Reply-To: <20181008175546.620836256@linuxfoundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Sasha Levin <alexander.levin@microsoft.com>
 
-4.4-stable review patch.  If anyone has any objections, please let me know.
+4.9-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
