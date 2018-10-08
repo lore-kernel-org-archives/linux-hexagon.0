@@ -1,26 +1,26 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 43/59] hexagon: modify ffs() and fls() to return int
+Subject: [PATCH 4.14 69/94] hexagon: modify ffs() and fls() to return int
 Date: Mon,  8 Oct 2018 20:31:50 +0200
-Message-ID: <20181008175550.966186210@linuxfoundation.org>
-References: <20181008175546.620836256@linuxfoundation.org>
+Message-ID: <20181008175609.822386096@linuxfoundation.org>
+References: <20181008175605.067676667@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1539024046;
-        bh=tusczBuwlarcGkMJpn4lSeKnx+ZVbGbilHE6+fvVFMk=;
+        s=default; t=1539024241;
+        bh=SbciK/a6GaoOoxg8FRGWCLgHTzl58nqA2LjK26E7dLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q6BW912My7wMgqrzM6pQif/2Ux9aQ7ulq3uxXc8GbCyouQXhcYq4jXBs8/cDvZ2H6
-         jGV/MKfFkIC6xRnDTSJZC70MFRG/KHIiJXRhG2wanuLb8KkXrmY2jyaRBsQ6xe0ZTb
-         GyoBMDfhMv2i76DU3tAzt30hsRYRKpDPfxAspTcM=
-In-Reply-To: <20181008175546.620836256@linuxfoundation.org>
+        b=F6ix7SMxsuemz37xI34425PoKPS/dXTggGg4qnyVg7tJKB3YyzZ42H8qcR4uDaTEJ
+         RP0tQlmU3vQASyx9n5ryn4xKqVwsLtRsjEZ3/gaejgzocY3dE+eLlFsVqwR/0lGpWX
+         TFKye06Fpreu/gtbxVafKW6VLNe3q1rgLiz8BGJk=
+In-Reply-To: <20181008175605.067676667@linuxfoundation.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Sasha Levin <alexander.levin@microsoft.com>
 
-4.9-stable review patch.  If anyone has any objections, please let me know.
+4.14-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
