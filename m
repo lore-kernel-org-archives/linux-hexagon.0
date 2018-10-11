@@ -1,26 +1,26 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.18 131/168] hexagon: modify ffs() and fls() to return int
-Date: Mon,  8 Oct 2018 20:31:51 +0200
-Message-ID: <20181008175625.026413127@linuxfoundation.org>
-References: <20181008175620.043587728@linuxfoundation.org>
+Subject: [PATCH 3.18 089/120] hexagon: modify ffs() and fls() to return int
+Date: Thu, 11 Oct 2018 17:34:30 +0200
+Message-ID: <20181011152553.492490731@linuxfoundation.org>
+References: <20181011152549.500488630@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1539024719;
-        bh=HugO99h+ucY89j7BY6k0Aq21TF/cW22G7TJRJRE9ghQ=;
+        s=default; t=1539272381;
+        bh=Ewz1bHPZO7Zl+A3Q+ag7hv+1whRFw1/Cwj5BKQlr/RI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eg5tfbZ+lkv160yu9NT9UbPhtESKA5an5Lviupa6TuCQFA+G+QxqtUU8PD2PRp/46
-         cr+LXnLxLN8FypZANV2DYCpsEP46LF9YijJ6qilmEoiQ1xj5PmDXMUEktAiqFIafgi
-         Zpobw8V33s3GTAV/Xi1KtfG+ogPic7gMfYzPSklk=
-In-Reply-To: <20181008175620.043587728@linuxfoundation.org>
+        b=pNOYtbhnR5p5Non/VqQ9wCGuJ9oWo0p2eQugxvcSf3UoIY8QRSmkUf/xccSVJYdfd
+         8GyhaXbbBeOGOvOWGaaFUYtl0fG6NCe/Xpz5LLtr/3MBqMRVoojZ/x3CDSESh2CkDy
+         ro7xrsMtrPDqWbVQ+7UdcwG6H+Ns4ph8HGtjJWPc=
+In-Reply-To: <20181011152549.500488630@linuxfoundation.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Sasha Levin <alexander.levin@microsoft.com>
 
-4.18-stable review patch.  If anyone has any objections, please let me know.
+3.18-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
