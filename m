@@ -1,115 +1,96 @@
 From: "Kirill A. Shutemov" <kirill@shutemov.name>
-Subject: Re: [PATCH v2 1/2] treewide: remove unused address argument from
- pte_alloc functions
-Date: Fri, 12 Oct 2018 14:09:06 +0300
-Message-ID: <20181012110906.fpfttp4nhvsr2ps7@kshutemo-mobl1>
+Subject: Re: [PATCH v2 2/2] mm: speed up mremap by 500x on large regions
+Date: Fri, 12 Oct 2018 14:30:56 +0300
+Message-ID: <20181012113056.gxhcbrqyu7k7xnyv@kshutemo-mobl1>
 References: <20181012013756.11285-1-joel@joelfernandes.org>
+ <20181012013756.11285-2-joel@joelfernandes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
 	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
 	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
 	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=ljdtykZTpGPKpHYDunRR4vVQMqB/nCpn3mQXIGAdvbs=; b=mW6g2LThnMBKSz
-	7k6M5EuTBmDfUhpFyqsE/n0wbpieG/KKeV2X4i6ek9AHSRiXlYMBsFT/0M2yii7/68e+xDrJKq5nZ
-	t4Pu3jfT55nel/mCzv18OTbTGt5haHYC+U/BdWuXxr205RRCtzPvklX43hfPTlfyoZeVlKlsapRTC
-	zh4heKXLhBGYMMMlQLle17PPVDXPnP4TyQmnWm4AAMNE5c1Lc3Nr9ZvVj2Fh8nAsAKzmAPU1Sg0FF
-	EcDVrK7OAea5+aV7zzy02HDyKvrEWnNX7ytrJSgPjAFQvYbjZtIPHC/PK7JlKjSgyR2niSlyFnriD
-	CPFpFZuzklVJw8RgL/1A==;
+	List-Owner; bh=AYreNlg4cFx4TBSOkjTzHjam6YHgTWreaKJGdxBUVnk=; b=BmQnJSxI9jkdPf
+	fLnbxGW7GjGvYRnBM21yKYXx3JKwdFCIOo8vtBqT8kpkXg6/pJbBEyGqc8L1OMwdSuoEBBe+X7uDQ
+	4uDVBteytWrHVubn39YzjgX2P0p1Wglju+46Djk8OV+nKTC2RJTykB4/b12uw/OHdr55vstrn0yrr
+	RpuHLrpcGM9dMeon/99NWw47ZM7LfjBp2Q1BO2DGKuW08KNi6aN12KSJTSpAs9ojZKr15Wq9iG346
+	KssekHcMLUcs197BD0kvCq3wvD15k+e6qx8tbX5s0Ne1H/09ttm62a9Bbz6nHeUtoJ1lHagvD71pV
+	4HArothsa9YwHlxactbw==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=shutemov-name.20150623.gappssmtp.com; s=20150623;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to:user-agent;
- bh=RX5FjI3wwkptc5sfX4+NkcctA+fCkcVF8HC/oTZQueA=;
- b=qeudmJU6+nqktNq8hagWevdDYJTTFMn+WENyVU02czllfS+fQup8X2aAcQtu2Lo0Fp
- dhBWK+IUAJCVJxMgLR2Q+5FdwzcoZDri19DNWDDMDN459vxsWd4gd90pvEzqmj7i/Fk+
- 4GmiBbPPBQxYkEOU63G/QIHHt6iTrlm7BZWRGLnI42WPtnHHGUwiFQgxxz6a5lmwlVkh
- RLNcciTpu4deyuzzSogUrxoQpB41XxnBfDW3RTICetpaoKpeC37wL/mNktpm48Nj7dgI
- Xa/aCwwYycAOdNSNZVdcW5B/PKAoIddEyh93084VotBhdiNKJBPYH3SrKS+IeMKOkimb
- sY+A==
+ bh=l7AhKnmfvmp8KBJvG0N/KXKa/mMdyWfz5lA4HnS7BL8=;
+ b=g54sfYi+w0crnYiSByxg5Nkl3eGqhJ6PN3wZFl+ctMzP2ovV+r5fma35R0NtLVm7f4
+ n5dBPdHh/h+S00ymRa9yXbYyWCDNbz5qTo9fbzEBNajxgbVXHatOXKhWE2ymaeXn4b5+
+ 3y3wh4nrJJVcwBsKyp1ZdwGny9fgiF2ZGJoiLdnlO2hbOpRXU/jsB85IrZoJ+NpUk4uq
+ jaOW+U4M0qLfRnRGAkxWtj5pjU2u4VJgE+Mmaw1D6h2dqW+o9dFjgqSLLoVlGTHQkemb
+ O2qFRHSU7x5ebQd3d+IhwBYfRwpZqwIx0EmzYxOFIjiVnHWgdZ7DEtkH2GtuE3Iit1L9
+ iriw==
 Content-Disposition: inline
-In-Reply-To: <20181012013756.11285-1-joel@joelfernandes.org>
+In-Reply-To: <20181012013756.11285-2-joel@joelfernandes.org>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
 To: "Joel Fernandes (Google)" <joel@joelfernandes.org>
-Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, dancol@google.com, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-xtensa@linux-xtensa.org, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, kvmarm@lists.cs.columbia.edu, Ingo Molnar <mingo@redhat.com>
+Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, mhocko@kernel.org, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, dancol@google.com, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-xtensa@linux-xtensa.org, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, kvmarm@lists.cs.columbia.edu, Ingo Molnar <mingo@redhat.com>, Geert
 
-On Thu, Oct 11, 2018 at 06:37:55PM -0700, Joel Fernandes (Google) wrote:
-> diff --git a/arch/m68k/include/asm/mcf_pgalloc.h b/arch/m68k/include/asm/mcf_pgalloc.h
-> index 12fe700632f4..4399d712f6db 100644
-> --- a/arch/m68k/include/asm/mcf_pgalloc.h
-> +++ b/arch/m68k/include/asm/mcf_pgalloc.h
-> @@ -12,8 +12,7 @@ extern inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
->  
->  extern const char bad_pmd_string[];
->  
-> -extern inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
-> -	unsigned long address)
-> +extern inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
->  {
->  	unsigned long page = __get_free_page(GFP_DMA);
->  
-> @@ -32,8 +31,6 @@ extern inline pmd_t *pmd_alloc_kernel(pgd_t *pgd, unsigned long address)
->  #define pmd_alloc_one_fast(mm, address) ({ BUG(); ((pmd_t *)1); })
->  #define pmd_alloc_one(mm, address)      ({ BUG(); ((pmd_t *)2); })
->  
-> -#define pte_alloc_one_fast(mm, addr) pte_alloc_one(mm, addr)
-> -
+On Thu, Oct 11, 2018 at 06:37:56PM -0700, Joel Fernandes (Google) wrote:
+> Android needs to mremap large regions of memory during memory management
+> related operations. The mremap system call can be really slow if THP is
+> not enabled. The bottleneck is move_page_tables, which is copying each
+> pte at a time, and can be really slow across a large map. Turning on THP
+> may not be a viable option, and is not for us. This patch speeds up the
+> performance for non-THP system by copying at the PMD level when possible.
+> 
+> The speed up is three orders of magnitude. On a 1GB mremap, the mremap
+> completion times drops from 160-250 millesconds to 380-400 microseconds.
+> 
+> Before:
+> Total mremap time for 1GB data: 242321014 nanoseconds.
+> Total mremap time for 1GB data: 196842467 nanoseconds.
+> Total mremap time for 1GB data: 167051162 nanoseconds.
+> 
+> After:
+> Total mremap time for 1GB data: 385781 nanoseconds.
+> Total mremap time for 1GB data: 388959 nanoseconds.
+> Total mremap time for 1GB data: 402813 nanoseconds.
+> 
+> Incase THP is enabled, the optimization is skipped. I also flush the
+> tlb every time we do this optimization since I couldn't find a way to
+> determine if the low-level PTEs are dirty. It is seen that the cost of
+> doing so is not much compared the improvement, on both x86-64 and arm64.
 
-I believe this was one done manually, right?
-Please explicitely state everthing you did on not of sematic patch
+I looked into the code more and noticed move_pte() helper called from
+move_ptes(). It changes PTE entry to suite new address.
 
-...
+It is only defined in non-trivial way on Sparc. I don't know much about
+Sparc and it's hard for me to say if the optimization will break anything
+there.
 
-> diff --git a/arch/microblaze/include/asm/pgalloc.h b/arch/microblaze/include/asm/pgalloc.h
-> index 7c89390c0c13..f4cc9ffc449e 100644
-> --- a/arch/microblaze/include/asm/pgalloc.h
-> +++ b/arch/microblaze/include/asm/pgalloc.h
-> @@ -108,10 +108,9 @@ static inline void free_pgd_slow(pgd_t *pgd)
->  #define pmd_alloc_one_fast(mm, address)	({ BUG(); ((pmd_t *)1); })
->  #define pmd_alloc_one(mm, address)	({ BUG(); ((pmd_t *)2); })
->  
-> -extern pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long addr);
-> +extern pte_t *pte_alloc_one_kernel(struct mm_struct *mm);
->  
-> -static inline struct page *pte_alloc_one(struct mm_struct *mm,
-> -		unsigned long address)
-> +static inline struct page *pte_alloc_one(struct mm_struct *mm)
->  {
->  	struct page *ptepage;
->  
-> @@ -132,20 +131,6 @@ static inline struct page *pte_alloc_one(struct mm_struct *mm,
->  	return ptepage;
->  }
->  
-> -static inline pte_t *pte_alloc_one_fast(struct mm_struct *mm,
-> -		unsigned long address)
-> -{
-> -	unsigned long *ret;
-> -
-> -	ret = pte_quicklist;
-> -	if (ret != NULL) {
-> -		pte_quicklist = (unsigned long *)(*ret);
-> -		ret[0] = 0;
-> -		pgtable_cache_size--;
-> -	}
-> -	return (pte_t *)ret;
-> -}
-> -
+I think it worth to disable the optimization if __HAVE_ARCH_MOVE_PTE is
+defined. Or make architectures state explicitely that the optimization is
+safe.
 
-Ditto.
+> @@ -239,7 +287,21 @@ unsigned long move_page_tables(struct vm_area_struct *vma,
+>  			split_huge_pmd(vma, old_pmd, old_addr);
+>  			if (pmd_trans_unstable(old_pmd))
+>  				continue;
+> +		} else if (extent == PMD_SIZE) {
+
+Hm. What guarantees that new_addr is PMD_SIZE-aligned?
+It's not obvious to me.
 
 -- 
  Kirill A. Shutemov
