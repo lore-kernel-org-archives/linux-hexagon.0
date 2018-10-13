@@ -1,56 +1,60 @@
-From: Joel Fernandes <joel@joelfernandes.org>
+From: Daniel Colascione <dancol@google.com>
 Subject: Re: [PATCH v2 2/2] mm: speed up mremap by 500x on large regions
-Date: Fri, 12 Oct 2018 18:35:40 -0700
-Message-ID: <20181013013540.GA207108@joelaf.mtv.corp.google.com>
+Date: Fri, 12 Oct 2018 18:39:45 -0700
+Message-ID: <CAKOZueuNvWvn18vffJWpbpg7h-uScT8gXrrudTB2pnT4M2HJ_w@mail.gmail.com>
 References: <20181012013756.11285-2-joel@joelfernandes.org>
- <20181012113056.gxhcbrqyu7k7xnyv@kshutemo-mobl1>
- <20181012125046.GA170912@joelaf.mtv.corp.google.com>
- <20181012.111836.1569129998592378186.davem@davemloft.net>
+ <20181012113056.gxhcbrqyu7k7xnyv@kshutemo-mobl1> <20181012125046.GA170912@joelaf.mtv.corp.google.com>
+ <20181012.111836.1569129998592378186.davem@davemloft.net> <20181013013540.GA207108@joelaf.mtv.corp.google.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=joelfernandes.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=WNSmz6gPUWl0psy6VYdrKZKj8jjeGLoBOEaYk7PTF5E=;
-        b=t/bdXm4ahfHUsC1W/kmIGtZM4IaaXFvhptMHyl/MsEl85wogOLcBRPLXwHtXoa2xTR
-         d2M48uB6euL4d5IaKV5t6nT5ABUr0y0qRBKJlUNuiclAcNB1bktYaPSMWAk89SYK1P2v
-         +doypv+PPbaJGW2yXU+EaPjAWnWnd1ZXLhamE=
-Content-Disposition: inline
-In-Reply-To: <20181012.111836.1569129998592378186.davem@davemloft.net>
+        d=google.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=Wde0HcwExXY831MfxZDBcHjXK7XvngyeZU1X9StNjyk=;
+        b=mRAnllfVhCFMlnCIOcENVRpZ9fWtdthn5GIa/84lOa1zfYRyC7orxaopMW45sB8eGB
+         ivJ95/M5otzqwf+a9a0kBxZZQSGJZfhDMo+nmJKVkyBRnP8qxtUI1xy15rJyzhFmnyt0
+         8+wcDDhVwfzIxE7o4UdypM1uFOyBZO+dsZHL9V9EjcRk/t9uN1N8+jXX+FQbQNwLNM6+
+         Yw/NuPi1khJ60fOVJAglTvakPu+RdegP9nyurUbv1ptWNwxhwQDL9ydwtFB3Y4wuPcbb
+         mQP4MZorbCaZStz3SOglr9oedZvionoAiMgHFAr+d3BHihJaHkX9rSbjnDxfL9w+LOjP
+         xsfg==
+In-Reply-To: <20181013013540.GA207108@joelaf.mtv.corp.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: David Miller <davem@davemloft.net>
-Cc: kirill@shutemov.name, linux-kernel@vger.kernel.org, kernel-team@android.com, minchan@kernel.org, pantin@google.com, hughd@google.com, lokeshgidra@google.com, dancol@google.com, mhocko@kernel.org, akpm@linux-foundation.org, aryabinin@virtuozzo.com, luto@kernel.org, bp@alien8.de, catalin.marinas@arm.com, chris@zankel.net, dave.hansen@linux.intel.com, elfring@users.sourceforge.net, fenghua.yu@intel.com, geert@linux-m68k.org, gxt@pku.edu.cn, deller@gmx.de, mingo@redhat.com, jejb@parisc-linux.org, jdike@addtoit.com, jonas@southpole.se, Julia.Lawall@lip6.fr, kasan-dev@googlegroups.com, kvmarm@lists.cs.columbia.edu, lftan@altera.com, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@linux-mips.org, l
+To: Joel Fernandes <joel@joelfernandes.org>
+Cc: David Miller <davem@davemloft.net>, kirill@shutemov.name, linux-kernel <linux-kernel@vger.kernel.org>, kernel-team@android.com, Minchan Kim <minchan@kernel.org>, Ramon Pantin <pantin@google.com>, hughd@google.com, Lokesh Gidra <lokeshgidra@google.com>, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, aryabinin@virtuozzo.com, luto@kernel.org, bp@alien8.de, catalin.marinas@arm.com, chris@zankel.net, dave.hansen@linux.intel.com, elfring@users.sourceforge.net, fenghua.yu@intel.com, geert@linux-m68k.org, gxt@pku.edu.cn, deller@gmx.de, mingo@redhat.com, jejb@parisc-linux.org, jdike@addtoit.com, jonas@southpole.se, Julia.Lawall@lip6.fr, kasan-dev@googlegroups.com, kvmarm@lists.cs.columbia.edu, lftan@altera.com, linux-alpha@vger.kernel.org, linux
 
-On Fri, Oct 12, 2018 at 11:18:36AM -0700, David Miller wrote:
-> From: Joel Fernandes <joel@joelfernandes.org>
-[...]
-> > Also, do we not flush the caches from any path when we munmap
-> > address space?  We do call do_munmap on the old mapping from mremap
-> > after moving to the new one.
-> 
-> Sparc makes sure that shared mapping have consistent colors.  Therefore
-> all that's left are private mappings and those will be initialized by
-> block stores to clear the page out or similar.
-> 
-> Also, when creating new mappings, we flush the D-cache when necessary
-> in update_mmu_cache().
-> 
-> We also maintain a bit in the page struct to track when a page which
-> was potentially written to on one cpu ends up mapped into another
-> address space and flush as necessary.
-> 
-> The cache is write-through, which simplifies the preconditions we have
-> to maintain.
+Not 32-bit ARM?
 
-Makes sense, thanks. For the moment I sent patches to enable this on arm64
-and x86. We can enable it on sparc as well at a later time as it sounds it
-could be a safe optimization to apply to that architecture as well.
-
-thanks,
-
- - Joel
-
+On Fri, Oct 12, 2018 at 6:35 PM, Joel Fernandes <joel@joelfernandes.org> wrote:
+> On Fri, Oct 12, 2018 at 11:18:36AM -0700, David Miller wrote:
+>> From: Joel Fernandes <joel@joelfernandes.org>
+> [...]
+>> > Also, do we not flush the caches from any path when we munmap
+>> > address space?  We do call do_munmap on the old mapping from mremap
+>> > after moving to the new one.
+>>
+>> Sparc makes sure that shared mapping have consistent colors.  Therefore
+>> all that's left are private mappings and those will be initialized by
+>> block stores to clear the page out or similar.
+>>
+>> Also, when creating new mappings, we flush the D-cache when necessary
+>> in update_mmu_cache().
+>>
+>> We also maintain a bit in the page struct to track when a page which
+>> was potentially written to on one cpu ends up mapped into another
+>> address space and flush as necessary.
+>>
+>> The cache is write-through, which simplifies the preconditions we have
+>> to maintain.
+>
+> Makes sense, thanks. For the moment I sent patches to enable this on arm64
+> and x86. We can enable it on sparc as well at a later time as it sounds it
+> could be a safe optimization to apply to that architecture as well.
+>
+> thanks,
+>
+>  - Joel
+>
