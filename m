@@ -1,87 +1,73 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: Re: [PATCH v2 1/2] treewide: remove unused address argument from
- pte_alloc functions
-Date: Sat, 13 Oct 2018 11:22:49 +0200
-Message-ID: <e1be1dda-90ab-052d-496b-3de01ffc80d1@users.sourceforge.net>
-References: <20181012013756.11285-1-joel@joelfernandes.org>
- <03b524f3-5f3a-baa0-2254-9c588103d2d6@users.sourceforge.net>
- <20181012194210.GA27630@joelaf.mtv.corp.google.com>
+From: Joel Fernandes <joel@joelfernandes.org>
+Subject: Re: [PATCH v2 2/2] mm: speed up mremap by 500x on large regions
+Date: Sat, 13 Oct 2018 10:50:39 -0700
+Message-ID: <20181013175039.GB213522@joelaf.mtv.corp.google.com>
+References: <20181012013756.11285-2-joel@joelfernandes.org>
+ <20181012113056.gxhcbrqyu7k7xnyv@kshutemo-mobl1>
+ <20181012125046.GA170912@joelaf.mtv.corp.google.com>
+ <20181012.111836.1569129998592378186.davem@davemloft.net>
+ <20181013013540.GA207108@joelaf.mtv.corp.google.com>
+ <CAKOZueuNvWvn18vffJWpbpg7h-uScT8gXrrudTB2pnT4M2HJ_w@mail.gmail.com>
+ <20181013014429.GB207108@joelaf.mtv.corp.google.com>
+ <CAKOZues25aaKz3_AiyfJ=r2QBd5MghgY3ky_ptg4Z8=ST4DCgw@mail.gmail.com>
+ <20181013021057.GA213522@joelaf.mtv.corp.google.com>
+ <CAKOZueu2wdkeUFYLQ8qE48yJs1_uRz-9RVJRkp==CL=jp=Q8+g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:
-	Message-ID:From:References:To:Subject:Reply-To:Content-ID:Content-Description
-	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=c0GZJ2j02gGE0ASDSrvVvBCZ0fDipKKwEaNq9MTv5L8=; b=RnwaE3kVsOCqLi
-	kdD7djN0QRRqF0AX3irwW5mB/kD1T+86a3CJFyaS1zAZ3MMYFebcRaou4u/YFiojlcGvK2/iyIh6j
-	dZnVwfkijulUa0c0TgPwIEaB/6GHNoutTGL7UXZky31Oposzz4rSSQ+S7PKl2ynbueGBh7Vx0ExlZ
-	J95MPxvrE04GyQvewgpD37VpffQJMuHFMWad0J1jAK9zYPMZf1AEyibEQlB6nYYRHlUWN6od5j7Lr
-	LosYrUPRDOk4XghCWBa7YeCE5SNkAGkfg9jTFTQwPiJWIshyVdoicspauZw6eGI08bFhhmjlbbH7q
-	H9y9fW2zvKrVhLhqRB+w==;
-In-Reply-To: <20181012194210.GA27630@joelaf.mtv.corp.google.com>
-Content-Language: en-GB
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Joel Fernandes <joel@joelfernandes.org>
-Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, kernel-janitors@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Lokesh Gidra <lokeshgidra@google.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, kvmarm@lists.cs.columbia.edu, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, Daniel Colascione <dancol@google.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Max Filippov <jcmvbkbc@gmail.com>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, Hugh Dickins <hughd@google.com>, "James E. J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, Ingo
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=joelfernandes.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=GoWsMygASIRyu7PZgD3N2dBBnQZB9nQ/7GbuLV2HYnY=;
+        b=gtX/3bFKdysbo0S38lPP9ATjDdsTysp7ptOg+SsEzBQmc5jRhOODzCYik6fd+BjPNr
+         xu2Vp+XyGO4o3VTbAkLtyvZfSWRtUUHxernM8wIzLOXHfZUYx/YsB2m5iu16tCWuQG1m
+         dx/4Vn6wKESA5zdAVp2ssOawvrRQIiujDiDAU=
+Content-Disposition: inline
+In-Reply-To: <CAKOZueu2wdkeUFYLQ8qE48yJs1_uRz-9RVJRkp==CL=jp=Q8+g@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: dancol@google.com
+Cc: David Miller <davem@davemloft.net>, kirill@shutemov.name, linux-kernel <linux-kernel@vger.kernel.org>, kernel-team@android.com, Minchan Kim <minchan@kernel.org>, Ramon Pantin <pantin@google.com>, Hugh Dickins <hughd@google.com>, Lokesh Gidra <lokeshgidra@google.com>, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, aryabinin@virtuozzo.com, luto@kernel.org, bp@alien8.de, catalin.marinas@arm.com, Chris Zankel <chris@zankel.net>, dave.hansen@linux.intel.com, elfring@users.sourceforge.net, fenghua.yu@intel.com, geert@linux-m68k.org, gxt@pku.edu.cn, deller@gmx.de, mingo@redhat.com, jejb@parisc-linux.org, jdike@addtoit.com, Jonas Bonn <jonas@southpole.se>, Julia Lawall <Julia.Lawall@lip6.fr>, kasan-dev@googlegroups.com, kvmarm@lists.cs.columbia
 
-Pj4+IFRoZSBjaGFuZ2VzIHdlcmUgb2J0YWluZWQgYnkgYXBwbHlpbmcgdGhlIGZvbGxvd2luZyBD
-b2NjaW5lbGxlIHNjcmlwdC4KCkhvdyBkbyB5b3UgdGhpbmsgYWJvdXQgdG8gYWRqdXN0IHRoZSBv
-cmRlciBvZiBwcm92aWRlZCBpbmZvcm1hdGlvbgppbiB0aGUgY29tbWl0IGRlc2NyaXB0aW9uPwox
-LiBVcGRhdGUgZ29hbHMKMi4gVHJhbnNmb3JtYXRpb24gaW1wbGVtZW50YXRpb24gYXQgdGhlIGVu
-ZAoKCj4+ICJeKD86cHRlX2FsbG9jKD86X29uZSg/Ol9rZXJuZWwpPyk/fF9fcHRlX2FsbG9jKD86
-X2tlcm5lbCk/KSQiOwo+IAo+IFN1cmUgaXQgbG9va3MgbW9yZSBjbGV2ZXIsIGJ1dCB3aHk/Cgox
-LiBVc2FnZSBvZiBub24tY2FwdHVyaW5nIHBhcmVudGhlc2VzCjIuIENsZWFyZXIgc3BlY2lmaWNh
-dGlvbiB3aGljaCBwYXJ0cyBjYW4gYmUgdHJlYXRlZCBhcyBvcHRpb25hbAogICBpbiB0aGUgc2Vh
-cmNoIHBhdHRlcm4uCgoKPiBVZ2ggdGhhdCdzIGhhcmRlciB0byByZWFkIGFuZCBjb25mdXNpbmcu
-CgoqIERvIHlvdSBjYXJlIGZvciBjb2Rpbmcgc3R5bGUgYW5kIGV4ZWN1dGlvbiBzcGVlZCBvZiBy
-ZWd1bGFyIGV4cHJlc3Npb25zPwoKKiBJZiB5b3Ugd291bGQgcHJlZmVyIHRvIGxpc3QgZnVuY3Rp
-b24gbmFtZXMgd2l0aG91dCBwbGFjZWhvbGRlcnMsCiAgeW91IGNhbiBldmVudHVhbGx5IHNwZWNp
-ZnkgdGhlbSBhbHNvIHdpdGhpbiBTbVBMIGRpc2p1bmN0aW9ucyBkaXJlY3RseS4KCiogSXQgY2Fu
-IGxvb2sgc2ltcGxlciB0byB1c2UgYW4gaWRlbnRpZmllciBsaXN0IGFzIGEgY29uc3RyYWludCB2
-YXJpYW50LgogIGh0dHA6Ly9jb2NjaW5lbGxlLmxpcDYuZnIvZG9jcy9tYWluX2dyYW1tYXIwMDIu
-aHRtbAoKCj4gQWdhaW4gdGhpcyBpcyBjb25mdXNpbmcuCgpUaGUgdmlldyBwb2ludHMgY2FuIGJl
-IGRpZmZlcmVudCBmb3Igc3VjaCBTbVBMIGNvZGUuCgogVDMgZm4oVDEgRTEKKAotICAgICAgICAg
-ICAsIFQyIEUyCnwgICAgICAgICAgICwgVDIgRTIKLSAgICAgICAgICAgLCBUNCBFNAopICAgICAp
-OwoKCj4gSXQgbWFrZXMgb25lIHRoaW5rIHRoYXQgbWF5YmUgdGhlIHNlY29uZCBhcmd1bWVudCBj
-YW4gYWxzbyBiZSByZW1vdmVkCgpZb3UgZXhwcmVzc2VkIHRoaXMgYXMgdGhlIGZpcnN0IHRyYW5z
-Zm9ybWF0aW9uIHBvc3NpYmlsaXR5LCBkaWRuJ3QgeW91PwoKWW91IHdvdWxkIGxpa2UgdG8gZGVs
-ZXRlIGFuIGFyZ3VtZW50IGZyb20gdGhlIGVuZCBvZiBhIGZ1bmN0aW9uCm9yIG1hY3JvIHBhcmFt
-ZXRlciAob3IgZXhwcmVzc2lvbikgbGlzdC4KSSBzdWdnZXN0IHRoZW4gYWdhaW4gdG8gYXZvaWQg
-dGhlIFNtUEwgc3BlY2lmaWNhdGlvbiBvZiBzb3VyY2UgY29kZSBhZGRpdGlvbnMKKHBsdXMgbGlu
-ZXMgaW4gdGhlIGZpbGUgZGlmZmVyZW5jZSBmb3JtYXQpLgoKCj4gYW5kIHJlcXVpcmVzIGNhcmVm
-dWwgb2JzZXJ2YXRpb24gdGhhdCB0aGUgIik7IiBmb2xsb3dzLgoKWWVzLCBvZiBjb3Vyc2UuCgpX
-b3VsZCB5b3UgY2FyZSBtb3JlIGluIHRoZSBkaXN0aW5jdGlvbiB3aGljaCBjb2RlIHBhcnRzIHNo
-b3VsZCBiZSBrZXB0IHVuY2hhbmdlZD8KCgo+IFJpZ2h0LCBJIGRvbid0IG5lZWQgaXQgaW4gdGhp
-cyBjYXNlLgoKVGhhbmtzIGZvciB5b3VyIHVuZGVyc3RhbmRpbmcgdGhhdCB0aGUgbWV0YXZhcmlh
-YmxlIOKAnHBvc2l0aW9uIHDigJ0KY2FuIGJlIGRlbGV0ZWQgaW4gdGhlIFNtUEwgcnVsZSDigJxw
-dGVfYWxsb2NfbWFjcm/igJ0uCgoKPiBCdXQgdGhlIHNjcmlwdCB3b3JrcyBlaXRoZXIgd2F5LgoK
-SSBpbWFnaW5lIHRoYXQgeW91IGNhbiBiZWNvbWUgaW50ZXJlc3RlZCBpbiBhIGJpdCBuaWNlciBy
-dW4gdGltZSBjaGFyYWN0ZXJpc3RpY3MuCgoKPiBJIGxpa2UgdG8gdGFrZSBtb3JlIG9mIGEgcHJv
-YmxlbSBzb2x2aW5nIGFwcHJvYWNoIHRoYXQgbWFrZXMgc2Vuc2UsCgpUaGlzIGlzIHVzdWFsLgoK
-Cj4gdGhhbiBhaW1pbmcgZm9yIHBlcmZlY3Rpb24sCgpJZiB5b3Ugd2lsbCB3b3JrIG1vcmUgd2l0
-aCBzY3JpcHRzIGZvciB0aGUgc2VtYW50aWMgcGF0Y2ggbGFuZ3VhZ2UsCnlvdSBtaWdodCBiZWNv
-bWUgdXNlZCB0byBhZGRpdGlvbmFsIGNvZGluZyB2YXJpYW50cy4KCgo+IGFmdGVyIGFsbCB0aGlz
-IGlzIGEgdXNlZnVsIHNjcmlwdCB0aGF0IHdlIGRvIG5vdCBuZWVkIHRvIGNoZWNrCj4gaW4gb25j
-ZSB3ZSBmaW5pc2ggd2l0aCBpdC4KCkkgYW0gY3VyaW91cyBpZiB0aGVyZSB3aWxsIGV2b2x2ZSBh
-IG5lZWQgdG8gYWRkIHNpbWlsYXIgdHJhbnNmb3JtYXRpb24gYXBwcm9hY2hlcwp0byBhIGtub3du
-IHNjcmlwdCBjb2xsZWN0aW9uLgpodHRwczovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgv
-a2VybmVsL2dpdC90b3J2YWxkcy9saW51eC5naXQvdHJlZS9zY3JpcHRzL2NvY2NpbmVsbGU/aWQ9
-NzlmYzE3MGIxZjVjMzZmNDg2ZDg4NmJmYmQ1OWViNGU2MjMyMTEyOAoKV291bGQgeW91IGV2ZW50
-dWFsbHkgbGlrZSB0byBydW4gc3VjaCBzY3JpcHRzIG9uY2UgbW9yZT8KClJlZ2FyZHMsCk1hcmt1
-cwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgt
-c25wcy1hcmMgbWFpbGluZyBsaXN0CmxpbnV4LXNucHMtYXJjQGxpc3RzLmluZnJhZGVhZC5vcmcK
-aHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1zbnBzLWFy
-Yw==
+On Fri, Oct 12, 2018 at 07:25:08PM -0700, Daniel Colascione wrote:
+[...] 
+> > But anyway, I think this runtime detection thing is not needed. THP is
+> > actually expected to be as fast as this anyway, so if that's available then
+> > we should already be as fast.
+> 
+> Ah, I think the commit message is confusing. (Or else I'm misreading
+> the patch now.) It's not quite that we're disabling the feature when
+> THP is enabled anywhere, but rather that we use the move_huge_pmd path
+> for huge PMDs and use the new code only for non-huge PMDs. (Right?) If
+> that's the case, the commit message shouldn't say "Incase THP is
+> enabled, the optimization is skipped". Even if THP is enabled on a
+> system generally, we might use the new PMD-moving code for mapping
+> types that don't support THP-ization, right?
+
+That is true. Ok, I guess I can update the commit message to be more accurate
+about that.
+
+> > This is for non-THP where THP cannot be enabled
+> > and there is still room for some improvement. Most/all architectures will be
+> > just fine with this. This flag is more of a safety-net type of thing where in
+> > the future if there is this one or two weird architectures that don't play
+> > well, then they can turn it off at the architecture level by not selecting
+> > the flag. See my latest patches for the per-architecture compile-time
+> > controls. Ideally we'd like to blanket turn it on on all, but this is just
+> > playing it extra safe as Kirill and me were discussing on other threads.
+> 
+> Sure. I'm just pointing out that the 500x performance different turns
+> the operation into a qualitatively different feature, so if we expect
+> to actually ship a mainstream architecture without support for this
+> thing, we should make it explicit. If we're not, we shouldn't.
+
+We can make it explicit by enabling it in such a mainstream architecture is
+my point. Also if the optimization is not doing what its supposed to, then
+userspace will also just know by measuring the time.
+
+thanks,
+
+ - Joel
+
