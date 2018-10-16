@@ -1,199 +1,64 @@
-From: Joel Fernandes <joel@joelfernandes.org>
-Subject: Re: [PATCH v2 2/2] mm: speed up mremap by 500x on large regions
-Date: Mon, 15 Oct 2018 19:08:53 -0700
-Message-ID: <20181016020853.GA56701@joelaf.mtv.corp.google.com>
-References: <20181012013756.11285-1-joel@joelfernandes.org>
- <20181012013756.11285-2-joel@joelfernandes.org>
- <6580a62b-69c6-f2e3-767c-bd36b977bea2@de.ibm.com>
- <20181015101814.306d257c@mschwideX1>
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH 2/4] mm: speed up mremap by 500x on large regions (v2)
+Date: Tue, 16 Oct 2018 13:29:52 +0200
+Message-ID: <35b9c85a-b366-9ca3-5647-c2568c811961@suse.cz>
+References: <20181013013200.206928-1-joel@joelfernandes.org>
+ <20181013013200.206928-3-joel@joelfernandes.org>
+ <20181015094209.GA31999@infradead.org>
+ <20181015223303.GA164293@joelaf.mtv.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
 	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=a/zypxRt4u9HeE4YG4/v/j0pjNQpmj0Y5dp6iNWBkaM=; b=uBGd1ZcMQXYeEm
-	Ncmbm7nNx15mBYW4N7F2rjRd6ZoBzJy/XrTQXBR4cwxJyRYb7MYe08yUGHIDtu62dAOc+DCZ4bxmh
-	oAWzAhNmm4anw8wrFsupfYQuS9aC1GqjD/JnXQkiyJTCPphyk2BDmX5zMOXCC3Jg5sbzs5w0hZPCx
-	LDQYRfVbOG70BPNuKpkGY5DCKwcF7YqVkgy/PWJQgBo0AIcsOo5if4/Kq/7c4VQDvvtb7nhXpbQmj
-	KZ/VEWkrh+NnFhaOpzGRDnXzEKUAWGLAf/Zq/p0Nu+g+rB1JpTDGvoOr+5JdsGiQ4Tjf5GOPvNsUb
-	v32bt1aARQreTXx6LeVg==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=joelfernandes.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=Cz67bHFDMvGJFAPVrnGd7nRR9VaEfFbq9lmMgtQ7ALI=;
- b=Ok8PoT2K5GRd0KamvoP9eqKuZhLNGS9A/TQQUFKNVaiKMTPdWZBOlKBJnP/SBNp0fB
- eaNg0TIhicPK/28Gv9xiSnJPwjChRHhy71Hj8UEp7IXgBHdi4gGzcrB8K+qvQHybEgT/
- 4RZeGqEX+CUKeDt+Zqt+rRqDUsxY24+s4U2g8=
-Content-Disposition: inline
-In-Reply-To: <20181015101814.306d257c@mschwideX1>
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:
+	Message-ID:From:References:To:Subject:Reply-To:Content-ID:Content-Description
+	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=lYeS5DHnacjV3YyaYmeeaLk4brdds+m68Lx1tgXFs8w=; b=Gk6JGEPLpSQO+b
+	t6oy911Ny8RaMZ/j9ZTN9yZwQRxgPaNeHnRLkAPR9QCidp1lonWKD6yfS8mWeGo5olxaWFAilzvjg
+	Bofr3TG9/04vaZCMk3gvuGAId4S3MzYqbRLc4W/d417r0BzjvhtMZ9oV3P/BZbnQIBV0uoFtvPmb8
+	OnX/714kwBcivGwEftdTX3O42MIDF8dySup/BGD9FWK5wTT3ILmLOJl2WIAJfPVJnduYK4eadSlWV
+	crIkxAwCCHaSOjvQz63FRCeuCzFlIi1dox0HxGOJIeThvfFIsnmC8qoTa6B9N2rFfEZly52/JVOiP
+	7nYY4rDSoEo17x2MZ0+g==;
+In-Reply-To: <20181015223303.GA164293@joelaf.mtv.corp.google.com>
+Content-Language: en-US
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, mhocko@kernel.org, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, dancol@google.com, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-xtensa@linux-xtensa.org, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, kvmarm@lists.cs.columbia.edu, Christian Borntraeger <borntraeger@de.ibm.co>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
+To: Joel Fernandes <joel@joelfernandes.org>, Christoph Hellwig <hch@infradead.org>
+Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, mhocko@kernel.org, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, kvmarm@lists.cs.columbia.edu, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, dancol@google.com, Yoshinori Sato <ysato@users.sourceforge.jp>, Max Filippov <jcmvbkbc@gmail.com>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE 32-BIT AND 64-BIT" <x86@kernel.org>, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, elfring@users.sourceforge.net, Ingo Molnar <mingo@redhat.com>, Geert
 
-On Mon, Oct 15, 2018 at 10:18:14AM +0200, Martin Schwidefsky wrote:
-> On Mon, 15 Oct 2018 09:10:53 +0200
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On 10/16/18 12:33 AM, Joel Fernandes wrote:
+> On Mon, Oct 15, 2018 at 02:42:09AM -0700, Christoph Hellwig wrote:
+>> On Fri, Oct 12, 2018 at 06:31:58PM -0700, Joel Fernandes (Google) wrote:
+>>> Android needs to mremap large regions of memory during memory management
+>>> related operations.
+>>
+>> Just curious: why?
 > 
-> > On 10/12/2018 03:37 AM, Joel Fernandes (Google) wrote:
-> > > Android needs to mremap large regions of memory during memory management
-> > > related operations. The mremap system call can be really slow if THP is
-> > > not enabled. The bottleneck is move_page_tables, which is copying each
-> > > pte at a time, and can be really slow across a large map. Turning on THP
-> > > may not be a viable option, and is not for us. This patch speeds up the
-> > > performance for non-THP system by copying at the PMD level when possible.
-> > > 
-> > > The speed up is three orders of magnitude. On a 1GB mremap, the mremap
-> > > completion times drops from 160-250 millesconds to 380-400 microseconds.
-> > > 
-> > > Before:
-> > > Total mremap time for 1GB data: 242321014 nanoseconds.
-> > > Total mremap time for 1GB data: 196842467 nanoseconds.
-> > > Total mremap time for 1GB data: 167051162 nanoseconds.
-> > > 
-> > > After:
-> > > Total mremap time for 1GB data: 385781 nanoseconds.
-> > > Total mremap time for 1GB data: 388959 nanoseconds.
-> > > Total mremap time for 1GB data: 402813 nanoseconds.
-> > > 
-> > > Incase THP is enabled, the optimization is skipped. I also flush the
-> > > tlb every time we do this optimization since I couldn't find a way to
-> > > determine if the low-level PTEs are dirty. It is seen that the cost of
-> > > doing so is not much compared the improvement, on both x86-64 and arm64.
-> > > 
-> > > Cc: minchan@kernel.org
-> > > Cc: pantin@google.com
-> > > Cc: hughd@google.com
-> > > Cc: lokeshgidra@google.com
-> > > Cc: dancol@google.com
-> > > Cc: mhocko@kernel.org
-> > > Cc: kirill@shutemov.name
-> > > Cc: akpm@linux-foundation.org
-> > > Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-> > > ---
-> > >  mm/mremap.c | 62 +++++++++++++++++++++++++++++++++++++++++++++++++++++
-> > >  1 file changed, 62 insertions(+)
-> > > 
-> > > diff --git a/mm/mremap.c b/mm/mremap.c
-> > > index 9e68a02a52b1..d82c485822ef 100644
-> > > --- a/mm/mremap.c
-> > > +++ b/mm/mremap.c
-> > > @@ -191,6 +191,54 @@ static void move_ptes(struct vm_area_struct *vma, pmd_t *old_pmd,
-> > >  		drop_rmap_locks(vma);
-> > >  }
-> > >  
-> > > +static bool move_normal_pmd(struct vm_area_struct *vma, unsigned long old_addr,
-> > > +		  unsigned long new_addr, unsigned long old_end,
-> > > +		  pmd_t *old_pmd, pmd_t *new_pmd, bool *need_flush)
-> > > +{
-> > > +	spinlock_t *old_ptl, *new_ptl;
-> > > +	struct mm_struct *mm = vma->vm_mm;
-> > > +
-> > > +	if ((old_addr & ~PMD_MASK) || (new_addr & ~PMD_MASK)
-> > > +	    || old_end - old_addr < PMD_SIZE)
-> > > +		return false;
-> > > +
-> > > +	/*
-> > > +	 * The destination pmd shouldn't be established, free_pgtables()
-> > > +	 * should have release it.
-> > > +	 */
-> > > +	if (WARN_ON(!pmd_none(*new_pmd)))
-> > > +		return false;
-> > > +
-> > > +	/*
-> > > +	 * We don't have to worry about the ordering of src and dst
-> > > +	 * ptlocks because exclusive mmap_sem prevents deadlock.
-> > > +	 */
-> > > +	old_ptl = pmd_lock(vma->vm_mm, old_pmd);
-> > > +	if (old_ptl) {
-> > > +		pmd_t pmd;
-> > > +
-> > > +		new_ptl = pmd_lockptr(mm, new_pmd);
-> > > +		if (new_ptl != old_ptl)
-> > > +			spin_lock_nested(new_ptl, SINGLE_DEPTH_NESTING);
-> > > +
-> > > +		/* Clear the pmd */
-> > > +		pmd = *old_pmd;
-> > > +		pmd_clear(old_pmd);  
-> > 
-> > Adding Martin Schwidefsky.
-> > Is this mapping maybe still in use on other CPUs? If yes, I think for
-> > s390 we need to flush here as well (in other word we might need to introduce
-> > pmd_clear_flush). On s390 you have to use instructions like CRDTE,IPTE or IDTE
-> > to modify page table entries that are still in use. Otherwise you can get a 
-> > delayed access exception which is - in contrast to page faults - not recoverable.
+> In Android we have a requirement of moving a large (up to a GB now, but may
+> grow bigger in future) memory range from one location to another.
+
+I think Christoph's "why?" was about the requirement, not why it hurts
+applications. I admit I'm now also curious :)
+
+> This move
+> operation has to happen when the application threads are paused for this
+> operation. Therefore, an inefficient move like it is now (for example 250ms
+> on arm64) will cause response time issues for applications, which is not
+> acceptable. Huge pages cannot be used in such memory ranges to avoid this
+> inefficiency as (when the application threads are running) our fault handlers
+> are designed to process 4KB pages at a time, to keep response times low. So
+> using huge pages in this context can, again, cause response time issues.
 > 
-> Just clearing an active pmd would be broken for s390. We need the equivalent
-> of the ptep_get_and_clear() function for pmds. For s390 this function would
-> look like this:
-> 
-> static inline pte_t pmdp_get_and_clear(struct mm_struct *mm,
->                                        unsigned long addr, pmd_t *pmdp)
-> {
->         return pmdp_xchg_lazy(mm, addr, pmdp, __pmd(_SEGMENT_ENTRY_INVALID));
-> }
-> 
-> Just like pmdp_huge_get_and_clear() in fact.
-
-I agree architecture like s390 may need additional explicit instructions to
-avoid any unrecoverable failure. So the good news is in my last patch I sent, I
-have put this behind an architecture flag (HAVE_MOVE_PMD), so we don't have
-to enable it with architectures that cannot handle it:
-https://www.spinics.net/lists/linux-mm/msg163621.html
-
-Also we are triggering this optimization only if the page is not a transparent
-huge page by calling pmd_trans_huge(). For regular pages, it should be safe to
-not do the atomic get_and_clear AIUI because Linux doesn't use any bits from
-the PMD like the dirty bit if THP is not in use (and the processors that I
-saw (not s390) should not storing anything in the bits anyway when the page
-is not a huge page. I have gone through various scenarios and read both arm
-32-bit and 64-bit and x86 64-bit manuals, and I believe it to be safe.
-
-For s390, lets not set the HAVE_MOVE_PMD flag. Does that work for you?
-
-> > > +
-> > > +		VM_BUG_ON(!pmd_none(*new_pmd));
-> > > +
-> > > +		/* Set the new pmd */
-> > > +		set_pmd_at(mm, new_addr, new_pmd, pmd);
-> > > +		if (new_ptl != old_ptl)
-> > > +			spin_unlock(new_ptl);
-> > > +		spin_unlock(old_ptl);
-> > > +
-> > > +		*need_flush = true;
-> > > +		return true;
-> > > +	}
-> > > +	return false;
-> > > +}
-> > > +
-> 
-> So the idea is to move the pmd entry to the new location, dragging
-> the whole pte table to a new location with a different address.
-> I wonder if that is safe in regard to get_user_pages_fast().
-
-Could you elaborate why you feel it may not be?
-
-Are you concerned that the PMD moving interferes with the page walk? Incase
-the tree changes during page-walking, the number of pages pinned by
-get_user_pages_fast may be less than the number requested. In this case,
-get_user_pages_fast would fall back to the slow path which should be
-synchronized with the mremap by courtesy of the mm->mmap_sem. But please let
-me know the scenario you have in mind and if I missed something.
-
-thanks,
-
- - Joel
+> Also, the mremap syscall waiting for quarter of a second for a large mremap
+> is quite weird and we ought to improve it where possible.
