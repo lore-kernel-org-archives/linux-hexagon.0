@@ -1,102 +1,94 @@
-From: "Kirill A. Shutemov" <kirill@shutemov.name>
-Subject: Re: [PATCH 2/4] mm: speed up mremap by 500x on large regions (v2)
-Date: Wed, 24 Oct 2018 15:57:24 +0300
-Message-ID: <20181024125724.yf6frdimjulf35do@kshutemo-mobl1>
-References: <20181013013200.206928-1-joel@joelfernandes.org>
- <20181013013200.206928-3-joel@joelfernandes.org>
- <20181024101255.it4lptrjogalxbey@kshutemo-mobl1>
- <20181024115733.GN8537@350D>
-Mime-Version: 1.0
+From: Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH v2 0/2] arm64: Cut rebuild time when changing CONFIG_BLK_DEV_INITRD
+Date: Wed, 24 Oct 2018 12:32:54 -0700
+Message-ID: <20181024193256.23734-1-f.fainelli@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=2Vz407YGxG3JrIcbuMcGjknc9A1ux1lohN4oRm/Cqf4=;
+        b=McA1lhaOKIJL65beGoawo5XA+sF/abwjDeA2yKaiNr8dyq/Od5ufT99E0GONMfFrB5
+         mxj/QZue6Tf1t+cRflB1mZi2fxv3IYj6NJnHFMWNkG2f8lp7SnQiYeL4NyVTjHBEdZ05
+         1dnyS5bAy3ME1/TpbS7kNt2F+Ark1Fufn3BBBGkrhPKZooIYoq2aAMK7wGQ/hNB2raHa
+         uRrvKYdU/4TXZHxUoWQfYalvnc/5tO7e0D+DFqq7jz/D1isEZXlEIx9USTvPb91olUnq
+         csiJX/2lmmct5T1tGTx9ZAQ22vlQr9LB07PUSw7pRK5YoMqLg5+eX9X1PLv+twsgdIN4
+         lSWQ==
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=dNUDottrJlmsaA1ojOoNGvSbCLeAXII054DjcO1h5G0=; b=ofD/K8awacx0FW
-	/9+W0I3oS0zILla3x0ceAPJuj5t8rtMZZmksIIauPT0KPPfZTIL9WMziftVysTtdwcy6lcH7jIvfi
-	oiIRMMpL3W1G19fjc6CP5z182QVvSBnu3oZwLSlRfHKj5OECdVfbpzMfDJmH2WZfuxozH6Mv3ipBE
-	7qweiF5eHx8ZB5zyHkQbE63JZRdOGj2I5mSznIUPEMzJasQ/OfwCULsD45cUna2JU4Bs3Fyb1usCQ
-	IL/d4wkXfeqDc14PUieJc8LqDu4pr1/wxwOJ62iuZpSrLESsP7KvlP/2Iy2TRfgsE5U2DvbVQjXDF
-	6hm1Uq5MHZNyC9vc7w0Q==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=shutemov-name.20150623.gappssmtp.com; s=20150623;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=u4uba2fx6yj15XJfXzXAGhRcWjDfkikfuZTGMLXtNuw=;
- b=QUWcy6Sl2uKBSxMKyAQKgPHaaZkxUyGKW1j/tcrhbSXB3vW5a56lXmFSTP0gzGbZK3
- vffkJDQW2WMbIFLuD1+6ufBku/+pf6UeruhfzRwNYwFgIuIJTiBEFtQd6OUHFAQ6eayl
- P+oyst7tx7B2tcyac+nAMIUnZnHfXCn48NySbAEzmKBcKrbkCpbDR97BYPvJugxN++Cj
- APyxLuPJd0VjY9bkSUeFLpZ1THRyudEGwY77knuPasZkTOLS31IxwdJtMwVSEmSEjNTT
- gafpbeBUtbqb+qibgmoy3fyXe8MHjyx6PnKU0Is89VSk3GMj5Rt4EKiaVNHGw+K4Tm+L
- MPaA==
-Content-Disposition: inline
-In-Reply-To: <20181024115733.GN8537@350D>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Balbir Singh <bsingharora@gmail.com>
-Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, mhocko@kernel.org, linux-mm@kvack.org, lokeshgidra@google.com, "Joel Fernandes (Google)" <joel@joelfernandes.org>, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, kvmarm@lists.cs.columbia.edu, dancol@google.com, Yoshinori Sato <ysato@users.sourceforge.jp>, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, anton.ivanov@kot-b
+To: linux-kernel@vger.kernel.org
+Cc: Florian Fainelli <f.fainelli@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Marc Zyngier <marc.zyngier@arm.com>, Olof Johansson <olof@lixom.net>, "open list:ALPHA PORT" <linux-alpha@vger.kernel.org>, "open list:SYNOPSYS ARC ARCHITECTURE" <linux-snps-arc@lists.infradead.org>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, "open list:C6X ARCHITECTURE" <linux-c6x-dev@linux-c6x.org>, "moderated list:H8/300
+        ARCHITECTURE" <uclinux-h8-devel@lists.sourceforge.jp>, "open list:QUALCOMM HEXAGON ARCHITECTURE" <linux-hexagon@vger.kernel.org>, "open list:IA64 Itanium PLATFORM" <linux-ia64@vger.kernel.org>, "open list:M68" <linux-m68k@lists.linux-m68k.org>
 
-On Wed, Oct 24, 2018 at 10:57:33PM +1100, Balbir Singh wrote:
-> On Wed, Oct 24, 2018 at 01:12:56PM +0300, Kirill A. Shutemov wrote:
-> > On Fri, Oct 12, 2018 at 06:31:58PM -0700, Joel Fernandes (Google) wrote:
-> > > diff --git a/mm/mremap.c b/mm/mremap.c
-> > > index 9e68a02a52b1..2fd163cff406 100644
-> > > --- a/mm/mremap.c
-> > > +++ b/mm/mremap.c
-> > > @@ -191,6 +191,54 @@ static void move_ptes(struct vm_area_struct *vma, pmd_t *old_pmd,
-> > >  		drop_rmap_locks(vma);
-> > >  }
-> > >  
-> > > +static bool move_normal_pmd(struct vm_area_struct *vma, unsigned long old_addr,
-> > > +		  unsigned long new_addr, unsigned long old_end,
-> > > +		  pmd_t *old_pmd, pmd_t *new_pmd, bool *need_flush)
-> > > +{
-> > > +	spinlock_t *old_ptl, *new_ptl;
-> > > +	struct mm_struct *mm = vma->vm_mm;
-> > > +
-> > > +	if ((old_addr & ~PMD_MASK) || (new_addr & ~PMD_MASK)
-> > > +	    || old_end - old_addr < PMD_SIZE)
-> > > +		return false;
-> > > +
-> > > +	/*
-> > > +	 * The destination pmd shouldn't be established, free_pgtables()
-> > > +	 * should have release it.
-> > > +	 */
-> > > +	if (WARN_ON(!pmd_none(*new_pmd)))
-> > > +		return false;
-> > > +
-> > > +	/*
-> > > +	 * We don't have to worry about the ordering of src and dst
-> > > +	 * ptlocks because exclusive mmap_sem prevents deadlock.
-> > > +	 */
-> > > +	old_ptl = pmd_lock(vma->vm_mm, old_pmd);
-> > > +	if (old_ptl) {
-> > 
-> > How can it ever be false?
-> > 
-> > > +		pmd_t pmd;
-> > > +
-> > > +		new_ptl = pmd_lockptr(mm, new_pmd);
-> 
-> 
-> Looks like this is largely inspired by move_huge_pmd(), I guess a lot of
-> the code applies, why not just reuse as much as possible? The same comments
-> w.r.t mmap_sem helping protect against lock order issues applies as well.
+Hi all,
 
-pmd_lock() cannot fail, but __pmd_trans_huge_lock() can. We should not
-copy the code blindly.
+While investigating why ARM64 required a ton of objects to be rebuilt
+when toggling CONFIG_DEV_BLK_INITRD, it became clear that this was
+because we define __early_init_dt_declare_initrd() differently and we do
+that in arch/arm64/include/asm/memory.h which gets included by a fair
+amount of other header files, and translation units as well.
+
+Changing the value of CONFIG_DEV_BLK_INITRD is a common thing with build
+systems that generate two kernels: one with the initramfs and one
+without. buildroot is one of these build systems, OpenWrt is also
+another one that does this.
+
+This patch series proposes adding an empty initrd.h to satisfy the need
+for drivers/of/fdt.c to unconditionally include that file, and moves the
+custom __early_init_dt_declare_initrd() definition away from
+asm/memory.h
+
+This cuts the number of objects rebuilds from 1920 down to 26, so a
+factor 73 approximately.
+
+Apologies for the long CC list, please let me know how you would go
+about merging that and if another approach would be preferable, e.g:
+introducing a CONFIG_ARCH_INITRD_BELOW_START_OK Kconfig option or
+something like that.
+
+Changes in v2:
+
+- put an /* empty */ comment in the asm-generic/initrd.h file
+- trim down the CC list to maximize the chances of people receiving this
+
+Florian Fainelli (2):
+  arch: Add asm-generic/initrd.h and make use of it for most
+    architectures
+  arm64: Create asm/initrd.h
+
+ arch/alpha/include/asm/Kbuild      |  1 +
+ arch/arc/include/asm/Kbuild        |  1 +
+ arch/arm/include/asm/Kbuild        |  1 +
+ arch/arm64/include/asm/initrd.h    | 13 +++++++++++++
+ arch/arm64/include/asm/memory.h    |  8 --------
+ arch/c6x/include/asm/Kbuild        |  1 +
+ arch/h8300/include/asm/Kbuild      |  1 +
+ arch/hexagon/include/asm/Kbuild    |  1 +
+ arch/ia64/include/asm/Kbuild       |  1 +
+ arch/m68k/include/asm/Kbuild       |  1 +
+ arch/microblaze/include/asm/Kbuild |  1 +
+ arch/mips/include/asm/Kbuild       |  1 +
+ arch/nds32/include/asm/Kbuild      |  1 +
+ arch/nios2/include/asm/Kbuild      |  1 +
+ arch/openrisc/include/asm/Kbuild   |  1 +
+ arch/parisc/include/asm/Kbuild     |  1 +
+ arch/powerpc/include/asm/Kbuild    |  1 +
+ arch/riscv/include/asm/Kbuild      |  1 +
+ arch/s390/include/asm/Kbuild       |  1 +
+ arch/sh/include/asm/Kbuild         |  1 +
+ arch/sparc/include/asm/Kbuild      |  1 +
+ arch/um/include/asm/Kbuild         |  1 +
+ arch/unicore32/include/asm/Kbuild  |  1 +
+ arch/x86/include/asm/Kbuild        |  1 +
+ arch/xtensa/include/asm/Kbuild     |  1 +
+ drivers/of/fdt.c                   |  1 +
+ include/asm-generic/initrd.h       |  1 +
+ 27 files changed, 38 insertions(+), 8 deletions(-)
+ create mode 100644 arch/arm64/include/asm/initrd.h
+ create mode 100644 include/asm-generic/initrd.h
 
 -- 
- Kirill A. Shutemov
+2.17.1
+
