@@ -1,11 +1,11 @@
 From: Joel Fernandes <joel@joelfernandes.org>
-Subject: Re: [PATCH 2/4] mm: speed up mremap by 500x on large regions (v2)
-Date: Wed, 24 Oct 2018 19:13:50 -0700
-Message-ID: <20181025021350.GB13560@joelaf.mtv.corp.google.com>
+Subject: Re: [PATCH 1/4] treewide: remove unused address argument from
+ pte_alloc functions (v2)
+Date: Wed, 24 Oct 2018 19:21:19 -0700
+Message-ID: <20181025022119.GC13560@joelaf.mtv.corp.google.com>
 References: <20181013013200.206928-1-joel@joelfernandes.org>
- <20181013013200.206928-3-joel@joelfernandes.org>
- <20181024101255.it4lptrjogalxbey@kshutemo-mobl1>
- <20181024115733.GN8537@350D>
+ <20181013013200.206928-2-joel@joelfernandes.org>
+ <20181024083716.GN3109@worktop.c.hoisthospitality.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,22 +16,22 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
 	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=jB8RpTc7IAIoNhq2EERqIuaS843hm/hgSbs5gYFYvOc=; b=qyy95DWskV8RS+
-	ixreCwCcs7yWnY/gW5ur8iJCy4kPhreIfFNEMoaP/0RnD4FonlQmlAZ8umpbCCy/MIEDL+fj1Bcg9
-	EjwyeLC/e8+mALe6mi4TGSTvI5JXT8LEkZMZwYK5XtAQxbLuab9Esn0STYtZJ1IHs+XDTA/IB96FM
-	pl1n7M77ED7EXxeKoOQWNXFZvQ//ymkjGXOlY3OMdVSTokxCwiiP39yGbOaijmjxodcarDGKdo2Zw
-	ZPunvzWEiUcsIkXHmqY5R7jDALgyAfu6fVqdAtbLTn1GrMYyAAY4QWdLmfI9v9xxuomBFJxNWEc4M
-	y8D9Kci7BWwohw747Tcg==;
+	List-Owner; bh=EemwVUyH7AzDolZa81p60QMC5oNrc1yxp4AdmwHbrVc=; b=jGVoUm79aLYMRK
+	PH8sls0Z2k4W33FdszlWO1EYqIaoUtMHg8bUkvBxKT/ecuUZwoEpiPPxG5Fat3vjZ+q53wsZryNuA
+	mfTnnoDmWfM0p1jK/w3DOA3itUpLb8cr9n0AABTzirZodq/QEr1lzYZanhJ4pNw9t4EFl443CRhCa
+	bSZd/HV/n+N8CCmeEL5ALlubq62jO2zYI1VTlwyfeqiEPJRpHx0EMyqsU7hVwAJuwu3MFN+ZMXGmu
+	bR+ZSlx+Gh7GcEQFz2OuPZdFAWmXe+Issq/L45mT0hdSEeeJppfEGecLWO5VGkPgSO5RtiNzM0sfw
+	LpDN5FpE7FobDmLBZ+Yw==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=joelfernandes.org; s=google;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to:user-agent;
- bh=5CbWcmgaWhK69oh2DEOguVgA2uKl1YpKoqaGwtGwge8=;
- b=q/q3QTdACzUlPpDQMN1kjcezMfcsn0Yv6fXB6ODPHDCxjW91L/KWd7ad+HnYMhVDLK
- 4w8FEyzAp+rB09Si8JZs7MJE9NTlxjm6PO3Hk2MpIdxGl6P2KagjiLkUB/ExO2oGujpm
- CSZTqm0K2zOVm+Foil/VJrYg2JhZozpJsR9l8=
+ bh=a3qWVWJhvBgQDe8YRsbgtRjpHQfuWQV3NPWrQqOgjm0=;
+ b=WhUgko4o5JcJhUwoWI8kPjvkrH9YQTvlMUDHtdL2JJ5mCTuig+Mqt2sFNrTVhmJSgZ
+ 34O62c+REJyhBfJwS4DhKcn3WHO4O/TKsj/DlxdzkUHTNLB9x+bJAzgHPxnnVjbdI5DC
+ PQKlOZe6+0JIfKGXqhkPj1W7WBMfDG+7PFQCQ=
 Content-Disposition: inline
-In-Reply-To: <20181024115733.GN8537@350D>
+In-Reply-To: <20181024083716.GN3109@worktop.c.hoisthospitality.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
@@ -42,21 +42,31 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
 Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Balbir Singh <bsingharora@gmail.com>
-Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, mhocko@kernel.org, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, kvmarm@lists.cs.columbia.edu, dancol@google.com, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-xtensa@linux-xtensa.org, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, anton.ivanov@kot-begemot.co.uk, Ingo Molnar <mingo@redhat.com>, Geert
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, kvmarm@lists.cs.columbia.edu, dancol@google.com, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-xtensa@linux-xtensa.org, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, anton.ivanov@kot-begemot.co.uk, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m>
 
-On Wed, Oct 24, 2018 at 10:57:33PM +1100, Balbir Singh wrote:
-[...]
-> > > +		pmd_t pmd;
-> > > +
-> > > +		new_ptl = pmd_lockptr(mm, new_pmd);
+On Wed, Oct 24, 2018 at 10:37:16AM +0200, Peter Zijlstra wrote:
+> On Fri, Oct 12, 2018 at 06:31:57PM -0700, Joel Fernandes (Google) wrote:
+> > This series speeds up mremap(2) syscall by copying page tables at the
+> > PMD level even for non-THP systems. There is concern that the extra
+> > 'address' argument that mremap passes to pte_alloc may do something
+> > subtle architecture related in the future that may make the scheme not
+> > work.  Also we find that there is no point in passing the 'address' to
+> > pte_alloc since its unused. So this patch therefore removes this
+> > argument tree-wide resulting in a nice negative diff as well. Also
+> > ensuring along the way that the enabled architectures do not do anything
+> > funky with 'address' argument that goes unnoticed by the optimization.
 > 
-> 
-> Looks like this is largely inspired by move_huge_pmd(), I guess a lot of
-> the code applies, why not just reuse as much as possible? The same comments
-> w.r.t mmap_sem helping protect against lock order issues applies as well.
+> Did you happen to look at the history of where that address argument
+> came from? -- just being curious here. ISTR something vague about
+> architectures having different paging structure for different memory
+> ranges.
 
-I thought about this and when I looked into it, it seemed there are subtle
-differences that make such sharing not worth it (or not possible).
+I didn't happen to do that analysis but from code analysis, no architecutre
+is using it. Since its unused in the kernel, may be such architectures don't
+exist or were removed, so we don't need to bother? Could you share more about
+your concern with the removal of this argument?
+
+thanks,
 
  - Joel
