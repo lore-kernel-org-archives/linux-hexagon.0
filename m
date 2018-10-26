@@ -1,77 +1,67 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 1/4] treewide: remove unused address argument from
- pte_alloc functions (v2)
-Date: Fri, 26 Oct 2018 10:50:47 +0200
-Message-ID: <20181026085047.GB3109@worktop.c.hoisthospitality.com>
-References: <20181013013200.206928-1-joel@joelfernandes.org>
- <20181013013200.206928-2-joel@joelfernandes.org>
- <20181024083716.GN3109@worktop.c.hoisthospitality.com>
- <20181025104703.esl6wxyg2ihe4zoc@kshutemo-mobl1>
+From: Mike Rapoport <rppt@linux.ibm.com>
+Subject: Re: [PATCH v2 0/2] arm64: Cut rebuild time when changing
+ CONFIG_BLK_DEV_INITRD
+Date: Fri, 26 Oct 2018 12:07:09 +0100
+Message-ID: <20181026110708.GA3814@rapoport-lnx>
+References: <20181024193256.23734-1-f.fainelli@gmail.com>
+ <CAL_Jsq+KCOv6pXXHhHDZ+7-QUrmtMDvSjEVhK15yZ3qbnn61Ag@mail.gmail.com>
+ <20181025093833.GA23607@rapoport-lnx>
+ <CAL_JsqL62ttsGSbE1BS5v-mX3pKE-p_HyvuZD6nB+GUbQyetzg@mail.gmail.com>
+ <20181025172935.GA27364@rapoport-lnx>
+ <CAL_JsqJrMq+QHvuOsqEdCFchmXsd4s2XKUD_TboKzeEQprJvjg@mail.gmail.com>
+ <1bb3bd63-a88e-b668-ea36-f0f985c0e2b1@gmail.com>
 Mime-Version: 1.0
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1bb3bd63-a88e-b668-ea36-f0f985c0e2b1@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=DSGdF6/iMXAfO2LNryt6tw4ux5kPprgiztoremF+SPM=; b=lTogTAIvogh7oR
-	uJzuk6mbTmGcS8PCUIUC9SLt0BrKBjBdQwM947mtOq7aQ/nAUk33tqjYb6M/Semj1XcYUrOnbc0IV
-	WI9qvlc7c8EFpdiwsjP9bj5UP9Aez7kinRADiptx3phu/ES0svcIma7ndEqeWhRts/EEjqr98wj3W
-	HnkfBHwqJhnUs5UWrSinA7kRuyUPZn9Bi4/FwggICpnjBSx2OXuMEoE7+7483DjN2u1EJvJ4Wh9/f
-	ixp629Jr1hGktyz9YvaGFEEnoQA8N3WGt6qWA/vpxFlk14i7JwKrL3WscMp/35fNO8/1Kuw4/bdiT
-	LtTkISxpS5Rm9olBQUNg==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
- Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
- List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=t4U6dJOCnA0c/EZV0nmuSLy/HD8d4dYO3ZonI67d8Vk=; b=DPhftboxJNVK8gljOSI9ek+lk
- cu0xqt1kC5w7yCxw6Jsznw1tHw2bNfFS/B99G90XrfF2EouGTY+fnjyh2fFe8Ea4pm+LfBzpKsORm
- vHKSHxTajvN1zlzwJSY3IQRIoUSjK9Ks0EaN70/cGAc3V1cVwVubUjQU8B8T3dcCN+Cny2z4IXEkf
- 5989+J/lbf4qCCiiXPFuktGNapnha5La8DRY2VrXPeyZAvzLzZFAr0KwXyN2xKeaZefS1TlUOUz9Q
- v3E0AoVoDPrDe463fQg0erQi1phVVaaGU+vviNvYVqHIgoubM4nIzXXBkEBYhhWFO095CIUsfkQj8
- Onm8/N6Lg==;
-Content-Disposition: inline
-In-Reply-To: <20181025104703.esl6wxyg2ihe4zoc@kshutemo-mobl1>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
-To: "Kirill A. Shutemov" <kirill@shutemov.name>
-Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, lokeshgidra@google.com, "Joel Fernandes (Google)" <joel@joelfernandes.org>, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, kvmarm@lists.cs.columbia.edu, dancol@google.com, Yoshinori Sato <ysato@users.sourceforge.jp>, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, anton.ivanov@kot-begemot.co.uk, Ingo
+To: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Marc Zyngier <marc.zyngier@arm.com>, Olof Johansson <olof@lixom.net>, linux-alpha@vger.kernel.org, arcml <linux-snps-arc@lists.infradead.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, linux-c6x-dev@linux-c6x.org, "moderated list:H8/300 ARCHITECTURE" <uclinux-h8-devel@lists.sourceforge.jp>, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Linux-MIPS <linux-mips>
 
-On Thu, Oct 25, 2018 at 01:47:03PM +0300, Kirill A. Shutemov wrote:
-> On Wed, Oct 24, 2018 at 10:37:16AM +0200, Peter Zijlstra wrote:
-> > On Fri, Oct 12, 2018 at 06:31:57PM -0700, Joel Fernandes (Google) wrote:
-> > > This series speeds up mremap(2) syscall by copying page tables at the
-> > > PMD level even for non-THP systems. There is concern that the extra
-> > > 'address' argument that mremap passes to pte_alloc may do something
-> > > subtle architecture related in the future that may make the scheme not
-> > > work.  Also we find that there is no point in passing the 'address' to
-> > > pte_alloc since its unused. So this patch therefore removes this
-> > > argument tree-wide resulting in a nice negative diff as well. Also
-> > > ensuring along the way that the enabled architectures do not do anything
-> > > funky with 'address' argument that goes unnoticed by the optimization.
-> > 
-> > Did you happen to look at the history of where that address argument
-> > came from? -- just being curious here. ISTR something vague about
-> > architectures having different paging structure for different memory
-> > ranges.
-> 
-> I see some archicetures (i.e. sparc and, I believe power) used the address
-> for coloring. It's not needed anymore. Page allocator and SL?B are good
-> enough now.
-> 
-> See 3c936465249f ("[SPARC64]: Kill pgtable quicklists and use SLAB.")
+On Thu, Oct 25, 2018 at 04:07:13PM -0700, Florian Fainelli wrote:
+> On 10/25/18 2:13 PM, Rob Herring wrote:
+> > On Thu, Oct 25, 2018 at 12:30 PM Mike Rapoport <rppt@linux.ibm.com> wrote:
+> >>
+> >> On Thu, Oct 25, 2018 at 08:15:15AM -0500, Rob Herring wrote:
+> >>> +Ard
+> >>>
+> >>> On Thu, Oct 25, 2018 at 4:38 AM Mike Rapoport <rppt@linux.ibm.com> wrote:
+> >>>>
+> >>>> On Wed, Oct 24, 2018 at 02:55:17PM -0500, Rob Herring wrote:
+> >>>>> On Wed, Oct 24, 2018 at 2:33 PM Florian Fainelli <f.fainelli@gmail.com> wrote:
+> >>>>>>
+> >>>>>> Hi all,
+> >>>>>>
+> >>>>>> While investigating why ARM64 required a ton of objects to be rebuilt
+> >>>>>> when toggling CONFIG_DEV_BLK_INITRD, it became clear that this was
+> >>>>>> because we define __early_init_dt_declare_initrd() differently and we do
+> >>>>>> that in arch/arm64/include/asm/memory.h which gets included by a fair
+> >>>>>> amount of other header files, and translation units as well.
+> >>>>>
+> >>>> I think arm64 does not have to redefine __early_init_dt_declare_initrd().
+> >>>> Something like this might be just all we need (completely untested,
+> >>>> probably it won't even compile):
 
-Ah, shiny. Thanks.
+[ ... ]
+ 
+> FWIW, I am extracting the ARM implementation that parses the initrd
+> early command line parameter and the "setup" code doing the page
+> boundary alignment and memblock checking into a helper into lib/ that
+> other architectures can re-use. So far, this removes the need for
+> unicore32, arc and arm to duplicate essentially the same logic.
+
+Presuming you are going to need asm-generic/initrd.h for that as well,
+using override for __early_init_dt_declare_initrd in arm64 version of
+initrd.h might be the simplest option.
+
+> -- 
+> Florian
+> 
+
+-- 
+Sincerely yours,
+Mike.
+
