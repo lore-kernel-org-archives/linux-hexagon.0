@@ -1,10 +1,11 @@
 From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH 0/7] serial: Finish kgdb on qcom_geni; fix many lockdep
- splats w/ kgdb
-Date: Tue, 30 Oct 2018 15:20:13 -0700
-Message-ID: <CAD=FV=URwUFep2UA7Xs1TxK6cZst+W-pfY2_BfKMZnGECHPZqw@mail.gmail.com>
+Subject: Re: [PATCH 7/7] kgdb: Remove irq flags and local_irq_enable/disable
+ from roundup
+Date: Tue, 30 Oct 2018 15:22:40 -0700
+Message-ID: <CAD=FV=WxoJ2LgUyR7Jm=xJHTqWGMvan7o18gOK-qPKdCrRRQtw@mail.gmail.com>
 References: <20181029180707.207546-1-dianders@chromium.org>
- <20181030115628.eqtyqdugkpkxvyr2@holly.lan>
+ <20181029180707.207546-8-dianders@chromium.org>
+ <20181030114603.xdvyvayzw2an5c3q@holly.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,19 +16,19 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:To:Subject:Message-ID:Date:From:
 	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=p8Nnqf4kk46e1Lz/FPQE3Xw82rxeRfaqoj039XeQiWE=; b=fhKC2rmAAwlq+C
-	PA2o/RcraAqD4kZ6G6/yw/lGRlXt3TlU+VrhUso+ffIRgW0qYd7babhYoSTvGryj4IuCUE8O49vGV
-	jhEGNH6/jGIY+dSke5Y9r3YRxs6L+efCjXCE5LGaTrGlxTlfIbpi4ITRAT7LwNSD9/EyctXUp/yzl
-	+FXDCu5LeGOHs7WfQT0V8chWm/1OuxlIXsa1vRQC9Gch7V5QlPk/L95GFL0wNYwfCGdjSGQVVUNRx
-	uyZQp9SItGATnjRG3O5Lyxpk+bAcHGAX6anjbFW+tX0jUPxMHYvKzX/1Kcq4IHfrSFvU0poFzGTUi
-	hbkEAR+79Db5QgCZpRdQ==;
+	List-Owner; bh=sAazuecHDwi7QOcB2SsU+E9xU7Y6+GOHQUh+kocsiVA=; b=ahZDIJbpapc9wu
+	Zlt6jxJJDlyB7JWk1oJDAeMKa89Qw8o/eMQ3c7mhRfRU/3LFTwVVmAeYyFxR9jt28V55bPORu4va/
+	p36tZHP/lRf9Uxg8vp0SYJ0K1d9lYTK3T4il+5YUocO4u6uhM43CeI2Gzyvg63em9SB6nyCDuph4v
+	X+wMQW24eY0GTOuXWOnuF3jTignSb4SAocQ1NbJSe/z56md0OLpSsUnTB3UIAILfPVnKdzCYJmO31
+	IcgzFLF60he7Mm+n8jbzPDn7R0FYOldknZjtPXkoYju31Yu0m40R/KgROqTOA02Yn3QUj/UlEDJ2J
+	D1YZrC5s0MHirpH+cWuw==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=AqTfYKV/PN6tpipO01Cdw/TMa+qHwi9432jSG/gesvY=;
- b=CyyABaBWYxdfD5jBmJfkaC05s4UGGrYnPnmnABccJ/fqRBCdi/DudqdFL8rvX8I4l8
- wzb7HFJJi4cK0lyQzBzFa3tytEpCk6tbo4rvIII4LwUc4l9Azi8hKCa5uld9pHcjOEBf
- afa1AyDniOpnh9vg6oqcO7mTFSCJ5Mg+GwSJU=
-In-Reply-To: <20181030115628.eqtyqdugkpkxvyr2@holly.lan>
+ :cc; bh=bImqfsi8wLzHdpxcSUnzMo8Inz8+K2mhWJsVdXrdeuE=;
+ b=jcKtztE2YqHIN/ivS3T1ZCw84PseggOPg6ZMa6O+Xwi3o8ePR9CuItoF1UQkA4p71Q
+ AGZsRypdJ3G1dlog6rYXRUmhTbTueRGExx76PbPoqNk4VZEgIpuWOJayPkTqJ742AM58
+ KK7v5W/wbozKkaVztZ4jBMT+ZKckAgfW1zzOQ=
+In-Reply-To: <20181030114603.xdvyvayzw2an5c3q@holly.lan>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
@@ -39,34 +40,35 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
 Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
 Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
 To: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: Nishanth Menon <nm@ti.com>, linux-mips@linux-mips.org, dalias@libc.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, vigneshr@ti.com, linux-aspeed@lists.ozlabs.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, mhocko@suse.com, paulus@samba.org, mpe@ellerman.id.au, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Ingo Molnar <mingo@kernel.org>, marex@denx.de, Stephen Rothwell <sfr@canb.auug.org.au>, ysato@users.sourceforge.jp, linux-hexagon@vger.kernel.org, x86@kernel.org, Russell King - ARM Linux <linux@armlinux.org.uk>, Tony Lindgren <tony@atomide.com>, Ingo Molnar <mingo@redhat.com>, joel@jms.id.au, linux-serial@vger.kernel.org, kgdb-bugreport@lists.sourceforge.net, jhogan@kernel.org, rolf.evers.fischer@aptiv.com, asierra@x
+Cc: kstewart@linuxfoundation.org, linux-mips@linux-mips.org, dalias@libc.org, Catalin Marinas <catalin.marinas@arm.com>, linux-sh@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, mhocko@suse.com, paulus@samba.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, Stephen Rothwell <sfr@canb.auug.org.au>, ysato@users.sourceforge.jp, mpe@ellerman.id.au, x86@kernel.org, Russell King - ARM Linux <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, kgdb-bugreport@lists.sourceforge.net, jhogan@kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, ying.huang@intel.com, rppt@linux.vnet.ibm.com, bp@alien8.de, Thomas Gleixner <tglx@linutronix.de>, Linux ARM <linux-arm-kernel@lists.infradead.org>, christophe.leroy@c
 
 Hi,
 
-On Tue, Oct 30, 2018 at 4:56 AM Daniel Thompson
+On Tue, Oct 30, 2018 at 4:46 AM Daniel Thompson
 <daniel.thompson@linaro.org> wrote:
 >
-> On Mon, Oct 29, 2018 at 11:07:00AM -0700, Douglas Anderson wrote:
-> > Looking back, this is pretty much two series squashed that could be
-> > treated indepdently.  The first is a serial series and the second is a
-> > kgdb series.
+> On Mon, Oct 29, 2018 at 11:07:07AM -0700, Douglas Anderson wrote:
+> > The function kgdb_roundup_cpus() was passed a parameter that was
+> > documented as:
+> >
+> > > the flags that will be used when restoring the interrupts. There is
+> > > local_irq_save() call before kgdb_roundup_cpus().
+> >
+> > Nobody used those flags.  Anyone who wanted to temporarily turn on
+> > interrupts just did local_irq_enable() and local_irq_disable() without
+> > looking at them.  So we can definitely remove the flags.
 >
-> Indeed.
+> On the whole I'd rather that this change...
 >
-> I couldn't work out the link between the first 5 patches and the last 2
-> until I read this...
 >
-> Is anything in the 01->05 patch set even related to kgdb? From the stack
-> traces it looks to me like the lock dep warning would trigger for any
-> sysrq. I think separating into two threads for v2 would be sensible.
+> > Speaking of calling local_irq_enable(), it seems like a bad idea and
+> > it caused a nice splat on my system with lockdep turned on.
+> > Specifically it hit:
+> >   DEBUG_LOCKS_WARN_ON(current->hardirq_context)
+>
+> ... and fixes for this this were in separate patches. They don't appear
+> especially related.
 
-Yes, sorry about the mess.  Splitting this into two series makes the
-most sense.  Then I can focus more on trying to get the CCs right and
-people can just get the patches that matter to them.
-
-OK, I've sent v2 of both series out now.  Please yell if you can't
-find them for whatever reason.
-
--Doug
+Agreed that this is cleaner.  Done for v2.
 
 -Doug
