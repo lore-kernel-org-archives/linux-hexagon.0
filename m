@@ -1,70 +1,52 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 6/7] smp: Don't yell about IRQs disabled in
- kgdb_roundup_cpus()
-Date: Tue, 30 Oct 2018 09:25:25 +0100
-Message-ID: <20181030082525.GA13436@hirez.programming.kicks-ass.net>
-References: <20181029180707.207546-1-dianders@chromium.org>
- <20181029180707.207546-7-dianders@chromium.org>
+From: Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH v2 0/2] kgdb: Fix kgdb_roundup_cpus()
+Date: Tue, 30 Oct 2018 15:18:41 -0700
+Message-ID: <20181030221843.121254-1-dianders@chromium.org>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=JrT+GY2FMwB2T1XAI7yMtLPtyidWS9RM37PHU0M8ADE=; b=hrjdgZYKhW66jsqwqYy7iBEqT
-        aNllxbN4/e8ECyE0JYYVlRz4hYMQq+5XyXBhJug9T7NXVMGsZYNnB48zQ5AONXgGCCz5pSF7PKDGv
-        pUVDc3Gfy6dNIDOhDp3hygtwI+6Ayy/kWZdsh+gXrZwiOSnojSmqIpKvUnWw65wIWG/RWwAdU+PXE
-        ybavT2cUzBF09n3j7ot0t/xu+zRu2FHWKXET0xypzw3UeDhmVbOVREEUYAxmV9gYCr96vhkDYDukA
-        /HU86umn8HQtqmSEHxnQN9yJjjim6IzloRma9Rh3rDily9mqzwc2/lKjda/4VtIWu1flnKNK/ibTj
-    
-Content-Disposition: inline
-In-Reply-To: <20181029180707.207546-7-dianders@chromium.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=SPVTCN7yB3EvcS3VgTBTPuwRPE6icIQDbNo/cFgw8x4=;
+        b=F5MtIjUSmfPSLlRLUcvlxb8bgwO944Vzlwsrb+STW1m9SKp+FbIUnhKepFgX1d/6zY
+         WFEsTME5GAO3fNxqCMjL5qf9DfZtUWW/0eu+pQx31M+moNIAPuITstIM3gP6+QCFd8p4
+         spMZEp8n6pfvs7QIBWD5+GLOMia4bijBqXNww=
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Douglas Anderson <dianders@chromium.org>
-Cc: Jason Wessel <jason.wessel@windriver.com>, Daniel Thompson <daniel.thompson@linaro.org>, tglx@linutronix.de, mingo@kernel.org, gregkh@linuxfoundation.org, linux-arm-msm@vger.kernel.org, kgdb-bugreport@lists.sourceforge.net, linux-mips@linux-mips.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, frederic@kernel.org, riel@surriel.com, linux-kernel@vger.kernel.org, luto@kernel.org, sparclinux@vger.kernel.org, linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+To: Jason Wessel <jason.wessel@windriver.com>, Daniel Thompson <daniel.thompson@linaro.org>
+Cc: kgdb-bugreport@lists.sourceforge.net, Peter Zijlstra <peterz@infradead.org>, Douglas Anderson <dianders@chromium.org>, linux-mips@linux-mips.org, linux-sh@vger.kernel.org, Borislav Petkov <bp@alien8.de>, Paul Burton <paul.burton@mips.com>, sparclinux@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, linux-hexagon@vger.kernel.org, x86@kernel.org, Vineet Gupta <vgupta@synopsys.com>, Thomas Gleixner <tglx@linutronix.de>, Philippe Ombredanne <pombredanne@nexb.com>, Kate Stewart <kstewart@linuxfoundation.org>, Will Deacon <will.deacon@arm.com>, Ralf Baechle <ralf@linux-mips.org>, linux-snps-arc@lists.infradead.org, Andrew Morton <akpm@linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Yoshinori Sato <>
 
-On Mon, Oct 29, 2018 at 11:07:06AM -0700, Douglas Anderson wrote:
-> In kgdb_roundup_cpus() we've got code that looks like:
->   local_irq_enable();
->   smp_call_function(kgdb_call_nmi_hook, NULL, 0);
->   local_irq_disable();
+This series was originally part of the series ("serial: Finish kgdb on
+qcom_geni; fix many lockdep splats w/ kgdb") but it made sense to
+split it up.
 
-> Let's add kgdb to the list of reasons not to warn in
-> smp_call_function_many().  That will allow us (in a future patch) to
-> stop calling local_irq_enable() which will get rid of the original
-> splat.
-> 
-> NOTE: with this change comes the obvious question: will we start
-> deadlocking more often now when we drop into the debugger.  I can't
-> say that for sure one way or the other, but the fact that we do the
-> same logic for "oops_in_progress" makes me feel like it shouldn't
-> happen too often.  Also note that the old logic of turning on
-> interrupts temporarily wasn't exactly safe since (I presume) that
-> could have violated spin_lock_irqsave() semantics and ended up with a
-> deadlock of its own.
+It's believed that dropping into kgdb should be more robust once these
+patches are applied.
 
-How is any of that not utterly and terminally broken?
+Changes in v2:
+- Removing irq flags separated from fixing lockdep splat.
+- Don't use smp_call_function (Daniel).
 
-> @@ -413,7 +414,8 @@ void smp_call_function_many(const struct cpumask *mask,
->  	 * can't happen.
->  	 */
->  	WARN_ON_ONCE(cpu_online(this_cpu) && irqs_disabled()
-> -		     && !oops_in_progress && !early_boot_irqs_disabled);
-> +		     && !oops_in_progress && !early_boot_irqs_disabled
-> +		     && !in_dbg_master());
->  
->  	/* Try to fastpath.  So, what's a CPU they want? Ignoring this one. */
->  	cpu = cpumask_first_and(mask, cpu_online_mask);
+Douglas Anderson (2):
+  kgdb: Remove irq flags from roundup
+  kgdb: Fix kgdb_roundup_cpus() for arches who used smp_call_function()
 
-Not a fan of this. There is a distinct difference between
-oops_in_progress and dropping into kgdb in that you don't ever expect to
-return/survive oopses, whereas we do expect to survive kgdb.
+ arch/arc/kernel/kgdb.c     | 10 ++--------
+ arch/arm/kernel/kgdb.c     | 12 ------------
+ arch/arm64/kernel/kgdb.c   | 12 ------------
+ arch/hexagon/kernel/kgdb.c | 32 --------------------------------
+ arch/mips/kernel/kgdb.c    |  9 +--------
+ arch/powerpc/kernel/kgdb.c |  6 +++---
+ arch/sh/kernel/kgdb.c      | 12 ------------
+ arch/sparc/kernel/smp_64.c |  2 +-
+ arch/x86/kernel/kgdb.c     |  9 ++-------
+ include/linux/kgdb.h       | 22 ++++++++++++++--------
+ kernel/debug/debug_core.c  | 38 +++++++++++++++++++++++++++++++++++++-
+ 11 files changed, 60 insertions(+), 104 deletions(-)
 
-Also, how does kgdb work at all without actual NMIs ?
+-- 
+2.19.1.568.g152ad8e336-goog
 
-So no, NAK on this.
