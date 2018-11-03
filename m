@@ -1,77 +1,63 @@
-From: Daniel Thompson <daniel.thompson@linaro.org>
-Subject: Re: [PATCH v2 2/2] kgdb: Fix kgdb_roundup_cpus() for arches who used
- smp_call_function()
-Date: Sat, 3 Nov 2018 10:45:03 +0000
-Message-ID: <20181103104503.eftn5btx7otgufro@holly.lan>
-References: <20181030221843.121254-1-dianders@chromium.org>
- <20181030221843.121254-3-dianders@chromium.org>
- <20181031184050.sd5opni3mznaapkv@holly.lan>
- <CAD=FV=V1eHo7Wz31DTMMNi394qwEaESTxJCYVE60Q7hpDEqRmQ@mail.gmail.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: Re: [PATCH -next v2 1/3] mm: treewide: remove unused address argument
+ from pte_alloc functions
+Date: Sat, 3 Nov 2018 13:51:20 +0100
+Message-ID: <fd939e7c-3d9e-760e-f20c-e7263f064153@users.sourceforge.net>
+References: <20181103040041.7085-1-joelaf@google.com>
+ <20181103040041.7085-2-joelaf@google.com>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=YmQq90FRkqBQp0/v6HvhwKCbNPsiefsFk4oklN2EcKs=;
-        b=MHB0y0YaXByvjwLMoonMq5QIjx9CsU+rAU+j5poaVTafUlBxWYiuUEF8m8kd6fUby4
-         QmIDj233bXRVK/YHOYnKiwKvCqqeDu+b+pcNNyGTzoUDVA4Y5GFMOGiovxZt7wz4jmyt
-         xJjWXL3cZPHkutGq/DuKCnwo4rBDuc8nFlcaE=
-Content-Disposition: inline
-In-Reply-To: <CAD=FV=V1eHo7Wz31DTMMNi394qwEaESTxJCYVE60Q7hpDEqRmQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Doug Anderson <dianders@chromium.org>
-Cc: Jason Wessel <jason.wessel@windriver.com>, kgdb-bugreport@lists.sourceforge.net, Peter Zijlstra <peterz@infradead.org>, linux-mips@linux-mips.org, linux-sh@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Catalin Marinas <catalin.marinas@arm.com>, jhogan@kernel.org, linux-hexagon@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>, Thomas Gleixner <tglx@linutronix.de>, Philippe Ombredanne <pombredanne@nexb.com>, Kate Stewart <kstewart@linuxfoundation.org>, dalias@libc.org, Ralf Baechle <ralf@linux-mips.org>, linux-snps-arc@lists.infradead.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, paulus@samba.org, Russell King - ARM Linux <linux@armlinux.org.uk>, Li
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:
+	Message-ID:From:References:To:Subject:Reply-To:Content-ID:Content-Description
+	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=tZl4XGmraCkXs04WXom0NcoK9oub78lzcCEydWOeMew=; b=tBx2nKKp0WEBfc
+	VbIiAV+yBQlx91Q7qYgxWujt3AhLCaj5JjU6ULWreYgNIz4TbBjzhRugBGXT4vMWCEoxdflBAXzzp
+	PkVBsHzUF3jtxgKu8g4IR2e4UPF3koFFTfdQjKsjbvgrKrr+hcQTUvY55f1Y4O1XDSjs5HQLu8zPs
+	ymiUTcz0pMbyY9el3JdO52agQ3w5SH/qSBscWs3m5SaCRJ+uOIG866AmWP07tpFVB1f5xpLQLJ3ZL
+	8oa3yhAOPlfnyPGQeG0ApxZAuwh2m4XVp/qymd72SAvzleLNw1FO/65Hw/YuhAH2fDhGXblg6ul6J
+	GYsQ/CdouYGnbHgyPPrA==;
+In-Reply-To: <20181103040041.7085-2-joelaf@google.com>
+Content-Language: en-GB
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
+To: Joel Fernandes <joel@joelfernandes.org>, kernel-janitors@vger.kernel.org
+Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Lokesh Gidra <lokeshgidra@google.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Anton Ivanov <anton.ivanov@kot-begemot.co.uk>, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, Daniel Colascione <dancol@google.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, Hugh Dickins <hughd@google.com>, "James E. J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, kvmarm@lists.cs.columb
 
-On Wed, Oct 31, 2018 at 02:41:14PM -0700, Doug Anderson wrote:
-> > As mentioned in another part of the thread we can also add robustness
-> > by skipping a cpu where csd->flags != 0 (and adding an appropriately
-> > large comment regarding why). Doing the check directly is abusing
-> > internal knowledge that smp.c normally keeps to itself so an accessor
-> > of some kind would be needed.
-> 
-> Sure.  I could add smp_async_func_finished() that just looked like:
-> 
-> int smp_async_func_finished(call_single_data_t *csd)
-> {
->   return !(csd->flags & CSD_FLAG_LOCK);
-> }
-> 
-> My understanding of all the mutual exclusion / memory barrier concepts
-> employed by smp.c is pretty weak, though.  I'm hoping that it's safe
-> to just access the structure and check the bit directly.
-> 
-> ...but do you think adding a generic accessor like this is better than
-> just keeping track of this in kgdb directly?  I could avoid the
-> accessor by adding a "rounding_up" member to "struct
-> debuggerinfo_struct" and doing something like this in roundup:
-> 
->   /* If it didn't round up last time, don't try again */
->   if (kgdb_info[cpu].rounding_up)
->     continue
-> 
->   kgdb_info[cpu].rounding_up = true
->   smp_call_function_single_async(cpu, csd);
-> 
-> ...and then in kgdb_nmicallback() I could just add:
-> 
->   kgdb_info[cpu].rounding_up = false
-> 
-> In that case we're not adding a generic accessor to smp.c that most
-> people should never use.
-
-Whilst it is very tempting to make a sarcastic reply here ("Of course! What
-kgdb really needs is yet another set of condition variables") I can't
-because I actually agree with the proposal. I don't really want kgdb to
-be too "special" especially when it doesn't need to be.
-
-Only thing to note is that rounding_up will not be manipulated within a
-common spin lock so you might have to invest a bit of thought to make
-sure any races between the master and slave as the slave CPU clears the
-flag are benign.
-
-
-Daniel.
+PiDigKYgVGhlcmUgaXMgY29uY2VybiB0aGF0IOKApgoKRG9lcyB0aGlzIHdvcmRpbmcgbmVlZCBh
+IHNtYWxsIGFkanVzdG1lbnQ/CgoKPiBUaGUgY2hhbmdlcyB3ZXJlIG9idGFpbmVkIGJ5IGFwcGx5
+aW5nIHRoZSBmb2xsb3dpbmcgQ29jY2luZWxsZSBzY3JpcHQuCgpJIHdvdWxkIGZpbmQgaXQgbmlj
+ZXIgaWYgcHJldmlvdXMgcGF0Y2ggcmV2aWV3IGNvbW1lbnRzIHdpbGwgdHJpZ2dlcgpmdXJ0aGVy
+IHVzZWZ1bCBlZmZlY3RzIGhlcmUuCmh0dHBzOi8vcGF0Y2h3b3JrLmtlcm5lbC5vcmcvcGF0Y2gv
+MTA2Mzc3MDMvIzIyMjY1MjAzCmh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2xpbnV4cHBjLWRldi8w
+M2I1MjRmMy01ZjNhLWJhYTAtMjI1NC05YzU4ODEwM2QyZDZAdXNlcnMuc291cmNlZm9yZ2UubmV0
+LwpodHRwczovL3d3dy5tYWlsLWFyY2hpdmUuY29tL2xpbnV4cHBjLWRldkBsaXN0cy5vemxhYnMu
+b3JnL21zZzE0MDAwOS5odG1sCgoKSWYgeW91IGhhdmUgZ290IGRpZmZpY3VsdGllcyB3aXRoIHRo
+ZSB1c2FnZSBvZiBhZHZhbmNlZCByZWd1bGFyIGV4cHJlc3Npb25zCmZvciBTbVBMIGNvbnN0cmFp
+bnRzLCBJIHN1Z2dlc3QgdG8gdXNlIGRlc2lyZWQgZnVuY3Rpb24gbmFtZXMgaW4gU21QTCBsaXN0
+cwpvciBkaXNqdW5jdGlvbnMgaW5zdGVhZCBiZWNhdXNlIG9mIGRpZmZlcmVudCBydW4gdGltZSBj
+aGFyYWN0ZXJpc3RpY3MKZm9yIHN1Y2ggYSBzb3VyY2UgY29kZSB0cmFuc2Zvcm1hdGlvbiBhcHBy
+b2FjaC4KCgo+IC8vIE5vdGU6IEkgc3BsaXQgdGhlICdpZGVudGlmaWVyIGZuJyBsaW5lLCBzbyBp
+ZiB5b3UgYXJlIG1hbnVhbGx5Cj4gLy8gcnVubmluZyBpdCwgcGxlYXNlIHVuc3BsaXQgaXQgc28g
+aXQgcnVucyBmb3IgeW91LgoKUGxlYXNlIGRlbGV0ZSB0aGlzIHF1ZXN0aW9uYWJsZSBjb21tZW50
+LgoKKiBUaGUgc2VtYW50aWMgcGF0Y2ggbGFuZ3VhZ2Ugc2hvdWxkIGhhbmRsZSB0aGUgbWVudGlv
+bmVkIGNvZGUgZm9ybWF0dGluZy4KKiBZb3UgY2FuIHVzZSBtdWx0aS1saW5lIHJlZ3VsYXIgZXhw
+cmVzc2lvbnMgKGlmIGl0IHdvdWxkIGJlIGRlc2lyZWQpLgoKCj4gQHB0ZV9hbGxvY19mdW5jX2Rl
+ZiBkZXBlbmRzIG9uIHBhdGNoIGV4aXN0c0AKPiBpZGVudGlmaWVyIEUyOwo+IGlkZW50aWZpZXIg
+Zm4gPX4KCkhvdyBkbyB5b3UgdGhpbmsgYWJvdXQgdG8gYXZvaWQgdGhlIHJlcGV0aXRpb24gb2Yg
+YSBTbVBMIGtleSB3b3JkIGF0IHN1Y2ggcGxhY2VzPwoKUmVnYXJkcywKTWFya3VzCgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1zbnBzLWFyYyBt
+YWlsaW5nIGxpc3QKbGludXgtc25wcy1hcmNAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlz
+dHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LXNucHMtYXJj
