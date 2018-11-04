@@ -1,36 +1,38 @@
-From: Joel Fernandes <joel@joelfernandes.org>
+From: William Kucharski <william.kucharski@oracle.com>
 Subject: Re: [PATCH -next 0/3] Add support for fast mremap
-Date: Sat, 3 Nov 2018 11:32:08 -0700
-Message-ID: <20181103183208.GA56850@google.com>
+Date: Sun, 4 Nov 2018 00:56:48 -0600
+Message-ID: <D6FB3C15-A8C1-4694-A434-A7489F590E05@oracle.com>
 References: <20181103040041.7085-1-joelaf@google.com>
  <6886607.O3ZT5bM3Cy@blindfold>
  <e1d039a5-9c83-b9b9-98b5-d39bc48f04e0@kot-begemot.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <20181103183208.GA56850@google.com>
+Mime-Version: 1.0 (Mac OS X Mail 12.2 \(3445.102.3\))
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
 	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=LOMl9lOYiOkgYs6PCAjfsbEbYxi9216FfobAQKKQRSc=; b=pwNbPvPKPBXHHA
-	dt0t319qD8OmjWWZ66Sz80o57kj4rTi+baXXVdDlK/59NMT2kRW9KuYk0WQ4gA7qQucorIl+Ptkl9
-	M0nQzMvyGjr2SEvULEn2QNkMTd2mRHlaBhQb4FTqYp1FgXu7ck/3REfsSjRn4nN1dYvJGDjSHkCap
-	tgKjCLe9zxOWepcZ/DHcosOoGqTxezJ1ZV4PPtf5x6LRm5jkAIBSvGJ77lSHgMfMiOQoYEGywl/nq
-	fYa943SNTbXl7UWkj4q4s+YAaqlXmQeJbcS+GYEBrLN4kYbFT9UsLpSxdXPsPOWJPkKFSLQbVxk2x
-	YSgFiNnXN2+M0Nj/trjw==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=joelfernandes.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:content-transfer-encoding:in-reply-to
- :user-agent; bh=+lLPEfrVQ9C2llxSALOmcEKlDAWxZKsHsAd4XJOgi+8=;
- b=FV1Q0wDvKgkG4kZRj+VZtvFgfpLxegdKxvEOWdUoTsGuYYqOt63vQBXT1gkyiQdbAi
- svoRJLCKxf1oY5viw67ejDUpLUlGpXOV6p6fsqhz+scN/mBqlRF6BsiaYvQifD6XRBSl
- F1mKSr8VXjBVgcSHM1RqfBbz7rT2K+1dKDQgE=
-Content-Disposition: inline
-In-Reply-To: <e1d039a5-9c83-b9b9-98b5-d39bc48f04e0@kot-begemot.co.uk>
+	List-Archive:List-Unsubscribe:List-Id:To:References:Message-Id:Date:
+	In-Reply-To:From:Subject:Mime-Version:Reply-To:Content-ID:Content-Description
+	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=5/3mBHDPg8fhydIQno7tY6osmD3isn+ISyOo4hepzG8=; b=B52SGC7cj//SI2
+	CPFaPzgoTdPfuY2CMDr7ilJ8nOcOxTDcDQxPGKlugMeZ7sdMIf3W4fY0wWPyRNbXeeoLCGZ8ROI5B
+	WeH0mAmt1wk9p9zbF8ZCae1R1fkvHTV6ZjB5Csar27Mnz1Exrghb6sCFLq643uWFcmFdn9gIdKIF6
+	RPo+ftLu5kDNiUpSqC9zw0pw2a503lwKfftWFbsZXFIWKXbaGLwWkwMMzVNZu/5+L2Lm46mMmDcjV
+	7DdU5XxoBTTzeJ/nP1SfVzL5n358+k3VQ1H9MFneBTPRKyHqvBbTPWfgLJjFKBe+eRHjFtCX25K2J
+	x+C2LtvNq/cELbg1oI8A==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=content-type :
+ mime-version : subject : from : in-reply-to : date : cc :
+ content-transfer-encoding : message-id : references : to;
+ s=corp-2018-07-02; bh=Dv2JIDyr6hj+SI1f67+zM2v2M4uA+R2C7fKFV5CQ+kE=;
+ b=Js7Nh27vbqOyY2gZ0UpqFfC92w4EMKr/VwCtgb/4hz0cpD+muu4dt9mHR/RIg7LXLRKM
+ KSdQlyKUBJ0Wepu8UCnGYCRdHpxOUY3LSEVv1pS+k+mLUIjCdfn6slguWQuKOfCVqlp8
+ L9lqOMCdjJaGmZq1nHUWfgmmHv1CnRaeRXXjaAPM2Xi2w1DSFM+8xUpoxcjRF6GwcHR2
+ Q8VGkhI55EFSCNDiU2BqFcJrF9NDtefdCtLLfW7nm+lXI8yZIprvLVxRVTeAfWiOYVVD
+ vSRxnGitTcbrLliDWcoiH4FzDASOny4srW6qN47aUOBPO6AznnIha2Je6/kcXA9kalmP rQ== 
+In-Reply-To: <20181103183208.GA56850@google.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
@@ -41,93 +43,46 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
 Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Anton Ivanov <anton.ivanov@kot-begemot.co.uk>
-Cc: linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, dancol@google.com, linux-ia64@vge.kvack.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-xtensa@linux-xtensa.org, Richard Weinberger <richard@nod.at>, Helge Deller <deller@gmx.de>, r.kernel.org@lithops.sigma-star.at, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googleg
+To: Joel Fernandes <joel@joelfernandes.org>
+Cc: linux-mips@linux-mips.org, linux-m68k@vger.kernel.org, Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, kvmarm@lists.cs.columbia.edu, dancol@google.com, linux-ia64@vge.kvack.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-xtensa@linux-xtensa.org, Richard Weinberger <richard@nod.at>, Helge Deller <deller@gmx.de>, r.kernel.org@lithops.sigma-star.at, hughd@google.com, "James E.J. Bottomley" <jejb@paris>
 
-T24gU2F0LCBOb3YgMDMsIDIwMTggYXQgMDk6MjQ6MDVBTSArMDAwMCwgQW50b24gSXZhbm92IHdy
-b3RlOgo+IE9uIDAzLzExLzIwMTggMDk6MTUsIFJpY2hhcmQgV2VpbmJlcmdlciB3cm90ZToKPiA+
-IEpvZWwsCj4gPiAKPiA+IEFtIFNhbXN0YWcsIDMuIE5vdmVtYmVyIDIwMTgsIDA1OjAwOjM4IENF
-VCBzY2hyaWViIEpvZWwgRmVybmFuZGVzOgo+ID4gPiBIaSwKPiA+ID4gSGVyZSBpcyB0aGUgbGF0
-ZXN0ICJmYXN0IG1yZW1hcCIgc2VyaWVzLiBUaGlzIGp1c3QgYSByZXBvc3Qgd2l0aCBLaXJpbGwn
-cwo+ID4gPiBBY2tlZC1ieXMgYWRkZWQuIEkgd291bGQgbGlrZSB0aGlzIHRvIGJlIGNvbnNpZGVy
-ZWQgZm9yIGxpbnV4IC1uZXh0LiAgSSBhbHNvCj4gPiA+IGRyb3BwZWQgdGhlIENPTkZJRyBlbmFi
-bGVtZW50IHBhdGNoIGZvciBhcm02NCBzaW5jZSBJIGFtIHlldCB0byB0ZXN0IGl0IHdpdGgKPiA+
-ID4gdGhlIG5ldyBUTEIgZmx1c2hpbmcgY29kZSB0aGF0IGlzIGluIHZlcnkgcmVjZW50IGtlcm5l
-bCByZWxlYXNlcy4gKE5vbmUgb2YgbXkKPiA+ID4gYXJtNjQgZGV2aWNlcyBydW4gbWFpbmxpbmUg
-cmlnaHQgbm93Likgc28gSSB3aWxsIHBvc3QgdGhlIGFybTY0IGVuYWJsZW1lbnQgb25jZQo+ID4g
-PiBJIGdldCB0byB0aGF0LiBUaGUgcGVyZm9ybWFuY2UgbnVtYmVycyBpbiB0aGUgc2VyaWVzIGFy
-ZSBmb3IgeDg2Lgo+ID4gPiAKPiA+ID4gTGlzdCBvZiBwYXRjaGVzIGluIHNlcmllczoKPiA+ID4g
-Cj4gPiA+ICgxKSBtbTogc2VsZWN0IEhBVkVfTU9WRV9QTUQgaW4geDg2IGZvciBmYXN0ZXIgbXJl
-bWFwCj4gPiA+IAo+ID4gPiAoMikgbW06IHNwZWVkIHVwIG1yZW1hcCBieSAyMHggb24gbGFyZ2Ug
-cmVnaW9ucyAodjQpCj4gPiA+IHYxLT52MjogQWRkZWQgc3VwcG9ydCBmb3IgcGVyLWFyY2ggZW5h
-YmxlbWVudCAoS2lyaWxsIFNodXRlbW92KQo+ID4gPiB2Mi0+djM6IFVwZGF0ZWQgY29tbWl0IG1l
-c3NhZ2UgdG8gc3RhdGUgdGhlIG9wdGltaXphdGlvbiBtYXkgYWxzbwo+ID4gPiAJcnVuIGZvciBu
-b24tdGhwIHR5cGUgb2Ygc3lzdGVtcyAoRGFuaWVsIENvbCkuCj4gPiA+IHYzLT52NDogUmVtb3Zl
-IHVzZWxlc3MgcG1kX2xvY2sgY2hlY2sgKEtpcmlsbCBTaHV0ZW1vdikKPiA+ID4gCVJlYmFzZWQg
-b250b3Agb2YgTGludXMncyBtYXN0ZXIsIHVwZGF0ZWQgcGVyZiByZXN1bHRzIGJhc2VkCj4gPiA+
-ICAgICAgICAgIG9uIHg4NiB0ZXN0aW5nLiBBZGRlZCBLaXJpbGwncyBBY2tzLgo+ID4gPiAKPiA+
-ID4gKDMpIG1tOiB0cmVld2lkZTogcmVtb3ZlIHVudXNlZCBhZGRyZXNzIGFyZ3VtZW50IGZyb20g
-cHRlX2FsbG9jIGZ1bmN0aW9ucyAodjIpCj4gPiA+IHYxLT52MjogZml4IGFyY2gvdW0vIHByb3Rv
-dHlwZSB3aGljaCB3YXMgbWlzc2VkIGluIHYxIChBbnRvbiBJdmFub3YpCj4gPiA+ICAgICAgICAg
-IHVwZGF0ZSBjaGFuZ2Vsb2cgd2l0aCBtYW51YWwgZml4dXBzIGZvciBtNjhrIGFuZCBtaWNyb2Js
-YXplLgo+ID4gPiAKPiA+ID4gbm90IGluY2x1ZGVkIC0gKDQpIG1tOiBzZWxlY3QgSEFWRV9NT1ZF
-X1BNRCBpbiBhcm02NCBmb3IgZmFzdGVyIG1yZW1hcAo+ID4gPiAgICAgIFRoaXMgcGF0Y2ggaXMg
-ZHJvcHBlZCBzaW5jZSBsYXN0IHBvc3RpbmcgcGVuZGluZyBmdXJ0aGVyIHBlcmZvcm1hbmNlCj4g
-PiA+ICAgICAgdGVzdGluZyBvbiBhcm02NCB3aXRoIG5ldyBUTEIgZ2F0aGVyIHVwZGF0ZXMuIFNl
-ZSBub3RlcyBpbiBwYXRjaAo+ID4gPiAgICAgIHRpdGxlZCAibW06IHNwZWVkIHVwIG1yZW1hcCBi
-eSA1MDB4IG9uIGxhcmdlIHJlZ2lvbnMiIGZvciBtb3JlCj4gPiA+ICAgICAgZGV0YWlscy4KPiA+
-ID4gCj4gPiBUaGlzIGJyZWFrcyBVTUwgYnVpbGQ6Cj4gPiAgICBDQyAgICAgIG1tL21yZW1hcC5v
-Cj4gPiBtbS9tcmVtYXAuYzogSW4gZnVuY3Rpb24g4oCYbW92ZV9ub3JtYWxfcG1k4oCZOgo+ID4g
-bW0vbXJlbWFwLmM6MjI5OjI6IGVycm9yOiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlv
-biDigJhzZXRfcG1kX2F04oCZOyBkaWQgeW91IG1lYW4g4oCYc2V0X3B0ZV9hdOKAmT8gWy1XZXJy
-b3I9aW1wbGljaXQtZnVuY3Rpb24tZGVjbGFyYXRpb25dCj4gPiAgICBzZXRfcG1kX2F0KG1tLCBu
-ZXdfYWRkciwgbmV3X3BtZCwgcG1kKTsKPiA+ICAgIF5+fn5+fn5+fn4KPiA+ICAgIHNldF9wdGVf
-YXQKPiA+ICAgIENDICAgICAgY3J5cHRvL3JuZy5vCj4gPiAgICBDQyAgICAgIGZzL2RpcmVjdC1p
-by5vCj4gPiBjYzE6IHNvbWUgd2FybmluZ3MgYmVpbmcgdHJlYXRlZCBhcyBlcnJvcnMKPiA+IAo+
-ID4gVG8gdGVzdCB5b3Vyc2VsZiwganVzdCBydW4gb24gYSB4ODYgYm94Ogo+ID4gJCBtYWtlIGRl
-ZmNvbmZpZyBBUkNIPXVtCj4gPiAkIG1ha2UgbGludXggQVJDSD11bQo+ID4gCj4gPiBUaGFua3Ms
-Cj4gPiAvL3JpY2hhcmQKPiA+IAo+ID4gCj4gPiAKPiAKPiBVTSBzb21laG93IG1hbmFnZWQgdG8g
-bWlzcyBvbmUgb2YgdGhlIDMtbGV2ZWwgZnVuY3Rpb25zLCBJIHNlbnQgYSBwYXRjaCBhdAo+IHNv
-bWUgcG9pbnQgdG8gYWRkIHRvIHRoZSBtbXJlbWFwIHNlcmllcywgYnV0IGl0IGxvb2tzIGxpa2Ug
-aXQgZGlkIG5vdCBnZXQKPiBpbmNsdWRlZCBpbiB0aGUgZmluYWwgdmVyc2lvbi4KPiAKPiBZb3Ug
-bmVlZCB0aGVzZSB0d28gaW5jcmVtZW50YWwgb24gdG9wIG9mIEpvZWwncyBwYXRjaC4gUmljaGFy
-ZCAtIGZlZWwgZnJlZQo+IHRvIHJlbG9jYXRlIHRoZSBhY3R1YWwgaW1wbGVtZW50YXRpb24gb2Yg
-dGhlIHNldF9wZ2RfYXQgZWxzZXdoZXJlIC0gSSBwdXQgaXQKPiBhdCB0aGUgZW5kIG9mIHRsYi5j
-Cj4gCj4gZGlmZiAtLWdpdCBhL2FyY2gvdW0vaW5jbHVkZS9hc20vcGd0YWJsZS5oIGIvYXJjaC91
-bS9pbmNsdWRlL2FzbS9wZ3RhYmxlLmgKPiBpbmRleCA3NDg1Mzk4ZDA3MzcuLjE2OTJkYTU1ZTYz
-YSAxMDA2NDQKPiAtLS0gYS9hcmNoL3VtL2luY2x1ZGUvYXNtL3BndGFibGUuaAo+ICsrKyBiL2Fy
-Y2gvdW0vaW5jbHVkZS9hc20vcGd0YWJsZS5oCj4gQEAgLTM1OSw0ICszNTksNyBAQCBkbyB7wqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBcCj4gwqDCoMKgwqDCoMKgwqAgX19m
-bHVzaF90bGJfb25lKCh2YWRkcikpO8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgXAo+IMKg
-fSB3aGlsZSAoMCkKPiAKPiArZXh0ZXJuIHZvaWQgc2V0X3BtZF9hdChzdHJ1Y3QgbW1fc3RydWN0
-ICptbSwgdW5zaWduZWQgbG9uZyBhZGRyLAo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IHBtZF90ICpwbWRwLCBwbWRfdCBwbWQpOwo+ICsKPiDCoCNlbmRpZgo+IGRpZmYgLS1naXQgYS9h
-cmNoL3VtL2tlcm5lbC90bGIuYyBiL2FyY2gvdW0va2VybmVsL3RsYi5jCj4gaW5kZXggNzYzZDM1
-YmRkYTAxLi5kMTdiNzQxODRiYTAgMTAwNjQ0Cj4gLS0tIGEvYXJjaC91bS9rZXJuZWwvdGxiLmMK
-PiArKysgYi9hcmNoL3VtL2tlcm5lbC90bGIuYwo+IEBAIC02NDcsMyArNjQ3LDkgQEAgdm9pZCBm
-b3JjZV9mbHVzaF9hbGwodm9pZCkKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdm1h
-ID0gdm1hLT52bV9uZXh0Owo+IMKgwqDCoMKgwqDCoMKgIH0KPiDCoH0KPiArdm9pZCBzZXRfcG1k
-X2F0KHN0cnVjdCBtbV9zdHJ1Y3QgKm1tLCB1bnNpZ25lZCBsb25nIGFkZHIsCj4gK8KgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgcG1kX3QgKnBtZHAsIHBtZF90IHBtZCkKPiArewo+ICvCoMKg
-wqDCoMKgwqAgKnBtZHAgPSBwbWQ7Cj4gK30KPiArCj4gCgpMb29rcyBsaWtlIG1vcmUgYXJjaGl0
-ZWN0dXJlcyBkb24ndCBkZWZpbmUgc2V0X3BtZF9hdC4gSSBhbSB0aGlua2luZyB0aGUKZWFzaWVz
-dCB3YXkgZm9yd2FyZCBpcyB0byBqdXN0IGRvIHRoZSBmb2xsb3dpbmcsIGluc3RlYWQgb2YgZGVm
-aW5pbmcKc2V0X3BtZF9hdCBmb3IgZXZlcnkgYXJjaGl0ZWN0dXJlIHRoYXQgZG9lc24ndCBjYXJl
-IGFib3V0IGl0LiBUaG91Z2h0cz8KCmRpZmYgLS1naXQgYS9tbS9tcmVtYXAuYyBiL21tL21yZW1h
-cC5jCmluZGV4IDdjZjZiMDk0MzA5MC4uMzFhZDY0ZGNkYWU2IDEwMDY0NAotLS0gYS9tbS9tcmVt
-YXAuYworKysgYi9tbS9tcmVtYXAuYwpAQCAtMjgxLDcgKzI4MSw4IEBAIHVuc2lnbmVkIGxvbmcg
-bW92ZV9wYWdlX3RhYmxlcyhzdHJ1Y3Qgdm1fYXJlYV9zdHJ1Y3QgKnZtYSwKIAkJCXNwbGl0X2h1
-Z2VfcG1kKHZtYSwgb2xkX3BtZCwgb2xkX2FkZHIpOwogCQkJaWYgKHBtZF90cmFuc191bnN0YWJs
-ZShvbGRfcG1kKSkKIAkJCQljb250aW51ZTsKLQkJfSBlbHNlIGlmIChleHRlbnQgPT0gUE1EX1NJ
-WkUgJiYgSVNfRU5BQkxFRChDT05GSUdfSEFWRV9NT1ZFX1BNRCkpIHsKKwkJfSBlbHNlIGlmIChl
-eHRlbnQgPT0gUE1EX1NJWkUpIHsKKyNpZmRlZiBDT05GSUdfSEFWRV9NT1ZFX1BNRAogCQkJLyoK
-IAkJCSAqIElmIHRoZSBleHRlbnQgaXMgUE1ELXNpemVkLCB0cnkgdG8gc3BlZWQgdGhlIG1vdmUg
-YnkKIAkJCSAqIG1vdmluZyBhdCB0aGUgUE1EIGxldmVsIGlmIHBvc3NpYmxlLgpAQCAtMjk2LDYg
-KzI5Nyw3IEBAIHVuc2lnbmVkIGxvbmcgbW92ZV9wYWdlX3RhYmxlcyhzdHJ1Y3Qgdm1fYXJlYV9z
-dHJ1Y3QgKnZtYSwKIAkJCQlkcm9wX3JtYXBfbG9ja3Modm1hKTsKIAkJCWlmIChtb3ZlZCkKIAkJ
-CQljb250aW51ZTsKKyNlbmRpZgogCQl9CiAKIAkJaWYgKHB0ZV9hbGxvYyhuZXdfdm1hLT52bV9t
-bSwgbmV3X3BtZCkpCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpsaW51eC1zbnBzLWFyYyBtYWlsaW5nIGxpc3QKbGludXgtc25wcy1hcmNAbGlzdHMuaW5m
-cmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xp
-bnV4LXNucHMtYXJj
+
+
+> On Nov 3, 2018, at 12:32 PM, Joel Fernandes <joel@joelfernandes.org> wrote:
+> 
+> Looks like more architectures don't define set_pmd_at. I am thinking the
+> easiest way forward is to just do the following, instead of defining
+> set_pmd_at for every architecture that doesn't care about it. Thoughts?
+> 
+> diff --git a/mm/mremap.c b/mm/mremap.c
+> index 7cf6b0943090..31ad64dcdae6 100644
+> --- a/mm/mremap.c
+> +++ b/mm/mremap.c
+> @@ -281,7 +281,8 @@ unsigned long move_page_tables(struct vm_area_struct *vma,
+> 			split_huge_pmd(vma, old_pmd, old_addr);
+> 			if (pmd_trans_unstable(old_pmd))
+> 				continue;
+> -		} else if (extent == PMD_SIZE && IS_ENABLED(CONFIG_HAVE_MOVE_PMD)) {
+> +		} else if (extent == PMD_SIZE) {
+> +#ifdef CONFIG_HAVE_MOVE_PMD
+> 			/*
+> 			 * If the extent is PMD-sized, try to speed the move by
+> 			 * moving at the PMD level if possible.
+> @@ -296,6 +297,7 @@ unsigned long move_page_tables(struct vm_area_struct *vma,
+> 				drop_rmap_locks(vma);
+> 			if (moved)
+> 				continue;
+> +#endif
+> 		}
+> 
+> 		if (pte_alloc(new_vma->vm_mm, new_pmd))
+> 
+
+That seems reasonable as there are going to be a lot of architectures that never have
+mappings at the PMD level.
+
+Have you thought about what might be needed to extend this paradigm to be able to
+perform remaps at the PUD level, given many architectures already support PUD-mapped
+pages?
+
+    William Kucharski
