@@ -1,30 +1,92 @@
 From: Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH v3 0/4] kgdb: Fix kgdb_roundup_cpus()
-Date: Tue,  6 Nov 2018 17:00:24 -0800
-Message-ID: <20181107010028.184543-1-dianders@chromium.org>
+Subject: [PATCH v3 2/4] kgdb: Fix kgdb_roundup_cpus() for arches who used smp_call_function()
+Date: Tue,  6 Nov 2018 17:00:26 -0800
+Message-ID: <20181107010028.184543-3-dianders@chromium.org>
+References: <20181107010028.184543-1-dianders@chromium.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AdAdeS4sZQ8YU1vAJNV5eR8xeGN1ehQuodDt1kCsI6A=;
-        b=W7j4p7n6cVnICxU3fNbrsRLIna/24le2c2DHgzKLMFf5CQnUYOE2mZUtt2Rw7cFgi6
-         K1v0NjXfenWwuPfGX4TL/6/Henxpcn35IpbF7yXLn6/NLFzfnwdGwXNL7gL4KSJTVfu4
-         3gwDRe5HZSKr3bULeqf4DdS9aSwrikmCeHVEY=
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=ScJlRoOrd6+1KGabrahH6IK5C6npk55iYYxUa/QmbRo=;
+        b=fZIPdUi/+CMv1IoXrMqLttVjfbUF0CQAy/QTO4DIO7j0UTajPDol0YyPyjV6N1K/gp
+         nAJ16Nmsk3FBEODhKCetMUbGi6ZVn8WBMj/pFWS/A4cuPYPD2J/J7tQFqFYMpoOwCANV
+         Ea/XtWT/GeDPuYtxrNYhCl+fHec9LdBSB4UYQ=
+In-Reply-To: <20181107010028.184543-1-dianders@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Jason Wessel <jason.wessel@windriver.com>, Daniel Thompson <daniel.thompson@linaro.org>
-Cc: kgdb-bugreport@lists.sourceforge.net, Peter Zijlstra <peterz@infradead.org>, Douglas Anderson <dianders@chromium.org>, linux-mips@linux-mips.org, linux-sh@vger.kernel.org, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, linux-hexagon@vger.kernel.org, x86@kernel.org, Vineet Gupta <vgupta@synopsys.com>, Thomas Gleixner <tglx@linutronix.de>, Michal Hocko <mhocko@suse.com>, Ralf Baechle <ralf@linux-mips.org>, linux-snps-arc@lists.infradead.org, Andrew Morton <akpm@linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon>
+Cc: kgdb-bugreport@lists.sourceforge.net, Peter Zijlstra <peterz@infradead.org>, Douglas Anderson <dianders@chromium.org>, linux-mips@linux-mips.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, linux-hexagon@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>, Rich Felker <dalias@libc.org>, Ralf Baechle <ralf@linux-mips.org>, linux-snps-arc@lists.infradead.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, Paul Mackerras <paulus@samba.org>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Christophe Leroy <christophe.leroy@c-s.fr>, Michael Ellerman <>
 
-This series was originally part of the series ("serial: Finish kgdb on
-qcom_geni; fix many lockdep splats w/ kgdb") but it made sense to
-split it up.
+When I had lockdep turned on and dropped into kgdb I got a nice splat
+on my system.  Specifically it hit:
+  DEBUG_LOCKS_WARN_ON(current->hardirq_context)
 
-It's believed that dropping into kgdb should be more robust once these
-patches are applied.
+Specifically it looked like this:
+  sysrq: SysRq : DEBUG
+  ------------[ cut here ]------------
+  DEBUG_LOCKS_WARN_ON(current->hardirq_context)
+  WARNING: CPU: 0 PID: 0 at .../kernel/locking/lockdep.c:2875 lockdep_hardirqs_on+0xf0/0x160
+  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.19.0 #27
+  pstate: 604003c9 (nZCv DAIF +PAN -UAO)
+  pc : lockdep_hardirqs_on+0xf0/0x160
+  ...
+  Call trace:
+   lockdep_hardirqs_on+0xf0/0x160
+   trace_hardirqs_on+0x188/0x1ac
+   kgdb_roundup_cpus+0x14/0x3c
+   kgdb_cpu_enter+0x53c/0x5cc
+   kgdb_handle_exception+0x180/0x1d4
+   kgdb_compiled_brk_fn+0x30/0x3c
+   brk_handler+0x134/0x178
+   do_debug_exception+0xfc/0x178
+   el1_dbg+0x18/0x78
+   kgdb_breakpoint+0x34/0x58
+   sysrq_handle_dbg+0x54/0x5c
+   __handle_sysrq+0x114/0x21c
+   handle_sysrq+0x30/0x3c
+   qcom_geni_serial_isr+0x2dc/0x30c
+  ...
+  ...
+  irq event stamp: ...45
+  hardirqs last  enabled at (...44): [...] __do_softirq+0xd8/0x4e4
+  hardirqs last disabled at (...45): [...] el1_irq+0x74/0x130
+  softirqs last  enabled at (...42): [...] _local_bh_enable+0x2c/0x34
+  softirqs last disabled at (...43): [...] irq_exit+0xa8/0x100
+  ---[ end trace adf21f830c46e638 ]---
+
+Looking closely at it, it seems like a really bad idea to be calling
+local_irq_enable() in kgdb_roundup_cpus().  If nothing else that seems
+like it could violate spinlock semantics and cause a deadlock.
+
+Instead, let's use a private csd alongside
+smp_call_function_single_async() to round up the other CPUs.  Using
+smp_call_function_single_async() doesn't require interrupts to be
+enabled so we can remove the offending bit of code.
+
+In order to avoid duplicating this across all the architectures that
+use the default kgdb_roundup_cpus(), we'll add a "weak" implementation
+to debug_core.c.
+
+Looking at all the people who previously had copies of this code,
+there were a few variants.  I've attempted to keep the variants
+working like they used to.  Specifically:
+* For arch/arc we passed NULL to kgdb_nmicallback() instead of
+  get_irq_regs().
+* For arch/mips there was a bit of extra code around
+  kgdb_nmicallback()
+
+NOTE: In this patch we will still get into trouble if we try to round
+up a CPU that failed to round up before.  We'll try to round it up
+again and potentially hang when we try to grab the csd lock.  That's
+not new behavior but we'll still try to do better in a future patch.
+
+Suggested-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+---
 
 Changes in v3:
 - No separate init call.
@@ -32,34 +94,288 @@ Changes in v3:
 - Add "#ifdef CONFIG_SMP" to match the rest of the file.
 - Updated desc saying we don't solve the "failed to roundup" case.
 - Document the ignored parameter.
-- Patch #3 and #4 are new.
 
 Changes in v2:
 - Removing irq flags separated from fixing lockdep splat.
-- Removing irq flags separated from fixing lockdep splat.
 - Don't use smp_call_function (Daniel).
 
-Douglas Anderson (4):
-  kgdb: Remove irq flags from roundup
-  kgdb: Fix kgdb_roundup_cpus() for arches who used smp_call_function()
-  kgdb: Don't round up a CPU that failed rounding up before
-  kdb: Don't back trace on a cpu that didn't round up
+ arch/arc/kernel/kgdb.c     | 10 ++--------
+ arch/arm/kernel/kgdb.c     | 12 ------------
+ arch/arm64/kernel/kgdb.c   | 12 ------------
+ arch/hexagon/kernel/kgdb.c | 27 ---------------------------
+ arch/mips/kernel/kgdb.c    |  9 +--------
+ arch/powerpc/kernel/kgdb.c |  4 ++--
+ arch/sh/kernel/kgdb.c      | 12 ------------
+ include/linux/kgdb.h       | 15 +++++++++++++--
+ kernel/debug/debug_core.c  | 35 +++++++++++++++++++++++++++++++++++
+ 9 files changed, 53 insertions(+), 83 deletions(-)
 
- arch/arc/kernel/kgdb.c     | 10 ++-----
- arch/arm/kernel/kgdb.c     | 12 ---------
- arch/arm64/kernel/kgdb.c   | 12 ---------
- arch/hexagon/kernel/kgdb.c | 32 ----------------------
- arch/mips/kernel/kgdb.c    |  9 +------
- arch/powerpc/kernel/kgdb.c |  6 ++---
- arch/sh/kernel/kgdb.c      | 12 ---------
- arch/sparc/kernel/smp_64.c |  2 +-
- arch/x86/kernel/kgdb.c     |  9 ++-----
- include/linux/kgdb.h       | 22 +++++++++------
- kernel/debug/debug_core.c  | 55 +++++++++++++++++++++++++++++++++++++-
- kernel/debug/debug_core.h  |  1 +
- kernel/debug/kdb/kdb_bt.c  | 11 +++++++-
- 13 files changed, 88 insertions(+), 105 deletions(-)
-
+diff --git a/arch/arc/kernel/kgdb.c b/arch/arc/kernel/kgdb.c
+index 0932851028e0..68d9fe4b5aa7 100644
+--- a/arch/arc/kernel/kgdb.c
++++ b/arch/arc/kernel/kgdb.c
+@@ -192,18 +192,12 @@ void kgdb_arch_set_pc(struct pt_regs *regs, unsigned long ip)
+ 	instruction_pointer(regs) = ip;
+ }
+ 
+-static void kgdb_call_nmi_hook(void *ignored)
++void kgdb_call_nmi_hook(void *ignored)
+ {
++	/* Default implementation passes get_irq_regs() but we don't */
+ 	kgdb_nmicallback(raw_smp_processor_id(), NULL);
+ }
+ 
+-void kgdb_roundup_cpus(void)
+-{
+-	local_irq_enable();
+-	smp_call_function(kgdb_call_nmi_hook, NULL, 0);
+-	local_irq_disable();
+-}
+-
+ struct kgdb_arch arch_kgdb_ops = {
+ 	/* breakpoint instruction: TRAP_S 0x3 */
+ #ifdef CONFIG_CPU_BIG_ENDIAN
+diff --git a/arch/arm/kernel/kgdb.c b/arch/arm/kernel/kgdb.c
+index f21077b077be..d9a69e941463 100644
+--- a/arch/arm/kernel/kgdb.c
++++ b/arch/arm/kernel/kgdb.c
+@@ -170,18 +170,6 @@ static struct undef_hook kgdb_compiled_brkpt_hook = {
+ 	.fn			= kgdb_compiled_brk_fn
+ };
+ 
+-static void kgdb_call_nmi_hook(void *ignored)
+-{
+-       kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
+-}
+-
+-void kgdb_roundup_cpus(void)
+-{
+-       local_irq_enable();
+-       smp_call_function(kgdb_call_nmi_hook, NULL, 0);
+-       local_irq_disable();
+-}
+-
+ static int __kgdb_notify(struct die_args *args, unsigned long cmd)
+ {
+ 	struct pt_regs *regs = args->regs;
+diff --git a/arch/arm64/kernel/kgdb.c b/arch/arm64/kernel/kgdb.c
+index 12c339ff6e75..da880247c734 100644
+--- a/arch/arm64/kernel/kgdb.c
++++ b/arch/arm64/kernel/kgdb.c
+@@ -284,18 +284,6 @@ static struct step_hook kgdb_step_hook = {
+ 	.fn		= kgdb_step_brk_fn
+ };
+ 
+-static void kgdb_call_nmi_hook(void *ignored)
+-{
+-	kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
+-}
+-
+-void kgdb_roundup_cpus(void)
+-{
+-	local_irq_enable();
+-	smp_call_function(kgdb_call_nmi_hook, NULL, 0);
+-	local_irq_disable();
+-}
+-
+ static int __kgdb_notify(struct die_args *args, unsigned long cmd)
+ {
+ 	struct pt_regs *regs = args->regs;
+diff --git a/arch/hexagon/kernel/kgdb.c b/arch/hexagon/kernel/kgdb.c
+index 012e0e230ac2..b95d12038a4e 100644
+--- a/arch/hexagon/kernel/kgdb.c
++++ b/arch/hexagon/kernel/kgdb.c
+@@ -115,33 +115,6 @@ void kgdb_arch_set_pc(struct pt_regs *regs, unsigned long pc)
+ 	instruction_pointer(regs) = pc;
+ }
+ 
+-#ifdef CONFIG_SMP
+-
+-/**
+- * kgdb_roundup_cpus - Get other CPUs into a holding pattern
+- *
+- * On SMP systems, we need to get the attention of the other CPUs
+- * and get them be in a known state.  This should do what is needed
+- * to get the other CPUs to call kgdb_wait(). Note that on some arches,
+- * the NMI approach is not used for rounding up all the CPUs. For example,
+- * in case of MIPS, smp_call_function() is used to roundup CPUs.
+- *
+- * On non-SMP systems, this is not called.
+- */
+-
+-static void hexagon_kgdb_nmi_hook(void *ignored)
+-{
+-	kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
+-}
+-
+-void kgdb_roundup_cpus(void)
+-{
+-	local_irq_enable();
+-	smp_call_function(hexagon_kgdb_nmi_hook, NULL, 0);
+-	local_irq_disable();
+-}
+-#endif
+-
+ 
+ /*  Not yet working  */
+ void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs,
+diff --git a/arch/mips/kernel/kgdb.c b/arch/mips/kernel/kgdb.c
+index 2b05effc17b4..42f057a6c215 100644
+--- a/arch/mips/kernel/kgdb.c
++++ b/arch/mips/kernel/kgdb.c
+@@ -207,7 +207,7 @@ void arch_kgdb_breakpoint(void)
+ 		".set\treorder");
+ }
+ 
+-static void kgdb_call_nmi_hook(void *ignored)
++void kgdb_call_nmi_hook(void *ignored)
+ {
+ 	mm_segment_t old_fs;
+ 
+@@ -219,13 +219,6 @@ static void kgdb_call_nmi_hook(void *ignored)
+ 	set_fs(old_fs);
+ }
+ 
+-void kgdb_roundup_cpus(void)
+-{
+-	local_irq_enable();
+-	smp_call_function(kgdb_call_nmi_hook, NULL, 0);
+-	local_irq_disable();
+-}
+-
+ static int compute_signal(int tt)
+ {
+ 	struct hard_trap_info *ht;
+diff --git a/arch/powerpc/kernel/kgdb.c b/arch/powerpc/kernel/kgdb.c
+index b0e804844be0..b4ce54d73337 100644
+--- a/arch/powerpc/kernel/kgdb.c
++++ b/arch/powerpc/kernel/kgdb.c
+@@ -117,7 +117,7 @@ int kgdb_skipexception(int exception, struct pt_regs *regs)
+ 	return kgdb_isremovedbreak(regs->nip);
+ }
+ 
+-static int kgdb_call_nmi_hook(struct pt_regs *regs)
++static int kgdb_debugger_ipi(struct pt_regs *regs)
+ {
+ 	kgdb_nmicallback(raw_smp_processor_id(), regs);
+ 	return 0;
+@@ -502,7 +502,7 @@ int kgdb_arch_init(void)
+ 	old__debugger_break_match = __debugger_break_match;
+ 	old__debugger_fault_handler = __debugger_fault_handler;
+ 
+-	__debugger_ipi = kgdb_call_nmi_hook;
++	__debugger_ipi = kgdb_debugger_ipi;
+ 	__debugger = kgdb_debugger;
+ 	__debugger_bpt = kgdb_handle_breakpoint;
+ 	__debugger_sstep = kgdb_singlestep;
+diff --git a/arch/sh/kernel/kgdb.c b/arch/sh/kernel/kgdb.c
+index cc57630f6bf2..14e012ad7c57 100644
+--- a/arch/sh/kernel/kgdb.c
++++ b/arch/sh/kernel/kgdb.c
+@@ -314,18 +314,6 @@ BUILD_TRAP_HANDLER(singlestep)
+ 	local_irq_restore(flags);
+ }
+ 
+-static void kgdb_call_nmi_hook(void *ignored)
+-{
+-	kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
+-}
+-
+-void kgdb_roundup_cpus(void)
+-{
+-	local_irq_enable();
+-	smp_call_function(kgdb_call_nmi_hook, NULL, 0);
+-	local_irq_disable();
+-}
+-
+ static int __kgdb_notify(struct die_args *args, unsigned long cmd)
+ {
+ 	int ret;
+diff --git a/include/linux/kgdb.h b/include/linux/kgdb.h
+index 05e5b2eb0d32..24422865cd18 100644
+--- a/include/linux/kgdb.h
++++ b/include/linux/kgdb.h
+@@ -176,14 +176,25 @@ kgdb_arch_handle_exception(int vector, int signo, int err_code,
+ 			   char *remcom_out_buffer,
+ 			   struct pt_regs *regs);
+ 
++/**
++ *	kgdb_call_nmi_hook - Call kgdb_nmicallback() on the current CPU
++ *	@ignored: This parameter is only here to match the prototype.
++ *
++ *	If you're using the default implementation of kgdb_roundup_cpus()
++ *	this function will be called per CPU.  If you don't implement
++ *	kgdb_call_nmi_hook() a default will be used.
++ */
++
++extern void kgdb_call_nmi_hook(void *ignored);
++
+ /**
+  *	kgdb_roundup_cpus - Get other CPUs into a holding pattern
+  *
+  *	On SMP systems, we need to get the attention of the other CPUs
+  *	and get them into a known state.  This should do what is needed
+  *	to get the other CPUs to call kgdb_wait(). Note that on some arches,
+- *	the NMI approach is not used for rounding up all the CPUs. For example,
+- *	in case of MIPS, smp_call_function() is used to roundup CPUs.
++ *	the NMI approach is not used for rounding up all the CPUs.  Normally
++ *	those architectures can just not implement this and get the default.
+  *
+  *	On non-SMP systems, this is not called.
+  */
+diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
+index f3cadda45f07..23f2b5613afa 100644
+--- a/kernel/debug/debug_core.c
++++ b/kernel/debug/debug_core.c
+@@ -55,6 +55,7 @@
+ #include <linux/mm.h>
+ #include <linux/vmacache.h>
+ #include <linux/rcupdate.h>
++#include <linux/irq.h>
+ 
+ #include <asm/cacheflush.h>
+ #include <asm/byteorder.h>
+@@ -220,6 +221,40 @@ int __weak kgdb_skipexception(int exception, struct pt_regs *regs)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_SMP
++
++/*
++ * Default (weak) implementation for kgdb_roundup_cpus
++ */
++
++static DEFINE_PER_CPU(call_single_data_t, kgdb_roundup_csd);
++
++void __weak kgdb_call_nmi_hook(void *ignored)
++{
++	kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
++}
++
++void __weak kgdb_roundup_cpus(void)
++{
++	call_single_data_t *csd;
++	int this_cpu = get_cpu();
++	int cpu;
++
++	for_each_cpu(cpu, cpu_online_mask) {
++		/* No need to roundup ourselves */
++		if (cpu == this_cpu)
++			continue;
++
++		csd = &per_cpu(kgdb_roundup_csd, cpu);
++		csd->func = kgdb_call_nmi_hook;
++		smp_call_function_single_async(cpu, csd);
++	}
++
++	put_cpu();
++}
++
++#endif
++
+ /*
+  * Some architectures need cache flushes when we set/clear a
+  * breakpoint:
 -- 
 2.19.1.930.g4563a0d9d0-goog
 
