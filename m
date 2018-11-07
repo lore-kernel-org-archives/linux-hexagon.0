@@ -1,97 +1,65 @@
-From: Joel Fernandes <joel@joelfernandes.org>
-Subject: Re: [PATCH -next 0/3] Add support for fast mremap
-Date: Mon, 5 Nov 2018 20:36:00 -0800
-Message-ID: <20181106043600.GB139199@google.com>
-References: <20181103040041.7085-1-joelaf@google.com>
- <6886607.O3ZT5bM3Cy@blindfold>
- <e1d039a5-9c83-b9b9-98b5-d39bc48f04e0@kot-begemot.co.uk>
- <20181103183208.GA56850@google.com>
- <D6FB3C15-A8C1-4694-A434-A7489F590E05@oracle.com>
+From: Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH v3 0/4] kgdb: Fix kgdb_roundup_cpus()
+Date: Tue,  6 Nov 2018 17:00:24 -0800
+Message-ID: <20181107010028.184543-1-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=GNB8+miGN6hkAKYKnpd6ezvGDzhl3M7C6PQ7lJRgJ3I=; b=sEnKIypA9Py6/9
-	aEg3T9VHSZmhtneWWgYa5Y/lC0qQAId20AuSxAm79UKRRX/ewav6raWSNxDPJ++tcj9xPaQUb4i68
-	4uHLXhTkx1E3Lv+fIkkAdL/3L5yLSjspkO6UayIQDs2VDFhte+rZXe9bvb99lam/cxlq7DpiqU/qv
-	uwEV93VwVeId7Ljb0JYX2zV1564F8CyP+aFnamc+RfYW5Zl3g9HEXZP8FQh0Uxxg4z5FiszvgW7WX
-	dJTFo3KzyCieI8eg6LdT4C/FsmLt2UfbETDDhq+XpFV4H895zexza3Iz82J5a7LvJyj0DBP9P8AXj
-	JBJWKZQjQnIRfklyaDSA==;
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=joelfernandes.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=2ZO7f7AbR0Q/Tv9r9GFR6EhQOtVlvtqVzi+kHQIwd6Q=;
- b=vFP1Hs1wYQcIlWGzK/RquQm7mPiYOK37zkYc9g7HM5f1UakBrd0LproiSxWxB+J+cw
- LwUgBiOgB/Mof2uCb5M7ypmLMYM7sa/OYV8c2R4EJZNkyEzkll/fFaiA1VN/bVpLQDnv
- N2x7os/SUx/84UCqqI0dyLJ344I+8ENkn6mEU=
-Content-Disposition: inline
-In-Reply-To: <D6FB3C15-A8C1-4694-A434-A7489F590E05@oracle.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: William Kucharski <william.kucharski@oracle.com>
-Cc: linux-mips@linux-mips.org, linux-m68k@vger.kernel.org, Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, elfring@users.sourceforge.net, Jonas Bonn <jonas@southpole.se>, kvmarm@lists.cs.columbia.edu, dancol@google.com, linux-ia64@vge.kvack.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-xtensa@linux-xtensa.org, Richard Weinberger <richard@nod.at>, Helge Deller <deller@gmx.de>, r.kernel.org@lithops.sigma-star.at, hughd@google.com, "James E.J. Bottomley" <jejb@paris>
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=AdAdeS4sZQ8YU1vAJNV5eR8xeGN1ehQuodDt1kCsI6A=;
+        b=W7j4p7n6cVnICxU3fNbrsRLIna/24le2c2DHgzKLMFf5CQnUYOE2mZUtt2Rw7cFgi6
+         K1v0NjXfenWwuPfGX4TL/6/Henxpcn35IpbF7yXLn6/NLFzfnwdGwXNL7gL4KSJTVfu4
+         3gwDRe5HZSKr3bULeqf4DdS9aSwrikmCeHVEY=
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: Jason Wessel <jason.wessel@windriver.com>, Daniel Thompson <daniel.thompson@linaro.org>
+Cc: kgdb-bugreport@lists.sourceforge.net, Peter Zijlstra <peterz@infradead.org>, Douglas Anderson <dianders@chromium.org>, linux-mips@linux-mips.org, linux-sh@vger.kernel.org, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, linux-hexagon@vger.kernel.org, x86@kernel.org, Vineet Gupta <vgupta@synopsys.com>, Thomas Gleixner <tglx@linutronix.de>, Michal Hocko <mhocko@suse.com>, Ralf Baechle <ralf@linux-mips.org>, linux-snps-arc@lists.infradead.org, Andrew Morton <akpm@linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon>
 
-On Sun, Nov 04, 2018 at 12:56:48AM -0600, William Kucharski wrote:
-> 
-> 
-> > On Nov 3, 2018, at 12:32 PM, Joel Fernandes <joel@joelfernandes.org> wrote:
-> > 
-> > Looks like more architectures don't define set_pmd_at. I am thinking the
-> > easiest way forward is to just do the following, instead of defining
-> > set_pmd_at for every architecture that doesn't care about it. Thoughts?
-> > 
-> > diff --git a/mm/mremap.c b/mm/mremap.c
-> > index 7cf6b0943090..31ad64dcdae6 100644
-> > --- a/mm/mremap.c
-> > +++ b/mm/mremap.c
-> > @@ -281,7 +281,8 @@ unsigned long move_page_tables(struct vm_area_struct *vma,
-> > 			split_huge_pmd(vma, old_pmd, old_addr);
-> > 			if (pmd_trans_unstable(old_pmd))
-> > 				continue;
-> > -		} else if (extent == PMD_SIZE && IS_ENABLED(CONFIG_HAVE_MOVE_PMD)) {
-> > +		} else if (extent == PMD_SIZE) {
-> > +#ifdef CONFIG_HAVE_MOVE_PMD
-> > 			/*
-> > 			 * If the extent is PMD-sized, try to speed the move by
-> > 			 * moving at the PMD level if possible.
-> > @@ -296,6 +297,7 @@ unsigned long move_page_tables(struct vm_area_struct *vma,
-> > 				drop_rmap_locks(vma);
-> > 			if (moved)
-> > 				continue;
-> > +#endif
-> > 		}
-> > 
-> > 		if (pte_alloc(new_vma->vm_mm, new_pmd))
-> > 
-> 
-> That seems reasonable as there are going to be a lot of architectures that never have
-> mappings at the PMD level.
+This series was originally part of the series ("serial: Finish kgdb on
+qcom_geni; fix many lockdep splats w/ kgdb") but it made sense to
+split it up.
 
-Ok, I will do it like this and resend.
+It's believed that dropping into kgdb should be more robust once these
+patches are applied.
 
-> Have you thought about what might be needed to extend this paradigm to be able to
-> perform remaps at the PUD level, given many architectures already support PUD-mapped
-> pages?
-> 
+Changes in v3:
+- No separate init call.
+- Don't round up the CPU that is doing the rounding up.
+- Add "#ifdef CONFIG_SMP" to match the rest of the file.
+- Updated desc saying we don't solve the "failed to roundup" case.
+- Document the ignored parameter.
+- Patch #3 and #4 are new.
 
-I have thought about this. I believe it is doable in the future. Off the top
-I don't see an issue doing it, and it will also reduce the number of flushes.
+Changes in v2:
+- Removing irq flags separated from fixing lockdep splat.
+- Removing irq flags separated from fixing lockdep splat.
+- Don't use smp_call_function (Daniel).
 
-thanks,
+Douglas Anderson (4):
+  kgdb: Remove irq flags from roundup
+  kgdb: Fix kgdb_roundup_cpus() for arches who used smp_call_function()
+  kgdb: Don't round up a CPU that failed rounding up before
+  kdb: Don't back trace on a cpu that didn't round up
 
-- Joel
+ arch/arc/kernel/kgdb.c     | 10 ++-----
+ arch/arm/kernel/kgdb.c     | 12 ---------
+ arch/arm64/kernel/kgdb.c   | 12 ---------
+ arch/hexagon/kernel/kgdb.c | 32 ----------------------
+ arch/mips/kernel/kgdb.c    |  9 +------
+ arch/powerpc/kernel/kgdb.c |  6 ++---
+ arch/sh/kernel/kgdb.c      | 12 ---------
+ arch/sparc/kernel/smp_64.c |  2 +-
+ arch/x86/kernel/kgdb.c     |  9 ++-----
+ include/linux/kgdb.h       | 22 +++++++++------
+ kernel/debug/debug_core.c  | 55 +++++++++++++++++++++++++++++++++++++-
+ kernel/debug/debug_core.h  |  1 +
+ kernel/debug/kdb/kdb_bt.c  | 11 +++++++-
+ 13 files changed, 88 insertions(+), 105 deletions(-)
+
+-- 
+2.19.1.930.g4563a0d9d0-goog
+
