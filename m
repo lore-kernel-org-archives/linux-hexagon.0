@@ -1,109 +1,128 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v2 2/2] kgdb: Fix kgdb_roundup_cpus()
- for arches who used smp_call_function()
-Date: Tue, 6 Nov 2018 17:04:39 -0800
-Message-ID: <CAD=FV=XbSm48ttzXvvhTir9ViKA9T7Huiho3CNuzprqAVpHyJg@mail.gmail.com>
-References: <20181030221843.121254-1-dianders@chromium.org>
- <20181030221843.121254-3-dianders@chromium.org>
- <20181031184050.sd5opni3mznaapkv@holly.lan>
- <CAD=FV=V1eHo7Wz31DTMMNi394qwEaESTxJCYVE60Q7hpDEqRmQ@mail.gmail.com>
- <20181103104503.eftn5btx7otgufro@holly.lan>
+From: Joel Fernandes <joel@joelfernandes.org>
+Subject: [PATCH -next-akpm 0/3] Add support for fast mremap
+Date: Thu,  8 Nov 2018 10:11:58 -0800
+Message-ID: <20181108181201.88826-1-joelaf@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kgdb-bugreport-bounces@lists.sourceforge.net>
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=sourceforge.net; s=x; h=Content-Type:Cc:To:Subject:Message-ID:Date:From:
- In-Reply-To:References:MIME-Version:Sender:Reply-To:Content-Transfer-Encoding
- :Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
- Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
- List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=Q1G1nbCiejA14GAk13kwpeV5uSd2+HoRj+vWp4s6EqY=; b=Fj9S8JSzDcU0qXTR13OfRC+3eu
- oUkAO4EKYIS04lLj1hCIxk3wxvXaGwOHPcnKyAKM8Re5DWBuD5XvM8GLptq0gPZQcEyncGK4z/y1e
- VXFuHyYIbvF2taciUzN0bqnPpGeuZvQDefS/tfuFiJFyB34NY27hsAzWCFhqawBJx04M=;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sf.net; s=x
- ;
- h=Content-Type:Cc:To:Subject:Message-ID:Date:From:In-Reply-To:References:
- MIME-Version:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
- Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
- :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
- List-Post:List-Owner:List-Archive;
- bh=Q1G1nbCiejA14GAk13kwpeV5uSd2+HoRj+vWp4s6EqY=; b=gThMzO6uPoEMHL60VsfpGF+jV8
- UlnQteC8Oxh+ZL2EWjCWtpZHXPTD9s+cen5uND3cYedrUjMK4fFinhjOECOdK1SjJmM2vH+99k312
- CaOxwCbhIH/+Xpk68j7hZXruoUQkQvjDirGMY2c1JgoS9qGcK+zh+MurA9090TS1VjmI=;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=Q1G1nbCiejA14GAk13kwpeV5uSd2+HoRj+vWp4s6EqY=;
- b=eFazb3c7zMawmEuLNjfsk/It40P/kZA634ojboNSO3So2qlyJ29LyFhO0/QW48NaB8
- kbrri3Yn351FGwvXfSV9Lfr6DEeUttVtBJgkrVmcocs0A5GwSrzSsyI2B3buzW3FuyJ/
- hyabXtsc8ANcHIyckTZ0GHWNuBf8WD4smIyJ4=
-In-Reply-To: <20181103104503.eftn5btx7otgufro@holly.lan>
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-Id:Date:Subject:To
+	:From:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:
+	List-Owner; bh=Bdar5OLDgwW+6zYoh19yhVf09YDUtIoxXu0HDsx1usg=; b=EhjjzrBWVxANfZ
+	xRm/7pKN1Sfze+WNkV1iAakvC78Y0MJZPwGbxYu4001Zgi0UrH/shj4+1zQ/a9VKepD7Je+Fmr0lj
+	H2lwHEjxPY8M+rbvGYuHA4YrVB7xCCFN9as9OaoL4O6PKl8jQpSgc5VvMU1AVOedV8NgfpI7Geoa6
+	RysdgxUwDplfisJtTtpOTK9BfEX55rcmlvF/vVSN/MbgR/y0lVY1pLeDO1fOMXTutWSwPLXgyKhH2
+	8flgVbD5XEcs+JCz81QUwQtPWheHcp0r8C/S0cVKr7S0fuFvS4vwLVM02sXsCpJpEWBb5kXHH6M9W
+	EMk5lJBf/CXLBr3J1ctA==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=joelfernandes.org; s=google;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=B0gA8LsXswfrIAmbtYisG71JTJmLmakfJ+ILccJByaU=;
+ b=buc3UhoKkeYLzhfy1LFvSgTevjKzuw+S/EPNcM7/J1DWFKB4AczvPH1MMD5Ak06Z9l
+ 1Xlxhv1dwM8hMSb36qsqIYc3EEW/DmX/L4l/q+89z1P8aLicH26pXwnG2h8/KhPOVHe+
+ TvMvNwTMBp+zR1I4QvrRyuY93K0+fxHhDJoc8=
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/options/kgdb-bugreport>, 
- <mailto:kgdb-bugreport-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kgdb-bugreport>
-List-Post: <mailto:kgdb-bugreport@lists.sourceforge.net>
-List-Help: <mailto:kgdb-bugreport-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kgdb-bugreport>, 
- <mailto:kgdb-bugreport-request@lists.sourceforge.net?subject=subscribe>
-Errors-To: kgdb-bugreport-bounces@lists.sourceforge.net
-To: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, linux-mips@linux-mips.org, dalias@libc.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, paulus@samba.org, mpe@ellerman.id.au, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Russell King - ARM Linux <linux@armlinux.org.uk>, kgdb-bugreport@lists.sourceforge.net, jhogan@kernel.org, linux-snps-arc@lists.infradead.org, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, Linux ARM <linux-arm-kernel@lists.infradead.org>, christophe.leroy@c-s.fr, Vineet Gupta <vgupta@synopsys.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ralf Baechle <ralf@linux-mips.org>, rkuo@codeaurora.org, paul.bu
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: Joel Fernandes <joelaf@google.com>, linux-mips@linux-mips.org, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, lokeshgidra@google.com, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, anton.ivanov@kot-begemot.co.uk, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, dancol@google.com, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-xtensa@linux-xtensa.org, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE 32-BIT AND 64-BIT" <x86@kernel.org>, hughd@google.com, "James E.J. Bottomley" <jejb@parisc-linux.org>, kasan-dev@googlegroups.com, kvmarm@lists.cs.columbia.ed
 
 Hi,
+Here is the "fast mremap" series. This just a repost with Kirill's Acked-bys
+added and William's Reviewed-by added. Also fixed a UML build error reported
+last week. I would like this to be considered for linux -next. The performance
+numbers in the series are for testing on x86. The config enablement patch for
+arm64 will be posted in the future after testing (see notes below).
 
-On Sat, Nov 3, 2018 at 3:45 AM Daniel Thompson
-<daniel.thompson@linaro.org> wrote:
->
-> On Wed, Oct 31, 2018 at 02:41:14PM -0700, Doug Anderson wrote:
-> > > As mentioned in another part of the thread we can also add robustness
-> > > by skipping a cpu where csd->flags != 0 (and adding an appropriately
-> > > large comment regarding why). Doing the check directly is abusing
-> > > internal knowledge that smp.c normally keeps to itself so an accessor
-> > > of some kind would be needed.
-> >
-> > Sure.  I could add smp_async_func_finished() that just looked like:
-> >
-> > int smp_async_func_finished(call_single_data_t *csd)
-> > {
-> >   return !(csd->flags & CSD_FLAG_LOCK);
-> > }
-> >
-> > My understanding of all the mutual exclusion / memory barrier concepts
-> > employed by smp.c is pretty weak, though.  I'm hoping that it's safe
-> > to just access the structure and check the bit directly.
-> >
-> > ...but do you think adding a generic accessor like this is better than
-> > just keeping track of this in kgdb directly?  I could avoid the
-> > accessor by adding a "rounding_up" member to "struct
-> > debuggerinfo_struct" and doing something like this in roundup:
-> >
-> >   /* If it didn't round up last time, don't try again */
-> >   if (kgdb_info[cpu].rounding_up)
-> >     continue
-> >
-> >   kgdb_info[cpu].rounding_up = true
-> >   smp_call_function_single_async(cpu, csd);
-> >
-> > ...and then in kgdb_nmicallback() I could just add:
-> >
-> >   kgdb_info[cpu].rounding_up = false
-> >
-> > In that case we're not adding a generic accessor to smp.c that most
-> > people should never use.
->
-> Whilst it is very tempting to make a sarcastic reply here ("Of course! What
-> kgdb really needs is yet another set of condition variables") I can't
-> because I actually agree with the proposal. I don't really want kgdb to
-> be too "special" especially when it doesn't need to be.
->
-> Only thing to note is that rounding_up will not be manipulated within a
-> common spin lock so you might have to invest a bit of thought to make
-> sure any races between the master and slave as the slave CPU clears the
-> flag are benign.
+List of patches in series:
 
-OK, so I've hopefully got all this thought through and posted v3.
-I've put most of my thoughts in the patch descriptions themselves so
-let's continue the discussion there.
+(1) mm: select HAVE_MOVE_PMD in x86 for faster mremap
 
--Doug
+(2) mm: speed up mremap by 20x on large regions (v5)
+v1->v2: Added support for per-arch enablement (Kirill Shutemov)
+v2->v3: Updated commit message to state the optimization may also
+	run for non-thp type of systems (Daniel Col).
+v3->v4: Remove useless pmd_lock check (Kirill Shutemov)
+	Rebased ontop of Linus's master, updated perf results based
+        on x86 testing. Added Kirill's Acks.
+v4->v5: Added William's Reviewed-by. Fixed arch/um build error
+	due to set_pmd_at not defined. Rebased on linux-next/akpm.
+
+(3) mm: treewide: remove unused address argument from pte_alloc functions (v2)
+v1->v2: fix arch/um/ prototype which was missed in v1 (Anton Ivanov)
+        update changelog with manual fixups for m68k and microblaze.
+
+not included - (4) mm: select HAVE_MOVE_PMD in arm64 for faster mremap
+    This patch is dropped since last posting pending further performance
+    testing on arm64 with new TLB gather updates. See notes in patch
+    titled "mm: speed up mremap by 500x on large regions" for more
+    details.
+
+Joel Fernandes (Google) (3):
+mm: treewide: remove unused address argument from pte_alloc functions
+(v2)
+mm: speed up mremap by 20x on large regions (v5)
+mm: select HAVE_MOVE_PMD in x86 for faster mremap
+
+arch/Kconfig                                 |  5 ++
+arch/alpha/include/asm/pgalloc.h             |  6 +-
+arch/arc/include/asm/pgalloc.h               |  5 +-
+arch/arm/include/asm/pgalloc.h               |  4 +-
+arch/arm64/include/asm/pgalloc.h             |  4 +-
+arch/hexagon/include/asm/pgalloc.h           |  6 +-
+arch/ia64/include/asm/pgalloc.h              |  5 +-
+arch/m68k/include/asm/mcf_pgalloc.h          |  8 +--
+arch/m68k/include/asm/motorola_pgalloc.h     |  4 +-
+arch/m68k/include/asm/sun3_pgalloc.h         |  6 +-
+arch/microblaze/include/asm/pgalloc.h        | 19 +-----
+arch/microblaze/mm/pgtable.c                 |  3 +-
+arch/mips/include/asm/pgalloc.h              |  6 +-
+arch/nds32/include/asm/pgalloc.h             |  5 +-
+arch/nios2/include/asm/pgalloc.h             |  6 +-
+arch/openrisc/include/asm/pgalloc.h          |  5 +-
+arch/openrisc/mm/ioremap.c                   |  3 +-
+arch/parisc/include/asm/pgalloc.h            |  4 +-
+arch/powerpc/include/asm/book3s/32/pgalloc.h |  4 +-
+arch/powerpc/include/asm/book3s/64/pgalloc.h | 12 ++--
+arch/powerpc/include/asm/nohash/32/pgalloc.h |  4 +-
+arch/powerpc/include/asm/nohash/64/pgalloc.h |  6 +-
+arch/powerpc/mm/pgtable-book3s64.c           |  2 +-
+arch/powerpc/mm/pgtable_32.c                 |  4 +-
+arch/riscv/include/asm/pgalloc.h             |  6 +-
+arch/s390/include/asm/pgalloc.h              |  4 +-
+arch/sh/include/asm/pgalloc.h                |  6 +-
+arch/sparc/include/asm/pgalloc_32.h          |  5 +-
+arch/sparc/include/asm/pgalloc_64.h          |  6 +-
+arch/sparc/mm/init_64.c                      |  6 +-
+arch/sparc/mm/srmmu.c                        |  4 +-
+arch/um/include/asm/pgalloc.h                |  4 +-
+arch/um/kernel/mem.c                         |  4 +-
+arch/unicore32/include/asm/pgalloc.h         |  4 +-
+arch/x86/Kconfig                             |  1 +
+arch/x86/include/asm/pgalloc.h               |  4 +-
+arch/x86/mm/pgtable.c                        |  4 +-
+arch/xtensa/include/asm/pgalloc.h            |  8 +--
+include/linux/mm.h                           | 13 ++--
+mm/huge_memory.c                             |  8 +--
+mm/kasan/kasan_init.c                        |  2 +-
+mm/memory.c                                  | 17 +++---
+mm/migrate.c                                 |  2 +-
+mm/mremap.c                                  | 64 +++++++++++++++++++-
+mm/userfaultfd.c                             |  2 +-
+virt/kvm/arm/mmu.c                           |  2 +-
+46 files changed, 165 insertions(+), 147 deletions(-)
+
+--
+2.19.1.930.g4563a0d9d0-goog
