@@ -1,75 +1,78 @@
-From: Paul Burton <paul.burton@mips.com>
-Subject: Re: [PATCH v2 16/15 v2] syscall_get_arch: add "struct task_struct *"
- argument
-Date: Wed, 21 Nov 2018 19:45:51 +0000
-Message-ID: <20181121194549.4glznckje73z2uxk@pburton-laptop>
-References: <20181107042751.3b519062@akathisia>
- <CALCETrV1v-DPRfDRwiH=xn29bxWxiHdZtAH1nw=dsmDtnT0YGQ@mail.gmail.com>
- <20181120001128.GA11300@altlinux.org> <20181121004422.GA29053@altlinux.org>
- <20181121184004.jro532jopnbmru2m@pburton-laptop>
- <20181121190009.GA10301@altlinux.org> <20181121193512.GA11297@altlinux.org>
+From: Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH v5 0/4] kgdb: Fix kgdb_roundup_cpus()
+Date: Mon, 26 Nov 2018 19:51:29 -0800
+Message-ID: <20181127035133.225592-1-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=wavesemi.onmicrosoft.com; s=selector1-wavecomp-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=eWkvJQbIhorjLQqxD5SOKS1mSUyFdmHff425N3CIyT0=;
- b=D1Sb+13g3goV2vy/b8bQtxOF30aeX4I+0yz+qUKQr1dnEsxhZLiGzOkARlKjaLaSIbq7gEr4GMfv/aDcaatHTHASlKj+sNk1KD0/BcLKPhk0XBDQ/zxRG54CCQntVgyu882C0CsZ603/2hH31LhYDNC7bs5hWyGQhhXirIywIHs=
-In-Reply-To: <20181121193512.GA11297@altlinux.org>
-Content-Language: en-US
-Content-ID: <708ADDE084183B41A3B884270BF84771@namprd22.prod.outlook.com>
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ckFwfWrXDG7mbBgtIA9ywF+G24oiGIeq/mDuQRgaBZM=;
+        b=SstBiiGWzw5dBJG/3tQu6dyCWZzwOYkKa8t0/fa0w5gcDTZaE47UUcy03dPrz4/uvH
+         mFYss26Ji3dfFsBbZtXM9Fkiw7fyvNZFThjXOqmer3sdiz1pAVn1Ulbd0owmzDDRP5vg
+         d+8ef2cthPwUtXBypN4pDgp8cmiqJR5m56fcE=
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-To: "Dmitry V. Levin" <ldv@altlinux.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Eric Paris <eparis@redhat.com>, Paul Moore <paul@paul-moore.com>, Elvira Khabirova <lineprinter@altlinux.org>, Eugene Syromyatnikov <esyr@redhat.com>, Oleg Nesterov <oleg@redhat.com>, "linux-audit@redhat.com" <linux-audit@redhat.com>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-c6x-dev@linux-c6x.org" <linux-c6x-dev@linux-c6x.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>
+Content-Type: text/plain; charset="us-ascii"
+To: Jason Wessel <jason.wessel@windriver.com>, Daniel Thompson <daniel.thompson@linaro.org>
+Cc: Will Deacon <will.deacon@arm.com>, kgdb-bugreport@lists.sourceforge.net, Peter Zijlstra <peterz@infradead.org>, Douglas Anderson <dianders@chromium.org>, linux-mips@linux-mips.org, linux-sh@vger.kernel.org, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, linux-hexagon@vger.kernel.org, x86@kernel.org, Vineet Gupta <vgupta@synopsys.com>, Thomas Gleixner <tglx@linutronix.de>, Michal Hocko <mhocko@suse.com>, Ralf Baechle <ralf@linux-mips.org>, linux-snps-arc@lists.infradead.org, Andrew Morton <akpm@linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Benjamin Herrenschmidt <benh@kernel.cras>
 
-Hi Dmitry,
+This series was originally part of the series ("serial: Finish kgdb on
+qcom_geni; fix many lockdep splats w/ kgdb") but it made sense to
+split it up.
 
-On Wed, Nov 21, 2018 at 10:35:12PM +0300, Dmitry V. Levin wrote:
-> This argument is required to extend the generic ptrace API with
-> PTRACE_GET_SYSCALL_INFO request: syscall_get_arch() is going to be
-> called from ptrace_request() along with other syscall_get_* functions
-> with a tracee as their argument.
->=20
-> This change partially reverts commit 5e937a9ae913 ("syscall_get_arch:
-> remove useless function arguments").
->=20
-> Reviewed-by: Andy Lutomirski <luto@kernel.org> # for x86
-> Reviewed-by: Palmer Dabbelt <palmer@sifive.com>
-> Cc: linux-audit@redhat.com
-> Cc: linux-alpha@vger.kernel.org
-> Cc: linux-arch@vger.kernel.org
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-c6x-dev@linux-c6x.org
-> Cc: linux-hexagon@vger.kernel.org
-> Cc: linux-ia64@vger.kernel.org
-> Cc: linux-m68k@lists.linux-m68k.org
-> Cc: linux-mips@linux-mips.org
-> Cc: linux-parisc@vger.kernel.org
-> Cc: linux-riscv@lists.infradead.org
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-sh@vger.kernel.org
-> Cc: linux-snps-arc@lists.infradead.org
-> Cc: linux-um@lists.infradead.org
-> Cc: linux-xtensa@linux-xtensa.org
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Cc: nios2-dev@lists.rocketboards.org
-> Cc: openrisc@lists.librecores.org
-> Cc: sparclinux@vger.kernel.org
-> Cc: uclinux-h8-devel@lists.sourceforge.jp
-> Cc: x86@kernel.org
-> Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
-> ---
->=20
-> v2: cleaned up mips part, added Reviewed-by
+It's believed that dropping into kgdb should be more robust once these
+patches are applied.
 
-I thought the last one was v2? :)
+Changes in v5:
+- Add a comment about get_irq_regs().
+- get_cpu() => raw_smp_processor_id() in kgdb_roundup_cpus().
+- for_each_cpu() => for_each_online_cpu()
+- Error check smp_call_function_single_async()
 
-Anyway, this looks fine to me now:
+Changes in v4:
+- Removed smp_mb() calls.
+- Also clear out .debuggerinfo.
+- Also clear out .debuggerinfo and .task for the master.
+- Remove clearing out in kdb_stub for offline CPUs; it's now redundant.
 
-    Acked-by: Paul Burton <paul.burton@mips.com> # MIPS parts
+Changes in v3:
+- No separate init call.
+- Don't round up the CPU that is doing the rounding up.
+- Add "#ifdef CONFIG_SMP" to match the rest of the file.
+- Updated desc saying we don't solve the "failed to roundup" case.
+- Document the ignored parameter.
+- Don't round up a CPU that failed rounding up before new for v3.
+- Don't back trace on a cpu that didn't round up new for v3.
 
-Thanks,
-    Paul
+Changes in v2:
+- Removing irq flags separated from fixing lockdep splat.
+- Don't use smp_call_function (Daniel).
+
+Douglas Anderson (4):
+  kgdb: Remove irq flags from roundup
+  kgdb: Fix kgdb_roundup_cpus() for arches who used smp_call_function()
+  kgdb: Don't round up a CPU that failed rounding up before
+  kdb: Don't back trace on a cpu that didn't round up
+
+ arch/arc/kernel/kgdb.c          | 10 +----
+ arch/arm/kernel/kgdb.c          | 12 ------
+ arch/arm64/kernel/kgdb.c        | 12 ------
+ arch/hexagon/kernel/kgdb.c      | 32 ----------------
+ arch/mips/kernel/kgdb.c         |  9 +----
+ arch/powerpc/kernel/kgdb.c      |  6 +--
+ arch/sh/kernel/kgdb.c           | 12 ------
+ arch/sparc/kernel/smp_64.c      |  2 +-
+ arch/x86/kernel/kgdb.c          |  9 +----
+ include/linux/kgdb.h            | 22 +++++++----
+ kernel/debug/debug_core.c       | 65 ++++++++++++++++++++++++++++++++-
+ kernel/debug/debug_core.h       |  1 +
+ kernel/debug/kdb/kdb_bt.c       | 11 +++++-
+ kernel/debug/kdb/kdb_debugger.c |  7 ----
+ 14 files changed, 98 insertions(+), 112 deletions(-)
+
+-- 
+2.20.0.rc0.387.gc7a69e6b6c-goog
+
