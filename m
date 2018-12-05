@@ -1,227 +1,662 @@
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Subject: [PATCH 2/2] kgdb/treewide: constify struct kgdb_arch arch_kgdb_ops
-Date: Wed,  5 Dec 2018 04:41:11 +0000 (UTC)
-Message-ID: <6b1a19ffa0da02cff9b82b866ba31d57478501ce.1543957194.git.christophe.leroy@c-s.fr>
-References: <75bbcdd1e9277d66ebb06e349dda304bd01ce761.1543957194.git.christophe.leroy@c-s.fr>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <75bbcdd1e9277d66ebb06e349dda304bd01ce761.1543957194.git.christophe.leroy@c-s.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH 3/3] arch: remove redundant generic-y defines
+Date: Wed,  5 Dec 2018 20:28:06 +0900
+Message-ID: <1544009286-15705-3-git-send-email-yamada.masahiro@socionext.com>
+References: <1544009286-15705-1-git-send-email-yamada.masahiro@socionext.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Kuo <rkuo@codeaurora.org>, Michal Simek <monstr@monstr.eu>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Ley Foon Tan <lftan@altera.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, Jason Wessel <jason.wessel@windriv>
-Cc: linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, linux-hexagon@vger.kernel.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, kgdb-bugreport@lists.sourceforge.net
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Cc:List-Subscribe:
+	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:References:
+	In-Reply-To:Message-Id:Date:Subject:To:From:Reply-To:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Owner;
+	bh=KjggBL+yBa3Yjf8VSJGf5ZR8iA5BFYaOE2CzMZGwA3w=; b=rR+ynrgx2G7elQ6O8Z0RYvkWUx
+	tzB+e5upsyTW8pJtQqgxiuj2yIdlFZDwWXUlK2vP0ySkGprJym8VfWHBs+Yf0OYEg1hx00T3vfDm1
+	LvrFubxeI0gAx9mypxzu2ReSvmbDGoqTy9bWnyOt3+wmjXjThVw+bj8cLL6sm/Urj1At+BC7jqJBH
+	HmbCo9YdWwdnYq82bEH3328c1tCHAkn+TTD+celrBd437Rx1e+X6Q/r3isLCOtUnyaPYiz2rKudiL
+	BP52m77y2TCkYVXHHf1HzWFdSwDyJn9chQpeKCwnqsOpkPghruTp1rnr24V8JYftxhR9A1zDcHCj+
+	GhxAu9nQ==;
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-08.nifty.com wB5BSBlX028064
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+ s=dec2015msa; t=1544009297;
+ bh=xrb0PNo5pw/YPjt31K6EqFjYwJsZcMHyXIulbXaDXq8=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=gA9OqMQeKbZz4K3aUZbxGPRafiVZ7f+fi9LF6c0zMWmQUWZ0+9LC/t4HkagPLAddC
+ Kp6zfCNRAhf6KwSvvJecBgIGya47w6yxGE+yYWyGghD8/v+X+rymb8HBLWmM0eDLD2
+ 6FnDuVbsB7sqVuNJsL9KZHX6zg3d4gIZgUeqUP97ElFxELr8GEDyfy056JlCyHCbG2
+ NRGFxob3tzmOB9Epk71KfdQk0GuXKCUwLWlc6LTWlVXO70TC2xllCpmQ0gcvzbqMie
+ 87fh9te2CSWgtxpsgCqtinq882SjKF/63O6CZqxQkkj6UrlFUly7PDVy0Of+PeWgP6
+ Wr0R51bhN1tXw==
+In-Reply-To: <1544009286-15705-1-git-send-email-yamada.masahiro@socionext.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
+To: linux-kbuild@vger.kernel.org
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, James Hogan <jhogan@kernel.org>, Palmer Dabbelt <palmer@sifive.com>, Will Deacon <will.deacon@arm.com>, Alexei Starovoitov <ast@kernel.org>, Russell King <linux@armlinux.org.uk>, Masahiro Yamada <yamada.masahiro@socionext.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Vincent Chen <deanbo422@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, Stafford Horne <shorne@gmail.com>, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Daniel Borkmann <daniel@iogearbox.net>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, x86@kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, linux-alpha@vger.kernel.org, I
 
-checkpatch.pl reports the following:
+Now that Kbuild automatically creates asm-generic wrappers for missing
+mandatory headers, it is redundant to list the same headers in
+generic-y and mandatory-y.
 
-  WARNING: struct kgdb_arch should normally be const
-  #28: FILE: arch/mips/kernel/kgdb.c:397:
-  +struct kgdb_arch arch_kgdb_ops = {
-
-This report makes sense, as all other ops struct, this
-one should also be const. This patch does the change.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Suggested-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
- arch/arc/kernel/kgdb.c        | 2 +-
- arch/arm/kernel/kgdb.c        | 2 +-
- arch/arm64/kernel/kgdb.c      | 2 +-
- arch/h8300/kernel/kgdb.c      | 2 +-
- arch/hexagon/kernel/kgdb.c    | 2 +-
- arch/microblaze/kernel/kgdb.c | 2 +-
- arch/mips/kernel/kgdb.c       | 2 +-
- arch/nios2/kernel/kgdb.c      | 2 +-
- arch/powerpc/kernel/kgdb.c    | 2 +-
- arch/sh/kernel/kgdb.c         | 2 +-
- arch/sparc/kernel/kgdb_32.c   | 2 +-
- arch/sparc/kernel/kgdb_64.c   | 2 +-
- arch/x86/kernel/kgdb.c        | 2 +-
- include/linux/kgdb.h          | 2 +-
- 14 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arc/kernel/kgdb.c b/arch/arc/kernel/kgdb.c
-index 9a3c34af2ae8..bfd04b442e36 100644
---- a/arch/arc/kernel/kgdb.c
-+++ b/arch/arc/kernel/kgdb.c
-@@ -204,7 +204,7 @@ void kgdb_roundup_cpus(unsigned long flags)
- 	local_irq_disable();
- }
+ arch/alpha/include/uapi/asm/Kbuild      |  5 -----
+ arch/arc/include/uapi/asm/Kbuild        | 23 -----------------------
+ arch/arm/include/uapi/asm/Kbuild        | 15 ---------------
+ arch/arm64/include/uapi/asm/Kbuild      | 17 -----------------
+ arch/c6x/include/uapi/asm/Kbuild        | 25 -------------------------
+ arch/h8300/include/uapi/asm/Kbuild      | 25 -------------------------
+ arch/hexagon/include/uapi/asm/Kbuild    | 22 ----------------------
+ arch/ia64/include/uapi/asm/Kbuild       |  5 -----
+ arch/m68k/include/uapi/asm/Kbuild       | 18 ------------------
+ arch/microblaze/include/uapi/asm/Kbuild | 24 ------------------------
+ arch/mips/include/uapi/asm/Kbuild       |  1 -
+ arch/nds32/include/uapi/asm/Kbuild      | 24 ------------------------
+ arch/nios2/include/uapi/asm/Kbuild      | 24 ------------------------
+ arch/openrisc/include/uapi/asm/Kbuild   | 26 --------------------------
+ arch/parisc/include/uapi/asm/Kbuild     |  5 -----
+ arch/powerpc/include/uapi/asm/Kbuild    |  6 ------
+ arch/riscv/include/uapi/asm/Kbuild      | 25 -------------------------
+ arch/s390/include/uapi/asm/Kbuild       | 14 --------------
+ arch/sh/include/uapi/asm/Kbuild         | 17 -----------------
+ arch/sparc/include/uapi/asm/Kbuild      |  1 -
+ arch/unicore32/include/uapi/asm/Kbuild  | 27 ---------------------------
+ arch/x86/include/uapi/asm/Kbuild        |  1 -
+ arch/xtensa/include/uapi/asm/Kbuild     |  8 --------
+ 23 files changed, 358 deletions(-)
+
+diff --git a/arch/alpha/include/uapi/asm/Kbuild b/arch/alpha/include/uapi/asm/Kbuild
+index 1a5b753..14a2e9a 100644
+--- a/arch/alpha/include/uapi/asm/Kbuild
++++ b/arch/alpha/include/uapi/asm/Kbuild
+@@ -2,8 +2,3 @@
+ include include/uapi/asm-generic/Kbuild.asm
  
--struct kgdb_arch arch_kgdb_ops = {
-+const struct kgdb_arch arch_kgdb_ops = {
- 	/* breakpoint instruction: TRAP_S 0x3 */
- #ifdef CONFIG_CPU_BIG_ENDIAN
- 	.gdb_bpt_instr		= {0x78, 0x7e},
-diff --git a/arch/arm/kernel/kgdb.c b/arch/arm/kernel/kgdb.c
-index caa0dbe3dc61..21a6d5958955 100644
---- a/arch/arm/kernel/kgdb.c
-+++ b/arch/arm/kernel/kgdb.c
-@@ -274,7 +274,7 @@ int kgdb_arch_remove_breakpoint(struct kgdb_bkpt *bpt)
-  * and we handle the normal undef case within the do_undefinstr
-  * handler.
-  */
--struct kgdb_arch arch_kgdb_ops = {
-+const struct kgdb_arch arch_kgdb_ops = {
- #ifndef __ARMEB__
- 	.gdb_bpt_instr		= {0xfe, 0xde, 0xff, 0xe7}
- #else /* ! __ARMEB__ */
-diff --git a/arch/arm64/kernel/kgdb.c b/arch/arm64/kernel/kgdb.c
-index a20de58061a8..fe1d1f935b90 100644
---- a/arch/arm64/kernel/kgdb.c
-+++ b/arch/arm64/kernel/kgdb.c
-@@ -357,7 +357,7 @@ void kgdb_arch_exit(void)
- 	unregister_die_notifier(&kgdb_notifier);
- }
+ generic-y += bpf_perf_event.h
+-generic-y += ipcbuf.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+diff --git a/arch/arc/include/uapi/asm/Kbuild b/arch/arc/include/uapi/asm/Kbuild
+index 170b5db..f53f8e4 100644
+--- a/arch/arc/include/uapi/asm/Kbuild
++++ b/arch/arc/include/uapi/asm/Kbuild
+@@ -1,29 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
--struct kgdb_arch arch_kgdb_ops;
-+const struct kgdb_arch arch_kgdb_ops;
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/arm/include/uapi/asm/Kbuild b/arch/arm/include/uapi/asm/Kbuild
+index 4d1cc18..279edb1 100644
+--- a/arch/arm/include/uapi/asm/Kbuild
++++ b/arch/arm/include/uapi/asm/Kbuild
+@@ -6,19 +6,4 @@ generated-y += unistd-common.h
+ generated-y += unistd-oabi.h
+ generated-y += unistd-eabi.h
  
- int kgdb_arch_set_breakpoint(struct kgdb_bkpt *bpt)
- {
-diff --git a/arch/h8300/kernel/kgdb.c b/arch/h8300/kernel/kgdb.c
-index 1a1d30cb0609..602e478afbd5 100644
---- a/arch/h8300/kernel/kgdb.c
-+++ b/arch/h8300/kernel/kgdb.c
-@@ -129,7 +129,7 @@ void kgdb_arch_exit(void)
- 	/* Nothing to do */
- }
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += ioctl.h
+-generic-y += ipcbuf.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += termbits.h
+-generic-y += termios.h
+diff --git a/arch/arm64/include/uapi/asm/Kbuild b/arch/arm64/include/uapi/asm/Kbuild
+index 6c5adf4..bca548a 100644
+--- a/arch/arm64/include/uapi/asm/Kbuild
++++ b/arch/arm64/include/uapi/asm/Kbuild
+@@ -2,21 +2,4 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
--struct kgdb_arch arch_kgdb_ops = {
-+const struct kgdb_arch arch_kgdb_ops = {
- 	/* Breakpoint instruction: trapa #2 */
- 	.gdb_bpt_instr = { 0x57, 0x20 },
- };
-diff --git a/arch/hexagon/kernel/kgdb.c b/arch/hexagon/kernel/kgdb.c
-index 16c24b22d0b2..f1924d483e78 100644
---- a/arch/hexagon/kernel/kgdb.c
-+++ b/arch/hexagon/kernel/kgdb.c
-@@ -83,7 +83,7 @@ struct dbg_reg_def_t dbg_reg_def[DBG_MAX_REG_NUM] = {
- 	{ "syscall_nr", GDB_SIZEOF_REG, offsetof(struct pt_regs, syscall_nr)},
- };
+-generic-y += errno.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+-generic-y += siginfo.h
+diff --git a/arch/c6x/include/uapi/asm/Kbuild b/arch/c6x/include/uapi/asm/Kbuild
+index 26644e1..f53f8e4 100644
+--- a/arch/c6x/include/uapi/asm/Kbuild
++++ b/arch/c6x/include/uapi/asm/Kbuild
+@@ -1,31 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
--struct kgdb_arch arch_kgdb_ops = {
-+const struct kgdb_arch arch_kgdb_ops = {
- 	/* trap0(#0xDB) 0x0cdb0054 */
- 	.gdb_bpt_instr = {0x54, 0x00, 0xdb, 0x0c},
- };
-diff --git a/arch/microblaze/kernel/kgdb.c b/arch/microblaze/kernel/kgdb.c
-index 6366f69d118e..130cd0f064ce 100644
---- a/arch/microblaze/kernel/kgdb.c
-+++ b/arch/microblaze/kernel/kgdb.c
-@@ -143,7 +143,7 @@ void kgdb_arch_exit(void)
- /*
-  * Global data
-  */
--struct kgdb_arch arch_kgdb_ops = {
-+const struct kgdb_arch arch_kgdb_ops = {
- #ifdef __MICROBLAZEEL__
- 	.gdb_bpt_instr = {0x18, 0x00, 0x0c, 0xba}, /* brki r16, 0x18 */
- #else
-diff --git a/arch/mips/kernel/kgdb.c b/arch/mips/kernel/kgdb.c
-index 31eff1bec577..edfdc2ec2d16 100644
---- a/arch/mips/kernel/kgdb.c
-+++ b/arch/mips/kernel/kgdb.c
-@@ -394,7 +394,7 @@ int kgdb_arch_handle_exception(int vector, int signo, int err_code,
- 	return -1;
- }
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/h8300/include/uapi/asm/Kbuild b/arch/h8300/include/uapi/asm/Kbuild
+index 2f65f78..f53f8e4 100644
+--- a/arch/h8300/include/uapi/asm/Kbuild
++++ b/arch/h8300/include/uapi/asm/Kbuild
+@@ -1,31 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
--struct kgdb_arch arch_kgdb_ops = {
-+const struct kgdb_arch arch_kgdb_ops = {
- #ifdef CONFIG_CPU_BIG_ENDIAN
- 	.gdb_bpt_instr = { spec_op << 2, 0x00, 0x00, break_op },
- #else
-diff --git a/arch/nios2/kernel/kgdb.c b/arch/nios2/kernel/kgdb.c
-index 117859122d1c..37b25f844a2d 100644
---- a/arch/nios2/kernel/kgdb.c
-+++ b/arch/nios2/kernel/kgdb.c
-@@ -165,7 +165,7 @@ void kgdb_arch_exit(void)
- 	/* Nothing to do */
- }
+-generic-y += auxvec.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += setup.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/hexagon/include/uapi/asm/Kbuild b/arch/hexagon/include/uapi/asm/Kbuild
+index 41a176d..c0488dc 100644
+--- a/arch/hexagon/include/uapi/asm/Kbuild
++++ b/arch/hexagon/include/uapi/asm/Kbuild
+@@ -1,27 +1,5 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
--struct kgdb_arch arch_kgdb_ops = {
-+const struct kgdb_arch arch_kgdb_ops = {
- 	/* Breakpoint instruction: trap 30 */
- 	.gdb_bpt_instr = { 0xba, 0x6f, 0x3b, 0x00 },
- };
-diff --git a/arch/powerpc/kernel/kgdb.c b/arch/powerpc/kernel/kgdb.c
-index 59c578f865aa..bdb588b1d8fb 100644
---- a/arch/powerpc/kernel/kgdb.c
-+++ b/arch/powerpc/kernel/kgdb.c
-@@ -477,7 +477,7 @@ int kgdb_arch_remove_breakpoint(struct kgdb_bkpt *bpt)
- /*
-  * Global data
-  */
--struct kgdb_arch arch_kgdb_ops;
-+const struct kgdb_arch arch_kgdb_ops;
+-generic-y += auxvec.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/ia64/include/uapi/asm/Kbuild b/arch/ia64/include/uapi/asm/Kbuild
+index 3982e67..f5c6967 100644
+--- a/arch/ia64/include/uapi/asm/Kbuild
++++ b/arch/ia64/include/uapi/asm/Kbuild
+@@ -2,9 +2,4 @@
+ include include/uapi/asm-generic/Kbuild.asm
  
- static int kgdb_not_implemented(struct pt_regs *regs)
- {
-diff --git a/arch/sh/kernel/kgdb.c b/arch/sh/kernel/kgdb.c
-index 4f04c6638a4d..a24c48446e98 100644
---- a/arch/sh/kernel/kgdb.c
-+++ b/arch/sh/kernel/kgdb.c
-@@ -382,7 +382,7 @@ void kgdb_arch_exit(void)
- 	unregister_die_notifier(&kgdb_notifier);
- }
+ generic-y += bpf_perf_event.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+diff --git a/arch/m68k/include/uapi/asm/Kbuild b/arch/m68k/include/uapi/asm/Kbuild
+index c2e26a4..f5c6967 100644
+--- a/arch/m68k/include/uapi/asm/Kbuild
++++ b/arch/m68k/include/uapi/asm/Kbuild
+@@ -1,23 +1,5 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
--struct kgdb_arch arch_kgdb_ops = {
-+const struct kgdb_arch arch_kgdb_ops = {
- 	/* Breakpoint instruction: trapa #0x3c */
- #ifdef CONFIG_CPU_LITTLE_ENDIAN
- 	.gdb_bpt_instr		= { 0x3c, 0xc3 },
-diff --git a/arch/sparc/kernel/kgdb_32.c b/arch/sparc/kernel/kgdb_32.c
-index 639c8e54530a..7580775a14b9 100644
---- a/arch/sparc/kernel/kgdb_32.c
-+++ b/arch/sparc/kernel/kgdb_32.c
-@@ -166,7 +166,7 @@ void kgdb_arch_set_pc(struct pt_regs *regs, unsigned long ip)
- 	regs->npc = regs->pc + 4;
- }
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += ioctl.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+diff --git a/arch/microblaze/include/uapi/asm/Kbuild b/arch/microblaze/include/uapi/asm/Kbuild
+index 2c6a6bf..f53f8e4 100644
+--- a/arch/microblaze/include/uapi/asm/Kbuild
++++ b/arch/microblaze/include/uapi/asm/Kbuild
+@@ -1,30 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
--struct kgdb_arch arch_kgdb_ops = {
-+const struct kgdb_arch arch_kgdb_ops = {
- 	/* Breakpoint instruction: ta 0x7d */
- 	.gdb_bpt_instr		= { 0x91, 0xd0, 0x20, 0x7d },
- };
-diff --git a/arch/sparc/kernel/kgdb_64.c b/arch/sparc/kernel/kgdb_64.c
-index a68bbddbdba4..5d6c2d287e85 100644
---- a/arch/sparc/kernel/kgdb_64.c
-+++ b/arch/sparc/kernel/kgdb_64.c
-@@ -195,7 +195,7 @@ void kgdb_arch_set_pc(struct pt_regs *regs, unsigned long ip)
- 	regs->tnpc = regs->tpc + 4;
- }
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/mips/include/uapi/asm/Kbuild b/arch/mips/include/uapi/asm/Kbuild
+index 7a4becd..14a2e9a 100644
+--- a/arch/mips/include/uapi/asm/Kbuild
++++ b/arch/mips/include/uapi/asm/Kbuild
+@@ -2,4 +2,3 @@
+ include include/uapi/asm-generic/Kbuild.asm
  
--struct kgdb_arch arch_kgdb_ops = {
-+const struct kgdb_arch arch_kgdb_ops = {
- 	/* Breakpoint instruction: ta 0x72 */
- 	.gdb_bpt_instr		= { 0x91, 0xd0, 0x20, 0x72 },
- };
-diff --git a/arch/x86/kernel/kgdb.c b/arch/x86/kernel/kgdb.c
-index 8e36f249646e..e7effc02f13c 100644
---- a/arch/x86/kernel/kgdb.c
-+++ b/arch/x86/kernel/kgdb.c
-@@ -804,7 +804,7 @@ int kgdb_arch_remove_breakpoint(struct kgdb_bkpt *bpt)
- 				  (char *)bpt->saved_instr, BREAK_INSTR_SIZE);
- }
+ generic-y += bpf_perf_event.h
+-generic-y += ipcbuf.h
+diff --git a/arch/nds32/include/uapi/asm/Kbuild b/arch/nds32/include/uapi/asm/Kbuild
+index 40be972..c0488dc 100644
+--- a/arch/nds32/include/uapi/asm/Kbuild
++++ b/arch/nds32/include/uapi/asm/Kbuild
+@@ -2,28 +2,4 @@
+ include include/uapi/asm-generic/Kbuild.asm
  
--struct kgdb_arch arch_kgdb_ops = {
-+const struct kgdb_arch arch_kgdb_ops = {
- 	/* Breakpoint instruction: */
- 	.gdb_bpt_instr		= { 0xcc },
- 	.flags			= KGDB_HW_BREAKPOINT,
-diff --git a/include/linux/kgdb.h b/include/linux/kgdb.h
-index e465bb15912d..3bf313311cca 100644
---- a/include/linux/kgdb.h
-+++ b/include/linux/kgdb.h
-@@ -281,7 +281,7 @@ struct kgdb_io {
- 	int			is_console;
- };
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+-generic-y += shmbuf.h
+-generic-y += bitsperlong.h
+-generic-y += fcntl.h
+-generic-y += stat.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += setup.h
+-generic-y += siginfo.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += swab.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/nios2/include/uapi/asm/Kbuild b/arch/nios2/include/uapi/asm/Kbuild
+index 13a3d77..f53f8e4 100644
+--- a/arch/nios2/include/uapi/asm/Kbuild
++++ b/arch/nios2/include/uapi/asm/Kbuild
+@@ -1,30 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
--extern struct kgdb_arch		arch_kgdb_ops;
-+extern const struct kgdb_arch		arch_kgdb_ops;
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += setup.h
+-generic-y += shmbuf.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/openrisc/include/uapi/asm/Kbuild b/arch/openrisc/include/uapi/asm/Kbuild
+index 130c16c..f53f8e4 100644
+--- a/arch/openrisc/include/uapi/asm/Kbuild
++++ b/arch/openrisc/include/uapi/asm/Kbuild
+@@ -1,32 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
- extern unsigned long kgdb_arch_pc(int exception, struct pt_regs *regs);
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += setup.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/parisc/include/uapi/asm/Kbuild b/arch/parisc/include/uapi/asm/Kbuild
+index adb5c64..f5c6967 100644
+--- a/arch/parisc/include/uapi/asm/Kbuild
++++ b/arch/parisc/include/uapi/asm/Kbuild
+@@ -1,10 +1,5 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
  
+-generic-y += auxvec.h
+ generic-y += bpf_perf_event.h
+ generic-y += kvm_para.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += siginfo.h
+diff --git a/arch/powerpc/include/uapi/asm/Kbuild b/arch/powerpc/include/uapi/asm/Kbuild
+index a658091..14a2e9a 100644
+--- a/arch/powerpc/include/uapi/asm/Kbuild
++++ b/arch/powerpc/include/uapi/asm/Kbuild
+@@ -2,9 +2,3 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generic-y += bpf_perf_event.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sockios.h
+-generic-y += statfs.h
+-generic-y += siginfo.h
+diff --git a/arch/riscv/include/uapi/asm/Kbuild b/arch/riscv/include/uapi/asm/Kbuild
+index 5511b99..14a2e9a 100644
+--- a/arch/riscv/include/uapi/asm/Kbuild
++++ b/arch/riscv/include/uapi/asm/Kbuild
+@@ -1,29 +1,4 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += setup.h
+-generic-y += unistd.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+-generic-y += siginfo.h
+diff --git a/arch/s390/include/uapi/asm/Kbuild b/arch/s390/include/uapi/asm/Kbuild
+index dc38a90..3e1b12d 100644
+--- a/arch/s390/include/uapi/asm/Kbuild
++++ b/arch/s390/include/uapi/asm/Kbuild
+@@ -5,17 +5,3 @@ include include/uapi/asm-generic/Kbuild.asm
+ generated-y += unistd_32.h
+ generated-y += unistd_64.h
+ 
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += sockios.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += siginfo.h
+\ No newline at end of file
+diff --git a/arch/sh/include/uapi/asm/Kbuild b/arch/sh/include/uapi/asm/Kbuild
+index ba4d39c..f53f8e4 100644
+--- a/arch/sh/include/uapi/asm/Kbuild
++++ b/arch/sh/include/uapi/asm/Kbuild
+@@ -1,23 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += shmbuf.h
+-generic-y += siginfo.h
+-generic-y += socket.h
+-generic-y += statfs.h
+-generic-y += termbits.h
+-generic-y += termios.h
+ generic-y += ucontext.h
+diff --git a/arch/sparc/include/uapi/asm/Kbuild b/arch/sparc/include/uapi/asm/Kbuild
+index 4680ba2..14a2e9a 100644
+--- a/arch/sparc/include/uapi/asm/Kbuild
++++ b/arch/sparc/include/uapi/asm/Kbuild
+@@ -2,4 +2,3 @@
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+ generic-y += bpf_perf_event.h
+-generic-y += types.h
+diff --git a/arch/unicore32/include/uapi/asm/Kbuild b/arch/unicore32/include/uapi/asm/Kbuild
+index 8611ef9..f53f8e4 100644
+--- a/arch/unicore32/include/uapi/asm/Kbuild
++++ b/arch/unicore32/include/uapi/asm/Kbuild
+@@ -1,33 +1,6 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += auxvec.h
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+-generic-y += ioctls.h
+-generic-y += ipcbuf.h
+ generic-y += kvm_para.h
+-generic-y += mman.h
+-generic-y += msgbuf.h
+-generic-y += param.h
+-generic-y += poll.h
+-generic-y += posix_types.h
+-generic-y += resource.h
+-generic-y += sembuf.h
+-generic-y += setup.h
+-generic-y += shmbuf.h
+-generic-y += shmparam.h
+-generic-y += siginfo.h
+-generic-y += signal.h
+-generic-y += socket.h
+-generic-y += sockios.h
+-generic-y += stat.h
+-generic-y += statfs.h
+-generic-y += swab.h
+-generic-y += termbits.h
+-generic-y += termios.h
+-generic-y += types.h
+ generic-y += ucontext.h
+diff --git a/arch/x86/include/uapi/asm/Kbuild b/arch/x86/include/uapi/asm/Kbuild
+index 3226816..1e901e4 100644
+--- a/arch/x86/include/uapi/asm/Kbuild
++++ b/arch/x86/include/uapi/asm/Kbuild
+@@ -5,4 +5,3 @@ generic-y += bpf_perf_event.h
+ generated-y += unistd_32.h
+ generated-y += unistd_64.h
+ generated-y += unistd_x32.h
+-generic-y += poll.h
+diff --git a/arch/xtensa/include/uapi/asm/Kbuild b/arch/xtensa/include/uapi/asm/Kbuild
+index 837d4dd..f5c6967 100644
+--- a/arch/xtensa/include/uapi/asm/Kbuild
++++ b/arch/xtensa/include/uapi/asm/Kbuild
+@@ -1,13 +1,5 @@
+ # UAPI Header export list
+ include include/uapi/asm-generic/Kbuild.asm
+ 
+-generic-y += bitsperlong.h
+ generic-y += bpf_perf_event.h
+-generic-y += errno.h
+-generic-y += fcntl.h
+-generic-y += ioctl.h
+ generic-y += kvm_para.h
+-generic-y += resource.h
+-generic-y += siginfo.h
+-generic-y += statfs.h
+-generic-y += termios.h
 -- 
-2.13.3
-
+2.7.4
