@@ -1,34 +1,84 @@
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: Doug Anderson <dianders@chromium.org>
 Subject: Re: [REPOST PATCH v6 0/4] kgdb: Fix kgdb_roundup_cpus()
-Date: Fri, 7 Dec 2018 17:42:32 +0000
-Message-ID: <20181207174231.GD11961@arrakis.emea.arm.com>
-References: <20181205033828.6156-1-dianders@chromium.org>
+Date: Fri, 7 Dec 2018 10:40:24 -0800
+Message-ID: <CAD=FV=WO2xMojkEqKCMkufwihUvnow3yEH4GZPh7hh8noNZ+=A@mail.gmail.com>
+References: <20181205033828.6156-1-dianders@chromium.org> <20181207174231.GD11961@arrakis.emea.arm.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181205033828.6156-1-dianders@chromium.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=SRCkAV/rwwCb6G1s504cXx97lfWxm12ZTF5AciiY020=;
+        b=Xmck1bS0DtZaa+WeJixKR5fKXvJ0b/KkgVumJ+cB+BRhf2dA1IB3yHuUry37zHpQs6
+         zaxAXd4KG8ZJT1/0HnMFp9V5QWu3sIojUVz3n8BmfxYYfJvsAIizcUxSgPQrz5Rov1t2
+         CbtwE330HXlFJIaGEy1i92cSc9oRewduTt9lw=
+In-Reply-To: <20181207174231.GD11961@arrakis.emea.arm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Douglas Anderson <dianders@chromium.org>
-Cc: Jason Wessel <jason.wessel@windriver.com>, Daniel Thompson <daniel.thompson@linaro.org>, Michal Hocko <mhocko@suse.com>, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, kgdb-bugreport@lists.sourceforge.net, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Rich Felker <dalias@libc.org>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, James Hogan <jhogan@kernel.org>, linux-snps-arc@lists.infradead.org, Huang Ying <ying.huang@intel.com>, linux-mips@vger.kernel.org, Mike Rapoport <rppt@linux.vnet.ibm.com>, Borislav
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Jason Wessel <jason.wessel@windriver.com>, Daniel Thompson <daniel.thompson@linaro.org>, mhocko@suse.com, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, kgdb-bugreport@lists.sourceforge.net, Will Deacon <will.deacon@arm.com>, LKML <linux-kernel@vger.kernel.org>, dalias@libc.org, paulus@samba.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, x86@kernel.org, Russell King - ARM Linux <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, jhogan@kernel.org, linux-snps-arc@lists.infradead.org, ying.huang@intel.com, linux-mips@vger.kernel.org, rppt@linux.vnet.ibm.com, bp@alien8.de, Thomas Gleixner <tglx@linutronix.de>, Linux ARM <linux-arm-kernel@lists.infradea>
 
-On Tue, Dec 04, 2018 at 07:38:24PM -0800, Douglas Anderson wrote:
-> Douglas Anderson (4):
->   kgdb: Remove irq flags from roundup
->   kgdb: Fix kgdb_roundup_cpus() for arches who used smp_call_function()
->   kgdb: Don't round up a CPU that failed rounding up before
->   kdb: Don't back trace on a cpu that didn't round up
+Hi,
 
-FWIW, trying these on arm64 (ThunderX2) with CONFIG_KGDB_TESTS_ON_BOOT=y
-on top of 4.20-rc5 doesn't boot. It looks like they leave interrupts
-disabled when they shouldn't and it trips over the BUG at
-mm/vmalloc.c:1380 (called via do_fork -> copy_process).
+On Fri, Dec 7, 2018 at 9:42 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
+>
+> On Tue, Dec 04, 2018 at 07:38:24PM -0800, Douglas Anderson wrote:
+> > Douglas Anderson (4):
+> >   kgdb: Remove irq flags from roundup
+> >   kgdb: Fix kgdb_roundup_cpus() for arches who used smp_call_function()
+> >   kgdb: Don't round up a CPU that failed rounding up before
+> >   kdb: Don't back trace on a cpu that didn't round up
+>
+> FWIW, trying these on arm64 (ThunderX2) with CONFIG_KGDB_TESTS_ON_BOOT=y
+> on top of 4.20-rc5 doesn't boot. It looks like they leave interrupts
+> disabled when they shouldn't and it trips over the BUG at
+> mm/vmalloc.c:1380 (called via do_fork -> copy_process).
+>
+> Now, I don't think these patches make things worse on arm64 since prior
+> to them the kgdb boot tests on arm64 were stuck in a loop (RUN
+> singlestep).
 
-Now, I don't think these patches make things worse on arm64 since prior
-to them the kgdb boot tests on arm64 were stuck in a loop (RUN
-singlestep).
+Thanks for the report!  ...actually, I'd never tried CONFIG_KGDB_TESTS
+before.  ...so I tried them now:
 
--- 
-Catalin
+A) chromeos-4.19 tree on qcom-sdm845 without this series: booted up OK
+B) chromeos-4.19 tree on qcom-sdm845 with this series: booted up OK
+C) v4.20-rc5-90-g30002dd008ed on rockchip-rk3399 (kevin) with this
+series: booted up OK
+
+Example output from B) above:
+
+localhost ~ # dmesg | grep kgdbts
+[    2.139814] KGDB: Registered I/O driver kgdbts
+[    2.144582] kgdbts:RUN plant and detach test
+[    2.165333] kgdbts:RUN sw breakpoint test
+[    2.172990] kgdbts:RUN bad memory access test
+[    2.178640] kgdbts:RUN singlestep test 1000 iterations
+[    2.187765] kgdbts:RUN singlestep [0/1000]
+[    2.559596] kgdbts:RUN singlestep [100/1000]
+[    2.931419] kgdbts:RUN singlestep [200/1000]
+[    3.303474] kgdbts:RUN singlestep [300/1000]
+[    3.675121] kgdbts:RUN singlestep [400/1000]
+[    4.046867] kgdbts:RUN singlestep [500/1000]
+[    4.418920] kgdbts:RUN singlestep [600/1000]
+[    4.790824] kgdbts:RUN singlestep [700/1000]
+[    5.162479] kgdbts:RUN singlestep [800/1000]
+[    5.534103] kgdbts:RUN singlestep [900/1000]
+[    5.902299] kgdbts:RUN do_fork for 100 breakpoints
+[    8.463900] KGDB: Unregistered I/O driver kgdbts, debugger disabled
+
+...so I guess I'm a little confused.  Either I have a different config
+than you do or something is special about your machine?
+
+
+NOTE: In general I've never considered "single step" as reliable in
+kgdb.  I mostly use kgdb as "after the fact" crash debugging to
+analyze local variables / memory / other tasks.  If it worked that'd
+actually be kinda great, but at least when I started using kgdb years
+ago I learned that it didn't work and stopped trying...
+
+
+-Doug
