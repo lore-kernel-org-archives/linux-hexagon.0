@@ -1,157 +1,62 @@
-From: Stafford Horne <shorne@gmail.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 Subject: Re: [PATCH] arch: unexport asm/shmparam.h for all architectures
-Date: Tue, 8 Jan 2019 20:10:32 +0900
-Message-ID: <20190108111032.GP3235@lianli.shorne-pla.net>
-References: <1546904307-11124-1-git-send-email-yamada.masahiro@socionext.com>
+Date: Wed, 9 Jan 2019 00:32:28 +0900
+Message-ID: <CAK7LNAS+grgqHM-ht0CCTmZHp+JRvr=Q+sJOo0URqRgTAYRs0w@mail.gmail.com>
+References: <1546904307-11124-1-git-send-email-yamada.masahiro@socionext.com> <20190108111032.GP3235@lianli.shorne-pla.net>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=e42acyZkHQ/RKHvKonSuJ3oOeal/c3QK1to9X5ezg2w=;
-        b=GfaqbCRX7YuAwQ+Z7dN10mQyOMgTNGrxqZMYP2e/ML2ox5YKNOeWIHoING54g7d59q
-         fciJNMDjGtvCieSv6iXG/PWrhKzVI/TgIooLMqmE/jZrcEVdh2m69m/yUmf84ObFB76g
-         ADRRQvO7FkHLYuKD/0etnhjbezunK5r6hHGQEiCv6zy/QeOIpPknhGMuwTrY4x4vy4xJ
-         voN9DNA31lG1H4Ki1K78YskSkQ+Ff978y4mDswzrdPRcFfnO2TM1Wnlm+JuOCOLk+mRi
-         sBloDMyM0AbXiWHa3uglT2gWpU3aF1ZRqIHX5UnVduT/Sua/quv/qPjzWz0caHdI8pRD
-         tgwg==
-Content-Disposition: inline
-In-Reply-To: <1546904307-11124-1-git-send-email-yamada.masahiro@socionext.com>
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-02.nifty.com x08FX5Wm020694
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1546961586;
+        bh=LQPAha78p1HdGEOw/+HOSVmjiCEBVHG9OH8+5nRjDXM=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=nfYLxhygb44lhetpxe6J0JzMmmwr41+VdNBBM5vEJ3/FuUDHsxhdzlKNhjEFVmBLX
+         /zbCfbPeruPPLAq9SJMLh8VK3J3uKfKQSNAW2x/PyQYj6rLtwcgR97QOOrtRsiZtuo
+         AyWYcw6YlX8sqSIm36EkqIJUgth7BNL9lrFPVyZp1Saw5dl67ObIyPOYAatJoKWuzj
+         jHUkeBlp9YUduVcQkbAJFKvANUrLhHuqekBQa0o1WFy4jv8fIVcDHF/hevu7Tn32Jt
+         xGFJcFRNq0dkGixKw41lR1mdtP4JrddmCxklqy1diO8bU2GfXHoga3v5l5zH7cZ9yc
+         bHBdQH7vexjRw==
+In-Reply-To: <20190108111032.GP3235@lianli.shorne-pla.net>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Michal Simek <monstr@monstr.eu>, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Guan Xuetao <gxt@pku.edu.cn>, linux-arch@vger.kernel.org, Nicolas Dichtel <nicolas.dichtel@6wind.com>, Arnd Bergmann <arnd@arndb.de>, Aurelien Jacquiot <jacquiot.aurelien@gmail.com>, linux-riscv@lists.infradead.org, Greentime Hu <green.hu@gmail.com>, linux-c6x-dev@linux-c6x.org, Guo Ren <guoren@kernel.org>, Palmer Dabbelt <palmer@sifive.com>, uclinux-h8-devel@lists.sourceforge.jp, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, Mark Salter <msalter@redhat.com>
+To: Stafford Horne <shorne@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Michal Simek <monstr@monstr.eu>, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Guan Xuetao <gxt@pku.edu.cn>, linux-arch <linux-arch@vger.kernel.org>, Nicolas Dichtel <nicolas.dichtel@6wind.com>, Arnd Bergmann <arnd@arndb.de>, Aurelien Jacquiot <jacquiot.aurelien@gmail.com>, linux-riscv@lists.infradead.org, Greentime Hu <green.hu@gmail.com>, linux-c6x-dev@linux-c6x.org, Guo Ren <guoren@kernel.org>, Palmer Dabbelt <palmer@sifive.com>, "moderated list:H8/300 ARCHITECTURE" <uclinux-h8-devel@lists.sourceforge.jp>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, linux-m68k <linux-m68k@lists.linux-m>
 
-Hi Masahiro,
+Hi Stafford,
 
-On Tue, Jan 08, 2019 at 08:38:27AM +0900, Masahiro Yamada wrote:
-> Most architectures do not export shmparam.h to user-space.
-> 
->   $ find arch -name shmparam.h  | sort
->   arch/alpha/include/asm/shmparam.h
->   arch/arc/include/asm/shmparam.h
->   arch/arm64/include/asm/shmparam.h
->   arch/arm/include/asm/shmparam.h
->   arch/csky/include/asm/shmparam.h
->   arch/ia64/include/asm/shmparam.h
->   arch/mips/include/asm/shmparam.h
->   arch/nds32/include/asm/shmparam.h
->   arch/nios2/include/asm/shmparam.h
->   arch/parisc/include/asm/shmparam.h
->   arch/powerpc/include/asm/shmparam.h
->   arch/s390/include/asm/shmparam.h
->   arch/sh/include/asm/shmparam.h
->   arch/sparc/include/asm/shmparam.h
->   arch/x86/include/asm/shmparam.h
->   arch/xtensa/include/asm/shmparam.h
-> 
-> Strangely, some users of the asm-generic wrapper export shmparam.h
-> 
->   $ git grep 'generic-y += shmparam.h'
->   arch/c6x/include/uapi/asm/Kbuild:generic-y += shmparam.h
->   arch/h8300/include/uapi/asm/Kbuild:generic-y += shmparam.h
->   arch/hexagon/include/uapi/asm/Kbuild:generic-y += shmparam.h
->   arch/m68k/include/uapi/asm/Kbuild:generic-y += shmparam.h
->   arch/microblaze/include/uapi/asm/Kbuild:generic-y += shmparam.h
->   arch/openrisc/include/uapi/asm/Kbuild:generic-y += shmparam.h
->   arch/riscv/include/asm/Kbuild:generic-y += shmparam.h
->   arch/unicore32/include/uapi/asm/Kbuild:generic-y += shmparam.h
-> 
-> The newly added riscv correctly creates the asm-generic wrapper
-> in the kernel space, but the others (c6x, h8300, hexagon, m68k,
-> microblaze, openrisc, unicore32) create the one in the uapi directory.
-> 
-> Digging into the git history, now I guess fcc8487d477a ("uapi:
-> export all headers under uapi directories") was the misconversion.
-> Prior to that commit, no architecture exported to shmparam.h
-> As its commit description said, that commit exported shmparam.h
-> for c6x, h8300, hexagon, m68k, openrisc, unicore32.
-> 
-> 83f0124ad81e ("microblaze: remove asm-generic wrapper headers")
-> accidentally exported shmparam.h for microblaze.
-> 
-> This commit unexports shmparam.h for those architectures.
-> 
-> There is no more reason to export include/uapi/asm-generic/shmparam.h,
-> so it has been moved to include/asm-generic/shmparam.h
-> 
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-> ---
-> 
->  arch/c6x/include/asm/Kbuild               | 1 +
->  arch/c6x/include/uapi/asm/Kbuild          | 1 -
->  arch/h8300/include/asm/Kbuild             | 1 +
->  arch/h8300/include/uapi/asm/Kbuild        | 1 -
->  arch/hexagon/include/asm/Kbuild           | 1 +
->  arch/hexagon/include/uapi/asm/Kbuild      | 1 -
->  arch/m68k/include/asm/Kbuild              | 1 +
->  arch/m68k/include/uapi/asm/Kbuild         | 1 -
->  arch/microblaze/include/asm/Kbuild        | 1 +
->  arch/microblaze/include/uapi/asm/Kbuild   | 1 -
->  arch/openrisc/include/asm/Kbuild          | 1 +
->  arch/openrisc/include/uapi/asm/Kbuild     | 1 -
->  arch/unicore32/include/asm/Kbuild         | 1 +
->  arch/unicore32/include/uapi/asm/Kbuild    | 1 -
->  include/{uapi => }/asm-generic/shmparam.h | 0
->  15 files changed, 7 insertions(+), 7 deletions(-)
->  rename include/{uapi => }/asm-generic/shmparam.h (100%)
-> 
 
-[...]
 
-> diff --git a/arch/openrisc/include/asm/Kbuild b/arch/openrisc/include/asm/Kbuild
-> index eb87cd8..1f04844b 100644
-> --- a/arch/openrisc/include/asm/Kbuild
-> +++ b/arch/openrisc/include/asm/Kbuild
-> @@ -34,6 +34,7 @@ generic-y += qrwlock_types.h
->  generic-y += qrwlock.h
->  generic-y += sections.h
->  generic-y += segment.h
-> +generic-y += shmparam.h
->  generic-y += string.h
->  generic-y += switch_to.h
->  generic-y += topology.h
-> diff --git a/arch/openrisc/include/uapi/asm/Kbuild b/arch/openrisc/include/uapi/asm/Kbuild
-> index 6c6f630..0febf1a 100644
-> --- a/arch/openrisc/include/uapi/asm/Kbuild
-> +++ b/arch/openrisc/include/uapi/asm/Kbuild
-> @@ -1,5 +1,4 @@
->  include include/uapi/asm-generic/Kbuild.asm
->  
->  generic-y += kvm_para.h
-> -generic-y += shmparam.h
->  generic-y += ucontext.h
+On Tue, Jan 8, 2019 at 8:12 PM Stafford Horne <shorne@gmail.com> wrote:
+>
+> What is this patch based on?  I tried to apply it to 5.0-rc1 and am having an
+> issue with applying the arch/openrisc/include/uapi/asm/Kbuild part.
 
-What is this patch based on?  I tried to apply it to 5.0-rc1 and am having an
-issue with applying the arch/openrisc/include/uapi/asm/Kbuild part.
 
-    $ ~/work/bin/am-incoming PATCH_arch_unexport_asm-shmparam.h_for_all_architectures.patch
-    Applying: arch: unexport asm/shmparam.h for all architectures
-    error: patch failed: arch/c6x/include/uapi/asm/Kbuild:1
-    error: arch/c6x/include/uapi/asm/Kbuild: patch does not apply
-    error: patch failed: arch/h8300/include/uapi/asm/Kbuild:1
-    error: arch/h8300/include/uapi/asm/Kbuild: patch does not apply
-    error: patch failed: arch/hexagon/include/uapi/asm/Kbuild:1
-    error: arch/hexagon/include/uapi/asm/Kbuild: patch does not apply
-    error: patch failed: arch/m68k/include/uapi/asm/Kbuild:2
-    error: arch/m68k/include/uapi/asm/Kbuild: patch does not apply
-    error: patch failed: arch/microblaze/include/uapi/asm/Kbuild:2
-    error: arch/microblaze/include/uapi/asm/Kbuild: patch does not apply
-    error: patch failed: arch/openrisc/include/uapi/asm/Kbuild:1
-    error: arch/openrisc/include/uapi/asm/Kbuild: patch does not apply
-    error: patch failed: arch/unicore32/include/uapi/asm/Kbuild:1
-    error: arch/unicore32/include/uapi/asm/Kbuild: patch does not apply
-    Patch failed at 0001 arch: unexport asm/shmparam.h for all architectures
-    hint: Use 'git am --show-current-patch' to see the failed patch
+Based on Linus' latest tree.
+(commit 3bd6e94be)
 
-It seems shmparam.h is not there. It was removed with the others in your
-("d6e4b3e326d8") arch: remove redundant UAPI generic-y defines, commit a few
-days ago.
+v5.0-rc1 is NOT the latest.
 
-Note, I can't compile 5.0-rc1 without the first part of this patch.  So please
-get it merged asap :)
 
--Stafford
+
+> It seems shmparam.h is not there. It was removed with the others in your
+> ("d6e4b3e326d8") arch: remove redundant UAPI generic-y defines, commit a few
+> days ago.
+>
+> Note, I can't compile 5.0-rc1 without the first part of this patch.  So please
+> get it merged asap :)
+
+
+I notice the breakage of several arches after v5.0-rc1 release,
+so I asked Linus to pick up 3d6e94be.
+
+I had already noticed
+having shmparam.h in uapi is werid,
+but I decided to fix the build errors first.
+
+
+-- 
+Best Regards
+Masahiro Yamada
