@@ -1,69 +1,66 @@
-From: Stafford Horne <shorne@gmail.com>
-Subject: Re: [PATCH] arch: unexport asm/shmparam.h for all architectures
-Date: Wed, 9 Jan 2019 07:19:30 +0900
-Message-ID: <20190108221930.GQ3235@lianli.shorne-pla.net>
-References: <1546904307-11124-1-git-send-email-yamada.masahiro@socionext.com>
- <20190108111032.GP3235@lianli.shorne-pla.net>
- <CAK7LNAS+grgqHM-ht0CCTmZHp+JRvr=Q+sJOo0URqRgTAYRs0w@mail.gmail.com>
+From: "Dmitry V. Levin" <ldv@altlinux.org>
+Subject: [PATCH 05/14] Move EM_HEXAGON to uapi/linux/elf-em.h
+Date: Wed, 9 Jan 2019 15:43:00 +0300
+Message-ID: <20190109124300.GE11981@altlinux.org>
+References: <20190109124044.GA11935@altlinux.org>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=/O3sY8celNMvtR9WhIqaTjCanK7+dtn6FuJgraOR7Uw=;
-        b=fbmmFUjh8COCYh5vjmZyvsTK03G99sIrzefroQ5j2Uu9CO9ADuBlP173v5pOy8mkv9
-         ciWJf5mnLE1UPL7SQi4Yiags1nwwvcqUkSlMhsqptXAjFJMx6tZ01b5pPtOdHzspitut
-         Vo597QJWW7ki/mitT1ERlnnvD4obEg0SxPk4+rLodY/MZ5FSEekGfjTcZVXqbE+1kSn+
-         Cif7+1EG12rKvpIR+fR3PktyXs/SvTFO4h/5kk/jAXtAlDMGofTanPAFiKqfiZNGkVsY
-         Bn5TvhtCbKZx5nVhnJGTdkzyaTR5pJyaBdmz/NAkWosY9WfgkLCGIPoPVvLQn59zi3+9
-         vnDg==
 Content-Disposition: inline
-In-Reply-To: <CAK7LNAS+grgqHM-ht0CCTmZHp+JRvr=Q+sJOo0URqRgTAYRs0w@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Michal Simek <monstr@monstr.eu>, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Guan Xuetao <gxt@pku.edu.cn>, linux-arch <linux-arch@vger.kernel.org>, Nicolas Dichtel <nicolas.dichtel@6wind.com>, Arnd Bergmann <arnd@arndb.de>, Aurelien Jacquiot <jacquiot.aurelien@gmail.com>, linux-riscv@lists.infradead.org, Greentime Hu <green.hu@gmail.com>, linux-c6x-dev@linux-c6x.org, Guo Ren <guoren@kernel.org>, Palmer Dabbelt <palmer@sifive.com>, "moderated list:H8/300 ARCHITECTURE" <uclinux-h8-devel@lists.sourceforge.jp>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, linux-m68k <linux-m68k@lists.linux-m>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Elvira Khabirova <lineprinter@altlinux.org>, Eugene Syromyatnikov <esyr@redhat.com>, Oleg Nesterov <oleg@redhat.com>, Andy Lutomirski <luto@kernel.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-audit@redhat.com, linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2019 at 12:32:28AM +0900, Masahiro Yamada wrote:
-> Hi Stafford,
-> 
-> 
-> 
-> On Tue, Jan 8, 2019 at 8:12 PM Stafford Horne <shorne@gmail.com> wrote:
-> >
-> > What is this patch based on?  I tried to apply it to 5.0-rc1 and am having an
-> > issue with applying the arch/openrisc/include/uapi/asm/Kbuild part.
-> 
-> 
-> Based on Linus' latest tree.
-> (commit 3bd6e94be)
-> 
-> v5.0-rc1 is NOT the latest.
+This should never have been defined in the arch tree to begin with,
+and now uapi/linux/audit.h header is going to use EM_HEXAGON
+in order to define AUDIT_ARCH_HEXAGON which is needed to implement
+syscall_get_arch() which in turn is required to extend
+the generic ptrace API with PTRACE_GET_SYSCALL_INFO request.
 
-OK, understood, in that case:
+Acked-by: Paul Moore <paul@paul-moore.com>
+Cc: Elvira Khabirova <lineprinter@altlinux.org>
+Cc: Eugene Syromyatnikov <esyr@redhat.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-audit@redhat.com
+Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
+---
+ arch/hexagon/include/asm/elf.h | 6 +-----
+ include/uapi/linux/elf-em.h    | 1 +
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-Acked-by: Stafford Horne <shorne@gmail.com>
-
-(though I see its already being picked up on the -mm tree)
-
-> > It seems shmparam.h is not there. It was removed with the others in your
-> > ("d6e4b3e326d8") arch: remove redundant UAPI generic-y defines, commit a few
-> > days ago.
-> >
-> > Note, I can't compile 5.0-rc1 without the first part of this patch.  So please
-> > get it merged asap :)
-> 
-> 
-> I notice the breakage of several arches after v5.0-rc1 release,
-> so I asked Linus to pick up 3d6e94be.
-> 
-> I had already noticed
-> having shmparam.h in uapi is werid,
-> but I decided to fix the build errors first.
-
-Yes, that makes sense.
-
--Stafford
+diff --git a/arch/hexagon/include/asm/elf.h b/arch/hexagon/include/asm/elf.h
+index 80311e7b8ca6..d10fbd54ae51 100644
+--- a/arch/hexagon/include/asm/elf.h
++++ b/arch/hexagon/include/asm/elf.h
+@@ -23,11 +23,7 @@
+ 
+ #include <asm/ptrace.h>
+ #include <asm/user.h>
+-
+-/*
+- * This should really be in linux/elf-em.h.
+- */
+-#define EM_HEXAGON	164   /* QUALCOMM Hexagon */
++#include <linux/elf-em.h>
+ 
+ struct elf32_hdr;
+ 
+diff --git a/include/uapi/linux/elf-em.h b/include/uapi/linux/elf-em.h
+index 081675ed89cb..bd02325028d8 100644
+--- a/include/uapi/linux/elf-em.h
++++ b/include/uapi/linux/elf-em.h
+@@ -39,6 +39,7 @@
+ #define EM_BLACKFIN     106     /* ADI Blackfin Processor */
+ #define EM_ALTERA_NIOS2	113	/* Altera Nios II soft-core processor */
+ #define EM_TI_C6000	140	/* TI C6X DSPs */
++#define EM_HEXAGON	164	/* QUALCOMM Hexagon */
+ #define EM_AARCH64	183	/* ARM 64 bit */
+ #define EM_TILEPRO	188	/* Tilera TILEPro */
+ #define EM_MICROBLAZE	189	/* Xilinx MicroBlaze */
+-- 
+ldv
