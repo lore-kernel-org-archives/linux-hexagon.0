@@ -1,65 +1,60 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Waiman Long <longman@redhat.com>
 Subject: Re: [PATCH-tip 04/22] locking/rwsem: Remove arch specific rwsem files
-Date: Thu, 7 Feb 2019 20:36:56 +0100
-Message-ID: <20190207193656.GF32511@hirez.programming.kicks-ass.net>
+Date: Thu, 7 Feb 2019 14:43:10 -0500
+Message-ID: <71019c4b-7e3d-de59-5f49-1f147ecc3458@redhat.com>
 References: <1549566446-27967-1-git-send-email-longman@redhat.com>
  <1549566446-27967-5-git-send-email-longman@redhat.com>
+ <20190207193656.GF32511@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=nNBFc1NYsFryYu/zO3q/ulJcPC86oPxJYUndQskAhR0=; b=IXJbYmifdItiML
-	H4Cmn1ntLpzKkkGlRWlhdwzPe9FQ2J5wdge4Earc73JIWy9G14JMwIqHozNfobIJ/cr6V10OAR6Ka
-	PTCGtkUEDXlq3sfu2HdHEK1c3Wn/3I6N3y71JkMoYWqnfjEjKPjJ5AWvSpmPcCbQBYUMT8GgYX15y
-	wpBwLJPf6Om+LCoq4qVc5GODfTMIaVcVRX8MCXf0mAR0d9TWBVme4ro/nVA5GrMu3FxNSzv8EhyrG
-	91BvPmJ4auwGVxZLgGmf+DUVTWDcUrzeIyH9OI/2DeNd0EE7fCz9gIbb0MY1v4L/k+GHjr5TwUKld
-	h0pBoy6mVsVg3NHwpzWw==;
-Content-Disposition: inline
-In-Reply-To: <1549566446-27967-5-git-send-email-longman@redhat.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Waiman Long <longman@redhat.com>
-Cc: linux-arch@vger.kernel.org, linux-xtensa@linux-xtensa.org, Davidlohr Bueso <dave@stgolabs.net>, linux-ia64@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190207193656.GF32511@hirez.programming.kicks-ass.net>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Davidlohr Bueso <dave@stgolabs.net>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Tim Chen <tim.c.chen@linux.intel.com>
 
-On Thu, Feb 07, 2019 at 02:07:08PM -0500, Waiman Long wrote:
+On 02/07/2019 02:36 PM, Peter Zijlstra wrote:
+> On Thu, Feb 07, 2019 at 02:07:08PM -0500, Waiman Long wrote:
+>
+>> +static inline int __down_read_trylock(struct rw_semaphore *sem)
+>> +{
+>> +	long tmp;
+>> +
+>> +	while ((tmp = atomic_long_read(&sem->count)) >= 0) {
+>> +		if (tmp == atomic_long_cmpxchg_acquire(&sem->count, tmp,
+>> +				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
+>> +			return 1;
+>> +		}
+>> +	}
+> Nah, you're supposed to write that like:
+>
+> 	for (;;) {
+> 		val = atomic_long_cond_read_relaxed(&sem->count, VAL < 0);
+> 		if (atomic_long_try_cmpxchg_acquire(&sem->count, &val,
+> 						    val + RWSEM_ACTIVE_READ_BIAS))
+> 			break;
+> 	}
+>
 
-> +static inline int __down_read_trylock(struct rw_semaphore *sem)
-> +{
-> +	long tmp;
-> +
-> +	while ((tmp = atomic_long_read(&sem->count)) >= 0) {
-> +		if (tmp == atomic_long_cmpxchg_acquire(&sem->count, tmp,
-> +				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
-> +			return 1;
-> +		}
-> +	}
+Ah, you are right. I just took it directly from the current generic
+asm.h file and didn't pay much attention to it. I will fix that in the
+next iteration.
 
-Nah, you're supposed to write that like:
+>> +	return 0;
+>> +}
+>
+> Anyway, yuck, you're keeping all that BIAS nonsense :/ I was so hoping
+> for a rwsem implementation without that impenetrable crap.
 
-	for (;;) {
-		val = atomic_long_cond_read_relaxed(&sem->count, VAL < 0);
-		if (atomic_long_try_cmpxchg_acquire(&sem->count, &val,
-						    val + RWSEM_ACTIVE_READ_BIAS))
-			break;
-	}
+Well, I am going to take out all the BIAS handling in a later patch.
+This one is just for removing the architecture specific files.
 
-> +	return 0;
-> +}
+I can't change the rwsem count encoding before I take out all the arch
+specific files.
 
+Cheers,
+Longman
 
-Anyway, yuck, you're keeping all that BIAS nonsense :/ I was so hoping
-for a rwsem implementation without that impenetrable crap.
