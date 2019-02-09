@@ -1,94 +1,73 @@
-From: Waiman Long <longman@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [PATCH-tip 00/22] locking/rwsem: Rework rwsem-xadd & enable new
  rwsem features
-Date: Fri, 8 Feb 2019 15:31:18 -0500
-Message-ID: <d7476dfb-1653-747b-b865-5597ba5fc1c1@redhat.com>
+Date: Fri, 8 Feb 2019 16:03:43 -0800
+Message-ID: <CAHk-=whzAGRJQE43NHaC8sCECLr-QnpHYst+TJq-qhfp9eK-Qw@mail.gmail.com>
 References: <1549566446-27967-1-git-send-email-longman@redhat.com>
  <CAHk-=wjfyrFBjifzmgMVrkrvEePEPaBTDq7D=f2i5kD2E=SqRQ@mail.gmail.com>
+ <d7476dfb-1653-747b-b865-5597ba5fc1c1@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHk-=wjfyrFBjifzmgMVrkrvEePEPaBTDq7D=f2i5kD2E=SqRQ@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Linux List Kernel Mailing <linux-kernel@vger.kernel.org>, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch <linux-arch@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Davidlohr Bueso <dave@stgolabs.net>, Andrew Morton <akpm@linux-foundation.org>, Tim Chen <tim.c.chen@linux.intel.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:To:Subject:Message-ID:Date:From:
+	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=0sC4pTla/3nrxve3pxX2A06LaCmQYbJOGe39maYoi1M=; b=K7kmJ+wzsGenSh
+	/MH+0OzCDyhyX8+y9v9T3Jyji0ERZ5Ngf1uNQaYqh4lc4aHk7qTtKLaNrMUN3NLIoUH3csVZj83Wl
+	ZOQngO68tK8f2jzm8jxgFb5I9MlAnX55RFxVQMSRNyE7tOr6l6VPrHrhrXer+A1SeixrJYA5p+TWE
+	3PBHduOVjvkI0BDQqhq8K8DZxbF188uBM26VGJGI9evM1wQ3QQ9X5L4c+dX/C4e8QfzPEuLpFz9kg
+	i5807Z5CJnJ9+ngySePQ2iXCK3zHDGCnwFg+uMk/r+DNYSHygQxi5dTITCRoF5z4ZK4YQZRSvZiYr
+	i5UZ7f3D41keBX2ztczQ==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=linux-foundation.org; s=google;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=esUN0eAUy4YWkP+bozuSr/XyV8kG31d8rYJRedvgykU=;
+ b=LbLALWqmuur3vFRa25JFyrgBoAdC34KiufM5BZY6FVjl/WYfmGblutfsjwJLgcnL2s
+ 7WfLx0BMAxPDJUxhk3YWwQvooGaab1y8eWCVbR4BtrKqYJ8QmykyrhzkiPDRsWkCWKX2
+ tpgX9WKhMrvACLp3JH8Bq642be3K34aaxe+NA=
+In-Reply-To: <d7476dfb-1653-747b-b865-5597ba5fc1c1@redhat.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Waiman Long <longman@redhat.com>
+Cc: linux-arch <linux-arch@vger.kernel.org>, linux-xtensa@linux-xtensa.org, Davidlohr Bueso <dave@stgolabs.net>, linux-ia64@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, Linux-sh list <linux-sh@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-hexagon@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, Will Deacon <will.deacon@arm.com>, Linux List Kernel Mailing <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
 
-On 02/08/2019 02:50 PM, Linus Torvalds wrote:
-> On Thu, Feb 7, 2019 at 11:08 AM Waiman Long <longman@redhat.com> wrote:
->> This patchset revamps the current rwsem-xadd implementation to make
->> it saner and easier to work with. This patchset removes all the
->> architecture specific assembly code and uses generic C code for all
->> architectures. This eases maintenance and enables us to enhance the
->> code more easily.
->>
->> This patchset also implements the following 3 new features:
->>
->>  1) Waiter lock handoff
->>  2) Reader optimistic spinning
->>  3) Store write-lock owner in the atomic count (x86-64 only)
-> The patches are kind of hard to read, with most of them just doing
-> prep-work that doesn't necessarily matter to the big picture.
+On Fri, Feb 8, 2019 at 12:31 PM Waiman Long <longman@redhat.com> wrote:
 >
-> What I'd really like to see is
+> >  (b) what's the new fastpath case
 >
->  (a) an overview of the new locking logic
+> The only change in the fastpath is the use of cmpxchg for writer lock.
 
-The new locking logic is similar to qrwlock (see patch 11). Cmpxchg is
-used to acquire the write lock, while xadd is still used for read lock.
-Some of the bits in the count are also reserved for special purpose like
-has waiter or lock handoff. Patch 15 tries to compress the write-lock
-owner task pointer and put it into the count field for x86-64 at the
-expense of less bits available for reader count. I have sent out an
-additional patch this morning to make sure that the reader count won't
-overflow.
+.. since a big deal here was about using the generic atomic accessor
+functions, I really was looking forward to seeing the *actual* fast
+path code generation.
 
-In term of performance, there isn't much change with respect to
-read-lock performance. For write-lock, I saw a slight drop in some
-cases, but nothing significant. The merging of owner task pointer into
-the count field does impose a slightly bigger drop than I would have
-liked which I am going to look into a bit more.
+In other words, right now I have very little visibility in how it
+actually affects the code. Looking at the patches themselves doesn't
+make it obvious. I was hoping for the overview to really explain the
+whole "before and after" situation, and it didn't. Not at the high
+level, and not at a low level. And no performance numbers in the
+overview either.
 
->
->  (b) what's the new fastpath case
+And yes, I see the numbers in the patches, but what I really hoped for
+was some real load numbers. In particular, I would have loved to see
+numbers from th ekernel test robot "will-it-scale.per_thread_ops"
+case, which is the one that had a 65% regression due to the lack of
+reader spinning.
 
-The only change in the fastpath is the use of cmpxchg for writer lock.
+So I was kind of hoping to hear whether that regression is basically
+entirely gone with this patch series, or if we still have a regression
+due to the extra downgrade, or what?
 
->
->  (c) some performance numbers
-
-There are performance data at patches 11, 12, 15, 19, 20, 21. There was
-performance data for patch 4 as well for eliminating the arch specific
-file. Apparently, I might have deleted it accidentally. Anyway, no
-noticeable performance difference was observed when switching to use
-generic C code for x86, ppc and ARM64.
-
-The major gain in performance is due to reader optimistic spinning
-patches. The microbenchmark that I used shown an order of magnitude of
-performance improvement for mixed reader-writer workloads. Of course, we
-will see less performance gain with real world benchmarks.
-
-I am planning to run more performance test and post the data sometimes
-next week. Davidlohr is also going to run some of his rwsem performance
-test on this patchset.
-
->
-> to explain the changes from a "this is the point of the whole
-> exercise" standpoint.
->
-> And yes, I realize that the lock handoff and optimistic spinning is a
-> big deal, since I've seen the same regression numbers that presumably
-> caused this effort to be resurrected. So it's not that I don't find
-> this intriguing and worthwhile, it's literally that I'd like a summary
-> not so much of the individual patches, but of the new model.
->
-> Please?
-
-Maybe I should break this patchset into a few smaller ones to make it
-easier to review. Any suggestion is welcome.
-
-Cheers,
-Longman
-
+                 Linus
