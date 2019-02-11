@@ -1,112 +1,58 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH] locking/rwsem: Remove arch specific rwsem files
-Date: Mon, 11 Feb 2019 18:04:47 +0100
-Message-ID: <20190211170447.GO32477@hirez.programming.kicks-ass.net>
-References: <1549850450-10171-1-git-send-email-longman@redhat.com>
- <20190211115833.GY32511@hirez.programming.kicks-ass.net>
- <e470384d-fb7b-132d-253b-23c495e7c285@redhat.com>
-Mime-Version: 1.0
+From: Waiman Long <longman@redhat.com>
+Subject: [PATCH v2 0/2] locking/rwsem: Remove arch specific rwsem files
+Date: Mon, 11 Feb 2019 14:31:24 -0500
+Message-ID: <1549913486-16799-1-git-send-email-longman@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=ZLwKf7h7zqkbTfEyvmBMOZiwClbevUvDh66/eDcKDLY=; b=Ogs2aKEParxBSW
-	PGZe4Ohmsz+kj44qPLPy0Aw0NBdb/aUTWWeBbkKTpsFYLvcG7vM2t5KLg0Ji0rzKQWFt6+O+/ZmUO
-	dUX8aIXo8s9+JWzAB9F51q/Cg82tj6RmyKtzB8VDzE2yvRCcW1Di87jqXP9pd+fbbIW26bVp+3EwF
-	fBXKL5q80itm1T9OItCEbgqM7nsgSuRV1rDH8mS8WoEzZFC32MKSY4BnN3zkUuzHnBI1f/MiAXDGl
-	tMQGLLx7ErzjEg2F2WX/1rhz5541CHSV+Ug9xQimzMs5Bf99/G1CL0XDgJ1jzYfPqkDGlOAJRsk/n
-	GjfP9+U5Hjk3Bxk8g0Ow==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
- Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
- List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=NtW9vSG4B9Be8vJJa6zgqc1RANLcAk+oi8MXCzEZ4VU=; b=Y1t9jigPcJQuy+6ZytUPMdcDk
- kcvDhn9nybF03iEbknI0N3tbXAJlxaMQ2f6hJJfcJ6nYjsb0mO6pFvJgvVcvg+WeF8wDpZM3f1X+z
- iWxU6HJcRAJk1vF4EYdkZ7xocFwYoxXdu6WhXvyAJjKjlJkCtRNnv/Ijacgdg8srcrA2e5seoeB5Y
- Es7vmJ4Sxt/Ju+G9LYnA/ldItYVsc0snS1g9tmYGKizi4qgSHMPPXL7DWLlVsDBUmO3t4dxN62tet
- s7fJVp83EP8E3d+AoPoyc5/lfn2kbFNJDfFojVXdj5DgdHACuzvIQDzx4K4qy9TGHKQf6sJrEbT9S
- auJ3b59SA==;
-Content-Disposition: inline
-In-Reply-To: <e470384d-fb7b-132d-253b-23c495e7c285@redhat.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Waiman Long <longman@redhat.com>
-Cc: linux-arch@vger.kernel.org, linux-xtensa@linux-xtensa.org, Davidlohr Bueso <dave@stgolabs.net>, linux-ia64@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
+To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Davidlohr Bueso <dave@stgolabs.net>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Tim Chen <tim.c.chen@linux.intel.com>, Waiman Long <longman@redhat.com>
 
-On Mon, Feb 11, 2019 at 11:35:24AM -0500, Waiman Long wrote:
-> On 02/11/2019 06:58 AM, Peter Zijlstra wrote:
-> > Which is clearly worse. Now we can write that as:
-> >
-> >   int __down_read_trylock2(unsigned long *l)
-> >   {
-> > 	  long tmp = READ_ONCE(*l);
-> >
-> > 	  while (tmp >= 0) {
-> > 		  if (try_cmpxchg(l, &tmp, tmp + 1))
-> > 			  return 1;
-> > 	  }
-> >
-> > 	  return 0;
-> >   }
-> >
-> > which generates:
-> >
-> >   0000000000000030 <__down_read_trylock2>:
-> >   30:   48 8b 07                mov    (%rdi),%rax
-> >   33:   48 85 c0                test   %rax,%rax
-> >   36:   78 18                   js     50 <__down_read_trylock2+0x20>
-> >   38:   48 8d 50 01             lea    0x1(%rax),%rdx
-> >   3c:   f0 48 0f b1 17          lock cmpxchg %rdx,(%rdi)
-> >   41:   75 f0                   jne    33 <__down_read_trylock2+0x3>
-> >   43:   b8 01 00 00 00          mov    $0x1,%eax
-> >   48:   c3                      retq
-> >   49:   0f 1f 80 00 00 00 00    nopl   0x0(%rax)
-> >   50:   31 c0                   xor    %eax,%eax
-> >   52:   c3                      retq
-> >
-> > Which is a lot better; but not quite there yet.
-> >
-> >
-> > I've tried quite a bit, but I can't seem to get GCC to generate the:
-> >
-> > 	add $1,%rdx
-> > 	jle
-> >
-> > required; stuff like:
-> >
-> > 	new = old + 1;
-> > 	if (new <= 0)
-> >
-> > generates:
-> >
-> > 	lea 0x1(%rax),%rdx
-> > 	test %rdx, %rdx
-> > 	jle
-> 
-> Thanks for the suggested code snippet. So you want to replace "lea
-> 0x1(%rax), %rdx" by "add $1,%rdx"?
-> 
-> I think the compiler is doing that so as to use the address generation
-> unit for addition instead of using the ALU. That will leave the ALU
-> available for doing other arithmetic operation in parallel. I don't
-> think it is a good idea to override the compiler and force it to use
-> ALU. So I am not going to try doing that. It is only 1 or 2 more of
-> codes anyway.
+v2:
+ - Add patch 2 to optimize __down_read_trylock() as suggested by PeterZ.
+ - Update performance test data in patch 1.
 
-Yeah, I was trying to see what I could make it do.. #2 really should be
-good enough, but you know how it is once you're poking at it :-)
+This is part 0 of my rwsem patchset. It just removes the architecture
+specific files to make it easer to add enhancements in the upcoming
+rwsem patches.
+
+Since the two ll/sc platforms that I can tested on (arm64 & ppc) are
+both using the generic C codes, the rwsem performance shouldn't be
+affected by this patch except the down_read_trylock() code which was
+included in patch 2 for arm64.
+
+Waiman Long (2):
+  locking/rwsem: Remove arch specific rwsem files
+  locking/rwsem: Optimize down_read_trylock()
+
+ MAINTAINERS                     |   1 -
+ arch/alpha/include/asm/rwsem.h  | 211 -----------------------------------
+ arch/arm/include/asm/Kbuild     |   1 -
+ arch/arm64/include/asm/Kbuild   |   1 -
+ arch/hexagon/include/asm/Kbuild |   1 -
+ arch/ia64/include/asm/rwsem.h   | 172 -----------------------------
+ arch/powerpc/include/asm/Kbuild |   1 -
+ arch/s390/include/asm/Kbuild    |   1 -
+ arch/sh/include/asm/Kbuild      |   1 -
+ arch/sparc/include/asm/Kbuild   |   1 -
+ arch/x86/include/asm/rwsem.h    | 237 ----------------------------------------
+ arch/x86/lib/Makefile           |   1 -
+ arch/x86/lib/rwsem.S            | 156 --------------------------
+ arch/xtensa/include/asm/Kbuild  |   1 -
+ include/asm-generic/rwsem.h     | 140 ------------------------
+ include/linux/rwsem.h           |   4 +-
+ kernel/locking/percpu-rwsem.c   |   2 +
+ kernel/locking/rwsem.h          | 130 ++++++++++++++++++++++
+ 18 files changed, 133 insertions(+), 929 deletions(-)
+ delete mode 100644 arch/alpha/include/asm/rwsem.h
+ delete mode 100644 arch/ia64/include/asm/rwsem.h
+ delete mode 100644 arch/x86/include/asm/rwsem.h
+ delete mode 100644 arch/x86/lib/rwsem.S
+ delete mode 100644 include/asm-generic/rwsem.h
+
+-- 
+1.8.3.1
+
