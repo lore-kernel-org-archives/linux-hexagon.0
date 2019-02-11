@@ -1,50 +1,77 @@
-From: Ingo Molnar <mingo@kernel.org>
+From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH] locking/rwsem: Remove arch specific rwsem files
-Date: Mon, 11 Feb 2019 11:55:37 +0100
-Message-ID: <20190211105537.GA59133@gmail.com>
+Date: Mon, 11 Feb 2019 11:57:29 +0100
+Message-ID: <20190211105729.GH32534@hirez.programming.kicks-ass.net>
 References: <1549850450-10171-1-git-send-email-longman@redhat.com>
- <a610aeb2-b1cb-0d57-8078-97d1051481f9@redhat.com>
- <20190211071159.GA55579@gmail.com>
- <20190211103927.GA118071@gmail.com>
- <20190211105214.GA30880@fuggles.cambridge.arm.com>
+ <20190211093601.GT32511@hirez.programming.kicks-ass.net>
+ <20190211094044.GG32534@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=KMN64kOtJBFkKLD7eH5E1tsIkp4xo4LmSrCHlHm3ADQ=;
-        b=QDtcr3wyAWwC1Feiwyp3X/8YTfaIdNpEWSGZejYjQTG/rj0trYk0vC6rQn4y2cNbXv
-         il1Avd23/d1Hd8k+uTbZBtAoIRuLEkjW3uPerX4NcbTux104Th18LvFAtlUMw0zOO1LL
-         tLmqEa0y4zRbQ5L3wXHA0BYGnh9on2hBdn58O1L8DaUmAwdWpiMdKB6WiTyS7C6wf6Bh
-         MC78xcq2N19Sr8d1ee6X2SFh4BhB3mZOszFFAIe2XAVy/T1Xcb8vx1blQzxEH3d3ygOa
-         1lUqargunUNH4IWUAEw1tmMjRZ4VOjSK4lFppReznME5P372JKKIbFQpvePfCELqMthw
-         iSVw==
-Content-Disposition: inline
-In-Reply-To: <20190211105214.GA30880@fuggles.cambridge.arm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Will Deacon <will.deacon@arm.com>
-Cc: Waiman Long <longman@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Davidlohr Bueso <dave@stgolabs.net>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Tim Chen <tim.c.chen@linux.intel.com>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=ncSqt2PLo4pdd6rz79XO7avg043G84xdBBaEBPJMQio=; b=qDm2nKYqx9z8YF
+	tIYUUJ9bM4gwp9w5NmH423XCwlcxiRSB3+frUDOe1sU5kVsY6HSFiaR1fgTriv8En/7lOMtjLnZ/c
+	ibg2RiROJDcahPpg9Oa9B+D+5eoX0zerynE8CiKSDu0nwfbCln8TG2TB2h4no47yJ/KJrzb1Dq2tt
+	mXJTF+uAGLrPj2lsHKO4Tznn9Y1tLSxSswQ1rQQ/Z28AeTQ5NsWvz3QJKtveI/uxxSSZzleG6XuNp
+	UTdYAF1IaZ7JmweLCSxa8hlZqTgHOfWEH59MXUanJwmGZNnZ+FQ98n6pZgmTXgZ+AssyQow2KfXVf
+	6317SD9ZMSltkbP81duQ==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+ Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+ List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+ bh=H4FKzYfPZLq064fpvMaxRyPbo6mwWdcW0fXgF0VWycY=; b=0U7b+TSCrog3RuwY+5aIN+sYF
+ hv/X24vYbiLjaTad2ObIWMdW7Cp2r/5OoaUpAoXctxc/VYvLlvd8Jg876MzN8pgTjMW8CZ3P1r/K0
+ V/l2fLFDfV1pgkRUFU9xzkmvMbliuyWhgYyM+5CQxhzMD875i3oOU3bLFnwzd6Z1n69EGanR7kB8K
+ jwNrR1x25pUNYuM1WWMfiO/CFWtHodA2Mmztx2gmUubEivvDlwHAS5qsyCdKdk3uPgvtfWI5OmsKO
+ 4D+eGwN6yN1S/MmNn/tvUdF/HvrjMc60lzn96bluUcUP+BS/cOvXQ1En41wBhdBg2BY4eZU6c4md3
+ EkSdmP65w==;
+Content-Disposition: inline
+In-Reply-To: <20190211094044.GG32534@hirez.programming.kicks-ass.net>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Waiman Long <longman@redhat.com>
+Cc: linux-arch@vger.kernel.org, linux-xtensa@linux-xtensa.org, Davidlohr Bueso <dave@stgolabs.net>, linux-ia64@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
 
-
-* Will Deacon <will.deacon@arm.com> wrote:
-
-> On Mon, Feb 11, 2019 at 11:39:27AM +0100, Ingo Molnar wrote:
+On Mon, Feb 11, 2019 at 10:40:44AM +0100, Peter Zijlstra wrote:
+> On Mon, Feb 11, 2019 at 10:36:01AM +0100, Peter Zijlstra wrote:
+> > On Sun, Feb 10, 2019 at 09:00:50PM -0500, Waiman Long wrote:
+> > > +static inline int __down_read_trylock(struct rw_semaphore *sem)
+> > > +{
+> > > +	long tmp;
+> > > +
+> > > +	while ((tmp = atomic_long_read(&sem->count)) >= 0) {
+> > > +		if (tmp == atomic_long_cmpxchg_acquire(&sem->count, tmp,
+> > > +				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
+> > > +			return 1;
 > > 
-> > * Ingo Molnar <mingo@kernel.org> wrote:
+> > That really wants to be:
 > > 
-> > > Sounds good to me - I've merged this patch, will push it out after 
-> > > testing.
+> > 		if (atomic_long_try_cmpxchg_acquire(&sem->count, &tmp,
+> > 						    tmp + RWSEM_ACTIVE_READ_BIAS))
 > > 
-> > Based on Peter's feedback I'm delaying this - performance testing on at 
-> > least one key ll/sc arch would be nice indeed.
+> > > +		}
+> > > +	}
+> > > +	return 0;
+> > > +}
 > 
-> Once Waiman has posted a new version, I can take it for a spin on some
-> arm64 boxen if he shares his workload.
+> Also, the is the one case where LL/SC can actually do 'better'. Do you
+> have benchmarks for say PowerPC or ARM64 ?
 
-Cool, thanks!
-
-	Ingo
+Ah, I see they already used asm-generic/rwsem.h which has similar code
+to the above.
