@@ -1,8 +1,9 @@
 From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH] locking/rwsem: Remove arch specific rwsem files
-Date: Mon, 11 Feb 2019 10:36:01 +0100
-Message-ID: <20190211093601.GT32511@hirez.programming.kicks-ass.net>
+Date: Mon, 11 Feb 2019 10:40:44 +0100
+Message-ID: <20190211094044.GG32534@hirez.programming.kicks-ass.net>
 References: <1549850450-10171-1-git-send-email-longman@redhat.com>
+ <20190211093601.GT32511@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -13,26 +14,26 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
 	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=FV1+g0ofF44XmmQsz8GTvhy2xgDR93rbVJqKFY+7prM=; b=pdIvswQqeJu2BO
-	ibvrw7uQ8+RzM9IofJCSbqxmmfldpQxWGb6OAuOBojqPZkE5bgrT5Ia7OGRi8zeK/OYR9vdszgc9e
-	xFpO+isZQTYDln0a9gPIBskdZlwE2hE03gT4nm1zE8HwpuN713zoIGwWspmTEIzzuxNGx1CEqhZ/o
-	IxpXaCwJ3iCMc1OMugqoP4QTUsRJnFH+qCBAjgse01EdzMD6L1C6/EGntN0ivHnVjxPoaiAH4gXp3
-	DLzhk2O0hDBSmRGO/hHC0gbyWwYdVo4FU9gCxdjjMsxqf4+nbsfCpqvqDyTqyZoUago4hICA8HYk4
-	FrPnuu58woG4ufbFAs7g==;
+	List-Owner; bh=Y0EgoPEkjEUEJ9OzeKbzTA31KG4D7bRIVqEx6N5A6/U=; b=c1QGJQXJX3mbiZ
+	rwxGKurmsh/cu8Hvlr2Qc05IOQzM1chMUHaxhf/b/OXDY6YjdkQYTz0XtS7gbLAn9jGDWKCbu4/kI
+	mTvw2xLgYrwLGOObNd8V0lw5bNhLF8u69wnc/mXqkZbaXqUTjK0HQu+oPwk8NZSvXPvZKQfTSiEum
+	syH46qgKtx9it87bbuH5k0StU0JERhu+2gerBNKBdqmfTshnxEzEgakaTs44WFOj08/T7ZkHAgGyr
+	TvDmNJz6jSud7w7WOdyBDrncUmH5NzZ9oJy814yTH6a+BXrPEKe99CM0qRprWWOPoj71mMRtmH3ON
+	ZEn6f7NFoQUzOsSMtMbg==;
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
  References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
  Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
  List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=wODyZCRCI3EBE6BNkz8TloMb63efXEvZVOwD3gxLjZc=; b=vGAmDYQ8fbCnQPxEZ5PZLAY17
- YAGIose1sw2xBapvAs4EnPbsPVqlDoGtJBt0ukxKOqzfvo/MM5yCEhOOAXWIJ51oMPZy9CPwDa3vA
- QOQBaWOfRBeWEyUqjrZM7a1hc24RtPe7m5pLTILXp9gLyBo/219eV2onnJqcpKbSub6DOA5vZBsu7
- Kh9jamjiaqTSpvcrpLv7dwqbIkdva56GfgTHpgGzwrayEJsj9m+LVPDVy9us6qNAW3K8a4XO9Icsx
- UXqcAMqwXvc/NXMid1uOA81688J8PCysk8982+e+Pi1Sqa8vZFwZPh2OTRuNXFQv/TtXahK9HYdm/
- yS1IoJltw==;
+ bh=5ghs6LH9pD2+Qt1fMHsHWX7VIkwjblgvPz91UThcXfc=; b=nNRXSHARKVBmPUa0LVuH1O7kS
+ D/oHBcrwrbjjDaMI/I4qewdIuT/u+ArfVn2Q44kMxGKdqoZU4BrB2JiF0LZk1bGZZs9L580RjqEhj
+ L/USBXhXhYD/MgwY5GbFdlv5b6PiOyMPil73fSwdB7H5xlLFS5BPFM67km0fFGywwBOAawYMifq1G
+ HSHzGXev8QvIMVygJwKAVAp68/g6FyGSdabNsVYCSP3ClQnb39d/wPIfqLOWNXziE3BHkxIZYnbfz
+ /l7StgJN3Z3/SLfPW5ugji1Mm5WmfSdNY0eEzYTydiDQebUNZUpbq0AD6mr1QzMtp4JGqmU6Lyx2E
+ +SFo6yR3Q==;
 Content-Disposition: inline
-In-Reply-To: <1549850450-10171-1-git-send-email-longman@redhat.com>
+In-Reply-To: <20190211093601.GT32511@hirez.programming.kicks-ass.net>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -46,162 +47,26 @@ Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead
 To: Waiman Long <longman@redhat.com>
 Cc: linux-arch@vger.kernel.org, linux-xtensa@linux-xtensa.org, Davidlohr Bueso <dave@stgolabs.net>, linux-ia64@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
 
-On Sun, Feb 10, 2019 at 09:00:50PM -0500, Waiman Long wrote:
-> diff --git a/kernel/locking/rwsem.h b/kernel/locking/rwsem.h
-> index bad2bca..067e265 100644
-> --- a/kernel/locking/rwsem.h
-> +++ b/kernel/locking/rwsem.h
-> @@ -32,6 +32,26 @@
->  # define DEBUG_RWSEMS_WARN_ON(c)
->  #endif
->  
-> +/*
-> + * R/W semaphores originally for PPC using the stuff in lib/rwsem.c.
-> + * Adapted largely from include/asm-i386/rwsem.h
-> + * by Paul Mackerras <paulus@samba.org>.
-> + */
-> +
-> +/*
-> + * the semaphore definition
-> + */
-> +#ifdef CONFIG_64BIT
-> +# define RWSEM_ACTIVE_MASK		0xffffffffL
-> +#else
-> +# define RWSEM_ACTIVE_MASK		0x0000ffffL
-> +#endif
-> +
-> +#define RWSEM_ACTIVE_BIAS		0x00000001L
-> +#define RWSEM_WAITING_BIAS		(-RWSEM_ACTIVE_MASK-1)
-> +#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
-> +#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
-> +
->  #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
->  /*
->   * All writes to owner are protected by WRITE_ONCE() to make sure that
-> @@ -132,3 +152,113 @@ static inline void rwsem_clear_reader_owned(struct rw_semaphore *sem)
->  {
->  }
->  #endif
-> +
-> +#ifdef CONFIG_RWSEM_XCHGADD_ALGORITHM
-> +/*
-> + * lock for reading
-> + */
-> +static inline void __down_read(struct rw_semaphore *sem)
-> +{
-> +	if (unlikely(atomic_long_inc_return_acquire(&sem->count) <= 0))
-> +		rwsem_down_read_failed(sem);
-> +}
-> +
-> +static inline int __down_read_killable(struct rw_semaphore *sem)
-> +{
-> +	if (unlikely(atomic_long_inc_return_acquire(&sem->count) <= 0)) {
-> +		if (IS_ERR(rwsem_down_read_failed_killable(sem)))
-> +			return -EINTR;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static inline int __down_read_trylock(struct rw_semaphore *sem)
-> +{
-> +	long tmp;
-> +
-> +	while ((tmp = atomic_long_read(&sem->count)) >= 0) {
-> +		if (tmp == atomic_long_cmpxchg_acquire(&sem->count, tmp,
-> +				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
-> +			return 1;
+On Mon, Feb 11, 2019 at 10:36:01AM +0100, Peter Zijlstra wrote:
+> On Sun, Feb 10, 2019 at 09:00:50PM -0500, Waiman Long wrote:
+> > +static inline int __down_read_trylock(struct rw_semaphore *sem)
+> > +{
+> > +	long tmp;
+> > +
+> > +	while ((tmp = atomic_long_read(&sem->count)) >= 0) {
+> > +		if (tmp == atomic_long_cmpxchg_acquire(&sem->count, tmp,
+> > +				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
+> > +			return 1;
+> 
+> That really wants to be:
+> 
+> 		if (atomic_long_try_cmpxchg_acquire(&sem->count, &tmp,
+> 						    tmp + RWSEM_ACTIVE_READ_BIAS))
+> 
+> > +		}
+> > +	}
+> > +	return 0;
+> > +}
 
-That really wants to be:
-
-		if (atomic_long_try_cmpxchg_acquire(&sem->count, &tmp,
-						    tmp + RWSEM_ACTIVE_READ_BIAS))
-
-> +		}
-> +	}
-> +	return 0;
-> +}
-> +
-> +/*
-> + * lock for writing
-> + */
-> +static inline void __down_write(struct rw_semaphore *sem)
-> +{
-> +	long tmp;
-> +
-> +	tmp = atomic_long_add_return_acquire(RWSEM_ACTIVE_WRITE_BIAS,
-> +					     &sem->count);
-> +	if (unlikely(tmp != RWSEM_ACTIVE_WRITE_BIAS))
-> +		rwsem_down_write_failed(sem);
-> +}
-> +
-> +static inline int __down_write_killable(struct rw_semaphore *sem)
-> +{
-> +	long tmp;
-> +
-> +	tmp = atomic_long_add_return_acquire(RWSEM_ACTIVE_WRITE_BIAS,
-> +					     &sem->count);
-> +	if (unlikely(tmp != RWSEM_ACTIVE_WRITE_BIAS))
-> +		if (IS_ERR(rwsem_down_write_failed_killable(sem)))
-> +			return -EINTR;
-> +	return 0;
-> +}
-> +
-> +static inline int __down_write_trylock(struct rw_semaphore *sem)
-> +{
-> +	long tmp;
-
-	tmp = RWSEM_UNLOCKED_VALUE;
-
-> +
-> +	tmp = atomic_long_cmpxchg_acquire(&sem->count, RWSEM_UNLOCKED_VALUE,
-> +		      RWSEM_ACTIVE_WRITE_BIAS);
-> +	return tmp == RWSEM_UNLOCKED_VALUE;
-
-	return atomic_long_try_cmpxchg_acquire(&sem->count, &tmp,
-					       RWSEM_ACTIVE_WRITE_BIAS);
-
-> +}
-> +
-> +/*
-> + * unlock after reading
-> + */
-> +static inline void __up_read(struct rw_semaphore *sem)
-> +{
-> +	long tmp;
-> +
-> +	tmp = atomic_long_dec_return_release(&sem->count);
-> +	if (unlikely(tmp < -1 && (tmp & RWSEM_ACTIVE_MASK) == 0))
-> +		rwsem_wake(sem);
-> +}
-> +
-> +/*
-> + * unlock after writing
-> + */
-> +static inline void __up_write(struct rw_semaphore *sem)
-> +{
-> +	if (unlikely(atomic_long_sub_return_release(RWSEM_ACTIVE_WRITE_BIAS,
-> +						    &sem->count) < 0))
-> +		rwsem_wake(sem);
-> +}
-> +
-> +/*
-> + * downgrade write lock to read lock
-> + */
-> +static inline void __downgrade_write(struct rw_semaphore *sem)
-> +{
-> +	long tmp;
-> +
-> +	/*
-> +	 * When downgrading from exclusive to shared ownership,
-> +	 * anything inside the write-locked region cannot leak
-> +	 * into the read side. In contrast, anything in the
-> +	 * read-locked region is ok to be re-ordered into the
-> +	 * write side. As such, rely on RELEASE semantics.
-> +	 */
-> +	tmp = atomic_long_add_return_release(-RWSEM_WAITING_BIAS, &sem->count);
-> +	if (tmp < 0)
-> +		rwsem_downgrade_wake(sem);
-> +}
-> +
-> +#endif /* CONFIG_RWSEM_XCHGADD_ALGORITHM */
+Also, the is the one case where LL/SC can actually do 'better'. Do you
+have benchmarks for say PowerPC or ARM64 ?
