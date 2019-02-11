@@ -1,88 +1,55 @@
 From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH] locking/rwsem: Remove arch specific rwsem files
-Date: Mon, 11 Feb 2019 08:11:59 +0100
-Message-ID: <20190211071159.GA55579@gmail.com>
-References: <1549850450-10171-1-git-send-email-longman@redhat.com>
- <a610aeb2-b1cb-0d57-8078-97d1051481f9@redhat.com>
+Subject: Re: [PATCH-tip 00/22] locking/rwsem: Rework rwsem-xadd & enable new
+ rwsem features
+Date: Mon, 11 Feb 2019 08:38:28 +0100
+Message-ID: <20190211073828.GB106308@gmail.com>
+References: <1549566446-27967-1-git-send-email-longman@redhat.com>
+ <20190207195119.lglz4lb7cnf4ndn2@linux-r8p5>
+ <45b7bbb8-c953-9951-ae6f-e2c3202e5cf2@redhat.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=BK4Sm1vYAP/cUQnaGA8IV1A1wXMg4Z4Mq4IDBe+5Fz0=;
-        b=iLc0oI6v6Cc382OU0fdlNtw/4hwzwv60nfBQ5KbKbVaS4A61E93cSWC8jo2x/WEl1a
-         /7iNgiNDbixuFiTPVQxi8pc+/7fGx7pcuID+pMESwbpBB58ja3pRwNYGtoteTRn6cyHX
-         VckXzbs5q4+RkIKdXXafDtC0IPMQNYgZCtrdvLgHeBBkHD9tEw/VRJq1p441jPtIqSIQ
-         IJ/q1mwZcAvFB2yG85C6ntvl+UYgPG+r8dkD4WtUr93nSoN1GOE9cAmp6aCYRXO1Q3Ue
-         sMgUko0pVzP2JoCJuinZBMQqE+COBfHkCMgJfh+JRAGW8JHu+EFVr4Ml2wOSRNsdda4K
-         M0yw==
+        bh=j1zWKIlZsVjo0SP2EC7fZlyHxeWBFLCgtgW8EIbDbOE=;
+        b=QugwUPgcpfU3+Tm9+uRiY+VeoOW1hrVgrzjfbonMin4cw7g0zWY7xW+3Mit8PQfprX
+         QPeCFmub2fnVz6mKV4rLOkZE0BJ3RX4AxWW5dSA6I9alAM9EnEpQiM5EEJg/Q3NN25w9
+         Sksw1pfELw9mSjghnPIG5gPaKrMz49anPYySUg6RzUppp3MHsd4BR4WQQvy0BL7EGBb7
+         5u2uvV7tKrN/HdTBi8u8Dg7tWUi+LHlqKfAZr49t/fMVgzjMfVmRex+57Sckpoalu05B
+         LM6RFLVkUPg8iY5FadJ7YAkqHe/N9pHEV2ZD69QaiIh0ha2DBdykzx8mHYbwRQfeh8E0
+         OszQ==
 Content-Disposition: inline
-In-Reply-To: <a610aeb2-b1cb-0d57-8078-97d1051481f9@redhat.com>
+In-Reply-To: <45b7bbb8-c953-9951-ae6f-e2c3202e5cf2@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Waiman Long <longman@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Davidlohr Bueso <dave@stgolabs.net>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Tim Chen <tim.c.chen@linux.intel.com>
 
 
 * Waiman Long <longman@redhat.com> wrote:
 
-> On 02/10/2019 09:00 PM, Waiman Long wrote:
-> > As the generic rwsem-xadd code is using the appropriate acquire and
-> > release versions of the atomic operations, the arch specific rwsem.h
-> > files will not be that much faster than the generic code as long as the
-> > atomic functions are properly implemented. So we can remove those arch
-> > specific rwsem.h and stop building asm/rwsem.h to reduce maintenance
-> > effort.
+> On 02/07/2019 02:51 PM, Davidlohr Bueso wrote:
+> > On Thu, 07 Feb 2019, Waiman Long wrote:
+> >> 30 files changed, 1197 insertions(+), 1594 deletions(-)
 > >
-> > Currently, only x86, alpha and ia64 have implemented architecture
-> > specific fast paths. I don't have access to alpha and ia64 systems for
-> > testing, but they are legacy systems that are not likely to be updated
-> > to the latest kernel anyway.
+> > Performance numbers on numerous workloads, pretty please.
 > >
-> > By using a rwsem microbenchmark, the total locking rates on a 4-socket
-> > 56-core 112-thread x86-64 system before and after the patch were as
-> > follows (mixed means equal # of read and write locks):
+> > I'll go and throw this at my mmap_sem intensive workloads
+> > I've collected.
 > >
-> >                       Before Patch              After Patch
-> >    # of Threads  wlock   rlock   mixed     wlock   rlock   mixed
-> >    ------------  -----   -----   -----     -----   -----   -----
-> >         1        27,373  29,409  28,170    28,773  30,164  29,276
-> >         2         7,697  14,922   1,703     7,435  15,167   1,729
-> >         4         6,987  14,285   1,490     7,181  14,438   1,330
-> >         8         6,650  13,652     761     6,918  13,796     718
-> >        16         6,434  15,729     713     6,554  16,030     625
-> >        32         5,590  15,312     552     6,124  15,344     471
-> >        64         5,980  15,478      61     5,668  15,509      58
-> >
-> > There were some run-to-run variations for the multi-thread tests. For
-> > x86-64, using the generic C code fast path seems to be a liitle bit
-> > faster than the assembly version especially for read-lock and when lock
-> > contention is low.  Looking at the assembly version of the fast paths,
-> > there are assembly to/from C code wrappers that save and restore all
-> > the callee-clobbered registers (7 registers on x86-64). The assembly
-> > generated from the generic C code doesn't need to do that. That may
-> > explain the slight performance gain here.
-> >
-> > The generic asm rwsem.h can also be merged into kernel/locking/rwsem.h
-> > as no other code other than those under kernel/locking needs to access
-> > the internal rwsem macros and functions.
-> >
-> > Signed-off-by: Waiman Long <longman@redhat.com>
+> > Thanks,
+> > Davidlohr
 > 
-> I have decided to break the rwsem patchset that I sent out on last
-> Thursday into 3 parts. This patch is part 0 as it touches a number of
-> arch specific files and so have the widest distribution. I would like to
-> get it merged first. Part 1 will be patches 1-10 (except 4) of my
-> original rwsem patchset. This part moves things around, adds more
-> debugging capability and lays the ground work for the next part. Part 2
-> will contains the remaining patches which are the real beef of the whole
-> patchset.
+> Thanks for getting some of the performance numbers. This is the initial
+> draft after more than 1 years of hibernation. I will also get other
+> performance numbers in subsequent revision of the patch.
 
-Sounds good to me - I've merged this patch, will push it out after 
-testing.
+If you could sort all the invariant preparatory patches to the head of 
+the series I can merge them to reduce overall complexity and simplify 
+performance testing and review of the rest.
 
 Thanks,
 
