@@ -1,18 +1,78 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 0/4] provide a generic free_initmem implementation
-Date: Thu, 14 Feb 2019 18:04:16 +0100
-Message-ID: <20190214170416.GA32441@lst.de>
-References: <1550159977-8949-1-git-send-email-rppt@linux.ibm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH v3 2/2] locking/rwsem: Optimize down_read_trylock()
+Date: Thu, 14 Feb 2019 09:51:21 -0800
+Message-ID: <CAHk-=whKmuranma_HUOKBbDJHGmdWZr9MYW-+cmGzsOiJ2N1Sg@mail.gmail.com>
+References: <1550089932-6888-1-git-send-email-longman@redhat.com>
+ <1550089932-6888-3-git-send-email-longman@redhat.com>
+ <20190214103333.GH32494@hirez.programming.kicks-ass.net>
+ <9e01d4ef-56df-7af8-a0f5-b49644e298bf@redhat.com>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1550159977-8949-1-git-send-email-rppt@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, Palmer Dabbelt <palmer@sifive.com>, Richard Kuo <rkuo@codeaurora.org>, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:To:Subject:Message-ID:Date:From:
+	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=Of1iF3BusNVweGEbdxaR/bBPEktrUl7gWn5Dh06Y/Iw=; b=TyaVHVCE2uJUWl
+	Jc9lje2QZ45jDmhyBgARmwbnXavu+rZcLfz7d/KtXcDtQxDMYNsIIcGEahej5Y3iiVIva0LSWF9oS
+	UeNB+i/RClyeoRLFTCTFBzkQ6dcqC8tkp0GSjsbJL1LQpO9d4DbjgP80qiFqCBEVv341dm4jE5fFE
+	CH7o3pyNyfmPi04El/h6cb2aurK09qjsBoZDsIC+YD5d+kA71IiXEsJfZmQwaNn38ofh/XiDnhEWc
+	6KSJNU1iys9vHIYo34IFxl8YXnYKVg+o7b8o9vOC0wPYbTNDpI5E32+D1rXEyZGnF9sGEW4H1A7mz
+	bDnbvEyta0i9lEkGW5rQ==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=linux-foundation.org; s=google;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=YOAxNfp/u2AjpSAe9gJ1DkLd8kcSaDRiWtEtJaBSEcs=;
+ b=PGshS3MaeGeltwuyVtFmT0V6YZQZmxLLNBrf107mvwKlqUhZwGpD70GnjqQJh+4V2q
+ 3J6Xvbgr/CiWsk6q6rJVeglsaiLbeVTkiovB8o6FTpvJF+udviHo9Zs+xhaucNb0e3LD
+ IXDiqt1MsmZkkBaKR5AXhS5/XMcdP66J22GNk=
+In-Reply-To: <9e01d4ef-56df-7af8-a0f5-b49644e298bf@redhat.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Waiman Long <longman@redhat.com>
+Cc: linux-arch <linux-arch@vger.kernel.org>, linux-xtensa@linux-xtensa.org, Davidlohr Bueso <dave@stgolabs.net>, linux-ia64@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, Linux-sh list <linux-sh@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-hexagon@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, Will Deacon <will.deacon@arm.com>, Linux List Kernel Mailing <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, "linux-alpha@vger.kernel.org" <linux-arm-kernel@lists.infradead.org>
 
-This look fine to me, but I'm a little worried that as-is this will
-just create conflicts with my series..
+On Thu, Feb 14, 2019 at 6:53 AM Waiman Long <longman@redhat.com> wrote:
+>
+> The ARM64 result is what I would have expected given that the change was
+> to optimize for the uncontended case. The x86-64 result is kind of an
+> anomaly to me, but I haven't bothered to dig into that.
+
+I would say that the ARM result is what I'd expect from something that
+scales badly to begin with.
+
+The x86-64 result is the expected one: yes, the cmpxchg is done one
+extra time, but it results in fewer cache transitions (the cacheline
+never goes into "shared" state), and cache transitions are what
+matter.
+
+The cost of re-doing the instruction should be low. The cacheline
+ping-pong and the cache coherency messages is what hurts.
+
+So I actually think both are very easily explained.
+
+The x86-64 number improves, because there is less cache coherency traffic.
+
+The arm64 numbers scaled horribly even before, and that's because
+there is too much ping-pong, and it's probably because there is no
+"stickiness" to the cacheline to the core, and thus adding the extra
+loop can make the ping-pong issue even worse because now there is more
+of it.
+
+The cachelines not sticking at all to a core probably is good for
+fairness issues (in particular, sticking *too* much can cause horrible
+issues), but it's absolutely horrible if it means that you lose the
+cacheline even before you get to complete the second cmpxchg.
+
+                  Linus
