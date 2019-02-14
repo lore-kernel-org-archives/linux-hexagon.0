@@ -1,9 +1,8 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v3 2/2] locking/rwsem: Optimize down_read_trylock()
-Date: Thu, 14 Feb 2019 11:33:33 +0100
-Message-ID: <20190214103333.GH32494@hirez.programming.kicks-ass.net>
-References: <1550089932-6888-1-git-send-email-longman@redhat.com>
- <1550089932-6888-3-git-send-email-longman@redhat.com>
+Subject: Re: [PATCH v4 0/3] locking/rwsem: Rwsem rearchitecture part 0
+Date: Thu, 14 Feb 2019 11:37:15 +0100
+Message-ID: <20190214103715.GI32494@hirez.programming.kicks-ass.net>
+References: <1550095217-12047-1-git-send-email-longman@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -14,14 +13,26 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
 	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=eBe+HVm9+8oS2ewLe1BR0n6U7aK0EKkX1DNd8G3Mo3Y=; b=aoY87bbgFmZ49M
-	VyX/hGA0kbIEDMSiHAiv0Oys1C3YCVQFLZ6HkWEe4taLvKSDzQn9AStrSWp/g3xT0A17myOWHwZLo
-	lSIeYIa4L7rYqVIdgr+Ar/koULXNIiGz6kSbZHrBV+QeBRjMLQwoOya9LrH4gsHvLlGLEEb/7E6cK
-	A9MbSlkqDZ954Vy0H+F07N0ufK155JmToqbZjtwZybh/UK4883ndzROjLlj9LKkj8ELFrSMldsz+7
-	gZkIc5OfW0kinl8tal+TSzUKP9mdI5vL0p32D4bzEQ8B2MwdjGzngsuG9QUWYO7nAhYbvBHU3jF0x
-	TvMUlmqIeu1P5hrDciVw==;
+	List-Owner; bh=L1RZvNpNmYNgItvuOG3lCne3bJroGTsE0pTD2TQlxN4=; b=gk53SqT43fd0Ud
+	hAAsPD9fwwI489ZB3dYSB4OHF2aM7HuVlM7EhZ+QanIo4LeEjrUV2lzpNj7a/ii1QlfaDda7CAPZs
+	DV8roIPqVNsmFW5px09L2rZjc5Zk+t3cCAeP9EsVLw0FYMOMbFokrYmBV48htBUePyF6q9NESZ8NS
+	O89rPpqkfo9B7ZxSsZz20ppAC1oGRxBaKgYcPi4NXnSN0KDzvZYJEeCisU1Gxn430ojX6jz/XmASo
+	ZZ5BIyqTRjhmI/q2FcBBpjgZ6sP+vitMCTaapNs+NQuAdP9r9Qe7Cfvi0WgbuRqVGzcdHmRwf3hLJ
+	38/DtO8lPZ5adGbLdA7w==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+ Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+ List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+ bh=7yZM4QttJ1fb4ZQ7Mabo7VnLkRDJj+lx0G2X8XXS/q0=; b=fx1rpYHBqJrLjmSSs1gePTKzK
+ Ni/DauvFgKLMitkNhK5aW9m4wpH6Xo6Rn7SO+LZool3ojYYBe0dsltLVAgUPMw9zlAWx39NxZLo3n
+ e7DTq12YagL1S9+b1JtJSmTbkuZ8pcAUfrr6AY/BHVxNPrLBYwQWW8NdefDr6gS8H9Lxxkbitnu0Q
+ VupOqNRJPsPjHUuNI2y93XB8buCKOfO0sxZXubBWy8FtYbq0u2cn9KdQp9/Ttih4UzYwFrsFhla9R
+ iOdEi8vQQJ+6bmKp3FVg9Z+ptgbw3Znx9sxvKOfICpLgcc4ogCklFEcHlZZiG0A4rWpwJEP7Iq8N6
+ uxvBePSeQ==;
 Content-Disposition: inline
-In-Reply-To: <1550089932-6888-3-git-send-email-longman@redhat.com>
+In-Reply-To: <1550095217-12047-1-git-send-email-longman@redhat.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -33,72 +44,33 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Waiman Long <longman@redhat.com>
-Cc: linux-arch@vger.kernel.org, linux-xtensa@linux-xtensa.org, Davidlohr Bueso <dave@stgolabs.net>, linux-ia64@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
+Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Will Deacon <will.deacon@arm.com>, linux-mips@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, uclinux-h8-devel@lists.sourceforge.jp, linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Tim Chen <tim.c.chen@linux.intel.com>, linux-parisc@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-alpha@vger.ker
 
-On Wed, Feb 13, 2019 at 03:32:12PM -0500, Waiman Long wrote:
-> Modify __down_read_trylock() to optimize for an unlocked rwsem and make
-> it generate slightly better code.
+On Wed, Feb 13, 2019 at 05:00:14PM -0500, Waiman Long wrote:
+> v4:
+>  - Remove rwsem-spinlock.c and make all archs use rwsem-xadd.c.
 > 
-> Before this patch, down_read_trylock:
+> v3:
+>  - Optimize __down_read_trylock() for the uncontended case as suggested
+>    by Linus.
 > 
->    0x0000000000000000 <+0>:     callq  0x5 <down_read_trylock+5>
->    0x0000000000000005 <+5>:     jmp    0x18 <down_read_trylock+24>
->    0x0000000000000007 <+7>:     lea    0x1(%rdx),%rcx
->    0x000000000000000b <+11>:    mov    %rdx,%rax
->    0x000000000000000e <+14>:    lock cmpxchg %rcx,(%rdi)
->    0x0000000000000013 <+19>:    cmp    %rax,%rdx
->    0x0000000000000016 <+22>:    je     0x23 <down_read_trylock+35>
->    0x0000000000000018 <+24>:    mov    (%rdi),%rdx
->    0x000000000000001b <+27>:    test   %rdx,%rdx
->    0x000000000000001e <+30>:    jns    0x7 <down_read_trylock+7>
->    0x0000000000000020 <+32>:    xor    %eax,%eax
->    0x0000000000000022 <+34>:    retq
->    0x0000000000000023 <+35>:    mov    %gs:0x0,%rax
->    0x000000000000002c <+44>:    or     $0x3,%rax
->    0x0000000000000030 <+48>:    mov    %rax,0x20(%rdi)
->    0x0000000000000034 <+52>:    mov    $0x1,%eax
->    0x0000000000000039 <+57>:    retq
+> v2:
+>  - Add patch 2 to optimize __down_read_trylock() as suggested by PeterZ.
+>  - Update performance test data in patch 1.
 > 
-> After patch, down_read_trylock:
+> The goal of this patchset is to remove the architecture specific files
+> for rwsem-xadd to make it easer to add enhancements in the later rwsem
+> patches. It also removes the legacy rwsem-spinlock.c file and make all
+> the architectures use one single implementation of rwsem - rwsem-xadd.c.
 > 
->    0x0000000000000000 <+0>:	callq  0x5 <down_read_trylock+5>
->    0x0000000000000005 <+5>:	xor    %eax,%eax
->    0x0000000000000007 <+7>:	lea    0x1(%rax),%rdx
->    0x000000000000000b <+11>:	lock cmpxchg %rdx,(%rdi)
->    0x0000000000000010 <+16>:	jne    0x29 <down_read_trylock+41>
->    0x0000000000000012 <+18>:	mov    %gs:0x0,%rax
->    0x000000000000001b <+27>:	or     $0x3,%rax
->    0x000000000000001f <+31>:	mov    %rax,0x20(%rdi)
->    0x0000000000000023 <+35>:	mov    $0x1,%eax
->    0x0000000000000028 <+40>:	retq
->    0x0000000000000029 <+41>:	test   %rax,%rax
->    0x000000000000002c <+44>:	jns    0x7 <down_read_trylock+7>
->    0x000000000000002e <+46>:	xor    %eax,%eax
->    0x0000000000000030 <+48>:	retq
-> 
-> By using a rwsem microbenchmark, the down_read_trylock() rate (with a
-> load of 10 to lengthen the lock critical section) on a x86-64 system
-> before and after the patch were:
-> 
->                  Before Patch    After Patch
->    # of Threads     rlock           rlock
->    ------------     -----           -----
->         1           14,496          14,716
->         2            8,644           8,453
-> 	4            6,799           6,983
-> 	8            5,664           7,190
-> 
-> On a ARM64 system, the performance results were:
-> 
->                  Before Patch    After Patch
->    # of Threads     rlock           rlock
->    ------------     -----           -----
->         1           23,676          24,488
->         2            7,697           9,502
->         4            4,945           3,440
->         8            2,641           1,603
+> Waiman Long (3):
+>   locking/rwsem: Remove arch specific rwsem files
+>   locking/rwsem: Remove rwsem-spinlock.c & use rwsem-xadd.c for all
+>     archs
+>   locking/rwsem: Optimize down_read_trylock()
 
-Urgh, yes LL/SC is the obvious exception that can actually do better
-here :/
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
-Will, what say you?
+with the caveat that I'm happy to exchange patch 3 back to my earlier
+suggestion in case Will expesses concerns wrt the ARM64 performance of
+Linus' suggestion.
