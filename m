@@ -1,112 +1,62 @@
-From: Will Deacon <will.deacon@arm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [PATCH v3 2/2] locking/rwsem: Optimize down_read_trylock()
-Date: Thu, 14 Feb 2019 18:02:39 +0000
-Message-ID: <20190214180239.GI2475@fuggles.cambridge.arm.com>
+Date: Thu, 14 Feb 2019 10:09:44 -0800
+Message-ID: <CAHk-=wi03J1jurebJNHPxGCVss7ARAN+2JuVthEGoEx=qkT4dQ@mail.gmail.com>
 References: <1550089932-6888-1-git-send-email-longman@redhat.com>
  <1550089932-6888-3-git-send-email-longman@redhat.com>
  <20190214103333.GH32494@hirez.programming.kicks-ass.net>
+ <9e01d4ef-56df-7af8-a0f5-b49644e298bf@redhat.com>
+ <CAHk-=whKmuranma_HUOKBbDJHGmdWZr9MYW-+cmGzsOiJ2N1Sg@mail.gmail.com>
 Mime-Version: 1.0
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=linux-foundation.org; s=google;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=D9Vj6+WeVlYF1H2fg9mql/6oMEXHu/mgsv8BNTVZHx0=;
+ b=ZPnbWkIaLF1fPpbhVu5fqt9VoWAh7zq9mqH5LmbreMaS/dFp/ga9ADBd1bUPfLNZVt
+ 9cmIVEyoT/T8O5y3yiREHXO6gcW+3HJveD69ZJigOCRdO+OvsnNK66RwV3oR7F6BHY0m
+ nx+fInfaHOtcGNGfeA3vdOANp4vbwtRzlSmX4=
+In-Reply-To: <CAHk-=whKmuranma_HUOKBbDJHGmdWZr9MYW-+cmGzsOiJ2N1Sg@mail.gmail.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=ODjKEwaKLAAsKFITqpMsH1FbYc9DUJtLjtfbwzjOZ+o=; b=h7sDSZvJE1bExS
-	ddWEzZU/qYxryAUVVuQ8erqxHdc6I7m6bEwEVIjfyfpSH5hLq5icke9n4RXWg81YSOoWv6ZeDf0VM
-	eWRAXxHX0JfOu9Zy8gOn1Fbv8dtcPu5m+oIDyrYiFm4WhAslwVHlow6Z75rTRPhVe07l2N8crfCFU
-	2pxuPYv6Oaga5BIjZh8I7RWXlsqQ5RNikYFTtfu4q4pNq5UJv7G3TNh+86ExeRpdgBNtD622639f1
-	83m/oF6KaZxjdbsCyNFgd2jxi8rAUs4bcLbMvh53BsAk3p3Rv4USHXkTlyH8U0BGm1ZVad6vvpHwi
-	B9nMewt4gG64wFTEGObA==;
-Content-Disposition: inline
-In-Reply-To: <20190214103333.GH32494@hirez.programming.kicks-ass.net>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, linux-xtensa@linux-xtensa.org, Davidlohr Bueso <dave@stgolabs.net>, linux-ia64@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, Waiman Long <longman@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
+To: Waiman Long <longman@redhat.com>
+Cc: linux-arch <linux-arch@vger.kernel.org>, linux-xtensa@linux-xtensa.org, Davidlohr Bueso <dave@stgolabs.net>, linux-ia64@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, Linux-sh list <linux-sh@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-hexagon@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, Will Deacon <will.deacon@arm.com>, Linux List Kernel Mailing <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, "linux-alpha@vger.kernel.org" <linux-arm-kernel@lists.infradead.org>
 
-On Thu, Feb 14, 2019 at 11:33:33AM +0100, Peter Zijlstra wrote:
-> On Wed, Feb 13, 2019 at 03:32:12PM -0500, Waiman Long wrote:
-> > Modify __down_read_trylock() to optimize for an unlocked rwsem and make
-> > it generate slightly better code.
-> > 
-> > Before this patch, down_read_trylock:
-> > 
-> >    0x0000000000000000 <+0>:     callq  0x5 <down_read_trylock+5>
-> >    0x0000000000000005 <+5>:     jmp    0x18 <down_read_trylock+24>
-> >    0x0000000000000007 <+7>:     lea    0x1(%rdx),%rcx
-> >    0x000000000000000b <+11>:    mov    %rdx,%rax
-> >    0x000000000000000e <+14>:    lock cmpxchg %rcx,(%rdi)
-> >    0x0000000000000013 <+19>:    cmp    %rax,%rdx
-> >    0x0000000000000016 <+22>:    je     0x23 <down_read_trylock+35>
-> >    0x0000000000000018 <+24>:    mov    (%rdi),%rdx
-> >    0x000000000000001b <+27>:    test   %rdx,%rdx
-> >    0x000000000000001e <+30>:    jns    0x7 <down_read_trylock+7>
-> >    0x0000000000000020 <+32>:    xor    %eax,%eax
-> >    0x0000000000000022 <+34>:    retq
-> >    0x0000000000000023 <+35>:    mov    %gs:0x0,%rax
-> >    0x000000000000002c <+44>:    or     $0x3,%rax
-> >    0x0000000000000030 <+48>:    mov    %rax,0x20(%rdi)
-> >    0x0000000000000034 <+52>:    mov    $0x1,%eax
-> >    0x0000000000000039 <+57>:    retq
-> > 
-> > After patch, down_read_trylock:
-> > 
-> >    0x0000000000000000 <+0>:	callq  0x5 <down_read_trylock+5>
-> >    0x0000000000000005 <+5>:	xor    %eax,%eax
-> >    0x0000000000000007 <+7>:	lea    0x1(%rax),%rdx
-> >    0x000000000000000b <+11>:	lock cmpxchg %rdx,(%rdi)
-> >    0x0000000000000010 <+16>:	jne    0x29 <down_read_trylock+41>
-> >    0x0000000000000012 <+18>:	mov    %gs:0x0,%rax
-> >    0x000000000000001b <+27>:	or     $0x3,%rax
-> >    0x000000000000001f <+31>:	mov    %rax,0x20(%rdi)
-> >    0x0000000000000023 <+35>:	mov    $0x1,%eax
-> >    0x0000000000000028 <+40>:	retq
-> >    0x0000000000000029 <+41>:	test   %rax,%rax
-> >    0x000000000000002c <+44>:	jns    0x7 <down_read_trylock+7>
-> >    0x000000000000002e <+46>:	xor    %eax,%eax
-> >    0x0000000000000030 <+48>:	retq
-> > 
-> > By using a rwsem microbenchmark, the down_read_trylock() rate (with a
-> > load of 10 to lengthen the lock critical section) on a x86-64 system
-> > before and after the patch were:
-> > 
-> >                  Before Patch    After Patch
-> >    # of Threads     rlock           rlock
-> >    ------------     -----           -----
-> >         1           14,496          14,716
-> >         2            8,644           8,453
-> > 	4            6,799           6,983
-> > 	8            5,664           7,190
-> > 
-> > On a ARM64 system, the performance results were:
-> > 
-> >                  Before Patch    After Patch
-> >    # of Threads     rlock           rlock
-> >    ------------     -----           -----
-> >         1           23,676          24,488
-> >         2            7,697           9,502
-> >         4            4,945           3,440
-> >         8            2,641           1,603
-> 
-> Urgh, yes LL/SC is the obvious exception that can actually do better
-> here :/
-> 
-> Will, what say you?
+On Thu, Feb 14, 2019 at 9:51 AM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> The arm64 numbers scaled horribly even before, and that's because
+> there is too much ping-pong, and it's probably because there is no
+> "stickiness" to the cacheline to the core, and thus adding the extra
+> loop can make the ping-pong issue even worse because now there is more
+> of it.
 
-What machine were these numbers generated on and is it using LL/SC or LSE
-atomics for arm64? If you stick the microbenchmark somewhere, I can go play
-with a broader variety of h/w.
+Actually, if it's using the ll/sc, then I don't see why arm64 should
+even change. It doesn't really even change the pattern: the initial
+load of the value is just replaced with a "ll" that gets a non-zero
+value, and then we re-try without even doing the "sc" part.
 
-Will
+End result: exact same "load once, then do ll/sc to update". Just
+using a slightly different instruction pattern.
+
+But maybe "ll" does something different to the cacheline than a regular "ld"?
+
+Alternatively, the machine you used is using LSE, and the "swp" thing
+has some horrid behavior when it fails.
+
+So I take it back. I'm actually surprised that arm64 performs worse. I
+don't think it should. But numbers walk, bullshit talks, and it
+clearly does make for worse numbers on arm64.
+
+               Linus
