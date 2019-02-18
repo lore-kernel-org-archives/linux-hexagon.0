@@ -1,62 +1,55 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5/8] unicore32: Fix __ARCH_WANT_STAT64 definition
-Date: Mon, 18 Feb 2019 22:07:09 +0100
-Message-ID: <20190218210712.3503891-6-arnd@arndb.de>
+Subject: [PATCH 1/8] compat ABI: use non-compat openat and open_by_handle_at variants
+Date: Mon, 18 Feb 2019 22:07:05 +0100
+Message-ID: <20190218210712.3503891-2-arnd@arndb.de>
 References: <20190218210712.3503891-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
-	Message-Id:Date:Subject:To:From:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=iSY7UgecMBXmTnIL22E7Dc/WTllPNd/I/ZYrdgm+bsU=; b=djJ0GaRTlni3w3
-	w3IoQvpNEAlTAMTAlJKUQi8vko4y6l8ZKkxTQdN2TrrDZgDhHXlPc1rdsyzXI1OMHZAaepZb4eaj+
-	I9Hf0GBo+qNHwJE/NttPwRpi7PNBJL0T6/CHiJaGMlxo3MUmT9m7pkep4GAey55F8DV4I9gjdIAlm
-	yDnOX107knti+OC8tCqrpmbnY+CB2GkaB88AkjKMuf2wFx8GxrN8KhhFVGdue3m+iYHJcqi+hiMlW
-	i20MAzH+1pqigjn6Du9AeqekYAjub26Sfj0KiW3phvXnMFxholGtkLAYwjWhb+Jj+ln3dV4mk9Bts
-	IuH1GiBxk5NoSJc5ujfA==;
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190218210712.3503891-1-arnd@arndb.de>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
 To: y2038@lists.linaro.org
-Cc: linux-arch@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, arnd@arndb.de, yury.norov@gmail.com, linux-api@vger.kernel.org, Palmer Dabbelt <palmer@sifive.com>, linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, Vineet Gupta <vgupta@synopsys.com>, Guo Ren <guoren@kernel.org>, Greentime Hu <green.hu@gmail.com>, linux-hexagon@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Guan Xuetao <gxt@pku.edu.cn>, Stafford Horne <shorne@gmail.com>, linux-arm-kernel@lists.infradead.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-arch@vger.kernel.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, yury.norov@gmail.com, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, Stafford Horne <shorne@gmail.com>, Vineet Gupta <vgupta@synopsys.com>, Palmer Dabbelt <palmer@sifive.com>, Guo Ren <guoren@kernel.org>, Greentime Hu <green.hu@gmail.com>, arnd@arndb.de, linux-riscv@lists.infradead.org, Guan Xuetao <gxt@pku.edu.cn>, Yury Norov <ynorov@caviumnetworks.com>, Yury Norov <ynorov@marvell.com>
 
-The __ARCH_WANT_STAT64 macro must be defined before including
-asm-generic/unistd.h. I got this right for everything except
-unicore32.
+From: Yury Norov <ynorov@caviumnetworks.com>
 
-Fixes: bf4b6a7d371e ("y2038: Remove stat64 family from default syscall set")
+The only difference between native and compat openat and open_by_handle_at
+is that non-compat version forces O_LARGEFILE, and it should be the
+default behaviour for all architectures, as we are going to drop the
+support of 32-bit userspace off_t.
+
+Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
+Signed-off-by: Yury Norov <ynorov@marvell.com>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/unicore32/include/uapi/asm/unistd.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/uapi/asm-generic/unistd.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/unicore32/include/uapi/asm/unistd.h b/arch/unicore32/include/uapi/asm/unistd.h
-index 4e5e624f5d7e..54a7378a70b1 100644
---- a/arch/unicore32/include/uapi/asm/unistd.h
-+++ b/arch/unicore32/include/uapi/asm/unistd.h
-@@ -13,9 +13,9 @@
- 
- #define __ARCH_WANT_RENAMEAT
- #define __ARCH_WANT_SET_GET_RLIMIT
-+#define __ARCH_WANT_STAT64
- #define __ARCH_WANT_TIME32_SYSCALLS
- 
- /* Use the standard ABI for syscalls. */
- #include <asm-generic/unistd.h>
--#define __ARCH_WANT_STAT64
- #define __ARCH_WANT_SYS_CLONE
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index acf9a07ab2ff..b928eff3bf92 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -179,7 +179,7 @@ __SYSCALL(__NR_fchownat, sys_fchownat)
+ #define __NR_fchown 55
+ __SYSCALL(__NR_fchown, sys_fchown)
+ #define __NR_openat 56
+-__SC_COMP(__NR_openat, sys_openat, compat_sys_openat)
++__SYSCALL(__NR_openat, sys_openat)
+ #define __NR_close 57
+ __SYSCALL(__NR_close, sys_close)
+ #define __NR_vhangup 58
+@@ -678,8 +678,7 @@ __SYSCALL(__NR_fanotify_mark, sys_fanotify_mark)
+ #define __NR_name_to_handle_at         264
+ __SYSCALL(__NR_name_to_handle_at, sys_name_to_handle_at)
+ #define __NR_open_by_handle_at         265
+-__SC_COMP(__NR_open_by_handle_at, sys_open_by_handle_at, \
+-	  compat_sys_open_by_handle_at)
++__SYSCALL(__NR_open_by_handle_at, sys_open_by_handle_at)
+ #define __NR_clock_adjtime 266
+ __SC_3264(__NR_clock_adjtime, sys_clock_adjtime32, sys_clock_adjtime)
+ #define __NR_syncfs 267
 -- 
 2.20.0
+
