@@ -1,29 +1,74 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 0/4] provide a generic free_initmem implementation
-Date: Mon, 18 Feb 2019 10:49:48 +0100
-Message-ID: <20190218094948.GA5892@lst.de>
-References: <1550159977-8949-1-git-send-email-rppt@linux.ibm.com> <20190214170416.GA32441@lst.de> <20190214183854.GA10795@rapoport-lnx>
+From: Souptick Joarder <jrdr.linux@gmail.com>
+Subject: Re: [PATCH 4/4] riscv: switch over to generic free_initmem()
+Date: Mon, 18 Feb 2019 18:16:58 +0530
+Message-ID: <CAFqt6zYL8q16a0dKvNb_1MpJCuz4VrkT1pKe=eqpywxA-hnL0Q@mail.gmail.com>
+References: <1550159977-8949-5-git-send-email-rppt@linux.ibm.com> <mhng-e6dedfc5-937e-42e5-90d6-4ce400cbc6fb@palmer-si-x1c4>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190214183854.GA10795@rapoport-lnx>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mhM/mauBJck6aHRYgcqqFsOsl1B7ZjHg4yd8uzUwQDE=;
+        b=mjcBjbahr86ojcygi/eLoNW179Ryv3mSs0MohtnrQAV6FyL+VV1pgHTqrSBRCfjxDD
+         3P6j1Y+gqW+caEQE39wjF5Y8WsUDkaatY7qreO2lfZxw2xY9NceIH2vuB9qC2odbVX4U
+         h1XX4saztnNAEoPDc82o6JaiCNHqLV2BlsDqGn7UCeKybvfN0NtqktNs3lRnKCLWD03g
+         zLIXkVCt7YBC5z4sh6zI96IvebtIW/FypSqGFPqDqb5iSb6vBN31TKRKalKtaBaPdjV8
+         Gv4g4zO6IeDglQk636jbmv73/AGMiHSBcis/aSCO1+g8BvwUZ6ArgCmxGQf4z7pfAf1j
+         OXBw==
+In-Reply-To: <mhng-e6dedfc5-937e-42e5-90d6-4ce400cbc6fb@palmer-si-x1c4>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>, Palmer Dabbelt <palmer@sifive.com>, Richard Kuo <rkuo@codeaurora.org>, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Palmer Dabbelt <palmer@sifive.com>, Christoph Hellwig <hch@lst.de>, rkuo@codeaurora.org, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Linux-MM <linux-mm@kvack.org>, linux-riscv@lists.infradead.org
 
-On Thu, Feb 14, 2019 at 08:38:55PM +0200, Mike Rapoport wrote:
-> On Thu, Feb 14, 2019 at 06:04:16PM +0100, Christoph Hellwig wrote:
-> > This look fine to me, but I'm a little worried that as-is this will
-> > just create conflicts with my series..
-> 
-> I'll rebase on top of your patches once they are in. Or I can send both
-> series as a single set.
-> Preferences? 
+Hi Mike,
 
-So far there wasn't really much a reason to rebase my series, hope
-this gets picked up either by Andrew or Al (not sure what the right
-place is).  I think for now just rebase your series on top, we can
-then figure out how to proceed.
+On Fri, Feb 15, 2019 at 2:19 AM Palmer Dabbelt <palmer@sifive.com> wrote:
+>
+> On Thu, 14 Feb 2019 07:59:37 PST (-0800), rppt@linux.ibm.com wrote:
+> > The riscv version of free_initmem() differs from the generic one only in
+> > that it sets the freed memory to zero.
+> >
+> > Make ricsv use the generic version and poison the freed memory.
+> >
+> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+
+Just for clarity, does same change applicable in below places -
+
+arch/openrisc/mm/init.c#L231
+arch/alpha/mm/init.c#L290
+arch/arc/mm/init.c#L213
+arch/m68k/mm/init.c#L109
+arch/nds32/mm/init.c#L247
+arch/nios2/mm/init.c#L92
+arch/openrisc/mm/init.c#L231
+
+
+> > ---
+> >  arch/riscv/mm/init.c | 5 -----
+> >  1 file changed, 5 deletions(-)
+> >
+> > diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+> > index 658ebf6..2af0010 100644
+> > --- a/arch/riscv/mm/init.c
+> > +++ b/arch/riscv/mm/init.c
+> > @@ -60,11 +60,6 @@ void __init mem_init(void)
+> >       mem_init_print_info(NULL);
+> >  }
+> >
+> > -void free_initmem(void)
+> > -{
+> > -     free_initmem_default(0);
+> > -}
+> > -
+> >  #ifdef CONFIG_BLK_DEV_INITRD
+> >  void free_initrd_mem(unsigned long start, unsigned long end)
+> >  {
+>
+> Reviewed-by: Palmer Dabbelt <palmer@sifive.com>
+>
+> I'm going to assume this goes in with the rest of the patch set, thanks!
+>
