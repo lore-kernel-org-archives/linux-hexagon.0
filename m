@@ -1,80 +1,63 @@
-From: Souptick Joarder <jrdr.linux@gmail.com>
-Subject: Re: [PATCH 4/4] riscv: switch over to generic free_initmem()
-Date: Mon, 18 Feb 2019 18:20:20 +0530
-Message-ID: <CAFqt6zZZaFU_i+srxk9rd_+5V9FTd767MH-rCocvJPfFcXJsCQ@mail.gmail.com>
-References: <1550159977-8949-5-git-send-email-rppt@linux.ibm.com>
- <mhng-e6dedfc5-937e-42e5-90d6-4ce400cbc6fb@palmer-si-x1c4> <CAFqt6zYL8q16a0dKvNb_1MpJCuz4VrkT1pKe=eqpywxA-hnL0Q@mail.gmail.com>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH v4 0/3] locking/rwsem: Rwsem rearchitecture part 0
+Date: Mon, 18 Feb 2019 14:58:20 +0000
+Message-ID: <20190218145820.GA16091@fuggles.cambridge.arm.com>
+References: <1550095217-12047-1-git-send-email-longman@redhat.com>
+ <20190214103715.GI32494@hirez.programming.kicks-ass.net>
+ <20190215184056.GC15084@fuggles.cambridge.arm.com>
+ <a45d8b68-5623-d6fe-8080-072994f7625e@redhat.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=T3mDCcqlTfvGRxpNOHBVgyu2R93YF4O1+jAeLCd5+y8=;
-        b=d3929Rhyr7JOx9T5ZNS/6Yvki/jgtKOl1mQuZDiAuzD+uLmHBJA2ImNlzS57u0vjU/
-         jNws9qOKr7mOkjYV/Nfm4TJXQmA33N16G6VlmjdgKbs310j7PDoFa0VRVneZTdZPGi0M
-         W7HvYdSndWcBXb5ZtA7BY/f7kUN02sa4TH4GuisKrt6rTa5WM9LX6XPz7dnG81E2A270
-         AvCoZSdQIfycQQEG4BM+aU/M1/S8c36XS6+kwzPIa9efHzaX/TzViHgV9HoS1C27/vME
-         ezEEYRnpVK5/QuJAlIUGlOJjVjPEG/u5gaHDT/EpS2x94vaeTTERXn2sYEbj2LoO3qk9
-         0TAg==
-In-Reply-To: <CAFqt6zYL8q16a0dKvNb_1MpJCuz4VrkT1pKe=eqpywxA-hnL0Q@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <a45d8b68-5623-d6fe-8080-072994f7625e@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Palmer Dabbelt <palmer@sifive.com>, Christoph Hellwig <hch@lst.de>, rkuo@codeaurora.org, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Linux-MM <linux-mm@kvack.org>, linux-riscv@lists.infradead.org
+To: Waiman Long <longman@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, uclinux-h8-devel@lists.sourceforge.jp, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Borislav
 
-On Mon, Feb 18, 2019 at 6:16 PM Souptick Joarder <jrdr.linux@gmail.com> wrote:
->
-> Hi Mike,
->
-> On Fri, Feb 15, 2019 at 2:19 AM Palmer Dabbelt <palmer@sifive.com> wrote:
+On Fri, Feb 15, 2019 at 01:58:34PM -0500, Waiman Long wrote:
+> On 02/15/2019 01:40 PM, Will Deacon wrote:
+> > On Thu, Feb 14, 2019 at 11:37:15AM +0100, Peter Zijlstra wrote:
+> >> On Wed, Feb 13, 2019 at 05:00:14PM -0500, Waiman Long wrote:
+> >>> v4:
+> >>>  - Remove rwsem-spinlock.c and make all archs use rwsem-xadd.c.
+> >>>
+> >>> v3:
+> >>>  - Optimize __down_read_trylock() for the uncontended case as suggested
+> >>>    by Linus.
+> >>>
+> >>> v2:
+> >>>  - Add patch 2 to optimize __down_read_trylock() as suggested by PeterZ.
+> >>>  - Update performance test data in patch 1.
+> >>>
+> >>> The goal of this patchset is to remove the architecture specific files
+> >>> for rwsem-xadd to make it easer to add enhancements in the later rwsem
+> >>> patches. It also removes the legacy rwsem-spinlock.c file and make all
+> >>> the architectures use one single implementation of rwsem - rwsem-xadd.c.
+> >>>
+> >>> Waiman Long (3):
+> >>>   locking/rwsem: Remove arch specific rwsem files
+> >>>   locking/rwsem: Remove rwsem-spinlock.c & use rwsem-xadd.c for all
+> >>>     archs
+> >>>   locking/rwsem: Optimize down_read_trylock()
+> >> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> >>
+> >> with the caveat that I'm happy to exchange patch 3 back to my earlier
+> >> suggestion in case Will expesses concerns wrt the ARM64 performance of
+> >> Linus' suggestion.
+> > Right, the current proposal doesn't work well for us, unfortunately. Which
+> > was your earlier suggestion?
 > >
-> > On Thu, 14 Feb 2019 07:59:37 PST (-0800), rppt@linux.ibm.com wrote:
-> > > The riscv version of free_initmem() differs from the generic one only in
-> > > that it sets the freed memory to zero.
-> > >
-> > > Make ricsv use the generic version and poison the freed memory.
-> > >
-> > > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
->
-> Just for clarity, does same change applicable in below places -
->
-> arch/openrisc/mm/init.c#L231
-> arch/alpha/mm/init.c#L290
-> arch/arc/mm/init.c#L213
-> arch/m68k/mm/init.c#L109
-> arch/nds32/mm/init.c#L247
-> arch/nios2/mm/init.c#L92
-> arch/openrisc/mm/init.c#L231
+> > Will
+> 
+> In my posting yesterday, I showed that most of the trylocks done were
+> actually uncontended. Assuming that pattern hold for the most of the
+> workloads, it will not that bad after all.
 
-Please ignore this query. just saw the other patches.
-Sorry for the noise.
->
->
-> > > ---
-> > >  arch/riscv/mm/init.c | 5 -----
-> > >  1 file changed, 5 deletions(-)
-> > >
-> > > diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-> > > index 658ebf6..2af0010 100644
-> > > --- a/arch/riscv/mm/init.c
-> > > +++ b/arch/riscv/mm/init.c
-> > > @@ -60,11 +60,6 @@ void __init mem_init(void)
-> > >       mem_init_print_info(NULL);
-> > >  }
-> > >
-> > > -void free_initmem(void)
-> > > -{
-> > > -     free_initmem_default(0);
-> > > -}
-> > > -
-> > >  #ifdef CONFIG_BLK_DEV_INITRD
-> > >  void free_initrd_mem(unsigned long start, unsigned long end)
-> > >  {
-> >
-> > Reviewed-by: Palmer Dabbelt <palmer@sifive.com>
-> >
-> > I'm going to assume this goes in with the rest of the patch set, thanks!
-> >
+That's fair enough; if you're going to sit in a tight trylock() loop like the
+benchmark does, then you're much better off just calling lock() if you care
+at all about scalability.
+
+Will
