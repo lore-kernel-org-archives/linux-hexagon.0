@@ -1,129 +1,62 @@
-From: Waiman Long <longman@redhat.com>
-Subject: Re: [PATCH v4 3/3] locking/rwsem: Optimize down_read_trylock()
-Date: Thu, 21 Feb 2019 22:28:47 -0500
-Message-ID: <9dc33d11-4570-f2d9-e097-d4e6586d13e2@redhat.com>
-References: <1550095217-12047-1-git-send-email-longman@redhat.com>
- <1550095217-12047-4-git-send-email-longman@redhat.com>
- <20190221141420.GC12696@fuggles.cambridge.arm.com>
+From: Palmer Dabbelt <palmer@sifive.com>
+Subject: Re: [PATCH 8/8] riscv: Use latest system call ABI
+Date: Mon, 25 Feb 2019 11:19:11 -0800
+Message-ID: <CANs6eMkY09Q-5m0venYjuu5zbuGhPpH23VuGw8Ct_nc0m7aVTg@mail.gmail.com>
+References: <20190218210712.3503891-1-arnd@arndb.de>
+ <20190218210712.3503891-9-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190221141420.GC12696@fuggles.cambridge.arm.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+In-Reply-To: <20190218210712.3503891-9-arnd@arndb.de>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Will Deacon <will.deacon@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, uclinux-h8-devel@lists.sourceforge.jp, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, Borislav
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arch@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, yury.norov@gmail.com, y2038@lists.linaro.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, Vineet Gupta <vgupta@synopsys.com>, Guo Ren <guoren@kernel.org>, Greentime Hu <green.hu@gmail.com>, linux-hexagon@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Guan Xuetao <gxt@pku.edu.cn>, Stafford Horne <shorne@gmail.com>, linux-arm-kernel@lists.infradead.org
 
-On 02/21/2019 09:14 AM, Will Deacon wrote:
-> On Wed, Feb 13, 2019 at 05:00:17PM -0500, Waiman Long wrote:
->> Modify __down_read_trylock() to optimize for an unlocked rwsem and make
->> it generate slightly better code.
->>
->> Before this patch, down_read_trylock:
->>
->>    0x0000000000000000 <+0>:     callq  0x5 <down_read_trylock+5>
->>    0x0000000000000005 <+5>:     jmp    0x18 <down_read_trylock+24>
->>    0x0000000000000007 <+7>:     lea    0x1(%rdx),%rcx
->>    0x000000000000000b <+11>:    mov    %rdx,%rax
->>    0x000000000000000e <+14>:    lock cmpxchg %rcx,(%rdi)
->>    0x0000000000000013 <+19>:    cmp    %rax,%rdx
->>    0x0000000000000016 <+22>:    je     0x23 <down_read_trylock+35>
->>    0x0000000000000018 <+24>:    mov    (%rdi),%rdx
->>    0x000000000000001b <+27>:    test   %rdx,%rdx
->>    0x000000000000001e <+30>:    jns    0x7 <down_read_trylock+7>
->>    0x0000000000000020 <+32>:    xor    %eax,%eax
->>    0x0000000000000022 <+34>:    retq
->>    0x0000000000000023 <+35>:    mov    %gs:0x0,%rax
->>    0x000000000000002c <+44>:    or     $0x3,%rax
->>    0x0000000000000030 <+48>:    mov    %rax,0x20(%rdi)
->>    0x0000000000000034 <+52>:    mov    $0x1,%eax
->>    0x0000000000000039 <+57>:    retq
->>
->> After patch, down_read_trylock:
->>
->>    0x0000000000000000 <+0>:	callq  0x5 <down_read_trylock+5>
->>    0x0000000000000005 <+5>:	xor    %eax,%eax
->>    0x0000000000000007 <+7>:	lea    0x1(%rax),%rdx
->>    0x000000000000000b <+11>:	lock cmpxchg %rdx,(%rdi)
->>    0x0000000000000010 <+16>:	jne    0x29 <down_read_trylock+41>
->>    0x0000000000000012 <+18>:	mov    %gs:0x0,%rax
->>    0x000000000000001b <+27>:	or     $0x3,%rax
->>    0x000000000000001f <+31>:	mov    %rax,0x20(%rdi)
->>    0x0000000000000023 <+35>:	mov    $0x1,%eax
->>    0x0000000000000028 <+40>:	retq
->>    0x0000000000000029 <+41>:	test   %rax,%rax
->>    0x000000000000002c <+44>:	jns    0x7 <down_read_trylock+7>
->>    0x000000000000002e <+46>:	xor    %eax,%eax
->>    0x0000000000000030 <+48>:	retq
->>
->> By using a rwsem microbenchmark, the down_read_trylock() rate (with a
->> load of 10 to lengthen the lock critical section) on a x86-64 system
->> before and after the patch were:
->>
->>                  Before Patch    After Patch
->>    # of Threads     rlock           rlock
->>    ------------     -----           -----
->>         1           14,496          14,716
->>         2            8,644           8,453
->> 	4            6,799           6,983
->> 	8            5,664           7,190
->>
->> On a ARM64 system, the performance results were:
->>
->>                  Before Patch    After Patch
->>    # of Threads     rlock           rlock
->>    ------------     -----           -----
->>         1           23,676          24,488
->>         2            7,697           9,502
->>         4            4,945           3,440
->>         8            2,641           1,603
->>
->> For the uncontended case (1 thread), the new down_read_trylock() is a
->> little bit faster. For the contended cases, the new down_read_trylock()
->> perform pretty well in x86-64, but performance degrades at high
->> contention level on ARM64.
->>
->> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
->> Signed-off-by: Waiman Long <longman@redhat.com>
->> ---
->>  kernel/locking/rwsem.h | 13 ++++++++-----
->>  1 file changed, 8 insertions(+), 5 deletions(-)
->>
->> diff --git a/kernel/locking/rwsem.h b/kernel/locking/rwsem.h
->> index 45ee002..1f5775a 100644
->> --- a/kernel/locking/rwsem.h
->> +++ b/kernel/locking/rwsem.h
->> @@ -174,14 +174,17 @@ static inline int __down_read_killable(struct rw_semaphore *sem)
->>  
->>  static inline int __down_read_trylock(struct rw_semaphore *sem)
->>  {
->> -	long tmp;
->> +	/*
->> +	 * Optimize for the case when the rwsem is not locked at all.
->> +	 */
->> +	long tmp = RWSEM_UNLOCKED_VALUE;
->>  
->> -	while ((tmp = atomic_long_read(&sem->count)) >= 0) {
->> -		if (tmp == atomic_long_cmpxchg_acquire(&sem->count, tmp,
->> -				   tmp + RWSEM_ACTIVE_READ_BIAS)) {
->> +	do {
->> +		if (atomic_long_try_cmpxchg_acquire(&sem->count, &tmp,
->> +					tmp + RWSEM_ACTIVE_READ_BIAS)) {
->>  			return 1;
->>  		}
->> -	}
->> +	} while (tmp >= 0);
-> Nit: but I guess that should be RWSEM_UNLOCKED_VALUE instead of 0.
->
-> Will
-
-Using RWSEM_UNLOCKED_VALUE may be better. Anyway, it is not a big deal
-as I am going to change this again in a later patch.
-
-Thanks,
-Longman
-
-RWSEM_UNLOCKED_VALUE
-
+T24gTW9uLCBGZWIgMTgsIDIwMTkgYXQgMTowNyBQTSBBcm5kIEJlcmdtYW5uIDxhcm5kQGFybmRi
+LmRlPiB3cm90ZToKCj4gV2UgZG9uJ3QgeWV0IGhhdmUgYW4gdXBzdHJlYW0gZ2xpYmMgcG9ydCBm
+b3IgcmlzY3YsIHNvIHRoZXJlIGlzIG5vIHVzZXIKPiBzcGFjZSBmb3IgdGhlIGV4aXN0aW5nIEFC
+SSwgYW5kIHdlIGNhbiByZW1vdmUgdGhlIGRlZmluaXRpb25zIGZvciAzMi1iaXQKPiB0aW1lX3Qs
+IG9mZl90IGFuZCBzdHJ1Y3QgcmVzb3VyY2UgYW5kIHN5c3RlbSBjYWxscyBiYXNlZCBvbiB0aGVt
+LAo+IGluY2x1ZGluZyB0aGUgdmRzby4KPgo+IFNpZ25lZC1vZmYtYnk6IEFybmQgQmVyZ21hbm4g
+PGFybmRAYXJuZGIuZGU+Cj4gLS0tCj4gIGFyY2gvcmlzY3YvS2NvbmZpZyAgICAgICAgICAgICAg
+ICAgICB8IDEgLQo+ICBhcmNoL3Jpc2N2L2luY2x1ZGUvdWFwaS9hc20vdW5pc3RkLmggfCA1ICst
+LS0tCj4gIGFyY2gvcmlzY3Yva2VybmVsL3Zkc28vTWFrZWZpbGUgICAgICB8IDIgKysKPiAgMyBm
+aWxlcyBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0t
+Z2l0IGEvYXJjaC9yaXNjdi9LY29uZmlnIGIvYXJjaC9yaXNjdi9LY29uZmlnCj4gaW5kZXggMDlm
+YTNhODdiZjMwLi5mZWVlYWE2MDY5N2MgMTAwNjQ0Cj4gLS0tIGEvYXJjaC9yaXNjdi9LY29uZmln
+Cj4gKysrIGIvYXJjaC9yaXNjdi9LY29uZmlnCj4gQEAgLTExLDcgKzExLDYgQEAgY29uZmlnIDMy
+QklUCj4KPiAgY29uZmlnIFJJU0NWCj4gICAgICAgICBkZWZfYm9vbCB5Cj4gLSAgICAgICBzZWxl
+Y3QgQVJDSF8zMkJJVF9PRkZfVCBpZiAhNjRCSVQKPiAgICAgICAgICMgZXZlbiBvbiAzMi1iaXQs
+IHBoeXNpY2FsIChhbmQgRE1BKSBhZGRyZXNzZXMgYXJlID4gMzItYml0cwo+ICAgICAgICAgc2Vs
+ZWN0IFBIWVNfQUREUl9UXzY0QklUCj4gICAgICAgICBzZWxlY3QgT0YKPiBkaWZmIC0tZ2l0IGEv
+YXJjaC9yaXNjdi9pbmNsdWRlL3VhcGkvYXNtL3VuaXN0ZC5oCj4gYi9hcmNoL3Jpc2N2L2luY2x1
+ZGUvdWFwaS9hc20vdW5pc3RkLmgKPiBpbmRleCA0ODZhMjg4YjQ1NGMuLjBlMmVlZWIxZmQyNyAx
+MDA2NDQKPiAtLS0gYS9hcmNoL3Jpc2N2L2luY2x1ZGUvdWFwaS9hc20vdW5pc3RkLmgKPiArKysg
+Yi9hcmNoL3Jpc2N2L2luY2x1ZGUvdWFwaS9hc20vdW5pc3RkLmgKPiBAQCAtMTcsMTEgKzE3LDgg
+QEAKPgo+ICAjaWZkZWYgX19MUDY0X18KPiAgI2RlZmluZSBfX0FSQ0hfV0FOVF9ORVdfU1RBVAo+
+IC0jZW5kaWYgLyogX19MUDY0X18gKi8KPiAgI2RlZmluZSBfX0FSQ0hfV0FOVF9TRVRfR0VUX1JM
+SU1JVAo+IC0jaWZuZGVmIF9fTFA2NF9fCj4gLSNkZWZpbmUgX19BUkNIX1dBTlRfVElNRTMyX1NZ
+U0NBTExTCj4gLSNlbmRpZgo+ICsjZW5kaWYgLyogX19MUDY0X18gKi8KPgo+ICAjaW5jbHVkZSA8
+YXNtLWdlbmVyaWMvdW5pc3RkLmg+Cj4KPiBkaWZmIC0tZ2l0IGEvYXJjaC9yaXNjdi9rZXJuZWwv
+dmRzby9NYWtlZmlsZQo+IGIvYXJjaC9yaXNjdi9rZXJuZWwvdmRzby9NYWtlZmlsZQo+IGluZGV4
+IGVlZDFjMTM3ZjYxOC4uZmVjNjJiMjRkZjg5IDEwMDY0NAo+IC0tLSBhL2FyY2gvcmlzY3Yva2Vy
+bmVsL3Zkc28vTWFrZWZpbGUKPiArKysgYi9hcmNoL3Jpc2N2L2tlcm5lbC92ZHNvL01ha2VmaWxl
+Cj4gQEAgLTIsOSArMiwxMSBAQAo+Cj4gICMgU3ltYm9scyBwcmVzZW50IGluIHRoZSB2ZHNvCj4g
+IHZkc28tc3ltcyAgPSBydF9zaWdyZXR1cm4KPiAraWZkZWYgQ09ORklHXzY0QklUCj4gIHZkc28t
+c3ltcyArPSBnZXR0aW1lb2ZkYXkKPiAgdmRzby1zeW1zICs9IGNsb2NrX2dldHRpbWUKPiAgdmRz
+by1zeW1zICs9IGNsb2NrX2dldHJlcwo+ICtlbmRpZgo+ICB2ZHNvLXN5bXMgKz0gZ2V0Y3B1Cj4g
+IHZkc28tc3ltcyArPSBmbHVzaF9pY2FjaGUKPgo+IC0tCj4gMi4yMC4wCj4KClJldmlld2VkLWJ5
+OiBQYWxtZXIgRGFiYmVsdCA8cGFsbWVyQHNpZml2ZS5jb20+Cl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClkyMDM4IG1haWxpbmcgbGlzdApZMjAzOEBsaXN0
+cy5saW5hcm8ub3JnCmh0dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ky
+MDM4Cg==
