@@ -1,62 +1,70 @@
-From: Palmer Dabbelt <palmer@sifive.com>
-Subject: Re: [PATCH 8/8] riscv: Use latest system call ABI
-Date: Mon, 25 Feb 2019 11:19:11 -0800
-Message-ID: <CANs6eMkY09Q-5m0venYjuu5zbuGhPpH23VuGw8Ct_nc0m7aVTg@mail.gmail.com>
-References: <20190218210712.3503891-1-arnd@arndb.de>
- <20190218210712.3503891-9-arnd@arndb.de>
+From: "Dmitry V. Levin" <ldv@altlinux.org>
+Subject: [PATCH 05/14] Move EM_HEXAGON to uapi/linux/elf-em.h
+Date: Wed, 27 Feb 2019 18:29:57 +0300
+Message-ID: <20190227152957.GB23744@altlinux.org>
+References: <20190109124044.GA11935@altlinux.org>
+ <20190109124300.GE11981@altlinux.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-In-Reply-To: <20190218210712.3503891-9-arnd@arndb.de>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190109124300.GE11981@altlinux.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arch@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, yury.norov@gmail.com, y2038@lists.linaro.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, Vineet Gupta <vgupta@synopsys.com>, Guo Ren <guoren@kernel.org>, Greentime Hu <green.hu@gmail.com>, linux-hexagon@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Guan Xuetao <gxt@pku.edu.cn>, Stafford Horne <shorne@gmail.com>, linux-arm-kernel@lists.infradead.org
+Content-Transfer-Encoding: 7bit
+To: Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org
+Cc: Elvira Khabirova <lineprinter@altlinux.org>, Eugene Syromyatnikov <esyr@redhat.com>, Oleg Nesterov <oleg@redhat.com>, Andy Lutomirski <luto@kernel.org>, Paul Moore <paul@paul-moore.com>, linux-audit@redhat.com, linux-kernel@vger.kernel.org
 
-T24gTW9uLCBGZWIgMTgsIDIwMTkgYXQgMTowNyBQTSBBcm5kIEJlcmdtYW5uIDxhcm5kQGFybmRi
-LmRlPiB3cm90ZToKCj4gV2UgZG9uJ3QgeWV0IGhhdmUgYW4gdXBzdHJlYW0gZ2xpYmMgcG9ydCBm
-b3IgcmlzY3YsIHNvIHRoZXJlIGlzIG5vIHVzZXIKPiBzcGFjZSBmb3IgdGhlIGV4aXN0aW5nIEFC
-SSwgYW5kIHdlIGNhbiByZW1vdmUgdGhlIGRlZmluaXRpb25zIGZvciAzMi1iaXQKPiB0aW1lX3Qs
-IG9mZl90IGFuZCBzdHJ1Y3QgcmVzb3VyY2UgYW5kIHN5c3RlbSBjYWxscyBiYXNlZCBvbiB0aGVt
-LAo+IGluY2x1ZGluZyB0aGUgdmRzby4KPgo+IFNpZ25lZC1vZmYtYnk6IEFybmQgQmVyZ21hbm4g
-PGFybmRAYXJuZGIuZGU+Cj4gLS0tCj4gIGFyY2gvcmlzY3YvS2NvbmZpZyAgICAgICAgICAgICAg
-ICAgICB8IDEgLQo+ICBhcmNoL3Jpc2N2L2luY2x1ZGUvdWFwaS9hc20vdW5pc3RkLmggfCA1ICst
-LS0tCj4gIGFyY2gvcmlzY3Yva2VybmVsL3Zkc28vTWFrZWZpbGUgICAgICB8IDIgKysKPiAgMyBm
-aWxlcyBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0t
-Z2l0IGEvYXJjaC9yaXNjdi9LY29uZmlnIGIvYXJjaC9yaXNjdi9LY29uZmlnCj4gaW5kZXggMDlm
-YTNhODdiZjMwLi5mZWVlYWE2MDY5N2MgMTAwNjQ0Cj4gLS0tIGEvYXJjaC9yaXNjdi9LY29uZmln
-Cj4gKysrIGIvYXJjaC9yaXNjdi9LY29uZmlnCj4gQEAgLTExLDcgKzExLDYgQEAgY29uZmlnIDMy
-QklUCj4KPiAgY29uZmlnIFJJU0NWCj4gICAgICAgICBkZWZfYm9vbCB5Cj4gLSAgICAgICBzZWxl
-Y3QgQVJDSF8zMkJJVF9PRkZfVCBpZiAhNjRCSVQKPiAgICAgICAgICMgZXZlbiBvbiAzMi1iaXQs
-IHBoeXNpY2FsIChhbmQgRE1BKSBhZGRyZXNzZXMgYXJlID4gMzItYml0cwo+ICAgICAgICAgc2Vs
-ZWN0IFBIWVNfQUREUl9UXzY0QklUCj4gICAgICAgICBzZWxlY3QgT0YKPiBkaWZmIC0tZ2l0IGEv
-YXJjaC9yaXNjdi9pbmNsdWRlL3VhcGkvYXNtL3VuaXN0ZC5oCj4gYi9hcmNoL3Jpc2N2L2luY2x1
-ZGUvdWFwaS9hc20vdW5pc3RkLmgKPiBpbmRleCA0ODZhMjg4YjQ1NGMuLjBlMmVlZWIxZmQyNyAx
-MDA2NDQKPiAtLS0gYS9hcmNoL3Jpc2N2L2luY2x1ZGUvdWFwaS9hc20vdW5pc3RkLmgKPiArKysg
-Yi9hcmNoL3Jpc2N2L2luY2x1ZGUvdWFwaS9hc20vdW5pc3RkLmgKPiBAQCAtMTcsMTEgKzE3LDgg
-QEAKPgo+ICAjaWZkZWYgX19MUDY0X18KPiAgI2RlZmluZSBfX0FSQ0hfV0FOVF9ORVdfU1RBVAo+
-IC0jZW5kaWYgLyogX19MUDY0X18gKi8KPiAgI2RlZmluZSBfX0FSQ0hfV0FOVF9TRVRfR0VUX1JM
-SU1JVAo+IC0jaWZuZGVmIF9fTFA2NF9fCj4gLSNkZWZpbmUgX19BUkNIX1dBTlRfVElNRTMyX1NZ
-U0NBTExTCj4gLSNlbmRpZgo+ICsjZW5kaWYgLyogX19MUDY0X18gKi8KPgo+ICAjaW5jbHVkZSA8
-YXNtLWdlbmVyaWMvdW5pc3RkLmg+Cj4KPiBkaWZmIC0tZ2l0IGEvYXJjaC9yaXNjdi9rZXJuZWwv
-dmRzby9NYWtlZmlsZQo+IGIvYXJjaC9yaXNjdi9rZXJuZWwvdmRzby9NYWtlZmlsZQo+IGluZGV4
-IGVlZDFjMTM3ZjYxOC4uZmVjNjJiMjRkZjg5IDEwMDY0NAo+IC0tLSBhL2FyY2gvcmlzY3Yva2Vy
-bmVsL3Zkc28vTWFrZWZpbGUKPiArKysgYi9hcmNoL3Jpc2N2L2tlcm5lbC92ZHNvL01ha2VmaWxl
-Cj4gQEAgLTIsOSArMiwxMSBAQAo+Cj4gICMgU3ltYm9scyBwcmVzZW50IGluIHRoZSB2ZHNvCj4g
-IHZkc28tc3ltcyAgPSBydF9zaWdyZXR1cm4KPiAraWZkZWYgQ09ORklHXzY0QklUCj4gIHZkc28t
-c3ltcyArPSBnZXR0aW1lb2ZkYXkKPiAgdmRzby1zeW1zICs9IGNsb2NrX2dldHRpbWUKPiAgdmRz
-by1zeW1zICs9IGNsb2NrX2dldHJlcwo+ICtlbmRpZgo+ICB2ZHNvLXN5bXMgKz0gZ2V0Y3B1Cj4g
-IHZkc28tc3ltcyArPSBmbHVzaF9pY2FjaGUKPgo+IC0tCj4gMi4yMC4wCj4KClJldmlld2VkLWJ5
-OiBQYWxtZXIgRGFiYmVsdCA8cGFsbWVyQHNpZml2ZS5jb20+Cl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClkyMDM4IG1haWxpbmcgbGlzdApZMjAzOEBsaXN0
-cy5saW5hcm8ub3JnCmh0dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ky
-MDM4Cg==
+This should never have been defined in the arch tree to begin with,
+and now uapi/linux/audit.h header is going to use EM_HEXAGON
+in order to define AUDIT_ARCH_HEXAGON which is needed to implement
+syscall_get_arch() which in turn is required to extend
+the generic ptrace API with PTRACE_GET_SYSCALL_INFO request.
+
+Acked-by: Paul Moore <paul@paul-moore.com>
+Cc: Elvira Khabirova <lineprinter@altlinux.org>
+Cc: Eugene Syromyatnikov <esyr@redhat.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-audit@redhat.com
+Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
+---
+ This is just a gentle ping, the patch is unchanged.
+
+ arch/hexagon/include/asm/elf.h | 6 +-----
+ include/uapi/linux/elf-em.h    | 1 +
+ 2 files changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/arch/hexagon/include/asm/elf.h b/arch/hexagon/include/asm/elf.h
+index 80311e7b8ca6..d10fbd54ae51 100644
+--- a/arch/hexagon/include/asm/elf.h
++++ b/arch/hexagon/include/asm/elf.h
+@@ -23,11 +23,7 @@
+ 
+ #include <asm/ptrace.h>
+ #include <asm/user.h>
+-
+-/*
+- * This should really be in linux/elf-em.h.
+- */
+-#define EM_HEXAGON	164   /* QUALCOMM Hexagon */
++#include <linux/elf-em.h>
+ 
+ struct elf32_hdr;
+ 
+diff --git a/include/uapi/linux/elf-em.h b/include/uapi/linux/elf-em.h
+index 081675ed89cb..bd02325028d8 100644
+--- a/include/uapi/linux/elf-em.h
++++ b/include/uapi/linux/elf-em.h
+@@ -39,6 +39,7 @@
+ #define EM_BLACKFIN     106     /* ADI Blackfin Processor */
+ #define EM_ALTERA_NIOS2	113	/* Altera Nios II soft-core processor */
+ #define EM_TI_C6000	140	/* TI C6X DSPs */
++#define EM_HEXAGON	164	/* QUALCOMM Hexagon */
+ #define EM_AARCH64	183	/* ARM 64 bit */
+ #define EM_TILEPRO	188	/* Tilera TILEPro */
+ #define EM_MICROBLAZE	189	/* Xilinx MicroBlaze */
+-- 
+ldv
