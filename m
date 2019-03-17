@@ -1,7 +1,7 @@
 From: "Dmitry V. Levin" <ldv@altlinux.org>
-Subject: [PATCH v2 05/13] Move EM_HEXAGON to uapi/linux/elf-em.h
-Date: Mon, 18 Mar 2019 02:29:08 +0300
-Message-ID: <20190317232908.GF16301@altlinux.org>
+Subject: [PATCH v2 06/13] hexagon: define syscall_get_arch()
+Date: Mon, 18 Mar 2019 02:29:32 +0300
+Message-ID: <20190317232932.GG16301@altlinux.org>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
@@ -10,20 +10,20 @@ List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Paul Moore <paul@paul-moore.com>
-Cc: Elvira Khabirova <lineprinter@altlinux.org>, Eugene Syromyatnikov <esyr@redhat.com>, Oleg Nesterov <oleg@redhat.com>, Andy Lutomirski <luto@kernel.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-audit@redhat.com, linux-kernel@vger.kernel.org
+Cc: Elvira Khabirova <lineprinter@altlinux.org>, Eugene Syromyatnikov <esyr@redhat.com>, Richard Kuo <rkuo@codeaurora.org>, Oleg Nesterov <oleg@redhat.com>, Andy Lutomirski <luto@kernel.org>, linux-hexagon@vger.kernel.org, linux-audit@redhat.com, linux-kernel@vger.kernel.org
 
-This should never have been defined in the arch tree to begin with,
-and now uapi/linux/audit.h header is going to use EM_HEXAGON
-in order to define AUDIT_ARCH_HEXAGON which is needed to implement
-syscall_get_arch() which in turn is required to extend
-the generic ptrace API with PTRACE_GET_SYSCALL_INFO request.
+syscall_get_arch() is required to be implemented on all architectures
+in addition to already implemented syscall_get_nr(),
+syscall_get_arguments(), syscall_get_error(), and
+syscall_get_return_value() functions in order to extend the generic
+ptrace API with PTRACE_GET_SYSCALL_INFO request.
 
 Acked-by: Paul Moore <paul@paul-moore.com>
 Cc: Elvira Khabirova <lineprinter@altlinux.org>
 Cc: Eugene Syromyatnikov <esyr@redhat.com>
+Cc: Richard Kuo <rkuo@codeaurora.org>
 Cc: Oleg Nesterov <oleg@redhat.com>
 Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Richard Kuo <rkuo@codeaurora.org>
 Cc: linux-hexagon@vger.kernel.org
 Cc: linux-audit@redhat.com
 Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
@@ -32,38 +32,45 @@ Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
 Notes:
     v2: unchanged
 
- arch/hexagon/include/asm/elf.h | 6 +-----
- include/uapi/linux/elf-em.h    | 1 +
- 2 files changed, 2 insertions(+), 5 deletions(-)
+ arch/hexagon/include/asm/syscall.h | 8 ++++++++
+ include/uapi/linux/audit.h         | 1 +
+ 2 files changed, 9 insertions(+)
 
-diff --git a/arch/hexagon/include/asm/elf.h b/arch/hexagon/include/asm/elf.h
-index 80311e7b8ca6..d10fbd54ae51 100644
---- a/arch/hexagon/include/asm/elf.h
-+++ b/arch/hexagon/include/asm/elf.h
-@@ -23,11 +23,7 @@
+diff --git a/arch/hexagon/include/asm/syscall.h b/arch/hexagon/include/asm/syscall.h
+index 4af9c7b6f13a..de3917aad3fd 100644
+--- a/arch/hexagon/include/asm/syscall.h
++++ b/arch/hexagon/include/asm/syscall.h
+@@ -21,6 +21,8 @@
+ #ifndef _ASM_HEXAGON_SYSCALL_H
+ #define _ASM_HEXAGON_SYSCALL_H
  
- #include <asm/ptrace.h>
- #include <asm/user.h>
--
--/*
-- * This should really be in linux/elf-em.h.
-- */
--#define EM_HEXAGON	164   /* QUALCOMM Hexagon */
-+#include <linux/elf-em.h>
- 
- struct elf32_hdr;
- 
-diff --git a/include/uapi/linux/elf-em.h b/include/uapi/linux/elf-em.h
-index 081675ed89cb..bd02325028d8 100644
---- a/include/uapi/linux/elf-em.h
-+++ b/include/uapi/linux/elf-em.h
-@@ -39,6 +39,7 @@
- #define EM_BLACKFIN     106     /* ADI Blackfin Processor */
- #define EM_ALTERA_NIOS2	113	/* Altera Nios II soft-core processor */
- #define EM_TI_C6000	140	/* TI C6X DSPs */
-+#define EM_HEXAGON	164	/* QUALCOMM Hexagon */
- #define EM_AARCH64	183	/* ARM 64 bit */
- #define EM_TILEPRO	188	/* Tilera TILEPro */
- #define EM_MICROBLAZE	189	/* Xilinx MicroBlaze */
++#include <uapi/linux/audit.h>
++
+ typedef long (*syscall_fn)(unsigned long, unsigned long,
+ 	unsigned long, unsigned long,
+ 	unsigned long, unsigned long);
+@@ -43,4 +45,10 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 	BUG_ON(i + n > 6);
+ 	memcpy(args, &(&regs->r00)[i], n * sizeof(args[0]));
+ }
++
++static inline int syscall_get_arch(void)
++{
++	return AUDIT_ARCH_HEXAGON;
++}
++
+ #endif
+diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
+index 09994181b2d5..fc94e74c8b77 100644
+--- a/include/uapi/linux/audit.h
++++ b/include/uapi/linux/audit.h
+@@ -387,6 +387,7 @@ enum {
+ #define AUDIT_ARCH_CSKY		(EM_CSKY|__AUDIT_ARCH_LE)
+ #define AUDIT_ARCH_FRV		(EM_FRV)
+ #define AUDIT_ARCH_H8300	(EM_H8_300)
++#define AUDIT_ARCH_HEXAGON	(EM_HEXAGON)
+ #define AUDIT_ARCH_I386		(EM_386|__AUDIT_ARCH_LE)
+ #define AUDIT_ARCH_IA64		(EM_IA_64|__AUDIT_ARCH_64BIT|__AUDIT_ARCH_LE)
+ #define AUDIT_ARCH_M32R		(EM_M32R)
 -- 
 ldv
