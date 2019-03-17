@@ -1,48 +1,69 @@
-From: Steven Price <steven.price@arm.com>
-Subject: [PATCH v3 07/34] hexagon: mm: Add p?d_large() definitions
-Date: Wed, 27 Feb 2019 17:05:41 +0000
-Message-ID: <20190227170608.27963-8-steven.price@arm.com>
-References: <20190227170608.27963-1-steven.price@arm.com>
+From: "Dmitry V. Levin" <ldv@altlinux.org>
+Subject: [PATCH v2 05/13] Move EM_HEXAGON to uapi/linux/elf-em.h
+Date: Mon, 18 Mar 2019 02:29:08 +0300
+Message-ID: <20190317232908.GF16301@altlinux.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190227170608.27963-1-steven.price@arm.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-mm@kvack.org
-Cc: Steven Price <steven.price@arm.com>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, James Morse <james.morse@arm.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Mark Rutland <Mark.Rutland@arm.com>, "Liang, Kan" <kan.liang@linux.intel.com>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kerne
+Content-Transfer-Encoding: 7bit
+To: Paul Moore <paul@paul-moore.com>
+Cc: Elvira Khabirova <lineprinter@altlinux.org>, Eugene Syromyatnikov <esyr@redhat.com>, Oleg Nesterov <oleg@redhat.com>, Andy Lutomirski <luto@kernel.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-audit@redhat.com, linux-kernel@vger.kernel.org
 
-walk_page_range() is going to be allowed to walk page tables other than
-those of user space. For this it needs to know when it has reached a
-'leaf' entry in the page tables. This information is provided by the
-p?d_large() functions/macros.
+This should never have been defined in the arch tree to begin with,
+and now uapi/linux/audit.h header is going to use EM_HEXAGON
+in order to define AUDIT_ARCH_HEXAGON which is needed to implement
+syscall_get_arch() which in turn is required to extend
+the generic ptrace API with PTRACE_GET_SYSCALL_INFO request.
 
-For hexagon, we don't support large pages, so add a stub returning 0.
-
-CC: Richard Kuo <rkuo@codeaurora.org>
-CC: linux-hexagon@vger.kernel.org
-Signed-off-by: Steven Price <steven.price@arm.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Cc: Elvira Khabirova <lineprinter@altlinux.org>
+Cc: Eugene Syromyatnikov <esyr@redhat.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Richard Kuo <rkuo@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-audit@redhat.com
+Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
 ---
- arch/hexagon/include/asm/pgtable.h | 5 +++++
- 1 file changed, 5 insertions(+)
 
-diff --git a/arch/hexagon/include/asm/pgtable.h b/arch/hexagon/include/asm/pgtable.h
-index 65125d0b02dd..422e6aa2a6ef 100644
---- a/arch/hexagon/include/asm/pgtable.h
-+++ b/arch/hexagon/include/asm/pgtable.h
-@@ -281,6 +281,11 @@ static inline int pmd_bad(pmd_t pmd)
- 	return 0;
- }
+Notes:
+    v2: unchanged
+
+ arch/hexagon/include/asm/elf.h | 6 +-----
+ include/uapi/linux/elf-em.h    | 1 +
+ 2 files changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/arch/hexagon/include/asm/elf.h b/arch/hexagon/include/asm/elf.h
+index 80311e7b8ca6..d10fbd54ae51 100644
+--- a/arch/hexagon/include/asm/elf.h
++++ b/arch/hexagon/include/asm/elf.h
+@@ -23,11 +23,7 @@
  
-+static inline int pmd_large(pmd_t pmd)
-+{
-+	return 0;
-+}
-+
- /*
-  * pmd_page - converts a PMD entry to a page pointer
-  */
+ #include <asm/ptrace.h>
+ #include <asm/user.h>
+-
+-/*
+- * This should really be in linux/elf-em.h.
+- */
+-#define EM_HEXAGON	164   /* QUALCOMM Hexagon */
++#include <linux/elf-em.h>
+ 
+ struct elf32_hdr;
+ 
+diff --git a/include/uapi/linux/elf-em.h b/include/uapi/linux/elf-em.h
+index 081675ed89cb..bd02325028d8 100644
+--- a/include/uapi/linux/elf-em.h
++++ b/include/uapi/linux/elf-em.h
+@@ -39,6 +39,7 @@
+ #define EM_BLACKFIN     106     /* ADI Blackfin Processor */
+ #define EM_ALTERA_NIOS2	113	/* Altera Nios II soft-core processor */
+ #define EM_TI_C6000	140	/* TI C6X DSPs */
++#define EM_HEXAGON	164	/* QUALCOMM Hexagon */
+ #define EM_AARCH64	183	/* ARM 64 bit */
+ #define EM_TILEPRO	188	/* Tilera TILEPro */
+ #define EM_MICROBLAZE	189	/* Xilinx MicroBlaze */
 -- 
-2.20.1
-
+ldv
