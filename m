@@ -1,56 +1,66 @@
-From: Waiman Long <longman@redhat.com>
-Subject: Re: [PATCH v5 1/3] locking/rwsem: Remove arch specific rwsem files
-Date: Fri, 22 Mar 2019 16:27:26 -0400
-Message-ID: <45315aa9-f006-c4ca-705f-71d6c2650508@redhat.com>
-References: <20190322143008.21313-1-longman@redhat.com>
- <20190322143008.21313-2-longman@redhat.com>
- <CAHk-=wikkO-1f1=FEOEzkSnaDg3yJLP=4Vd59UCuLBztFd0KOw@mail.gmail.com>
- <20190322193010.azb7rmmmaclhal35@linux-r8p5>
+From: Mike Rapoport <rppt@linux.ibm.com>
+Subject: Re: [PATCH v2 0/4] provide a generic free_initmem implementation
+Date: Mon, 25 Mar 2019 09:20:23 +0200
+Message-ID: <20190325072022.GD2925@rapoport-lnx>
+References: <1550515285-17446-1-git-send-email-rppt@linux.ibm.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190322193010.azb7rmmmaclhal35@linux-r8p5>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1550515285-17446-1-git-send-email-rppt@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="utf-8"
-To: Davidlohr Bueso <dave@stgolabs.net>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Linux List Kernel Mailing <linux-kernel@vger.kernel.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-alpha@vger.kernel.org" <linux-arm-kernel@lists.infradead.org>, linux-c6x-dev@linux-c6x.org, uclinux-h8-devel@lists.sourceforge.jp, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k <linux-m68k@lists.linux-m68k.org>, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux@vg
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>, Palmer Dabbelt <palmer@sifive.com>, Richard Kuo <rkuo@codeaurora.org>, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org
 
-T24gMDMvMjIvMjAxOSAwMzozMCBQTSwgRGF2aWRsb2hyIEJ1ZXNvIHdyb3RlOgo+IE9uIEZy
-aSwgMjIgTWFyIDIwMTksIExpbnVzIFRvcnZhbGRzIHdyb3RlOgo+PiBTb21lIG9mIHRoZW0g
-X21pZ2h0XyBiZSBwZXJmb3JtYW5jZS1jcml0aWNhbC4gVGhlcmUncyB0aGUgb25lIG9uCj4+
-IG1tYXBfc2VtIGluIHRoZSBmYXVsdCBoYW5kbGluZyBwYXRoLCBmb3IgZXhhbXBsZS4gQW5k
-IHllcywgSSdkIGV4cGVjdAo+PiB0aGUgbm9ybWFsIGNhc2UgdG8gdmVyeSBtdWNoIGJlICJu
-byBvdGhlciByZWFkZXJzIG9yIHdyaXRlcnMiIGZvciB0aGF0Cj4+IG9uZS4KPgo+IFllYWgs
-IHRoZSBtbWFwX3NlbSBjYXNlIGluIHRoZSBmYXVsdCBwYXRoIGlzIHJlYWxseSBleHBlY3Rp
-bmcgYW4gdW5sb2NrZWQKPiBzdGF0ZS4gVG8gdGhlIHBvaW50IHRoYXQgZm91ciBhcmNocyBo
-YXZlIGFkZGVkIGJyYW5jaCBwcmVkaWN0aW9ucywgaWU6Cj4KPiA5MjE4MWYxOTBiNiAoeDg2
-OiBvcHRpbWlzZSB4ODYncyBkb19wYWdlX2ZhdWx0IChDIGVudHJ5IHBvaW50IGZvciB0aGUK
-PiBwYWdlIGZhdWx0IHBhdGgpKQo+IGIxNTAyMWQ5OTRmIChwb3dlcnBjL21tOiBBZGQgYSBi
-dW5jaCBvZiAodW4pbGlrZWx5IGFubm90YXRpb25zIHRvCj4gZG9fcGFnZV9mYXVsdCkKPgo+
-IEFuZCB1c2luZyBQUk9GSUxFX0FOTk9UQVRFRF9CUkFOQ0hFUyBzaG93cyBwcmV0dHkgY2xl
-YXJseToKPiAod2l0aG91dCByZXNldHRpbmcgdGhlIGNvdW50ZXJzKQo+Cj4gY29ycmVjdCBp
-bmNvcnJlY3TCoCAlwqDCoMKgwqDCoMKgwqAgRnVuY3Rpb27CoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoCBGaWxlwqDCoMKgwqDCoMKgwqDCoMKgIExpbmUKPiAtLS0tLS0tIC0tLS0tLS0t
-LcKgIC3CoMKgwqDCoMKgwqDCoCAtLS0tLS0tLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IC0tLS3CoMKgwqDCoMKgwqDCoMKgwqAgLS0tLQo+IMKgNDYwMzY4NcKgwqDCoMKgwqDCoCAz
-NMKgwqAgMCBkb191c2VyX2FkZHJfZmF1bHTCoMKgwqDCoMKgwqDCoMKgIGZhdWx0LmPCoMKg
-wqDCoMKgwqDCoMKgwqAgMTQxNgo+IChib290dXApCj4gMzgyMzI3NzQ1wqDCoMKgwqDCoCA0
-NDnCoMKgIDAgZG9fdXNlcl9hZGRyX2ZhdWx0wqDCoMKgwqDCoMKgwqDCoCBmYXVsdC5jwqDC
-oMKgwqDCoMKgwqDCoMKgCj4gMTQxNiAoa2VybmVsIGJ1aWxkKQo+IDM5OTQ0NjE1OcKgwqDC
-oMKgwqAgNDYxwqDCoCAwIGRvX3VzZXJfYWRkcl9mYXVsdMKgwqDCoMKgwqDCoMKgwqAgZmF1
-bHQuY8KgwqDCoMKgwqDCoMKgwqDCoAo+IDE0MTYgKHJlZGlzIGJlbmNobWFyaykKPgo+IEl0
-IHdvdWxkIHByb2JhYmx5IHdvdWxkbid0IGhhcm0gZG9pbmcgdGhlIHVubGlrZWx5KCkgZm9y
-IGFsbCBhcmNocywgb3IKPiBhbHRlcm5hdGl2ZWx5LCBhZGQgbGlrZWx5KCkgdG8gdGhlIGF0
-b21pY19sb25nX3RyeV9jbXB4Y2hnX2FjcXVpcmUgaW4KPiBwYXRjaCAzIGFuZCBkbyBpdCBp
-bXBsaWNpdGx5IGJ1dCBtYXliZSB0aGF0IHdvdWxkIGJlIGxlc3MgZmxleGlibGUoPykKPgo+
-IFRoYW5rcywKPiBEYXZpZGxvaHIKCkkgaGFkIHVzZWQgdGhlIG15IGxvY2sgZXZlbnQgY291
-bnRpbmcgY29kZSB0byBjb3VudCB0aGUgbnVtYmVyIG9mCmNvbnRlbmRlZCBhbmQgdW5jb250
-ZW5kZWQgdHJ5bG9ja3MuIEkgdGVzdGVkIGJvdGggYm9vdHVwIGFuZCBrZXJuZWwKYnVpbGQu
-IEkgdGhpbmsgSSBzYXcgbGVzcyB0aGFuIDElIHdlcmUgY29udGVuZGVkLCB0aGUgcmVzdHMg
-d2VyZSBhbGwKdW5jb250ZW5kZWQuIFRoYXQgaXMgc2ltaWxhciB0byB3aGF0IHlvdSBnb3Qu
-IEkgdGhvdWdodCBJIGhhZCBzZW50IHRoZQpkYXRhIG91dCBwcmV2aW91c2x5LCBidXQgSSBj
-b3VsZG4ndCBmaW5kIHRoZSBlbWFpbC4gVGhhdCB3YXMgdGhlIG1haW4KcmVhc29uIHdoeSBJ
-IHRvb2sgTGludXMnIHN1Z2dlc3Rpb24gdG8gb3B0aW1pemUgaXQgZm9yIHRoZSB1bmNvbnRl
-bmRlZCBjYXNlLgoKVGhhbmtzLApMb25nbWFuCgo=
+Any comments on this?
+
+On Mon, Feb 18, 2019 at 08:41:21PM +0200, Mike Rapoport wrote:
+> Hi,
+> 
+> Many architectures implement free_initmem() in exactly the same or very
+> similar way: they wrap the call to free_initmem_default() with sometimes
+> different 'poison' parameter.
+> 
+> These patches switch those architectures to use a generic implementation
+> that does free_initmem_default(POISON_FREE_INITMEM).
+> 
+> This was inspired by Christoph's patches for free_initrd_mem [1] and I
+> shamelessly copied changelog entries from his patches :)
+> 
+> v2: rebased on top of v5.0-rc7 + Christoph's patches for free_initrd_mem
+> 
+> [1] https://lore.kernel.org/lkml/20190213174621.29297-1-hch@lst.de/
+> 
+> Mike Rapoport (4):
+>   init: provide a generic free_initmem implementation
+>   hexagon: switch over to generic free_initmem()
+>   init: free_initmem: poison freed init memory
+>   riscv: switch over to generic free_initmem()
+> 
+>  arch/alpha/mm/init.c      |  6 ------
+>  arch/arc/mm/init.c        |  8 --------
+>  arch/c6x/mm/init.c        |  5 -----
+>  arch/h8300/mm/init.c      |  6 ------
+>  arch/hexagon/mm/init.c    | 10 ----------
+>  arch/microblaze/mm/init.c |  5 -----
+>  arch/nds32/mm/init.c      |  5 -----
+>  arch/nios2/mm/init.c      |  5 -----
+>  arch/openrisc/mm/init.c   |  5 -----
+>  arch/riscv/mm/init.c      |  5 -----
+>  arch/sh/mm/init.c         |  5 -----
+>  arch/sparc/mm/init_32.c   |  5 -----
+>  arch/unicore32/mm/init.c  |  5 -----
+>  arch/xtensa/mm/init.c     |  5 -----
+>  init/main.c               |  5 +++++
+>  15 files changed, 5 insertions(+), 80 deletions(-)
+> 
+> -- 
+> 2.7.4
+> 
+
+-- 
+Sincerely yours,
+Mike.
+
