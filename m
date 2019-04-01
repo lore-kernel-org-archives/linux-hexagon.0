@@ -1,37 +1,16 @@
 From: Steven Rostedt <rostedt@goodmis.org>
-Subject: [RFC][PATCH 4/4 v2] syscalls: Remove start and number from
- syscall_set_arguments() args
-Date: Thu, 28 Mar 2019 19:05:16 -0400
-Message-ID: <20190329032253.429310275@goodmis.org>
-References: <20190328230512.486297455@goodmis.org>
+Subject: [PATCH 6/6 v3] syscalls: Remove start and number from syscall_set_arguments() args
+Date: Mon, 01 Apr 2019 09:41:10 -0400
+Message-ID: <20190401134421.442323029@goodmis.org>
+References: <20190401134104.676620247@goodmis.org>
 Mime-Version: 1.0
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:Subject:To:From
-	:Date:Message-Id:Reply-To:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
-	List-Owner; bh=vAZUY0m1imkSVTFxRIe03WWkQicNuwr7BOe7Tx+qWU4=; b=eJThcofnqoUOOk
-	WE86BQ1UbFT93tnxmA6YCQyQ/tK867Qy/hHvFOrUm2S+CfMGhTzCrYZVtMPnRwaVWe6hpT+pwxNMo
-	GqZHhGFdsrjIVohRZjOIpryYQeYjYBm3//P6rlcPuVlny4wpVy+xOSOGdb39QbnRubL03WyezHCiF
-	UEM5yafjueAJ0+zOwnoSlh6BSWKdrDN9F3/n5S0inwSDmrzpWPUXLbOI+8LHL57F6oszg8ehIo52R
-	X0qMYBfyB46P9Y7aS5mFLk0wyLBVvhbOFx+poguDtjiLh66A37ZVcsn36bJsNIPdUOp7Gixhz0FpS
-	LGUB4BRt6fuVKp7vXpNA==;
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Peter Zijlstra <peterz@infradead.org>, Dominik Brodowski <linux@dominikbrodowski.net>, "Dmitry V. Levin" <ldv@altlinux.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, linux-snps-arc@lists.infradead.org, Dave Martin <dave.martin@arm.com>, uclinux-h8-devel@lists.sourceforge.jp, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Roland McGrath <roland@hack.frob.com>, linux-um@lists.infradead.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linu>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@amacapital.net>, Roland McGrath <roland@hack.frob.com>, Oleg Nesterov <oleg@redhat.com>, linux-arch@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dominik Brodowski <linux@dominikbrodowski.net>, Andy Lutomirski <luto@kernel.org>, Kees Cook <keescook@chromium.org>, "Eric W. Biederman" <ebiederm@xmission.com>, "Dmitry V. Levin" <ldv@altlinux.org>, Palmer Dabbelt <palmer@sifive.com>, Dave Martin <dave.mart>
 
 From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
@@ -75,7 +54,7 @@ Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
  arch/arm/include/asm/syscall.h        | 22 ++-------
  arch/arm64/include/asm/syscall.h      | 22 ++-------
  arch/c6x/include/asm/syscall.h        | 38 +++------------
- arch/csky/include/asm/syscall.h       | 13 ++---
+ arch/csky/include/asm/syscall.h       | 14 ++----
  arch/ia64/include/asm/syscall.h       | 10 ++--
  arch/ia64/kernel/ptrace.c             |  7 ++-
  arch/microblaze/include/asm/syscall.h |  4 +-
@@ -83,7 +62,7 @@ Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
  arch/nios2/include/asm/syscall.h      | 42 +++-------------
  arch/openrisc/include/asm/syscall.h   |  6 +--
  arch/powerpc/include/asm/syscall.h    |  7 +--
- arch/riscv/include/asm/syscall.h      | 12 ++---
+ arch/riscv/include/asm/syscall.h      | 13 ++---
  arch/s390/include/asm/syscall.h       | 11 ++---
  arch/sh/include/asm/syscall_32.h      | 21 +++-----
  arch/sh/include/asm/syscall_64.h      |  4 +-
@@ -92,7 +71,7 @@ Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
  arch/x86/include/asm/syscall.h        | 69 +++++++--------------------
  arch/xtensa/include/asm/syscall.h     | 17 ++-----
  include/asm-generic/syscall.h         | 10 +---
- 20 files changed, 88 insertions(+), 302 deletions(-)
+ 20 files changed, 88 insertions(+), 304 deletions(-)
 
 diff --git a/arch/arm/include/asm/syscall.h b/arch/arm/include/asm/syscall.h
 index db969a2972ae..080ce70cab12 100644
@@ -216,10 +195,10 @@ index 06db3251926b..15ba8599858e 100644
  
  #endif /* __ASM_C6X_SYSCALLS_H */
 diff --git a/arch/csky/include/asm/syscall.h b/arch/csky/include/asm/syscall.h
-index 5cc0b8283a69..34c02d6bb973 100644
+index c691fe92edc6..bda0a446c63e 100644
 --- a/arch/csky/include/asm/syscall.h
 +++ b/arch/csky/include/asm/syscall.h
-@@ -52,16 +52,11 @@ syscall_get_arguments(struct task_struct *task, struct pt_regs *regs,
+@@ -52,17 +52,11 @@ syscall_get_arguments(struct task_struct *task, struct pt_regs *regs,
  
  static inline void
  syscall_set_arguments(struct task_struct *task, struct pt_regs *regs,
@@ -230,13 +209,14 @@ index 5cc0b8283a69..34c02d6bb973 100644
 -	if (i == 0) {
 -		regs->orig_a0 = args[0];
 -		args++;
--		i++;
 -		n--;
+-	} else {
+-		i--;
 -	}
--	memcpy(&regs->a1 + i * sizeof(regs->a1), args, n * sizeof(regs->a0));
+-	memcpy(&regs->a1 + i, args, n * sizeof(regs->a1));
 +	regs->orig_a0 = args[0];
 +	args++;
-+	memcpy(&regs->a1 + sizeof(regs->a1), args, 5 * sizeof(regs->a0));
++	memcpy(&regs->a1, args, 5 * sizeof(regs->a1));
  }
  
  static inline int
@@ -452,10 +432,10 @@ index 5c9b9dc82b7e..1243045bad2d 100644
  
  static inline int syscall_get_arch(void)
 diff --git a/arch/riscv/include/asm/syscall.h b/arch/riscv/include/asm/syscall.h
-index 85a31dd0f2ba..7321644be1cf 100644
+index 6adca1804be1..a3d5273ded7c 100644
 --- a/arch/riscv/include/asm/syscall.h
 +++ b/arch/riscv/include/asm/syscall.h
-@@ -81,17 +81,11 @@ static inline void syscall_get_arguments(struct task_struct *task,
+@@ -81,18 +81,11 @@ static inline void syscall_get_arguments(struct task_struct *task,
  
  static inline void syscall_set_arguments(struct task_struct *task,
  					 struct pt_regs *regs,
@@ -466,13 +446,14 @@ index 85a31dd0f2ba..7321644be1cf 100644
 -        if (i == 0) {
 -                regs->orig_a0 = args[0];
 -                args++;
--                i++;
 -                n--;
--        }
--	memcpy(&regs->a1 + i * sizeof(regs->a1), args, n * sizeof(regs->a0));
+-	} else {
+-		i--;
+-	}
+-	memcpy(&regs->a1 + i, args, n * sizeof(regs->a1));
 +	regs->orig_a0 = args[0];
 +	args++;
-+	memcpy(&regs->a1 + sizeof(regs->a1), args, 5 * sizeof(regs->a0));
++	memcpy(&regs->a1, args, 5 * sizeof(regs->a1));
  }
  
  static inline int syscall_get_arch(void)
@@ -773,3 +754,5 @@ index 269e9412ef42..b88239e9efe4 100644
  /**
 -- 
 2.20.1
+
+
