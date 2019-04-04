@@ -1,53 +1,30 @@
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Steven Rostedt <rostedt@goodmis.org>
 Subject: Re: [PATCH 5/6 v3] syscalls: Remove start and number from
  syscall_get_arguments() args
-Date: Thu, 4 Apr 2019 11:56:23 -0700
-Message-ID: <CAMo8BfK8gdgni3z3PKv1rd0KPFMXgDCpicQQ_obuoDAEz3PkZQ@mail.gmail.com>
-References: <20190401134104.676620247@goodmis.org> <20190401134421.278590567@goodmis.org>
+Date: Thu, 4 Apr 2019 17:06:08 -0400
+Message-ID: <20190404170608.25cadc7d@gandalf.local.home>
+References: <20190401134104.676620247@goodmis.org>
+        <20190401134421.278590567@goodmis.org>
+        <20190404181758.GA8071@altlinux.org>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=czb2ENwQGWnSQaCPQIrYNCynYy2KSbTtKbmrxk8aiuA=;
-        b=M76lnXAHZW3E/8sfPEo6AMsEvKo1Fj2EhqlUI6eC714OKjs2ScEs0g5Kdp16SCqkPF
-         N0+X6xTwMiV/VBKBoM8U7lCaiLZf0D5h8H0NYyJsPMWgNRUMOJFoGIeE3Kw2Z03GU9vT
-         zVyDQ6CnNyqqWAbFqnkhKqeqcKWpSWW3q20J6IQ+uvd8srIqBj9yOsnXEon9ojIURp4v
-         bTLlHhqhnN0+9uDyqXd9PWoJbT4ZfrXOkz5CQF3mN7LEVXFyBxCwjgwaWqj7DMqenuLs
-         uXedhWbK9lmCM0WnwBXxlX+/J6awXNP/t6T5RlKFdEob9MOiRhxs9ue2K7i3gYHUzYfA
-         pf5g==
-In-Reply-To: <20190401134421.278590567@goodmis.org>
+In-Reply-To: <20190404181758.GA8071@altlinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@amacapital.net>, Roland McGrath <roland@hack.frob.com>, Oleg Nesterov <oleg@redhat.com>, Linux-Arch <linux-arch@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "maintainer:X86 ARCHITECTURE..." <x86@kernel.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Andy Lutomirski <luto@kernel.org>, Kees Cook <keescook@chromium.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Dm
+To: "Dmitry V. Levin" <ldv@altlinux.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@amacapital.net>, Roland McGrath <roland@hack.frob.com>, Oleg Nesterov <oleg@redhat.com>, linux-arch@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dominik Brodowski <linux@dominikbrodowski.net>, Andy Lutomirski <luto@kernel.org>, Kees Cook <keescook@chromium.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Palmer Dabbelt <palmer@sifive.com>, Dave Martin <dave.martin@arm.c>
 
-On Mon, Apr 1, 2019 at 6:45 AM Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> From: "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>
->
-> At Linux Plumbers, Andy Lutomirski approached me and pointed out that the
-> function call syscall_get_arguments() implemented in x86 was horribly
-> written and not optimized for the standard case of passing in 0 and 6 for
-> the starting index and the number of system calls to get. When looking at
-> all the users of this function, I discovered that all instances pass in only
-> 0 and 6 for these arguments. Instead of having this function handle
-> different cases that are never used, simply rewrite it to return the first 6
-> arguments of a system call.
->
-> This should help out the performance of tracing system calls by ptrace,
-> ftrace and perf.
+On Thu, 4 Apr 2019 21:17:58 +0300
+"Dmitry V. Levin" <ldv@altlinux.org> wrote:
 
-[...]
+> There are several places listed below where I'd prefer to see more readable
+> equivalents, but feel free to leave it to respective arch maintainers.
 
->  arch/xtensa/include/asm/syscall.h     | 16 ++----
+I was going to do similar changes, but figured I'd do just that (let
+the arch maintainers further optimize the code). I made this more about
+fixing the interface and less about the optimization and clean ups that
+it can allow.
 
-For xtensa changes:
-Acked-by: Max Filippov <jcmvbkbc@gmail.com>
-
--- 
-Thanks.
--- Max
+-- Steve
