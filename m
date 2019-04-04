@@ -1,23 +1,23 @@
 From: Max Filippov <jcmvbkbc@gmail.com>
-Subject: Re: [PATCH 6/6 v3] syscalls: Remove start and number from
- syscall_set_arguments() args
-Date: Thu, 4 Apr 2019 11:55:29 -0700
-Message-ID: <CAMo8BfLooVJgKCPQFDXUAfieH3XAF=Bhz2PmAb+3t7BhVBW5FQ@mail.gmail.com>
-References: <20190401134104.676620247@goodmis.org> <20190401134421.442323029@goodmis.org>
+Subject: Re: [PATCH 5/6 v3] syscalls: Remove start and number from
+ syscall_get_arguments() args
+Date: Thu, 4 Apr 2019 11:56:23 -0700
+Message-ID: <CAMo8BfK8gdgni3z3PKv1rd0KPFMXgDCpicQQ_obuoDAEz3PkZQ@mail.gmail.com>
+References: <20190401134104.676620247@goodmis.org> <20190401134421.278590567@goodmis.org>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=25sghkzH7+QQTBx8fQe0oQc1kNQMTCVYK21rCY5qth4=;
-        b=oShr81BXfJmMNACrlPJNe3qZjMk8TVDODP/4DOZSEiguPFnp1XoQQSzj2L+/S7OgcZ
-         xlRxsRSl3LKCT8cceZDc18vbr0akZuu8eHO9YvBuQC+ZF/Bg8Nd03nDvnFvPx3DTgSB8
-         stQjWpAL9qfP/+KDg6paUcBuFqxkPiT8XzUlvjf8FjjvD7SiRbtUnQVK6FFEUypEDtYr
-         qEOfIrGQMIzPvqW5P7S02ntouLCBWfQfbcVkwPGrsbjjwDMVuxZQUHNol5XmKFpEaG1w
-         tH/XQqKdk0d4pVTwSgCh0Dh/8KyNP9gBybXk1tsa55B2gmsPvleeNJBUVZHmlKELfyUB
-         hvLA==
-In-Reply-To: <20190401134421.442323029@goodmis.org>
+        bh=czb2ENwQGWnSQaCPQIrYNCynYy2KSbTtKbmrxk8aiuA=;
+        b=M76lnXAHZW3E/8sfPEo6AMsEvKo1Fj2EhqlUI6eC714OKjs2ScEs0g5Kdp16SCqkPF
+         N0+X6xTwMiV/VBKBoM8U7lCaiLZf0D5h8H0NYyJsPMWgNRUMOJFoGIeE3Kw2Z03GU9vT
+         zVyDQ6CnNyqqWAbFqnkhKqeqcKWpSWW3q20J6IQ+uvd8srIqBj9yOsnXEon9ojIURp4v
+         bTLlHhqhnN0+9uDyqXd9PWoJbT4ZfrXOkz5CQF3mN7LEVXFyBxCwjgwaWqj7DMqenuLs
+         uXedhWbK9lmCM0WnwBXxlX+/J6awXNP/t6T5RlKFdEob9MOiRhxs9ue2K7i3gYHUzYfA
+         pf5g==
+In-Reply-To: <20190401134421.278590567@goodmis.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
@@ -27,17 +27,23 @@ Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundati
 
 On Mon, Apr 1, 2019 at 6:45 AM Steven Rostedt <rostedt@goodmis.org> wrote:
 >
-> From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+> From: "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>
 >
-> After removing the start and count arguments of syscall_get_arguments() it
-> seems reasonable to remove them from syscall_set_arguments(). Note, as of
-> today, there are no users of syscall_set_arguments(). But we are told that
-> there will be soon. But for now, at least make it consistent with
-> syscall_get_arguments().
+> At Linux Plumbers, Andy Lutomirski approached me and pointed out that the
+> function call syscall_get_arguments() implemented in x86 was horribly
+> written and not optimized for the standard case of passing in 0 and 6 for
+> the starting index and the number of system calls to get. When looking at
+> all the users of this function, I discovered that all instances pass in only
+> 0 and 6 for these arguments. Instead of having this function handle
+> different cases that are never used, simply rewrite it to return the first 6
+> arguments of a system call.
+>
+> This should help out the performance of tracing system calls by ptrace,
+> ftrace and perf.
 
 [...]
 
->  arch/xtensa/include/asm/syscall.h     | 17 ++-----
+>  arch/xtensa/include/asm/syscall.h     | 16 ++----
 
 For xtensa changes:
 Acked-by: Max Filippov <jcmvbkbc@gmail.com>
