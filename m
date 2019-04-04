@@ -1,8 +1,8 @@
-From: Paul Burton <paul.burton@mips.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: [PATCH 5/6 v3] syscalls: Remove start and number from
  syscall_get_arguments() args
-Date: Wed, 3 Apr 2019 22:51:56 +0000
-Message-ID: <20190403225151.s5suxxmu6b2c4svt@pburton-laptop>
+Date: Thu, 4 Apr 2019 09:52:56 +0200 (CEST)
+Message-ID: <alpine.DEB.2.21.1904040952280.1833@nanos.tec.linutronix.de>
 References: <20190401134104.676620247@goodmis.org>
  <20190401134421.278590567@goodmis.org>
 Mime-Version: 1.0
@@ -12,23 +12,16 @@ Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infrad
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
 	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Content-ID:In-Reply-To:
-	References:Message-ID:Date:Subject:To:From:Reply-To:Content-Description:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:Message-ID:
+	In-Reply-To:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=s23Xx1j4NghSiBTDDEPPU5RSlb4NMeFeAxyZdDakY7A=; b=e74Tt8D27omz4k
-	Z7ZgvusKb8xD7H2tCw78MgE6UzPPjHwnWJGj9UmHctrdbliW+Mk7QQP7CaIQJaXA2KtVs9yZ1QbFB
-	sZAOI9A8gqN00gEy7r4gKJ1ii48ueErF1kYRG/lBkD+sV7VctrDqMI6LzmvMaCHlJCl0iZAR6/2Xd
-	j8VqjXePG9fZ2apZJ50LLOgwaOY687u2W6r4p9IdDT9PpPdaHgvetY8GHHvA1TziYaXMx1Fk2A4zJ
-	gO61qPyPcMWbRmHfUQYo+3gAOnA13wOKWBIqPOqAAUH0zjTYRAboXEeNLzdAtob8Gw0xe7Jv22mQA
-	taAgSrQk2rZPIN45PWyg==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=wavesemi.onmicrosoft.com; s=selector1-wavecomp-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=48CSLD+3H6IfiAlQmIjLMGeA8ey37rhCUmwzu0OhZ98=;
- b=Jh7aiZ4ccmvOIT/zz2NYbzF2zvB0h/i/GaHu4C67deKJ0gfeq54GPU3x5R9dVazWw9Bx9aLPZiMx8c37aXwyoMFp10OT+4EkGi+rLZ6tEoyGlW+yV8iTt4YMJN+A/PT4/HcjAKiiVnYht1iXhzuVHduVSAddqPjNTUHt7SIFwPE=
+	List-Owner; bh=pvrBXcVdUzlFjEFSoBx1ivQjV9iDeyPanAxsMvxAksc=; b=oewXKXOaFJNDDX
+	oDpi2YgvuCl0wXcQRrkK+2nZRWvxoyWrvJLTuBfGCjZISaxqr+hgRekvhiZNWYCPHh5yNRTflaiwh
+	BWNn7JsRKNmkegI62Pb3Xr9oAgBXUnz3w8gah2/uVHRlCy9j1RuzSLWC3S5x53qszz4Y3YWE8PTzr
+	/1on5i2oftKmAxTc+I9mTuIZWo0fTfnf6TZP4cOkSgHdjzinf223bbyUoN07V78xf9c8b4MtF81r1
+	lU4cNVMGcOJ7ZuJR0+r4eL1/Qheo6XU6xUkO1lHEy8PvtQaRBJOvVdclaK1WN92/IFiVxUPusT++h
+	Rsi7iVVcCm7gkFhm4iWA==;
 In-Reply-To: <20190401134421.278590567@goodmis.org>
-Content-Language: en-US
-Content-ID: <1E78680F2A383A49931E90A79241CAA3@namprd22.prod.outlook.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
@@ -40,11 +33,10 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
 Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
 Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
 To: Steven Rostedt <rostedt@goodmis.org>
-Cc: "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Peter Zijlstra <peterz@infradead.org>, Palmer Dabbelt <palmer@sifive.com>, Dominik Brodowski <linux@dominikbrodowski.net>, Oleg Nesterov <oleg@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, Ingo Molnar <mingo@kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-c6x-dev@linux-c6x.org" <linux-c6x-dev@linux-c6x.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.>
+Cc: linux-ia64@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Peter Zijlstra <peterz@infradead.org>, Palmer Dabbelt <palmer@sifive.com>, Dominik Brodowski <linux@dominikbrodowski.net>, Oleg Nesterov <oleg@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Ingo Molnar <mingo@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org, Dave Martin <dave.martin@arm.com>, uclinux-h8-devel@lists.sourceforge.jp, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Roland McGrath <roland@hack.frob.com>, linux-um@lists.infradead.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, Borislav Petkov <bp@alien8.de>
 
-Hi Steven,
+On Mon, 1 Apr 2019, Steven Rostedt wrote:
 
-On Mon, Apr 01, 2019 at 09:41:09AM -0400, Steven Rostedt wrote:
 > From: "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>
 > 
 > At Linux Plumbers, Andy Lutomirski approached me and pointed out that the
@@ -60,38 +52,7 @@ On Mon, Apr 01, 2019 at 09:41:09AM -0400, Steven Rostedt wrote:
 > ftrace and perf.
 > 
 > Link: http://lkml.kernel.org/r/20161107213233.754809394@goodmis.org
-> 
-> Cc: Oleg Nesterov <oleg@redhat.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Andy Lutomirski <luto@amacapital.net>
-> Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-> Cc: Dave Martin <dave.martin@arm.com>
-> Cc: "Dmitry V. Levin" <ldv@altlinux.org>
-> Cc: x86@kernel.org
-> Cc: linux-snps-arc@lists.infradead.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-c6x-dev@linux-c6x.org
-> Cc: uclinux-h8-devel@lists.sourceforge.jp
-> Cc: linux-hexagon@vger.kernel.org
-> Cc: linux-ia64@vger.kernel.org
-> Cc: linux-mips@vger.kernel.org
-> Cc: nios2-dev@lists.rocketboards.org
-> Cc: openrisc@lists.librecores.org
-> Cc: linux-parisc@vger.kernel.org
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Cc: linux-riscv@lists.infradead.org
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-sh@vger.kernel.org
-> Cc: sparclinux@vger.kernel.org
-> Cc: linux-um@lists.infradead.org
-> Cc: linux-xtensa@linux-xtensa.org
-> Cc: linux-arch@vger.kernel.org
-> Reported-by: Andy Lutomirski <luto@amacapital.net>
-> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-Acked-by: Paul Burton <paul.burton@mips.com> # MIPS parts
+For x86:
 
-Thanks,
-    Paul
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
