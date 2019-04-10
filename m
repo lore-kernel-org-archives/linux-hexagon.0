@@ -1,82 +1,34 @@
-From: "Dmitry V. Levin" <ldv@altlinux.org>
-Subject: [PATCH linux-next v9 2/7] hexagon: define syscall_get_error() and
- syscall_get_return_value()
-Date: Mon, 8 Apr 2019 20:41:39 +0300
-Message-ID: <20190408174139.GC11889@altlinux.org>
-References: <20190408174036.GA11889@altlinux.org>
+From: huang ying <huang.ying.caritas@gmail.com>
+Subject: Re: [PATCH-tip 00/22] locking/rwsem: Rework rwsem-xadd & enable new
+ rwsem features
+Date: Wed, 10 Apr 2019 16:15:44 +0800
+Message-ID: <CAC=cRTM5=e7rJX80m0vL10aQoLawK_VTnQubH8A7_sUO2VUCNA@mail.gmail.com>
+References: <1549566446-27967-1-git-send-email-longman@redhat.com>
+ <20190213091936.GA22829@shao2-debian> <CAHk-=wiF2qv4TdKOTaTYeMnmsn4h6z9ot+MRj1=s7dm5y1FUwQ@mail.gmail.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190408174036.GA11889@altlinux.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3KIbH7PQ/+EhCRd6dFZrUyEEKxdSCK+Tg4Azj5CZNfg=;
+        b=KCS8BLMpQF7FI4UPjcgFc26LkSmUfBe3VGzCMx3ZQXdHUNJTkx5tli9AZ8r7Iv8FUv
+         4UzY02RzFxJ996bZvBXBO0iy7goFr+cdhnCgxqgnVQgCu/SqOuySG5IDq7kStWJBTg+R
+         iswlqAN9kH/D9/3rCVEHBTUA9eS1lOaZcrV5RUH+OeHtcsoFhSm9MRC43TfAkYKnQ76b
+         XO7JK06H0lIwPGGFT0CfrvLbARQgfKH4iHbxJ7TvEo/ySpSrHMpmNYbvfCeQ9VWhkpqt
+         xz/MCGxJmCm+tl4C2hM4n/O+Z0VeMYwzr1p7HlyMWvfhhjROcT0YPt6BVBTC4hmkJmS9
+         PhuQ==
+In-Reply-To: <CAHk-=wiF2qv4TdKOTaTYeMnmsn4h6z9ot+MRj1=s7dm5y1FUwQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Elvira Khabirova <lineprinter@altlinux.org>, Eugene Syromyatnikov <esyr@redhat.com>, Oleg Nesterov <oleg@redhat.com>, Andy Lutomirski <luto@kernel.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Waiman Long <longman@redhat.com>
+Cc: Chen Rong <rong.a.chen@intel.com>, Peter Zijlstra <peterz@infradead.org>, "IngoMolnar@shao2-debian" <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Linux List Kernel Mailing <linux-kernel@vger.kernel.org>, "linux-alpha@vger.kernel.org" <linux-arm-kernel@lists.infradead.org>, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch <linux-arch@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Davidlohr Bueso <dave@stgolabs.net>, Andrew Morton <akpm@linux-foundation>
 
-syscall_get_* functions are required to be implemented on all
-architectures in order to extend the generic ptrace API with
-PTRACE_GET_SYSCALL_INFO request.
+Hi, Waiman,
 
-This adds remaining 2 syscall_get_* functions as documented in
-asm-generic/syscall.h: syscall_get_error and syscall_get_return_value.
+What's the status of this patchset?  And its merging plan?
 
-Cc: Richard Kuo <rkuo@codeaurora.org>
-Cc: Elvira Khabirova <lineprinter@altlinux.org>
-Cc: Eugene Syromyatnikov <esyr@redhat.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: linux-hexagon@vger.kernel.org
-Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
----
-
-Richard, this patch is waiting for ACK since November.
-
-Notes:
-    v9: unchanged
-    v8: moved syscall_get_arch to separate audit patchset
-    v7: unchanged
-    v6: added missing includes
-    v5: added syscall_get_error and syscall_get_return_value
-    v4: unchanged
-    v3: unchanged
-    v2: unchanged
-
- arch/hexagon/include/asm/syscall.h | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-diff --git a/arch/hexagon/include/asm/syscall.h b/arch/hexagon/include/asm/syscall.h
-index dab26a71f577..0f28a6a39c3a 100644
---- a/arch/hexagon/include/asm/syscall.h
-+++ b/arch/hexagon/include/asm/syscall.h
-@@ -22,6 +22,8 @@
- #define _ASM_HEXAGON_SYSCALL_H
- 
- #include <uapi/linux/audit.h>
-+#include <linux/err.h>
-+#include <asm/ptrace.h>
- 
- typedef long (*syscall_fn)(unsigned long, unsigned long,
- 	unsigned long, unsigned long,
-@@ -44,6 +46,18 @@ static inline void syscall_get_arguments(struct task_struct *task,
- 	memcpy(args, &(&regs->r00)[0], 6 * sizeof(args[0]));
- }
- 
-+static inline long syscall_get_error(struct task_struct *task,
-+				     struct pt_regs *regs)
-+{
-+	return IS_ERR_VALUE(regs->r00) ? regs->r00 : 0;
-+}
-+
-+static inline long syscall_get_return_value(struct task_struct *task,
-+					    struct pt_regs *regs)
-+{
-+	return regs->r00;
-+}
-+
- static inline int syscall_get_arch(struct task_struct *task)
- {
- 	return AUDIT_ARCH_HEXAGON;
--- 
-ldv
+Best Regards,
+Huang, Ying
