@@ -1,50 +1,97 @@
-From: Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org>
-Subject: Re: [PATCH] memblock: make keeping memblock memory opt-in rather than
- opt-out
-Date: Fri, 03 May 2019 01:31:10 +1000
-Message-ID: <87h8acyitd.fsf@concordia.ellerman.id.au>
-References: <1556102150-32517-1-git-send-email-rppt@linux.ibm.com>
-Mime-Version: 1.0
+From: Mike Rapoport <rppt@linux.ibm.com>
+Subject: [PATCH 10/15] nios2: switch to generic version of pte allocation
+Date: Thu,  2 May 2019 18:28:37 +0300
+Message-ID: <1556810922-20248-11-git-send-email-rppt@linux.ibm.com>
+References: <1556810922-20248-1-git-send-email-rppt@linux.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1556810922-20248-1-git-send-email-rppt@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kexec-bounces+glkk-kexec=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-ID:Date:References
-	:In-Reply-To:Subject:To:From:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=ok2dEL82qaqfy//dtVSHt8404E8smMDm3Oaji/0hwVY=; b=dacOqonoDF2J9J
-	7muRZsIKMA5SVaQzUVs69krTdEMMq4bwjFwbdtLdS8XHmPBFqayJ4xtMTqb1yAsahh7k2N1oZ92WU
-	HVkJG9W+1mLGzk8R7Iia4gNSDGBBDAZpZ+Ucctg0f1punqL7loUOPeZ2jTTnEQih9gGh80SeFYRuo
-	DQetwkI2CzvkRajCdjJYiLcJtP28zWhU50DIKExODiiHPjn1L2qf6ZH5wrvBbKdRD9hKWSjtgbRNl
-	ZL5+6G1XYAzmGaQRoko+FPRWVAZlI9EHA71TS3VTnOOK6UemsoiJl684pc8p2O7v47b/FIER9CTu+
-	TcoWQfQChNbSnepAdiQA==;
-In-Reply-To: <1556102150-32517-1-git-send-email-rppt-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/kexec>,
- <mailto:kexec-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/kexec/>
-List-Post: <mailto:kexec-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:kexec-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/kexec>,
- <mailto:kexec-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "kexec" <kexec-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: kexec-bounces+glkk-kexec=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Mike Rapoport <rppt-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Rich Felker <dalias-8zAoT0mYgF4@public.gmane.org>, linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Heiko Carstens <heiko.carstens-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, linux-mips-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, "H. Peter Anvin" <hpa-YMNOUZJC4hwAvxtiuMwx3w@public.gmane.org>, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yoshinori Sato <ysato-Rn4VEauK+AKRv+LV9MX5uooqe+aC9MnS@public.gmane.org>, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Mike Rapoport <rppt-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>, Ingo Molnar <mingo-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Catalin Marinas <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, James Hogan <jhogan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Fenghua Yu <fenghua.yu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Will Deacon <will.deacon-5wv7dgnIgG8@public.gmane.org>, linux-m68k-cunTk1MwBs8S/qaLPR03pWD2FQJk+8+b@public.gmane.org, Borislav Petkov <bp-Gina5bIWoIWzQB+pC5nmwQ@public.gmane.org>, nios2-dev-g9ZBwUv/Ih/yUk5EbOjzuce+I+R0W71w@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XWGXanvQGlWp@public.gmane.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Greentime Hu <green.hu@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>, Ley Foon Tan <lftan@altera.com>, Matthew Wilcox <willy@infradead.org>, Matt Turner <mattst88@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Palmer Dabbelt <palmer@sifive.com>, Paul Burton <paul.burton@mips.com>, Richard Kuo <rkuo@codeaurora.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, Sam Creasey <sammy@sammy.net>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hexag
 
-Mike Rapoport <rppt-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org> writes:
-> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> index 2d0be82..39877b9 100644
-> --- a/arch/powerpc/Kconfig
-> +++ b/arch/powerpc/Kconfig
-> @@ -143,6 +143,7 @@ config PPC
->  	select ARCH_HAS_UBSAN_SANITIZE_ALL
->  	select ARCH_HAS_ZONE_DEVICE		if PPC_BOOK3S_64
->  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
-> +	select ARCH_KEEP_MEMBLOCK
+nios2 allocates kernel PTE pages with
 
-Acked-by: Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org> (powerpc)
+        __get_free_pages(GFP_KERNEL | __GFP_ZERO, PTE_ORDER);
 
-cheers
+and user page tables with
+
+        pte = alloc_pages(GFP_KERNEL, PTE_ORDER);
+	if (pte)
+		clear_highpage();
+
+The PTE_ORDER is hardwired to zero, which makes nios2 implementation almost
+identical to the generic one.
+
+Switch nios2 to the generic version that does exactly the same thing for
+the kernel page tables and adds __GFP_ACCOUNT for the user PTEs.
+
+The pte_free_kernel() and pte_free() versions on nios2 are identical to the
+generic ones and can be simply dropped.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ arch/nios2/include/asm/pgalloc.h | 37 ++-----------------------------------
+ 1 file changed, 2 insertions(+), 35 deletions(-)
+
+diff --git a/arch/nios2/include/asm/pgalloc.h b/arch/nios2/include/asm/pgalloc.h
+index 3a149ea..4bc8cf7 100644
+--- a/arch/nios2/include/asm/pgalloc.h
++++ b/arch/nios2/include/asm/pgalloc.h
+@@ -12,6 +12,8 @@
+ 
+ #include <linux/mm.h>
+ 
++#include <asm-generic/pgalloc.h>	/* for pte_{alloc,free}_one */
++
+ static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
+ 	pte_t *pte)
+ {
+@@ -37,41 +39,6 @@ static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
+ 	free_pages((unsigned long)pgd, PGD_ORDER);
+ }
+ 
+-static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
+-{
+-	pte_t *pte;
+-
+-	pte = (pte_t *) __get_free_pages(GFP_KERNEL|__GFP_ZERO, PTE_ORDER);
+-
+-	return pte;
+-}
+-
+-static inline pgtable_t pte_alloc_one(struct mm_struct *mm)
+-{
+-	struct page *pte;
+-
+-	pte = alloc_pages(GFP_KERNEL, PTE_ORDER);
+-	if (pte) {
+-		if (!pgtable_page_ctor(pte)) {
+-			__free_page(pte);
+-			return NULL;
+-		}
+-		clear_highpage(pte);
+-	}
+-	return pte;
+-}
+-
+-static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+-{
+-	free_pages((unsigned long)pte, PTE_ORDER);
+-}
+-
+-static inline void pte_free(struct mm_struct *mm, struct page *pte)
+-{
+-	pgtable_page_dtor(pte);
+-	__free_pages(pte, PTE_ORDER);
+-}
+-
+ #define __pte_free_tlb(tlb, pte, addr)				\
+ 	do {							\
+ 		pgtable_page_dtor(pte);				\
+-- 
+2.7.4
+
