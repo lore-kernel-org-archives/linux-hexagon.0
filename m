@@ -1,84 +1,98 @@
-From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH 05/15] csky: switch to generic version of pte allocation
-Date: Thu,  2 May 2019 18:28:32 +0300
-Message-ID: <1556810922-20248-6-git-send-email-rppt@linux.ibm.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
+Subject: Re: [PATCH 12/15] powerpc/nohash/64: switch to generic version of pte
+ allocation
+Date: Thu, 2 May 2019 18:56:07 +0200
+Message-ID: <adcb6ae6-48d9-5ba9-2732-a0ab1d96667c@c-s.fr>
 References: <1556810922-20248-1-git-send-email-rppt@linux.ibm.com>
+ <1556810922-20248-13-git-send-email-rppt@linux.ibm.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1556810922-20248-1-git-send-email-rppt@linux.ibm.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
+        t=1556816168; bh=Q15LZ3d9bdq9dEoD9BccUn9mlT4iR41PhF1gwPGTDdo=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=b8I7W1X+eD9E6f4QICHVyiGb2O+HBaJpc4Gwg6pUFtlpNKygpjn8VED8m8xg+JkOB
+         IY+qSAZGLB4WFz+ZuAhNE6IOZlIPudaswik9x6vnbwMIKU3+fxYh/fSD0okZc5lnaA
+         cdvwJC11zLQtHCiz8Kggoo4ZlThkHqB1Sg9CxUag=
+In-Reply-To: <1556810922-20248-13-git-send-email-rppt@linux.ibm.com>
+Content-Language: fr
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Greentime Hu <green.hu@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>, Ley Foon Tan <lftan@altera.com>, Matthew Wilcox <willy@infradead.org>, Matt Turner <mattst88@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Palmer Dabbelt <palmer@sifive.com>, Paul Burton <paul.burton@mips.com>, Richard Kuo <rkuo@codeaurora.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, Sam Creasey <sammy@sammy.net>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hexag
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+To: Mike Rapoport <rppt@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>, Catalin Marinas <catalin.marinas@arm.com>, Palmer Dabbelt <palmer@sifive.com>, linux-mips@vger.kernel.org, Guo Ren <guoren@kernel.org>, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, linux-arch@vger.kernel.org, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Matthew Wilcox <willy@infradead.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Matt Turner <mattst88@gmail.com>, Sam Creasey <sammy@sammy.net>, Arnd Bergmann <arnd@arndb.de>, linux-um@lists.infradead.org, Richard Weinberger <richard@nod.at>, linux-m68k@lists.linux-m68k.org, Greentime Hu <green.hu@gmail.com>, nios2-dev@lists.rocketboards.org, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.o
 
-The csky implementation pte_alloc_one(), pte_free_kernel() and pte_free()
-is identical to the generic except of lack of __GFP_ACCOUNT for the user
-PTEs allocation.
 
-Switch csky to use generic version of these functions.
 
-The csky implementation of pte_alloc_one_kernel() is not replaced because
-it does not clear the allocated page but rather sets each PTE in it to a
-non-zero value.
+Le 02/05/2019 à 17:28, Mike Rapoport a écrit :
+> The 64-bit book-E powerpc implements pte_alloc_one(),
+> pte_alloc_one_kernel(), pte_free_kernel() and pte_free() the same way as
+> the generic version.
 
-The pte_free_kernel() and pte_free() versions on csky are identical to the
-generic ones and can be simply dropped.
+Will soon be converted to the same as the 3 other PPC subarches, see
+https://patchwork.ozlabs.org/patch/1091590/
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/csky/include/asm/pgalloc.h | 30 +++---------------------------
- 1 file changed, 3 insertions(+), 27 deletions(-)
+Christophe
 
-diff --git a/arch/csky/include/asm/pgalloc.h b/arch/csky/include/asm/pgalloc.h
-index d213bb4..98c571670 100644
---- a/arch/csky/include/asm/pgalloc.h
-+++ b/arch/csky/include/asm/pgalloc.h
-@@ -8,6 +8,9 @@
- #include <linux/mm.h>
- #include <linux/sched.h>
- 
-+#define __HAVE_ARCH_PTE_ALLOC_ONE_KERNEL
-+#include <asm-generic/pgalloc.h>	/* for pte_{alloc,free}_one */
-+
- static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
- 					pte_t *pte)
- {
-@@ -39,33 +42,6 @@ static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
- 	return pte;
- }
- 
--static inline struct page *pte_alloc_one(struct mm_struct *mm)
--{
--	struct page *pte;
--
--	pte = alloc_pages(GFP_KERNEL | __GFP_ZERO, 0);
--	if (!pte)
--		return NULL;
--
--	if (!pgtable_page_ctor(pte)) {
--		__free_page(pte);
--		return NULL;
--	}
--
--	return pte;
--}
--
--static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
--{
--	free_pages((unsigned long)pte, PTE_ORDER);
--}
--
--static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
--{
--	pgtable_page_dtor(pte);
--	__free_pages(pte, PTE_ORDER);
--}
--
- static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
- {
- 	free_pages((unsigned long)pgd, PGD_ORDER);
--- 
-2.7.4
-
+> 
+> Switch it to the generic version that does exactly the same thing.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>   arch/powerpc/include/asm/nohash/64/pgalloc.h | 35 ++--------------------------
+>   1 file changed, 2 insertions(+), 33 deletions(-)
+> 
+> diff --git a/arch/powerpc/include/asm/nohash/64/pgalloc.h b/arch/powerpc/include/asm/nohash/64/pgalloc.h
+> index 66d086f..bfb53a0 100644
+> --- a/arch/powerpc/include/asm/nohash/64/pgalloc.h
+> +++ b/arch/powerpc/include/asm/nohash/64/pgalloc.h
+> @@ -11,6 +11,8 @@
+>   #include <linux/cpumask.h>
+>   #include <linux/percpu.h>
+>   
+> +#include <asm-generic/pgalloc.h>	/* for pte_{alloc,free}_one */
+> +
+>   struct vmemmap_backing {
+>   	struct vmemmap_backing *list;
+>   	unsigned long phys;
+> @@ -92,39 +94,6 @@ static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
+>   	kmem_cache_free(PGT_CACHE(PMD_CACHE_INDEX), pmd);
+>   }
+>   
+> -
+> -static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
+> -{
+> -	return (pte_t *)__get_free_page(GFP_KERNEL | __GFP_ZERO);
+> -}
+> -
+> -static inline pgtable_t pte_alloc_one(struct mm_struct *mm)
+> -{
+> -	struct page *page;
+> -	pte_t *pte;
+> -
+> -	pte = (pte_t *)__get_free_page(GFP_KERNEL | __GFP_ZERO | __GFP_ACCOUNT);
+> -	if (!pte)
+> -		return NULL;
+> -	page = virt_to_page(pte);
+> -	if (!pgtable_page_ctor(page)) {
+> -		__free_page(page);
+> -		return NULL;
+> -	}
+> -	return page;
+> -}
+> -
+> -static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+> -{
+> -	free_page((unsigned long)pte);
+> -}
+> -
+> -static inline void pte_free(struct mm_struct *mm, pgtable_t ptepage)
+> -{
+> -	pgtable_page_dtor(ptepage);
+> -	__free_page(ptepage);
+> -}
+> -
+>   static inline void pgtable_free(void *table, int shift)
+>   {
+>   	if (!shift) {
+> 
