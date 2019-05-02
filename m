@@ -1,10 +1,9 @@
 From: Paul Burton <paul.burton@mips.com>
-Subject: Re: [PATCH 01/15] asm-generic, x86: introduce generic
- pte_{alloc,free}_one[_kernel]
-Date: Thu, 2 May 2019 19:03:11 +0000
-Message-ID: <20190502190310.voenw3pwgpelmdgw@pburton-laptop>
+Subject: Re: [PATCH 08/15] mips: switch to generic version of pte allocation
+Date: Thu, 2 May 2019 19:09:47 +0000
+Message-ID: <20190502190945.rrrxfxo3rbhgc3cx@pburton-laptop>
 References: <1556810922-20248-1-git-send-email-rppt@linux.ibm.com>
- <1556810922-20248-2-git-send-email-rppt@linux.ibm.com>
+ <1556810922-20248-9-git-send-email-rppt@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
@@ -12,11 +11,11 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=wavesemi.onmicrosoft.com; s=selector1-wavecomp-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=N5vP4AkogQ4iAySrvubINU0ejgtxmv383VKMfJfN8uU=;
- b=FGA90EGc7npOswhWXNdDBkBfgDW/YA/wBfpJCQnsBf1uiEWNICbqv2coEb6dq+1Y4hICqJ/nl2A2VwS/1ZUlMbldSFF6fWidwS8+avtmYwhLrkNREz5iMe6RkM6Tlq/OsbEaA56KDIXpnYm3xhcIZZ9CO5fMLLwwWKgv9G3slaE=
-In-Reply-To: <1556810922-20248-2-git-send-email-rppt@linux.ibm.com>
+ bh=3uRzdcIsJFDRPuamLXXcZJewA+rYe1vjm3/bXx2cTtI=;
+ b=UoDeGPVhr6JZ7JNyhlHHRROKNEf0NVYR3XZ6bqIqahCovm96BewjlvjGgoNstrrWx8X2FGIWt1hlA2voOr4yKZ2l5wY2wSULDuWJE5gc4fbfJvODff2SAeUk1Q2LbkGhLrcmCIJnuqlUVwJoIDAarSwHlNhS+xIjPE2/ZV/K//w=
+In-Reply-To: <1556810922-20248-9-git-send-email-rppt@linux.ibm.com>
 Content-Language: en-US
-Content-ID: <FEE563E1598F8E42B0910251031F2C94@namprd22.prod.outlook.com>
+Content-ID: <5F06A475B76E7846961ABC0FB62B828B@namprd22.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 To: Mike Rapoport <rppt@linux.ibm.com>
@@ -24,19 +23,24 @@ Cc: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Ca
 
 Hi Mike,
 
-On Thu, May 02, 2019 at 06:28:28PM +0300, Mike Rapoport wrote:
-> +/**
-> + * pte_free_kernel - free PTE-level user page table page
-> + * @mm: the mm_struct of the current context
-> + * @pte_page: the `struct page` representing the page table
-> + */
-> +static inline void pte_free(struct mm_struct *mm, struct page *pte_page)
-> +{
-> +	pgtable_page_dtor(pte_page);
-> +	__free_page(pte_page);
-> +}
+On Thu, May 02, 2019 at 06:28:35PM +0300, Mike Rapoport wrote:
+> MIPS allocates kernel PTE pages with
+>=20
+> 	__get_free_pages(GFP_KERNEL | __GFP_ZERO, PTE_ORDER)
+>=20
+> and user PTE pages with
+>=20
+> 	alloc_pages(GFP_KERNEL | __GFP_ZERO, PTE_ORDER)
 
-Nit: the comment names the wrong function (s/pte_free_kernel/pte_free/).
+That bit isn't quite true - we don't use __GFP_ZERO in pte_alloc_one() &
+instead call clear_highpage() on the allocated page. Not that I have a
+problem with using __GFP_ZERO - it seems like the more optimal choice.
+It just might be worth mentioning the change & expected equivalent
+behavior.
+
+Otherwise:
+
+    Acked-by: Paul Burton <paul.burton@mips.com>
 
 Thanks,
     Paul
