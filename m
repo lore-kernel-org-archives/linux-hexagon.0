@@ -1,13 +1,20 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH 04/15] arm64: switch to generic version of pte allocation
-Date: Fri, 3 May 2019 11:05:09 +0100
-Message-ID: <20190503100508.GB47811@lakrids.cambridge.arm.com>
+From: Guo Ren <guoren@kernel.org>
+Subject: Re: [PATCH 05/15] csky: switch to generic version of pte allocation
+Date: Sat, 4 May 2019 00:03:48 +0800
+Message-ID: <20190503160348.GA9526@guoren-Inspiron-7460>
 References: <1556810922-20248-1-git-send-email-rppt@linux.ibm.com>
- <1556810922-20248-5-git-send-email-rppt@linux.ibm.com>
+ <1556810922-20248-6-git-send-email-rppt@linux.ibm.com>
 Mime-Version: 1.0
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1556899448;
+ bh=9K26hWqGMesApQFdaAhFuNyta2kJgrhs2hDdmQ00qcY=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=HpZWwg5gL0lVYH9xXr2lFjIs4Hr4EFxgLMU0fvIEmuLFdJqilQ6jQYN4Ocb6SStWw
+ iJWfiG66zAQYSvJeB8l3sHAhW93+kPdDD0sZUeypbCGK/KXfyMm98BkvfNuimDaaPM
+ OT2y75fIlpEILXIObpyUg29WsNXovSO+5g+0/f6w=
 Content-Disposition: inline
-In-Reply-To: <1556810922-20248-5-git-send-email-rppt@linux.ibm.com>
+In-Reply-To: <1556810922-20248-6-git-send-email-rppt@linux.ibm.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
@@ -16,67 +23,97 @@ List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
 List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
 List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
 Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Michal Hocko <mhocko@suse.com>, Catalin Marinas <catalin.marinas@arm.com>, Palmer Dabbelt <palmer@sifive.com>, linux-mips@vger.kernel.org, Guo Ren <guoren@kernel.org>, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, linux-arch@vger.kernel.org, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Matthew Wilcox <willy@infradead.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Matt Turner <mattst88@gmail.com>, Sam Creasey <sammy@sammy.net>, Arnd Bergmann <arnd@arndb.de>, linux-um@lists.infradead.org, Richard Weinberger <richard@nod.at>, linux-m68k@lists.linux-m68k.org, Greentime Hu <green.hu@gmail.com>, nios2-dev@lists.rocketboards.org, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, Paul Burton <paul.burton@mips.>
+Cc: Michal Hocko <mhocko@suse.com>, Catalin Marinas <catalin.marinas@arm.com>, Palmer Dabbelt <palmer@sifive.com>, linux-mips@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, linux-arch@vger.kernel.org, Richard Weinberger <richard@nod.at>, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Matthew Wilcox <willy@infradead.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Matt Turner <mattst88@gmail.com>, Sam Creasey <sammy@sammy.net>, Arnd Bergmann <arnd@arndb.de>, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, Greentime Hu <green.hu@gmail.com>, nios2-dev@lists.rocketboards.org, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>, Paul Burton <paul.burton@mips.com>, linux-alpha@vger.kernel
 
-Hi,
+Hi Mike,
 
-On Thu, May 02, 2019 at 06:28:31PM +0300, Mike Rapoport wrote:
-> The PTE allocations in arm64 are identical to the generic ones modulo the
-> GFP flags.
+Acked-by: Guo Ren <ren_guo@c-sky.com>
+
+On Thu, May 02, 2019 at 06:28:32PM +0300, Mike Rapoport wrote:
+> The csky implementation pte_alloc_one(), pte_free_kernel() and pte_free()
+> is identical to the generic except of lack of __GFP_ACCOUNT for the user
+> PTEs allocation.
 > 
-> Using the generic pte_alloc_one() functions ensures that the user page
-> tables are allocated with __GFP_ACCOUNT set.
+> Switch csky to use generic version of these functions.
+Ok.
+
 > 
-> The arm64 definition of PGALLOC_GFP is removed and replaced with
-> GFP_PGTABLE_USER for p[gum]d_alloc_one() and for KVM memory cache.
+> The csky implementation of pte_alloc_one_kernel() is not replaced because
+> it does not clear the allocated page but rather sets each PTE in it to a
+> non-zero value.
+Yes, we must set each PTE to _PAGE_GLOBAL because hardware refill the
+MMU TLB entry with two PTEs and it use the result of pte0.global | pte1.global.
+If pte0 is valid and pte1 is invalid, we must set _PAGE_GLOBAL in
+invalid pte entry. Fortunately, there is no performance issue.
+
 > 
-> The mappings created with create_pgd_mapping() are now using
-> GFP_PGTABLE_KERNEL.
-> 
-> The conversion to the generic version of pte_free_kernel() removes the NULL
-> check for pte.
-> 
-> The pte_free() version on arm64 is identical to the generic one and
-> can be simply dropped.
+> The pte_free_kernel() and pte_free() versions on csky are identical to the
+> generic ones and can be simply dropped.
+Ok.
+
+Best Regards
+ Guo Ren
+
 > 
 > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 > ---
->  arch/arm64/include/asm/pgalloc.h | 43 ++++------------------------------------
->  arch/arm64/mm/mmu.c              |  2 +-
->  arch/arm64/mm/pgd.c              |  4 ++--
->  virt/kvm/arm/mmu.c               |  2 +-
->  4 files changed, 8 insertions(+), 43 deletions(-)
-
-[...]
-
-> diff --git a/arch/arm64/mm/pgd.c b/arch/arm64/mm/pgd.c
-> index 289f911..2ef1a53 100644
-> --- a/arch/arm64/mm/pgd.c
-> +++ b/arch/arm64/mm/pgd.c
-> @@ -31,9 +31,9 @@ static struct kmem_cache *pgd_cache __ro_after_init;
->  pgd_t *pgd_alloc(struct mm_struct *mm)
+>  arch/csky/include/asm/pgalloc.h | 30 +++---------------------------
+>  1 file changed, 3 insertions(+), 27 deletions(-)
+> 
+> diff --git a/arch/csky/include/asm/pgalloc.h b/arch/csky/include/asm/pgalloc.h
+> index d213bb4..98c571670 100644
+> --- a/arch/csky/include/asm/pgalloc.h
+> +++ b/arch/csky/include/asm/pgalloc.h
+> @@ -8,6 +8,9 @@
+>  #include <linux/mm.h>
+>  #include <linux/sched.h>
+>  
+> +#define __HAVE_ARCH_PTE_ALLOC_ONE_KERNEL
+> +#include <asm-generic/pgalloc.h>	/* for pte_{alloc,free}_one */
+> +
+>  static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
+>  					pte_t *pte)
 >  {
->  	if (PGD_SIZE == PAGE_SIZE)
-> -		return (pgd_t *)__get_free_page(PGALLOC_GFP);
-> +		return (pgd_t *)__get_free_page(GFP_PGTABLE_USER);
->  	else
-> -		return kmem_cache_alloc(pgd_cache, PGALLOC_GFP);
-> +		return kmem_cache_alloc(pgd_cache, GFP_PGTABLE_USER);
+> @@ -39,33 +42,6 @@ static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
+>  	return pte;
 >  }
-
-In efi_virtmap_init() we use pgd_alloc() to allocate a pgd for EFI
-runtime services, which we map with a special kernel page table.
-
-I'm not sure if accounting that is problematic, as it's allocated in a
-kernel thread off the back of an early_initcall.
-
-Just to check, Is that sound, or do we need a pgd_alloc_kernel()?
-
-Thanks,
-Mark.
+>  
+> -static inline struct page *pte_alloc_one(struct mm_struct *mm)
+> -{
+> -	struct page *pte;
+> -
+> -	pte = alloc_pages(GFP_KERNEL | __GFP_ZERO, 0);
+> -	if (!pte)
+> -		return NULL;
+> -
+> -	if (!pgtable_page_ctor(pte)) {
+> -		__free_page(pte);
+> -		return NULL;
+> -	}
+> -
+> -	return pte;
+> -}
+> -
+> -static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+> -{
+> -	free_pages((unsigned long)pte, PTE_ORDER);
+> -}
+> -
+> -static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+> -{
+> -	pgtable_page_dtor(pte);
+> -	__free_pages(pte, PTE_ORDER);
+> -}
+> -
+>  static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
+>  {
+>  	free_pages((unsigned long)pgd, PGD_ORDER);
+> -- 
+> 2.7.4
+> 
