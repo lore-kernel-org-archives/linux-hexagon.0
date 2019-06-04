@@ -1,84 +1,50 @@
-From: "Dmitry V. Levin" <ldv@altlinux.org>
-Subject: [PATCH v11 2/7] hexagon: define syscall_get_error() and
- syscall_get_return_value()
-Date: Fri, 10 May 2019 18:27:56 +0300
-Message-ID: <20190510152756.GB28558@altlinux.org>
-References: <20190510152640.GA28529@altlinux.org>
-Mime-Version: 1.0
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH] hexagon: configs: Remove useless UEVENT_HELPER_PATH
+Date: Tue,  4 Jun 2019 09:55:42 +0200
+Message-ID: <1559634942-20369-1-git-send-email-krzk@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190510152640.GA28529@altlinux.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559634947;
+        bh=NZG+kgsujmO3Jg394X+zVaDLzGta+dFs9SolrOcNGaA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=IdAxSeq+8r9Y0+WaaICWoVtKQ5e99WB+5azOWgbQG0l2WiSdXhZJubd8jzvPwsXF5
+         Ln4tAGzRI3jw9CIcCXxU7fOv4AcbooAcEwQhZNB3E0fuFShhUpirKdSbX+MufUpvf3
+         YZ4kORtmMNG9HOMFJAmPMPy4DTRQuD/oiEa+UKfk=
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Richard Kuo <rkuo@codeaurora.org>, Elvira Khabirova <lineprinter@altlinux.org>, Eugene Syromyatnikov <esyr@redhat.com>, Oleg Nesterov <oleg@redhat.com>, Andy Lutomirski <luto@kernel.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Richard Kuo <rkuo@codeaurora.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
 
-syscall_get_* functions are required to be implemented on all
-architectures in order to extend the generic ptrace API with
-PTRACE_GET_SYSCALL_INFO request.
+Remove the CONFIG_UEVENT_HELPER_PATH because:
+1. It is disabled since commit 1be01d4a5714 ("driver: base: Disable
+   CONFIG_UEVENT_HELPER by default") as its dependency (UEVENT_HELPER) was
+   made default to 'n',
+2. It is not recommended (help message: "This should not be used today
+   [...] creates a high system load") and was kept only for ancient
+   userland,
+3. Certain userland specifically requests it to be disabled (systemd
+   README: "Legacy hotplug slows down the system and confuses udev").
 
-This adds remaining 2 syscall_get_* functions as documented in
-asm-generic/syscall.h: syscall_get_error and syscall_get_return_value.
-
-Cc: Richard Kuo <rkuo@codeaurora.org>
-Cc: Elvira Khabirova <lineprinter@altlinux.org>
-Cc: Eugene Syromyatnikov <esyr@redhat.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: linux-hexagon@vger.kernel.org
-Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
+ arch/hexagon/configs/comet_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-Richard, this patch is waiting for ACK since November.
-
-Notes:
-    v11: unchanged
-    v10: unchanged
-    v9: unchanged
-    v8: moved syscall_get_arch to separate audit patchset
-    v7: unchanged
-    v6: added missing includes
-    v5: added syscall_get_error and syscall_get_return_value
-    v4: unchanged
-    v3: unchanged
-    v2: unchanged
-
- arch/hexagon/include/asm/syscall.h | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-diff --git a/arch/hexagon/include/asm/syscall.h b/arch/hexagon/include/asm/syscall.h
-index dab26a71f577..0f28a6a39c3a 100644
---- a/arch/hexagon/include/asm/syscall.h
-+++ b/arch/hexagon/include/asm/syscall.h
-@@ -22,6 +22,8 @@
- #define _ASM_HEXAGON_SYSCALL_H
- 
- #include <uapi/linux/audit.h>
-+#include <linux/err.h>
-+#include <asm/ptrace.h>
- 
- typedef long (*syscall_fn)(unsigned long, unsigned long,
- 	unsigned long, unsigned long,
-@@ -44,6 +46,18 @@ static inline void syscall_get_arguments(struct task_struct *task,
- 	memcpy(args, &(&regs->r00)[0], 6 * sizeof(args[0]));
- }
- 
-+static inline long syscall_get_error(struct task_struct *task,
-+				     struct pt_regs *regs)
-+{
-+	return IS_ERR_VALUE(regs->r00) ? regs->r00 : 0;
-+}
-+
-+static inline long syscall_get_return_value(struct task_struct *task,
-+					    struct pt_regs *regs)
-+{
-+	return regs->r00;
-+}
-+
- static inline int syscall_get_arch(struct task_struct *task)
- {
- 	return AUDIT_ARCH_HEXAGON;
+diff --git a/arch/hexagon/configs/comet_defconfig b/arch/hexagon/configs/comet_defconfig
+index e324f65f41e7..d4320ebdb4b9 100644
+--- a/arch/hexagon/configs/comet_defconfig
++++ b/arch/hexagon/configs/comet_defconfig
+@@ -18,7 +18,6 @@ CONFIG_BLK_DEV_INITRD=y
+ CONFIG_EMBEDDED=y
+ # CONFIG_VM_EVENT_COUNTERS is not set
+ # CONFIG_BLK_DEV_BSG is not set
+-CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
+ # CONFIG_STANDALONE is not set
+ CONFIG_CONNECTOR=y
+ CONFIG_BLK_DEV_LOOP=y
 -- 
-ldv
+2.7.4
+
