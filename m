@@ -1,103 +1,65 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 15/26] asm-generic: ioremap_uc should behave the same with and without MMU
-Date: Sat, 17 Aug 2019 09:32:42 +0200
-Message-ID: <20190817073253.27819-16-hch@lst.de>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH 12/26] x86: clean up ioremap
+Date: Sat, 17 Aug 2019 12:34:02 +0200
+Message-ID: <20190817103402.GA7602@gmail.com>
 References: <20190817073253.27819-1-hch@lst.de>
+ <20190817073253.27819-13-hch@lst.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-        :Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From
-        :Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=H/LEmNPB4LUKmzKwKTw7HppJqT8OudhcMVRJaPxcfXo=; b=pzk8LMAIE1YeLLSo3cuHtk2GR4
-        Y0uanGBXiTDJ2QkwfZe4gwaPUdwva0NK+NTSezuHwF5xymwcbjauYY+MSqS2bAlhvQHI3IPD3aMDp
-        wApGRa1T14nH7PYskhaonl8TXk8byg9KKQzomyZdrqg0WMVxmZtQxDHqCFiPbV2S0E+8+Sa/+hFV6
-        KIHEBMB5c9Cnq8SMKWDNcCqKJaRi/PUkzdX9YyTMta3kl2PksMtHtVEoApc7pTwXYhME4JPJyfLgF
-        9lB+aPaL34V9VZD16IK+oydc2ruwRxxkQ1Z5IN7U+ev8r/4UP985hKZW1QbdoVQJWejsnFGznitlr
-In-Reply-To: <20190817073253.27819-1-hch@lst.de>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=3rsiVG2c/RtTKsJF5qs6XYnONYlqH/o8BFcauqxhQ/Q=; b=el+bJ4jVpOZfG/
+	VpGa4zEz6dBG6+mku3QrP3NvrW9GJ9RI7n93c6CgdQI7oX8JXxcJ65Zf9YvCaAM5ea8WDvxzx/A8a
+	ejP/HrZvlWc2q3ocLfZVA7uDb+RGucJz5OgNNOKvghAofqyoswC0JtoSdWSAnWqkJVmbpDvUYX9hS
+	8s7uAl7gpmlpkkEbQxeAu8uDFXyfdguam626egMVJo3llrrraTbnYXguHFB/0OLfEwWb4ybg3jm8W
+	N3zHy1aBvoK5oWpOyN0fphkHzK3a9t56AIorR/ooSo15Qw90ayve/ysFmCJOoXOtd+uwOGEUMjgMn
+	8GLvuU4GpGQadeDIL6Zg==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=sender:date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to:user-agent;
+ bh=39YvwnXSLPYPPS8HyY6xQ0pEYqQsaSVOcIZxY6QaSy0=;
+ b=HaU5j73Xl18SPfWIKR/l5s1id63iaB7lpk2eLE9Cv93RaSr0QygCeb8VtdrjK/DFoH
+ BzanBzeDzwH/CfWIayA254C8bK/pzQhAr1B+Cx1TRlWNSkT4XCzZLK+D58uxuJj/Z6c8
+ 1+jn+z+dU7Ewi0li9IwJ7jmFgqXABsf3p+TxQXzA7fHIgWlPmx739auC7j/bqLC+8NoU
+ C3XDYz8eetWLerWT9nDLSd3eyiPofE72zfZEgyCEmcNmd7KEx0oxertXb8lLCukZQpFv
+ 6wFercfLlPzs2ZP2Iysl6A4A+S9cPkEPkEAEiZMttS1pDBUiq7OyBBL/XEMk2UGfKSWg
+ tAUQ==
+Content-Disposition: inline
+In-Reply-To: <20190817073253.27819-13-hch@lst.de>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Vincent Chen <deanbo422@gmail.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, Greentime Hu <green.hu@gmail.com>, linux-mtd@lists.infradead.org, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, linux-alpha@vger.kernel.org, nios2-dev@lists.rocketboards.org
 
-Whatever reason there is for the existence of ioremap_uc, and the fact
-that it returns NULL by default on architectures with an MMU applies
-equally to nommu architectures, so don't provide different defaults.
 
-In practice the difference is meaningless as the only portable driver
-that uses ioremap_uc is atyfb which probably doesn't show up on nommu
-devices.
+* Christoph Hellwig <hch@lst.de> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/asm-generic/io.h | 36 ++++++++++++++++--------------------
- 1 file changed, 16 insertions(+), 20 deletions(-)
+> Use ioremap as the main implemented function, and defined
+> ioremap_nocache to it as a deprecated alias.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/x86/include/asm/io.h | 8 ++------
+>  arch/x86/mm/ioremap.c     | 8 ++++----
+>  arch/x86/mm/pageattr.c    | 4 ++--
+>  3 files changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index d02806513670..a98ed6325727 100644
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -935,18 +935,7 @@ static inline void *phys_to_virt(unsigned long address)
-  * defined your own ioremap_*() variant you must then declare your own
-  * ioremap_*() variant as defined to itself to avoid the default NULL return.
-  */
--
--#ifdef CONFIG_MMU
--
--#ifndef ioremap_uc
--#define ioremap_uc ioremap_uc
--static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
--{
--	return NULL;
--}
--#endif
--
--#else /* !CONFIG_MMU */
-+#ifndef CONFIG_MMU
- 
- /*
-  * Change "struct page" to physical address.
-@@ -980,14 +969,6 @@ static inline void __iomem *ioremap_nocache(phys_addr_t offset, size_t size)
- }
- #endif
- 
--#ifndef ioremap_uc
--#define ioremap_uc ioremap_uc
--static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
--{
--	return ioremap_nocache(offset, size);
--}
--#endif
--
- #ifndef ioremap_wc
- #define ioremap_wc ioremap_wc
- static inline void __iomem *ioremap_wc(phys_addr_t offset, size_t size)
-@@ -1004,6 +985,21 @@ static inline void __iomem *ioremap_wt(phys_addr_t offset, size_t size)
- }
- #endif
- 
-+/*
-+ * ioremap_uc is special in that we do require an explicit architecture
-+ * implementation.  In general you do now want to use this function in a
-+ * driver and use plain ioremap, which is uncached by default.  Similarly
-+ * architectures should not implement it unless they have a very good
-+ * reason.
-+ */
-+#ifndef ioremap_uc
-+#define ioremap_uc ioremap_uc
-+static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
-+{
-+	return NULL;
-+}
-+#endif
-+
- #ifdef CONFIG_HAS_IOPORT_MAP
- #ifndef CONFIG_GENERIC_IOMAP
- #ifndef ioport_map
--- 
-2.20.1
+Acked-by: Ingo Molnar <mingo@kernel.org>
 
+Thanks,
+
+	Ingo
