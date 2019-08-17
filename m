@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 18/26] m68k: rename __iounmap and mark it static
-Date: Sat, 17 Aug 2019 09:32:45 +0200
-Message-ID: <20190817073253.27819-19-hch@lst.de>
+Subject: [PATCH 21/26] nios2: remove __iounmap
+Date: Sat, 17 Aug 2019 09:32:48 +0200
+Message-ID: <20190817073253.27819-22-hch@lst.de>
 References: <20190817073253.27819-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,11 +12,11 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         :Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From
         :Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
         List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=dP+ujv8B5sl0YlnSgxS8r+w/4TdzJ+SZ48k1rsxBw8k=; b=Hd4hsIW6JTnWNjSZNsuIEDzHOA
-        Euy9L/8/55h5PSHMyo6WEYMsm6Yr4A/ZYQwo+JxqXuiJZYcacOygl8Rh2X+8tg2w7YI9sQsZldb8h
-        asRRJ/On/DLCo+4iR9Af+qc6mItJseUSzabOikFjKgwaTVN8xvww5HOSF4IQYeAFX2r6ZhvokMl9O
-        uKx4lu1Kbm5cp7JTLPSVGPQAaHF6GC+2VM8QtDpbTubKp07/mB2mzhfblqbyVec61f0V1yMr/FRNV
-        nmHgdedFld5Xkr6gEFIknn4+TELika1DFM7BNy81Fuq0KwTtcXrZ7C+6Jc4/iZEaaNw8VfTsEfyRN
+        bh=lil/5cEkB/ZCAm17l4nkkVLk0wR2AVyhy52WWrhy+jc=; b=n1VbjRLr/nwQjd5ZfA52ZR3MZ8
+        k29dIMFlgP3oYclhmvi9fgmBEis1Z9UVc8+ZboG5zmnh0Kraox4Z4eT+3Q1GmSWh8KpVjv1GwpgZI
+        ORwoiM+UKb9lXoq1eBwDsMRpGVfIXQRMa3Z+CWXkE6jxZoN7SjhX6io1bFrcGE4GRuG2p4hLDYANx
+        7cQrOaT+B4f6PE5qBTv6euDf8A5i3Q2s4/9h882Lq7GqrbTLWFK2L0fzJ4fj/QrPjxjv44bMyEW2g
+        sHocDvCS5K8yzeRTbUNwISrC3XFN8/qVkrkRAt5TIjJDu27jMsU1vRFyK/DR3ho2FQxkPu5j7TtS9
 In-Reply-To: <20190817073253.27819-1-hch@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
@@ -24,72 +24,56 @@ Content-Type: text/plain; charset="us-ascii"
 To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-m68k uses __iounmap as the name for an internal helper that is only
-used for some CPU types.  Mark it static and give it a better name.
+No need to indirect iounmap for nios2.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/m68k/include/asm/kmap.h | 1 -
- arch/m68k/mm/kmap.c          | 9 ++++++---
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ arch/nios2/include/asm/io.h | 7 +------
+ arch/nios2/mm/ioremap.c     | 6 +++---
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
-index 421b6c9c769d..559cb91bede1 100644
---- a/arch/m68k/include/asm/kmap.h
-+++ b/arch/m68k/include/asm/kmap.h
-@@ -20,7 +20,6 @@ extern void __iomem *__ioremap(unsigned long physaddr, unsigned long size,
- 			       int cacheflag);
- #define iounmap iounmap
- extern void iounmap(void __iomem *addr);
--extern void __iounmap(void *addr, unsigned long size);
+diff --git a/arch/nios2/include/asm/io.h b/arch/nios2/include/asm/io.h
+index d108937c321e..746853ac7d8d 100644
+--- a/arch/nios2/include/asm/io.h
++++ b/arch/nios2/include/asm/io.h
+@@ -26,12 +26,7 @@
+ #define writel_relaxed(x, addr)	writel(x, addr)
  
- #define ioremap ioremap
- static inline void __iomem *ioremap(unsigned long physaddr, unsigned long size)
-diff --git a/arch/m68k/mm/kmap.c b/arch/m68k/mm/kmap.c
-index 40a3b327da07..4c279cf0bcc8 100644
---- a/arch/m68k/mm/kmap.c
-+++ b/arch/m68k/mm/kmap.c
-@@ -52,6 +52,7 @@ static inline void free_io_area(void *addr)
+ void __iomem *ioremap(unsigned long physaddr, unsigned long size);
+-extern void __iounmap(void __iomem *addr);
+-
+-static inline void iounmap(void __iomem *addr)
+-{
+-	__iounmap(addr);
+-}
++void iounmap(void __iomem *addr);
  
- #define IO_SIZE		(256*1024)
+ /* Pages to physical address... */
+ #define page_to_phys(page)	virt_to_phys(page_to_virt(page))
+diff --git a/arch/nios2/mm/ioremap.c b/arch/nios2/mm/ioremap.c
+index 7a1a27f3daa3..b56af759dcdf 100644
+--- a/arch/nios2/mm/ioremap.c
++++ b/arch/nios2/mm/ioremap.c
+@@ -157,11 +157,11 @@ void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
+ EXPORT_SYMBOL(ioremap);
  
-+static void __free_io_area(void *addr, unsigned long size);
- static struct vm_struct *iolist;
- 
- static struct vm_struct *get_io_area(unsigned long size)
-@@ -90,7 +91,7 @@ static inline void free_io_area(void *addr)
- 		if (tmp->addr == addr) {
- 			*p = tmp->next;
- 			/* remove gap added in get_io_area() */
--			__iounmap(tmp->addr, tmp->size - IO_SIZE);
-+			__free_io_area(tmp->addr, tmp->size - IO_SIZE);
- 			kfree(tmp);
- 			return;
- 		}
-@@ -249,12 +250,13 @@ void iounmap(void __iomem *addr)
- }
- EXPORT_SYMBOL(iounmap);
- 
-+#ifndef CPU_M68040_OR_M68060_ONLY
  /*
 - * __iounmap unmaps nearly everything, so be careful
-+ * __free_io_area unmaps nearly everything, so be careful
-  * Currently it doesn't free pointer/page tables anymore but this
++ * iounmap unmaps nearly everything, so be careful
+  * it doesn't free currently pointer/page tables anymore but it
   * wasn't used anyway and might be added later.
   */
--void __iounmap(void *addr, unsigned long size)
-+static void __free_io_area(void *addr, unsigned long size)
+-void __iounmap(void __iomem *addr)
++void iounmap(void __iomem *addr)
  {
- 	unsigned long virtaddr = (unsigned long)addr;
- 	pgd_t *pgd_dir;
-@@ -297,6 +299,7 @@ void __iounmap(void *addr, unsigned long size)
+ 	struct vm_struct *p;
  
- 	flush_tlb_all();
+@@ -173,4 +173,4 @@ void __iounmap(void __iomem *addr)
+ 		pr_err("iounmap: bad address %p\n", addr);
+ 	kfree(p);
  }
-+#endif /* CPU_M68040_OR_M68060_ONLY */
- 
- /*
-  * Set new cache mode for some kernel address space.
+-EXPORT_SYMBOL(__iounmap);
++EXPORT_SYMBOL(iounmap);
 -- 
 2.20.1
 
