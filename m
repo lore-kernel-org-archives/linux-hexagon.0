@@ -1,22 +1,23 @@
 From: Paul Walmsley <paul.walmsley@sifive.com>
-Subject: Re: [PATCH 14/26] asm-generic: don't provide __ioremap
-Date: Sat, 17 Aug 2019 13:58:16 -0700 (PDT)
-Message-ID: <alpine.DEB.2.21.9999.1908171357180.4130@viisi.sifive.com>
-References: <20190817073253.27819-1-hch@lst.de> <20190817073253.27819-15-hch@lst.de>
+Subject: Re: [PATCH 15/26] asm-generic: ioremap_uc should behave the same
+ with and without MMU
+Date: Sat, 17 Aug 2019 14:07:29 -0700 (PDT)
+Message-ID: <alpine.DEB.2.21.9999.1908171403330.4130@viisi.sifive.com>
+References: <20190817073253.27819-1-hch@lst.de> <20190817073253.27819-16-hch@lst.de>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=sifive.com; s=google;
         h=date:from:to:cc:subject:in-reply-to:message-id:references
          :user-agent:mime-version;
-        bh=NuXJCtDYAF42ezbdDjEFYfu2iBTjQndKb/Edf61OrOk=;
-        b=PCXESTLeUcBNUWogs1gHv/iSg/bRj7rmybc37GwKrHxDe7CTeYQGPE82FFro2CLT61
-         8Q4IgUqoS7Jmsm9wuhAF9CCdJ8jA631YD8dGqkPPvzXyvuP2itYPnDRcHbp+2vkqaUSt
-         u4rxsZS9lGz/LPzZ8kGOEVrnbFqSW3syoXedbPJGimP78UP/Tg6J92XflG29pM3lwatF
-         OjAvDNX5+3tv2rh85pO4hmLeTRsEGL0KJ9d8KAbhP2qYNSdGVQpqF+mf38a8oxmStDJ9
-         9nvCgcj7mRwE6p6VKc6zn+f1lPTm2K1/WP8Olg56A4X8/QbiEq8e7laZGSLETkAb5Egu
-         FN1g==
-In-Reply-To: <20190817073253.27819-15-hch@lst.de>
+        bh=oaLZqyUNyQl0GDzg3TD6D3y22xcAlUrpApHmCWftkKw=;
+        b=RFEgb4b2hnNS1WpBLunJkjsIPF/Sn00DtxYAOuifEl6DxdVvHfM90BewsheCYGGIbc
+         KkLEVKkHBB0QA34K1oL1QqTpTDmH1r0AAS5LIo/Wzqnat3RY7e+91XBtlrB6cTkdTpWU
+         kte/9iGUVWH3tp9kz8MHvMt2gyye60gDCIBj8NdLeTB71AjDJMlqAJtKUxtx8xWkFhbs
+         YbzFpA0yJYJCQurf1gnnMtlqH+un70tn1BjQGrEcVg5mWlPKN1VotnQ0tUinFRHtRRZr
+         YGQo+eeilNUcY2675AOwdgK09hjXorEyFrfH2VgmS9azKAXXlU4rovb4iLfV8rGhNCxH
+         YgJQ==
+In-Reply-To: <20190817073253.27819-16-hch@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
@@ -26,14 +27,47 @@ Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <mo
 
 On Sat, 17 Aug 2019, Christoph Hellwig wrote:
 
-> __ioremap is not a kernel API, but used for helpers with differing
-> semantics in arch code.  We should not provide it in as-generic.
+> Whatever reason there is for the existence of ioremap_uc, and the fact 
+> that it returns NULL by default on architectures with an MMU applies 
+> equally to nommu architectures, so don't provide different defaults.
+> 
+> In practice the difference is meaningless as the only portable driver
+> that uses ioremap_uc is atyfb which probably doesn't show up on nommu
+> devices.
 > 
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
 
+[ ... ]
+
+> diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+> index d02806513670..a98ed6325727 100644
+> --- a/include/asm-generic/io.h
+> +++ b/include/asm-generic/io.h
+
+[ ... ]
+
+> @@ -1004,6 +985,21 @@ static inline void __iomem *ioremap_wt(phys_addr_t offset, size_t size)
+>  }
+>  #endif
+>  
+> +/*
+> + * ioremap_uc is special in that we do require an explicit architecture
+> + * implementation.  In general you do now want to use this function in a
+                                         ^^^ not
+
+> + * driver and use plain ioremap, which is uncached by default.  Similarly
+                ^ instead 
+
+> + * architectures should not implement it unless they have a very good
+> + * reason.
+> + */
+
+Looks like this mess is only needed on x86 with certain graphics drivers 
+and conflicts between MTRR and page table-based MMU attributes.
+
+
 Reviewed-by: Paul Walmsley <paul.walmsley@sifive.com>
 Tested-by: Paul Walmsley <paul.walmsley@sifive.com> # rv32, rv64 boot
-Acked-by: Paul Walmsley <paul.walmsley@sifive.com> # arch/riscv
 
 
 - Paul
