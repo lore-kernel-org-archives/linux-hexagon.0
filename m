@@ -1,26 +1,22 @@
-From: Stafford Horne <shorne@gmail.com>
-Subject: Re: [PATCH 05/26] openrisc: map as uncached in ioremap
-Date: Sat, 31 Aug 2019 06:45:12 +0900
-Message-ID: <20190830214512.GX24874@lianli.shorne-pla.net>
+From: Will Deacon <will@kernel.org>
+Subject: Re: [PATCH 19/26] arm64: remove __iounmap
+Date: Sat, 31 Aug 2019 17:29:38 +0100
+Message-ID: <20190831162937.5ybulvaa4eq7mybs@willie-the-truck>
 References: <20190817073253.27819-1-hch@lst.de>
- <20190817073253.27819-6-hch@lst.de>
- <20190823135539.GC24874@lianli.shorne-pla.net>
- <20190830160705.GF26887@lst.de>
+ <20190817073253.27819-20-hch@lst.de>
+ <20190819073601.4yxjvmyjtpi7tk56@willie-the-truck>
+ <20190830160515.GC26887@lst.de>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=CyAnPYKlnqoE6HYrk4XrrLs/lfWC1furlwMXZwIbdJM=;
-        b=Ey9XQvoj8H/Rnwv8NzD/KreDQNAtk/Y1mAfNtWWSPWRvpRHkSG3qzrkTUiyqzLyy8y
-         FhYeM7nvgl239YS8plycKvLT74pvzlcX8njCo82d73vUDrqGOQIz8oARAkP7UKilrwM5
-         NDqVYaJdxQw5YtmBNy2VGaqetGKnvddyuLZTFzzrXm1WRH2hh5P7VzQIaPjNRzRh/cM8
-         +iOgz2nm0iGcnxDUVyloWrKJlS93KDGv8twzcGSeFsCL8uqXFf9uQEZtHNVy3yjgG/aD
-         DEMAEjrPTZxgLBaKb3rpS25bBzOjAWuXx/Z+kiRAvu2tepHCjzQrK3HOb0q7by4MMmYW
-         wmeg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1567268985;
+        bh=oCFqDXfnxrqpiBFRCwyD8nHXvoMvSjbxCsJhrxHTYqM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vX6b95IdsVrDjTXh55KZNhoPNMKUITWlit4Ldb9kHZhxWpNoqZwiOB5EF5DJcLfuZ
+         wmt8nfF1pggofVEAUJWY4K2cI3w83kg0ds8vBO0zGI/+b8iJT5NQEI4dH3G3L57NyD
+         AwNlHxXQFvARoZXdkRSB9gHwMtmjWPnHQrjl8Gx4=
 Content-Disposition: inline
-In-Reply-To: <20190830160705.GF26887@lst.de>
+In-Reply-To: <20190830160515.GC26887@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
@@ -28,25 +24,29 @@ Content-Transfer-Encoding: 7bit
 To: Christoph Hellwig <hch@lst.de>
 Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Aug 30, 2019 at 06:07:05PM +0200, Christoph Hellwig wrote:
-> On Fri, Aug 23, 2019 at 10:55:39PM +0900, Stafford Horne wrote:
-> > On Sat, Aug 17, 2019 at 09:32:32AM +0200, Christoph Hellwig wrote:
-> > > Openrisc is the only architecture not mapping ioremap as uncached,
-> > > which has been the default since the Linux 2.6.x days.  Switch it
-> > > over to implement uncached semantics by default.
+Hi Christoph,
+
+On Fri, Aug 30, 2019 at 06:05:15PM +0200, Christoph Hellwig wrote:
+> On Mon, Aug 19, 2019 at 08:36:02AM +0100, Will Deacon wrote:
+> > On Sat, Aug 17, 2019 at 09:32:46AM +0200, Christoph Hellwig wrote:
+> > > No need to indirect iounmap for arm64.
 > > > 
 > > > Signed-off-by: Christoph Hellwig <hch@lst.de>
 > > > ---
-> > >  arch/openrisc/include/asm/io.h      | 20 +++-----------------
-> > >  arch/openrisc/include/asm/pgtable.h |  2 +-
-> > >  arch/openrisc/mm/ioremap.c          |  8 ++++----
-> > >  3 files changed, 8 insertions(+), 22 deletions(-)
+> > >  arch/arm64/include/asm/io.h | 3 +--
+> > >  arch/arm64/mm/ioremap.c     | 4 ++--
+> > >  2 files changed, 3 insertions(+), 4 deletions(-)
 > > 
-> > Acked-by: Stafford Horne <shorne@gmail.com>
+> > Not sure why we did it like this...
+> > 
+> > Acked-by: Will Deacon <will@kernel.org>
 > 
-> Can you send this one to Linus for 5.4?  That would help with the
-> possibility to remove ioremap_nocache after that.
+> Can you just pick this one up through the arm64 tree for 5.4?
 
-Sure, I will pick this up.
+Unfortunately, it doesn't apply because the tree you've based it on has
+removed ioremap_wt(). If you send a version based on mainline, I can
+queue it.
 
--Stafford
+Cheers,
+
+Will
