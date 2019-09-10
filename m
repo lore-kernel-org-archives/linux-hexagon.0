@@ -1,39 +1,50 @@
-From: Paul Burton <paul.burton@mips.com>
-Subject: Re: [PATCH 04/26] mips: remove ioremap_cachable
-Date: Tue, 3 Sep 2019 08:57:00 +0000
-Message-ID: <MWHPR2201MB1277E4E8214F6E50E5EC9BFCC1B90@MWHPR2201MB1277.namprd22.prod.outlook.com>
-References: <20190817073253.27819-5-hch@lst.de>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH RESEND 1/2] hexagon: configs: Remove useless UEVENT_HELPER_PATH
+Date: Tue, 10 Sep 2019 20:47:10 +0200
+Message-ID: <20190910184711.22153-1-krzk@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wavecomp.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pKGjwp1Uo8LfIHoyH7+b//d/bD44+fJfePgvviW7l8g=;
- b=VCoxzS8WWTGfTcQYd0/WZ+jzrF0fosMbreNkfKpbvjQ4IW659Bg+NPwvuAf4EQKOuVRKFsAOj0pCb8p+7Dill9cY5mxZ4QAPW5CJCiLvD1LY+jZ1udVFo87TRkJbmYam+XgewallJsGzm3jjrChp1wMbXFymbbSiyHLv9/Ei034=
-In-Reply-To: <20190817073253.27819-5-hch@lst.de>
-Content-Language: en-US
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1568141238;
+        bh=DtA1ZIJa0KT7HzP2wl8Z4/P/Ia1Bv1IRlb/FPekwQn4=;
+        h=From:To:Subject:Date:From;
+        b=wUC/GACTC0iPw/SDrWBq6bZSbqO3VxntVr5gffzzRoqfe1ZbXQpTc8HzlIGPc1r8O
+         ODDOB3qHnSJSWzI116i0dob6pzIuRPyrgzGnw7zz9nAbQTN2zRCtB5SKY/rYIVIO4Z
+         ZAB3TdHP1R8y+YXq7B1yOD7h+qC4To87AUHXA+pE=
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: Christoph Hellwig <hch@lst.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, "x86@kernel.org" <x86@kernel.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, "nios2-dev@lists.rocketboards.org" <nios2-dev@lists.rocketboards.org>
+Content-Transfer-Encoding: 7bit
+To: Richard Kuo <rkuo@codeaurora.org>, Krzysztof Kozlowski <krzk@kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello,
+Remove the CONFIG_UEVENT_HELPER_PATH because:
+1. It is disabled since commit 1be01d4a5714 ("driver: base: Disable
+   CONFIG_UEVENT_HELPER by default") as its dependency (UEVENT_HELPER) was
+   made default to 'n',
+2. It is not recommended (help message: "This should not be used today
+   [...] creates a high system load") and was kept only for ancient
+   userland,
+3. Certain userland specifically requests it to be disabled (systemd
+   README: "Legacy hotplug slows down the system and confuses udev").
 
-Christoph Hellwig wrote:
-> Just define ioremap_cache directly.
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ arch/hexagon/configs/comet_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-Applied to mips-next.
+diff --git a/arch/hexagon/configs/comet_defconfig b/arch/hexagon/configs/comet_defconfig
+index e324f65f41e7..d4320ebdb4b9 100644
+--- a/arch/hexagon/configs/comet_defconfig
++++ b/arch/hexagon/configs/comet_defconfig
+@@ -18,7 +18,6 @@ CONFIG_BLK_DEV_INITRD=y
+ CONFIG_EMBEDDED=y
+ # CONFIG_VM_EVENT_COUNTERS is not set
+ # CONFIG_BLK_DEV_BSG is not set
+-CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
+ # CONFIG_STANDALONE is not set
+ CONFIG_CONNECTOR=y
+ CONFIG_BLK_DEV_LOOP=y
+-- 
+2.17.1
 
-> commit 60af0d94cc37
-> https://git.kernel.org/mips/c/60af0d94cc37
->=20
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Signed-off-by: Paul Burton <paul.burton@mips.com>
-
-Thanks,
-    Paul
-
-[ This message was auto-generated; if you believe anything is incorrect
-  then please email paul.burton@mips.com to report it. ]
