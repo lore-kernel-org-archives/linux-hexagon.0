@@ -1,62 +1,34 @@
-From: Richard Kuo <rkuo@codeaurora.org>
-Subject: [GIT PULL] Hexagon arch maintainer change
-Date: Thu, 19 Sep 2019 21:04:27 -0500
-Message-ID: <20190920020427.GA7719@codeaurora.org>
-Mime-Version: 1.0
+From: pr-tracker-bot@kernel.org
+Subject: Re: [GIT PULL] Hexagon arch maintainer change
+Date: Fri, 20 Sep 2019 19:10:26 +0000
+Message-ID: <156900662668.23740.2725582904267103842.pr-tracker-bot@kernel.org>
+References: <20190920020427.GA7719@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1568945071;
-        bh=7VRyQrCrEIg2B5dbxsKJsZB0FNxfrVA48YSIi9y+2Os=;
-        h=Date:From:To:Cc:Subject:From;
-        b=FShJKSPW0XfZJeo5I3gGmXH9lqzOX8YyBeciOR4R2NCet5ripR+7Sx4zbJCQQtCh+
-         /kkkS3txf3eqf755Owz4k33d56jKQurmFiGl2quw4cE0qWW5GZS/xsbFYNo5TSVoBe
-         2JHJeQYUp1ruSspcgibSieRUr/RUtEwxsICKUwnM=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1568945071;
-        bh=7VRyQrCrEIg2B5dbxsKJsZB0FNxfrVA48YSIi9y+2Os=;
-        h=Date:From:To:Cc:Subject:From;
-        b=FShJKSPW0XfZJeo5I3gGmXH9lqzOX8YyBeciOR4R2NCet5ripR+7Sx4zbJCQQtCh+
-         /kkkS3txf3eqf755Owz4k33d56jKQurmFiGl2quw4cE0qWW5GZS/xsbFYNo5TSVoBe
-         2JHJeQYUp1ruSspcgibSieRUr/RUtEwxsICKUwnM=
-Content-Disposition: inline
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569006626;
+        bh=TGXgCr5SzF0uiSfCQafY5H/T+5sJuBCo6ogXQMYyJ8M=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=yIZG6d9/WRVTBMpvlF4SrDyeUDWOBEyTPJvNrU3RyP0vsyNcEQHLvirbq+i8fGR7c
+         SYuUrF8mt3aEQKRNciWDj2ej6GZNpdoPuIxSGQg/Hxb6SivMsNq0qGyC53zonJ8uDO
+         Hhwi8H3JFV3fY3urbf5JUozPZ7jlGp4P//o9yUPU=
+In-Reply-To: <20190920020427.GA7719@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
-Cc: bcain@codeaurora.org
+To: Richard Kuo <rkuo@codeaurora.org>
+Cc: torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org, bcain@codeaurora.org
 
-Hi Linus,
+The pull request you sent on Thu, 19 Sep 2019 21:04:27 -0500:
 
-Please pull the following changes.  I am leaving QuIC, and Brian Cain will be
-taking over maintainership of the Hexagon port.
+> git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
 
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/bb736a5c0e9a2605f11c2bbb60a68f757832da32
 
-Thanks,
-Richard Kuo
-
-
-The following changes since commit 4d856f72c10ecb060868ed10ff1b1453943fc6c8:
-
-  Linux 5.3 (2019-09-15 14:19:32 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
-
-for you to fetch changes up to 18dd1793a340f8216e22c9295c0c7b95cdae1783:
-
-  Hexagon: change maintainer to Brian Cain (2019-09-19 14:58:15 -0500)
-
-----------------------------------------------------------------
-Brian Cain (1):
-      Hexagon: change maintainer to Brian Cain
-
- MAINTAINERS | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
+Thank you!
 
 -- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, 
-a Linux Foundation Collaborative Project
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
