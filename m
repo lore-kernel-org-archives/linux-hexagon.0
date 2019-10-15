@@ -1,34 +1,54 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [GIT PULL] Hexagon arch maintainer change
-Date: Fri, 20 Sep 2019 19:10:26 +0000
-Message-ID: <156900662668.23740.2725582904267103842.pr-tracker-bot@kernel.org>
-References: <20190920020427.GA7719@codeaurora.org>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 08/34] hexagon: Use CONFIG_PREEMPTION
+Date: Tue, 15 Oct 2019 21:17:55 +0200
+Message-ID: <20191015191821.11479-9-bigeasy@linutronix.de>
+References: <20191015191821.11479-1-bigeasy@linutronix.de>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569006626;
-        bh=TGXgCr5SzF0uiSfCQafY5H/T+5sJuBCo6ogXQMYyJ8M=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=yIZG6d9/WRVTBMpvlF4SrDyeUDWOBEyTPJvNrU3RyP0vsyNcEQHLvirbq+i8fGR7c
-         SYuUrF8mt3aEQKRNciWDj2ej6GZNpdoPuIxSGQg/Hxb6SivMsNq0qGyC53zonJ8uDO
-         Hhwi8H3JFV3fY3urbf5JUozPZ7jlGp4P//o9yUPU=
-In-Reply-To: <20190920020427.GA7719@codeaurora.org>
+In-Reply-To: <20191015191821.11479-1-bigeasy@linutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Richard Kuo <rkuo@codeaurora.org>
-Cc: torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org, bcain@codeaurora.org
+To: linux-kernel@vger.kernel.org
+Cc: tglx@linutronix.de, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-The pull request you sent on Thu, 19 Sep 2019 21:04:27 -0500:
+From: Thomas Gleixner <tglx@linutronix.de>
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel.git for-linus
+CONFIG_PREEMPTION is selected by CONFIG_PREEMPT and by CONFIG_PREEMPT_RT.
+Both PREEMPT and PREEMPT_RT require the same functionality which today
+depends on CONFIG_PREEMPT.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/bb736a5c0e9a2605f11c2bbb60a68f757832da32
+Switch the entry code over to use CONFIG_PREEMPTION.
 
-Thank you!
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ arch/hexagon/kernel/vm_entry.S | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+diff --git a/arch/hexagon/kernel/vm_entry.S b/arch/hexagon/kernel/vm_entry.S
+index 12242c27e2df5..65a1ea0eed2fa 100644
+--- a/arch/hexagon/kernel/vm_entry.S
++++ b/arch/hexagon/kernel/vm_entry.S
+@@ -265,12 +265,12 @@
+ 	 * should be in the designated register (usually R19)
+ 	 *
+ 	 * If we were in kernel mode, we don't need to check scheduler
+-	 * or signals if CONFIG_PREEMPT is not set.  If set, then it has
++	 * or signals if CONFIG_PREEMPTION is not set.  If set, then it has
+ 	 * to jump to a need_resched kind of block.
+-	 * BTW, CONFIG_PREEMPT is not supported yet.
++	 * BTW, CONFIG_PREEMPTION is not supported yet.
+ 	 */
+=20
+-#ifdef CONFIG_PREEMPT
++#ifdef CONFIG_PREEMPTION
+ 	R0 =3D #VM_INT_DISABLE
+ 	trap1(#HVM_TRAP1_VMSETIE)
+ #endif
+--=20
+2.23.0
+
