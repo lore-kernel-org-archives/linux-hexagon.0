@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 02/21] unicore32: remove ioremap_cached
-Date: Thu, 17 Oct 2019 19:45:35 +0200
-Message-ID: <20191017174554.29840-3-hch@lst.de>
+Subject: [PATCH 03/21] ia64: rename ioremap_nocache to ioremap_uc
+Date: Thu, 17 Oct 2019 19:45:36 +0200
+Message-ID: <20191017174554.29840-4-hch@lst.de>
 References: <20191017174554.29840-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,11 +12,11 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         :Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From
         :Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
         List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=LVEPu9/s1693dWfYlkD3Fqnhr0FkMtGhuRv/aJrvhOg=; b=RjRieJd82TpPK9jRpIQFlwUQn8
-        rXPon9JuYUTZmAL1n9JR2nFjDASe7YxIYzEgRNyPtsyXMNApyap2c3pldQe89O0UfWLoJ4sAbFUYE
-        yZFJqWKO35Vs7y7rWCsospb60FEjg9xxZyW/mCPccwxfH7qilMgMbY/A3IQRzjr/Ba13SUirLL73V
-        JM+jcEr6RD+KtbH1A7hv86+6wW1A7zez/feRzYtKgaVDp8Hp8W+h2pUq62Cx0Q/DeJXyVj+ee6eQH
-        2FtyfR8VKesOj1hdWsKfZ5DX/5o1uzAMjExm0qBhF/Fce5kYtW4LLLmh36+5rSFLWUWNavpjBNHCa
+        bh=2xy2T9qOSPMGplEqKWJauskIbcbIDJKl6sQ804whqNU=; b=Ct+ldN6rk4PqkB+evT89HS0aI2
+        iuSsioqVAzvvnPglWYuo2PY4ic17xOid8hZq73VDPkHkJANCOk7fSMJ/AlTpqSxKoSIBO28z8pB+M
+        CBJGy7GBGGXsIpFXUR/AYq0VGERcZdWHvyhLEEaS3bduWAlRoA9l4mwQWSyZi1ME1Ie1Lp6Tg9QIG
+        UgqdC3qSGUZjPgmjJRDJrit1PvCjgLRyLC9sg9FZ5kgwZ8mKLlIejLie5kal4hO48xE68e+ICt+U9
+        7DqOI3lJ3mChXeZOB6/L975KjKQUPoBmruId7kvnHPgjz6+TeOzmOe5kAcMMV9WnihOD5X/u9PCMp
 In-Reply-To: <20191017174554.29840-1-hch@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
@@ -24,57 +24,66 @@ Content-Type: text/plain; charset="us-ascii"
 To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-No users of ioremap_cached are left, remove it.
+On ia64 ioremap_nocache fails if attributs don't match.  Not other
+architectures does this, and we plan to get rid of ioremap_nocache.
+So get rid of the special semantics and define ioremap_nocache in
+terms of ioremap as no portable driver could rely on the behavior
+anyway.
+
+However x86 implements ioremap_uc with a in a similar way as the ia64
+version of ioremap_nocache, so implement that instead.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/unicore32/include/asm/io.h | 4 +---
- arch/unicore32/mm/ioremap.c     | 8 --------
- 2 files changed, 1 insertion(+), 11 deletions(-)
+ arch/ia64/include/asm/io.h | 6 +++---
+ arch/ia64/mm/ioremap.c     | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/unicore32/include/asm/io.h b/arch/unicore32/include/asm/io.h
-index c71aa4b95996..4b460e01acfa 100644
---- a/arch/unicore32/include/asm/io.h
-+++ b/arch/unicore32/include/asm/io.h
-@@ -18,10 +18,9 @@
- #include <asm-generic/io.h>
+diff --git a/arch/ia64/include/asm/io.h b/arch/ia64/include/asm/io.h
+index 54e70c21352a..fec9df9609ed 100644
+--- a/arch/ia64/include/asm/io.h
++++ b/arch/ia64/include/asm/io.h
+@@ -256,16 +256,16 @@ static inline void outsl(unsigned long port, const void *src,
+ # ifdef __KERNEL__
  
- /*
-- * __uc32_ioremap and __uc32_ioremap_cached takes CPU physical address.
-+ * __uc32_ioremap takes CPU physical address.
-  */
- extern void __iomem *__uc32_ioremap(unsigned long, size_t);
--extern void __iomem *__uc32_ioremap_cached(unsigned long, size_t);
- extern void __uc32_iounmap(volatile void __iomem *addr);
- 
- /*
-@@ -32,7 +31,6 @@ extern void __uc32_iounmap(volatile void __iomem *addr);
-  *
-  */
- #define ioremap(cookie, size)		__uc32_ioremap(cookie, size)
--#define ioremap_cached(cookie, size)	__uc32_ioremap_cached(cookie, size)
- #define ioremap_nocache(cookie, size)	__uc32_ioremap(cookie, size)
- #define iounmap(cookie)			__uc32_iounmap(cookie)
- 
-diff --git a/arch/unicore32/mm/ioremap.c b/arch/unicore32/mm/ioremap.c
-index cf6d656f240c..46a64bd6156a 100644
---- a/arch/unicore32/mm/ioremap.c
-+++ b/arch/unicore32/mm/ioremap.c
-@@ -220,14 +220,6 @@ __uc32_ioremap(unsigned long phys_addr, size_t size)
- }
- EXPORT_SYMBOL(__uc32_ioremap);
- 
--void __iomem *
--__uc32_ioremap_cached(unsigned long phys_addr, size_t size)
--{
--	return __uc32_ioremap_caller(phys_addr, size, MT_DEVICE_CACHED,
--			__builtin_return_address(0));
--}
--EXPORT_SYMBOL(__uc32_ioremap_cached);
--
- void __uc32_iounmap(volatile void __iomem *io_addr)
+ extern void __iomem * ioremap(unsigned long offset, unsigned long size);
+-extern void __iomem * ioremap_nocache (unsigned long offset, unsigned long size);
++extern void __iomem * ioremap_uc(unsigned long offset, unsigned long size);
+ extern void iounmap (volatile void __iomem *addr);
+ static inline void __iomem * ioremap_cache (unsigned long phys_addr, unsigned long size)
  {
- 	void *addr = (void *)(PAGE_MASK & (unsigned long)io_addr);
+ 	return ioremap(phys_addr, size);
+ }
+ #define ioremap ioremap
+-#define ioremap_nocache ioremap_nocache
++#define ioremap_nocache ioremap
+ #define ioremap_cache ioremap_cache
+-#define ioremap_uc ioremap_nocache
++#define ioremap_uc ioremap_uc
+ #define iounmap iounmap
+ 
+ /*
+diff --git a/arch/ia64/mm/ioremap.c b/arch/ia64/mm/ioremap.c
+index 0c0de2c4ec69..a09cfa064536 100644
+--- a/arch/ia64/mm/ioremap.c
++++ b/arch/ia64/mm/ioremap.c
+@@ -99,14 +99,14 @@ ioremap (unsigned long phys_addr, unsigned long size)
+ EXPORT_SYMBOL(ioremap);
+ 
+ void __iomem *
+-ioremap_nocache (unsigned long phys_addr, unsigned long size)
++ioremap_uc(unsigned long phys_addr, unsigned long size)
+ {
+ 	if (kern_mem_attribute(phys_addr, size) & EFI_MEMORY_WB)
+ 		return NULL;
+ 
+ 	return __ioremap_uc(phys_addr);
+ }
+-EXPORT_SYMBOL(ioremap_nocache);
++EXPORT_SYMBOL(ioremap_uc);
+ 
+ void
+ early_iounmap (volatile void __iomem *addr, unsigned long size)
 -- 
 2.20.1
 
