@@ -1,71 +1,83 @@
-From: Paul Walmsley <paul.walmsley@sifive.com>
-Subject: Re: [PATCH 18/21] riscv: use the generic ioremap code
-Date: Thu, 17 Oct 2019 20:42:14 -0700 (PDT)
-Message-ID: <alpine.DEB.2.21.9999.1910172038040.3156@viisi.sifive.com>
-References: <20191017174554.29840-1-hch@lst.de>
- <20191017174554.29840-19-hch@lst.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 13/21] m68k: rename __iounmap and mark it static
+Date: Fri, 18 Oct 2019 09:30:54 +0200
+Message-ID: <CAMuHMdWaQ15j7fQ9-8XKgrSwgf96nT=yY+FCPWPxoPC9LGqvbQ@mail.gmail.com>
+References: <20191017174554.29840-1-hch@lst.de> <20191017174554.29840-14-hch@lst.de>
 Mime-Version: 1.0
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20191017174554.29840-14-hch@lst.de>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:Message-ID:
-	In-Reply-To:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=X5yk7VD/VEnT+izVfrnynhQR5fR/gkXB/7Ip6BOWwrI=; b=TnxKiIpihVIOet
-	IXC0zCIFgc83prbU/vmEbAa5ITlLzY2O9aJW7cexOkyOFkPh9hVCrAQkXjTB0kZLzFunUViiGZUnh
-	ulanOpHAaECXzzry2qdTYD1bDGVMnF3gZTVzivHefsr5b8dyD36tF6P/DEJxa2BkDMGr20qTjjecq
-	pVxFLWygrWL+qADfWaSm7rPjDKkCBOKcTfOUx5MN2kOuOavCc7mg6VxAmHgd0J7/ez0K59K91wpL3
-	E5sMJYeceiBtWEYb+SfUdyo94xJ6eJKjKnIxL4rZ4cOVFFCvfh4BOAJ76yT/q/zBSRUWkW0xYIEK7
-	VogskWCcyJquBR4huHcg==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sifive.com; s=google;
- h=date:from:to:cc:subject:in-reply-to:message-id:references
- :user-agent:mime-version;
- bh=ofLqnhuaTacSfKe2YQoATYL+HC8rQjiCUNcY3XPivmE=;
- b=N5x8bC5o7w6rADZFh4KHeDpeb6o3Jgm+KphbQhVkPqZz1Fd8E9M3PaWuoBNyLGjNby
- FcCFIu+ox9T9DjhSC9heNZjMQrgm4xMjJ8TFBQCdlE86wvAdlBsUPOrsnGVYu9lKKeHQ
- D7w1xDFzmUYo0NdnoKDfVHfBV9rDMkKr3XHd+n6zCsh3R453pBKlec2RqfraXt+7FOJg
- 3/bKBkC2vF8FVFJOQ2O0M59pBjRLRRSRz4XeMXB7o18TKzN8hqr5whm5Tas+OI+iIky7
- 4MLLxBvYd+AUGMn4Rl6c+9BDiHaJCgsFf4PgCwD87izM7iHj9N5OArKOuTr8d8G+a9R5
- mQMQ==
-In-Reply-To: <20191017174554.29840-19-hch@lst.de>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Christoph Hellwig <hch@lst.de>
-Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Vincent Chen <deanbo422@gmail.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, Greentime Hu <green.hu@gmail.com>, linux-mtd@lists.infradead.org, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, linux-alpha@vger.kernel.org, nios2-dev@lists.rocketboards.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, the arch/x86 maintainers <x86@kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, linux-xtensa@linux-xtensa.org, linux-mips@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, Openrisc <openrisc@lists.librecores.org>, MTD Maling List <linux-mtd@lists>
 
-On Thu, 17 Oct 2019, Christoph Hellwig wrote:
+Hi Christoph,
 
-> Use the generic ioremap code instead of providing a local version.
-> Note that this relies on the asm-generic no-op definition of
-> pgprot_noncached.
-> 
+On Thu, Oct 17, 2019 at 7:53 PM Christoph Hellwig <hch@lst.de> wrote:
+> m68k uses __iounmap as the name for an internal helper that is only
+> used for some CPU types.  Mark it static and give it a better name.
+>
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-According to the series introduction E-mail:
+Thanks for your patch!
 
-https://lore.kernel.org/linux-riscv/20191017174554.29840-1-hch@lst.de/T/#m9ac4010fd725c8c84179fa99aa391a6f701a32de
+> --- a/arch/m68k/mm/kmap.c
+> +++ b/arch/m68k/mm/kmap.c
+> @@ -52,6 +52,7 @@ static inline void free_io_area(void *addr)
+>
+>  #define IO_SIZE                (256*1024)
+>
+> +static void __free_io_area(void *addr, unsigned long size);
+>  static struct vm_struct *iolist;
+>
+>  static struct vm_struct *get_io_area(unsigned long size)
+> @@ -90,7 +91,7 @@ static inline void free_io_area(void *addr)
+>                 if (tmp->addr == addr) {
+>                         *p = tmp->next;
+>                         /* remove gap added in get_io_area() */
+> -                       __iounmap(tmp->addr, tmp->size - IO_SIZE);
+> +                       __free_io_area(tmp->addr, tmp->size - IO_SIZE);
+>                         kfree(tmp);
+>                         return;
+>                 }
+> @@ -249,12 +250,13 @@ void iounmap(void __iomem *addr)
+>  }
+>  EXPORT_SYMBOL(iounmap);
+>
+> +#ifndef CPU_M68040_OR_M68060_ONLY
 
-nothing substantive related to RISC-V or the common code has changed since 
-the first version of this series, and this RISC-V-specific patch appears 
-to be quite close (if not identical) to the first version of the patch:
+Can you please move this block up, instead of adding more #ifdef cluttery?
+That would also remove the need for a forward declaration.
 
-https://lore.kernel.org/linux-riscv/alpine.DEB.2.21.9999.1908171421560.4130@viisi.sifive.com/
+>  /*
+> - * __iounmap unmaps nearly everything, so be careful
+> + * __free_io_area unmaps nearly everything, so be careful
+>   * Currently it doesn't free pointer/page tables anymore but this
+>   * wasn't used anyway and might be added later.
+>   */
+> -void __iounmap(void *addr, unsigned long size)
+> +static void __free_io_area(void *addr, unsigned long size)
+>  {
+>         unsigned long virtaddr = (unsigned long)addr;
+>         pgd_t *pgd_dir;
+> @@ -297,6 +299,7 @@ void __iounmap(void *addr, unsigned long size)
+>
+>         flush_tlb_all();
+>  }
+> +#endif /* CPU_M68040_OR_M68060_ONLY */
+>
+>  /*
+>   * Set new cache mode for some kernel address space.
 
-Thus the Tested-by, Reviewed-by, and Acked-by for RISC-V should all still 
-apply:
+Gr{oetje,eeting}s,
 
-https://lore.kernel.org/linux-riscv/alpine.DEB.2.21.9999.1908171421560.4130@viisi.sifive.com/
+                        Geert
 
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-- Paul
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
