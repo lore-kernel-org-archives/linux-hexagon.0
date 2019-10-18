@@ -1,82 +1,71 @@
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Subject: Re: [PATCH 07/21] parisc: remove __ioremap
-Date: Thu, 17 Oct 2019 23:35:42 +0200
-Message-ID: <1650819.dOKmve5HLd@daneel.sf-tec.de>
+From: Paul Walmsley <paul.walmsley@sifive.com>
+Subject: Re: [PATCH 18/21] riscv: use the generic ioremap code
+Date: Thu, 17 Oct 2019 20:42:14 -0700 (PDT)
+Message-ID: <alpine.DEB.2.21.9999.1910172038040.3156@viisi.sifive.com>
 References: <20191017174554.29840-1-hch@lst.de>
- <20191017174554.29840-8-hch@lst.de>
+ <20191017174554.29840-19-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3558820823259705002=="
-Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:Content-Type:Cc:
-	List-Subscribe:List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:To:From:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
-	 bh=gipKRgFaUPQ8AOpduES+pcooXX+6VlJnY8d8wM3Oye0=; b=b1RJSY5bgyxZWe/ObyAyIiCw/
-	8k1Vf59lsYSfK51fJRZDtrj+c1FIgzsXJzK/O/+VUM0FKAg5r5a2DHYCyoo8QIo+s/wKzrXNtnlNL
-	ekXER/0ZgApDRfxBWYdDTMGFxgQ8JGCnBP99yTE/KfxG4q+5YvQUW9/rUOUTLQeY6G/tHRh8mwkVw
-	4m5QEgkrZPHSRdFkOZYKA0XblJHUzABd1yx/GJsJ+9/9QL/LtgCnnTex2SVOJG/Hf3NGppB7BXEDC
-	/Vjdu7ShSWA6zkwW7OFuZJpYzDFcNvCBvzShgGzjEpjH4qTBW9rN28ebLOQmF15MabpFjZUbKX57J
-	GfIUIbJHg==;
-In-Reply-To: <20191017174554.29840-8-hch@lst.de>
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:Message-ID:
+	In-Reply-To:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=X5yk7VD/VEnT+izVfrnynhQR5fR/gkXB/7Ip6BOWwrI=; b=TnxKiIpihVIOet
+	IXC0zCIFgc83prbU/vmEbAa5ITlLzY2O9aJW7cexOkyOFkPh9hVCrAQkXjTB0kZLzFunUViiGZUnh
+	ulanOpHAaECXzzry2qdTYD1bDGVMnF3gZTVzivHefsr5b8dyD36tF6P/DEJxa2BkDMGr20qTjjecq
+	pVxFLWygrWL+qADfWaSm7rPjDKkCBOKcTfOUx5MN2kOuOavCc7mg6VxAmHgd0J7/ez0K59K91wpL3
+	E5sMJYeceiBtWEYb+SfUdyo94xJ6eJKjKnIxL4rZ4cOVFFCvfh4BOAJ76yT/q/zBSRUWkW0xYIEK7
+	VogskWCcyJquBR4huHcg==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sifive.com; s=google;
+ h=date:from:to:cc:subject:in-reply-to:message-id:references
+ :user-agent:mime-version;
+ bh=ofLqnhuaTacSfKe2YQoATYL+HC8rQjiCUNcY3XPivmE=;
+ b=N5x8bC5o7w6rADZFh4KHeDpeb6o3Jgm+KphbQhVkPqZz1Fd8E9M3PaWuoBNyLGjNby
+ FcCFIu+ox9T9DjhSC9heNZjMQrgm4xMjJ8TFBQCdlE86wvAdlBsUPOrsnGVYu9lKKeHQ
+ D7w1xDFzmUYo0NdnoKDfVHfBV9rDMkKr3XHd+n6zCsh3R453pBKlec2RqfraXt+7FOJg
+ 3/bKBkC2vF8FVFJOQ2O0M59pBjRLRRSRz4XeMXB7o18TKzN8hqr5whm5Tas+OI+iIky7
+ 4MLLxBvYd+AUGMn4Rl6c+9BDiHaJCgsFf4PgCwD87izM7iHj9N5OArKOuTr8d8G+a9R5
+ mQMQ==
+In-Reply-To: <20191017174554.29840-19-hch@lst.de>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
-List-Post: <mailto:linux-mtd@lists.infradead.org>
-List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
-Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Christoph Hellwig <hch@lst.de>
 Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Vincent Chen <deanbo422@gmail.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, Greentime Hu <green.hu@gmail.com>, linux-mtd@lists.infradead.org, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, linux-alpha@vger.kernel.org, nios2-dev@lists.rocketboards.org
 
---===============3558820823259705002==
-Content-Type: multipart/signed; boundary="nextPart3002460.JnYtLPdinj"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+On Thu, 17 Oct 2019, Christoph Hellwig wrote:
 
---nextPart3002460.JnYtLPdinj
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+> Use the generic ioremap code instead of providing a local version.
+> Note that this relies on the asm-generic no-op definition of
+> pgprot_noncached.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Christoph Hellwig wrote:
-> __ioremap is always called with the _PAGE_NO_CACHE, so fold the whole
-> thing and rename it to ioremap.  This allows allows to remove the
-                                        ^^^^^^^^^^^^^
-> special EISA quirk to force _PAGE_NO_CACHE.
+According to the series introduction E-mail:
 
-Eike
---nextPart3002460.JnYtLPdinj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+https://lore.kernel.org/linux-riscv/20191017174554.29840-1-hch@lst.de/T/#m9ac4010fd725c8c84179fa99aa391a6f701a32de
 
------BEGIN PGP SIGNATURE-----
+nothing substantive related to RISC-V or the common code has changed since 
+the first version of this series, and this RISC-V-specific patch appears 
+to be quite close (if not identical) to the first version of the patch:
 
-iF0EABECAB0WIQSaYVDeqwKa3fTXNeNcpIk+abn8TgUCXajergAKCRBcpIk+abn8
-TkOlAJ46117xxLoFzZCiYYebEyVSrw/31gCeMRBoULeYp+iYijM534mn8tCGYHM=
-=d3J8
------END PGP SIGNATURE-----
+https://lore.kernel.org/linux-riscv/alpine.DEB.2.21.9999.1908171421560.4130@viisi.sifive.com/
 
---nextPart3002460.JnYtLPdinj--
+Thus the Tested-by, Reviewed-by, and Acked-by for RISC-V should all still 
+apply:
+
+https://lore.kernel.org/linux-riscv/alpine.DEB.2.21.9999.1908171421560.4130@viisi.sifive.com/
 
 
-
-
-
---===============3558820823259705002==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-______________________________________________________
-Linux MTD discussion mailing list
-http://lists.infradead.org/mailman/listinfo/linux-mtd/
-
---===============3558820823259705002==--
-
-
-
-
+- Paul
