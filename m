@@ -1,83 +1,81 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 13/21] m68k: rename __iounmap and mark it static
-Date: Fri, 18 Oct 2019 09:30:54 +0200
-Message-ID: <CAMuHMdWaQ15j7fQ9-8XKgrSwgf96nT=yY+FCPWPxoPC9LGqvbQ@mail.gmail.com>
-References: <20191017174554.29840-1-hch@lst.de> <20191017174554.29840-14-hch@lst.de>
+From: Guo Ren <guoren@kernel.org>
+Subject: Re: [PATCH 20/21] csky: remove ioremap_cache
+Date: Mon, 21 Oct 2019 15:58:28 +0800
+Message-ID: <CAJF2gTQ_VeBfi1uaafgtp+uA2skq-w2px12ig=5QD1O9J+PgbA@mail.gmail.com>
+References: <20191017174554.29840-1-hch@lst.de> <20191017174554.29840-21-hch@lst.de>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191017174554.29840-14-hch@lst.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571644721;
+        bh=HaNxatOx3Yl+LjuXNZSg9j6rwSnjKUPc8eLVmd61SU0=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=luHraHozlqKNUHwEUrw+p/CKnNkzg4GhLnRI3IQVw1ZUnmvt4Cwl7ABV+5EzHS34g
+         CqVlZgKrjSy7nsjEnaLPBzt8i8/jWykyodKl+iP31wL1BC0A++0dn8emaiIgMxVUqa
+         6AeBtKgvcbANkPSenLQVsuD5VltHn5JOl0JQoRvI=
+In-Reply-To: <20191017174554.29840-21-hch@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Christoph Hellwig <hch@lst.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, the arch/x86 maintainers <x86@kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, linux-xtensa@linux-xtensa.org, linux-mips@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, Openrisc <openrisc@lists.librecores.org>, MTD Maling List <linux-mtd@lists>
+Cc: Arnd Bergmann <arnd@arndb.de>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch <linux-arch@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Hi Christoph,
+Acked-by: Guo Ren <guoren@kernel.org>
 
-On Thu, Oct 17, 2019 at 7:53 PM Christoph Hellwig <hch@lst.de> wrote:
-> m68k uses __iounmap as the name for an internal helper that is only
-> used for some CPU types.  Mark it static and give it a better name.
+On Fri, Oct 18, 2019 at 1:47 AM Christoph Hellwig <hch@lst.de> wrote:
+>
+> No driver that can be used on csky uses ioremap_cache, and this
+> interface has been deprecated in favor of memremap.
 >
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
-
-Thanks for your patch!
-
-> --- a/arch/m68k/mm/kmap.c
-> +++ b/arch/m68k/mm/kmap.c
-> @@ -52,6 +52,7 @@ static inline void free_io_area(void *addr)
+> ---
+>  arch/csky/include/asm/io.h | 2 --
+>  arch/csky/mm/ioremap.c     | 7 -------
+>  2 files changed, 9 deletions(-)
 >
->  #define IO_SIZE                (256*1024)
->
-> +static void __free_io_area(void *addr, unsigned long size);
->  static struct vm_struct *iolist;
->
->  static struct vm_struct *get_io_area(unsigned long size)
-> @@ -90,7 +91,7 @@ static inline void free_io_area(void *addr)
->                 if (tmp->addr == addr) {
->                         *p = tmp->next;
->                         /* remove gap added in get_io_area() */
-> -                       __iounmap(tmp->addr, tmp->size - IO_SIZE);
-> +                       __free_io_area(tmp->addr, tmp->size - IO_SIZE);
->                         kfree(tmp);
->                         return;
->                 }
-> @@ -249,12 +250,13 @@ void iounmap(void __iomem *addr)
->  }
->  EXPORT_SYMBOL(iounmap);
->
-> +#ifndef CPU_M68040_OR_M68060_ONLY
-
-Can you please move this block up, instead of adding more #ifdef cluttery?
-That would also remove the need for a forward declaration.
-
+> diff --git a/arch/csky/include/asm/io.h b/arch/csky/include/asm/io.h
+> index a4b9fb616faa..f572605d5ad5 100644
+> --- a/arch/csky/include/asm/io.h
+> +++ b/arch/csky/include/asm/io.h
+> @@ -36,13 +36,11 @@
 >  /*
-> - * __iounmap unmaps nearly everything, so be careful
-> + * __free_io_area unmaps nearly everything, so be careful
->   * Currently it doesn't free pointer/page tables anymore but this
->   * wasn't used anyway and might be added later.
+>   * I/O memory mapping functions.
 >   */
-> -void __iounmap(void *addr, unsigned long size)
-> +static void __free_io_area(void *addr, unsigned long size)
->  {
->         unsigned long virtaddr = (unsigned long)addr;
->         pgd_t *pgd_dir;
-> @@ -297,6 +299,7 @@ void __iounmap(void *addr, unsigned long size)
+> -extern void __iomem *ioremap_cache(phys_addr_t addr, size_t size);
+>  extern void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot);
+>  extern void iounmap(void *addr);
 >
->         flush_tlb_all();
+>  #define ioremap(addr, size)            __ioremap((addr), (size), pgprot_noncached(PAGE_KERNEL))
+>  #define ioremap_wc(addr, size)         __ioremap((addr), (size), pgprot_writecombine(PAGE_KERNEL))
+> -#define ioremap_cache                  ioremap_cache
+>
+>  #include <asm-generic/io.h>
+>
+> diff --git a/arch/csky/mm/ioremap.c b/arch/csky/mm/ioremap.c
+> index e13cd3497628..ae78256a56fd 100644
+> --- a/arch/csky/mm/ioremap.c
+> +++ b/arch/csky/mm/ioremap.c
+> @@ -44,13 +44,6 @@ void __iomem *__ioremap(phys_addr_t phys_addr, size_t size, pgprot_t prot)
 >  }
-> +#endif /* CPU_M68040_OR_M68060_ONLY */
+>  EXPORT_SYMBOL(__ioremap);
 >
->  /*
->   * Set new cache mode for some kernel address space.
+> -void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size)
+> -{
+> -       return __ioremap_caller(phys_addr, size, PAGE_KERNEL,
+> -                               __builtin_return_address(0));
+> -}
+> -EXPORT_SYMBOL(ioremap_cache);
+> -
+>  void iounmap(void __iomem *addr)
+>  {
+>         vunmap((void *)((unsigned long)addr & PAGE_MASK));
+> --
+> 2.20.1
+>
 
-Gr{oetje,eeting}s,
-
-                        Geert
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Best Regards
+ Guo Ren
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+ML: https://lore.kernel.org/linux-csky/
