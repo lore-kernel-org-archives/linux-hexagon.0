@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 03/21] ia64: rename ioremap_nocache to ioremap_uc
-Date: Tue, 29 Oct 2019 07:48:16 +0100
-Message-ID: <20191029064834.23438-4-hch@lst.de>
+Subject: [PATCH 04/21] hexagon: clean up ioremap
+Date: Tue, 29 Oct 2019 07:48:17 +0100
+Message-ID: <20191029064834.23438-5-hch@lst.de>
 References: <20191029064834.23438-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,11 +12,11 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         :Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From
         :Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
         List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=3+G6piK0cFHUECcBqueKbAjQOIaGLN//vL/g9k6PQm8=; b=YaQDlh4k8LPVdMmMR1RVW3ROO8
-        QnWrW78dM7WtsDi1uYVAKanek2A89SRvLcfgmYCmURxGN/IxcU073g+6E9MKf1aXrWvwExe7Rt7ZH
-        v9AG5vsxG6L4Pz2L2q9Lw9flmEeUsFcT9YBZh3tt3EyneXJAjd/lxUbOWrQ/L7JDgc/AJuQgqbEMC
-        4fUm/GXncYvu+mUz0aYsRDCIWAdVYvXzrFJYlDSlQVPEOqh2KDEJrHLjgI8N4kKb36X8BrpP9GGGG
-        kaoS7pNrXRJAm5SaF4TFYo8c2/brn46mgp/i0j88xcHo8tZy51TAkTnRqvNpEKvFNJmJoYXa1X7GY
+        bh=ZcYpG77DrI4zIeJSB2UM1Pr1UMrxQ6cFx59Cqt/5V3Q=; b=LR86jNjVUq9Cz78V6wbfAXiaYX
+        Q8cjQAYaRU9FjoURfB3nze0ZmobLORVvCwjM3pfUz+EqgX31+GCQLwHnpBaPl84TLG1hc3jkVkFy+
+        ZzQWnSsQyzmpJsHQZ0GyzG/pIybXbtOwYnJ9VHenrFcv+Z/1huWEyQVrRgv+kDY4Rn5DPaNKQl0GW
+        U84gS3z5CpQyjKVOCu29gVkWFNtox8oOwDxdz/VdNAlniJc0vmbB4jKWfuoyl44kl5xfzKotZ5yze
+        YJnAvhFaoG3M4DlQBNeFJflYz5kW4DlPA01YpRjhZs69u11WEpbF5NqEyGfKryFPOgGkQ706Fw8bL
 In-Reply-To: <20191029064834.23438-1-hch@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
@@ -24,67 +24,65 @@ Content-Type: text/plain; charset="us-ascii"
 To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
 Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On ia64 ioremap_nocache fails if attributes don't match.  Not other
-architectures does this, and we plan to get rid of ioremap_nocache.
-So get rid of the special semantics and define ioremap_nocache in
-terms of ioremap as no portable driver could rely on the behavior
-anyway.
-
-However x86 implements ioremap_uc in a similar way as the ia64
-version of ioremap_nocache, in that it ignores the firmware tables.
-Switch ia64 to override ioremap_uc instead.
+Use ioremap as the main implemented function, and defined
+ioremap_nocache to it as a deprecated alias.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/ia64/include/asm/io.h | 6 +++---
- arch/ia64/mm/ioremap.c     | 4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ arch/hexagon/include/asm/io.h       | 11 ++---------
+ arch/hexagon/kernel/hexagon_ksyms.c |  2 +-
+ arch/hexagon/mm/ioremap.c           |  2 +-
+ 3 files changed, 4 insertions(+), 11 deletions(-)
 
-diff --git a/arch/ia64/include/asm/io.h b/arch/ia64/include/asm/io.h
-index 54e70c21352a..fec9df9609ed 100644
---- a/arch/ia64/include/asm/io.h
-+++ b/arch/ia64/include/asm/io.h
-@@ -256,16 +256,16 @@ static inline void outsl(unsigned long port, const void *src,
- # ifdef __KERNEL__
+diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
+index ba1a444d55b3..89537dc1cf97 100644
+--- a/arch/hexagon/include/asm/io.h
++++ b/arch/hexagon/include/asm/io.h
+@@ -171,16 +171,9 @@ static inline void writel(u32 data, volatile void __iomem *addr)
+ #define writew_relaxed __raw_writew
+ #define writel_relaxed __raw_writel
  
- extern void __iomem * ioremap(unsigned long offset, unsigned long size);
--extern void __iomem * ioremap_nocache (unsigned long offset, unsigned long size);
-+extern void __iomem * ioremap_uc(unsigned long offset, unsigned long size);
- extern void iounmap (volatile void __iomem *addr);
- static inline void __iomem * ioremap_cache (unsigned long phys_addr, unsigned long size)
- {
- 	return ioremap(phys_addr, size);
- }
- #define ioremap ioremap
--#define ioremap_nocache ioremap_nocache
+-/*
+- * Need an mtype somewhere in here, for cache type deals?
+- * This is probably too long for an inline.
+- */
+-void __iomem *ioremap_nocache(unsigned long phys_addr, unsigned long size);
++void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
 +#define ioremap_nocache ioremap
- #define ioremap_cache ioremap_cache
--#define ioremap_uc ioremap_nocache
-+#define ioremap_uc ioremap_uc
- #define iounmap iounmap
  
- /*
-diff --git a/arch/ia64/mm/ioremap.c b/arch/ia64/mm/ioremap.c
-index 0c0de2c4ec69..a09cfa064536 100644
---- a/arch/ia64/mm/ioremap.c
-+++ b/arch/ia64/mm/ioremap.c
-@@ -99,14 +99,14 @@ ioremap (unsigned long phys_addr, unsigned long size)
- EXPORT_SYMBOL(ioremap);
+-static inline void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
+-{
+-	return ioremap_nocache(phys_addr, size);
+-}
  
- void __iomem *
--ioremap_nocache (unsigned long phys_addr, unsigned long size)
-+ioremap_uc(unsigned long phys_addr, unsigned long size)
+ static inline void iounmap(volatile void __iomem *addr)
  {
- 	if (kern_mem_attribute(phys_addr, size) & EFI_MEMORY_WB)
- 		return NULL;
- 
- 	return __ioremap_uc(phys_addr);
- }
+diff --git a/arch/hexagon/kernel/hexagon_ksyms.c b/arch/hexagon/kernel/hexagon_ksyms.c
+index cf8974beb500..b3dbb472572e 100644
+--- a/arch/hexagon/kernel/hexagon_ksyms.c
++++ b/arch/hexagon/kernel/hexagon_ksyms.c
+@@ -20,7 +20,7 @@ EXPORT_SYMBOL(__vmgetie);
+ EXPORT_SYMBOL(__vmsetie);
+ EXPORT_SYMBOL(__vmyield);
+ EXPORT_SYMBOL(empty_zero_page);
 -EXPORT_SYMBOL(ioremap_nocache);
-+EXPORT_SYMBOL(ioremap_uc);
++EXPORT_SYMBOL(ioremap);
+ EXPORT_SYMBOL(memcpy);
+ EXPORT_SYMBOL(memset);
  
- void
- early_iounmap (volatile void __iomem *addr, unsigned long size)
+diff --git a/arch/hexagon/mm/ioremap.c b/arch/hexagon/mm/ioremap.c
+index 77d8e1e69e9b..b103d83b5fbb 100644
+--- a/arch/hexagon/mm/ioremap.c
++++ b/arch/hexagon/mm/ioremap.c
+@@ -9,7 +9,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/mm.h>
+ 
+-void __iomem *ioremap_nocache(unsigned long phys_addr, unsigned long size)
++void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
+ {
+ 	unsigned long last_addr, addr;
+ 	unsigned long offset = phys_addr & ~PAGE_MASK;
 -- 
 2.20.1
 
