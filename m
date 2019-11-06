@@ -1,159 +1,84 @@
-From: Dmitry Safonov <dima@arista.com>
-Subject: [PATCH 14/50] hexagon: Add show_stack_loglvl()
-Date: Wed,  6 Nov 2019 03:05:05 +0000
-Message-ID: <20191106030542.868541-15-dima@arista.com>
+From: Petr Mladek <pmladek@suse.com>
+Subject: Re: [PATCH 00/50] Add log level to show_stack()
+Date: Wed, 6 Nov 2019 09:35:38 +0100
+Message-ID: <20191106083538.z5nlpuf64cigxigh@pathway.suse.cz>
 References: <20191106030542.868541-1-dima@arista.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=arista.com; s=googlenew;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=neEF1arVtlkYu7Te8ry9xWmO86m4L6M49fWU7Gf2erY=;
-        b=MHdxQCdPIk9csU9sco3kbranbRfmNXyVfOj6R0QS2I6oNtIc8cwCmqw1f/EFTcAnWl
-         cCibFUOyqIbnNRuM2BzlXj51Bb5c5qAMoJZ4xeDQYIUd8pYGppjJsGA3AAbqZSq2tIZ1
-         H/jJMin+LRdXqcd2YjNZuLuSD7JmT2jfKyg8mMfvkRxVgovlnGfH6TvYdz8h0FHtQQRV
-         NXTIkZi+X+AKw2g/ac5nfrChhCAMVLFVHWkDQGUC8gxeEdCTeUSZuTyDC096WgBbGTJ8
-         UZMJtwIleHqvn7xt4YrV/nQqoYGb6CDGlIcV46ptRhdWIRjS1TAFyr7uk57ULeKJKZSv
-         t1qA==
-In-Reply-To: <20191106030542.868541-1-dima@arista.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>, Dmitry Safonov <dima@arista.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jslaby@suse.com>, Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=ZOUbIOndllY52PxyI7VeQqPjnhXSLOqlOyt0VDWf/Bs=; b=IDXvMO3rZIZ96V
+	vEW765ZBN89Cfyp5ho7guY50vx73+sR9SiVctpT8XFOjyd7JNF9lZtAmXOEBrf3DsgJgt8SWpfgQF
+	MqzbnVRgsKAUI6quRxHbUP3S5VG+1nqzfTZzZHQAOYmDvoD1PgFdj3oSTnkuOTYNBSATC8MkoC6SB
+	2jD4g/xU9TUBntT8T3Q0ZlR2/q4eiTN1YwQjzb2+HZlC781SpgqzZ+VA7MTm1n3Tb40BKmja5dxxN
+	cEkjW2sa4zIq/avgP9AKYVIwqTmtrme49sx5wIf4eScse6kPrtf3OIZ0ykh6GuItL2A4nkj/Yu26t
+	xpvownzCwiFismB3Tm3Q==;
+Content-Disposition: inline
+In-Reply-To: <20191106030542.868541-1-dima@arista.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
+To: Dmitry Safonov <dima@arista.com>
+Cc: Juri Lelli <juri.lelli@redhat.com>, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Ben Segall <bsegall@google.com>, Guo Ren <guoren@kernel.org>, Pavel Machek <pavel@ucw.cz>, Vincent Guittot <vincent.guittot@linaro.org>, Paul Burton <paulburton@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, Jiri Slaby <jslaby@suse.com>, Matt Turner <mattst88@gmail.com>, uclinux-h8-devel@lists.sourceforge.jp, Len Brown <len.brown@intel.com>, linux-pm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-um@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Richard Henderson <rth@twiddle.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org, Ralf Baechle <r>
 
-Currently, the log-level of show_stack() depends on a platform
-realization. It creates situations where the headers are printed with
-lower log level or higher than the stacktrace (depending on
-a platform or user).
+On Wed 2019-11-06 03:04:51, Dmitry Safonov wrote:
+> Add log level argument to show_stack().
+> Done in three stages:
+> 1. Introducing show_stack_loglvl() for every architecture
+> 2. Migrating old users with an explicit log level
+> 3. Renaming show_stack_loglvl() into show_stack()
+> 
+> Justification:
+> o It's a design mistake to move a business-logic decision
+>   into platform realization detail.
+> o I have currently two patches sets that would benefit from this work:
+>   Removing console_loglevel jumps in sysrq driver [1]
 
-Furthermore, it forces the logic decision from user to an architecture
-side. In result, some users as sysrq/kdb/etc are doing tricks with
-temporary rising console_loglevel while printing their messages.
-And in result it not only may print unwanted messages from other CPUs,
-but also omit printing at all in the unlucky case where the printk()
-was deferred.
+Just to clarify. The problem in sysrq driver is a bit different.
+It modifies console_loglevel to show even less important message
+on the console.
 
-Introducing log-level parameter and KERN_UNSUPPRESSED [1] seems
-an easier approach than introducing more printk buffers.
-Also, it will consolidate printings with headers.
+IMHO, it should be solved by printing the header line with pr_error().
+It is not ideal. A cleaner solution might be to introduce another
+loglevel that will always get pushed to the console. But I am
+not sure if it is worth this single line.
 
-Introduce show_stack_loglvl(), that eventually will substitute
-show_stack().
+>   Hung task warning before panic [2] - suggested by Tetsuo (but he
+>   probably didn't realise what it would involve).
+> o While doing (1), (2) the backtraces were adjusted to headers
+>   and other messages for each situation - so there won't be a situation
+>   when the backtrace is printed, but the headers are missing because
+>   they have lesser log level (or the reverse).
+> o As the result in (2) plays with console_loglevel for kdb are removed.
 
-As a good side-effect die() now prints the stacktrace with KERN_EMERG
-aligned with other messages.
+> The least important for upstream, but maybe still worth to note that
+> every company I've worked in so far had an off-list patch to print
+> backtrace with the needed log level (but only for the architecture they
+> cared about).
+> If you have other ideas how you will benefit from show_stack() with
+> a log level - please, reply to this cover letter.
 
-Cc: Brian Cain <bcain@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
-[1]: https://lore.kernel.org/lkml/20190528002412.1625-1-dima@arista.com/T/#u
-Signed-off-by: Dmitry Safonov <dima@arista.com>
----
- arch/hexagon/kernel/traps.c | 31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+I agree with all the other justification.
 
-diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
-index 69c623b14ddd..a8a3a210d781 100644
---- a/arch/hexagon/kernel/traps.c
-+++ b/arch/hexagon/kernel/traps.c
-@@ -79,7 +79,7 @@ static const char *ex_name(int ex)
- }
- 
- static void do_show_stack(struct task_struct *task, unsigned long *fp,
--			  unsigned long ip)
-+			  unsigned long ip, const char *loglvl)
- {
- 	int kstack_depth_to_print = 24;
- 	unsigned long offset, size;
-@@ -93,9 +93,8 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 	if (task == NULL)
- 		task = current;
- 
--	printk(KERN_INFO "CPU#%d, %s/%d, Call Trace:\n",
--	       raw_smp_processor_id(), task->comm,
--	       task_pid_nr(task));
-+	printk("%sCPU#%d, %s/%d, Call Trace:\n", loglvl, raw_smp_processor_id(),
-+		task->comm, task_pid_nr(task));
- 
- 	if (fp == NULL) {
- 		if (task == current) {
-@@ -108,7 +107,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 	}
- 
- 	if ((((unsigned long) fp) & 0x3) || ((unsigned long) fp < 0x1000)) {
--		printk(KERN_INFO "-- Corrupt frame pointer %p\n", fp);
-+		printk("%s-- Corrupt frame pointer %p\n", loglvl, fp);
- 		return;
- 	}
- 
-@@ -125,8 +124,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 
- 		name = kallsyms_lookup(ip, &size, &offset, &modname, tmpstr);
- 
--		printk(KERN_INFO "[%p] 0x%lx: %s + 0x%lx", fp, ip, name,
--			offset);
-+		printk("%s[%p] 0x%lx: %s + 0x%lx", loglvl, fp, ip, name, offset);
- 		if (((unsigned long) fp < low) || (high < (unsigned long) fp))
- 			printk(KERN_CONT " (FP out of bounds!)");
- 		if (modname)
-@@ -136,8 +134,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 		newfp = (unsigned long *) *fp;
- 
- 		if (((unsigned long) newfp) & 0x3) {
--			printk(KERN_INFO "-- Corrupt frame pointer %p\n",
--				newfp);
-+			printk("%s-- Corrupt frame pointer %p\n", loglvl, newfp);
- 			break;
- 		}
- 
-@@ -147,7 +144,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 						+ 8);
- 
- 			if (regs->syscall_nr != -1) {
--				printk(KERN_INFO "-- trap0 -- syscall_nr: %ld",
-+				printk("%s-- trap0 -- syscall_nr: %ld", loglvl,
- 					regs->syscall_nr);
- 				printk(KERN_CONT "  psp: %lx  elr: %lx\n",
- 					 pt_psp(regs), pt_elr(regs));
-@@ -155,7 +152,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 			} else {
- 				/* really want to see more ... */
- 				kstack_depth_to_print += 6;
--				printk(KERN_INFO "-- %s (0x%lx)  badva: %lx\n",
-+				printk("%s-- %s (0x%lx)  badva: %lx\n", loglvl,
- 					ex_name(pt_cause(regs)), pt_cause(regs),
- 					pt_badva(regs));
- 			}
-@@ -178,10 +175,16 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 	}
- }
- 
--void show_stack(struct task_struct *task, unsigned long *fp)
-+void show_stack_loglvl(struct task_struct *task, unsigned long *fp,
-+		       const char *loglvl)
- {
- 	/* Saved link reg is one word above FP */
--	do_show_stack(task, fp, 0);
-+	do_show_stack(task, fp, 0, loglvl);
-+}
-+
-+void show_stack(struct task_struct *task, unsigned long *fp)
-+{
-+	show_stack_loglvl(task, fp, 0, KERN_INFO);
- }
- 
- int die(const char *str, struct pt_regs *regs, long err)
-@@ -207,7 +210,7 @@ int die(const char *str, struct pt_regs *regs, long err)
- 
- 	print_modules();
- 	show_regs(regs);
--	do_show_stack(current, &regs->r30, pt_elr(regs));
-+	do_show_stack(current, &regs->r30, pt_elr(regs), KERN_EMERG);
- 
- 	bust_spinlocks(0);
- 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
--- 
-2.23.0
+I would add. The backtrace is really useful for debugging. It should
+be possible to print it even in less critical situations.
 
+I am afraid that many people use WARN() for this purpose. But WARN()
+is not always appropriate. WARN() misuse huts when panic_on_warn
+option is used.
+
+Best Regards,
+Petr
