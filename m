@@ -1,11 +1,11 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 01/21] arm: remove ioremap_cached
-Date: Mon, 11 Nov 2019 11:33:50 +0100
-Message-ID: <CAK8P3a3xk-mQic84Cv7CYhm2DqDCyu69+qH=i8M=JoE3xkpM=g@mail.gmail.com>
-References: <20191029064834.23438-1-hch@lst.de> <20191029064834.23438-2-hch@lst.de>
+Subject: Re: [PATCH 03/21] ia64: rename ioremap_nocache to ioremap_uc
+Date: Mon, 11 Nov 2019 11:36:22 +0100
+Message-ID: <CAK8P3a3k2KRyhCy4OWJkToNBiw_mw0e_A=Ta6UANMMF3EXnhmA@mail.gmail.com>
+References: <20191029064834.23438-1-hch@lst.de> <20191029064834.23438-4-hch@lst.de>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191029064834.23438-2-hch@lst.de>
+In-Reply-To: <20191029064834.23438-4-hch@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
@@ -15,8 +15,18 @@ Cc: Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <
 
 On Tue, Oct 29, 2019 at 7:48 AM Christoph Hellwig <hch@lst.de> wrote:
 >
-> No users of ioremap_cached are left, remove it.
+> On ia64 ioremap_nocache fails if attributes don't match.  Not other
+> architectures does this, and we plan to get rid of ioremap_nocache.
+> So get rid of the special semantics and define ioremap_nocache in
+> terms of ioremap as no portable driver could rely on the behavior
+> anyway.
+>
+> However x86 implements ioremap_uc in a similar way as the ia64
+> version of ioremap_nocache, in that it ignores the firmware tables.
+> Switch ia64 to override ioremap_uc instead.
 >
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
+
+Good idea,
 
 Reviewed-by: Arnd Bergmann <arnd@arndb.de>
