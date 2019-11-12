@@ -1,190 +1,70 @@
-From: Greentime Hu <green.hu@gmail.com>
-Subject: Re: [PATCH 19/21] nds32: use generic ioremap
-Date: Tue, 12 Nov 2019 16:51:29 +0800
-Message-ID: <CAEbi=3c58Pb=Q3BqeTLhEK8OsdTpbD5tAe6VcGOC7JBWbTjetQ@mail.gmail.com>
-References: <20191029064834.23438-1-hch@lst.de> <20191029064834.23438-20-hch@lst.de>
+From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Subject: Re: [PATCH 00/50] Add log level to show_stack()
+Date: Tue, 12 Nov 2019 19:12:29 +0900
+Message-ID: <20191112101229.GA201294@google.com>
+References: <20191106030542.868541-1-dima@arista.com>
+ <20191106083538.z5nlpuf64cigxigh@pathway.suse.cz>
+ <20191108103719.GB175344@google.com>
+ <20191108130447.h3wfgo4efjkto56f@pathway.suse.cz>
+ <20191111012336.GA85185@google.com>
+ <20191111091207.u3lrd6cmumnx4czr@pathway.suse.cz>
+ <20191112044447.GA121272@google.com>
+ <20191112045704.GA138013@google.com>
+ <20191112083509.gmgjpkjffsfaw5lm@pathway.suse.cz>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=cROzNmdYxisqWoueYc9W+eIG2Mx3qlHP7NfXN3GI/FQ=;
-        b=PF/S6iWT4CYos5f/Qxiyrj819yA9DztoVnQngjCM7ST0A6/xHzOKuFza6aEAOEIHFD
-         IRs3g/sDkmOZsVUg5BfLLNbhxSMsVVb1DEnttjxKmX81P3vu2Wx0WRs/PKqDolQ/IqMK
-         uPtjTNahNUl/KH+yjsZZF+CoOeh+jZqwG7uXGo3nhOFae7Ampy0721WlrVLudKDpbQ6w
-         Ne05cDDAK3nINRCW8InLefN68zNgFYrAuL9YQ5NnpKcJktjb30Vy1+p0A29rUFLtn67e
-         CyPwRK92ARrt+aagj3u2Ed/rcJMFZLBJNDyZ8A+QOoxqRdIwXIhdl4nE8zBZgMbMWl9y
-         KZDA==
-In-Reply-To: <20191029064834.23438-20-hch@lst.de>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="utf-8"
-To: Christoph Hellwig <hch@lst.de>, Nickhu <nickhu@andestech.com>, alankao@andestech.com
-Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390 <linux-s390@vger.kernel.org>, linux-sh@vger.kernel.org, sparclinux <sparclinux@vger.kernel.org>, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch <linux-arch@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.ke>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=q+Uh6YsrHi5y6Hz5Eq5MDIWDwCL1pI4/JD98rAJdG9A=; b=Y3ukFV9f4i/BYD
+	jX8lm9SyPrjmEYXsS0MBSWdqJCU/Lbj6j8M5lqST817x4v3q3kvHIDnk+7g+Z1yBqict555zKKyP9
+	fbaF7imeOMguXE6VtQNTm3k1pw8grgh/mXMi/fyNE5nzJt5hOPhMB+mDXZ0Oxb5F0HQOQJAiWCwpL
+	jUX47yH7TaSrEjpZ3aub+Ts75IiLWWreT2cCW9gRkNeQSNK5l9a2oVcLqE3FD6NgxuJRtpU5PXTQC
+	Y7EBADmCJl6XhFF7ofJoUHDjnLhwJqvRD46m3E0zcrdTdQZcbVhrNE7Vny1pJOVkrCE5vLCMwsZyX
+	n73GWWZSFtqKqoekGu7w==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to:user-agent;
+ bh=iABlNrF2pKWSZ44AJQZkuRtZU/cPi9wpLdONGxReYeE=;
+ b=lVQpY920ERl+suupN9XSt5AI00c2Bwp6YTe+nuAxfJ0tx8/CHdvsOX8KqHu3FmMDHw
+ pKJz2qZ3MIZdI/LvHcuOQwnw03zOL+xBaPoBM3Sk8cqEAObtva+w2W+VwUQXyt+Yzl0z
+ 2Ik5jh60mk6441pRqx3/IONqYdeiU8UBQPNLpaFQv+9/cOgrSL80TVTu8IIfCepoYN0k
+ 46xEtzM2XHEzQhHHKxX5sVHiAqwMvF9Sq45W8ZvBkd56VxLaVtoM4UNEcrlWR3NAHdQy
+ xhQtHdonv/wnGP9QHISUJ1hs6f5eymrLlJUCAqXrERs33xe9PtMv6394ZI1rErDw09YV
+ v71Q==
+Content-Disposition: inline
+In-Reply-To: <20191112083509.gmgjpkjffsfaw5lm@pathway.suse.cz>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
+To: Petr Mladek <pmladek@suse.com>
+Cc: Juri Lelli <juri.lelli@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Ben Segall <bsegall@google.com>, Guo Ren <guoren@kernel.org>, Pavel Machek <pavel@ucw.cz>, Vincent Guittot <vincent.guittot@linaro.org>, Paul Burton <paulburton@kernel.org>, Dmitry Safonov <dima@arista.com>, Michael Ellerman <mpe@ellerman.id.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, Jiri Slaby <jslaby@suse.com>, Matt Turner <mattst88@gmail.com>, uclinux-h8-devel@lists.sourceforge.jp, Len Brown <len.brown@intel.com>, linux-pm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-um@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Richard Henderson <rth@twiddle.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.or>
 
-Hi,
+On (19/11/12 09:35), Petr Mladek wrote:
+[..]
+> This is getting too complicated. It would introduce too many
+> hidden rules. While the explicitly passed loglevel parameter
+> is straightforward and clear.
 
-Christoph Hellwig <hch@lst.de> =E6=96=BC 2019=E5=B9=B410=E6=9C=8829=E6=97=
-=A5 =E9=80=B1=E4=BA=8C =E4=B8=8B=E5=8D=882:49=E5=AF=AB=E9=81=93=EF=BC=9A
->
-> Use the generic ioremap_prot and iounmap helpers.
->
-> Note that the io.h include in pgtable.h had to be removed to not create
-> an include loop.  As far as I can tell there was no need for it to
-> start with.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/nds32/Kconfig               |  1 +
->  arch/nds32/include/asm/io.h      |  3 +-
->  arch/nds32/include/asm/pgtable.h |  4 ++-
->  arch/nds32/mm/Makefile           |  3 +-
->  arch/nds32/mm/ioremap.c          | 62 --------------------------------
->  5 files changed, 6 insertions(+), 67 deletions(-)
->  delete mode 100644 arch/nds32/mm/ioremap.c
->
-> diff --git a/arch/nds32/Kconfig b/arch/nds32/Kconfig
-> index fbd68329737f..12c06a833b7c 100644
-> --- a/arch/nds32/Kconfig
-> +++ b/arch/nds32/Kconfig
-> @@ -20,6 +20,7 @@ config NDS32
->         select GENERIC_CLOCKEVENTS
->         select GENERIC_IRQ_CHIP
->         select GENERIC_IRQ_SHOW
-> +       select GENERIC_IOREMAP
->         select GENERIC_LIB_ASHLDI3
->         select GENERIC_LIB_ASHRDI3
->         select GENERIC_LIB_CMPDI2
-> diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
-> index fb0e8a24c7af..e57378d04006 100644
-> --- a/arch/nds32/include/asm/io.h
-> +++ b/arch/nds32/include/asm/io.h
-> @@ -6,8 +6,6 @@
->
->  #include <linux/types.h>
->
-> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
-> -extern void iounmap(volatile void __iomem *addr);
->  #define __raw_writeb __raw_writeb
->  static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
->  {
-> @@ -80,6 +78,7 @@ static inline u32 __raw_readl(const volatile void __iom=
-em *addr)
->  #define writeb(v,c)    ({ __iowmb(); writeb_relaxed((v),(c)); })
->  #define writew(v,c)    ({ __iowmb(); writew_relaxed((v),(c)); })
->  #define writel(v,c)    ({ __iowmb(); writel_relaxed((v),(c)); })
-> +
->  #include <asm-generic/io.h>
->
->  #endif /* __ASM_NDS32_IO_H */
-> diff --git a/arch/nds32/include/asm/pgtable.h b/arch/nds32/include/asm/pg=
-table.h
-> index 0588ec99725c..6fbf251cfc26 100644
-> --- a/arch/nds32/include/asm/pgtable.h
-> +++ b/arch/nds32/include/asm/pgtable.h
-> @@ -12,7 +12,6 @@
->  #include <asm/nds32.h>
->  #ifndef __ASSEMBLY__
->  #include <asm/fixmap.h>
-> -#include <asm/io.h>
->  #include <nds32_intrinsic.h>
->  #endif
->
-> @@ -130,6 +129,9 @@ extern void __pgd_error(const char *file, int line, u=
-nsigned long val);
->  #define _PAGE_CACHE            _PAGE_C_MEM_WB
->  #endif
->
-> +#define _PAGE_IOREMAP \
-> +       (_PAGE_V | _PAGE_M_KRW | _PAGE_D | _PAGE_G | _PAGE_C_DEV)
-> +
->  /*
->   * + Level 1 descriptor (PMD)
->   */
-> diff --git a/arch/nds32/mm/Makefile b/arch/nds32/mm/Makefile
-> index bd360e4583b5..897ecaf5cf54 100644
-> --- a/arch/nds32/mm/Makefile
-> +++ b/arch/nds32/mm/Makefile
-> @@ -1,6 +1,5 @@
->  # SPDX-License-Identifier: GPL-2.0-only
-> -obj-y                          :=3D extable.o tlb.o \
-> -                                  fault.o init.o ioremap.o mmap.o \
-> +obj-y                          :=3D extable.o tlb.o fault.o init.o mmap.=
-o \
->                                     mm-nds32.o cacheflush.o proc.o
->
->  obj-$(CONFIG_ALIGNMENT_TRAP)   +=3D alignment.o
-> diff --git a/arch/nds32/mm/ioremap.c b/arch/nds32/mm/ioremap.c
-> deleted file mode 100644
-> index 690140bb23a2..000000000000
-> --- a/arch/nds32/mm/ioremap.c
-> +++ /dev/null
-> @@ -1,62 +0,0 @@
-> -// SPDX-License-Identifier: GPL-2.0
-> -// Copyright (C) 2005-2017 Andes Technology Corporation
-> -
-> -#include <linux/vmalloc.h>
-> -#include <linux/io.h>
-> -#include <linux/mm.h>
-> -#include <asm/pgtable.h>
-> -
-> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
-> -
-> -static void __iomem *__ioremap_caller(phys_addr_t phys_addr, size_t size=
-,
-> -                                     void *caller)
-> -{
-> -       struct vm_struct *area;
-> -       unsigned long addr, offset, last_addr;
-> -       pgprot_t prot;
-> -
-> -       /* Don't allow wraparound or zero size */
-> -       last_addr =3D phys_addr + size - 1;
-> -       if (!size || last_addr < phys_addr)
-> -               return NULL;
-> -
-> -       /*
-> -        * Mappings have to be page-aligned
-> -        */
-> -       offset =3D phys_addr & ~PAGE_MASK;
-> -       phys_addr &=3D PAGE_MASK;
-> -       size =3D PAGE_ALIGN(last_addr + 1) - phys_addr;
-> -
-> -       /*
-> -        * Ok, go for it..
-> -        */
-> -       area =3D get_vm_area_caller(size, VM_IOREMAP, caller);
-> -       if (!area)
-> -               return NULL;
-> -
-> -       area->phys_addr =3D phys_addr;
-> -       addr =3D (unsigned long)area->addr;
-> -       prot =3D __pgprot(_PAGE_V | _PAGE_M_KRW | _PAGE_D |
-> -                       _PAGE_G | _PAGE_C_DEV);
-> -       if (ioremap_page_range(addr, addr + size, phys_addr, prot)) {
-> -               vunmap((void *)addr);
-> -               return NULL;
-> -       }
-> -       return (__force void __iomem *)(offset + (char *)addr);
-> -
-> -}
-> -
-> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size)
-> -{
-> -       return __ioremap_caller(phys_addr, size,
-> -                               __builtin_return_address(0));
-> -}
-> -
-> -EXPORT_SYMBOL(ioremap);
-> -
-> -void iounmap(volatile void __iomem * addr)
-> -{
-> -       vunmap((void *)(PAGE_MASK & (unsigned long)addr));
-> -}
-> -
-> -EXPORT_SYMBOL(iounmap);
+If loglevel is DEFAULT or NOTICE or INFO then we can overwrite it
+(either downgrade or upgrade). That's one rule, basically. Not too
+complicated, I guess.
 
-Acked-by: Greentime Hu <green.hu@gmail.com>
-Looks good to me.
+> I am getting more inclined to the solution introduced by this
+> patchset. It looks reasonable for the different use-cases.
+
+No pressure from my side. Up to arch maintainers.
+
+	-ss
