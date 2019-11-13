@@ -1,7 +1,7 @@
 From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
 Subject: Re: [PATCH 00/50] Add log level to show_stack()
-Date: Tue, 12 Nov 2019 19:12:29 +0900
-Message-ID: <20191112101229.GA201294@google.com>
+Date: Wed, 13 Nov 2019 10:23:37 +0900
+Message-ID: <20191113012337.GA70781@google.com>
 References: <20191106030542.868541-1-dima@arista.com>
  <20191106083538.z5nlpuf64cigxigh@pathway.suse.cz>
  <20191108103719.GB175344@google.com>
@@ -11,60 +11,85 @@ References: <20191106030542.868541-1-dima@arista.com>
  <20191112044447.GA121272@google.com>
  <20191112045704.GA138013@google.com>
  <20191112083509.gmgjpkjffsfaw5lm@pathway.suse.cz>
+ <20191112101229.GA201294@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org>
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
 	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
 	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
 	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=q+Uh6YsrHi5y6Hz5Eq5MDIWDwCL1pI4/JD98rAJdG9A=; b=Y3ukFV9f4i/BYD
-	jX8lm9SyPrjmEYXsS0MBSWdqJCU/Lbj6j8M5lqST817x4v3q3kvHIDnk+7g+Z1yBqict555zKKyP9
-	fbaF7imeOMguXE6VtQNTm3k1pw8grgh/mXMi/fyNE5nzJt5hOPhMB+mDXZ0Oxb5F0HQOQJAiWCwpL
-	jUX47yH7TaSrEjpZ3aub+Ts75IiLWWreT2cCW9gRkNeQSNK5l9a2oVcLqE3FD6NgxuJRtpU5PXTQC
-	Y7EBADmCJl6XhFF7ofJoUHDjnLhwJqvRD46m3E0zcrdTdQZcbVhrNE7Vny1pJOVkrCE5vLCMwsZyX
-	n73GWWZSFtqKqoekGu7w==;
+	List-Owner; bh=yOqDuqb+68NvBk8Q4OnzdNWpqSkOjQtT2EUbyWOAr7c=; b=D4OILMKTtCKD9M
+	fQ8kfaI8o0zqZY8tWlsgTZ5lTn4wyYI8O5j54d6OdgvIj14nxVpmFH3GY9TIKlEbfob+3fUdO+M4U
+	m+SvHG+Q57xV1hhBtgtGSYLzifi28Mi1+WHsgm0IOiMn9DMH511V+6IdbFMzOmA+nVPVcPz5hKmZQ
+	VN7mH4hdPnULfVqgNhPsLXcdh8FKxqrfTXlbvzLgkZCcg0VQ9tGIRxO9PG+/DREEYfCQhaOPtqi50
+	6ptF48bQG1tfmOcE/Vj1w+UAgQtQzOpvFkBEFRoVZS5VmCmL3DVMp6VpHdBaKb7SoxUD/94kVW8HM
+	btf1uIpz2Ejy8+JWrKUg==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to:user-agent;
- bh=iABlNrF2pKWSZ44AJQZkuRtZU/cPi9wpLdONGxReYeE=;
- b=lVQpY920ERl+suupN9XSt5AI00c2Bwp6YTe+nuAxfJ0tx8/CHdvsOX8KqHu3FmMDHw
- pKJz2qZ3MIZdI/LvHcuOQwnw03zOL+xBaPoBM3Sk8cqEAObtva+w2W+VwUQXyt+Yzl0z
- 2Ik5jh60mk6441pRqx3/IONqYdeiU8UBQPNLpaFQv+9/cOgrSL80TVTu8IIfCepoYN0k
- 46xEtzM2XHEzQhHHKxX5sVHiAqwMvF9Sq45W8ZvBkd56VxLaVtoM4UNEcrlWR3NAHdQy
- xhQtHdonv/wnGP9QHISUJ1hs6f5eymrLlJUCAqXrERs33xe9PtMv6394ZI1rErDw09YV
- v71Q==
+ bh=1L7ASzKkM9H3jGXxNBrUB+7DORYDzuzDLILdAI3Iz7A=;
+ b=hPWPZKlqyeQnXDnfKM+yto4tna7/NwAt3iB5d61vGkkJIZuUufxmpnoxkEgePVnej7
+ L3hqEC23l+0zKgGK6W4wPhhfu5rKZowqxPh/46+GMjsQYom9+rxAtKscDZa4tq1EZ716
+ v3E2zlUhIldCXA7DVyUqyyBaEbvglPUOrZExWlUjNqVUbKviWiZ0UqqlQQn5uS5GaAHc
+ mq/bIirdXr39H9gdTuhjl1CNb4pz9u1NyVaytreQwY9zEl/crJdG04QmPFkkR8rnNcTE
+ UvMTM+CfzewoFMwCfZcUTuuW9mgMTzeza8o6UpjTQJvYoUxBVhuX8rWLl3B8wj02ljU3
+ maaw==
 Content-Disposition: inline
-In-Reply-To: <20191112083509.gmgjpkjffsfaw5lm@pathway.suse.cz>
+In-Reply-To: <20191112101229.GA201294@google.com>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane.org@lists.infradead.org
-To: Petr Mladek <pmladek@suse.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Ben Segall <bsegall@google.com>, Guo Ren <guoren@kernel.org>, Pavel Machek <pavel@ucw.cz>, Vincent Guittot <vincent.guittot@linaro.org>, Paul Burton <paulburton@kernel.org>, Dmitry Safonov <dima@arista.com>, Michael Ellerman <mpe@ellerman.id.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, Jiri Slaby <jslaby@suse.com>, Matt Turner <mattst88@gmail.com>, uclinux-h8-devel@lists.sourceforge.jp, Len Brown <len.brown@intel.com>, linux-pm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-um@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Richard Henderson <rth@twiddle.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.or>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
+To: Petr Mladek <pmladek@suse.com>, Dmitry Safonov <dima@arista.com>
+Cc: Juri Lelli <juri.lelli@redhat.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Ben Segall <bsegall@google.com>, Guo Ren <guoren@kernel.org>, Pavel Machek <pavel@ucw.cz>, Vincent Guittot <vincent.guittot@linaro.org>, Paul Burton <paulburton@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, Jiri Slaby <jslaby@suse.com>, Matt Turner <mattst88@gmail.com>, uclinux-h8-devel@lists.sourceforge.jp, Len Brown <len.brown@intel.com>, linux-pm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-um@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Richard Henderson <rth@twiddle.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rjw@rjwys>
 
-On (19/11/12 09:35), Petr Mladek wrote:
-[..]
-> This is getting too complicated. It would introduce too many
-> hidden rules. While the explicitly passed loglevel parameter
-> is straightforward and clear.
+On (19/11/12 19:12), Sergey Senozhatsky wrote:
+> On (19/11/12 09:35), Petr Mladek wrote:
+> [..]
+> > This is getting too complicated. It would introduce too many
+> > hidden rules. While the explicitly passed loglevel parameter
+> > is straightforward and clear.
+>
+> If loglevel is DEFAULT or NOTICE or INFO then we can overwrite it
+> (either downgrade or upgrade). That's one rule, basically. Not too
+> complicated, I guess.
 
-If loglevel is DEFAULT or NOTICE or INFO then we can overwrite it
-(either downgrade or upgrade). That's one rule, basically. Not too
-complicated, I guess.
+Can be taken even a bit further than
 
-> I am getting more inclined to the solution introduced by this
-> patchset. It looks reasonable for the different use-cases.
+	show_stack(NULL, NULL, LOGLEVEL_DEBUG);
+or
+	show_stack(NULL, NULL, LOGLEVEL_ERR);
 
-No pressure from my side. Up to arch maintainers.
+For instance,
+
+	spin_lock_irqsave(&rq->lock, flags);
+	printk_emergency_enter(LOGLEVEL_SCHED);
+		...
+		show_stack(...);
+		printk();
+		printk();
+		...
+	spin_unlock_irqrestore(&rq->lock, flags);
+
+or
+
+	spin_lock_irqsave(&uart_port->lock, flags);
+	printk_emergency_enter(LOGLEVEL_SCHED);
+		...
+		printk();
+		printk();
+		...
+
+and so on.
 
 	-ss
