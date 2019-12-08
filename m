@@ -1,54 +1,66 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] hexagon: io: Define ioremap_uc to fix build error
-Date: Wed,  4 Dec 2019 05:33:28 -0800
-Message-ID: <20191204133328.18668-1-linux@roeck-us.net>
+From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Subject: [tip: sched/urgent] sched/rt, hexagon: Use CONFIG_PREEMPTION
+Date: Sun, 08 Dec 2019 14:58:34 -0000
+Message-ID: <157581711407.21853.6051212819041129601.tip-bot2@tip-bot2>
+References: <20191015191821.11479-9-bigeasy@linutronix.de>
+Reply-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=A25GspOP/H1evlaxQOyjWW6KvcwnSro5rGpRXcQFYV4=;
-        b=ew2kG1pASB0XkGMKDqb+FvwhANd2mlGEDByyjkzl5YIZQLVMXs8kACbWHjVSOM7pPe
-         FGvKbFziox2Kz86DbfzEzEcmDZAHsZXiQnIiRz+5XJhFjdS4PmZfPyDseaOm6Kbnw9Op
-         qpB88ECx1oRy20ZL/qmyznwusGqXvjdQANOIbUxZZ5U36/w9NxB52dVDCGbDAgRX4IRy
-         cqvetN2NCLjdZBIn422CCXNkN4W08d8QeNjymZe6KHz4AILS9pXR5h5eQQO9PlP1Uast
-         wV1dCL3rI++ql7jErS1Fm853+LJb/T1Yq1vUIVB28DwXcOATQEujbYjE+o1g9/7bQ5HS
-         jcXw==
+In-Reply-To: <20191015191821.11479-9-bigeasy@linutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Brian Cain <bcain@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Tuowen Zhao <ztuowen@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Luis Chamberlain <mcgrof@kernel.org>, Lee Jones <lee.jones@linaro.org>
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Brian Cain <bcain@codeaurora.org>, Linus Torvalds <torvalds@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, linux-hexagon@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-ioremap_uc is now mandatory.
+The following commit has been merged into the sched/urgent branch of tip:
 
-lib/devres.c:44:3: error: implicit declaration of function 'ioremap_uc'
+Commit-ID:     143cd41f50e0c074fbdb06c3ab75a45e3076b5a6
+Gitweb:        https://git.kernel.org/tip/143cd41f50e0c074fbdb06c3ab75a45e3076b5a6
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Tue, 15 Oct 2019 21:17:55 +02:00
+Committer:     Ingo Molnar <mingo@kernel.org>
+CommitterDate: Sun, 08 Dec 2019 14:37:33 +01:00
 
-Fixes: e537654b7039 ("lib: devres: add a helper function for ioremap_uc")
-Cc: Tuowen Zhao <ztuowen@gmail.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+sched/rt, hexagon: Use CONFIG_PREEMPTION
+
+CONFIG_PREEMPTION is selected by CONFIG_PREEMPT and by CONFIG_PREEMPT_RT.
+Both PREEMPT and PREEMPT_RT require the same functionality which today
+depends on CONFIG_PREEMPT.
+
+Switch the entry code over to use CONFIG_PREEMPTION.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-hexagon@vger.kernel.org
+Link: https://lore.kernel.org/r/20191015191821.11479-9-bigeasy@linutronix.de
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 ---
- arch/hexagon/include/asm/io.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/hexagon/kernel/vm_entry.S | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
-index 539e3efcf39c..39e5605c5d42 100644
---- a/arch/hexagon/include/asm/io.h
-+++ b/arch/hexagon/include/asm/io.h
-@@ -173,7 +173,7 @@ static inline void writel(u32 data, volatile void __iomem *addr)
+diff --git a/arch/hexagon/kernel/vm_entry.S b/arch/hexagon/kernel/vm_entry.S
+index 12242c2..65a1ea0 100644
+--- a/arch/hexagon/kernel/vm_entry.S
++++ b/arch/hexagon/kernel/vm_entry.S
+@@ -265,12 +265,12 @@ event_dispatch:
+ 	 * should be in the designated register (usually R19)
+ 	 *
+ 	 * If we were in kernel mode, we don't need to check scheduler
+-	 * or signals if CONFIG_PREEMPT is not set.  If set, then it has
++	 * or signals if CONFIG_PREEMPTION is not set.  If set, then it has
+ 	 * to jump to a need_resched kind of block.
+-	 * BTW, CONFIG_PREEMPT is not supported yet.
++	 * BTW, CONFIG_PREEMPTION is not supported yet.
+ 	 */
  
- void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
- #define ioremap_nocache ioremap
--
-+#define ioremap_uc ioremap
- 
- #define __raw_writel writel
- 
--- 
-2.17.1
-
+-#ifdef CONFIG_PREEMPT
++#ifdef CONFIG_PREEMPTION
+ 	R0 = #VM_INT_DISABLE
+ 	trap1(#HVM_TRAP1_VMSETIE)
+ #endif
