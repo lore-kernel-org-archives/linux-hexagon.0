@@ -1,58 +1,45 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] hexagon: io: Define ioremap_uc to fix build error
-Date: Mon, 9 Dec 2019 16:40:39 +0200
-Message-ID: <20191209144039.GI32742@smile.fi.intel.com>
-References: <20191204133328.18668-1-linux@roeck-us.net>
+From: Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 0/2] Hexagon fixes
+Date: Mon,  9 Dec 2019 14:29:54 -0800
+Message-ID: <20191209222956.239798-1-ndesaulniers@google.com>
 Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191204133328.18668-1-linux@roeck-us.net>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=t/1UStflpkba+9ZUNaSHKODK6B51M8rcDxieTuoYA4M=;
+        b=gm9HwVK6fxD5suhOgCk7Tqmkef4vDSdqxt5K56QTUcNLFn1QZxRucbsJCBO5HXWsIJ
+         sXBCidhNZIdgVhpJ4q9N208byXFqFjIenM5TCJoAty96z/QTJxUfLcshXlCan1Kmix4s
+         O0LahjEnCOuKXPGayOFyTifTWvtYWP9dMXGZC/QiO+foAjPrABjJ2dktvJfTC0CsZmYG
+         ZJy7Ha9i6tHEx13CClFg5S01ki+Kamb6Ruso+dGhqEZhJ1Yc/r1lppNmuGUnXNq8bddm
+         ERMeXa8CH6HC4wcnpE1ppR7i5xJCgdRqPxOzcEDt922796CspxnpGDklNHqLfk4psCci
+         6Jtw==
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Tuowen Zhao <ztuowen@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Luis Chamberlain <mcgrof@kernel.org>, Lee Jones <lee.jones@linaro.org>
+To: bcain@codeaurora.org
+Cc: Nick Desaulniers <ndesaulniers@google.com>, lee.jones@linaro.org, andriy.shevchenko@linux.intel.com, ztuowen@gmail.com, mika.westerberg@linux.intel.com, mcgrof@kernel.org, gregkh@linuxfoundation.org, alexios.zavras@intel.com, allison@lohutok.net, will@kernel.org, rfontana@redhat.com, tglx@linutronix.de, peterz@infradead.org, boqun.feng@gmail.com, mingo@redhat.com, akpm@linux-foundation.org, geert@linux-m68k.org, linux-hexagon@vger.kernel.org, clang-built-linux@googlegroups.com, linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2019 at 05:33:28AM -0800, Guenter Roeck wrote:
-> ioremap_uc is now mandatory.
-> 
-> lib/devres.c:44:3: error: implicit declaration of function 'ioremap_uc'
+Fixes 2 warnings when trying to build hexagon with Clang:
+$ ARCH=hexagon CROSS_COMPILE=hexagon-linux-gnu- make -j71 \
+  CC=clang AS=clang LD=ld.lld AR=llvm-ar
 
-Thanks for a fix!
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes -Winline-asm and -Wimplicit-function-definition.
 
-> 
-> Fixes: e537654b7039 ("lib: devres: add a helper function for ioremap_uc")
-> Cc: Tuowen Zhao <ztuowen@gmail.com>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Cc: Luis Chamberlain <mcgrof@kernel.org>
-> Cc: Lee Jones <lee.jones@linaro.org>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
->  arch/hexagon/include/asm/io.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
-> index 539e3efcf39c..39e5605c5d42 100644
-> --- a/arch/hexagon/include/asm/io.h
-> +++ b/arch/hexagon/include/asm/io.h
-> @@ -173,7 +173,7 @@ static inline void writel(u32 data, volatile void __iomem *addr)
->  
->  void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
->  #define ioremap_nocache ioremap
-> -
-> +#define ioremap_uc ioremap
->  
->  #define __raw_writel writel
->  
-> -- 
-> 2.17.1
-> 
+Nick Desaulniers (2):
+  hexagon: define ioremap_uc
+  hexagon: parenthesize registers in asm predicates
+
+ arch/hexagon/include/asm/atomic.h   |  8 ++++----
+ arch/hexagon/include/asm/bitops.h   |  8 ++++----
+ arch/hexagon/include/asm/cmpxchg.h  |  2 +-
+ arch/hexagon/include/asm/futex.h    |  6 +++---
+ arch/hexagon/include/asm/io.h       |  1 +
+ arch/hexagon/include/asm/spinlock.h | 20 ++++++++++----------
+ arch/hexagon/kernel/vm_entry.S      |  2 +-
+ 7 files changed, 24 insertions(+), 23 deletions(-)
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.24.0.393.g34dc348eaf-goog
 
