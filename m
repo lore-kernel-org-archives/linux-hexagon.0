@@ -1,19 +1,19 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 5/6] hexagon: work around compiler crash
-Date: Fri, 10 Jan 2020 17:07:20 -0500
-Message-ID: <20200110220721.28780-5-sashal@kernel.org>
-References: <20200110220721.28780-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 2/3] hexagon: work around compiler crash
+Date: Fri, 10 Jan 2020 17:07:38 -0500
+Message-ID: <20200110220739.28883-2-sashal@kernel.org>
+References: <20200110220739.28883-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1578694050;
+        s=default; t=1578694063;
         bh=sj6N5pE2/82h7vfPvxKma1ckeCsu0WweTBH31NIC6AI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d91tNQdvtgdp06kiiO2L2636+5IhY9KBXSHFABtuLRVIe0P4OXhvGZMX9jHGY6XZ0
-         SyW7glOetEFUGcwI9HuUieMhrzjLWWsQsz+PGqdGIEZ/Wd25cmxNM55ylxjXxfrN2w
-         MaYq/ArYVOGR0otq+8+dE1lnx9gRVlbBgyIITFZY=
-In-Reply-To: <20200110220721.28780-1-sashal@kernel.org>
+        b=cOMot84PpLkxB7a9+jfnqpYbzu9Z1AO7Yk7SXmmPhmNan/WPbwQwfQjJE5XJdcnMa
+         8oNo45HqprW+8nK/sC3NeK3l9fuoj5GXXUhiPo4vDRSQYxI+MhMQ7SQff+f/shk5lw
+         xLYH7UgSfvpJ5P8g2p+iCpg9GfkBMmI5dLX/L8Jg=
+In-Reply-To: <20200110220739.28883-1-sashal@kernel.org>
 Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
