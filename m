@@ -1,8 +1,8 @@
-From: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 Subject: Re: [PATCH V13] mm/debug: Add tests validating architecture page
  table helpers
-Date: Mon, 10 Feb 2020 11:06:39 +0000
-Message-ID: <20200210110639.GC25745@shell.armlinux.org.uk>
+Date: Tue, 11 Feb 2020 07:55:41 +0530
+Message-ID: <82317d50-57a2-ce84-7557-21635d57448e@arm.com>
 References: <1580897674-16456-1-git-send-email-anshuman.khandual@arm.com>
  <202002060619.wEOdAZU1%lkp@intel.com>
  <78d3ce6b-e100-2561-6b09-124c29731d1a@arm.com>
@@ -11,36 +11,25 @@ References: <1580897674-16456-1-git-send-email-anshuman.khandual@arm.com>
  <aef1048f-68c4-d14f-e669-8f288ba9ac7a@c-s.fr>
  <20200210100200.GB25745@shell.armlinux.org.uk>
  <7cb3a5bb-eaea-a01c-4047-e3c000b7ad1d@c-s.fr>
+ <20200210110639.GC25745@shell.armlinux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
 	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=aeWA+W0PGAgrYTWJZwWRrLHBIuWc0rF5EqfQap3aqCQ=; b=YpGDrUSMZ0wRUe
-	qG60fYEMXGqvEVX3OY++dqtsE3Q/w1HCTFBDcNnlctuXoa3fff4G9U3mqMTTAmGJe9eH8Bwcs6g6E
-	WWhITayUmEtjnb+PxsaY6Sy01JkNJ5UdVTsdi/xXmUAvAMA8gDP7ZoWHl8+3/CBs3u3Y4bxjJ7N6Q
-	SpyOn7ILNg3Jf7EM1t0S5mPzwNHIUvlr830/5TkU0M4ckinA8PyX/nCgb24kMiriVJca6NLGLFhLO
-	728mAuZHUvMTF7NFSeVHOko9lSSNrym4SdZw1IzfJt7cwaOiWoSmxbdRjUm7t3QLyLk8F1uv1RiZq
-	L4t981zTQwDPEP2yjsIQ==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:
- Content-Transfer-Encoding:Content-Type:MIME-Version:References:Message-ID:
- Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:Resent-Date:
- Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
- List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=iTw2i6MUZITUD5eWPb+PW1VnYag/93bvIyoh66pK7Nw=; b=qrkbsPru1lr3ira5I9xWBowT9
- pYyZLn+zGIyBwT0E94NzTtGTmKxIJthJ13h6C97vIAIg0RliWwgKf+WmKWXxBlrndc+VYR8DqF0u8
- kLn5LP8E9C0yosgq5Zwl69HxjzG0vd3eUX37M0JzcOlOw0ylRSXG7MJNBvaf5Zjhmm+iVAuZZpi4P
- wkVwMkOhw7imN7PjDlbW9t8EGGVTegaRakCCh7775d7zk985OYH3cWbveigOQwvuzN1SoPIwwjGPF
- aJUGhEExIsLTHen8dY9vGmFUFIx9Q9xQJkrjq7idtYLtOfV3IdkZgc1cyFRmbJDqlBuxPFHLpFbxt
- Ho5+QgUHg==;
-Content-Disposition: inline
-In-Reply-To: <7cb3a5bb-eaea-a01c-4047-e3c000b7ad1d@c-s.fr>
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:
+	Message-ID:From:References:To:Subject:Reply-To:Content-ID:Content-Description
+	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=KkI5eK9eXPOgpE0GQX5gNBuPVatKDBbnfT6BPWNUlQs=; b=K+PZ+mX1JYUgJO
+	dYcLiILFLyxRcJD7rZ3YVJL+8ba0q/EuZb70iWWngo3Zu1MLLUXQf5eCpHb7Tufl5x1LvzOoatcVa
+	i20Uo5Kgsr/ctnF8GhrTGz7wFQx/fq+TRUZd8DcO8r0PJY84I0vMTBCT4wh5r/MvWoSEHsXYvO9Kh
+	/oUMBCTY2zpM5HlvbneKP94QMUpfO55UobeLdFM6EDXqb9g48emEX7WCICR49KIfua2Q129T/12RC
+	rBa1rp2eoccbcH+uhcbT2d1csC12RAImH0B5ETI2yWiOmoIgxvNsvITroDX3LxXdZGNW+JNhDWk+h
+	tRWAyhLHj+Z5agJnLvJA==;
+In-Reply-To: <20200210110639.GC25745@shell.armlinux.org.uk>
+Content-Language: en-US
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
@@ -51,173 +40,116 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>,
  <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
 Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org
-To: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Mark Rutland <mark.rutland@arm.com>, uclinux-h8-devel@lists.sourceforge.jp, linux-m68k@vger.kernel.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, James Hogan <jhogan@kernel.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>, linux-s390@vger.kernel.org, kbuild test robot <lkp@intel.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Matthew Wilcox <willy@infradead.org>, Steven Price <Steven.Price@arm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Geert Uytterhoeven <geert@linux-m6>
+To: Russell King - ARM Linux admin <linux@armlinux.org.uk>, Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Mark Rutland <mark.rutland@arm.com>, uclinux-h8-devel@lists.sourceforge.jp, linux-m68k@vger.kernel.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, James Hogan <jhogan@kernel.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Dave Hansen <dave.hansen@intel.com>, Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>, linux-s390@vger.kernel.org, kbuild test robot <lkp@intel.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Matthew Wilcox <willy@infradead.org>, Steven Price <Steven.Price@arm.com>, Jason Gunthorpe <jgg@ziepe.ca>
 
-On Mon, Feb 10, 2020 at 11:46:23AM +0100, Christophe Leroy wrote:
-> =
-
-> =
-
-> Le 10/02/2020 =E0 11:02, Russell King - ARM Linux admin a =E9crit=A0:
-> > On Mon, Feb 10, 2020 at 07:38:38AM +0100, Christophe Leroy wrote:
-> > > =
-
-> > > =
-
-> > > Le 10/02/2020 =E0 06:35, Anshuman Khandual a =E9crit=A0:
-> > > > =
-
-> > > > =
-
-> > > > On 02/10/2020 10:22 AM, Andrew Morton wrote:
-> > > > > On Thu, 6 Feb 2020 13:49:35 +0530 Anshuman Khandual <anshuman.kha=
-ndual@arm.com> wrote:
-> > > > > =
-
-> > > > > > =
-
-> > > > > > On 02/06/2020 04:40 AM, kbuild test robot wrote:
-> > > > > > > Hi Anshuman,
-> > > > > > > =
-
-> > > > > > > Thank you for the patch! Yet something to improve:
-> > > > > > > =
-
-> > > > > > > [auto build test ERROR on powerpc/next]
-> > > > > > > [also build test ERROR on s390/features linus/master arc/for-=
-next v5.5]
-> > > > > > > [cannot apply to mmotm/master tip/x86/core arm64/for-next/cor=
-e next-20200205]
-> > > > > > > [if your patch is applied to the wrong git tree, please drop =
-us a note to help
-> > > > > > > improve the system. BTW, we also suggest to use '--base' opti=
-on to specify the
-> > > > > > > base tree in git format-patch, please see https://stackoverfl=
-ow.com/a/37406982]
-> > > > > > > =
-
-> > > > > > > url:    https://github.com/0day-ci/linux/commits/Anshuman-Kha=
-ndual/mm-debug-Add-tests-validating-architecture-page-table-helpers/2020020=
-5-215507
-> > > > > > > base:   https://git.kernel.org/pub/scm/linux/kernel/git/power=
-pc/linux.git next
-> > > > > > > config: ia64-allmodconfig (attached as .config)
-> > > > > > > compiler: ia64-linux-gcc (GCC) 7.5.0
-> > > > > > > reproduce:
-> > > > > > >           wget https://raw.githubusercontent.com/intel/lkp-te=
-sts/master/sbin/make.cross -O ~/bin/make.cross
-> > > > > > >           chmod +x ~/bin/make.cross
-> > > > > > >           # save the attached .config to linux build tree
-> > > > > > >           GCC_VERSION=3D7.5.0 make.cross ARCH=3Dia64
-> > > > > > > =
-
-> > > > > > > If you fix the issue, kindly add following tag
-> > > > > > > Reported-by: kbuild test robot <lkp@intel.com>
-> > > > > > > =
-
-> > > > > > > All error/warnings (new ones prefixed by >>):
-> > > > > > > =
-
-> > > > > > >      In file included from include/asm-generic/pgtable-nopud.=
-h:8:0,
-> > > > > > >                       from arch/ia64/include/asm/pgtable.h:58=
-6,
-> > > > > > >                       from include/linux/mm.h:99,
-> > > > > > >                       from include/linux/highmem.h:8,
-> > > > > > >                       from mm/debug_vm_pgtable.c:14:
-> > > > > > >      mm/debug_vm_pgtable.c: In function 'pud_clear_tests':
-> > > > > > > > > include/asm-generic/pgtable-nop4d-hack.h:47:32: error: im=
-plicit declaration of function '__pgd'; did you mean '__p4d'? [-Werror=3Dim=
-plicit-function-declaration]
-> > > > > > >       #define __pud(x)    ((pud_t) { __pgd(x) })
-> > > > > > >                                      ^
-> > > > > > > > > mm/debug_vm_pgtable.c:141:8: note: in expansion of macro =
-'__pud'
-> > > > > > >        pud =3D __pud(pud_val(pud) | RANDOM_ORVALUE);
-> > > > > > >              ^~~~~
-> > > > > > > > > include/asm-generic/pgtable-nop4d-hack.h:47:22: warning: =
-missing braces around initializer [-Wmissing-braces]
-> > > > > > >       #define __pud(x)    ((pud_t) { __pgd(x) })
-> > > > > > >                            ^
-> > > > > > > > > mm/debug_vm_pgtable.c:141:8: note: in expansion of macro =
-'__pud'
-> > > > > > >        pud =3D __pud(pud_val(pud) | RANDOM_ORVALUE);
-> > > > > > >              ^~~~~
-> > > > > > >      cc1: some warnings being treated as errors
-> > > > > > =
-
-> > > > > > This build failure is expected now given that we have allowed D=
-EBUG_VM_PGTABLE
-> > > > > > with EXPERT without platform requiring ARCH_HAS_DEBUG_VM_PGTABL=
-E. This problem
-> > > > > > i.e build failure caused without a platform __pgd(), is known t=
-o exist both on
-> > > > > > ia64 and arm (32bit) platforms. Please refer https://lkml.org/l=
-kml/2019/9/24/314
-> > > > > > for details where this was discussed earlier.
-> > > > > > =
-
-> > > > > =
-
-> > > > > I'd prefer not to merge a patch which is known to cause build
-> > > > > regressions.  Is there some temporary thing we can do to prevent =
-these
-> > > > > errors until arch maintainers(?) get around to implementing the
-> > > > > long-term fixes?
-> > > > =
-
-> > > > We could explicitly disable CONFIG_DEBUG_VM_PGTABLE on ia64 and arm=
- platforms
-> > > > which will ensure that others can still use the EXPERT path.
-> > > > =
-
-> > > > config DEBUG_VM_PGTABLE
-> > > > 	bool "Debug arch page table for semantics compliance"
-> > > > 	depends on MMU
-> > > > 	depends on !(IA64 || ARM)
-> > > > 	depends on ARCH_HAS_DEBUG_VM_PGTABLE || EXPERT
-> > > > 	default n if !ARCH_HAS_DEBUG_VM_PGTABLE
-> > > > 	default y if DEBUG_VM
-> > > > =
-
-> > > =
-
-> > > On both ia32 and arm, the fix is trivial.
-> > > =
-
-> > > Can we include the fix within this patch, just the same way as the
-> > > mm_p4d_folded() fix for x86 ?
-> > =
-
-> > Why should arm include a macro for something that nothing (apart from
-> > this checker) requires?  If the checker requires it but the rest of
-> > the kernel does not, it suggests that the checker isn't actually
-> > correct, and the results can't be relied upon.
-> > =
-
-> =
-
-> As far as I can see, the problem is that arm opencodes part of the API
-> instead of including asm-generic/pgtable-nopmd.h
-> =
-
-> Here, the ARM has 2 levels, ie only PGD and PTE. But instead of defining
-> __pgd and __pte and getting everything else from asm-generic, it defines a
-> __pmd then redefines the folded levels like the pud, etc ...
-> =
-
-> That's exactly what the checker aims at detecting: architectures than do =
-not
-> properly use the standard linux page table structures.
-
-There are good reasons for the way ARM does stuff.  The generic crap was
-written without regard for the circumstances that ARM has, and thus is
-entirely unsuitable for 32-bit ARM.
-
--- =
-
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps =
-up
-According to speedtest.net: 11.9Mbps down 500kbps up
+CgpPbiAwMi8xMC8yMDIwIDA0OjM2IFBNLCBSdXNzZWxsIEtpbmcgLSBBUk0gTGludXggYWRtaW4g
+d3JvdGU6Cj4gT24gTW9uLCBGZWIgMTAsIDIwMjAgYXQgMTE6NDY6MjNBTSArMDEwMCwgQ2hyaXN0
+b3BoZSBMZXJveSB3cm90ZToKPj4KPj4KPj4gTGUgMTAvMDIvMjAyMCDDoCAxMTowMiwgUnVzc2Vs
+bCBLaW5nIC0gQVJNIExpbnV4IGFkbWluIGEgw6ljcml0wqA6Cj4+PiBPbiBNb24sIEZlYiAxMCwg
+MjAyMCBhdCAwNzozODozOEFNICswMTAwLCBDaHJpc3RvcGhlIExlcm95IHdyb3RlOgo+Pj4+Cj4+
+Pj4KPj4+PiBMZSAxMC8wMi8yMDIwIMOgIDA2OjM1LCBBbnNodW1hbiBLaGFuZHVhbCBhIMOpY3Jp
+dMKgOgo+Pj4+Pgo+Pj4+Pgo+Pj4+PiBPbiAwMi8xMC8yMDIwIDEwOjIyIEFNLCBBbmRyZXcgTW9y
+dG9uIHdyb3RlOgo+Pj4+Pj4gT24gVGh1LCA2IEZlYiAyMDIwIDEzOjQ5OjM1ICswNTMwIEFuc2h1
+bWFuIEtoYW5kdWFsIDxhbnNodW1hbi5raGFuZHVhbEBhcm0uY29tPiB3cm90ZToKPj4+Pj4+Cj4+
+Pj4+Pj4KPj4+Pj4+PiBPbiAwMi8wNi8yMDIwIDA0OjQwIEFNLCBrYnVpbGQgdGVzdCByb2JvdCB3
+cm90ZToKPj4+Pj4+Pj4gSGkgQW5zaHVtYW4sCj4+Pj4+Pj4+Cj4+Pj4+Pj4+IFRoYW5rIHlvdSBm
+b3IgdGhlIHBhdGNoISBZZXQgc29tZXRoaW5nIHRvIGltcHJvdmU6Cj4+Pj4+Pj4+Cj4+Pj4+Pj4+
+IFthdXRvIGJ1aWxkIHRlc3QgRVJST1Igb24gcG93ZXJwYy9uZXh0XQo+Pj4+Pj4+PiBbYWxzbyBi
+dWlsZCB0ZXN0IEVSUk9SIG9uIHMzOTAvZmVhdHVyZXMgbGludXMvbWFzdGVyIGFyYy9mb3ItbmV4
+dCB2NS41XQo+Pj4+Pj4+PiBbY2Fubm90IGFwcGx5IHRvIG1tb3RtL21hc3RlciB0aXAveDg2L2Nv
+cmUgYXJtNjQvZm9yLW5leHQvY29yZSBuZXh0LTIwMjAwMjA1XQo+Pj4+Pj4+PiBbaWYgeW91ciBw
+YXRjaCBpcyBhcHBsaWVkIHRvIHRoZSB3cm9uZyBnaXQgdHJlZSwgcGxlYXNlIGRyb3AgdXMgYSBu
+b3RlIHRvIGhlbHAKPj4+Pj4+Pj4gaW1wcm92ZSB0aGUgc3lzdGVtLiBCVFcsIHdlIGFsc28gc3Vn
+Z2VzdCB0byB1c2UgJy0tYmFzZScgb3B0aW9uIHRvIHNwZWNpZnkgdGhlCj4+Pj4+Pj4+IGJhc2Ug
+dHJlZSBpbiBnaXQgZm9ybWF0LXBhdGNoLCBwbGVhc2Ugc2VlIGh0dHBzOi8vc3RhY2tvdmVyZmxv
+dy5jb20vYS8zNzQwNjk4Ml0KPj4+Pj4+Pj4KPj4+Pj4+Pj4gdXJsOiAgICBodHRwczovL2dpdGh1
+Yi5jb20vMGRheS1jaS9saW51eC9jb21taXRzL0Fuc2h1bWFuLUtoYW5kdWFsL21tLWRlYnVnLUFk
+ZC10ZXN0cy12YWxpZGF0aW5nLWFyY2hpdGVjdHVyZS1wYWdlLXRhYmxlLWhlbHBlcnMvMjAyMDAy
+MDUtMjE1NTA3Cj4+Pj4+Pj4+IGJhc2U6ICAgaHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2Nt
+L2xpbnV4L2tlcm5lbC9naXQvcG93ZXJwYy9saW51eC5naXQgbmV4dAo+Pj4+Pj4+PiBjb25maWc6
+IGlhNjQtYWxsbW9kY29uZmlnIChhdHRhY2hlZCBhcyAuY29uZmlnKQo+Pj4+Pj4+PiBjb21waWxl
+cjogaWE2NC1saW51eC1nY2MgKEdDQykgNy41LjAKPj4+Pj4+Pj4gcmVwcm9kdWNlOgo+Pj4+Pj4+
+PiAgICAgICAgICAgd2dldCBodHRwczovL3Jhdy5naXRodWJ1c2VyY29udGVudC5jb20vaW50ZWwv
+bGtwLXRlc3RzL21hc3Rlci9zYmluL21ha2UuY3Jvc3MgLU8gfi9iaW4vbWFrZS5jcm9zcwo+Pj4+
+Pj4+PiAgICAgICAgICAgY2htb2QgK3ggfi9iaW4vbWFrZS5jcm9zcwo+Pj4+Pj4+PiAgICAgICAg
+ICAgIyBzYXZlIHRoZSBhdHRhY2hlZCAuY29uZmlnIHRvIGxpbnV4IGJ1aWxkIHRyZWUKPj4+Pj4+
+Pj4gICAgICAgICAgIEdDQ19WRVJTSU9OPTcuNS4wIG1ha2UuY3Jvc3MgQVJDSD1pYTY0Cj4+Pj4+
+Pj4+Cj4+Pj4+Pj4+IElmIHlvdSBmaXggdGhlIGlzc3VlLCBraW5kbHkgYWRkIGZvbGxvd2luZyB0
+YWcKPj4+Pj4+Pj4gUmVwb3J0ZWQtYnk6IGtidWlsZCB0ZXN0IHJvYm90IDxsa3BAaW50ZWwuY29t
+Pgo+Pj4+Pj4+Pgo+Pj4+Pj4+PiBBbGwgZXJyb3Ivd2FybmluZ3MgKG5ldyBvbmVzIHByZWZpeGVk
+IGJ5ID4+KToKPj4+Pj4+Pj4KPj4+Pj4+Pj4gICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5j
+bHVkZS9hc20tZ2VuZXJpYy9wZ3RhYmxlLW5vcHVkLmg6ODowLAo+Pj4+Pj4+PiAgICAgICAgICAg
+ICAgICAgICAgICAgZnJvbSBhcmNoL2lhNjQvaW5jbHVkZS9hc20vcGd0YWJsZS5oOjU4NiwKPj4+
+Pj4+Pj4gICAgICAgICAgICAgICAgICAgICAgIGZyb20gaW5jbHVkZS9saW51eC9tbS5oOjk5LAo+
+Pj4+Pj4+PiAgICAgICAgICAgICAgICAgICAgICAgZnJvbSBpbmNsdWRlL2xpbnV4L2hpZ2htZW0u
+aDo4LAo+Pj4+Pj4+PiAgICAgICAgICAgICAgICAgICAgICAgZnJvbSBtbS9kZWJ1Z192bV9wZ3Rh
+YmxlLmM6MTQ6Cj4+Pj4+Pj4+ICAgICAgbW0vZGVidWdfdm1fcGd0YWJsZS5jOiBJbiBmdW5jdGlv
+biAncHVkX2NsZWFyX3Rlc3RzJzoKPj4+Pj4+Pj4+PiBpbmNsdWRlL2FzbS1nZW5lcmljL3BndGFi
+bGUtbm9wNGQtaGFjay5oOjQ3OjMyOiBlcnJvcjogaW1wbGljaXQgZGVjbGFyYXRpb24gb2YgZnVu
+Y3Rpb24gJ19fcGdkJzsgZGlkIHlvdSBtZWFuICdfX3A0ZCc/IFstV2Vycm9yPWltcGxpY2l0LWZ1
+bmN0aW9uLWRlY2xhcmF0aW9uXQo+Pj4+Pj4+PiAgICAgICAjZGVmaW5lIF9fcHVkKHgpICAgICgo
+cHVkX3QpIHsgX19wZ2QoeCkgfSkKPj4+Pj4+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIF4KPj4+Pj4+Pj4+PiBtbS9kZWJ1Z192bV9wZ3RhYmxlLmM6MTQxOjg6IG5vdGU6
+IGluIGV4cGFuc2lvbiBvZiBtYWNybyAnX19wdWQnCj4+Pj4+Pj4+ICAgICAgICBwdWQgPSBfX3B1
+ZChwdWRfdmFsKHB1ZCkgfCBSQU5ET01fT1JWQUxVRSk7Cj4+Pj4+Pj4+ICAgICAgICAgICAgICBe
+fn5+fgo+Pj4+Pj4+Pj4+IGluY2x1ZGUvYXNtLWdlbmVyaWMvcGd0YWJsZS1ub3A0ZC1oYWNrLmg6
+NDc6MjI6IHdhcm5pbmc6IG1pc3NpbmcgYnJhY2VzIGFyb3VuZCBpbml0aWFsaXplciBbLVdtaXNz
+aW5nLWJyYWNlc10KPj4+Pj4+Pj4gICAgICAgI2RlZmluZSBfX3B1ZCh4KSAgICAoKHB1ZF90KSB7
+IF9fcGdkKHgpIH0pCj4+Pj4+Pj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIF4KPj4+Pj4+
+Pj4+PiBtbS9kZWJ1Z192bV9wZ3RhYmxlLmM6MTQxOjg6IG5vdGU6IGluIGV4cGFuc2lvbiBvZiBt
+YWNybyAnX19wdWQnCj4+Pj4+Pj4+ICAgICAgICBwdWQgPSBfX3B1ZChwdWRfdmFsKHB1ZCkgfCBS
+QU5ET01fT1JWQUxVRSk7Cj4+Pj4+Pj4+ICAgICAgICAgICAgICBefn5+fgo+Pj4+Pj4+PiAgICAg
+IGNjMTogc29tZSB3YXJuaW5ncyBiZWluZyB0cmVhdGVkIGFzIGVycm9ycwo+Pj4+Pj4+Cj4+Pj4+
+Pj4gVGhpcyBidWlsZCBmYWlsdXJlIGlzIGV4cGVjdGVkIG5vdyBnaXZlbiB0aGF0IHdlIGhhdmUg
+YWxsb3dlZCBERUJVR19WTV9QR1RBQkxFCj4+Pj4+Pj4gd2l0aCBFWFBFUlQgd2l0aG91dCBwbGF0
+Zm9ybSByZXF1aXJpbmcgQVJDSF9IQVNfREVCVUdfVk1fUEdUQUJMRS4gVGhpcyBwcm9ibGVtCj4+
+Pj4+Pj4gaS5lIGJ1aWxkIGZhaWx1cmUgY2F1c2VkIHdpdGhvdXQgYSBwbGF0Zm9ybSBfX3BnZCgp
+LCBpcyBrbm93biB0byBleGlzdCBib3RoIG9uCj4+Pj4+Pj4gaWE2NCBhbmQgYXJtICgzMmJpdCkg
+cGxhdGZvcm1zLiBQbGVhc2UgcmVmZXIgaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTkvOS8yNC8z
+MTQKPj4+Pj4+PiBmb3IgZGV0YWlscyB3aGVyZSB0aGlzIHdhcyBkaXNjdXNzZWQgZWFybGllci4K
+Pj4+Pj4+Pgo+Pj4+Pj4KPj4+Pj4+IEknZCBwcmVmZXIgbm90IHRvIG1lcmdlIGEgcGF0Y2ggd2hp
+Y2ggaXMga25vd24gdG8gY2F1c2UgYnVpbGQKPj4+Pj4+IHJlZ3Jlc3Npb25zLiAgSXMgdGhlcmUg
+c29tZSB0ZW1wb3JhcnkgdGhpbmcgd2UgY2FuIGRvIHRvIHByZXZlbnQgdGhlc2UKPj4+Pj4+IGVy
+cm9ycyB1bnRpbCBhcmNoIG1haW50YWluZXJzKD8pIGdldCBhcm91bmQgdG8gaW1wbGVtZW50aW5n
+IHRoZQo+Pj4+Pj4gbG9uZy10ZXJtIGZpeGVzPwo+Pj4+Pgo+Pj4+PiBXZSBjb3VsZCBleHBsaWNp
+dGx5IGRpc2FibGUgQ09ORklHX0RFQlVHX1ZNX1BHVEFCTEUgb24gaWE2NCBhbmQgYXJtIHBsYXRm
+b3Jtcwo+Pj4+PiB3aGljaCB3aWxsIGVuc3VyZSB0aGF0IG90aGVycyBjYW4gc3RpbGwgdXNlIHRo
+ZSBFWFBFUlQgcGF0aC4KPj4+Pj4KPj4+Pj4gY29uZmlnIERFQlVHX1ZNX1BHVEFCTEUKPj4+Pj4g
+CWJvb2wgIkRlYnVnIGFyY2ggcGFnZSB0YWJsZSBmb3Igc2VtYW50aWNzIGNvbXBsaWFuY2UiCj4+
+Pj4+IAlkZXBlbmRzIG9uIE1NVQo+Pj4+PiAJZGVwZW5kcyBvbiAhKElBNjQgfHwgQVJNKQo+Pj4+
+PiAJZGVwZW5kcyBvbiBBUkNIX0hBU19ERUJVR19WTV9QR1RBQkxFIHx8IEVYUEVSVAo+Pj4+PiAJ
+ZGVmYXVsdCBuIGlmICFBUkNIX0hBU19ERUJVR19WTV9QR1RBQkxFCj4+Pj4+IAlkZWZhdWx0IHkg
+aWYgREVCVUdfVk0KPj4+Pj4KPj4+Pgo+Pj4+IE9uIGJvdGggaWEzMiBhbmQgYXJtLCB0aGUgZml4
+IGlzIHRyaXZpYWwuCj4+Pj4KPj4+PiBDYW4gd2UgaW5jbHVkZSB0aGUgZml4IHdpdGhpbiB0aGlz
+IHBhdGNoLCBqdXN0IHRoZSBzYW1lIHdheSBhcyB0aGUKPj4+PiBtbV9wNGRfZm9sZGVkKCkgZml4
+IGZvciB4ODYgPwo+Pj4KPj4+IFdoeSBzaG91bGQgYXJtIGluY2x1ZGUgYSBtYWNybyBmb3Igc29t
+ZXRoaW5nIHRoYXQgbm90aGluZyAoYXBhcnQgZnJvbQo+Pj4gdGhpcyBjaGVja2VyKSByZXF1aXJl
+cz8gIElmIHRoZSBjaGVja2VyIHJlcXVpcmVzIGl0IGJ1dCB0aGUgcmVzdCBvZgo+Pj4gdGhlIGtl
+cm5lbCBkb2VzIG5vdCwgaXQgc3VnZ2VzdHMgdGhhdCB0aGUgY2hlY2tlciBpc24ndCBhY3R1YWxs
+eQo+Pj4gY29ycmVjdCwgYW5kIHRoZSByZXN1bHRzIGNhbid0IGJlIHJlbGllZCB1cG9uLgo+Pj4K
+Pj4KPj4gQXMgZmFyIGFzIEkgY2FuIHNlZSwgdGhlIHByb2JsZW0gaXMgdGhhdCBhcm0gb3BlbmNv
+ZGVzIHBhcnQgb2YgdGhlIEFQSQo+PiBpbnN0ZWFkIG9mIGluY2x1ZGluZyBhc20tZ2VuZXJpYy9w
+Z3RhYmxlLW5vcG1kLmgKPj4KPj4gSGVyZSwgdGhlIEFSTSBoYXMgMiBsZXZlbHMsIGllIG9ubHkg
+UEdEIGFuZCBQVEUuIEJ1dCBpbnN0ZWFkIG9mIGRlZmluaW5nCj4+IF9fcGdkIGFuZCBfX3B0ZSBh
+bmQgZ2V0dGluZyBldmVyeXRoaW5nIGVsc2UgZnJvbSBhc20tZ2VuZXJpYywgaXQgZGVmaW5lcyBh
+Cj4+IF9fcG1kIHRoZW4gcmVkZWZpbmVzIHRoZSBmb2xkZWQgbGV2ZWxzIGxpa2UgdGhlIHB1ZCwg
+ZXRjIC4uLgo+Pgo+PiBUaGF0J3MgZXhhY3RseSB3aGF0IHRoZSBjaGVja2VyIGFpbXMgYXQgZGV0
+ZWN0aW5nOiBhcmNoaXRlY3R1cmVzIHRoYW4gZG8gbm90Cj4+IHByb3Blcmx5IHVzZSB0aGUgc3Rh
+bmRhcmQgbGludXggcGFnZSB0YWJsZSBzdHJ1Y3R1cmVzLgo+IAo+IFRoZXJlIGFyZSBnb29kIHJl
+YXNvbnMgZm9yIHRoZSB3YXkgQVJNIGRvZXMgc3R1ZmYuICBUaGUgZ2VuZXJpYyBjcmFwIHdhcwo+
+IHdyaXR0ZW4gd2l0aG91dCByZWdhcmQgZm9yIHRoZSBjaXJjdW1zdGFuY2VzIHRoYXQgQVJNIGhh
+cywgYW5kIHRodXMgaXMKPiBlbnRpcmVseSB1bnN1aXRhYmxlIGZvciAzMi1iaXQgQVJNLgoKU2lu
+Y2Ugd2UgZG9udCBoYXZlIGFuIGFncmVlbWVudCBoZXJlLCBsZXRzIGp1c3Qgc2V0dGxlIHdpdGgg
+ZGlzYWJsaW5nIHRoZQp0ZXN0IGZvciBub3cgb24gcGxhdGZvcm1zIHdoZXJlIHRoZSBidWlsZCBm
+YWlscy4gQ09ORklHX0VYUEVSVCBpcyBlbmFibGluZwp0aGlzIHRlc3QgZm9yIGJldHRlciBhZGFw
+dGFiaWxpdHkgYW5kIGNvdmVyYWdlLCBoZW5jZSBob3cgYWJvdXQgcmUgZnJhbWluZwp0aGUgY29u
+ZmlnIGxpa2UgdGhpcyA/IFRoaXMgYXQgdGhlIGxlYXN0IGNvbnZleXMgdGhlIGZhY3QgdGhhdCBF
+WFBFUlQgb25seQp3b3JrcyB3aGVuIHBsYXRmb3JtIGlzIG5laXRoZXIgSUE2NCBvciBBUk0uCgpj
+b25maWcgREVCVUdfVk1fUEdUQUJMRQoJYm9vbCAiRGVidWcgYXJjaCBwYWdlIHRhYmxlIGZvciBz
+ZW1hbnRpY3MgY29tcGxpYW5jZSIKCWRlcGVuZHMgb24gTU1VCglkZXBlbmRzIG9uIEFSQ0hfSEFT
+X0RFQlVHX1ZNX1BHVEFCTEUgfHwgKEVYUEVSVCAmJiAgIShJQTY0IHx8IEFSTSkpCglkZWZhdWx0
+IG4gaWYgIUFSQ0hfSEFTX0RFQlVHX1ZNX1BHVEFCTEUKCWRlZmF1bHQgeSBpZiBERUJVR19WTQoK
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtc25w
+cy1hcmMgbWFpbGluZyBsaXN0CmxpbnV4LXNucHMtYXJjQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0
+cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1zbnBzLWFyYwo=
