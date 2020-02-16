@@ -1,126 +1,146 @@
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
-Subject: [PATCH 04/18] hexagon: replace setup_irq() by request_irq()
-Date: Wed, 12 Feb 2020 13:33:05 +0530
-Message-ID: <0413a7d89e648c6259b466b07b635a4509cdefd5.1581478324.git.afzal.mohd.ma@gmail.com>
-References: <cover.1581478323.git.afzal.mohd.ma@gmail.com>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v2 00/13] mm: remove __ARCH_HAS_5LEVEL_HACK
+Date: Sun, 16 Feb 2020 10:18:30 +0200
+Message-ID: <20200216081843.28670-1-rppt@kernel.org>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=js3m1GRJWAzwHRVNbuv8Yo8F0b3Y/0tD1p72T0JsIgY=;
-        b=iA394d5UYe1aB937cb4A8d6BIgNag9uRRjNEHG3KXbE83HUYelShMerBc/GzaJOTww
-         UH0MjxzHm30XlYL4X1//xmuWvii0HglyFyf+4G4H0iMEaS/SMz+AsyOMCckoGeZhr79i
-         gsp9h84e42oCD3ZkG0LlYTkpQwv7tbl9FTMxIs4eSRFVPpC2yIDmT/KQewIOC+7rdiOJ
-         VikWfWXRy7xU4XxWt8rgKNZe5YTNzHZ1FCppNwBqvW0HVr4EypvkxIgiPIx1gLDD+KlM
-         DL+AvKcBeI4MnD4VszncCPsOwMN2GMxaxMZFuf8WHdIHc5zilrXJoyVzTzNEvcGLBIWh
-         PrEg==
-Content-Disposition: inline
-In-Reply-To: <cover.1581478323.git.afzal.mohd.ma@gmail.com>
-Sender: linux-hexagon-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-ppc-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581841136;
+        bh=uOm/w1LvbUniJRU6oBgmKsoo2r45zuKfYTZIlp+VEas=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ypq+hzlSBgo7vT86/XBQ4S1ZCTw/nfY/YpzHJWYAJgU4W9vpVdIiTo4WBFLNVMWaa
+         mEqd5SQZXKay8YUlKOrH1RnE0OOB9BYS2j2C7wKWxIhrDOoaqf93tmzYSMMHhaUfex
+         v4qv2x5ntxN9kHpg/8qF9RTGzwDANyHfQEpVF5aw=
+Sender: kvm-ppc-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Brian Cain <bcain@codeaurora.org>, Richard Fontana <rfontana@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Allison Randal <allison@lohutok.net>, Thomas Gleixner <tglx@linutronix.de>, Alexios Zavras <alexios.zavras@intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Brian Cain <bcain@codeaurora.org>, Catalin Marinas <catalin.marinas@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Guan Xuetao <gxt@pku.edu.cn>, James Morse <james.morse@arm.com>, Jonas Bonn <jonas@southpole.se>, Julien Thierry <julien.thierry.kdev@gmail.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Marc Zyngier <maz@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Rich Felker <dalias@libc.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <s>
 
-request_irq() is preferred over setup_irq(). Existing callers of
-setup_irq() reached mostly via 'init_IRQ()' & 'time_init()', while
-memory allocators are ready by 'mm_init()'.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Per tglx[1], setup_irq() existed in olden days when allocators were not
-ready by the time early interrupts were initialized.
+Hi,
 
-Hence replace setup_irq() by request_irq().
+These patches convert several architectures to use page table folding and
+remove __ARCH_HAS_5LEVEL_HACK along with include/asm-generic/5level-fixup.h.
 
-Seldom remove_irq() usage has been observed coupled with setup_irq(),
-wherever that has been found, it too has been replaced by free_irq().
+The changes are mostly about mechanical replacement of pgd accessors with p4d
+ones and the addition of higher levels to page table traversals.
 
-[1] https://lkml.kernel.org/r/alpine.DEB.2.20.1710191609480.1971@nanos
+All the patches were sent separately to the respective arch lists and
+maintainers hence the "v2" prefix.
 
-Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
----
+Geert Uytterhoeven (1):
+  sh: fault: Modernize printing of kernel messages
 
-Since cc'ing cover letter to all maintainers/reviewers would be too
-many, refer for cover letter,
- https://lkml.kernel.org/r/cover.1581478323.git.afzal.mohd.ma@gmail.com
+Mike Rapoport (12):
+  arm/arm64: add support for folded p4d page tables
+  h8300: remove usage of __ARCH_USE_5LEVEL_HACK
+  hexagon: remove __ARCH_USE_5LEVEL_HACK
+  ia64: add support for folded p4d page tables
+  nios2: add support for folded p4d page tables
+  openrisc: add support for folded p4d page tables
+  powerpc: add support for folded p4d page tables
+  sh: drop __pXd_offset() macros that duplicate pXd_index() ones
+  sh: add support for folded p4d page tables
+  unicore32: remove __ARCH_USE_5LEVEL_HACK
+  asm-generic: remove pgtable-nop4d-hack.h
+  mm: remove __ARCH_HAS_5LEVEL_HACK and include/asm-generic/5level-fixup.h
 
- arch/hexagon/kernel/smp.c  | 17 ++++++++---------
- arch/hexagon/kernel/time.c | 11 +++--------
- 2 files changed, 11 insertions(+), 17 deletions(-)
+ arch/arm/include/asm/kvm_mmu.h                |   5 +-
+ arch/arm/include/asm/pgtable.h                |   1 -
+ arch/arm/include/asm/stage2_pgtable.h         |  15 +-
+ arch/arm/lib/uaccess_with_memcpy.c            |   9 +-
+ arch/arm/mach-sa1100/assabet.c                |   2 +-
+ arch/arm/mm/dump.c                            |  29 ++-
+ arch/arm/mm/fault-armv.c                      |   7 +-
+ arch/arm/mm/fault.c                           |  28 ++-
+ arch/arm/mm/idmap.c                           |   3 +-
+ arch/arm/mm/init.c                            |   2 +-
+ arch/arm/mm/ioremap.c                         |  12 +-
+ arch/arm/mm/mm.h                              |   2 +-
+ arch/arm/mm/mmu.c                             |  35 ++-
+ arch/arm/mm/pgd.c                             |  40 +++-
+ arch/arm64/include/asm/kvm_mmu.h              |  10 +-
+ arch/arm64/include/asm/pgalloc.h              |  10 +-
+ arch/arm64/include/asm/pgtable-types.h        |   5 +-
+ arch/arm64/include/asm/pgtable.h              |  37 ++--
+ arch/arm64/include/asm/stage2_pgtable.h       |  48 +++-
+ arch/arm64/kernel/hibernate.c                 |  44 +++-
+ arch/arm64/mm/fault.c                         |   9 +-
+ arch/arm64/mm/hugetlbpage.c                   |  15 +-
+ arch/arm64/mm/kasan_init.c                    |  26 ++-
+ arch/arm64/mm/mmu.c                           |  52 +++--
+ arch/arm64/mm/pageattr.c                      |   7 +-
+ arch/h8300/include/asm/pgtable.h              |   1 -
+ arch/hexagon/include/asm/fixmap.h             |   4 +-
+ arch/hexagon/include/asm/pgtable.h            |   1 -
+ arch/ia64/include/asm/pgalloc.h               |   4 +-
+ arch/ia64/include/asm/pgtable.h               |  17 +-
+ arch/ia64/mm/fault.c                          |   7 +-
+ arch/ia64/mm/hugetlbpage.c                    |  18 +-
+ arch/ia64/mm/init.c                           |  28 ++-
+ arch/nios2/include/asm/pgtable.h              |   3 +-
+ arch/nios2/mm/fault.c                         |   9 +-
+ arch/nios2/mm/ioremap.c                       |   6 +-
+ arch/openrisc/include/asm/pgtable.h           |   1 -
+ arch/openrisc/mm/fault.c                      |  10 +-
+ arch/openrisc/mm/init.c                       |   4 +-
+ arch/powerpc/include/asm/book3s/32/pgtable.h  |   1 -
+ arch/powerpc/include/asm/book3s/64/hash.h     |   4 +-
+ arch/powerpc/include/asm/book3s/64/pgalloc.h  |   4 +-
+ arch/powerpc/include/asm/book3s/64/pgtable.h  |  58 +++--
+ arch/powerpc/include/asm/book3s/64/radix.h    |   6 +-
+ arch/powerpc/include/asm/nohash/32/pgtable.h  |   1 -
+ arch/powerpc/include/asm/nohash/64/pgalloc.h  |   2 +-
+ .../include/asm/nohash/64/pgtable-4k.h        |  32 +--
+ arch/powerpc/include/asm/nohash/64/pgtable.h  |   6 +-
+ arch/powerpc/include/asm/pgtable.h            |   8 +
+ arch/powerpc/kvm/book3s_64_mmu_radix.c        |  59 ++++-
+ arch/powerpc/lib/code-patching.c              |   7 +-
+ arch/powerpc/mm/book3s32/mmu.c                |   2 +-
+ arch/powerpc/mm/book3s32/tlb.c                |   4 +-
+ arch/powerpc/mm/book3s64/hash_pgtable.c       |   4 +-
+ arch/powerpc/mm/book3s64/radix_pgtable.c      |  19 +-
+ arch/powerpc/mm/book3s64/subpage_prot.c       |   6 +-
+ arch/powerpc/mm/hugetlbpage.c                 |  28 ++-
+ arch/powerpc/mm/kasan/kasan_init_32.c         |   8 +-
+ arch/powerpc/mm/mem.c                         |   4 +-
+ arch/powerpc/mm/nohash/40x.c                  |   4 +-
+ arch/powerpc/mm/nohash/book3e_pgtable.c       |  15 +-
+ arch/powerpc/mm/pgtable.c                     |  25 ++-
+ arch/powerpc/mm/pgtable_32.c                  |  28 ++-
+ arch/powerpc/mm/pgtable_64.c                  |  10 +-
+ arch/powerpc/mm/ptdump/hashpagetable.c        |  20 +-
+ arch/powerpc/mm/ptdump/ptdump.c               |  22 +-
+ arch/powerpc/xmon/xmon.c                      |  17 +-
+ arch/sh/include/asm/pgtable-2level.h          |   1 -
+ arch/sh/include/asm/pgtable-3level.h          |   1 -
+ arch/sh/include/asm/pgtable_32.h              |   5 +-
+ arch/sh/include/asm/pgtable_64.h              |   5 +-
+ arch/sh/kernel/io_trapped.c                   |   7 +-
+ arch/sh/mm/cache-sh4.c                        |   4 +-
+ arch/sh/mm/cache-sh5.c                        |   7 +-
+ arch/sh/mm/fault.c                            |  65 ++++--
+ arch/sh/mm/hugetlbpage.c                      |  28 ++-
+ arch/sh/mm/init.c                             |  15 +-
+ arch/sh/mm/kmap.c                             |   2 +-
+ arch/sh/mm/tlbex_32.c                         |   6 +-
+ arch/sh/mm/tlbex_64.c                         |   7 +-
+ arch/unicore32/include/asm/pgtable.h          |   1 -
+ arch/unicore32/kernel/hibernate.c             |   4 +-
+ include/asm-generic/5level-fixup.h            |  58 -----
+ include/asm-generic/pgtable-nop4d-hack.h      |  64 ------
+ include/asm-generic/pgtable-nopud.h           |   4 -
+ include/linux/mm.h                            |   6 -
+ mm/kasan/init.c                               |  11 -
+ mm/memory.c                                   |   8 -
+ virt/kvm/arm/mmu.c                            | 209 +++++++++++++++---
+ 89 files changed, 988 insertions(+), 500 deletions(-)
+ delete mode 100644 include/asm-generic/5level-fixup.h
+ delete mode 100644 include/asm-generic/pgtable-nop4d-hack.h
 
-diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
-index 0bbbe652a513..50a75af5540b 100644
---- a/arch/hexagon/kernel/smp.c
-+++ b/arch/hexagon/kernel/smp.c
-@@ -114,12 +114,6 @@ void send_ipi(const struct cpumask *cpumask, enum ipi_message_type msg)
- 	local_irq_restore(flags);
- }
- 
--static struct irqaction ipi_intdesc = {
--	.handler = handle_ipi,
--	.flags = IRQF_TRIGGER_RISING,
--	.name = "ipi_handler"
--};
--
- void __init smp_prepare_boot_cpu(void)
- {
- }
-@@ -155,7 +149,9 @@ void start_secondary(void)
- 
- 	cpu = smp_processor_id();
- 
--	setup_irq(BASE_IPI_IRQ + cpu, &ipi_intdesc);
-+	if (request_irq(BASE_IPI_IRQ + cpu, handle_ipi, IRQF_TRIGGER_RISING,
-+			"ipi_handler", NULL))
-+		pr_err("request_irq() on %s failed\n", "ipi_handler");
- 
- 	/*  Register the clock_event dummy  */
- 	setup_percpu_clockdev();
-@@ -213,8 +209,11 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
- 		set_cpu_present(i, true);
- 
- 	/*  Also need to register the interrupts for IPI  */
--	if (max_cpus > 1)
--		setup_irq(BASE_IPI_IRQ, &ipi_intdesc);
-+	if (max_cpus > 1) {
-+		if (request_irq(BASE_IPI_IRQ, handle_ipi, IRQF_TRIGGER_RISING,
-+				"ipi_handler", NULL))
-+			pr_err("request_irq() on %s failed\n", "ipi_handler");
-+	}
- }
- 
- void smp_send_reschedule(int cpu)
-diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
-index f99e9257bed4..f5a558a9d287 100644
---- a/arch/hexagon/kernel/time.c
-+++ b/arch/hexagon/kernel/time.c
-@@ -143,13 +143,6 @@ static irqreturn_t timer_interrupt(int irq, void *devid)
- 	return IRQ_HANDLED;
- }
- 
--/*  This should also be pulled from devtree  */
--static struct irqaction rtos_timer_intdesc = {
--	.handler = timer_interrupt,
--	.flags = IRQF_TIMER | IRQF_TRIGGER_RISING,
--	.name = "rtos_timer"
--};
--
- /*
-  * time_init_deferred - called by start_kernel to set up timer/clock source
-  *
-@@ -195,7 +188,9 @@ void __init time_init_deferred(void)
- #endif
- 
- 	clockevents_register_device(ce_dev);
--	setup_irq(ce_dev->irq, &rtos_timer_intdesc);
-+	if (request_irq(ce_dev->irq, timer_interrupt,
-+			IRQF_TIMER | IRQF_TRIGGER_RISING, "rtos_timer", NULL))
-+		pr_err("request_irq() on %s failed\n", "rtos_timer");
- }
- 
- void __init time_init(void)
 -- 
-2.24.1
+2.24.0
 
