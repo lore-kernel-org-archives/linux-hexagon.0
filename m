@@ -1,79 +1,59 @@
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Mike Rapoport <rppt@kernel.org>
 Subject: Re: [PATCH v2 00/13] mm: remove __ARCH_HAS_5LEVEL_HACK
-Date: Sun, 16 Feb 2020 11:45:59 +0100
-Message-ID: <d6691709-30ce-4d28-0b7b-34f1fa3b4e6f@c-s.fr>
+Date: Mon, 17 Feb 2020 08:23:44 +0200
+Message-ID: <20200217062344.GA4729@hump>
 References: <20200216081843.28670-1-rppt@kernel.org>
  <20200216082230.GV25745@shell.armlinux.org.uk>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
-        t=1581849968; bh=puEVphfmlLbrWTO3mdDB17WkluHf49q+nkCLHU1WEPk=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=RMQrDTHXiSIvSNdSJIUAuTLTwTBfKbldAHrwtZjJ0BW+ZG7c0EUq537f7BNPK+LIN
-         e+qzSqPhQUdW5m9f0ovUN5sc2R9fpgjJRx6JMSfOyIGDK3OikFgbqf4WNmfnjBWb14
-         Yj8xq1+79SXISvpVp+Jg6Y8NZ4c+QrYGyIAwuT0U=
+Return-path: <kvm-ppc-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1581920638;
+        bh=/x16WuB9ipweEdbRODxI3vPb27s/qMR9LxZj9eSXNFE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mJdZTvPNP7YeXjSuzPzV/mVObPxfKwGHjQ8p+ZHMpTmRtHHC4KJ+V+9rVhTjyc//R
+         yxkqqla61U/GzHYInQ60SIgL3AIru2SOxlhJ63F/uuX7uFtPbBAVrgP2PtOiwMtu2+
+         8lDq6YKKg11ilpAZTu8jTZrVhQnL/nAs55Me23Y8=
+Content-Disposition: inline
 In-Reply-To: <20200216082230.GV25745@shell.armlinux.org.uk>
-Content-Language: fr
-Sender: linux-ia64-owner@vger.kernel.org
+Sender: kvm-ppc-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-To: Russell King - ARM Linux admin <linux@armlinux.org.uk>, Mike Rapoport <rppt@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Brian Cain <bcain@codeaurora.org>, Catalin Marinas <catalin.marinas@arm.com>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Guan Xuetao <gxt@pku.edu.cn>, James Morse <james.morse@arm.com>, Jonas Bonn <jonas@southpole.se>, Julien Thierry <julien.thierry.kdev@gmail.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Marc Zyngier <maz@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Rich Felker <dalias@libc.org>, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Suzuki
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Brian Cain <bcain@codeaurora.org>, Catalin Marinas <catalin.marinas@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Guan Xuetao <gxt@pku.edu.cn>, James Morse <james.morse@arm.com>, Jonas Bonn <jonas@southpole.se>, Julien Thierry <julien.thierry.kdev@gmail.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Marc Zyngier <maz@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Rich Felker <dalias@libc.org>, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <stefan.kr>
 
-
-
-Le 16/02/2020 à 09:22, Russell King - ARM Linux admin a écrit :
+On Sun, Feb 16, 2020 at 08:22:30AM +0000, Russell King - ARM Linux admin wrote:
 > On Sun, Feb 16, 2020 at 10:18:30AM +0200, Mike Rapoport wrote:
->> From: Mike Rapoport <rppt@linux.ibm.com>
->>
->> Hi,
->>
->> These patches convert several architectures to use page table folding and
->> remove __ARCH_HAS_5LEVEL_HACK along with include/asm-generic/5level-fixup.h.
->>
->> The changes are mostly about mechanical replacement of pgd accessors with p4d
->> ones and the addition of higher levels to page table traversals.
->>
->> All the patches were sent separately to the respective arch lists and
->> maintainers hence the "v2" prefix.
+> > From: Mike Rapoport <rppt@linux.ibm.com>
+> > 
+> > Hi,
+> > 
+> > These patches convert several architectures to use page table folding and
+> > remove __ARCH_HAS_5LEVEL_HACK along with include/asm-generic/5level-fixup.h.
+> > 
+> > The changes are mostly about mechanical replacement of pgd accessors with p4d
+> > ones and the addition of higher levels to page table traversals.
+> > 
+> > All the patches were sent separately to the respective arch lists and
+> > maintainers hence the "v2" prefix.
 > 
 > You fail to explain why this change which adds 488 additional lines of
 > code is desirable.
-> 
 
-The purpose of the series, ie droping a HACK, is worth it.
+Right, I should have been more explicit about it.
 
-However looking at the powerpc patch I have the feeling that this series 
-goes behind its purpose.
+As Christophe mentioned in his reply, removing 'HACK' and 'fixup' is an
+improvement.
+Another thing is that when all architectures behave the same it opens
+opportunities for cleaning up repeating definitions of page table
+manipulation primitives.
 
-The number additional lines could be deeply reduced I think if we limit 
-the patches to the strict minimum, ie just do things like below instead 
-of adding lots of handling of useless levels.
+ 
+> -- 
+> RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+> FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
+> According to speedtest.net: 11.9Mbps down 500kbps up
 
-Instead of doing things like:
-
--	pud = NULL;
-+	p4d = NULL;
-  	if (pgd_present(*pgd))
--		pud = pud_offset(pgd, gpa);
-+		p4d = p4d_offset(pgd, gpa);
-+	else
-+		new_p4d = p4d_alloc_one(kvm->mm, gpa);
-+
-+	pud = NULL;
-+	if (p4d_present(*p4d))
-+		pud = pud_offset(p4d, gpa);
-  	else
-  		new_pud = pud_alloc_one(kvm->mm, gpa);
-
-It could be limited to:
-
-  	if (pgd_present(*pgd))
--		pud = pud_offset(pgd, gpa);
-+		pud = pud_offset(p4d_offset(pgd, gpa), gpa);
-  	else
-  		new_pud = pud_alloc_one(kvm->mm, gpa);
-
-
-Christophe
+-- 
+Sincerely yours,
+Mike.
