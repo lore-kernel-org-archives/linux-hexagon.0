@@ -1,59 +1,42 @@
-From: Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH v2 00/13] mm: remove __ARCH_HAS_5LEVEL_HACK
-Date: Mon, 17 Feb 2020 08:23:44 +0200
-Message-ID: <20200217062344.GA4729@hump>
-References: <20200216081843.28670-1-rppt@kernel.org>
- <20200216082230.GV25745@shell.armlinux.org.uk>
-Mime-Version: 1.0
-Return-path: <kvm-ppc-owner@vger.kernel.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [RESEND PATCH] hexagon: configs: Cleanup CONFIG_CROSS_COMPILE
+Date: Mon, 17 Feb 2020 17:50:34 +0100
+Message-ID: <20200217165034.4649-1-krzk@kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581920638;
-        bh=/x16WuB9ipweEdbRODxI3vPb27s/qMR9LxZj9eSXNFE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mJdZTvPNP7YeXjSuzPzV/mVObPxfKwGHjQ8p+ZHMpTmRtHHC4KJ+V+9rVhTjyc//R
-         yxkqqla61U/GzHYInQ60SIgL3AIru2SOxlhJ63F/uuX7uFtPbBAVrgP2PtOiwMtu2+
-         8lDq6YKKg11ilpAZTu8jTZrVhQnL/nAs55Me23Y8=
-Content-Disposition: inline
-In-Reply-To: <20200216082230.GV25745@shell.armlinux.org.uk>
-Sender: kvm-ppc-owner@vger.kernel.org
+        s=default; t=1581958240;
+        bh=JjNDVJm+v6HWDhnhInttXBEV3fn14//iNMHEewyjbmU=;
+        h=From:To:Subject:Date:From;
+        b=10Ach5BGGNWH6/e4qlfWlP9MDZ88BG00bJAdYes1Ymu8vf1eQl7nDdeMe2xWKk++e
+         UxSWIDCS59WGX8T5uM1ThwhrnL5QmxIXUwhefnLgp+l3xJgUv2G33NrfEXqbhRmqXF
+         +s0wuNL4mS7vyaVq1pb080O7QVZV8tA1Kcy13U3E=
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Brian Cain <bcain@codeaurora.org>, Catalin Marinas <catalin.marinas@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Guan Xuetao <gxt@pku.edu.cn>, James Morse <james.morse@arm.com>, Jonas Bonn <jonas@southpole.se>, Julien Thierry <julien.thierry.kdev@gmail.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Marc Zyngier <maz@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Rich Felker <dalias@libc.org>, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <stefan.kr>
+To: Brian Cain <bcain@codeaurora.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, Feb 16, 2020 at 08:22:30AM +0000, Russell King - ARM Linux admin wrote:
-> On Sun, Feb 16, 2020 at 10:18:30AM +0200, Mike Rapoport wrote:
-> > From: Mike Rapoport <rppt@linux.ibm.com>
-> > 
-> > Hi,
-> > 
-> > These patches convert several architectures to use page table folding and
-> > remove __ARCH_HAS_5LEVEL_HACK along with include/asm-generic/5level-fixup.h.
-> > 
-> > The changes are mostly about mechanical replacement of pgd accessors with p4d
-> > ones and the addition of higher levels to page table traversals.
-> > 
-> > All the patches were sent separately to the respective arch lists and
-> > maintainers hence the "v2" prefix.
-> 
-> You fail to explain why this change which adds 488 additional lines of
-> code is desirable.
+CONFIG_CROSS_COMPILE is gone since commit f1089c92da79 ("kbuild: remove
+CONFIG_CROSS_COMPILE support").
 
-Right, I should have been more explicit about it.
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ arch/hexagon/configs/comet_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-As Christophe mentioned in his reply, removing 'HACK' and 'fixup' is an
-improvement.
-Another thing is that when all architectures behave the same it opens
-opportunities for cleaning up repeating definitions of page table
-manipulation primitives.
-
- 
-> -- 
-> RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-> FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
-> According to speedtest.net: 11.9Mbps down 500kbps up
-
+diff --git a/arch/hexagon/configs/comet_defconfig b/arch/hexagon/configs/comet_defconfig
+index e324f65f41e7..9e0da536c0c6 100644
+--- a/arch/hexagon/configs/comet_defconfig
++++ b/arch/hexagon/configs/comet_defconfig
+@@ -2,7 +2,6 @@ CONFIG_SMP=y
+ CONFIG_DEFAULT_MMAP_MIN_ADDR=0
+ CONFIG_HZ_100=y
+ CONFIG_EXPERIMENTAL=y
+-CONFIG_CROSS_COMPILE="hexagon-"
+ CONFIG_LOCALVERSION="-smp"
+ # CONFIG_LOCALVERSION_AUTO is not set
+ CONFIG_SYSVIPC=y
 -- 
-Sincerely yours,
-Mike.
+2.17.1
+
