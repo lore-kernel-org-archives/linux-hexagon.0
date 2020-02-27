@@ -1,81 +1,159 @@
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Subject: Re: [PATCH v2 07/13] powerpc: add support for folded p4d page tables
-Date: Wed, 26 Feb 2020 12:20:49 +0100
-Message-ID: <7a008227-433c-73d7-b01a-1c6c7c66f04e@c-s.fr>
-References: <20200216081843.28670-1-rppt@kernel.org>
- <20200216081843.28670-8-rppt@kernel.org>
- <c79b363c-a111-389a-5752-51cf85fa8c44@c-s.fr> <20200218105440.GA1698@hump>
- <20200226091315.GA11803@hump> <f881f732-729b-a098-f520-b30e44dc10c8@c-s.fr>
- <20200226105615.GB11803@hump>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v3 00/14] mm: remove __ARCH_HAS_5LEVEL_HACK
+Date: Thu, 27 Feb 2020 10:45:54 +0200
+Message-ID: <20200227084608.18223-1-rppt@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
-        t=1582716063; bh=u+44lvk1l0rvN0rVt0XeRLZF9pAnZ+SeTYsCRW90jUs=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=dcbZx4t5T2TqZBsmJqeETgOslZL/sjGjY3jtgZjyAkWRnWp+cZWdaA9+1CVcQnyrg
-         EAK/r3fzS6yjM9r4KrQXdxQ3U95U+v+IizkroXw9QSoxVs+Y7bA5gjhV+iBVeI3LhD
-         1eV+B927JsHKM6Lu+qpoDnmZLHfscXCGj3HKorDY=
-In-Reply-To: <20200226105615.GB11803@hump>
-Content-Language: fr
-Sender: linux-ia64-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582793182;
+        bh=hv10MaAUe5RVLD0NuRNysfrmGigvz+hr+3m/P2lnNQw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=iDj6EmmflA5l9334eT2wytfgl2zax/6gDTdon4tfShN9SjbXkMn59lsy+j28Eefil
+         CC3PYBQCocxnpznIIxoR+ufZWags6aoGrSImft5Ytg0CDzymH9dRAV+Wfd2s+fySAO
+         GcMOQYpNby8Mb6NOHar4Do4lT66YUVm1LZeJkw6w=
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-To: Mike Rapoport <rppt@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Brian Cain <bcain@codeaurora.org>, Catalin Marinas <catalin.marinas@arm.com>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Guan Xuetao <gxt@pku.edu.cn>, James Morse <james.morse@arm.com>, Jonas Bonn <jonas@southpole.se>, Julien Thierry <julien.thierry.kdev@gmail.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Marc Zyngier <maz@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Rich Felker <dalias@libc.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <stefan.kristian>
+Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Brian Cain <bcain@codeaurora.org>, Catalin Marinas <catalin.marinas@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Guan Xuetao <gxt@pku.edu.cn>, James Morse <james.morse@arm.com>, Jonas Bonn <jonas@southpole.se>, Julien Thierry <julien.thierry.kdev@gmail.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Marc Zyngier <maz@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Rich Felker <dalias@libc.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <s>
 
+From: Mike Rapoport <rppt@linux.ibm.com>
 
+Hi,
 
-Le 26/02/2020 à 11:56, Mike Rapoport a écrit :
-> On Wed, Feb 26, 2020 at 10:46:13AM +0100, Christophe Leroy wrote:
->>
->>
->> Le 26/02/2020 à 10:13, Mike Rapoport a écrit :
->>> On Tue, Feb 18, 2020 at 12:54:40PM +0200, Mike Rapoport wrote:
->>>> On Sun, Feb 16, 2020 at 11:41:07AM +0100, Christophe Leroy wrote:
->>>>>
->>>>>
->>>>> Le 16/02/2020 à 09:18, Mike Rapoport a écrit :
->>>>>> From: Mike Rapoport <rppt@linux.ibm.com>
->>>>>>
->>>>>> Implement primitives necessary for the 4th level folding, add walks of p4d
->>>>>> level where appropriate and replace 5level-fixup.h with pgtable-nop4d.h.
->>>>>
->>>>> I don't think it is worth adding all this additionnals walks of p4d, this
->>>>> patch could be limited to changes like:
->>>>>
->>>>> -		pud = pud_offset(pgd, gpa);
->>>>> +		pud = pud_offset(p4d_offset(pgd, gpa), gpa);
->>>>>
->>>>> The additionnal walks should be added through another patch the day powerpc
->>>>> need them.
->>>>
->>>> Ok, I'll update the patch to reduce walking the p4d.
->>>
->>> Here's what I have with more direct acceses from pgd to pud.
->>
->> I went quickly through. This looks promising.
->>
->> Do we need the walk_p4d() in arch/powerpc/mm/ptdump/hashpagetable.c ?
->> Can't we just do
->>
->> @@ -445,7 +459,7 @@ static void walk_pagetables(struct pg_state *st)
->>   		addr = KERN_VIRT_START + i * PGDIR_SIZE;
->>   		if (!pgd_none(*pgd))
->>   			/* pgd exists */
->> -			walk_pud(st, pgd, addr);
->> +			walk_pud(st, p4d_offset(pgd, addr), addr);
-> 
-> We can do
-> 
-> 	addr = KERN_VIRT_START + i * PGDIR_SIZE;
-> 	p4d = p4d_offset(pgd, addr);
-> 	if (!p4d_none(*pgd))
-> 		walk_pud()
-> 
-> But I don't think this is really essential. Again, we are trading off code
-> consistency vs line count. I don't think line count is that important.
+These patches convert several architectures to use page table folding and
+remove __ARCH_HAS_5LEVEL_HACK along with include/asm-generic/5level-fixup.h
+and include/asm-generic/pgtable-nop4d-hack.h. With that we'll have a single
+and consistent way of dealing with page table folding instead of a mix of
+three existing options.
 
-Ok.
+The changes are mostly about mechanical replacement of pgd accessors with p4d
+ones and the addition of higher levels to page table traversals.
 
-Christophe
+v3:
+* add Christophe's patch that removes ppc32 get_pteptr()
+* reduce amount of upper layer walks in powerpc
+
+v2:
+* collect per-arch patches into a single set
+* include Geert's update of 'sh' printing messages
+* rebase on v5.6-rc1+
+
+Christophe Leroy (1):
+  powerpc/32: drop get_pteptr()
+
+Geert Uytterhoeven (1):
+  sh: fault: Modernize printing of kernel messages
+
+Mike Rapoport (12):
+  arm/arm64: add support for folded p4d page tables
+  h8300: remove usage of __ARCH_USE_5LEVEL_HACK
+  hexagon: remove __ARCH_USE_5LEVEL_HACK
+  ia64: add support for folded p4d page tables
+  nios2: add support for folded p4d page tables
+  openrisc: add support for folded p4d page tables
+  powerpc: add support for folded p4d page tables
+  sh: drop __pXd_offset() macros that duplicate pXd_index() ones
+  sh: add support for folded p4d page tables
+  unicore32: remove __ARCH_USE_5LEVEL_HACK
+  asm-generic: remove pgtable-nop4d-hack.h
+  mm: remove __ARCH_HAS_5LEVEL_HACK and
+    include/asm-generic/5level-fixup.h
+
+ arch/arm/include/asm/kvm_mmu.h                |   5 +-
+ arch/arm/include/asm/pgtable.h                |   1 -
+ arch/arm/include/asm/stage2_pgtable.h         |  15 +-
+ arch/arm/lib/uaccess_with_memcpy.c            |   9 +-
+ arch/arm/mach-sa1100/assabet.c                |   2 +-
+ arch/arm/mm/dump.c                            |  29 ++-
+ arch/arm/mm/fault-armv.c                      |   7 +-
+ arch/arm/mm/fault.c                           |  28 ++-
+ arch/arm/mm/idmap.c                           |   3 +-
+ arch/arm/mm/init.c                            |   2 +-
+ arch/arm/mm/ioremap.c                         |  12 +-
+ arch/arm/mm/mm.h                              |   2 +-
+ arch/arm/mm/mmu.c                             |  35 ++-
+ arch/arm/mm/pgd.c                             |  40 +++-
+ arch/arm64/include/asm/kvm_mmu.h              |  10 +-
+ arch/arm64/include/asm/pgalloc.h              |  10 +-
+ arch/arm64/include/asm/pgtable-types.h        |   5 +-
+ arch/arm64/include/asm/pgtable.h              |  37 ++--
+ arch/arm64/include/asm/stage2_pgtable.h       |  48 +++-
+ arch/arm64/kernel/hibernate.c                 |  44 +++-
+ arch/arm64/mm/fault.c                         |   9 +-
+ arch/arm64/mm/hugetlbpage.c                   |  15 +-
+ arch/arm64/mm/kasan_init.c                    |  26 ++-
+ arch/arm64/mm/mmu.c                           |  52 +++--
+ arch/arm64/mm/pageattr.c                      |   7 +-
+ arch/h8300/include/asm/pgtable.h              |   1 -
+ arch/hexagon/include/asm/fixmap.h             |   4 +-
+ arch/hexagon/include/asm/pgtable.h            |   1 -
+ arch/ia64/include/asm/pgalloc.h               |   4 +-
+ arch/ia64/include/asm/pgtable.h               |  17 +-
+ arch/ia64/mm/fault.c                          |   7 +-
+ arch/ia64/mm/hugetlbpage.c                    |  18 +-
+ arch/ia64/mm/init.c                           |  28 ++-
+ arch/nios2/include/asm/pgtable.h              |   3 +-
+ arch/nios2/mm/fault.c                         |   9 +-
+ arch/nios2/mm/ioremap.c                       |   6 +-
+ arch/openrisc/include/asm/pgtable.h           |   1 -
+ arch/openrisc/mm/fault.c                      |  10 +-
+ arch/openrisc/mm/init.c                       |   4 +-
+ arch/powerpc/include/asm/book3s/32/pgtable.h  |   1 -
+ arch/powerpc/include/asm/book3s/64/hash.h     |   4 +-
+ arch/powerpc/include/asm/book3s/64/pgalloc.h  |   4 +-
+ arch/powerpc/include/asm/book3s/64/pgtable.h  |  60 ++---
+ arch/powerpc/include/asm/book3s/64/radix.h    |   6 +-
+ arch/powerpc/include/asm/nohash/32/pgtable.h  |   1 -
+ arch/powerpc/include/asm/nohash/64/pgalloc.h  |   2 +-
+ .../include/asm/nohash/64/pgtable-4k.h        |  32 +--
+ arch/powerpc/include/asm/nohash/64/pgtable.h  |   6 +-
+ arch/powerpc/include/asm/pgtable.h            |   6 +-
+ arch/powerpc/kvm/book3s_64_mmu_radix.c        |  30 ++-
+ arch/powerpc/lib/code-patching.c              |   7 +-
+ arch/powerpc/mm/book3s32/mmu.c                |   2 +-
+ arch/powerpc/mm/book3s32/tlb.c                |   4 +-
+ arch/powerpc/mm/book3s64/hash_pgtable.c       |   4 +-
+ arch/powerpc/mm/book3s64/radix_pgtable.c      |  26 ++-
+ arch/powerpc/mm/book3s64/subpage_prot.c       |   6 +-
+ arch/powerpc/mm/hugetlbpage.c                 |  28 ++-
+ arch/powerpc/mm/kasan/kasan_init_32.c         |   8 +-
+ arch/powerpc/mm/mem.c                         |   4 +-
+ arch/powerpc/mm/nohash/40x.c                  |   4 +-
+ arch/powerpc/mm/nohash/book3e_pgtable.c       |  15 +-
+ arch/powerpc/mm/pgtable.c                     |  30 ++-
+ arch/powerpc/mm/pgtable_32.c                  |  45 +---
+ arch/powerpc/mm/pgtable_64.c                  |  10 +-
+ arch/powerpc/mm/ptdump/hashpagetable.c        |  20 +-
+ arch/powerpc/mm/ptdump/ptdump.c               |  14 +-
+ arch/powerpc/xmon/xmon.c                      |  18 +-
+ arch/sh/include/asm/pgtable-2level.h          |   1 -
+ arch/sh/include/asm/pgtable-3level.h          |   1 -
+ arch/sh/include/asm/pgtable_32.h              |   5 +-
+ arch/sh/include/asm/pgtable_64.h              |   5 +-
+ arch/sh/kernel/io_trapped.c                   |   7 +-
+ arch/sh/mm/cache-sh4.c                        |   4 +-
+ arch/sh/mm/cache-sh5.c                        |   7 +-
+ arch/sh/mm/fault.c                            |  65 ++++--
+ arch/sh/mm/hugetlbpage.c                      |  28 ++-
+ arch/sh/mm/init.c                             |  15 +-
+ arch/sh/mm/kmap.c                             |   2 +-
+ arch/sh/mm/tlbex_32.c                         |   6 +-
+ arch/sh/mm/tlbex_64.c                         |   7 +-
+ arch/unicore32/include/asm/pgtable.h          |   1 -
+ arch/unicore32/kernel/hibernate.c             |   4 +-
+ include/asm-generic/5level-fixup.h            |  58 -----
+ include/asm-generic/pgtable-nop4d-hack.h      |  64 ------
+ include/asm-generic/pgtable-nopud.h           |   4 -
+ include/linux/mm.h                            |   6 -
+ mm/kasan/init.c                               |  11 -
+ mm/memory.c                                   |   8 -
+ virt/kvm/arm/mmu.c                            | 209 +++++++++++++++---
+ 89 files changed, 917 insertions(+), 564 deletions(-)
+ delete mode 100644 include/asm-generic/5level-fixup.h
+ delete mode 100644 include/asm-generic/pgtable-nop4d-hack.h
+
+-- 
+2.24.0
+
