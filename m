@@ -1,65 +1,111 @@
-From: Helge Deller <deller@gmx.de>
-Subject: Re: [PATCH] mm/special: Create generic fallbacks for pte_special()
- and pte_mkspecial()
-Date: Mon, 2 Mar 2020 12:19:28 +0100
-Message-ID: <c026934a-02c1-8589-f925-e267fcc367ad@gmx.de>
-References: <1583114190-7678-1-git-send-email-anshuman.khandual@arm.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [RFC 1/3] mm/vma: Define a default value for
+ VM_DATA_DEFAULT_FLAGS
+Date: Tue, 3 Mar 2020 18:25:06 +0100
+Message-ID: <b243be54-7b5e-c6e9-fb68-46369d7d7aa4@suse.cz>
+References: <1583131666-15531-1-git-send-email-anshuman.khandual@arm.com>
+ <1583131666-15531-2-git-send-email-anshuman.khandual@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:
-	Message-ID:From:References:To:Subject:Reply-To:Content-ID:Content-Description
-	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=EWWuvoQPT834Udf1O0YbmPQqp6hbQSV17ozHK/JzOJw=; b=LyglAdnXoJZKNg
-	cs9wC4sKGS9zzi9pjRw1bxmH65iVqIzGZNdh9GeK49phZBuk4odz/pBnwmsjoeaW0S3q1MvENMBV7
-	qz7DCq0fS/Fd3Y/9HlE+umAyH5W9D/bj9Irvae5QURZHnuUow0/Eo/uaxH3Kh6GAIJODBxGrobQZ/
-	f4DRuXYpBweIBEnIThgf1dcG4N/xF9xju2ANWXF0PnUMQU13UjJbxcW6HeIPu0JT0XUTEGJWnggA7
-	TJVZBHWTD0gZMWZ5Pd/YJ55E5dw7/SxYgY+Kcof48PFtXzneUC8wsMHQqBW3Xz+UXvIF9wxqEJcbs
-	j0GBfAq5TQNrV/7D7LWA==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
- s=badeba3b8450; t=1583147984;
- bh=W0AEuRxwaNTM1wIbdflqt1mDaAQNU2XGAUPwGpFwfWw=;
- h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
- b=hTNTiGkPrHFpfzTv92CxoDj+m/u7w8wulahh2YNUZ3ilgCKTOf7jYgAY8yD9Ao4qv
- SytwzZHwpUWQzFzBhJtl2DIhQoCUV/ToAeRl5zIDJgbyNck2JHuucSsXxomLmXYLp/
- +Dei76MRo/TXrQDxaEk4FvqRCIn9xEsmVcXYatHg=
-In-Reply-To: <1583114190-7678-1-git-send-email-anshuman.khandual@arm.com>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+In-Reply-To: <1583131666-15531-2-git-send-email-anshuman.khandual@arm.com>
 Content-Language: en-US
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
+Sender: linux-hexagon-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
 To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, Vincent Chen <deanbo422@gmail.com>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Jonas Bonn <jonas@southpole.se>, Paul Burton <paulburton@kernel.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, Ley Foon Tan <ley.foon.tan@intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-parisc@vger.kernel.org, linux-arch@vger.kernel.org, Matt Turner <mattst88@gmail.com>, Sam Creasey <sammy@sammy.net>, Fenghua Yu <fenghua.yu@intel.com>, Jeff Dike <jdike@addtoit.com>, linux-um@lists.infradead.org, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, linux-m68k@lists.linux
+Cc: Richard Henderson <rth@twiddle.net>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Mark Salter <msalter@redhat.com>, Guo Ren <guoren@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Brian Cain <bcain@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paulburton@kernel.org>, Nick Hu <nickhu@andestech.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Jonas Bonn <jonas@southpole.se>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <paul.walmsley@sifive.com>, Heiko Carstens <heiko.ca>
 
-On 02.03.20 02:56, Anshuman Khandual wrote:
-> Currently there are many platforms that dont enable HAVE_ARCH_PTE_SPECIAL
-> but required to define quite similar fallback stubs for special page table
-> entry helpers such as pte_special() and pte_mkspecial(), as they get build
-> in generic MM without a config check. This creates two generic fallback
-> stub definitions for these helpers, eliminating much code duplication.
->
-> mips platform has a special case where pte_special() and pte_mkspecial()
-> visibility is wider than what HAVE_ARCH_PTE_SPECIAL enablement requires.
-> This restricts those symbol visibility in order to avoid redefinitions
-> which is now exposed through this new generic stubs and subsequent build
-> failure. arm platform set_pte_at() definition needs to be moved into a C
-> file just to prevent a build failure.
->
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+On 3/2/20 7:47 AM, Anshuman Khandual wrote:
+> There are many platforms with exact same value for VM_DATA_DEFAULT_FLAGS
+> This creates a default value for VM_DATA_DEFAULT_FLAGS in line with the
+> existing VM_STACK_DEFAULT_FLAGS. While here, also define some more macros
+> with standard VMA access flag combinations that are used frequently across
+> many platforms. Apart from simplification, this reduces code duplication
+> as well.
+> 
+> Cc: Richard Henderson <rth@twiddle.net>
+> Cc: Vineet Gupta <vgupta@synopsys.com>
+> Cc: Russell King <linux@armlinux.org.uk>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Mark Salter <msalter@redhat.com>
+> Cc: Guo Ren <guoren@kernel.org>
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: Brian Cain <bcain@codeaurora.org>
+> Cc: Tony Luck <tony.luck@intel.com>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: Michal Simek <monstr@monstr.eu>
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Cc: Paul Burton <paulburton@kernel.org>
+> Cc: Nick Hu <nickhu@andestech.com>
+> Cc: Ley Foon Tan <ley.foon.tan@intel.com>
+> Cc: Jonas Bonn <jonas@southpole.se>
+> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Paul Walmsley <paul.walmsley@sifive.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Guan Xuetao <gxt@pku.edu.cn>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Jeff Dike <jdike@addtoit.com>
+> Cc: Chris Zankel <chris@zankel.net>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: linux-alpha@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: linux-snps-arc@lists.infradead.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-c6x-dev@linux-c6x.org
+> Cc: uclinux-h8-devel@lists.sourceforge.jp
+> Cc: linux-hexagon@vger.kernel.org
+> Cc: linux-ia64@vger.kernel.org
+> Cc: linux-m68k@lists.linux-m68k.org
+> Cc: linux-mips@vger.kernel.org
+> Cc: nios2-dev@lists.rocketboards.org
+> Cc: openrisc@lists.librecores.org
+> Cc: linux-parisc@vger.kernel.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-riscv@lists.infradead.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-sh@vger.kernel.org
+> Cc: sparclinux@vger.kernel.org
+> Cc: linux-um@lists.infradead.org
+> Cc: linux-xtensa@linux-xtensa.org
+> Cc: linux-mm@kvack.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
 
-for parisc:
+Nit:
 
-Acked-by: Helge Deller <deller@gmx.de> # parisc
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index b0e53ef13ff1..7a764ae6ab68 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -342,6 +342,21 @@ extern unsigned int kobjsize(const void *objp);
+>  /* Bits set in the VMA until the stack is in its final location */
+>  #define VM_STACK_INCOMPLETE_SETUP	(VM_RAND_READ | VM_SEQ_READ)
+>  
+> +#define TASK_EXEC ((current->personality & READ_IMPLIES_EXEC) ? VM_EXEC : 0)
+> +
+> +/* Common data flag combinations */
+> +#define VM_DATA_FLAGS_TSK_EXEC	(VM_READ | VM_WRITE | TASK_EXEC | \
+> +				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+> +#define VM_DATA_FLAGS_NON_EXEC	(VM_READ | VM_WRITE | VM_MAYREAD | \
+> +				 VM_MAYWRITE | VM_MAYEXEC)
+> +#define VM_DATA_FLAGS_EXEC	(VM_READ | VM_WRITE | VM_EXEC | \
+> +				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+> +
+> +#ifndef VM_DATA_DEFAULT_FLAGS		/* arch can override this */
+> +#define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
+> +				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
 
-Helge
+Should you use VM_DATA_FLAGS_EXEC here? Yeah one more macro to expand, but it's
+right above this.
+
+> +#endif
+> +
+>  #ifndef VM_STACK_DEFAULT_FLAGS		/* arch can override this */
+>  #define VM_STACK_DEFAULT_FLAGS VM_DATA_DEFAULT_FLAGS
+>  #endif
+> 
+
