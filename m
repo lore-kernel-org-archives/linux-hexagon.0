@@ -1,164 +1,120 @@
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
-Subject: [PATCH v3] hexagon: replace setup_irq() by request_irq()
-Date: Wed,  4 Mar 2020 06:19:09 +0530
-Message-ID: <20200304004910.4842-1-afzal.mohd.ma@gmail.com>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=fchUchZf7JdeqH38aXjaBP5ZuQR9zSoVNleVtfnCoh8=;
-        b=aoS70Y/SNFfr/bkddtY4JmUukQC8BDn9XS7opwiJ6w3OjoZCxZdAqWTp2nVsigLERZ
-         bV7UZnmQOirWsYHTqxSWrfEaAqCUdi4WuLLMYn3iiqjU/lM35pCll0Hk9o3Zovts9oX5
-         kXfk7DtkHYcTt6WUHqQpU0mn/BHw8ik7OZrD4of4sjae8aVWH/SlLFmcEDTBUITU1aMn
-         FlJwxYFe0Ay6pIGo9bXiicFUNHUy3fAAoyqFvAnpkBX7DtnfGZGKcn9G7LU9RCOQk9IB
-         PngAl4ywC/7NvvtgRubSDnOMfdYHdSaMFCWGjLQ7f6N+kvP+mUHYZvh5G4HpTyYsAQWb
-         GSAg==
-Sender: linux-hexagon-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [RFC 1/3] mm/vma: Define a default value for
+ VM_DATA_DEFAULT_FLAGS
+Date: Wed, 4 Mar 2020 10:49:13 +0530
+Message-ID: <8b0f4c1b-f693-e139-4f66-ee4e1e88b95c@arm.com>
+References: <1583131666-15531-1-git-send-email-anshuman.khandual@arm.com>
+ <1583131666-15531-2-git-send-email-anshuman.khandual@arm.com>
+ <b243be54-7b5e-c6e9-fb68-46369d7d7aa4@suse.cz>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-To: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: afzal mohammed <afzal.mohd.ma@gmail.com>, Brian Cain <bcain@codeaurora.org>
+Return-path: <linux-alpha-owner@vger.kernel.org>
+In-Reply-To: <b243be54-7b5e-c6e9-fb68-46369d7d7aa4@suse.cz>
+Content-Language: en-US
+Sender: linux-alpha-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: Vlastimil Babka <vbabka@suse.cz>, linux-mm@kvack.org
+Cc: Richard Henderson <rth@twiddle.net>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Mark Salter <msalter@redhat.com>, Guo Ren <guoren@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Brian Cain <bcain@codeaurora.org>, Tony Luck <tony.luck@intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paulburton@kernel.org>, Nick Hu <nickhu@andestech.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Jonas Bonn <jonas@southpole.se>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <paul.walmsley@sifive.com>, Heiko Carstens <heiko.ca>
 
-request_irq() is preferred over setup_irq(). Invocations of setup_irq()
-occur after memory allocators are ready.
 
-Per tglx[1], setup_irq() existed in olden days when allocators were not
-ready by the time early interrupts were initialized.
 
-Hence replace setup_irq() by request_irq().
+On 03/03/2020 10:55 PM, Vlastimil Babka wrote:
+> On 3/2/20 7:47 AM, Anshuman Khandual wrote:
+>> There are many platforms with exact same value for VM_DATA_DEFAULT_FLAGS
+>> This creates a default value for VM_DATA_DEFAULT_FLAGS in line with the
+>> existing VM_STACK_DEFAULT_FLAGS. While here, also define some more macros
+>> with standard VMA access flag combinations that are used frequently across
+>> many platforms. Apart from simplification, this reduces code duplication
+>> as well.
+>>
+>> Cc: Richard Henderson <rth@twiddle.net>
+>> Cc: Vineet Gupta <vgupta@synopsys.com>
+>> Cc: Russell King <linux@armlinux.org.uk>
+>> Cc: Catalin Marinas <catalin.marinas@arm.com>
+>> Cc: Mark Salter <msalter@redhat.com>
+>> Cc: Guo Ren <guoren@kernel.org>
+>> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+>> Cc: Brian Cain <bcain@codeaurora.org>
+>> Cc: Tony Luck <tony.luck@intel.com>
+>> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+>> Cc: Michal Simek <monstr@monstr.eu>
+>> Cc: Ralf Baechle <ralf@linux-mips.org>
+>> Cc: Paul Burton <paulburton@kernel.org>
+>> Cc: Nick Hu <nickhu@andestech.com>
+>> Cc: Ley Foon Tan <ley.foon.tan@intel.com>
+>> Cc: Jonas Bonn <jonas@southpole.se>
+>> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+>> Cc: Michael Ellerman <mpe@ellerman.id.au>
+>> Cc: Paul Walmsley <paul.walmsley@sifive.com>
+>> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+>> Cc: Rich Felker <dalias@libc.org>
+>> Cc: "David S. Miller" <davem@davemloft.net>
+>> Cc: Guan Xuetao <gxt@pku.edu.cn>
+>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>> Cc: Jeff Dike <jdike@addtoit.com>
+>> Cc: Chris Zankel <chris@zankel.net>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: linux-alpha@vger.kernel.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Cc: linux-snps-arc@lists.infradead.org
+>> Cc: linux-arm-kernel@lists.infradead.org
+>> Cc: linux-c6x-dev@linux-c6x.org
+>> Cc: uclinux-h8-devel@lists.sourceforge.jp
+>> Cc: linux-hexagon@vger.kernel.org
+>> Cc: linux-ia64@vger.kernel.org
+>> Cc: linux-m68k@lists.linux-m68k.org
+>> Cc: linux-mips@vger.kernel.org
+>> Cc: nios2-dev@lists.rocketboards.org
+>> Cc: openrisc@lists.librecores.org
+>> Cc: linux-parisc@vger.kernel.org
+>> Cc: linuxppc-dev@lists.ozlabs.org
+>> Cc: linux-riscv@lists.infradead.org
+>> Cc: linux-s390@vger.kernel.org
+>> Cc: linux-sh@vger.kernel.org
+>> Cc: sparclinux@vger.kernel.org
+>> Cc: linux-um@lists.infradead.org
+>> Cc: linux-xtensa@linux-xtensa.org
+>> Cc: linux-mm@kvack.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com
+> Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+> 
+> Nit:
+> 
+>> diff --git a/include/linux/mm.h b/include/linux/mm.h
+>> index b0e53ef13ff1..7a764ae6ab68 100644
+>> --- a/include/linux/mm.h
+>> +++ b/include/linux/mm.h
+>> @@ -342,6 +342,21 @@ extern unsigned int kobjsize(const void *objp);
+>>  /* Bits set in the VMA until the stack is in its final location */
+>>  #define VM_STACK_INCOMPLETE_SETUP	(VM_RAND_READ | VM_SEQ_READ)
+>>  
+>> +#define TASK_EXEC ((current->personality & READ_IMPLIES_EXEC) ? VM_EXEC : 0)
+>> +
+>> +/* Common data flag combinations */
+>> +#define VM_DATA_FLAGS_TSK_EXEC	(VM_READ | VM_WRITE | TASK_EXEC | \
+>> +				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+>> +#define VM_DATA_FLAGS_NON_EXEC	(VM_READ | VM_WRITE | VM_MAYREAD | \
+>> +				 VM_MAYWRITE | VM_MAYEXEC)
+>> +#define VM_DATA_FLAGS_EXEC	(VM_READ | VM_WRITE | VM_EXEC | \
+>> +				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+>> +
+>> +#ifndef VM_DATA_DEFAULT_FLAGS		/* arch can override this */
+>> +#define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
+>> +				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+> 
+> Should you use VM_DATA_FLAGS_EXEC here? Yeah one more macro to expand, but it's
+> right above this.
 
-[1] https://lkml.kernel.org/r/alpine.DEB.2.20.1710191609480.1971@nanos
+Sure, can do that.
 
-Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
----
-Hi hexagon maintainers,
-
-if okay w/ this change, please consider taking it thr' your tree, else please
-let me know.
-
-Regards
-afzal
-
-Link to v2 & v1,
-[v2] https://lkml.kernel.org/r/cover.1582471508.git.afzal.mohd.ma@gmail.com
-[v1] https://lkml.kernel.org/r/cover.1581478323.git.afzal.mohd.ma@gmail.com
-
-v3:
- * Split out from tree wide series, as Thomas suggested to get it thr'
-	respective maintainers
- * Modify pr_err displayed in case of error
- * Re-arrange code & choose pr_err args as required to improve readability
- * Remove irrelevant parts from commit message & improve
- 
-v2:
- * Replace pr_err("request_irq() on %s failed" by
-           pr_err("%s: request_irq() failed"
- * Commit message massage
-
- arch/hexagon/kernel/smp.c  | 22 +++++++++++-----------
- arch/hexagon/kernel/time.c | 11 +++--------
- 2 files changed, 14 insertions(+), 19 deletions(-)
-
-diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
-index 0bbbe652a513..619c56420aa0 100644
---- a/arch/hexagon/kernel/smp.c
-+++ b/arch/hexagon/kernel/smp.c
-@@ -114,12 +114,6 @@ void send_ipi(const struct cpumask *cpumask, enum ipi_message_type msg)
- 	local_irq_restore(flags);
- }
- 
--static struct irqaction ipi_intdesc = {
--	.handler = handle_ipi,
--	.flags = IRQF_TRIGGER_RISING,
--	.name = "ipi_handler"
--};
--
- void __init smp_prepare_boot_cpu(void)
- {
- }
-@@ -132,8 +126,8 @@ void __init smp_prepare_boot_cpu(void)
- 
- void start_secondary(void)
- {
--	unsigned int cpu;
- 	unsigned long thread_ptr;
-+	unsigned int cpu, irq;
- 
- 	/*  Calculate thread_info pointer from stack pointer  */
- 	__asm__ __volatile__(
-@@ -155,7 +149,10 @@ void start_secondary(void)
- 
- 	cpu = smp_processor_id();
- 
--	setup_irq(BASE_IPI_IRQ + cpu, &ipi_intdesc);
-+	irq = BASE_IPI_IRQ + cpu;
-+	if (request_irq(irq, handle_ipi, IRQF_TRIGGER_RISING, "ipi_handler",
-+			NULL))
-+		pr_err("Failed to request irq %u (ipi_handler)\n", irq);
- 
- 	/*  Register the clock_event dummy  */
- 	setup_percpu_clockdev();
-@@ -201,7 +198,7 @@ void __init smp_cpus_done(unsigned int max_cpus)
- 
- void __init smp_prepare_cpus(unsigned int max_cpus)
- {
--	int i;
-+	int i, irq = BASE_IPI_IRQ;
- 
- 	/*
- 	 * should eventually have some sort of machine
-@@ -213,8 +210,11 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
- 		set_cpu_present(i, true);
- 
- 	/*  Also need to register the interrupts for IPI  */
--	if (max_cpus > 1)
--		setup_irq(BASE_IPI_IRQ, &ipi_intdesc);
-+	if (max_cpus > 1) {
-+		if (request_irq(irq, handle_ipi, IRQF_TRIGGER_RISING,
-+				"ipi_handler", NULL))
-+			pr_err("Failed to request irq %d (ipi_handler)\n", irq);
-+	}
- }
- 
- void smp_send_reschedule(int cpu)
-diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
-index f99e9257bed4..feffe527ac92 100644
---- a/arch/hexagon/kernel/time.c
-+++ b/arch/hexagon/kernel/time.c
-@@ -143,13 +143,6 @@ static irqreturn_t timer_interrupt(int irq, void *devid)
- 	return IRQ_HANDLED;
- }
- 
--/*  This should also be pulled from devtree  */
--static struct irqaction rtos_timer_intdesc = {
--	.handler = timer_interrupt,
--	.flags = IRQF_TIMER | IRQF_TRIGGER_RISING,
--	.name = "rtos_timer"
--};
--
- /*
-  * time_init_deferred - called by start_kernel to set up timer/clock source
-  *
-@@ -163,6 +156,7 @@ void __init time_init_deferred(void)
- {
- 	struct resource *resource = NULL;
- 	struct clock_event_device *ce_dev = &hexagon_clockevent_dev;
-+	unsigned long flag = IRQF_TIMER | IRQF_TRIGGER_RISING;
- 
- 	ce_dev->cpumask = cpu_all_mask;
- 
-@@ -195,7 +189,8 @@ void __init time_init_deferred(void)
- #endif
- 
- 	clockevents_register_device(ce_dev);
--	setup_irq(ce_dev->irq, &rtos_timer_intdesc);
-+	if (request_irq(ce_dev->irq, timer_interrupt, flag, "rtos_timer", NULL))
-+		pr_err("Failed to register rtos_timer interrupt\n");
- }
- 
- void __init time_init(void)
--- 
-2.25.1
-
+> 
+>> +#endif
+>> +
+>>  #ifndef VM_STACK_DEFAULT_FLAGS		/* arch can override this */
+>>  #define VM_STACK_DEFAULT_FLAGS VM_DATA_DEFAULT_FLAGS
+>>  #endif
+>>
+> 
+> 
+> 
