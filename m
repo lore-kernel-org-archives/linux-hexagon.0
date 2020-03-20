@@ -1,153 +1,60 @@
-From: "Brian Cain" <bcain@codeaurora.org>
-Subject: RE: [PATCHv2 14/50] hexagon: Add show_stack_loglvl()
-Date: Tue, 17 Mar 2020 10:34:22 -0500
-Message-ID: <016201d5fc71$89c01ab0$9d405010$@codeaurora.org>
-References: <20200316143916.195608-1-dima@arista.com> <20200316143916.195608-15-dima@arista.com>
-Reply-To: <bcain@codeaurora.org>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 3/5] hexagon: Remove mm.h from asm/uaccess.h
+Date: Fri, 20 Mar 2020 10:48:54 +0100
+Message-ID: <20200320094856.3453859-4-bigeasy@linutronix.de>
+References: <20200318204408.010461877@linutronix.de>
+ <20200320094856.3453859-1-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1584459270; h=Content-Transfer-Encoding: Content-Type:
- MIME-Version: Message-ID: Date: Subject: In-Reply-To: References: Cc:
- To: From: Reply-To: Sender;
- bh=n0DB5rQk3vxOGb0AlK5NXyNF/JWOE9+RENHn6S1ppc0=; b=EhY4+aY141B8bLwoqmfD0ynbVlp84w5Qnk7ZfJn30fWDjjz1rLTYsjYxSulm4KKxqtQk9Dyf
- 4bCOo5hKM9aWq4eySoBwuB4VI2D/CV2aFu4SDJwU3icuyy/Hv4xyiZfjGvlyG3gaKx8lBZ41
- OD9HQ3ncxMuIPpU/Njt4iHkt96o=
-In-Reply-To: <20200316143916.195608-15-dima@arista.com>
-Content-Language: en-us
-Sender: linux-hexagon-owner@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200320094856.3453859-1-bigeasy@linutronix.de>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: 'Dmitry Safonov' <dima@arista.com>, linux-kernel@vger.kernel.org
-Cc: 'Dmitry Safonov' <0x7f454c46@gmail.com>, 'Andrew Morton' <akpm@linux-foundation.org>, 'Greg Kroah-Hartman' <gregkh@linuxfoundation.org>, 'Ingo Molnar' <mingo@kernel.org>, 'Jiri Slaby' <jslaby@suse.com>, 'Petr Mladek' <pmladek@suse.com>, 'Sergey Senozhatsky' <sergey.senozhatsky@gmail.com>, 'Steven Rostedt' <rostedt@goodmis.org>, 'Tetsuo Handa' <penguin-kernel@I-love.SAKURA.ne.jp>, linux-hexagon@vger.kernel.org
+To: tglx@linutronix.de
+Cc: arnd@arndb.de, balbi@kernel.org, bhelgaas@google.com, bigeasy@linutronix.de, dave@stgolabs.net, davem@davemloft.net, gregkh@linuxfoundation.org, joel@joelfernandes.org, kurt.schwemmer@microsemi.com, kvalo@codeaurora.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, logang@deltatee.com, mingo@kernel.org, mpe@ellerman.id.au, netdev@vger.kernel.org, oleg@redhat.com, paulmck@kernel.org, peterz@infradead.org, rdunlap@infradead.org, rostedt@goodmis.org, torvalds@linux-foundation.org, will@kernel.org, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org, kbuild test robot <lkp@intel.com>
 
-Acked-by: Brian Cain <bcain@codeaurora.org>
+The defconfig compiles without linux/mm.h. With mm.h included the
+include chain leands to:
+|   CC      kernel/locking/percpu-rwsem.o
+| In file included from include/linux/huge_mm.h:8,
+|                  from include/linux/mm.h:567,
+|                  from arch/hexagon/include/asm/uaccess.h:,
+|                  from include/linux/uaccess.h:11,
+|                  from include/linux/sched/task.h:11,
+|                  from include/linux/sched/signal.h:9,
+|                  from include/linux/rcuwait.h:6,
+|                  from include/linux/percpu-rwsem.h:8,
+|                  from kernel/locking/percpu-rwsem.c:6:
+| include/linux/fs.h:1422:29: error: array type has incomplete element type=
+ 'struct percpu_rw_semaphore'
+|  1422 |  struct percpu_rw_semaphore rw_sem[SB_FREEZE_LEVELS];
 
-> Cc: Brian Cain <bcain@codeaurora.org>
-> Cc: linux-hexagon@vger.kernel.org
-> [1]: https://lore.kernel.org/lkml/20190528002412.1625-1-
-> dima@arista.com/T/#u
-> Signed-off-by: Dmitry Safonov <dima@arista.com>
-> ---
->  arch/hexagon/kernel/traps.c | 31 +++++++++++++++++--------------
->  1 file changed, 17 insertions(+), 14 deletions(-)
-> 
-> diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
-> index 69c623b14ddd..a8a3a210d781 100644
-> --- a/arch/hexagon/kernel/traps.c
-> +++ b/arch/hexagon/kernel/traps.c
-> @@ -79,7 +79,7 @@ static const char *ex_name(int ex)  }
-> 
->  static void do_show_stack(struct task_struct *task, unsigned long *fp,
-> -			  unsigned long ip)
-> +			  unsigned long ip, const char *loglvl)
->  {
->  	int kstack_depth_to_print = 24;
->  	unsigned long offset, size;
-> @@ -93,9 +93,8 @@ static void do_show_stack(struct task_struct *task,
-> unsigned long *fp,
->  	if (task == NULL)
->  		task = current;
-> 
-> -	printk(KERN_INFO "CPU#%d, %s/%d, Call Trace:\n",
-> -	       raw_smp_processor_id(), task->comm,
-> -	       task_pid_nr(task));
-> +	printk("%sCPU#%d, %s/%d, Call Trace:\n", loglvl,
-> raw_smp_processor_id(),
-> +		task->comm, task_pid_nr(task));
-> 
->  	if (fp == NULL) {
->  		if (task == current) {
-> @@ -108,7 +107,7 @@ static void do_show_stack(struct task_struct *task,
-> unsigned long *fp,
->  	}
-> 
->  	if ((((unsigned long) fp) & 0x3) || ((unsigned long) fp < 0x1000)) {
-> -		printk(KERN_INFO "-- Corrupt frame pointer %p\n", fp);
-> +		printk("%s-- Corrupt frame pointer %p\n", loglvl, fp);
->  		return;
->  	}
-> 
-> @@ -125,8 +124,7 @@ static void do_show_stack(struct task_struct *task,
-> unsigned long *fp,
-> 
->  		name = kallsyms_lookup(ip, &size, &offset, &modname,
-> tmpstr);
-> 
-> -		printk(KERN_INFO "[%p] 0x%lx: %s + 0x%lx", fp, ip, name,
-> -			offset);
-> +		printk("%s[%p] 0x%lx: %s + 0x%lx", loglvl, fp, ip, name,
-> offset);
->  		if (((unsigned long) fp < low) || (high < (unsigned long)
-fp))
->  			printk(KERN_CONT " (FP out of bounds!)");
->  		if (modname)
-> @@ -136,8 +134,7 @@ static void do_show_stack(struct task_struct *task,
-> unsigned long *fp,
->  		newfp = (unsigned long *) *fp;
-> 
->  		if (((unsigned long) newfp) & 0x3) {
-> -			printk(KERN_INFO "-- Corrupt frame pointer %p\n",
-> -				newfp);
-> +			printk("%s-- Corrupt frame pointer %p\n", loglvl,
-> newfp);
->  			break;
->  		}
-> 
-> @@ -147,7 +144,7 @@ static void do_show_stack(struct task_struct *task,
-> unsigned long *fp,
->  						+ 8);
-> 
->  			if (regs->syscall_nr != -1) {
-> -				printk(KERN_INFO "-- trap0 -- syscall_nr:
-> %ld",
-> +				printk("%s-- trap0 -- syscall_nr: %ld",
-loglvl,
->  					regs->syscall_nr);
->  				printk(KERN_CONT "  psp: %lx  elr: %lx\n",
->  					 pt_psp(regs), pt_elr(regs));
-> @@ -155,7 +152,7 @@ static void do_show_stack(struct task_struct *task,
-> unsigned long *fp,
->  			} else {
->  				/* really want to see more ... */
->  				kstack_depth_to_print += 6;
-> -				printk(KERN_INFO "-- %s (0x%lx)  badva:
-> %lx\n",
-> +				printk("%s-- %s (0x%lx)  badva: %lx\n",
-loglvl,
->  					ex_name(pt_cause(regs)),
-> pt_cause(regs),
->  					pt_badva(regs));
->  			}
-> @@ -178,10 +175,16 @@ static void do_show_stack(struct task_struct
-> *task, unsigned long *fp,
->  	}
->  }
-> 
-> -void show_stack(struct task_struct *task, unsigned long *fp)
-> +void show_stack_loglvl(struct task_struct *task, unsigned long *fp,
-> +		       const char *loglvl)
->  {
->  	/* Saved link reg is one word above FP */
-> -	do_show_stack(task, fp, 0);
-> +	do_show_stack(task, fp, 0, loglvl);
-> +}
-> +
-> +void show_stack(struct task_struct *task, unsigned long *fp) {
-> +	show_stack_loglvl(task, fp, 0, KERN_INFO);
->  }
-> 
->  int die(const char *str, struct pt_regs *regs, long err) @@ -207,7 +210,7
-> @@ int die(const char *str, struct pt_regs *regs, long err)
-> 
->  	print_modules();
->  	show_regs(regs);
-> -	do_show_stack(current, &regs->r30, pt_elr(regs));
-> +	do_show_stack(current, &regs->r30, pt_elr(regs), KERN_EMERG);
-> 
->  	bust_spinlocks(0);
->  	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
-> --
-> 2.25.1
+once rcuwait.h includes linux/sched/signal.h.
+
+Remove the linux/mm.h include.
+
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ arch/hexagon/include/asm/uaccess.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/hexagon/include/asm/uaccess.h b/arch/hexagon/include/asm/=
+uaccess.h
+index 00cb38faad0c4..c1019a736ff13 100644
+--- a/arch/hexagon/include/asm/uaccess.h
++++ b/arch/hexagon/include/asm/uaccess.h
+@@ -10,7 +10,6 @@
+ /*
+  * User space memory access functions
+  */
+-#include <linux/mm.h>
+ #include <asm/sections.h>
+=20
+ /*
+--=20
+2.26.0.rc2
 
