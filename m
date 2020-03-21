@@ -1,7 +1,7 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch V3 19/20] lockdep: Annotate irq_work
-Date: Sat, 21 Mar 2020 12:26:03 +0100
-Message-ID: <20200321113242.643576700@linutronix.de>
+Subject: [patch V3 09/20] ia64: Remove mm.h from asm/uaccess.h
+Date: Sat, 21 Mar 2020 12:25:53 +0100
+Message-ID: <20200321113241.624070289@linutronix.de>
 References: <20200321112544.878032781@linutronix.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8-bit
@@ -10,98 +10,77 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-drive
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, kbuild test robot <lkp@intel.com>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireles
 
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-Mark irq_work items with IRQ_WORK_HARD_IRQ which should be invoked in
-hardirq context even on PREEMPT_RT. IRQ_WORK without this flag will be
-invoked in softirq context on PREEMPT_RT.
+The defconfig compiles without linux/mm.h. With mm.h included the
+include chain leands to:
+|   CC      kernel/locking/percpu-rwsem.o
+| In file included from include/linux/huge_mm.h:8,
+|                  from include/linux/mm.h:567,
+|                  from arch/ia64/include/asm/uaccess.h:,
+|                  from include/linux/uaccess.h:11,
+|                  from include/linux/sched/task.h:11,
+|                  from include/linux/sched/signal.h:9,
+|                  from include/linux/rcuwait.h:6,
+|                  from include/linux/percpu-rwsem.h:8,
+|                  from kernel/locking/percpu-rwsem.c:6:
+| include/linux/fs.h:1422:29: error: array type has incomplete element type 'struct percpu_rw_semaphore'
+|  1422 |  struct percpu_rw_semaphore rw_sem[SB_FREEZE_LEVELS];
 
-Set ->irq_config to 1 for the IRQ_WORK items which are invoked in softirq
-context so lockdep knows that these can safely acquire a spinlock_t.
+once rcuwait.h includes linux/sched/signal.h.
 
+Remove the linux/mm.h include.
+
+Reported-by: kbuild test robot <lkp@intel.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: linux-ia64@vger.kernel.org
 ---
- include/linux/irq_work.h |    2 ++
- include/linux/irqflags.h |   13 +++++++++++++
- kernel/irq_work.c        |    2 ++
- kernel/rcu/tree.c        |    1 +
- kernel/time/tick-sched.c |    1 +
- 5 files changed, 19 insertions(+)
+V3: New patch
+---
+ arch/ia64/include/asm/uaccess.h | 1 -
+ arch/ia64/kernel/process.c      | 1 +
+ arch/ia64/mm/ioremap.c          | 1 +
+ 3 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/linux/irq_work.h
-+++ b/include/linux/irq_work.h
-@@ -18,6 +18,8 @@
+diff --git a/arch/ia64/include/asm/uaccess.h b/arch/ia64/include/asm/uaccess.h
+index 89782ad3fb887..5c7e79eccaeed 100644
+--- a/arch/ia64/include/asm/uaccess.h
++++ b/arch/ia64/include/asm/uaccess.h
+@@ -35,7 +35,6 @@
  
- /* Doesn't want IPI, wait for tick: */
- #define IRQ_WORK_LAZY		BIT(2)
-+/* Run hard IRQ context, even on RT */
-+#define IRQ_WORK_HARD_IRQ	BIT(3)
+ #include <linux/compiler.h>
+ #include <linux/page-flags.h>
+-#include <linux/mm.h>
  
- #define IRQ_WORK_CLAIMED	(IRQ_WORK_PENDING | IRQ_WORK_BUSY)
+ #include <asm/intrinsics.h>
+ #include <asm/pgtable.h>
+diff --git a/arch/ia64/kernel/process.c b/arch/ia64/kernel/process.c
+index 968b5f33e725e..743aaf5283278 100644
+--- a/arch/ia64/kernel/process.c
++++ b/arch/ia64/kernel/process.c
+@@ -681,3 +681,4 @@ machine_power_off (void)
+ 	machine_halt();
+ }
  
---- a/include/linux/irqflags.h
-+++ b/include/linux/irqflags.h
-@@ -69,6 +69,17 @@ do {						\
- 			current->irq_config = 0;	\
- 	  } while (0)
- 
-+# define lockdep_irq_work_enter(__work)					\
-+	  do {								\
-+		  if (!(atomic_read(&__work->flags) & IRQ_WORK_HARD_IRQ))\
-+			current->irq_config = 1;			\
-+	  } while (0)
-+# define lockdep_irq_work_exit(__work)					\
-+	  do {								\
-+		  if (!(atomic_read(&__work->flags) & IRQ_WORK_HARD_IRQ))\
-+			current->irq_config = 0;			\
-+	  } while (0)
-+
- #else
- # define trace_hardirqs_on()		do { } while (0)
- # define trace_hardirqs_off()		do { } while (0)
-@@ -83,6 +94,8 @@ do {						\
- # define lockdep_softirq_exit()		do { } while (0)
- # define lockdep_hrtimer_enter(__hrtimer)		do { } while (0)
- # define lockdep_hrtimer_exit(__hrtimer)		do { } while (0)
-+# define lockdep_irq_work_enter(__work)		do { } while (0)
-+# define lockdep_irq_work_exit(__work)		do { } while (0)
- #endif
- 
- #if defined(CONFIG_IRQSOFF_TRACER) || \
---- a/kernel/irq_work.c
-+++ b/kernel/irq_work.c
-@@ -153,7 +153,9 @@ static void irq_work_run_list(struct lli
- 		 */
- 		flags = atomic_fetch_andnot(IRQ_WORK_PENDING, &work->flags);
- 
-+		lockdep_irq_work_enter(work);
- 		work->func(work);
-+		lockdep_irq_work_exit(work);
- 		/*
- 		 * Clear the BUSY bit and return to the free state if
- 		 * no-one else claimed it meanwhile.
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -1113,6 +1113,7 @@ static int rcu_implicit_dynticks_qs(stru
- 		    !rdp->rcu_iw_pending && rdp->rcu_iw_gp_seq != rnp->gp_seq &&
- 		    (rnp->ffmask & rdp->grpmask)) {
- 			init_irq_work(&rdp->rcu_iw, rcu_iw_handler);
-+			atomic_set(&rdp->rcu_iw.flags, IRQ_WORK_HARD_IRQ);
- 			rdp->rcu_iw_pending = true;
- 			rdp->rcu_iw_gp_seq = rnp->gp_seq;
- 			irq_work_queue_on(&rdp->rcu_iw, rdp->cpu);
---- a/kernel/time/tick-sched.c
-+++ b/kernel/time/tick-sched.c
-@@ -245,6 +245,7 @@ static void nohz_full_kick_func(struct i
- 
- static DEFINE_PER_CPU(struct irq_work, nohz_full_kick_work) = {
- 	.func = nohz_full_kick_func,
-+	.flags = ATOMIC_INIT(IRQ_WORK_HARD_IRQ),
- };
- 
- /*
++EXPORT_SYMBOL(ia64_delay_loop);
+diff --git a/arch/ia64/mm/ioremap.c b/arch/ia64/mm/ioremap.c
+index a09cfa0645369..55fd3eb753ff9 100644
+--- a/arch/ia64/mm/ioremap.c
++++ b/arch/ia64/mm/ioremap.c
+@@ -8,6 +8,7 @@
+ #include <linux/module.h>
+ #include <linux/efi.h>
+ #include <linux/io.h>
++#include <linux/mm.h>
+ #include <linux/vmalloc.h>
+ #include <asm/io.h>
+ #include <asm/meminit.h>
+-- 
+2.26.0.rc2
 
 
