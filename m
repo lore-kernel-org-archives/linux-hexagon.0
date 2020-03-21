@@ -1,23 +1,27 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch V3 12/20] powerpc/ps3: Convert half completion to rcuwait
-Date: Sat, 21 Mar 2020 14:22:03 +0100
-Message-ID: <87v9mxrgg4.fsf@nanos.tec.linutronix.de>
-References: <20200321112544.878032781@linutronix.de> <20200321113241.930037873@linutronix.de>
+From: Davidlohr Bueso <dave@stgolabs.net>
+Subject: Re: [patch V3 00/20] Lock ordering documentation and annotation for
+ lockdep
+Date: Sat, 21 Mar 2020 10:19:02 -0700
+Message-ID: <20200321171902.xxlnpikc65wd3b4m@linux-p48b>
+References: <20200321112544.878032781@linutronix.de>
 Mime-Version: 1.0
 Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20200321113241.930037873@linutronix.de>
+Content-Disposition: inline
+In-Reply-To: <20200321112544.878032781@linutronix.de>
 Sender: linux-acpi-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
 Content-Transfer-Encoding: 7bit
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Michael Ellerman <mpe@ellerman.id.au>, Arnd Bergmann <arnd@arndb.de>, Geoff Levand <geoff@infradead.org>, linuxppc-dev@lists.ozlabs.org, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-drive
 
-Thomas Gleixner <tglx@linutronix.de> writes:
+On Sat, 21 Mar 2020, Thomas Gleixner wrote:
 
-> From: Thomas Gleixner <tglx@linutronix.de>
+>This is the third and hopefully final version of this work. The second one
+>can be found here:
 
-That's obviously bogus and wants to be:
+Would you rather I send in a separate series with the kvm changes, or
+should I just send a v2 with the fixes here again?
 
-From: Peter Zijlstra (Intel) <peterz@infradead.org>
-
+Thanks,
+Davidlohr
