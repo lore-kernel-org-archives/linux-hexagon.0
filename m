@@ -1,111 +1,61 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch V3 18/20] lockdep: Add hrtimer context tracing bits
-Date: Sat, 21 Mar 2020 12:26:02 +0100
-Message-ID: <20200321113242.534508206@linutronix.de>
+Subject: [patch V3 10/20] microblaze: Remove mm.h from asm/uaccess.h
+Date: Sat, 21 Mar 2020 12:25:54 +0100
+Message-ID: <20200321113241.719022171@linutronix.de>
 References: <20200321112544.878032781@linutronix.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8-bit
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
+Return-path: <linux-ia64-owner@vger.kernel.org>
+Sender: linux-ia64-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-drive
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, kbuild test robot <lkp@intel.com>, Michal Simek <monstr@monstr.eu>, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, Darren Hart <>
 
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-Set current->irq_config = 1 for hrtimers which are not marked to expire in
-hard interrupt context during hrtimer_init(). These timers will expire in
-softirq context on PREEMPT_RT.
+The defconfig compiles without linux/mm.h. With mm.h included the
+include chain leands to:
+|   CC      kernel/locking/percpu-rwsem.o
+| In file included from include/linux/huge_mm.h:8,
+|                  from include/linux/mm.h:567,
+|                  from arch/microblaze/include/asm/uaccess.h:,
+|                  from include/linux/uaccess.h:11,
+|                  from include/linux/sched/task.h:11,
+|                  from include/linux/sched/signal.h:9,
+|                  from include/linux/rcuwait.h:6,
+|                  from include/linux/percpu-rwsem.h:8,
+|                  from kernel/locking/percpu-rwsem.c:6:
+| include/linux/fs.h:1422:29: error: array type has incomplete element type 'struct percpu_rw_semaphore'
+|  1422 |  struct percpu_rw_semaphore rw_sem[SB_FREEZE_LEVELS];
 
-Setting this allows lockdep to differentiate these timers. If a timer is
-marked to expire in hard interrupt context then the timer callback is not
-supposed to acquire a regular spinlock instead of a raw_spinlock in the
-expiry callback.
+once rcuwait.h includes linux/sched/signal.h.
 
+Remove the linux/mm.h include.
+
+Reported-by: kbuild test robot <lkp@intel.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Michal Simek <monstr@monstr.eu>
 ---
- include/linux/irqflags.h |   15 +++++++++++++++
- include/linux/sched.h    |    1 +
- kernel/locking/lockdep.c |    2 +-
- kernel/time/hrtimer.c    |    6 +++++-
- 4 files changed, 22 insertions(+), 2 deletions(-)
+V3; New patch
+---
+ arch/microblaze/include/asm/uaccess.h | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/include/linux/irqflags.h
-+++ b/include/linux/irqflags.h
-@@ -56,6 +56,19 @@ do {						\
- do {						\
- 	current->softirq_context--;		\
- } while (0)
-+
-+# define lockdep_hrtimer_enter(__hrtimer)		\
-+	  do {						\
-+		  if (!__hrtimer->is_hard)		\
-+			current->irq_config = 1;	\
-+	  } while (0)
-+
-+# define lockdep_hrtimer_exit(__hrtimer)		\
-+	  do {						\
-+		  if (!__hrtimer->is_hard)		\
-+			current->irq_config = 0;	\
-+	  } while (0)
-+
- #else
- # define trace_hardirqs_on()		do { } while (0)
- # define trace_hardirqs_off()		do { } while (0)
-@@ -68,6 +81,8 @@ do {						\
- # define trace_hardirq_exit()		do { } while (0)
- # define lockdep_softirq_enter()	do { } while (0)
- # define lockdep_softirq_exit()		do { } while (0)
-+# define lockdep_hrtimer_enter(__hrtimer)		do { } while (0)
-+# define lockdep_hrtimer_exit(__hrtimer)		do { } while (0)
- #endif
+diff --git a/arch/microblaze/include/asm/uaccess.h b/arch/microblaze/include/asm/uaccess.h
+index a1f206b90753a..4916d5fbea5e3 100644
+--- a/arch/microblaze/include/asm/uaccess.h
++++ b/arch/microblaze/include/asm/uaccess.h
+@@ -12,7 +12,6 @@
+ #define _ASM_MICROBLAZE_UACCESS_H
  
- #if defined(CONFIG_IRQSOFF_TRACER) || \
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -983,6 +983,7 @@ struct task_struct {
- 	unsigned int			softirq_enable_event;
- 	int				softirqs_enabled;
- 	int				softirq_context;
-+	int				irq_config;
- #endif
+ #include <linux/kernel.h>
+-#include <linux/mm.h>
  
- #ifdef CONFIG_LOCKDEP
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -3759,7 +3759,7 @@ static int check_wait_context(struct tas
- 		/*
- 		 * Check if force_irqthreads will run us threaded.
- 		 */
--		if (curr->hardirq_threaded)
-+		if (curr->hardirq_threaded || curr->irq_config)
- 			curr_inner = LD_WAIT_CONFIG;
- 		else
- 			curr_inner = LD_WAIT_SPIN;
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -1404,7 +1404,7 @@ static void __hrtimer_init(struct hrtime
- 	base = softtimer ? HRTIMER_MAX_CLOCK_BASES / 2 : 0;
- 	base += hrtimer_clockid_to_base(clock_id);
- 	timer->is_soft = softtimer;
--	timer->is_hard = !softtimer;
-+	timer->is_hard = !!(mode & HRTIMER_MODE_HARD);
- 	timer->base = &cpu_base->clock_base[base];
- 	timerqueue_init(&timer->node);
- }
-@@ -1514,7 +1514,11 @@ static void __run_hrtimer(struct hrtimer
- 	 */
- 	raw_spin_unlock_irqrestore(&cpu_base->lock, flags);
- 	trace_hrtimer_expire_entry(timer, now);
-+	lockdep_hrtimer_enter(timer);
-+
- 	restart = fn(timer);
-+
-+	lockdep_hrtimer_exit(timer);
- 	trace_hrtimer_expire_exit(timer);
- 	raw_spin_lock_irq(&cpu_base->lock);
- 
+ #include <asm/mmu.h>
+ #include <asm/page.h>
+-- 
+2.26.0.rc2
 
 
