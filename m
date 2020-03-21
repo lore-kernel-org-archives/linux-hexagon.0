@@ -1,106 +1,111 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch V3 04/20] orinoco_usb: Use the regular completion interfaces
-Date: Sat, 21 Mar 2020 12:25:48 +0100
-Message-ID: <20200321113241.150783464@linutronix.de>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [patch V3 05/20] acpi: Remove header dependency
+Date: Sat, 21 Mar 2020 14:23:58 +0200
+Message-ID: <CAHp75VdpXxg4NSSg-jxKc51emJxhJQgLpG1Rv-xq7ouWz+xBuA@mail.gmail.com>
 References: <20200321112544.878032781@linutronix.de>
+ <20200321113241.246190285@linutronix.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8-bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=Ao4Jy8e8i2H3r6C7mhPUev+j75PjWe4TRVOreHP2VzM=;
+ b=guZnHeGo0HvHKP2uIKtZiCtNOUIkrUT7OLzB66Ehtw0EiRz0K0c6LtX4CWuNZp6QIL
+ YrUqqmUsqOQIHILQRs1SrnxRO54uRVwILm5bNdlpUGX6dcExdOPMfmuKHkPcvMtu6WbT
+ /P7MLfISznzr7ogM6J98U4cpx8/lCga6dEpI2eG7/1joslz9HVe0MCBWrJjlYlA5S7Mc
+ eufctIYPsclmo3tJk89MVDURTNM43DP4w2vS8LbbG17swocgZVGzaGEA17iUCtLk8pQy
+ WDK9dsn4zUgoCJeFNLPI823x3rR/fKz2B+dGyCO9zePvxDJWWT98LbXkAlCqWcnM1iF7
+ hq3A==
+In-Reply-To: <20200321113241.246190285@linutronix.de>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
 Content-Type: text/plain; charset="us-ascii"
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Felipe Balbi <balbi@kernel.org>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-driver-x86@vg
+Content-Transfer-Encoding: 7bit
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: USB <linux-usb@vger.kernel.org>, linux-ia64@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, linux-pci@vger.kernel.org, Sebastian Siewior <bigeasy@linutronix.de>, Oleg Nesterov <oleg@redhat.com>, Guo Ren <guoren@kernel.org>, Joel Fernandes <joel@joelfernandes.org>, Vincent Chen <deanbo422@gmail.com>, Ingo Molnar <mingo@kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, kbuild test robot <lkp@intel.com>, Brian Cain <bcain@codeaurora.org>, Jonathan Corbet <corbet@lwn.net>, "Paul E . McKenney" <paulmck@kernel.org>, linux-hexagon@vger.kernel.org, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-csky@vger.kernel.org, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Darren Hart <dvhart@infradead.org>, Zhang Rui <rui.zhang@intel.com>, Len Brown <lenb@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, Randy Dunlap <rdunlap@infradead.org>, Arnd Bergmann <arnd@arndb.d>
 
-From: Thomas Gleixner <tglx@linutronix.de>
+On Sat, Mar 21, 2020 at 1:34 PM Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+> From: Peter Zijlstra <peterz@infradead.org>
+>
+> In order to avoid future header hell, remove the inclusion of
+> proc_fs.h from acpi_bus.h. All it needs is a forward declaration of a
+> struct.
+>
 
-The completion usage in this driver is interesting:
+Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com> # for PDx86
 
-  - it uses a magic complete function which according to the comment was
-    implemented by invoking complete() four times in a row because
-    complete_all() was not exported at that time.
-
-  - it uses an open coded wait/poll which checks completion:done. Only one wait
-    side (device removal) uses the regular wait_for_completion() interface.
-
-The rationale behind this is to prevent that wait_for_completion() consumes
-completion::done which would prevent that all waiters are woken. This is not
-necessary with complete_all() as that sets completion::done to UINT_MAX which
-is left unmodified by the woken waiters.
-
-Replace the magic complete function with complete_all() and convert the
-open coded wait/poll to regular completion interfaces.
-
-This changes the wait to exclusive wait mode. But that does not make any
-difference because the wakers use complete_all() which ignores the
-exclusive mode.
-
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: linux-wireless@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: linux-usb@vger.kernel.org
----
-V2: New patch to avoid conversion to swait functions later.
----
- drivers/net/wireless/intersil/orinoco/orinoco_usb.c |   21 ++++----------------
- 1 file changed, 5 insertions(+), 16 deletions(-)
-
---- a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
-+++ b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
-@@ -365,17 +365,6 @@ static struct request_context *ezusb_all
- 	return ctx;
- }
- 
--
--/* Hopefully the real complete_all will soon be exported, in the mean
-- * while this should work. */
--static inline void ezusb_complete_all(struct completion *comp)
--{
--	complete(comp);
--	complete(comp);
--	complete(comp);
--	complete(comp);
--}
--
- static void ezusb_ctx_complete(struct request_context *ctx)
- {
- 	struct ezusb_priv *upriv = ctx->upriv;
-@@ -409,7 +398,7 @@ static void ezusb_ctx_complete(struct re
- 
- 			netif_wake_queue(dev);
- 		}
--		ezusb_complete_all(&ctx->done);
-+		complete_all(&ctx->done);
- 		ezusb_request_context_put(ctx);
- 		break;
- 
-@@ -419,7 +408,7 @@ static void ezusb_ctx_complete(struct re
- 			/* This is normal, as all request contexts get flushed
- 			 * when the device is disconnected */
- 			err("Called, CTX not terminating, but device gone");
--			ezusb_complete_all(&ctx->done);
-+			complete_all(&ctx->done);
- 			ezusb_request_context_put(ctx);
- 			break;
- 		}
-@@ -690,11 +679,11 @@ static void ezusb_req_ctx_wait(struct ez
- 			 * get the chance to run themselves. So we make sure
- 			 * that we don't sleep for ever */
- 			int msecs = DEF_TIMEOUT * (1000 / HZ);
--			while (!ctx->done.done && msecs--)
-+
-+			while (!try_wait_for_completion(&ctx->done) && msecs--)
- 				udelay(1000);
- 		} else {
--			wait_event_interruptible(ctx->done.wait,
--						 ctx->done.done);
-+			wait_for_completion(&ctx->done);
- 		}
- 		break;
- 	default:
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Darren Hart <dvhart@infradead.org>
+> Cc: Andy Shevchenko <andy@infradead.org>
+> Cc: platform-driver-x86@vger.kernel.org
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Zhang Rui <rui.zhang@intel.com>
+> Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+> Cc: linux-pm@vger.kernel.org
+> Cc: Len Brown <lenb@kernel.org>
+> Cc: linux-acpi@vger.kernel.org
+> ---
+>  drivers/platform/x86/dell-smo8800.c                      |    1 +
+>  drivers/platform/x86/wmi.c                               |    1 +
+>  drivers/thermal/intel/int340x_thermal/acpi_thermal_rel.c |    1 +
+>  include/acpi/acpi_bus.h                                  |    2 +-
+>  4 files changed, 4 insertions(+), 1 deletion(-)
+>
+> --- a/drivers/platform/x86/dell-smo8800.c
+> +++ b/drivers/platform/x86/dell-smo8800.c
+> @@ -16,6 +16,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/miscdevice.h>
+>  #include <linux/uaccess.h>
+> +#include <linux/fs.h>
+>
+>  struct smo8800_device {
+>         u32 irq;                     /* acpi device irq */
+> --- a/drivers/platform/x86/wmi.c
+> +++ b/drivers/platform/x86/wmi.c
+> @@ -29,6 +29,7 @@
+>  #include <linux/uaccess.h>
+>  #include <linux/uuid.h>
+>  #include <linux/wmi.h>
+> +#include <linux/fs.h>
+>  #include <uapi/linux/wmi.h>
+>
+>  ACPI_MODULE_NAME("wmi");
+> --- a/drivers/thermal/intel/int340x_thermal/acpi_thermal_rel.c
+> +++ b/drivers/thermal/intel/int340x_thermal/acpi_thermal_rel.c
+> @@ -19,6 +19,7 @@
+>  #include <linux/acpi.h>
+>  #include <linux/uaccess.h>
+>  #include <linux/miscdevice.h>
+> +#include <linux/fs.h>
+>  #include "acpi_thermal_rel.h"
+>
+>  static acpi_handle acpi_thermal_rel_handle;
+> --- a/include/acpi/acpi_bus.h
+> +++ b/include/acpi/acpi_bus.h
+> @@ -80,7 +80,7 @@ bool acpi_dev_present(const char *hid, c
+>
+>  #ifdef CONFIG_ACPI
+>
+> -#include <linux/proc_fs.h>
+> +struct proc_dir_entry;
+>
+>  #define ACPI_BUS_FILE_ROOT     "acpi"
+>  extern struct proc_dir_entry *acpi_root_dir;
+>
+>
 
 
+-- 
+With Best Regards,
+Andy Shevchenko
