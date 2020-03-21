@@ -1,65 +1,182 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch V3 03/20] usb: gadget: Use completion interface instead of
- open coding it
-Date: Sat, 21 Mar 2020 12:25:47 +0100
-Message-ID: <20200321113241.043380271@linutronix.de>
+Subject: [patch V3 14/20] timekeeping: Split jiffies seqlock
+Date: Sat, 21 Mar 2020 12:25:58 +0100
+Message-ID: <20200321113242.120587764@linutronix.de>
 References: <20200321112544.878032781@linutronix.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8-bit
-Return-path: <linux-pci-owner@vger.kernel.org>
-Sender: linux-pci-owner@vger.kernel.org
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-driver-x86@vg
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-drive
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-ep_io() uses a completion on stack and open codes the waiting with:
+seqlock consists of a sequence counter and a spinlock_t which is used to
+serialize the writers. spinlock_t is substituted by a "sleeping" spinlock
+on PREEMPT_RT enabled kernels which breaks the usage in the timekeeping
+code as the writers are executed in hard interrupt and therefore
+non-preemptible context even on PREEMPT_RT.
 
-  wait_event_interruptible (done.wait, done.done);
-and
-  wait_event (done.wait, done.done);
+The spinlock in seqlock cannot be unconditionally replaced by a
+raw_spinlock_t as many seqlock users have nesting spinlock sections or
+other code which is not suitable to run in truly atomic context on RT.
 
-This waits in non-exclusive mode for complete(), but there is no reason to
-do so because the completion can only be waited for by the task itself and
-complete() wakes exactly one exlusive waiter.
+Instead of providing a raw_seqlock API for a single use case, open code the
+seqlock for the jiffies use case and implement it with a raw_spinlock_t and
+a sequence counter.
 
-Replace the open coded implementation with the corresponding
-wait_for_completion*() functions.
-
-No functional change.
-
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: linux-usb@vger.kernel.org
----
-V2: New patch to avoid the conversion to swait interfaces later
----
- drivers/usb/gadget/legacy/inode.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -344,7 +344,7 @@ ep_io (struct ep_data *epdata, void *buf
- 	spin_unlock_irq (&epdata->dev->lock);
+---
+ kernel/time/jiffies.c     |    7 ++++---
+ kernel/time/tick-common.c |   10 ++++++----
+ kernel/time/tick-sched.c  |   19 ++++++++++++-------
+ kernel/time/timekeeping.c |    6 ++++--
+ kernel/time/timekeeping.h |    3 ++-
+ 5 files changed, 28 insertions(+), 17 deletions(-)
+
+--- a/kernel/time/jiffies.c
++++ b/kernel/time/jiffies.c
+@@ -58,7 +58,8 @@ static struct clocksource clocksource_ji
+ 	.max_cycles	= 10,
+ };
  
- 	if (likely (value == 0)) {
--		value = wait_event_interruptible (done.wait, done.done);
-+		value = wait_for_completion_interruptible(&done);
- 		if (value != 0) {
- 			spin_lock_irq (&epdata->dev->lock);
- 			if (likely (epdata->ep != NULL)) {
-@@ -353,7 +353,7 @@ ep_io (struct ep_data *epdata, void *buf
- 				usb_ep_dequeue (epdata->ep, epdata->req);
- 				spin_unlock_irq (&epdata->dev->lock);
+-__cacheline_aligned_in_smp DEFINE_SEQLOCK(jiffies_lock);
++__cacheline_aligned_in_smp DEFINE_RAW_SPINLOCK(jiffies_lock);
++__cacheline_aligned_in_smp seqcount_t jiffies_seq;
  
--				wait_event (done.wait, done.done);
-+				wait_for_completion(&done);
- 				if (epdata->status == -ECONNRESET)
- 					epdata->status = -EINTR;
- 			} else {
+ #if (BITS_PER_LONG < 64)
+ u64 get_jiffies_64(void)
+@@ -67,9 +68,9 @@ u64 get_jiffies_64(void)
+ 	u64 ret;
+ 
+ 	do {
+-		seq = read_seqbegin(&jiffies_lock);
++		seq = read_seqcount_begin(&jiffies_seq);
+ 		ret = jiffies_64;
+-	} while (read_seqretry(&jiffies_lock, seq));
++	} while (read_seqcount_retry(&jiffies_seq, seq));
+ 	return ret;
+ }
+ EXPORT_SYMBOL(get_jiffies_64);
+--- a/kernel/time/tick-common.c
++++ b/kernel/time/tick-common.c
+@@ -84,13 +84,15 @@ int tick_is_oneshot_available(void)
+ static void tick_periodic(int cpu)
+ {
+ 	if (tick_do_timer_cpu == cpu) {
+-		write_seqlock(&jiffies_lock);
++		raw_spin_lock(&jiffies_lock);
++		write_seqcount_begin(&jiffies_seq);
+ 
+ 		/* Keep track of the next tick event */
+ 		tick_next_period = ktime_add(tick_next_period, tick_period);
+ 
+ 		do_timer(1);
+-		write_sequnlock(&jiffies_lock);
++		write_seqcount_end(&jiffies_seq);
++		raw_spin_unlock(&jiffies_lock);
+ 		update_wall_time();
+ 	}
+ 
+@@ -162,9 +164,9 @@ void tick_setup_periodic(struct clock_ev
+ 		ktime_t next;
+ 
+ 		do {
+-			seq = read_seqbegin(&jiffies_lock);
++			seq = read_seqcount_begin(&jiffies_seq);
+ 			next = tick_next_period;
+-		} while (read_seqretry(&jiffies_lock, seq));
++		} while (read_seqcount_retry(&jiffies_seq, seq));
+ 
+ 		clockevents_switch_state(dev, CLOCK_EVT_STATE_ONESHOT);
+ 
+--- a/kernel/time/tick-sched.c
++++ b/kernel/time/tick-sched.c
+@@ -65,7 +65,8 @@ static void tick_do_update_jiffies64(kti
+ 		return;
+ 
+ 	/* Reevaluate with jiffies_lock held */
+-	write_seqlock(&jiffies_lock);
++	raw_spin_lock(&jiffies_lock);
++	write_seqcount_begin(&jiffies_seq);
+ 
+ 	delta = ktime_sub(now, last_jiffies_update);
+ 	if (delta >= tick_period) {
+@@ -91,10 +92,12 @@ static void tick_do_update_jiffies64(kti
+ 		/* Keep the tick_next_period variable up to date */
+ 		tick_next_period = ktime_add(last_jiffies_update, tick_period);
+ 	} else {
+-		write_sequnlock(&jiffies_lock);
++		write_seqcount_end(&jiffies_seq);
++		raw_spin_unlock(&jiffies_lock);
+ 		return;
+ 	}
+-	write_sequnlock(&jiffies_lock);
++	write_seqcount_end(&jiffies_seq);
++	raw_spin_unlock(&jiffies_lock);
+ 	update_wall_time();
+ }
+ 
+@@ -105,12 +108,14 @@ static ktime_t tick_init_jiffy_update(vo
+ {
+ 	ktime_t period;
+ 
+-	write_seqlock(&jiffies_lock);
++	raw_spin_lock(&jiffies_lock);
++	write_seqcount_begin(&jiffies_seq);
+ 	/* Did we start the jiffies update yet ? */
+ 	if (last_jiffies_update == 0)
+ 		last_jiffies_update = tick_next_period;
+ 	period = last_jiffies_update;
+-	write_sequnlock(&jiffies_lock);
++	write_seqcount_end(&jiffies_seq);
++	raw_spin_unlock(&jiffies_lock);
+ 	return period;
+ }
+ 
+@@ -676,10 +681,10 @@ static ktime_t tick_nohz_next_event(stru
+ 
+ 	/* Read jiffies and the time when jiffies were updated last */
+ 	do {
+-		seq = read_seqbegin(&jiffies_lock);
++		seq = read_seqcount_begin(&jiffies_seq);
+ 		basemono = last_jiffies_update;
+ 		basejiff = jiffies;
+-	} while (read_seqretry(&jiffies_lock, seq));
++	} while (read_seqcount_retry(&jiffies_seq, seq));
+ 	ts->last_jiffies = basejiff;
+ 	ts->timer_expires_base = basemono;
+ 
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -2397,8 +2397,10 @@ EXPORT_SYMBOL(hardpps);
+  */
+ void xtime_update(unsigned long ticks)
+ {
+-	write_seqlock(&jiffies_lock);
++	raw_spin_lock(&jiffies_lock);
++	write_seqcount_begin(&jiffies_seq);
+ 	do_timer(ticks);
+-	write_sequnlock(&jiffies_lock);
++	write_seqcount_end(&jiffies_seq);
++	raw_spin_unlock(&jiffies_lock);
+ 	update_wall_time();
+ }
+--- a/kernel/time/timekeeping.h
++++ b/kernel/time/timekeeping.h
+@@ -25,7 +25,8 @@ static inline void sched_clock_resume(vo
+ extern void do_timer(unsigned long ticks);
+ extern void update_wall_time(void);
+ 
+-extern seqlock_t jiffies_lock;
++extern raw_spinlock_t jiffies_lock;
++extern seqcount_t jiffies_seq;
+ 
+ #define CS_NAME_LEN	32
+ 
 
 
