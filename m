@@ -1,7 +1,7 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch V3 15/20] sched/swait: Prepare usage in completions
-Date: Sat, 21 Mar 2020 12:25:59 +0100
-Message-ID: <20200321113242.228481202@linutronix.de>
+Subject: [patch V3 04/20] orinoco_usb: Use the regular completion interfaces
+Date: Sat, 21 Mar 2020 12:25:48 +0100
+Message-ID: <20200321113241.150783464@linutronix.de>
 References: <20200321112544.878032781@linutronix.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8-bit
@@ -10,66 +10,97 @@ Sender: linux-acpi-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-drive
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Felipe Balbi <balbi@kernel.org>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-driver-x86@vg
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-As a preparation to use simple wait queues for completions:
+The completion usage in this driver is interesting:
 
-  - Provide swake_up_all_locked() to support complete_all()
-  - Make __prepare_to_swait() public available
+  - it uses a magic complete function which according to the comment was
+    implemented by invoking complete() four times in a row because
+    complete_all() was not exported at that time.
 
-This is done to enable the usage of complete() within truly atomic contexts
-on a PREEMPT_RT enabled kernel.
+  - it uses an open coded wait/poll which checks completion:done. Only one wait
+    side (device removal) uses the regular wait_for_completion() interface.
 
+The rationale behind this is to prevent that wait_for_completion() consumes
+completion::done which would prevent that all waiters are woken. This is not
+necessary with complete_all() as that sets completion::done to UINT_MAX which
+is left unmodified by the woken waiters.
+
+Replace the magic complete function with complete_all() and convert the
+open coded wait/poll to regular completion interfaces.
+
+This changes the wait to exclusive wait mode. But that does not make any
+difference because the wakers use complete_all() which ignores the
+exclusive mode.
+
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: linux-wireless@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
 ---
-V2: Add comment to swake_up_all_locked()
+V2: New patch to avoid conversion to swait functions later.
 ---
- kernel/sched/sched.h |    3 +++
- kernel/sched/swait.c |   15 ++++++++++++++-
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intersil/orinoco/orinoco_usb.c |   21 ++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
 
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -2492,3 +2492,6 @@ static inline bool is_per_cpu_kthread(st
- 	return true;
+--- a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
++++ b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
+@@ -365,17 +365,6 @@ static struct request_context *ezusb_all
+ 	return ctx;
  }
- #endif
-+
-+void swake_up_all_locked(struct swait_queue_head *q);
-+void __prepare_to_swait(struct swait_queue_head *q, struct swait_queue *wait);
---- a/kernel/sched/swait.c
-+++ b/kernel/sched/swait.c
-@@ -32,6 +32,19 @@ void swake_up_locked(struct swait_queue_
- }
- EXPORT_SYMBOL(swake_up_locked);
  
-+/*
-+ * Wake up all waiters. This is an interface which is solely exposed for
-+ * completions and not for general usage.
-+ *
-+ * It is intentionally different from swake_up_all() to allow usage from
-+ * hard interrupt context and interrupt disabled regions.
-+ */
-+void swake_up_all_locked(struct swait_queue_head *q)
-+{
-+	while (!list_empty(&q->task_list))
-+		swake_up_locked(q);
-+}
-+
- void swake_up_one(struct swait_queue_head *q)
+-
+-/* Hopefully the real complete_all will soon be exported, in the mean
+- * while this should work. */
+-static inline void ezusb_complete_all(struct completion *comp)
+-{
+-	complete(comp);
+-	complete(comp);
+-	complete(comp);
+-	complete(comp);
+-}
+-
+ static void ezusb_ctx_complete(struct request_context *ctx)
  {
- 	unsigned long flags;
-@@ -69,7 +82,7 @@ void swake_up_all(struct swait_queue_hea
- }
- EXPORT_SYMBOL(swake_up_all);
+ 	struct ezusb_priv *upriv = ctx->upriv;
+@@ -409,7 +398,7 @@ static void ezusb_ctx_complete(struct re
  
--static void __prepare_to_swait(struct swait_queue_head *q, struct swait_queue *wait)
-+void __prepare_to_swait(struct swait_queue_head *q, struct swait_queue *wait)
- {
- 	wait->task = current;
- 	if (list_empty(&wait->task_list))
+ 			netif_wake_queue(dev);
+ 		}
+-		ezusb_complete_all(&ctx->done);
++		complete_all(&ctx->done);
+ 		ezusb_request_context_put(ctx);
+ 		break;
+ 
+@@ -419,7 +408,7 @@ static void ezusb_ctx_complete(struct re
+ 			/* This is normal, as all request contexts get flushed
+ 			 * when the device is disconnected */
+ 			err("Called, CTX not terminating, but device gone");
+-			ezusb_complete_all(&ctx->done);
++			complete_all(&ctx->done);
+ 			ezusb_request_context_put(ctx);
+ 			break;
+ 		}
+@@ -690,11 +679,11 @@ static void ezusb_req_ctx_wait(struct ez
+ 			 * get the chance to run themselves. So we make sure
+ 			 * that we don't sleep for ever */
+ 			int msecs = DEF_TIMEOUT * (1000 / HZ);
+-			while (!ctx->done.done && msecs--)
++
++			while (!try_wait_for_completion(&ctx->done) && msecs--)
+ 				udelay(1000);
+ 		} else {
+-			wait_event_interruptible(ctx->done.wait,
+-						 ctx->done.done);
++			wait_for_completion(&ctx->done);
+ 		}
+ 		break;
+ 	default:
 
 
