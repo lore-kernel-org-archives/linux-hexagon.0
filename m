@@ -1,131 +1,349 @@
-From: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: [patch V3 02/20] pci/switchtec: Replace completion wait queue usage for poll
-Date: Sat, 21 Mar 2020 12:25:46 +0100
-Message-ID: <20200321113240.936097534@linutronix.de>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: [patch V3 13/20] Documentation: Add lock ordering and nesting documentation
+Date: Sat, 21 Mar 2020 12:25:57 +0100
+Message-ID: <20200321113242.026561244@linutronix.de>
 References: <20200321112544.878032781@linutronix.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8-bit
-Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Ingo Molnar <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sebastian Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Joel Fernandes <joel-QYYGw3jwrUn5owFQY34kdNi2O/JbrIOy@public.gmane.org>, Oleg Nesterov <oleg-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Davidlohr Bueso <dave-h16yJtLeMjHk1uMJSBkQmQ@public.gmane.org>, Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>, Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Kurt Schwemmer <kurt.schwemmer-dzo6w/eZyo2tG0bUXCXiUA@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Felipe Balbi <balbi-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Darren Hart <dvhart-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Andy Shevchenko <andy-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, platform-drive
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, "Paul E . McKenney" <paulmck@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Randy Dunlap <rdunlap@infradead.org>, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-The poll callback is using the completion wait queue and sticks it into
-poll_wait() to wake up pollers after a command has completed.
+The kernel provides a variety of locking primitives. The nesting of these
+lock types and the implications of them on RT enabled kernels is nowhere
+documented.
 
-This works to some extent, but cannot provide EPOLLEXCLUSIVE support
-because the waker side uses complete_all() which unconditionally wakes up
-all waiters. complete_all() is required because completions internally use
-exclusive wait and complete() only wakes up one waiter by default.
+Add initial documentation.
 
-This mixes conceptually different mechanisms and relies on internal
-implementation details of completions, which in turn puts contraints on
-changing the internal implementation of completions.
-
-Replace it with a regular wait queue and store the state in struct
-switchtec_user.
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Signed-off-by: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Reviewed-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-Acked-by: Peter Zijlstra (Intel) <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Acked-by: Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Cc: Kurt Schwemmer <kurt.schwemmer-dzo6w/eZyo2tG0bUXCXiUA@public.gmane.org>
-Cc: linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "Paul E . McKenney" <paulmck@kernel.org>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Randy Dunlap <rdunlap@infradead.org>
 ---
-V2: Reworded changelog.
+V3: Addressed review comments from Paul, Jonathan, Davidlohr
+V2: Addressed review comments from Randy
 ---
- drivers/pci/switch/switchtec.c |   22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ Documentation/locking/index.rst     |    1 
+ Documentation/locking/locktypes.rst |  299 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 300 insertions(+)
+ create mode 100644 Documentation/locking/locktypes.rst
 
---- a/drivers/pci/switch/switchtec.c
-+++ b/drivers/pci/switch/switchtec.c
-@@ -52,10 +52,11 @@ struct switchtec_user {
+--- a/Documentation/locking/index.rst
++++ b/Documentation/locking/index.rst
+@@ -7,6 +7,7 @@ locking
+ .. toctree::
+     :maxdepth: 1
  
- 	enum mrpc_state state;
- 
--	struct completion comp;
-+	wait_queue_head_t cmd_comp;
- 	struct kref kref;
- 	struct list_head list;
- 
-+	bool cmd_done;
- 	u32 cmd;
- 	u32 status;
- 	u32 return_code;
-@@ -77,7 +78,7 @@ static struct switchtec_user *stuser_cre
- 	stuser->stdev = stdev;
- 	kref_init(&stuser->kref);
- 	INIT_LIST_HEAD(&stuser->list);
--	init_completion(&stuser->comp);
-+	init_waitqueue_head(&stuser->cmd_comp);
- 	stuser->event_cnt = atomic_read(&stdev->event_cnt);
- 
- 	dev_dbg(&stdev->dev, "%s: %p\n", __func__, stuser);
-@@ -175,7 +176,7 @@ static int mrpc_queue_cmd(struct switcht
- 	kref_get(&stuser->kref);
- 	stuser->read_len = sizeof(stuser->data);
- 	stuser_set_state(stuser, MRPC_QUEUED);
--	reinit_completion(&stuser->comp);
-+	stuser->cmd_done = false;
- 	list_add_tail(&stuser->list, &stdev->mrpc_queue);
- 
- 	mrpc_cmd_submit(stdev);
-@@ -222,7 +223,8 @@ static void mrpc_complete_cmd(struct swi
- 		memcpy_fromio(stuser->data, &stdev->mmio_mrpc->output_data,
- 			      stuser->read_len);
- out:
--	complete_all(&stuser->comp);
-+	stuser->cmd_done = true;
-+	wake_up_interruptible(&stuser->cmd_comp);
- 	list_del_init(&stuser->list);
- 	stuser_put(stuser);
- 	stdev->mrpc_busy = 0;
-@@ -529,10 +531,11 @@ static ssize_t switchtec_dev_read(struct
- 	mutex_unlock(&stdev->mrpc_mutex);
- 
- 	if (filp->f_flags & O_NONBLOCK) {
--		if (!try_wait_for_completion(&stuser->comp))
-+		if (!stuser->cmd_done)
- 			return -EAGAIN;
- 	} else {
--		rc = wait_for_completion_interruptible(&stuser->comp);
-+		rc = wait_event_interruptible(stuser->cmd_comp,
-+					      stuser->cmd_done);
- 		if (rc < 0)
- 			return rc;
- 	}
-@@ -580,7 +583,7 @@ static __poll_t switchtec_dev_poll(struc
- 	struct switchtec_dev *stdev = stuser->stdev;
- 	__poll_t ret = 0;
- 
--	poll_wait(filp, &stuser->comp.wait, wait);
-+	poll_wait(filp, &stuser->cmd_comp, wait);
- 	poll_wait(filp, &stdev->event_wq, wait);
- 
- 	if (lock_mutex_and_test_alive(stdev))
-@@ -588,7 +591,7 @@ static __poll_t switchtec_dev_poll(struc
- 
- 	mutex_unlock(&stdev->mrpc_mutex);
- 
--	if (try_wait_for_completion(&stuser->comp))
-+	if (stuser->cmd_done)
- 		ret |= EPOLLIN | EPOLLRDNORM;
- 
- 	if (stuser->event_cnt != atomic_read(&stdev->event_cnt))
-@@ -1272,7 +1275,8 @@ static void stdev_kill(struct switchtec_
- 
- 	/* Wake up and kill any users waiting on an MRPC request */
- 	list_for_each_entry_safe(stuser, tmpuser, &stdev->mrpc_queue, list) {
--		complete_all(&stuser->comp);
-+		stuser->cmd_done = true;
-+		wake_up_interruptible(&stuser->cmd_comp);
- 		list_del_init(&stuser->list);
- 		stuser_put(stuser);
- 	}
-
++    locktypes
+     lockdep-design
+     lockstat
+     locktorture
+--- /dev/null
++++ b/Documentation/locking/locktypes.rst
+@@ -0,0 +1,299 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. _kernel_hacking_locktypes:
++
++==========================
++Lock types and their rules
++==========================
++
++Introduction
++============
++
++The kernel provides a variety of locking primitives which can be divided
++into two categories:
++
++ - Sleeping locks
++ - Spinning locks
++
++This document conceptually describes these lock types and provides rules
++for their nesting, including the rules for use under PREEMPT_RT.
++
++
++Lock categories
++===============
++
++Sleeping locks
++--------------
++
++Sleeping locks can only be acquired in preemptible task context.
++
++Although implementations allow try_lock() from other contexts, it is
++necessary to carefully evaluate the safety of unlock() as well as of
++try_lock().  Furthermore, it is also necessary to evaluate the debugging
++versions of these primitives.  In short, don't acquire sleeping locks from
++other contexts unless there is no other option.
++
++Sleeping lock types:
++
++ - mutex
++ - rt_mutex
++ - semaphore
++ - rw_semaphore
++ - ww_mutex
++ - percpu_rw_semaphore
++
++On PREEMPT_RT kernels, these lock types are converted to sleeping locks:
++
++ - spinlock_t
++ - rwlock_t
++
++Spinning locks
++--------------
++
++ - raw_spinlock_t
++ - bit spinlocks
++
++On non-PREEMPT_RT kernels, these lock types are also spinning locks:
++
++ - spinlock_t
++ - rwlock_t
++
++Spinning locks implicitly disable preemption and the lock / unlock functions
++can have suffixes which apply further protections:
++
++ ===================  ====================================================
++ _bh()                Disable / enable bottom halves (soft interrupts)
++ _irq()               Disable / enable interrupts
++ _irqsave/restore()   Save and disable / restore interrupt disabled state
++ ===================  ====================================================
++
++
++rtmutex
++=======
++
++RT-mutexes are mutexes with support for priority inheritance (PI).
++
++PI has limitations on non PREEMPT_RT enabled kernels due to preemption and
++interrupt disabled sections.
++
++PI clearly cannot preempt preemption-disabled or interrupt-disabled
++regions of code, even on PREEMPT_RT kernels.  Instead, PREEMPT_RT kernels
++execute most such regions of code in preemptible task context, especially
++interrupt handlers and soft interrupts.  This conversion allows spinlock_t
++and rwlock_t to be implemented via RT-mutexes.
++
++
++raw_spinlock_t and spinlock_t
++=============================
++
++raw_spinlock_t
++--------------
++
++raw_spinlock_t is a strict spinning lock implementation regardless of the
++kernel configuration including PREEMPT_RT enabled kernels.
++
++raw_spinlock_t is a strict spinning lock implementation in all kernels,
++including PREEMPT_RT kernels.  Use raw_spinlock_t only in real critical
++core code, low level interrupt handling and places where disabling
++preemption or interrupts is required, for example, to safely access
++hardware state.  raw_spinlock_t can sometimes also be used when the
++critical section is tiny, thus avoiding RT-mutex overhead.
++
++spinlock_t
++----------
++
++The semantics of spinlock_t change with the state of CONFIG_PREEMPT_RT.
++
++On a non PREEMPT_RT enabled kernel spinlock_t is mapped to raw_spinlock_t
++and has exactly the same semantics.
++
++spinlock_t and PREEMPT_RT
++-------------------------
++
++On a PREEMPT_RT enabled kernel spinlock_t is mapped to a separate
++implementation based on rt_mutex which changes the semantics:
++
++ - Preemption is not disabled
++
++ - The hard interrupt related suffixes for spin_lock / spin_unlock
++   operations (_irq, _irqsave / _irqrestore) do not affect the CPUs
++   interrupt disabled state
++
++ - The soft interrupt related suffix (_bh()) still disables softirq
++   handlers.
++
++   Non-PREEMPT_RT kernels disable preemption to get this effect.
++
++   PREEMPT_RT kernels use a per-CPU lock for serialization which keeps
++   preemption disabled. The lock disables softirq handlers and also
++   prevents reentrancy due to task preemption.
++
++PREEMPT_RT kernels preserve all other spinlock_t semantics:
++
++ - Tasks holding a spinlock_t do not migrate.  Non-PREEMPT_RT kernels
++   avoid migration by disabling preemption.  PREEMPT_RT kernels instead
++   disable migration, which ensures that pointers to per-CPU variables
++   remain valid even if the task is preempted.
++
++ - Task state is preserved across spinlock acquisition, ensuring that the
++   task-state rules apply to all kernel configurations.  Non-PREEMPT_RT
++   kernels leave task state untouched.  However, PREEMPT_RT must change
++   task state if the task blocks during acquisition.  Therefore, it saves
++   the current task state before blocking and the corresponding lock wakeup
++   restores it.
++
++   Other types of wakeups would normally unconditionally set the task state
++   to RUNNING, but that does not work here because the task must remain
++   blocked until the lock becomes available.  Therefore, when a non-lock
++   wakeup attempts to awaken a task blocked waiting for a spinlock, it
++   instead sets the saved state to RUNNING.  Then, when the lock
++   acquisition completes, the lock wakeup sets the task state to the saved
++   state, in this case setting it to RUNNING.
++
++rwlock_t
++========
++
++rwlock_t is a multiple readers and single writer lock mechanism.
++
++Non-PREEMPT_RT kernels implement rwlock_t as a spinning lock and the
++suffix rules of spinlock_t apply accordingly. The implementation is fair,
++thus preventing writer starvation.
++
++rwlock_t and PREEMPT_RT
++-----------------------
++
++PREEMPT_RT kernels map rwlock_t to a separate rt_mutex-based
++implementation, thus changing semantics:
++
++ - All the spinlock_t changes also apply to rwlock_t.
++
++ - Because an rwlock_t writer cannot grant its priority to multiple
++   readers, a preempted low-priority reader will continue holding its lock,
++   thus starving even high-priority writers.  In contrast, because readers
++   can grant their priority to a writer, a preempted low-priority writer
++   will have its priority boosted until it releases the lock, thus
++   preventing that writer from starving readers.
++
++
++PREEMPT_RT caveats
++==================
++
++spinlock_t and rwlock_t
++-----------------------
++
++These changes in spinlock_t and rwlock_t semantics on PREEMPT_RT kernels
++have a few implications.  For example, on a non-PREEMPT_RT kernel the
++following code sequence works as expected::
++
++   local_irq_disable();
++   spin_lock(&lock);
++
++and is fully equivalent to::
++
++   spin_lock_irq(&lock);
++
++Same applies to rwlock_t and the _irqsave() suffix variants.
++
++On PREEMPT_RT kernel this code sequence breaks because RT-mutex requires a
++fully preemptible context.  Instead, use spin_lock_irq() or
++spin_lock_irqsave() and their unlock counterparts.  In cases where the
++interrupt disabling and locking must remain separate, PREEMPT_RT offers a
++local_lock mechanism.  Acquiring the local_lock pins the task to a CPU,
++allowing things like per-CPU irq-disabled locks to be acquired.  However,
++this approach should be used only where absolutely necessary.
++
++
++raw_spinlock_t
++--------------
++
++Acquiring a raw_spinlock_t disables preemption and possibly also
++interrupts, so the critical section must avoid acquiring a regular
++spinlock_t or rwlock_t, for example, the critical section must avoid
++allocating memory.  Thus, on a non-PREEMPT_RT kernel the following code
++works perfectly::
++
++  raw_spin_lock(&lock);
++  p = kmalloc(sizeof(*p), GFP_ATOMIC);
++
++But this code fails on PREEMPT_RT kernels because the memory allocator is
++fully preemptible and therefore cannot be invoked from truly atomic
++contexts.  However, it is perfectly fine to invoke the memory allocator
++while holding normal non-raw spinlocks because they do not disable
++preemption on PREEMPT_RT kernels::
++
++  spin_lock(&lock);
++  p = kmalloc(sizeof(*p), GFP_ATOMIC);
++
++
++bit spinlocks
++-------------
++
++Bit spinlocks are problematic for PREEMPT_RT as they cannot be easily
++substituted by an RT-mutex based implementation for obvious reasons.
++
++The semantics of bit spinlocks are preserved on PREEMPT_RT kernels and the
++caveats vs. raw_spinlock_t apply.
++
++Some bit spinlocks are substituted by regular spinlock_t for PREEMPT_RT but
++this requires conditional (#ifdef'ed) code changes at the usage site while
++the spinlock_t substitution is simply done by the compiler and the
++conditionals are restricted to header files and core implementation of the
++locking primitives and the usage sites do not require any changes.
++
++
++Lock type nesting rules
++=======================
++
++The most basic rules are:
++
++  - Lock types of the same lock category (sleeping, spinning) can nest
++    arbitrarily as long as they respect the general lock ordering rules to
++    prevent deadlocks.
++
++  - Sleeping lock types cannot nest inside spinning lock types.
++
++  - Spinning lock types can nest inside sleeping lock types.
++
++These rules apply in general independent of CONFIG_PREEMPT_RT.
++
++As PREEMPT_RT changes the lock category of spinlock_t and rwlock_t from
++spinning to sleeping this has obviously restrictions how they can nest with
++raw_spinlock_t.
++
++This results in the following nest ordering:
++
++  1) Sleeping locks
++  2) spinlock_t and rwlock_t
++  3) raw_spinlock_t and bit spinlocks
++
++Lockdep is aware of these constraints to ensure that they are respected.
++
++
++Owner semantics
++===============
++
++Most lock types in the Linux kernel have strict owner semantics, i.e. the
++context (task) which acquires a lock has to release it.
++
++There are two exceptions:
++
++  - semaphores
++  - rwsems
++
++semaphores have no owner semantics for historical reason, and as such
++trylock and release operations can be called from any context. They are
++often used for both serialization and waiting purposes. That's generally
++discouraged and should be replaced by separate serialization and wait
++mechanisms, such as mutexes and completions.
++
++rwsems have grown interfaces which allow non owner release for special
++purposes. This usage is problematic on PREEMPT_RT because PREEMPT_RT
++substitutes all locking primitives except semaphores with RT-mutex based
++implementations to provide priority inheritance for all lock types except
++the truly spinning ones. Priority inheritance on ownerless locks is
++obviously impossible.
++
++For now the rwsem non-owner release excludes code which utilizes it from
++being used on PREEMPT_RT enabled kernels. In same cases this can be
++mitigated by disabling portions of the code, in other cases the complete
++functionality has to be disabled until a workable solution has been found.
 
