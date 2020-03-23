@@ -1,80 +1,243 @@
-From: Kalle Valo <kvalo@codeaurora.org>
-Subject: Re: [patch V3 04/20] orinoco_usb: Use the regular completion
- interfaces
-Date: Sun, 22 Mar 2020 16:42:46 +0200
-Message-ID: <87pnd4bgd5.fsf@kamboji.qca.qualcomm.com>
+From: "Paul E. McKenney" <paulmck@kernel.org>
+Subject: Re: [patch V3 13/20] Documentation: Add lock ordering and nesting
+ documentation
+Date: Sun, 22 Mar 2020 19:55:01 -0700
+Message-ID: <20200323025501.GE3199@paulmck-ThinkPad-P72>
 References: <20200321112544.878032781@linutronix.de>
- <20200321113241.150783464@linutronix.de>
+ <20200321113242.026561244@linutronix.de>
+Reply-To: paulmck@kernel.org
 Mime-Version: 1.0
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org;
- q=dns/txt; 
- s=smtp; t=1584888198; h=Content-Type: MIME-Version: Message-ID:
- In-Reply-To: Date: References: Subject: Cc: To: From: Sender;
- bh=8ZrWvNR4lZD7mLPZKWh5kIh2oW3QrCXRdxOVL7dTNX0=;
- b=vTbnNMEnuWIeG+3Ne5I1AmhndbfvwHKeAUK7K2takb4KnlUwpB8y99rGYxOdUwjEy1P7HRgp
- 4O8KyjXmMr/0BsN5kqX5L5EXpvqbY/6hf1arzBwUUu/xpR3QlVBXw/ut75C2LhZMbcGIE75v
- H7RQA4n2+8UCznH3WEuq2KynK5U=
-In-Reply-To: <20200321113241.150783464@linutronix.de> (Thomas Gleixner's
- message of "Sat, 21 Mar 2020 12:25:48 +0100")
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584932101;
+        bh=N0k6o8c8KvYw0g3jcUDhN/MPud7VOyTsnr0yHrUxgUw=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=g9VPl4eajjddjNIOPzBfeSyOtL9KQiSn/FZzz7hTPVSKlmvRnqj3azUI4CLLkZJvc
+         uYirLjF1H+fdvZlmKyt2AxGT61givxo81nRhOvH91ViOca/11r46Ug+bKaoJ8lwwc0
+         hRh7PEZEFJGW9zuLBEKdZoD1kcl6jFPVucBD+M6Y=
+Content-Disposition: inline
+In-Reply-To: <20200321113242.026561244@linutronix.de>
+Sender: linux-acpi-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Thomas Gleixner <tglx@linutronix.de>
-Cc: , Randy Dunlap <rdunlap@infradead.org>, linux-ia64@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, linux-pci@vger.kernel.org, Sebastian Siewior <bigeasy@linutronix.de>, tel.com@lists.ozlabs.org, Oleg Nesterov <oleg@redhat.com>, Guo Ren <guoren@kernel.org>, Joel Fernandes <joel@joelfernandes.org>, Vincent Chen <deanbo422@gmail.com>, Ingo Molnar <mingo@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Davidlohr Bueso <dave@stgolabs.net>, "Paul E . McKenney" <paulmck@kernel.org>, Brian Cain <bcain@codeaurora.org>, linux-acpi@vger.kernel.org, linux-hexagon@vger.kernel.org, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-csky@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Darren Hart <dvhart@infradead.org>, Zhang Rui <rui.zhang@intel.com>, Len Brown <lenb@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, 
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Jonathan Corbet <corbet@lwn.net>, Randy Dunlap <rdunlap@infradead.org>, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, net
 
-Thomas Gleixner <tglx@linutronix.de> writes:
-
+On Sat, Mar 21, 2020 at 12:25:57PM +0100, Thomas Gleixner wrote:
 > From: Thomas Gleixner <tglx@linutronix.de>
->
-> The completion usage in this driver is interesting:
->
->   - it uses a magic complete function which according to the comment was
->     implemented by invoking complete() four times in a row because
->     complete_all() was not exported at that time.
->
->   - it uses an open coded wait/poll which checks completion:done. Only one wait
->     side (device removal) uses the regular wait_for_completion() interface.
->
-> The rationale behind this is to prevent that wait_for_completion() consumes
-> completion::done which would prevent that all waiters are woken. This is not
-> necessary with complete_all() as that sets completion::done to UINT_MAX which
-> is left unmodified by the woken waiters.
->
-> Replace the magic complete function with complete_all() and convert the
-> open coded wait/poll to regular completion interfaces.
->
-> This changes the wait to exclusive wait mode. But that does not make any
-> difference because the wakers use complete_all() which ignores the
-> exclusive mode.
->
-> Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> 
+> The kernel provides a variety of locking primitives. The nesting of these
+> lock types and the implications of them on RT enabled kernels is nowhere
+> documented.
+> 
+> Add initial documentation.
+> 
 > Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Kalle Valo <kvalo@codeaurora.org>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: linux-wireless@vger.kernel.org
-> Cc: netdev@vger.kernel.org
-> Cc: linux-usb@vger.kernel.org
+> Cc: "Paul E . McKenney" <paulmck@kernel.org>
+> Cc: Jonathan Corbet <corbet@lwn.net>
+> Cc: Davidlohr Bueso <dave@stgolabs.net>
+> Cc: Randy Dunlap <rdunlap@infradead.org>
 > ---
-> V2: New patch to avoid conversion to swait functions later.
+> V3: Addressed review comments from Paul, Jonathan, Davidlohr
+> V2: Addressed review comments from Randy
 > ---
->  drivers/net/wireless/intersil/orinoco/orinoco_usb.c |   21 ++++----------------
->  1 file changed, 5 insertions(+), 16 deletions(-)
+>  Documentation/locking/index.rst     |    1 
+>  Documentation/locking/locktypes.rst |  299 ++++++++++++++++++++++++++++++++++++
+>  2 files changed, 300 insertions(+)
+>  create mode 100644 Documentation/locking/locktypes.rst
+> 
+> --- a/Documentation/locking/index.rst
+> +++ b/Documentation/locking/index.rst
+> @@ -7,6 +7,7 @@ locking
+>  .. toctree::
+>      :maxdepth: 1
+>  
+> +    locktypes
+>      lockdep-design
+>      lockstat
+>      locktorture
+> --- /dev/null
+> +++ b/Documentation/locking/locktypes.rst
+> @@ -0,0 +1,299 @@
 
-I assume this is going via some other than wireless-drivers so:
+[ . . . Adding your example execution sequences . . . ]
 
-Acked-by: Kalle Valo <kvalo@codeaurora.org>
+> +PREEMPT_RT kernels preserve all other spinlock_t semantics:
+> +
+> + - Tasks holding a spinlock_t do not migrate.  Non-PREEMPT_RT kernels
+> +   avoid migration by disabling preemption.  PREEMPT_RT kernels instead
+> +   disable migration, which ensures that pointers to per-CPU variables
+> +   remain valid even if the task is preempted.
+> +
+> + - Task state is preserved across spinlock acquisition, ensuring that the
+> +   task-state rules apply to all kernel configurations.  Non-PREEMPT_RT
+> +   kernels leave task state untouched.  However, PREEMPT_RT must change
+> +   task state if the task blocks during acquisition.  Therefore, it saves
+> +   the current task state before blocking and the corresponding lock wakeup
+> +   restores it.
+> +
+> +   Other types of wakeups would normally unconditionally set the task state
+> +   to RUNNING, but that does not work here because the task must remain
+> +   blocked until the lock becomes available.  Therefore, when a non-lock
+> +   wakeup attempts to awaken a task blocked waiting for a spinlock, it
+> +   instead sets the saved state to RUNNING.  Then, when the lock
+> +   acquisition completes, the lock wakeup sets the task state to the saved
+> +   state, in this case setting it to RUNNING.
 
--- 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+In the normal case where the task sleeps through the entire lock
+acquisition, the sequence of events is as follows:
+
+     state = UNINTERRUPTIBLE
+     lock()
+       block()
+         real_state = state
+         state = SLEEPONLOCK
+
+                               lock wakeup
+                                 state = real_state == UNINTERRUPTIBLE
+
+This sequence of events can occur when the task acquires spinlocks
+on its way to sleeping, for example, in a call to wait_event().
+
+The non-lock wakeup can occur when a wakeup races with this wait_event(),
+which can result in the following sequence of events:
+
+     state = UNINTERRUPTIBLE
+     lock()
+       block()
+         real_state = state
+         state = SLEEPONLOCK
+
+                             non lock wakeup
+                                 real_state = RUNNING
+
+                               lock wakeup
+                                 state = real_state == RUNNING
+
+Without this real_state subterfuge, the wakeup might be lost.
+
+[ . . . and continuing where I left off earlier . . . ]
+
+> +bit spinlocks
+> +-------------
+> +
+> +Bit spinlocks are problematic for PREEMPT_RT as they cannot be easily
+> +substituted by an RT-mutex based implementation for obvious reasons.
+> +
+> +The semantics of bit spinlocks are preserved on PREEMPT_RT kernels and the
+> +caveats vs. raw_spinlock_t apply.
+> +
+> +Some bit spinlocks are substituted by regular spinlock_t for PREEMPT_RT but
+> +this requires conditional (#ifdef'ed) code changes at the usage site while
+> +the spinlock_t substitution is simply done by the compiler and the
+> +conditionals are restricted to header files and core implementation of the
+> +locking primitives and the usage sites do not require any changes.
+
+PREEMPT_RT cannot substitute bit spinlocks because a single bit is
+too small to accommodate an RT-mutex.  Therefore, the semantics of bit
+spinlocks are preserved on PREEMPT_RT kernels, so that the raw_spinlock_t
+caveats also apply to bit spinlocks.
+
+Some bit spinlocks are replaced with regular spinlock_t for PREEMPT_RT
+using conditional (#ifdef'ed) code changes at the usage site.
+In contrast, usage-site changes are not needed for the spinlock_t
+substitution.  Instead, conditionals in header files and the core locking
+implemementation enable the compiler to do the substitution transparently.
+
+
+> +Lock type nesting rules
+> +=======================
+> +
+> +The most basic rules are:
+> +
+> +  - Lock types of the same lock category (sleeping, spinning) can nest
+> +    arbitrarily as long as they respect the general lock ordering rules to
+> +    prevent deadlocks.
+
+  - Lock types in the same category (sleeping, spinning) can nest
+     arbitrarily as long as they respect the general deadlock-avoidance
+     ordering rules.
+
+[ Give or take lockdep eventually complaining about too-deep nesting,
+  but that is probably not worth mentioning here.  Leave that caveat
+  to the lockdep documentation. ]
+
+> +  - Sleeping lock types cannot nest inside spinning lock types.
+> +
+> +  - Spinning lock types can nest inside sleeping lock types.
+> +
+> +These rules apply in general independent of CONFIG_PREEMPT_RT.
+
+These constraints apply both in CONFIG_PREEMPT_RT and otherwise.
+
+> +As PREEMPT_RT changes the lock category of spinlock_t and rwlock_t from
+> +spinning to sleeping this has obviously restrictions how they can nest with
+> +raw_spinlock_t.
+> +
+> +This results in the following nest ordering:
+
+The fact that PREEMPT_RT changes the lock category of spinlock_t and
+rwlock_t from spinning to sleeping means that they cannot be acquired
+while holding a raw spinlock.  This results in the following nesting
+ordering:
+
+> +  1) Sleeping locks
+> +  2) spinlock_t and rwlock_t
+> +  3) raw_spinlock_t and bit spinlocks
+> +
+> +Lockdep is aware of these constraints to ensure that they are respected.
+
+Lockdep will complain if these constraints are violated, both in
+CONFIG_PREEMPT_RT and otherwise.
+
+
+> +Owner semantics
+> +===============
+> +
+> +Most lock types in the Linux kernel have strict owner semantics, i.e. the
+> +context (task) which acquires a lock has to release it.
+
+The aforementioned lock types have strict owner semantics: The context
+(task) that acquired the lock must release it.
+
+> +There are two exceptions:
+> +
+> +  - semaphores
+> +  - rwsems
+> +
+> +semaphores have no owner semantics for historical reason, and as such
+> +trylock and release operations can be called from any context. They are
+> +often used for both serialization and waiting purposes. That's generally
+> +discouraged and should be replaced by separate serialization and wait
+> +mechanisms, such as mutexes and completions.
+
+semaphores lack owner semantics for historical reasons, so their trylock
+and release operations may be called from any context. They are often
+used for both serialization and waiting, but new use cases should
+instead use separate serialization and wait mechanisms, such as mutexes
+and completions.
+
+> +rwsems have grown interfaces which allow non owner release for special
+> +purposes. This usage is problematic on PREEMPT_RT because PREEMPT_RT
+> +substitutes all locking primitives except semaphores with RT-mutex based
+> +implementations to provide priority inheritance for all lock types except
+> +the truly spinning ones. Priority inheritance on ownerless locks is
+> +obviously impossible.
+> +
+> +For now the rwsem non-owner release excludes code which utilizes it from
+> +being used on PREEMPT_RT enabled kernels. In same cases this can be
+> +mitigated by disabling portions of the code, in other cases the complete
+> +functionality has to be disabled until a workable solution has been found.
+
+rwsems have grown special-purpose interfaces that allow non-owner release.
+This non-owner release prevents PREEMPT_RT from substituting RT-mutex
+implementations, for example, by defeating priority inheritance.
+After all, if the lock has no owner, whose priority should be boosted?
+As a result, PREEMPT_RT does not currently support rwsem, which in turn
+means that code using it must therefore be disabled until a workable
+solution presents itself.
+
+[ Note: Not as confident as I would like to be in the above. ]
+
+							Thanx, Paul
