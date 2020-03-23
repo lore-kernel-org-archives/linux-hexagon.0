@@ -1,75 +1,80 @@
-From: Sebastian Siewior <bigeasy@linutronix.de>
-Subject: [PATCH] completion: Use lockdep_assert_RT_in_threaded_ctx() in
- complete_all()
-Date: Mon, 23 Mar 2020 16:20:19 +0100
-Message-ID: <20200323152019.4qjwluldohuh3by5@linutronix.de>
-References: <20200321112544.878032781@linutronix.de>
- <20200321113242.317954042@linutronix.de>
+From: "Brian Cain" <bcain@codeaurora.org>
+Subject: RE: [patch V3 08/20] hexagon: Remove mm.h from asm/uaccess.h
+Date: Mon, 23 Mar 2020 16:46:17 -0500
+Message-ID: <0cc301d6015c$7e756490$7b602db0$@codeaurora.org>
+References: <20200321112544.878032781@linutronix.de> <20200321113241.531525286@linutronix.de>
+Reply-To: <bcain@codeaurora.org>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200321113242.317954042@linutronix.de>
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1585000016; h=Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Message-ID: Date: Subject: In-Reply-To: References: Cc:
+ To: From: Reply-To: Sender;
+ bh=ZNpFv8n1vyNtNLXdZYwI5uo1FnppFNp10NWp9MPwYDo=; b=pV5wXOXNdhL3eVZsNo55Jkdbpsbs42F62/xWygxj9c/eYVWMohS4o+mhwlvJyHV24YPdMjaD
+ W16jdED42Kc62TXTAAsR+FdFaDvndEXAjROPVUy+eo1TudXeGAQNEUZhH9VsoRGIpVCU/yYV
+ SHklrUiCw9e2cryiSqklyZqDZbg=
+In-Reply-To: <20200321113241.531525286@linutronix.de>
+Content-Language: en-us
 Sender: linux-acpi-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.>
+To: 'Thomas Gleixner' <tglx@linutronix.de>, 'LKML' <linux-kernel@vger.kernel.org>
+Cc: 'Peter Zijlstra' <peterz@infradead.org>, 'Ingo Molnar' <mingo@kernel.org>, 'Sebastian Siewior' <bigeasy@linutronix.de>, 'Linus Torvalds' <torvalds@linux-foundation.org>, 'Joel Fernandes' <joel@joelfernandes.org>, 'Oleg Nesterov' <oleg@redhat.com>, 'Davidlohr Bueso' <dave@stgolabs.net>, 'kbuild test robot' <lkp@intel.com>, linux-hexagon@vger.kernel.org, 'Logan Gunthorpe' <logang@deltatee.com>, 'Bjorn Helgaas' <bhelgaas@google.com>, 'Kurt Schwemmer' <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, 'Greg Kroah-Hartman' <gregkh@linuxfoundation.org>, 'Felipe Balbi' <balbi@kernel.org>, linux-usb@vger.kernel.org, 'Kalle Valo' <kvalo@codeaurora.org>, "'David S. Miller'" <davem@davemloft.net>, linux-wireless@vger.k
 
-The warning was intended to spot complete_all() users from hardirq
-context on PREEMPT_RT. The warning as-is will also trigger in interrupt
-handlers, which are threaded on PREEMPT_RT, which was not intended.
+> -----Original Message-----
+> From: Thomas Gleixner <tglx@linutronix.de>
+...
+> Subject: [patch V3 08/20] hexagon: Remove mm.h from asm/uaccess.h
+> 
+> From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> 
+> The defconfig compiles without linux/mm.h. With mm.h included the include
+> chain leands to:
+> |   CC      kernel/locking/percpu-rwsem.o
+> | In file included from include/linux/huge_mm.h:8,
+> |                  from include/linux/mm.h:567,
+> |                  from arch/hexagon/include/asm/uaccess.h:,
+> |                  from include/linux/uaccess.h:11,
+> |                  from include/linux/sched/task.h:11,
+> |                  from include/linux/sched/signal.h:9,
+> |                  from include/linux/rcuwait.h:6,
+> |                  from include/linux/percpu-rwsem.h:8,
+> |                  from kernel/locking/percpu-rwsem.c:6:
+> | include/linux/fs.h:1422:29: error: array type has incomplete element type
+> 'struct percpu_rw_semaphore'
+> |  1422 |  struct percpu_rw_semaphore rw_sem[SB_FREEZE_LEVELS];
+> 
+> once rcuwait.h includes linux/sched/signal.h.
+> 
+> Remove the linux/mm.h include.
+> 
+> Reported-by: kbuild test robot <lkp@intel.com>
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Brian Cain <bcain@codeaurora.org>
+> Cc: linux-hexagon@vger.kernel.org
+> ---
+> V3: New patch
+> ---
+>  arch/hexagon/include/asm/uaccess.h | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/arch/hexagon/include/asm/uaccess.h
+> b/arch/hexagon/include/asm/uaccess.h
+> index 00cb38faad0c4..c1019a736ff13 100644
+> --- a/arch/hexagon/include/asm/uaccess.h
+> +++ b/arch/hexagon/include/asm/uaccess.h
+> @@ -10,7 +10,6 @@
+>  /*
+>   * User space memory access functions
+>   */
+> -#include <linux/mm.h>
+>  #include <asm/sections.h>
+> 
+>  /*
+> --
+> 2.26.0.rc2
+> 
 
-Use lockdep_assert_RT_in_threaded_ctx() which triggers in non-preemptive
-context on PREEMPT_RT.
-
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- include/linux/lockdep.h   | 15 +++++++++++++++
- kernel/sched/completion.c |  2 +-
- 2 files changed, 16 insertions(+), 1 deletion(-)
-
-diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
-index 425b4ceb7cd07..206774ac69460 100644
---- a/include/linux/lockdep.h
-+++ b/include/linux/lockdep.h
-@@ -711,6 +711,21 @@ do {									\
- # define lockdep_assert_in_irq() do { } while (0)
- #endif
- 
-+#ifdef CONFIG_PROVE_RAW_LOCK_NESTING
-+
-+# define lockdep_assert_RT_in_threaded_ctx() do {			\
-+		WARN_ONCE(debug_locks && !current->lockdep_recursion &&	\
-+			  current->hardirq_context &&			\
-+			  !(current->hardirq_threaded || current->irq_config),	\
-+			  "Not in threaded context on PREEMPT_RT as expected\n");	\
-+} while (0)
-+
-+#else
-+
-+# define lockdep_assert_RT_in_threaded_ctx() do { } while (0)
-+
-+#endif
-+
- #ifdef CONFIG_LOCKDEP
- void lockdep_rcu_suspicious(const char *file, const int line, const char *s);
- #else
-diff --git a/kernel/sched/completion.c b/kernel/sched/completion.c
-index f15e96164ff1e..a778554f9dad7 100644
---- a/kernel/sched/completion.c
-+++ b/kernel/sched/completion.c
-@@ -58,7 +58,7 @@ void complete_all(struct completion *x)
- {
- 	unsigned long flags;
- 
--	WARN_ON(irqs_disabled());
-+	lockdep_assert_RT_in_threaded_ctx();
- 
- 	raw_spin_lock_irqsave(&x->wait.lock, flags);
- 	x->done = UINT_MAX;
--- 
-2.26.0.rc2
-
+Acked-by: Brian Cain <bcain@codeaurora.org>
