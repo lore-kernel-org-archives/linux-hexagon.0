@@ -1,235 +1,84 @@
-From: "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [patch V3 13/20] Documentation: Add lock ordering and nesting
- documentation
-Date: Tue, 24 Mar 2020 17:28:11 -0700
-Message-ID: <20200325002811.GO19865@paulmck-ThinkPad-P72>
-References: <20200323025501.GE3199@paulmck-ThinkPad-P72>
- <87r1xhz6qp.fsf@nanos.tec.linutronix.de>
-Reply-To: paulmck@kernel.org
+From: Felipe Balbi <balbi@kernel.org>
+Subject: Re: [patch V3 03/20] usb: gadget: Use completion interface instead of open coding it
+Date: Wed, 25 Mar 2020 10:37:57 +0200
+Message-ID: <87blokde3e.fsf@kernel.org>
+References: <20200321112544.878032781@linutronix.de> <20200321113241.043380271@linutronix.de>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585096091;
-        bh=EIB4psQiicWyBHK1xib2qJY5nR2j8FLOWc8y1NLiBAI=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=FovNZdkSctBXV5lafbQcX+Ej9wZG7UsrCCuMHXx2oA0wS9t18Dd3dwPhTTYckcJJQ
-         m2GRrN5OxbovkLoZNpu4ZLngU+C7TcI02VmUDKg5NNMnsw/kIqzECLpp9fpIvm/YB+
-         y+RLg1x1ncKHeKB1RupgozuHVzSmbq1COMmILmbY=
-Content-Disposition: inline
-In-Reply-To: <87r1xhz6qp.fsf@nanos.tec.linutronix.de>
-Sender: linux-hexagon-owner@vger.kernel.org
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:in-reply-to:references:date:message-id
+         :mime-version;
+        bh=u1JHVU3RAXWpWzxoEBTeSB/vNLewo28StJEFtqtyLoU=;
+        b=atWEsClArOzGKdLN4osuAk7d+XSEIi82gzITfDKHYSAZ1c+WEd3Ip/J9eETstflnDX
+         LqQd2q6Qz/8hg3HTYMLWyI1r/uM72eIqZfUXxCdkYr7yZws3ErK2kSKYsVGHg9Cm/mtf
+         X32RT6WFx/DxNfiiCaK5OWiM6W7e7JeJWoOEDUpgi05XVpNAtJvKJtyzJhblBES6Z/65
+         eVjEoRNppJWoaSaLMrUSnZYRRo6sbYBlTHOOD7K3R3s4Elu3PeBJ5C7L2ulwEL9qqsKz
+         nUa//b6Qd9KEX8nStmeRXzWQurXqzw+nAWyASHspx5uRQOtfM4KAnUAZ5r+BnFZwaD/D
+         axHw==
+In-Reply-To: <20200321113241.043380271@linutronix.de>
+Sender: linux-acpi-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Jonathan Corbet <corbet@lwn.net>, Randy Dunlap <rdunlap@infradead.org>, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, net
+To: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Sebastian Siewior <bigeasy@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Joel Fernandes <joel@joelfernandes.org>, Oleg Nesterov <oleg@redhat.com>, Davidlohr Bueso <dave@stgolabs.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>, Bjorn Helgaas <bhelgaas@google.com>, Kurt Schwemmer <kurt.schwemmer@microsemi.com>, linux-pci@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-driver-x86@vger.kernel.org, Zhang Rui <rui.zha>
 
-On Wed, Mar 25, 2020 at 12:13:34AM +0100, Thomas Gleixner wrote:
-> Paul,
-> 
-> "Paul E. McKenney" <paulmck@kernel.org> writes:
-> > On Sat, Mar 21, 2020 at 12:25:57PM +0100, Thomas Gleixner wrote:
-> > In the normal case where the task sleeps through the entire lock
-> > acquisition, the sequence of events is as follows:
-> >
-> >      state = UNINTERRUPTIBLE
-> >      lock()
-> >        block()
-> >          real_state = state
-> >          state = SLEEPONLOCK
-> >
-> >                                lock wakeup
-> >                                  state = real_state == UNINTERRUPTIBLE
-> >
-> > This sequence of events can occur when the task acquires spinlocks
-> > on its way to sleeping, for example, in a call to wait_event().
-> >
-> > The non-lock wakeup can occur when a wakeup races with this wait_event(),
-> > which can result in the following sequence of events:
-> >
-> >      state = UNINTERRUPTIBLE
-> >      lock()
-> >        block()
-> >          real_state = state
-> >          state = SLEEPONLOCK
-> >
-> >                              non lock wakeup
-> >                                  real_state = RUNNING
-> >
-> >                                lock wakeup
-> >                                  state = real_state == RUNNING
-> >
-> > Without this real_state subterfuge, the wakeup might be lost.
-> 
-> I added this with a few modifications which reflect the actual
-> implementation. Conceptually the same.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Looks good!
+Thomas Gleixner <tglx@linutronix.de> writes:
 
-> > rwsems have grown special-purpose interfaces that allow non-owner release.
-> > This non-owner release prevents PREEMPT_RT from substituting RT-mutex
-> > implementations, for example, by defeating priority inheritance.
-> > After all, if the lock has no owner, whose priority should be boosted?
-> > As a result, PREEMPT_RT does not currently support rwsem, which in turn
-> > means that code using it must therefore be disabled until a workable
-> > solution presents itself.
-> >
-> > [ Note: Not as confident as I would like to be in the above. ]
-> 
-> I'm not confident either especially not after looking at the actual
-> code.
-> 
-> In fact I feel really stupid because the rw_semaphore reader non-owner
-> restriction on RT simply does not exist anymore and my history biased
-> memory tricked me.
+> From: Thomas Gleixner <tglx@linutronix.de>
+>
+> ep_io() uses a completion on stack and open codes the waiting with:
+>
+>   wait_event_interruptible (done.wait, done.done);
+> and
+>   wait_event (done.wait, done.done);
+>
+> This waits in non-exclusive mode for complete(), but there is no reason to
+> do so because the completion can only be waited for by the task itself and
+> complete() wakes exactly one exlusive waiter.
+>
+> Replace the open coded implementation with the corresponding
+> wait_for_completion*() functions.
+>
+> No functional change.
+>
+> Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Felipe Balbi <balbi@kernel.org>
+> Cc: linux-usb@vger.kernel.org
 
-I guess I am glad that it is not just me.  ;-)
+Do you want to carry it via your tree? If so:
 
-> The first rw_semaphore implementation of RT was simple and restricted
-> the reader side to a single reader to support PI on both the reader and
-> the writer side. That obviosuly did not scale well and made mmap_sem
-> heavy use cases pretty unhappy.
-> 
-> The short interlude with multi-reader boosting turned out to be a failed
-> experiment - Steven might still disagree though :)
-> 
-> At some point we gave up and I myself (sic!) reimplemented the RT
-> variant of rw_semaphore with a reader biased mechanism.
-> 
-> The reader never holds the underlying rt_mutex accross the read side
-> critical section. It merily increments the reader count and drops it on
-> release.
-> 
-> The only time a reader takes the rt_mutex is when it blocks on a
-> writer. Writers hold the rt_mutex across the write side critical section
-> to allow incoming readers to boost them. Once the writer releases the
-> rw_semaphore it unlocks the rt_mutex which is then handed off to the
-> readers. They increment the reader count and then drop the rt_mutex
-> before continuing in the read side critical section.
-> 
-> So while I changed the implementation it did obviously not occur to me
-> that this also lifted the non-owner release restriction. Nobody else
-> noticed either. So we kept dragging this along in both memory and
-> implementation. Both will be fixed now :)
-> 
-> The owner semantics of down/up_read() are only enforced by lockdep. That
-> applies to both RT and !RT. The up/down_read_non_owner() variants are
-> just there to tell lockdep about it.
-> 
-> So, I picked up your other suggestions with slight modifications and
-> adjusted the owner, semaphore and rw_semaphore docs accordingly.
-> 
-> Please have a close look at the patch below (applies on tip core/locking).
-> 
-> Thanks,
-> 
->         tglx, who is searching a brown paperbag
+Acked-by: Felipe Balbi <balbi@kernel.org>
 
-Sorry, used all the ones here over the past few days.  :-/
+Otherwise, let me know and I'll pick this patch.
 
-Please see below for a wordsmithing patch to be applied on top of
-or merged into the patch in your email.
+=2D-=20
+balbi
 
-							Thanx, Paul
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-------------------------------------------------------------------------
+-----BEGIN PGP SIGNATURE-----
 
-commit e38c64ce8db45e2b0a19082f1e1f988c3b25fb81
-Author: Paul E. McKenney <paulmck@kernel.org>
-Date:   Tue Mar 24 17:23:36 2020 -0700
-
-    Documentation: Wordsmith lock ordering and nesting documentation
-    
-    This commit is strictly wordsmithing with no (intended) semantic
-    changes.
-    
-    Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-
-diff --git a/Documentation/locking/locktypes.rst b/Documentation/locking/locktypes.rst
-index ca7bf84..8eb52e9 100644
---- a/Documentation/locking/locktypes.rst
-+++ b/Documentation/locking/locktypes.rst
-@@ -94,7 +94,7 @@ interrupt handlers and soft interrupts.  This conversion allows spinlock_t
- and rwlock_t to be implemented via RT-mutexes.
- 
- 
--sempahore
-+semaphore
- =========
- 
- semaphore is a counting semaphore implementation.
-@@ -103,17 +103,17 @@ Semaphores are often used for both serialization and waiting, but new use
- cases should instead use separate serialization and wait mechanisms, such
- as mutexes and completions.
- 
--sempahores and PREEMPT_RT
-+semaphores and PREEMPT_RT
- ----------------------------
- 
--PREEMPT_RT does not change the sempahore implementation. That's impossible
--due to the counting semaphore semantics which have no concept of owners.
--The lack of an owner conflicts with priority inheritance. After all an
--unknown owner cannot be boosted. As a consequence blocking on semaphores
--can be subject to priority inversion.
-+PREEMPT_RT does not change the semaphore implementation because counting
-+semaphores have no concept of owners, thus preventing PREEMPT_RT from
-+providing priority inheritance for semaphores.  After all, an unknown
-+owner cannot be boosted. As a consequence, blocking on semaphores can
-+result in priority inversion.
- 
- 
--rw_sempahore
-+rw_semaphore
- ============
- 
- rw_semaphore is a multiple readers and single writer lock mechanism.
-@@ -125,13 +125,13 @@ rw_semaphore complies by default with the strict owner semantics, but there
- exist special-purpose interfaces that allow non-owner release for readers.
- These work independent of the kernel configuration.
- 
--rw_sempahore and PREEMPT_RT
-+rw_semaphore and PREEMPT_RT
- ---------------------------
- 
--PREEMPT_RT kernels map rw_sempahore to a separate rt_mutex-based
-+PREEMPT_RT kernels map rw_semaphore to a separate rt_mutex-based
- implementation, thus changing the fairness:
- 
-- Because an rw_sempaphore writer cannot grant its priority to multiple
-+ Because an rw_semaphore writer cannot grant its priority to multiple
-  readers, a preempted low-priority reader will continue holding its lock,
-  thus starving even high-priority writers.  In contrast, because readers
-  can grant their priority to a writer, a preempted low-priority writer will
-@@ -158,7 +158,7 @@ critical section is tiny, thus avoiding RT-mutex overhead.
- spinlock_t
- ----------
- 
--The semantics of spinlock_t change with the state of CONFIG_PREEMPT_RT.
-+The semantics of spinlock_t change with the state of PREEMPT_RT.
- 
- On a non PREEMPT_RT enabled kernel spinlock_t is mapped to raw_spinlock_t
- and has exactly the same semantics.
-@@ -196,7 +196,7 @@ PREEMPT_RT kernels preserve all other spinlock_t semantics:
-    kernels leave task state untouched.  However, PREEMPT_RT must change
-    task state if the task blocks during acquisition.  Therefore, it saves
-    the current task state before blocking and the corresponding lock wakeup
--   restores it::
-+   restores it, as shown below::
- 
-     task->state = TASK_INTERRUPTIBLE
-      lock()
-@@ -333,7 +333,7 @@ The most basic rules are:
- 
-   - Spinning lock types can nest inside sleeping lock types.
- 
--These constraints apply both in CONFIG_PREEMPT_RT and otherwise.
-+These constraints apply both in PREEMPT_RT and otherwise.
- 
- The fact that PREEMPT_RT changes the lock category of spinlock_t and
- rwlock_t from spinning to sleeping means that they cannot be acquired while
-@@ -344,4 +344,4 @@ holding a raw spinlock.  This results in the following nesting ordering:
-   3) raw_spinlock_t and bit spinlocks
- 
- Lockdep will complain if these constraints are violated, both in
--CONFIG_PREEMPT_RT and otherwise.
-+PREEMPT_RT and otherwise.
+iQIzBAEBCAAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAl57GGUACgkQzL64meEa
+mQY/phAAyKS/jK6b1hVevAPsOBS5Zyk+RBQmkmps/3C2lTyyturSmqT3TAMZyTZo
+/HPtsvyUYn8RBI5Pa62mvcnGi+/Lmk76YzmUqn/VJRe+J8kjuFI6IoyT4uDxdUsB
+qGTiuQ5qbV7Ft3fvLoEEbuyPZeDc/pbfFyK78ajdAYec4MGS8r12tWzhRZTRyRAG
+4fb/PjPcfk8/9eTkdgnjgINZTiwT9YN7HWpEfajl3MhlYK9pZh/J7swRaYwZULBo
++eVd6a6ZYt0YLC8wVQ/kJ9Q3EttmWBwPJB4FIXMzYDkXx2Z898ZUKeIJ8IXlwKSh
+CynbYGL7rNJQ+UDpVA8/y5Mqqnu3pAht/csgfrBxm/ukjkMphIDjpzuUaODgH5W3
+Eb4EXNgvgspzEMgz6pv9INgPPh2tWRmBQex8qOLrs1xups+ZmhFSHGKCUs8hxlDj
+Zk0U6Mce6mopXiCf2iVgrv9ItHlp4myA/HwWEub+LwOJi8tCt+vCjzXloWMx4Ha+
+TNyxLHrqLaeTQoYgl1wJQMjIhmcrb9UMBaJ5FhKdaXAGfAeicPSzVqVHG/yl6nds
+Z2cTMhW5kIxJDMAOuemeYZLY8PMzXrG5xHT7Da3yOzurIOmp2rhvhjpt9TpjKDLE
+3qsBCaxpICoolHqV8bAov175RPtyVvv5zdyXWulMD/1c2kVYiiY=
+=IAgh
+-----END PGP SIGNATURE-----
+--=-=-=--
