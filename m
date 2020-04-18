@@ -1,185 +1,232 @@
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v4 14/14] mm: remove __ARCH_HAS_5LEVEL_HACK and
- include/asm-generic/5level-fixup.h
-Date: Tue, 14 Apr 2020 18:34:55 +0300
-Message-ID: <20200414153455.21744-15-rppt@kernel.org>
-References: <20200414153455.21744-1-rppt@kernel.org>
+From: Dmitry Safonov <dima@arista.com>
+Subject: [PATCHv3 00/50] Add log level to show_stack()
+Date: Sat, 18 Apr 2020 21:18:54 +0100
+Message-ID: <20200418201944.482088-1-dima@arista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <kvmarm-bounces@lists.cs.columbia.edu>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1586878645;
- bh=CqaKK6+aVg5D1Nr505BsEp2b4ZBD+GLgCm9Y6FhaO5k=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=TIU3Y4/BP8R5HFjWKB4Rmbnxn+YL/C+cyvm9VFW4zfGVaOrEFBPnfTQvvacGktioX
- gSlAJkOtV7YH1cGIDUV9ajgtcnBzYrWnAUYHC9A961Ty8BmpAPQOn2t383YSjR0zKg
- 9FVQAlTRoUWPWY9rs58gJHD/LVWxwGErlNZP2VZc=
-In-Reply-To: <20200414153455.21744-1-rppt@kernel.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:Cc:List-Subscribe:
+	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Message-Id:Date:Subject:
+	To:From:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:
+	List-Owner; bh=jZu2SG2CC0n9e6bY0OW4NrZkgCkX838M7bfDqNvau2s=; b=nRxLbMo5v+V4VD
+	vaSqoA3DoWs2Ep+ilGdhA34SZai3ZRwfrmxKJZQ7w4SMxySa+BoEeLsXu+gB+2iWftraKUAeiZc9G
+	VQSsdZE9m47qNC6AGD/Bz5Gbf4c7zbiZuzfrSnD1kVR3aK4IOof0+d4xqLSshfSUw52qjvnR8iNNG
+	X0nWTsGYb5+KFuz/fJAdM22LllsiI51dwzLB84BlVlFNZpVai1MEsD11Uj23PA3p9AZEuuj4nDj1l
+	yr/JsnmY2FdNney04inZhdnm0m3xMeL17228wgsLs3VQlA9mK/KkA+Q0SCa0qsR9HkDPg2Ig+p6d5
+	X94uiod4v7kotQumsI3w==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=arista.com; s=googlenew;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=jZu2SG2CC0n9e6bY0OW4NrZkgCkX838M7bfDqNvau2s=;
+ b=NtWMGxm5Z5KL60IcA5G6+HePF4i0/+hybqLX4fP2XMV4pk2XK/oJgFwY9QTP7vjDcS
+ 5rwxVW1+vHKUvZUBrN7R1Jm5os3oCs5jvHX41VQ5J2K9Y+GI66NfmYOUEkhyxC+rjZg7
+ 2GfsY1ICyicOKD9p22ci+KNPTEheYKJMkOJUNpoxfOXV+MY7Nfvt7+EMftdBGU8cAV7Z
+ Hc5O1LA9T9GP/asJoaPI+CZlJFXlG6W/t2lsj8SpH+N8Lys5LxM4YnccVfQhfWVsNDrM
+ t9gj0wsuKk0zluKdzjzbtHVloZk5oDJD4LvQFErIsDvme+gEa5teq5SfPrxjPtC9exZQ
+ O63A==
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.cs.columbia.edu/mailman/options/kvmarm>,
- <mailto:kvmarm-request@lists.cs.columbia.edu?subject=unsubscribe>
-List-Archive: <https://lists.cs.columbia.edu/pipermail/kvmarm>
-List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
-List-Help: <mailto:kvmarm-request@lists.cs.columbia.edu?subject=help>
-List-Subscribe: <https://lists.cs.columbia.edu/mailman/listinfo/kvmarm>,
- <mailto:kvmarm-request@lists.cs.columbia.edu?subject=subscribe>
-Errors-To: kvmarm-bounces@lists.cs.columbia.edu
-Sender: kvmarm-bounces@lists.cs.columbia.edu
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>, linux-sh@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>, linux-hexagon@vger.kernel.org, Will Deacon <will@kernel.org>, kvmarm@lists.cs.columbia.edu, Jonas Bonn <jonas@southpole.se>, linux-arch@vger.kernel.org, Brian Cain <bcain@codeaurora.org>, Marc Zyngier <maz@kernel.org>, Russell King <linux@armlinux.org.uk>, Ley Foon Tan <ley.foon.tan@intel.com>, Mike Rapoport <rppt@linux.ibm.com>, Catalin Marinas <catalin.marinas@arm.com>, uclinux-h8-devel@lists.sourceforge.jp, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, kvm-ppc@vger.kernel.org, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, openrisc@lists.librecores.org, Stafford Horne <shorne@gmail.com>, Guan Xuetao <gxt@p>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Cc: Juri Lelli <juri.lelli@redhat.com>, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Ben Segall <bsegall@google.com>, Guo Ren <guoren@kernel.org>, Pavel Machek <pavel@ucw.cz>, Vincent Guittot <vincent.guittot@linaro.org>, Paul Burton <paulburton@kernel.org>, Dmitry Safonov <dima@arista.com>, Michael Ellerman <mpe@ellerman.id.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, Jiri Slaby <jslaby@suse.com>, Matt Turner <mattst88@gmail.com>, uclinux-h8-devel@lists.sourceforge.jp, Len Brown <len.brown@intel.com>, linux-pm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-um@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Richard Henderson <rth@twiddle.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Ralf
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+Changes to v3:
+- Collected more architectual Acks and Reviewed-by
+- Fixed compilation on sparc64
 
-There are no architectures that use include/asm-generic/5level-fixup.h
-therefore it can be removed along with __ARCH_HAS_5LEVEL_HACK define and
-the code it surrounds
+Changes to v2:
+- Removed excessive pr_cont("\n") (nits by Senozhatsky)
+- Leave backtrace debugging messages with pr_debug()
+  (noted by Russell King and Will Deacon)
+- Correct microblaze_unwind_inner() declaration
+  (Thanks to Michal Simek and kbuild test robot)
+- Fix copy'n'paste typo in show_stack_loglvl() for sparc
+  (kbuild robot)
+- Fix backtrace output on xtensa
+  (Thanks Max Filippov)
+- Add loglevel to show_stack() on s390 (kbuild robot)
+- Collected all Reviewed-by and Acked-by (thanks!)
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- include/asm-generic/5level-fixup.h | 58 ------------------------------
- include/linux/mm.h                 |  6 ----
- mm/kasan/init.c                    | 11 ------
- mm/memory.c                        |  8 -----
- 4 files changed, 83 deletions(-)
- delete mode 100644 include/asm-generic/5level-fixup.h
+v2: https://lore.kernel.org/linux-riscv/20200316143916.195608-1-dima@arista.com/
+v1: https://lore.kernel.org/linux-riscv/20191106030542.868541-1-dima@arista.com/
 
-diff --git a/include/asm-generic/5level-fixup.h b/include/asm-generic/5level-fixup.h
-deleted file mode 100644
-index 4c74b1c1d13b..000000000000
---- a/include/asm-generic/5level-fixup.h
-+++ /dev/null
-@@ -1,58 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _5LEVEL_FIXUP_H
--#define _5LEVEL_FIXUP_H
--
--#define __ARCH_HAS_5LEVEL_HACK
--#define __PAGETABLE_P4D_FOLDED 1
--
--#define P4D_SHIFT			PGDIR_SHIFT
--#define P4D_SIZE			PGDIR_SIZE
--#define P4D_MASK			PGDIR_MASK
--#define MAX_PTRS_PER_P4D		1
--#define PTRS_PER_P4D			1
--
--#define p4d_t				pgd_t
--
--#define pud_alloc(mm, p4d, address) \
--	((unlikely(pgd_none(*(p4d))) && __pud_alloc(mm, p4d, address)) ? \
--		NULL : pud_offset(p4d, address))
--
--#define p4d_alloc(mm, pgd, address)	(pgd)
--#define p4d_offset(pgd, start)		(pgd)
--
--#ifndef __ASSEMBLY__
--static inline int p4d_none(p4d_t p4d)
--{
--	return 0;
--}
--
--static inline int p4d_bad(p4d_t p4d)
--{
--	return 0;
--}
--
--static inline int p4d_present(p4d_t p4d)
--{
--	return 1;
--}
--#endif
--
--#define p4d_ERROR(p4d)			do { } while (0)
--#define p4d_clear(p4d)			pgd_clear(p4d)
--#define p4d_val(p4d)			pgd_val(p4d)
--#define p4d_populate(mm, p4d, pud)	pgd_populate(mm, p4d, pud)
--#define p4d_populate_safe(mm, p4d, pud)	pgd_populate(mm, p4d, pud)
--#define p4d_page(p4d)			pgd_page(p4d)
--#define p4d_page_vaddr(p4d)		pgd_page_vaddr(p4d)
--
--#define __p4d(x)			__pgd(x)
--#define set_p4d(p4dp, p4d)		set_pgd(p4dp, p4d)
--
--#undef p4d_free_tlb
--#define p4d_free_tlb(tlb, x, addr)	do { } while (0)
--#define p4d_free(mm, x)			do { } while (0)
--
--#undef  p4d_addr_end
--#define p4d_addr_end(addr, end)		(end)
--
--#endif
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 5a323422d783..f794b77df1ca 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2060,11 +2060,6 @@ int __pte_alloc_kernel(pmd_t *pmd);
- 
- #if defined(CONFIG_MMU)
- 
--/*
-- * The following ifdef needed to get the 5level-fixup.h header to work.
-- * Remove it when 5level-fixup.h has been removed.
-- */
--#ifndef __ARCH_HAS_5LEVEL_HACK
- static inline p4d_t *p4d_alloc(struct mm_struct *mm, pgd_t *pgd,
- 		unsigned long address)
- {
-@@ -2078,7 +2073,6 @@ static inline pud_t *pud_alloc(struct mm_struct *mm, p4d_t *p4d,
- 	return (unlikely(p4d_none(*p4d)) && __pud_alloc(mm, p4d, address)) ?
- 		NULL : pud_offset(p4d, address);
- }
--#endif /* !__ARCH_HAS_5LEVEL_HACK */
- 
- static inline pmd_t *pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long address)
- {
-diff --git a/mm/kasan/init.c b/mm/kasan/init.c
-index ce45c491ebcd..fe6be0be1f76 100644
---- a/mm/kasan/init.c
-+++ b/mm/kasan/init.c
-@@ -250,20 +250,9 @@ int __ref kasan_populate_early_shadow(const void *shadow_start,
- 			 * 3,2 - level page tables where we don't have
- 			 * puds,pmds, so pgd_populate(), pud_populate()
- 			 * is noops.
--			 *
--			 * The ifndef is required to avoid build breakage.
--			 *
--			 * With 5level-fixup.h, pgd_populate() is not nop and
--			 * we reference kasan_early_shadow_p4d. It's not defined
--			 * unless 5-level paging enabled.
--			 *
--			 * The ifndef can be dropped once all KASAN-enabled
--			 * architectures will switch to pgtable-nop4d.h.
- 			 */
--#ifndef __ARCH_HAS_5LEVEL_HACK
- 			pgd_populate(&init_mm, pgd,
- 					lm_alias(kasan_early_shadow_p4d));
--#endif
- 			p4d = p4d_offset(pgd, addr);
- 			p4d_populate(&init_mm, p4d,
- 					lm_alias(kasan_early_shadow_pud));
-diff --git a/mm/memory.c b/mm/memory.c
-index f703fe8c8346..379277c631b4 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4434,19 +4434,11 @@ int __pud_alloc(struct mm_struct *mm, p4d_t *p4d, unsigned long address)
- 	smp_wmb(); /* See comment in __pte_alloc */
- 
- 	spin_lock(&mm->page_table_lock);
--#ifndef __ARCH_HAS_5LEVEL_HACK
- 	if (!p4d_present(*p4d)) {
- 		mm_inc_nr_puds(mm);
- 		p4d_populate(mm, p4d, new);
- 	} else	/* Another has populated it */
- 		pud_free(mm, new);
--#else
--	if (!pgd_present(*p4d)) {
--		mm_inc_nr_puds(mm);
--		pgd_populate(mm, p4d, new);
--	} else	/* Another has populated it */
--		pud_free(mm, new);
--#endif /* __ARCH_HAS_5LEVEL_HACK */
- 	spin_unlock(&mm->page_table_lock);
- 	return 0;
- }
+Add log level argument to show_stack().
+Done in three stages:
+1. Introducing show_stack_loglvl() for every architecture
+2. Migrating old users with an explicit log level
+3. Renaming show_stack_loglvl() into show_stack()
+
+Justification:
+o It's a design mistake to move a business-logic decision
+  into platform realization detail.
+o I have currently two patches sets that would benefit from this work:
+  Removing console_loglevel jumps in sysrq driver [1]
+  Hung task warning before panic [2] - suggested by Tetsuo (but he
+  probably didn't realise what it would involve).
+o While doing (1), (2) the backtraces were adjusted to headers
+  and other messages for each situation - so there won't be a situation
+  when the backtrace is printed, but the headers are missing because
+  they have lesser log level (or the reverse).
+o As the result in (2) plays with console_loglevel for kdb are removed.
+
+The least important for upstream, but maybe still worth to note that
+every company I've worked in so far had an off-list patch to print
+backtrace with the needed log level (but only for the architecture they
+cared about).
+If you have other ideas how you will benefit from show_stack() with
+a log level - please, reply to this cover letter.
+
+See also discussion on v1:
+https://lore.kernel.org/linux-riscv/20191106083538.z5nlpuf64cigxigh@pathway.suse.cz/
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jiri Slaby <jslaby@suse.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+
+Thanks,
+Dmitry
+
+[1]: https://lore.kernel.org/lkml/20190528002412.1625-1-dima@arista.com/T/#u
+[2]: https://lkml.kernel.org/r/41fd7652-df1f-26f6-aba0-b87ebae07db6@i-love.sakura.ne.jp
+
+Dmitry Safonov (50):
+  kallsyms/printk: Add loglvl to print_ip_sym()
+  alpha: Add show_stack_loglvl()
+  arc: Add show_stack_loglvl()
+  arm/asm: Add loglvl to c_backtrace()
+  arm: Add loglvl to unwind_backtrace()
+  arm: Add loglvl to dump_backtrace()
+  arm: Wire up dump_backtrace_{entry,stm}
+  arm: Add show_stack_loglvl()
+  arm64: Add loglvl to dump_backtrace()
+  arm64: Add show_stack_loglvl()
+  c6x: Add show_stack_loglvl()
+  csky: Add show_stack_loglvl()
+  h8300: Add show_stack_loglvl()
+  hexagon: Add show_stack_loglvl()
+  ia64: Pass log level as arg into ia64_do_show_stack()
+  ia64: Add show_stack_loglvl()
+  m68k: Add show_stack_loglvl()
+  microblaze: Add loglvl to microblaze_unwind_inner()
+  microblaze: Add loglvl to microblaze_unwind()
+  microblaze: Add show_stack_loglvl()
+  mips: Add show_stack_loglvl()
+  nds32: Add show_stack_loglvl()
+  nios2: Add show_stack_loglvl()
+  openrisc: Add show_stack_loglvl()
+  parisc: Add show_stack_loglvl()
+  powerpc: Add show_stack_loglvl()
+  riscv: Add show_stack_loglvl()
+  s390: Add show_stack_loglvl()
+  sh: Add loglvl to dump_mem()
+  sh: Remove needless printk()
+  sh: Add loglvl to printk_address()
+  sh: Add loglvl to show_trace()
+  sh: Add show_stack_loglvl()
+  sparc: Add show_stack_loglvl()
+  um/sysrq: Remove needless variable sp
+  um: Add show_stack_loglvl()
+  unicore32: Remove unused pmode argument in c_backtrace()
+  unicore32: Add loglvl to c_backtrace()
+  unicore32: Add show_stack_loglvl()
+  x86: Add missing const qualifiers for log_lvl
+  x86: Add show_stack_loglvl()
+  xtensa: Add loglvl to show_trace()
+  xtensa: Add show_stack_loglvl()
+  sysrq: Use show_stack_loglvl()
+  x86/amd_gart: Print stacktrace for a leak with KERN_ERR
+  power: Use show_stack_loglvl()
+  kdb: Don't play with console_loglevel
+  sched: Print stack trace with KERN_INFO
+  kernel: Use show_stack_loglvl()
+  kernel: Rename show_stack_loglvl() => show_stack()
+
+ arch/alpha/kernel/traps.c            | 22 +++++++--------
+ arch/arc/include/asm/bug.h           |  3 ++-
+ arch/arc/kernel/stacktrace.c         | 17 +++++++-----
+ arch/arc/kernel/troubleshoot.c       |  2 +-
+ arch/arm/include/asm/bug.h           |  3 ++-
+ arch/arm/include/asm/traps.h         |  3 ++-
+ arch/arm/include/asm/unwind.h        |  3 ++-
+ arch/arm/kernel/traps.c              | 39 +++++++++++++++------------
+ arch/arm/kernel/unwind.c             |  5 ++--
+ arch/arm/lib/backtrace-clang.S       |  9 +++++--
+ arch/arm/lib/backtrace.S             | 14 +++++++---
+ arch/arm64/include/asm/stacktrace.h  |  3 ++-
+ arch/arm64/kernel/process.c          |  2 +-
+ arch/arm64/kernel/traps.c            | 17 ++++++------
+ arch/c6x/kernel/traps.c              | 16 ++++++-----
+ arch/csky/kernel/dumpstack.c         |  9 ++++---
+ arch/csky/kernel/ptrace.c            |  4 +--
+ arch/h8300/kernel/traps.c            | 12 ++++-----
+ arch/hexagon/kernel/traps.c          | 25 ++++++++---------
+ arch/ia64/include/asm/ptrace.h       |  1 -
+ arch/ia64/kernel/mca.c               |  2 +-
+ arch/ia64/kernel/process.c           | 17 ++++++------
+ arch/m68k/kernel/traps.c             | 13 ++++-----
+ arch/microblaze/include/asm/unwind.h |  3 ++-
+ arch/microblaze/kernel/stacktrace.c  |  4 +--
+ arch/microblaze/kernel/traps.c       | 12 ++++-----
+ arch/microblaze/kernel/unwind.c      | 40 +++++++++++++++++-----------
+ arch/mips/kernel/traps.c             | 35 ++++++++++++------------
+ arch/nds32/kernel/traps.c            | 15 ++++++-----
+ arch/nios2/kernel/traps.c            | 17 ++++++------
+ arch/openrisc/kernel/traps.c         | 12 +++++----
+ arch/parisc/kernel/traps.c           | 24 ++++++++---------
+ arch/powerpc/kernel/process.c        | 15 ++++++-----
+ arch/powerpc/kernel/stacktrace.c     |  2 +-
+ arch/riscv/kernel/stacktrace.c       |  9 ++++---
+ arch/s390/kernel/dumpstack.c         | 13 ++++-----
+ arch/sh/include/asm/kdebug.h         |  6 +++--
+ arch/sh/include/asm/processor_32.h   |  2 +-
+ arch/sh/kernel/dumpstack.c           | 36 ++++++++++++-------------
+ arch/sh/kernel/process_32.c          |  2 +-
+ arch/sh/kernel/process_64.c          |  3 +--
+ arch/sh/kernel/traps.c               |  4 +--
+ arch/sh/mm/fault.c                   |  2 +-
+ arch/sparc/kernel/process_32.c       | 10 +++----
+ arch/sparc/kernel/process_64.c       |  2 +-
+ arch/sparc/kernel/traps_64.c         |  9 ++++---
+ arch/um/drivers/mconsole_kern.c      |  2 +-
+ arch/um/kernel/sysrq.c               | 23 ++++++++--------
+ arch/unicore32/kernel/setup.h        |  2 +-
+ arch/unicore32/kernel/traps.c        | 34 +++++++++++------------
+ arch/unicore32/lib/backtrace.S       | 24 +++++++++++------
+ arch/x86/include/asm/stacktrace.h    |  2 +-
+ arch/x86/kernel/amd_gart_64.c        |  2 +-
+ arch/x86/kernel/dumpstack.c          |  9 ++++---
+ arch/xtensa/kernel/traps.c           | 22 ++++++++-------
+ drivers/base/power/main.c            |  2 +-
+ drivers/tty/sysrq.c                  |  2 +-
+ include/linux/kallsyms.h             |  4 +--
+ include/linux/sched/debug.h          |  3 ++-
+ kernel/debug/kdb/kdb_bt.c            | 15 ++++++-----
+ kernel/locking/lockdep.c             |  4 +--
+ kernel/locking/rtmutex-debug.c       |  2 +-
+ kernel/sched/core.c                  |  8 +++---
+ kernel/trace/ftrace.c                |  8 +++---
+ lib/dump_stack.c                     |  2 +-
+ tools/include/linux/kallsyms.h       |  2 +-
+ 66 files changed, 375 insertions(+), 315 deletions(-)
+
 -- 
-2.25.1
+2.26.0
+
+
