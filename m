@@ -1,160 +1,43 @@
-From: Dmitry Safonov <dima@arista.com>
-Subject: [PATCHv3 14/50] hexagon: Add show_stack_loglvl()
-Date: Sat, 18 Apr 2020 21:19:08 +0100
-Message-ID: <20200418201944.482088-15-dima@arista.com>
-References: <20200418201944.482088-1-dima@arista.com>
+From: Markus Elfring <Markus.Elfring@web.de>
+Subject: Re: [PATCH v3 00/50] Add log level to show_stack()
+Date: Sun, 19 Apr 2020 08:24:59 +0200
+Message-ID: <510426be-c95f-adea-af6a-51e592f41ce0@web.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=arista.com; s=googlenew;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=6R0TdYOcG5Bv2SRfLD1msXELfsMKoMz98rYdKts12dM=;
-        b=VdZ2T7boD+7pyETQjAzc4RbuYi6fxXG4Z5oQiGzEBK+nNHz0rCq8g4ilLEw3HUB0s3
-         4ygAY5J/AoKL9Z3jaAvMjPZ+HsodIJWsmKCrBXtJieioQL2kFfUYiBHWooDG/6sjOeBH
-         zILlEyARTMxMhGX/xgXncIZ72O7JxiiQDFLrvKrzOLS6TOqGgRLnnB6K2YOFnDZLfAQ3
-         Phj/rb0p5rTfTaieM9TZkihFdD9SnoeU24WPx2XC7D9jtHka0wPAimqBnhS0+sfv8XrS
-         ZVdyQgzxHilfOZezkcCWS55ZF1Pie7qR1BrwUJtmeJTnz/jv69G9MNr9rdPJpb2YPtIN
-         n1JQ==
-In-Reply-To: <20200418201944.482088-1-dima@arista.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>, Dmitry Safonov <dima@arista.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jslaby@suse.com>, Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+ s=dbaedf251592; t=1587277511;
+ bh=R0GHJO7eG/0xS8Mj3Xwo95YcotDuEUImghkPfpCjkFc=;
+ h=X-UI-Sender-Class:To:Subject:From:Cc:Date;
+ b=Xh1rc4a2nTe2FRbuM2d3LFUpy2ATvwL6Mq2jASXH2Uj1VECi3BtaU5jTeDU96zUi+
+ gwYzUq+VcXKoRGDrodiVHQrXb1tznMtvGdEFxr0epor8v8528Eupg9FhX4N5yizX0i
+ J6tVmFc1f+jyCb7V0IZQSHGzySHfodHG+S60VHtQ=
+Content-Language: en-GB
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Content-Type: text/plain; charset="utf-8"
+To: Dmitry Safonov <dima@arista.com>, clang-built-linux@googlegroups.com, kgdb-bugreport@lists.sourceforge.net, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+Cc: Juri Lelli <juri.lelli@redhat.com>, Rich Felker <dalias@libc.org>, Thomas Gleixner <tglx@linutronix.de>, Petr Mladek <pmladek@suse.com>, Len Brown <len.brown@intel.com>, Peter Zijlstra <peterz@infradead.org>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, "James E. J. Bottomley" <James.Bottomley@HansenPartnership.com>, Dmitry Safonov <0x7f454c46@gmail.com>, Ben Segall <bsegall@google.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Vincent Chen <deanbo422@gmail.com>, Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>, Paul Mackerras <paulus@samba.org>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Jonas Bonn <jonas@southpole.se>, Daniel Thompson <daniel.thompson@linaro.org>, Vincent Guittot <vincent.guittot@linaro.org>, Brian Cain <bcain@codeaurora.org>, Helge Deller <del>
 
-Currently, the log-level of show_stack() depends on a platform
-realization. It creates situations where the headers are printed with
-lower log level or higher than the stacktrace (depending on
-a platform or user).
+> Changes to v3:
+> - Collected more architectual Acks and Reviewed-by
 
-Furthermore, it forces the logic decision from user to an architecture
-side. In result, some users as sysrq/kdb/etc are doing tricks with
-temporary rising console_loglevel while printing their messages.
-And in result it not only may print unwanted messages from other CPUs,
-but also omit printing at all in the unlucky case where the printk()
-was deferred.
+* I suggest to avoid a typo in this description.
 
-Introducing log-level parameter and KERN_UNSUPPRESSED [1] seems
-an easier approach than introducing more printk buffers.
-Also, it will consolidate printings with headers.
+* Please separate the tag =E2=80=9CPATCH=E2=80=9D from the version descrip=
+tor in the subject.
+  https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/=
+Documentation/process/submitting-patches.rst?id=3D50cc09c18985eacbbd666acf=
+d7be2391394733f5#n709
 
-Introduce show_stack_loglvl(), that eventually will substitute
-show_stack().
-
-As a good side-effect die() now prints the stacktrace with KERN_EMERG
-aligned with other messages.
-
-Cc: Brian Cain <bcain@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
-[1]: https://lore.kernel.org/lkml/20190528002412.1625-1-dima@arista.com/T/#u
-Acked-by: Brian Cain <bcain@codeaurora.org>
-Signed-off-by: Dmitry Safonov <dima@arista.com>
----
- arch/hexagon/kernel/traps.c | 31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
-
-diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
-index 69c623b14ddd..a8a3a210d781 100644
---- a/arch/hexagon/kernel/traps.c
-+++ b/arch/hexagon/kernel/traps.c
-@@ -79,7 +79,7 @@ static const char *ex_name(int ex)
- }
- 
- static void do_show_stack(struct task_struct *task, unsigned long *fp,
--			  unsigned long ip)
-+			  unsigned long ip, const char *loglvl)
- {
- 	int kstack_depth_to_print = 24;
- 	unsigned long offset, size;
-@@ -93,9 +93,8 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 	if (task == NULL)
- 		task = current;
- 
--	printk(KERN_INFO "CPU#%d, %s/%d, Call Trace:\n",
--	       raw_smp_processor_id(), task->comm,
--	       task_pid_nr(task));
-+	printk("%sCPU#%d, %s/%d, Call Trace:\n", loglvl, raw_smp_processor_id(),
-+		task->comm, task_pid_nr(task));
- 
- 	if (fp == NULL) {
- 		if (task == current) {
-@@ -108,7 +107,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 	}
- 
- 	if ((((unsigned long) fp) & 0x3) || ((unsigned long) fp < 0x1000)) {
--		printk(KERN_INFO "-- Corrupt frame pointer %p\n", fp);
-+		printk("%s-- Corrupt frame pointer %p\n", loglvl, fp);
- 		return;
- 	}
- 
-@@ -125,8 +124,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 
- 		name = kallsyms_lookup(ip, &size, &offset, &modname, tmpstr);
- 
--		printk(KERN_INFO "[%p] 0x%lx: %s + 0x%lx", fp, ip, name,
--			offset);
-+		printk("%s[%p] 0x%lx: %s + 0x%lx", loglvl, fp, ip, name, offset);
- 		if (((unsigned long) fp < low) || (high < (unsigned long) fp))
- 			printk(KERN_CONT " (FP out of bounds!)");
- 		if (modname)
-@@ -136,8 +134,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 		newfp = (unsigned long *) *fp;
- 
- 		if (((unsigned long) newfp) & 0x3) {
--			printk(KERN_INFO "-- Corrupt frame pointer %p\n",
--				newfp);
-+			printk("%s-- Corrupt frame pointer %p\n", loglvl, newfp);
- 			break;
- 		}
- 
-@@ -147,7 +144,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 						+ 8);
- 
- 			if (regs->syscall_nr != -1) {
--				printk(KERN_INFO "-- trap0 -- syscall_nr: %ld",
-+				printk("%s-- trap0 -- syscall_nr: %ld", loglvl,
- 					regs->syscall_nr);
- 				printk(KERN_CONT "  psp: %lx  elr: %lx\n",
- 					 pt_psp(regs), pt_elr(regs));
-@@ -155,7 +152,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 			} else {
- 				/* really want to see more ... */
- 				kstack_depth_to_print += 6;
--				printk(KERN_INFO "-- %s (0x%lx)  badva: %lx\n",
-+				printk("%s-- %s (0x%lx)  badva: %lx\n", loglvl,
- 					ex_name(pt_cause(regs)), pt_cause(regs),
- 					pt_badva(regs));
- 			}
-@@ -178,10 +175,16 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 	}
- }
- 
--void show_stack(struct task_struct *task, unsigned long *fp)
-+void show_stack_loglvl(struct task_struct *task, unsigned long *fp,
-+		       const char *loglvl)
- {
- 	/* Saved link reg is one word above FP */
--	do_show_stack(task, fp, 0);
-+	do_show_stack(task, fp, 0, loglvl);
-+}
-+
-+void show_stack(struct task_struct *task, unsigned long *fp)
-+{
-+	show_stack_loglvl(task, fp, 0, KERN_INFO);
- }
- 
- int die(const char *str, struct pt_regs *regs, long err)
-@@ -207,7 +210,7 @@ int die(const char *str, struct pt_regs *regs, long err)
- 
- 	print_modules();
- 	show_regs(regs);
--	do_show_stack(current, &regs->r30, pt_elr(regs));
-+	do_show_stack(current, &regs->r30, pt_elr(regs), KERN_EMERG);
- 
- 	bust_spinlocks(0);
- 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
--- 
-2.26.0
-
+Regards,
+Markus
