@@ -1,43 +1,172 @@
-From: Markus Elfring <Markus.Elfring@web.de>
-Subject: Re: [PATCH v3 00/50] Add log level to show_stack()
-Date: Sun, 19 Apr 2020 08:24:59 +0200
-Message-ID: <510426be-c95f-adea-af6a-51e592f41ce0@web.de>
-Mime-Version: 1.0
+From: Qian Cai <cai@lca.pw>
+Subject: Re: [PATCH 15/21] mm: memmap_init: iterate over memblock regions
+ rather that check each PFN
+Date: Mon, 20 Apr 2020 10:26:06 -0400
+Message-ID: <CF6E407F-17DC-427C-8203-21979FB882EF@lca.pw>
+References: <20200412194859.12663-1-rppt@kernel.org>
+ <20200412194859.12663-16-rppt@kernel.org>
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
- s=dbaedf251592; t=1587277511;
- bh=R0GHJO7eG/0xS8Mj3Xwo95YcotDuEUImghkPfpCjkFc=;
- h=X-UI-Sender-Class:To:Subject:From:Cc:Date;
- b=Xh1rc4a2nTe2FRbuM2d3LFUpy2ATvwL6Mq2jASXH2Uj1VECi3BtaU5jTeDU96zUi+
- gwYzUq+VcXKoRGDrodiVHQrXb1tznMtvGdEFxr0epor8v8528Eupg9FhX4N5yizX0i
- J6tVmFc1f+jyCb7V0IZQSHGzySHfodHG+S60VHtQ=
-Content-Language: en-GB
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:Cc:List-Subscribe:
+	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:To:References:
+	Message-Id:Content-Transfer-Encoding:Date:In-Reply-To:From:Subject:
+	Mime-Version:Content-Type:Reply-To:Content-ID:Content-Description:Resent-Date
+	:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	 bh=x4haHkUujR1fKPz5RIOI82+KmuZk6e+W1yh47eNmIvQ=; b=Aqz3WiJ7HlXmfJc7cAJ/OZW7Q
+	OyvlqSELA3cCzEwCLcLW0LId5d1CPyiluWJ5crwybR7tjdlP6lBbIi2a/cKayyQBNISsRSv106mUQ
+	CJSgcCuDe3s2GziVGEpmpjrIvl+MRRGbeQE6DweJPHUVrokLKmY/2XBS0FgE0ml2NDDQJB9tgr0Jb
+	eEkf/81cwgHg+e5/LhP+CvsPy+rgmHrxLs4ArsdwklbbMwtJCLa0M85uhvzMQucZC4c2fscs3afXC
+	ZSJ+fpwyrvrqqL8IvNnxCuuNaVFuef/15iXBlmHAEXatmL6LJuoJDX2VmdBPHaIggXh2jk8yoPK/w
+	TTvaYb2xA==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lca.pw; s=google;
+ h=mime-version:subject:from:in-reply-to:date:cc
+ :content-transfer-encoding:message-id:references:to;
+ bh=x4haHkUujR1fKPz5RIOI82+KmuZk6e+W1yh47eNmIvQ=;
+ b=DnvEUFzSch8BOWv/K7yUwrGGEukS5excCJecSvcapVOhdy/OFYe7Y9x1bGe8SeT916
+ l1+1chsImNg3ZkGKpfN6ahvWi6toqC2h9IrP5AAGTN0GSjdGn3qsRFRJ+RJKyRIC9tu1
+ Dj3ea0wViCiibWw2vLnH2xAQFEOjXLO8KUs1T46qoBzPcqk7/mrvO1+D2/LejHD1ICpo
+ KoyvCsqeLxeoDgKdlRyHMBD+KBeYlPJHqA50tfN8jzW6UL/Xp60Ax2PqCOWTXHM9g3GG
+ cbNMSaz+pl+PNBKPTXdiSGvlo1iEHh3BDrH71SvZZsVGfYckGoh6BGUSunvfhu/heiMK
+ xWhA==
+In-Reply-To: <20200412194859.12663-16-rppt@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-Content-Type: text/plain; charset="utf-8"
-To: Dmitry Safonov <dima@arista.com>, clang-built-linux@googlegroups.com, kgdb-bugreport@lists.sourceforge.net, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
-Cc: Juri Lelli <juri.lelli@redhat.com>, Rich Felker <dalias@libc.org>, Thomas Gleixner <tglx@linutronix.de>, Petr Mladek <pmladek@suse.com>, Len Brown <len.brown@intel.com>, Peter Zijlstra <peterz@infradead.org>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, "James E. J. Bottomley" <James.Bottomley@HansenPartnership.com>, Dmitry Safonov <0x7f454c46@gmail.com>, Ben Segall <bsegall@google.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Vincent Chen <deanbo422@gmail.com>, Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>, Paul Mackerras <paulus@samba.org>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Jonas Bonn <jonas@southpole.se>, Daniel Thompson <daniel.thompson@linaro.org>, Vincent Guittot <vincent.guittot@linaro.org>, Brian Cain <bcain@codeaurora.org>, Helge Deller <del>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"
+To: Mike Rapoport <rppt@kernel.org>, Baoquan He <bhe@redhat.com>
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-c6x-dev@linux-c6x.org, Brian Cain <bcain@codeaurora.org>, Jonathan Corbet <corbet@lwn.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, the arch/x86 maintainers <x86@kernel.org>, Russell King <linux@armlinux.org.u>
 
-> Changes to v3:
-> - Collected more architectual Acks and Reviewed-by
 
-* I suggest to avoid a typo in this description.
 
-* Please separate the tag =E2=80=9CPATCH=E2=80=9D from the version descrip=
-tor in the subject.
-  https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/=
-Documentation/process/submitting-patches.rst?id=3D50cc09c18985eacbbd666acf=
-d7be2391394733f5#n709
+> On Apr 12, 2020, at 3:48 PM, Mike Rapoport <rppt@kernel.org> wrote:
+>=20
+> From: Baoquan He <bhe@redhat.com>
+>=20
+> When called during boot the memmap_init_zone() function checks if each =
+PFN
+> is valid and actually belongs to the node being initialized using
+> early_pfn_valid() and early_pfn_in_nid().
+>=20
+> Each such check may cost up to O(log(n)) where n is the number of =
+memory
+> banks, so for large amount of memory overall time spent in =
+early_pfn*()
+> becomes substantial.
+>=20
+> Since the information is anyway present in memblock, we can iterate =
+over
+> memblock memory regions in memmap_init() and only call =
+memmap_init_zone()
+> for PFN ranges that are know to be valid and in the appropriate node.
+>=20
+> Signed-off-by: Baoquan He <bhe@redhat.com>
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+> mm/page_alloc.c | 26 ++++++++++++++++----------
+> 1 file changed, 16 insertions(+), 10 deletions(-)
+>=20
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 7f6a3081edb8..c43ce8709457 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -5995,14 +5995,6 @@ void __meminit memmap_init_zone(unsigned long =
+size, int nid, unsigned long zone,
+> 		 * function.  They do not exist on hotplugged memory.
+> 		 */
+> 		if (context =3D=3D MEMMAP_EARLY) {
+> -			if (!early_pfn_valid(pfn)) {
+> -				pfn =3D next_pfn(pfn);
+> -				continue;
+> -			}
+> -			if (!early_pfn_in_nid(pfn, nid)) {
+> -				pfn++;
+> -				continue;
+> -			}
 
-Regards,
-Markus
+This causes a compilation warning from Clang,
+
+mm/page_alloc.c:5917:39: warning: unused function 'next_pfn' =
+[-Wunused-function]
+static inline __meminit unsigned long next_pfn(unsigned long pfn)
+
+This should fix it,
+
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index d469384c9ca7..b48336e20bdc 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5912,23 +5912,6 @@ overlap_memmap_init(unsigned long zone, unsigned =
+long *pfn)
+ 	return false;
+ }
+=20
+-#ifdef CONFIG_SPARSEMEM
+-/* Skip PFNs that belong to non-present sections */
+-static inline __meminit unsigned long next_pfn(unsigned long pfn)
+-{
+-	const unsigned long section_nr =3D pfn_to_section_nr(++pfn);
+-
+-	if (present_section_nr(section_nr))
+-		return pfn;
+-	return section_nr_to_pfn(next_present_section_nr(section_nr));
+-}
+-#else
+-static inline __meminit unsigned long next_pfn(unsigned long pfn)
+-{
+-	return pfn++;
+-}
+-#endif
+-
+ /*
+  * Initially all pages are reserved - free ones are freed
+  * up by memblock_free_all() once the early boot process is
+
+> 			if (overlap_memmap_init(zone, &pfn))
+> 				continue;
+> 			if (defer_init(nid, pfn, end_pfn))
+> @@ -6118,9 +6110,23 @@ static void __meminit =
+zone_init_free_lists(struct zone *zone)
+> }
+>=20
+> void __meminit __weak memmap_init(unsigned long size, int nid,
+> -				  unsigned long zone, unsigned long =
+start_pfn)
+> +				  unsigned long zone,
+> +				  unsigned long range_start_pfn)
+> {
+> -	memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY, =
+NULL);
+> +	unsigned long start_pfn, end_pfn;
+> +	unsigned long range_end_pfn =3D range_start_pfn + size;
+> +	int i;
+> +
+> +	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
+> +		start_pfn =3D clamp(start_pfn, range_start_pfn, =
+range_end_pfn);
+> +		end_pfn =3D clamp(end_pfn, range_start_pfn, =
+range_end_pfn);
+> +
+> +		if (end_pfn > start_pfn) {
+> +			size =3D end_pfn - start_pfn;
+> +			memmap_init_zone(size, nid, zone, start_pfn,
+> +					 MEMMAP_EARLY, NULL);
+> +		}
+> +	}
+> }
+>=20
+> static int zone_batchsize(struct zone *zone)
+> --=20
+> 2.25.1
+>=20
+>=20
+
+
