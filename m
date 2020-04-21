@@ -1,172 +1,171 @@
-From: Qian Cai <cai@lca.pw>
-Subject: Re: [PATCH 15/21] mm: memmap_init: iterate over memblock regions
- rather that check each PFN
-Date: Mon, 20 Apr 2020 10:26:06 -0400
-Message-ID: <CF6E407F-17DC-427C-8203-21979FB882EF@lca.pw>
+From: Baoquan He <bhe@redhat.com>
+Subject: Re: [PATCH 01/21] mm: memblock: replace dereferences of
+ memblock_region.nid with API calls
+Date: Tue, 21 Apr 2020 10:06:03 +0800
+Message-ID: <20200421020603.GO4247@MiWiFi-R3L-srv>
 References: <20200412194859.12663-1-rppt@kernel.org>
- <20200412194859.12663-16-rppt@kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:Cc:List-Subscribe:
-	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:To:References:
-	Message-Id:Content-Transfer-Encoding:Date:In-Reply-To:From:Subject:
-	Mime-Version:Content-Type:Reply-To:Content-ID:Content-Description:Resent-Date
-	:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
-	 bh=x4haHkUujR1fKPz5RIOI82+KmuZk6e+W1yh47eNmIvQ=; b=Aqz3WiJ7HlXmfJc7cAJ/OZW7Q
-	OyvlqSELA3cCzEwCLcLW0LId5d1CPyiluWJ5crwybR7tjdlP6lBbIi2a/cKayyQBNISsRSv106mUQ
-	CJSgcCuDe3s2GziVGEpmpjrIvl+MRRGbeQE6DweJPHUVrokLKmY/2XBS0FgE0ml2NDDQJB9tgr0Jb
-	eEkf/81cwgHg+e5/LhP+CvsPy+rgmHrxLs4ArsdwklbbMwtJCLa0M85uhvzMQucZC4c2fscs3afXC
-	ZSJ+fpwyrvrqqL8IvNnxCuuNaVFuef/15iXBlmHAEXatmL6LJuoJDX2VmdBPHaIggXh2jk8yoPK/w
-	TTvaYb2xA==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lca.pw; s=google;
- h=mime-version:subject:from:in-reply-to:date:cc
- :content-transfer-encoding:message-id:references:to;
- bh=x4haHkUujR1fKPz5RIOI82+KmuZk6e+W1yh47eNmIvQ=;
- b=DnvEUFzSch8BOWv/K7yUwrGGEukS5excCJecSvcapVOhdy/OFYe7Y9x1bGe8SeT916
- l1+1chsImNg3ZkGKpfN6ahvWi6toqC2h9IrP5AAGTN0GSjdGn3qsRFRJ+RJKyRIC9tu1
- Dj3ea0wViCiibWw2vLnH2xAQFEOjXLO8KUs1T46qoBzPcqk7/mrvO1+D2/LejHD1ICpo
- KoyvCsqeLxeoDgKdlRyHMBD+KBeYlPJHqA50tfN8jzW6UL/Xp60Ax2PqCOWTXHM9g3GG
- cbNMSaz+pl+PNBKPTXdiSGvlo1iEHh3BDrH71SvZZsVGfYckGoh6BGUSunvfhu/heiMK
- xWhA==
-In-Reply-To: <20200412194859.12663-16-rppt@kernel.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+ <20200412194859.12663-2-rppt@kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-To: Mike Rapoport <rppt@kernel.org>, Baoquan He <bhe@redhat.com>
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-c6x-dev@linux-c6x.org, Brian Cain <bcain@codeaurora.org>, Jonathan Corbet <corbet@lwn.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, the arch/x86 maintainers <x86@kernel.org>, Russell King <linux@armlinux.org.u>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=F02uVhFDDPWzEvREFMXsjZaBFTGmQXSuNf4JfA0jJ3o=; b=Vlkbt5VPLgVGoy
+	ghIqSCBrMYfHS1ebAt2eW8Pt4bmpcG/Tfzau8Extln+I0s3IO6/g5uTBVsT92YbWD9xuznFFMRxvD
+	ocPguvYsK7laEId0Ujyq4dcHZ43JKTvy4SJVGyy1B5SusmRd6KimXhpmEoV3CrXj4kfT0KQvttUDu
+	tHIHeedbxEHmw+HXFjRlzLLQs/yZTodjQsF4xhqkJi/WxXOdQjGXdi7Xcf3HApf2VYzH5/X+vPfw/
+	/mmDfswqz/N0iWVhLOWZN4pe+trj6IGubAOHceJqALnxu7DJUUN9thfDIga3fpoqKVlbPe8mMxYnl
+	zUz4EhmtvfUYY501ds+A==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1587434782;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=NeOgQkZsDdoMNz10q5IMbsxGpqUOFvMFdq6FjujHkZg=;
+ b=SaCdoY7l299J9vjZ35BwGG6/62d0fDj48GmbWnFzq8cbXVK4pHkiJuhl7lc0OPUUtZ54GO
+ jZsHZi8lSDwXNHAQqfQ+G8D8qG2Cn4EccagjrkE1Z3kjpxURi9+h1QfMVrCG6VEqWrhKGf
+ Ke73MnEvD7BL9e0prQg4TkD4PfLzWgA=
+Content-Disposition: inline
+In-Reply-To: <20200412194859.12663-2-rppt@kernel.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-c6x-dev@linux-c6x.org, Brian Cain <bcain@codeaurora.org>, Jonathan Corbet <corbet@lwn.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ley Foon Tan <ley.foon.>
 
-
-
-> On Apr 12, 2020, at 3:48 PM, Mike Rapoport <rppt@kernel.org> wrote:
->=20
-> From: Baoquan He <bhe@redhat.com>
->=20
-> When called during boot the memmap_init_zone() function checks if each =
-PFN
-> is valid and actually belongs to the node being initialized using
-> early_pfn_valid() and early_pfn_in_nid().
->=20
-> Each such check may cost up to O(log(n)) where n is the number of =
-memory
-> banks, so for large amount of memory overall time spent in =
-early_pfn*()
-> becomes substantial.
->=20
-> Since the information is anyway present in memblock, we can iterate =
-over
-> memblock memory regions in memmap_init() and only call =
-memmap_init_zone()
-> for PFN ranges that are know to be valid and in the appropriate node.
->=20
-> Signed-off-by: Baoquan He <bhe@redhat.com>
+On 04/12/20 at 10:48pm, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> There are several places in the code that directly dereference
+> memblock_region.nid despite this field being defined only when
+> CONFIG_HAVE_MEMBLOCK_NODE_MAP=y.
+> 
+> Replace these with calls to memblock_get_region_nid() to improve code
+> robustness and to avoid possible breakage when
+> CONFIG_HAVE_MEMBLOCK_NODE_MAP will be removed.
+> 
 > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 > ---
-> mm/page_alloc.c | 26 ++++++++++++++++----------
-> 1 file changed, 16 insertions(+), 10 deletions(-)
->=20
+>  arch/arm64/mm/numa.c | 9 ++++++---
+>  arch/x86/mm/numa.c   | 6 ++++--
+>  mm/memblock.c        | 8 +++++---
+>  mm/page_alloc.c      | 4 ++--
+>  4 files changed, 17 insertions(+), 10 deletions(-)
+> 
+> diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
+> index 4decf1659700..aafcee3e3f7e 100644
+> --- a/arch/arm64/mm/numa.c
+> +++ b/arch/arm64/mm/numa.c
+> @@ -350,13 +350,16 @@ static int __init numa_register_nodes(void)
+>  	struct memblock_region *mblk;
+>  
+>  	/* Check that valid nid is set to memblks */
+> -	for_each_memblock(memory, mblk)
+> -		if (mblk->nid == NUMA_NO_NODE || mblk->nid >= MAX_NUMNODES) {
+> +	for_each_memblock(memory, mblk) {
+> +		int mblk_nid = memblock_get_region_node(mblk);
+> +
+> +		if (mblk_nid == NUMA_NO_NODE || mblk_nid >= MAX_NUMNODES) {
+>  			pr_warn("Warning: invalid memblk node %d [mem %#010Lx-%#010Lx]\n",
+> -				mblk->nid, mblk->base,
+> +				mblk_nid, mblk->base,
+>  				mblk->base + mblk->size - 1);
+>  			return -EINVAL;
+>  		}
+> +	}
+>  
+>  	/* Finally register nodes. */
+>  	for_each_node_mask(nid, numa_nodes_parsed) {
+> diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
+> index 59ba008504dc..fe024b2ac796 100644
+> --- a/arch/x86/mm/numa.c
+> +++ b/arch/x86/mm/numa.c
+> @@ -517,8 +517,10 @@ static void __init numa_clear_kernel_node_hotplug(void)
+>  	 *   reserve specific pages for Sandy Bridge graphics. ]
+>  	 */
+>  	for_each_memblock(reserved, mb_region) {
+> -		if (mb_region->nid != MAX_NUMNODES)
+> -			node_set(mb_region->nid, reserved_nodemask);
+> +		int nid = memblock_get_region_node(mb_region);
+> +
+> +		if (nid != MAX_NUMNODES)
+> +			node_set(nid, reserved_nodemask);
+>  	}
+>  
+>  	/*
+> diff --git a/mm/memblock.c b/mm/memblock.c
+> index c79ba6f9920c..43e2fd3006c1 100644
+> --- a/mm/memblock.c
+> +++ b/mm/memblock.c
+> @@ -1207,13 +1207,15 @@ void __init_memblock __next_mem_pfn_range(int *idx, int nid,
+>  {
+>  	struct memblock_type *type = &memblock.memory;
+>  	struct memblock_region *r;
+> +	int r_nid;
+>  
+>  	while (++*idx < type->cnt) {
+>  		r = &type->regions[*idx];
+> +		r_nid = memblock_get_region_node(r);
+>  
+>  		if (PFN_UP(r->base) >= PFN_DOWN(r->base + r->size))
+>  			continue;
+> -		if (nid == MAX_NUMNODES || nid == r->nid)
+> +		if (nid == MAX_NUMNODES || nid == r_nid)
+>  			break;
+>  	}
+>  	if (*idx >= type->cnt) {
+> @@ -1226,7 +1228,7 @@ void __init_memblock __next_mem_pfn_range(int *idx, int nid,
+>  	if (out_end_pfn)
+>  		*out_end_pfn = PFN_DOWN(r->base + r->size);
+>  	if (out_nid)
+> -		*out_nid = r->nid;
+> +		*out_nid = r_nid;
+>  }
+>  
+>  /**
+> @@ -1810,7 +1812,7 @@ int __init_memblock memblock_search_pfn_nid(unsigned long pfn,
+>  	*start_pfn = PFN_DOWN(type->regions[mid].base);
+>  	*end_pfn = PFN_DOWN(type->regions[mid].base + type->regions[mid].size);
+>  
+> -	return type->regions[mid].nid;
+> +	return memblock_get_region_node(&type->regions[mid]);
+>  }
+>  #endif
+>  
 > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 7f6a3081edb8..c43ce8709457 100644
+> index 69827d4fa052..0d012eda1694 100644
 > --- a/mm/page_alloc.c
 > +++ b/mm/page_alloc.c
-> @@ -5995,14 +5995,6 @@ void __meminit memmap_init_zone(unsigned long =
-size, int nid, unsigned long zone,
-> 		 * function.  They do not exist on hotplugged memory.
-> 		 */
-> 		if (context =3D=3D MEMMAP_EARLY) {
-> -			if (!early_pfn_valid(pfn)) {
-> -				pfn =3D next_pfn(pfn);
-> -				continue;
-> -			}
-> -			if (!early_pfn_in_nid(pfn, nid)) {
-> -				pfn++;
-> -				continue;
-> -			}
+> @@ -7208,7 +7208,7 @@ static void __init find_zone_movable_pfns_for_nodes(void)
+>  			if (!memblock_is_hotpluggable(r))
+>  				continue;
+>  
+> -			nid = r->nid;
+> +			nid = memblock_get_region_node(r);
+>  
+>  			usable_startpfn = PFN_DOWN(r->base);
+>  			zone_movable_pfn[nid] = zone_movable_pfn[nid] ?
+> @@ -7229,7 +7229,7 @@ static void __init find_zone_movable_pfns_for_nodes(void)
+>  			if (memblock_is_mirror(r))
+>  				continue;
+>  
+> -			nid = r->nid;
+> +			nid = memblock_get_region_node(r);
+>  
+>  			usable_startpfn = memblock_region_memory_base_pfn(r);
 
-This causes a compilation warning from Clang,
+Looks good to me.
 
-mm/page_alloc.c:5917:39: warning: unused function 'next_pfn' =
-[-Wunused-function]
-static inline __meminit unsigned long next_pfn(unsigned long pfn)
-
-This should fix it,
-
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index d469384c9ca7..b48336e20bdc 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5912,23 +5912,6 @@ overlap_memmap_init(unsigned long zone, unsigned =
-long *pfn)
- 	return false;
- }
-=20
--#ifdef CONFIG_SPARSEMEM
--/* Skip PFNs that belong to non-present sections */
--static inline __meminit unsigned long next_pfn(unsigned long pfn)
--{
--	const unsigned long section_nr =3D pfn_to_section_nr(++pfn);
--
--	if (present_section_nr(section_nr))
--		return pfn;
--	return section_nr_to_pfn(next_present_section_nr(section_nr));
--}
--#else
--static inline __meminit unsigned long next_pfn(unsigned long pfn)
--{
--	return pfn++;
--}
--#endif
--
- /*
-  * Initially all pages are reserved - free ones are freed
-  * up by memblock_free_all() once the early boot process is
-
-> 			if (overlap_memmap_init(zone, &pfn))
-> 				continue;
-> 			if (defer_init(nid, pfn, end_pfn))
-> @@ -6118,9 +6110,23 @@ static void __meminit =
-zone_init_free_lists(struct zone *zone)
-> }
->=20
-> void __meminit __weak memmap_init(unsigned long size, int nid,
-> -				  unsigned long zone, unsigned long =
-start_pfn)
-> +				  unsigned long zone,
-> +				  unsigned long range_start_pfn)
-> {
-> -	memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY, =
-NULL);
-> +	unsigned long start_pfn, end_pfn;
-> +	unsigned long range_end_pfn =3D range_start_pfn + size;
-> +	int i;
-> +
-> +	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
-> +		start_pfn =3D clamp(start_pfn, range_start_pfn, =
-range_end_pfn);
-> +		end_pfn =3D clamp(end_pfn, range_start_pfn, =
-range_end_pfn);
-> +
-> +		if (end_pfn > start_pfn) {
-> +			size =3D end_pfn - start_pfn;
-> +			memmap_init_zone(size, nid, zone, start_pfn,
-> +					 MEMMAP_EARLY, NULL);
-> +		}
-> +	}
-> }
->=20
-> static int zone_batchsize(struct zone *zone)
-> --=20
-> 2.25.1
->=20
->=20
-
-
+Reviewed-by: Baoquan He <bhe@redhat.com>
