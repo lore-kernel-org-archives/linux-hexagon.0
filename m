@@ -1,87 +1,98 @@
-From: Baoquan He <bhe@redhat.com>
-Subject: Re: [PATCH 17/21] mm: free_area_init: allow defining max_zone_pfn in
- descending order
-Date: Fri, 24 Apr 2020 08:33:56 +0800
-Message-ID: <20200424003356.GA10119@MiWiFi-R3L-srv>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH 15/21] mm: memmap_init: iterate over memblock regions
+ rather that check each PFN
+Date: Fri, 24 Apr 2020 09:22:32 +0200
+Message-ID: <9143538a-4aaa-ca1d-9c8f-72ac949cf593@redhat.com>
 References: <20200412194859.12663-1-rppt@kernel.org>
- <20200412194859.12663-18-rppt@kernel.org>
- <20200423025311.GZ4247@MiWiFi-R3L-srv>
- <20200423025720.GA4247@MiWiFi-R3L-srv>
- <20200423055559.GF14260@kernel.org>
+ <20200412194859.12663-16-rppt@kernel.org>
 Mime-Version: 1.0
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:Cc:List-Subscribe:
-	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:In-Reply-To:
-	Content-Type:MIME-Version:References:Message-ID:Subject:To:From:Date:Reply-To
-	:Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
-	 bh=n2dWJbdFmIc0aMZ8wHTt5vQhPaXxDdsL9ipp25mLNTI=; b=gaCYbtIKGhf9r7DMHoUKy6pul
-	nTKbEdzQ39WVB1dKq4BU0uNeRf+/wW+8GzyPnnioozYhI3WnLD/scfP8S60DbspzmGPCGlU7iDfOw
-	FRogX6NhJCuO7vquvlJuZVaOCyd58E38KRH09gxVjQw/JtqJJLawIA6xzjhlxBLmKUHMtAP+dZ5+c
-	YfDr8UF/ta7DIHmUT0wpFIxoPC0j9MLQ7jR6a3mnoSb599ewzfGQDdR0zH1wtmSYKPVvV9zEbWG4a
-	kW9hxzqkXlHzpINmPqBNx9gtJhB3lYVmkgdHhW1OA7EKBYE1yvrszey0IS2Ei3KptWr65Iys68DG2
-	wId1y1weg==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1587688453;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=n2dWJbdFmIc0aMZ8wHTt5vQhPaXxDdsL9ipp25mLNTI=;
- b=eTmMEfXZAwNiRciPiT/2R4efctZxwysLoOEOVLuaQHYhsgs+1nUUTTIEa+GlWs6BinkhT+
- GfUhNQ8DNAE0D6d0zVFRyY9zaj8EMII0AeZucu/vOBaRqeQ3D6MuU+W7O44hk21hfwtXzR
- wI1FCE8+Cgg4ZzF6/fyI+Gl7eBnY4EU=
-Content-Disposition: inline
-In-Reply-To: <20200423055559.GF14260@kernel.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-c6x-dev@linux-c6x.org, Brian Cain <bcain@codeaurora.org>, Jonathan Corbet <corbet@lwn.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ley Foon Tan <ley.foon.>
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:
+	Message-ID:From:References:To:Subject:Reply-To:Content-ID:Content-Description
+	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=YeQse1ybr0gScYW8taf0X9S+V5iRwavfyXYfzFiJNI8=; b=WMDjKo/D0dY44X
+	7BqjqqfltnrSGf3m3Dq8NXmM39JXek0Tu55/tEsmWEQ0RQz3kIzyNxvFsaarohPXyHQ8lv7hEWkwg
+	5TEtDQAydiZysgDrwmUM9Kp5wZI+H6CyN82Ti0KXK2XWsFjTAdwmG4YzITWNdl4orECVIeHtf5PaZ
+	R2Au0atA4rVydsZMd38uNKe/XGkmqDeWxlAa4KtzDQhHBCBTw+jlNW75d7sFNh9eLHKeytN+XwpSL
+	f7au6kn/xB+Ax40rNphc7HcOa2p303ZkyqKp7dFK1d6gWDnjeRmsjttvjMwPFpeQsbEB1Ms+kLnCf
+	SpDarqnhxyQVLN2SKQfw==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1587712981;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+ bh=mSCwKGFsRo1tURSlR3wqOWq4Aw66HvWN2vcc7P0apK8=;
+ b=Txedu1JYK7SGF0/kgaxzqXoXsdlAANtJzqfDJOwKFG++GT93IEnJs1ssehPmsdXcvBMeoS
+ 76HyNOVxUhcpMDvLcpqOjsZEAPEwJ/6GRMQc2kJGxkHJYP1d+VaPjyaAZNmyV8Ey89bulJ
+ ja6AWqMLPO4vG/Nqc6uWKOVddiMFbqI=
+In-Reply-To: <20200412194859.12663-16-rppt@kernel.org>
+Content-Language: en-US
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org
+To: Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Mike Rapoport <rppt@linux.ibm.com>, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Baoquan He <bhe@redhat.com>, Jonathan Corbet <corbet@lwn.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ley Foon Tan <ley.foon.tan@in>
 
-On 04/23/20 at 08:55am, Mike Rapoport wrote:
-> On Thu, Apr 23, 2020 at 10:57:20AM +0800, Baoquan He wrote:
-> > On 04/23/20 at 10:53am, Baoquan He wrote:
-> > > On 04/12/20 at 10:48pm, Mike Rapoport wrote:
-> > > > From: Mike Rapoport <rppt@linux.ibm.com>
-> > > > 
-> > > > Some architectures (e.g. ARC) have the ZONE_HIGHMEM zone below the
-> > > > ZONE_NORMAL. Allowing free_area_init() parse max_zone_pfn array even it is
-> > > > sorted in descending order allows using free_area_init() on such
-> > > > architectures.
-> > > > 
-> > > > Add top -> down traversal of max_zone_pfn array in free_area_init() and use
-> > > > the latter in ARC node/zone initialization.
-> > > 
-> > > Or maybe leave ARC as is. The change in this patchset doesn't impact
-> > > ARC's handling about zone initialization, leaving it as is can reduce
-> > > the complication in implementation of free_area_init(), which is a
-> > > common function. So I personally don't see a strong motivation to have
-> > > this patch.
-> > 
-> > OK, seems this patch is prepared to simplify free_area_init_node(), so
-> > take back what I said at above.
-> > 
-> > Then this looks necessary, even though it introduces special case into
-> > common function free_area_init().
+On 12.04.20 21:48, Mike Rapoport wrote:
+> From: Baoquan He <bhe@redhat.com>
 > 
-> The idea is to have a single free_area_init() for all architectures
-> without keeping two completely different ways of calculating the zone
-> extents.
-> Another thing, is that with this we could eventually switch ARC from
-> DISCONTIGMEM.
+> When called during boot the memmap_init_zone() function checks if each PFN
+> is valid and actually belongs to the node being initialized using
+> early_pfn_valid() and early_pfn_in_nid().
+> 
+> Each such check may cost up to O(log(n)) where n is the number of memory
+> banks, so for large amount of memory overall time spent in early_pfn*()
+> becomes substantial.
+> 
+> Since the information is anyway present in memblock, we can iterate over
+> memblock memory regions in memmap_init() and only call memmap_init_zone()
+> for PFN ranges that are know to be valid and in the appropriate node.
+> 
+> Signed-off-by: Baoquan He <bhe@redhat.com>
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  mm/page_alloc.c | 26 ++++++++++++++++----------
+>  1 file changed, 16 insertions(+), 10 deletions(-)
+> 
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 7f6a3081edb8..c43ce8709457 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -5995,14 +5995,6 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+>  		 * function.  They do not exist on hotplugged memory.
+>  		 */
 
-Yeah, I think uniting them into a single free_area_init() is a great
-idea. Even though I had been through this patchset, when looked into
-each of them, still may forget the detail in later patch :)
+After this change, the comment above is stale. the "holes in boot-time
+mem_map" are handled by the caller now AFAIKs.
+
+>  		if (context == MEMMAP_EARLY) {
+> -			if (!early_pfn_valid(pfn)) {
+> -				pfn = next_pfn(pfn);
+> -				continue;
+> -			}
+> -			if (!early_pfn_in_nid(pfn, nid)) {
+> -				pfn++;
+> -				continue;
+> -			}
+>  			if (overlap_memmap_init(zone, &pfn))
+>  				continue;
+>  			if (defer_init(nid, pfn, end_pfn))
 
 
+-- 
+Thanks,
+
+David / dhildenb
