@@ -1,11 +1,13 @@
-From: Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH 18/21] mm: rename free_area_init_node() to
- free_area_init_memoryless_node()
-Date: Thu, 23 Apr 2020 09:18:46 +0300
-Message-ID: <20200423061846.GG14260@kernel.org>
+From: Baoquan He <bhe@redhat.com>
+Subject: Re: [PATCH 17/21] mm: free_area_init: allow defining max_zone_pfn in
+ descending order
+Date: Fri, 24 Apr 2020 08:33:56 +0800
+Message-ID: <20200424003356.GA10119@MiWiFi-R3L-srv>
 References: <20200412194859.12663-1-rppt@kernel.org>
- <20200412194859.12663-19-rppt@kernel.org>
- <20200423031454.GB4247@MiWiFi-R3L-srv>
+ <20200412194859.12663-18-rppt@kernel.org>
+ <20200423025311.GZ4247@MiWiFi-R3L-srv>
+ <20200423025720.GA4247@MiWiFi-R3L-srv>
+ <20200423055559.GF14260@kernel.org>
 Mime-Version: 1.0
 Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
@@ -14,21 +16,23 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	Content-Type:MIME-Version:References:Message-ID:Subject:To:From:Date:Reply-To
 	:Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
 	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
-	 bh=dh2krBnBlJyzDsk8qYHEXHK+MJD0IuUmqU6wKjudxHY=; b=acu1nzsz3Q47qEKgj49hCcx0W
-	ILVdXHe4GF/1AmsuSXgKq7SD5yDmUSPLJjbF7QoxpK92++wY/T+KXF/Xi/3MxLzhKeiU/HeOvS/ye
-	aDV74i5pRmcmV+G1MTsapjnJYylKW4vAuaj6dQd9biVoMWtzDHpsYWxTbHsjwrArxjxtIV1EIHS6v
-	Za8HbZJZCC+1ZoVfRhnmwHLGHKpaNitj8GT86+7ABD4RKCoP6Iawus6blzBaXFjEay9H1Mg7RVGoJ
-	GsURtVVwvgFNAzUCiPeexKwjZFFFrZsSXxZ8oHaVgTwSP4BIRNmQC7dp46laiS9yWtImL1MtVifdd
-	gCMO7T1ow==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1587622747;
- bh=XAOpZMZuKtQOaCSltmHvqjx8KIGVvFXiMPcjDZEl0rA=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=HxB6zMO+6CDyEhlfbmXcyjA3hwfo5BsFHXL+8EuxLXRM+KiN3MMLaZNN7rZgUR0qI
- jmPAEC89wzyqlGM5pBmEe3melg31/h3Qf5fK53tQ15so5OPKvaPCC/QB1tnqRS0yzf
- 5yaRrjPukCXQt+ddPhw2nofayHbWi5BZUuPi3C28=
+	 bh=n2dWJbdFmIc0aMZ8wHTt5vQhPaXxDdsL9ipp25mLNTI=; b=gaCYbtIKGhf9r7DMHoUKy6pul
+	nTKbEdzQ39WVB1dKq4BU0uNeRf+/wW+8GzyPnnioozYhI3WnLD/scfP8S60DbspzmGPCGlU7iDfOw
+	FRogX6NhJCuO7vquvlJuZVaOCyd58E38KRH09gxVjQw/JtqJJLawIA6xzjhlxBLmKUHMtAP+dZ5+c
+	YfDr8UF/ta7DIHmUT0wpFIxoPC0j9MLQ7jR6a3mnoSb599ewzfGQDdR0zH1wtmSYKPVvV9zEbWG4a
+	kW9hxzqkXlHzpINmPqBNx9gtJhB3lYVmkgdHhW1OA7EKBYE1yvrszey0IS2Ei3KptWr65Iys68DG2
+	wId1y1weg==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1587688453;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=n2dWJbdFmIc0aMZ8wHTt5vQhPaXxDdsL9ipp25mLNTI=;
+ b=eTmMEfXZAwNiRciPiT/2R4efctZxwysLoOEOVLuaQHYhsgs+1nUUTTIEa+GlWs6BinkhT+
+ GfUhNQ8DNAE0D6d0zVFRyY9zaj8EMII0AeZucu/vOBaRqeQ3D6MuU+W7O44hk21hfwtXzR
+ wI1FCE8+Cgg4ZzF6/fyI+Gl7eBnY4EU=
 Content-Disposition: inline
-In-Reply-To: <20200423031454.GB4247@MiWiFi-R3L-srv>
+In-Reply-To: <20200423055559.GF14260@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -41,106 +45,43 @@ Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Baoquan He <bhe@redhat.com>
+To: Mike Rapoport <rppt@kernel.org>
 Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-c6x-dev@linux-c6x.org, Brian Cain <bcain@codeaurora.org>, Jonathan Corbet <corbet@lwn.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ley Foon Tan <ley.foon.>
 
-On Thu, Apr 23, 2020 at 11:14:54AM +0800, Baoquan He wrote:
-> On 04/12/20 at 10:48pm, Mike Rapoport wrote:
-> > From: Mike Rapoport <rppt@linux.ibm.com>
+On 04/23/20 at 08:55am, Mike Rapoport wrote:
+> On Thu, Apr 23, 2020 at 10:57:20AM +0800, Baoquan He wrote:
+> > On 04/23/20 at 10:53am, Baoquan He wrote:
+> > > On 04/12/20 at 10:48pm, Mike Rapoport wrote:
+> > > > From: Mike Rapoport <rppt@linux.ibm.com>
+> > > > 
+> > > > Some architectures (e.g. ARC) have the ZONE_HIGHMEM zone below the
+> > > > ZONE_NORMAL. Allowing free_area_init() parse max_zone_pfn array even it is
+> > > > sorted in descending order allows using free_area_init() on such
+> > > > architectures.
+> > > > 
+> > > > Add top -> down traversal of max_zone_pfn array in free_area_init() and use
+> > > > the latter in ARC node/zone initialization.
+> > > 
+> > > Or maybe leave ARC as is. The change in this patchset doesn't impact
+> > > ARC's handling about zone initialization, leaving it as is can reduce
+> > > the complication in implementation of free_area_init(), which is a
+> > > common function. So I personally don't see a strong motivation to have
+> > > this patch.
 > > 
-> > The free_area_init_node() is only used by x86 to initialize a memory-less
-> > nodes.
-> > Make its name reflect this and drop all the function parameters except node
-> > ID as they are anyway zero.
+> > OK, seems this patch is prepared to simplify free_area_init_node(), so
+> > take back what I said at above.
 > > 
-> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> > ---
-> >  arch/x86/mm/numa.c | 5 +----
-> >  include/linux/mm.h | 9 +++------
-> >  mm/page_alloc.c    | 7 ++-----
-> >  3 files changed, 6 insertions(+), 15 deletions(-)
-> > 
-> > diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-> > index fe024b2ac796..8ee952038c80 100644
-> > --- a/arch/x86/mm/numa.c
-> > +++ b/arch/x86/mm/numa.c
-> > @@ -737,12 +737,9 @@ void __init x86_numa_init(void)
-> >  
-> >  static void __init init_memory_less_node(int nid)
-> >  {
-> > -	unsigned long zones_size[MAX_NR_ZONES] = {0};
-> > -	unsigned long zholes_size[MAX_NR_ZONES] = {0};
-> > -
-> >  	/* Allocate and initialize node data. Memory-less node is now online.*/
-> >  	alloc_node_data(nid);
-> > -	free_area_init_node(nid, zones_size, 0, zholes_size);
-> > +	free_area_init_memoryless_node(nid);
-> >  
-> >  	/*
-> >  	 * All zonelists will be built later in start_kernel() after per cpu
-> > diff --git a/include/linux/mm.h b/include/linux/mm.h
-> > index 1c2ecb42e043..27660f6cf26e 100644
-> > --- a/include/linux/mm.h
-> > +++ b/include/linux/mm.h
-> > @@ -2272,8 +2272,7 @@ static inline spinlock_t *pud_lock(struct mm_struct *mm, pud_t *pud)
-> >  }
-> >  
-> >  extern void __init pagecache_init(void);
-> > -extern void __init free_area_init_node(int nid, unsigned long * zones_size,
-> > -		unsigned long zone_start_pfn, unsigned long *zholes_size);
-> > +extern void __init free_area_init_memoryless_node(int nid);
-> >  extern void free_initmem(void);
-> >  
-> >  /*
-> > @@ -2345,10 +2344,8 @@ static inline unsigned long get_num_physpages(void)
-> >  
-> >  /*
-> >   * Using memblock node mappings, an architecture may initialise its
-> > - * zones, allocate the backing mem_map and account for memory holes in a more
-> > - * architecture independent manner. This is a substitute for creating the
-> > - * zone_sizes[] and zholes_size[] arrays and passing them to
-> > - * free_area_init_node()
-> > + * zones, allocate the backing mem_map and account for memory holes in an
-> > + * architecture independent manner.
-> >   *
-> >   * An architecture is expected to register range of page frames backed by
-> >   * physical memory with memblock_add[_node]() before calling
-> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> > index 376434c7a78b..e46232ec4849 100644
-> > --- a/mm/page_alloc.c
-> > +++ b/mm/page_alloc.c
-> > @@ -6979,12 +6979,9 @@ static void __init __free_area_init_node(int nid, unsigned long *zones_size,
-> >  	free_area_init_core(pgdat);
-> >  }
-> >  
-> > -void __init free_area_init_node(int nid, unsigned long *zones_size,
-> > -				unsigned long node_start_pfn,
-> > -				unsigned long *zholes_size)
-> > +void __init free_area_init_memoryless_node(int nid)
-> >  {
-> > -	__free_area_init_node(nid, zones_size, node_start_pfn, zholes_size,
-> > -			      true);
-> > +	__free_area_init_node(nid, NULL, 0, NULL, false);
+> > Then this looks necessary, even though it introduces special case into
+> > common function free_area_init().
 > 
-> Can we move free_area_init_memoryless_node() definition into 
-> arch/x86/mm/numa.c since there's only one caller there?
-> 
-> And I am also wondering if adding a wrapper
-> free_area_init_memoryless_node() is necessary if it's only called the
-> function free_area_init_node().
+> The idea is to have a single free_area_init() for all architectures
+> without keeping two completely different ways of calculating the zone
+> extents.
+> Another thing, is that with this we could eventually switch ARC from
+> DISCONTIGMEM.
 
-Yeah, I think this patch can be entirely dropped and the next one could
-be slightly updated :)
-Thanks!
+Yeah, I think uniting them into a single free_area_init() is a great
+idea. Even though I had been through this patchset, when looked into
+each of them, still may forget the detail in later patch :)
 
-> >  }
-> >  
-> >  #if !defined(CONFIG_FLAT_NODE_MEM_MAP) -- 
-> > 2.25.1
-> > 
-> 
-
--- 
-Sincerely yours,
-Mike.
 
