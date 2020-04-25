@@ -1,65 +1,105 @@
-From: "Brian Cain" <bcain@codeaurora.org>
-Subject: RE: [PATCH] hexagon: suppress error message for 'make clean'
-Date: Fri, 24 Apr 2020 14:06:21 -0500
-Message-ID: <009101d61a6b$71f93a70$55ebaf50$@codeaurora.org>
-References: <20200424161502.656103-1-masahiroy@kernel.org>
-Reply-To: <bcain@codeaurora.org>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH 15/21] mm: memmap_init: iterate over memblock regions
+ rather that check each PFN
+Date: Sat, 25 Apr 2020 19:49:47 +0300
+Message-ID: <20200425164947.GH14260@kernel.org>
+References: <20200412194859.12663-1-rppt@kernel.org>
+ <20200412194859.12663-16-rppt@kernel.org>
+ <9143538a-4aaa-ca1d-9c8f-72ac949cf593@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1587755196; h=Content-Transfer-Encoding: Content-Type:
- MIME-Version: Message-ID: Date: Subject: In-Reply-To: References: Cc:
- To: From: Reply-To: Sender;
- bh=Y0Xh9YwcFuchacYRPmOt5mmHgQmhT+OyA1r+OZ9piB0=; b=QRKaD2CJGHgqPpFlWiiZ5fd2krVfg9T8KE1fMlTclEVmZxykQP0wCRngqtap6ygi7c9e4i+c
- WDk6mRgfFCtGogvHYPp2aOIswrAZoa22Q5hCdBOUQBpSB6UovzCrQl8L1g6X1vBsgv3z4nhj
- +tXA+0kt2pYkZ3t0QjTD1mDxpJ8=
-In-Reply-To: <20200424161502.656103-1-masahiroy@kernel.org>
-Content-Language: en-us
-Sender: linux-hexagon-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: 'Masahiro Yamada' <masahiroy@kernel.org>, linux-hexagon@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=hFkPgyPKZdSjeHn0VbK5SqvwojoXxWAmfpjU2bj8BXo=; b=pZDKMK23evTR5G
+	tvcvA27SClB+HPRFm7lrGTrqKzO1pO9DAK9HAZcEs4jDrep8X2yOo6Vq9apvXUjw+pBNonuZwj4VL
+	nlYCP06Rrg8jE2nkKd/EV7lyJwekfSnIdUBFyO6T58Vae03lDsCvVonVkzKVj6MyhX7XoGmwgsivY
+	pvAeG8rhqCthZS8fNFuBTxhU7Emv8s4oTb5phhynV7i1uyHoybggJGqbGuYruup3IMXy+4ZF5wU8m
+	BAA+kYFUPcelIQDxOR7i3b4rgtHjOi5gYZfJ5TL8iH4Q4GYI82Cq0ancf6IGOwVjbXa5gjz53WEia
+	M0Qpa1N1dBhPjqaRYkNQ==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1587833404;
+ bh=0Sl4Z11RVRGJbUzY+39FiW21eIIyUSJn8sRyWLPh1QE=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=IHfCSB7lAtP8F/QOkzrMVovSds6GmLQXIYGNDyiWwar0dzDHihTkIxxJ4pzqN8dgI
+ 7dZgKIyfVdwKPgmTvqMYetG92FlxubtA/kMLwHHTJZYJXQvWWxFhfOf1YllMgm6pNJ
+ zD7n7cmGOJK81H7mitUpRubrKW286wNtPWLOyYuU=
+Content-Disposition: inline
+In-Reply-To: <9143538a-4aaa-ca1d-9c8f-72ac949cf593@redhat.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org
+To: David Hildenbrand <david@redhat.com>
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Mike Rapoport <rppt@linux.ibm.com>, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-c6x-dev@linux-c6x.org, Baoquan He <bhe@redhat.com>, Jonathan Corbet <corbet@lwn.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.or>
 
-> -----Original Message-----
-> From: linux-hexagon-owner@vger.kernel.org <linux-hexagon-
-> owner@vger.kernel.org> On Behalf Of Masahiro Yamada
-...
-> 'make ARCH=hexagon clean' emits an error message as follows:
+On Fri, Apr 24, 2020 at 09:22:32AM +0200, David Hildenbrand wrote:
+> On 12.04.20 21:48, Mike Rapoport wrote:
+> > From: Baoquan He <bhe@redhat.com>
+> > 
+> > When called during boot the memmap_init_zone() function checks if each PFN
+> > is valid and actually belongs to the node being initialized using
+> > early_pfn_valid() and early_pfn_in_nid().
+> > 
+> > Each such check may cost up to O(log(n)) where n is the number of memory
+> > banks, so for large amount of memory overall time spent in early_pfn*()
+> > becomes substantial.
+> > 
+> > Since the information is anyway present in memblock, we can iterate over
+> > memblock memory regions in memmap_init() and only call memmap_init_zone()
+> > for PFN ranges that are know to be valid and in the appropriate node.
+> > 
+> > Signed-off-by: Baoquan He <bhe@redhat.com>
+> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> > ---
+> >  mm/page_alloc.c | 26 ++++++++++++++++----------
+> >  1 file changed, 16 insertions(+), 10 deletions(-)
+> > 
+> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> > index 7f6a3081edb8..c43ce8709457 100644
+> > --- a/mm/page_alloc.c
+> > +++ b/mm/page_alloc.c
+> > @@ -5995,14 +5995,6 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+> >  		 * function.  They do not exist on hotplugged memory.
+> >  		 */
 > 
->   $ make ARCH=hexagon clean
->   gcc: error: unrecognized command line option '-G0'
-> 
-> You can suppress it by setting the correct CROSS_COMPILE=, but we should
-> not require any compiler for cleaning.
-> 
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> After this change, the comment above is stale. the "holes in boot-time
+> mem_map" are handled by the caller now AFAIKs.
 
+Right, will update in v2.
+Thanks!
 
-Acked-by: Brian Cain <bcain@codeaurora.org>
+> >  		if (context == MEMMAP_EARLY) {
+> > -			if (!early_pfn_valid(pfn)) {
+> > -				pfn = next_pfn(pfn);
+> > -				continue;
+> > -			}
+> > -			if (!early_pfn_in_nid(pfn, nid)) {
+> > -				pfn++;
+> > -				continue;
+> > -			}
+> >  			if (overlap_memmap_init(zone, &pfn))
+> >  				continue;
+> >  			if (defer_init(nid, pfn, end_pfn))
+> 
+> 
+> -- 
+> Thanks,
+> 
+> David / dhildenb
+> 
 
-
-> ---
-> 
->  arch/hexagon/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile index
-> 4c5858b80f0e..c168c6980d05 100644
-> --- a/arch/hexagon/Makefile
-> +++ b/arch/hexagon/Makefile
-> @@ -30,7 +30,7 @@ TIR_NAME := r19
->  KBUILD_CFLAGS += -ffixed-$(TIR_NAME) -
-> DTHREADINFO_REG=$(TIR_NAME) -D__linux__  KBUILD_AFLAGS += -
-> DTHREADINFO_REG=$(TIR_NAME)
-> 
-> -LIBGCC := $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
-> +LIBGCC := $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name
-> +2>/dev/null)
->  libs-y += $(LIBGCC)
-> 
->  head-y := arch/hexagon/kernel/head.o
-> --
-> 2.25.1
-
+-- 
+Sincerely yours,
+Mike.
