@@ -1,165 +1,165 @@
 From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v2 01/20] mm: memblock: replace dereferences of
- memblock_region.nid with API calls
-Date: Wed, 29 Apr 2020 15:11:07 +0300
-Message-ID: <20200429121126.17989-2-rppt@kernel.org>
+Subject: [PATCH v2 02/20] mm: make early_pfn_to_nid() and related defintions
+ close to each other
+Date: Wed, 29 Apr 2020 15:11:08 +0300
+Message-ID: <20200429121126.17989-3-rppt@kernel.org>
 References: <20200429121126.17989-1-rppt@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
-	Message-Id:Date:Subject:To:From:Reply-To:Content-ID:Content-Description:
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:Cc:List-Subscribe:
+	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:
+	Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date
+	:Subject:To:From:Reply-To:Content-Type:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=9QdFLnB/xT31aulSaQNoDJpM3lJ8RqoeEKtCYxFVXOI=; b=kf8x2aTUFwfPtu
-	Ix2poW5JVRTS2xoKNoCbGxKRoiuYdBf5AvEQy68LJYmwNx+npGAv7GL5N3iac6+trZXl+DshnlgHL
-	iYgvb2tRlyDc4TaPjr8+vcWSXpDkIXwAq/+cWBk8nfpPSUtGAXt9mf//u/qjJb5BQPRu/oPSZ8jbv
-	UA9yHle8Klp3y1wb+Ur9GM5KV1UaaklQWP+oj1WAN6P9Y6lkWlvLB1dHHHG7lBtuY7wVaDJAnqOQT
-	Y6BH8jeCJHA5DxMjHOIcib6MVo5oOmpYmTjSUsiAZQxQXjx/0BUDTWeMU4Bc1KEUpXAlJHjOyyrVd
-	Uhgemwi5gxeVak6RVyDg==;
+	List-Owner; bh=OE1p4B30DSnVbh8XUPPWBbAazZ5mSNFq6cEG0KHBdXI=; b=l6Xuhyz97/P1rI
+	dV+YEPBSKnVYOFlKs7P1C+D16K+JN4j6ciOzR4RUYrDP3EG7SYrRYXebiej2sPSS3B5e/naQB8YRa
+	RtDYAGKJ1bkeE+djZjMmbcSnsAEEEmfoBMi9i6ciwbqWqpcM+TgeiV1f0tt8p3gwMhLxJfoFcYyt0
+	MPiR5du5qrPfI+ah4GEnyEjPL1Fh1urDOVs4jtuOBbIp4kXD32LnN8K1BXKUUnAHH//HRCgtn4nQ0
+	baV6bZepR+lmaDzgeknwM1sbJplsS8bpiW30ATbuL+2KZDJsI3RISvguGQ6RRQp4p9InlfAqD4hLs
+	7u6YX0aFYcJalRPVplBQ==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1588162340;
- bh=TCd+5edlAp9i6e5wITXxxtnVrf6WWkTQlgVmr7051p8=;
+ s=default; t=1588162354;
+ bh=pGmPDgM6K7/iwWSDa31GpOgfyYSqxlM/17DqmtP9T0U=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=Xyr7ydjznaJGZfBd4hSErKFX3YfrId7NY3jgXZs16QqYN26miM3kx5vOodcdnWDiB
- IhJvjl71BnFJuB+xIgCuDSUHfyMPL3yEtNKYboZziA7+1w8XSNw2pRS5Fet+bv4XVu
- itlqIVaOwJpQ6PGqTie+mcWR0d/pEVBqUl7EGnbk=
+ b=FM7izhFQvoPq0QV3Pi1A8eDpHVFq9Zp0cT3C5CzjDm8JdAvrc+wZZGVUYm4qetES/
+ V/SQO20yZf4dsZBiR67nDQgHKFAgAH6vg5Vup2Bajexd1btsNN20RlbFBplIFJDWlk
+ t5cPlwxaffucDNFeNut+PgXi8W966/qE54hcqprM=
 In-Reply-To: <20200429121126.17989-1-rppt@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org
 Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Mike Rapoport <rppt@linux.ibm.com>, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Baoquan He <bhe@redhat.com>, Jonathan Corbet <corbet@lwn.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ley Foon Tan <ley.foon.tan@in>
 
 From: Mike Rapoport <rppt@linux.ibm.com>
 
-There are several places in the code that directly dereference
-memblock_region.nid despite this field being defined only when
-CONFIG_HAVE_MEMBLOCK_NODE_MAP=y.
+The early_pfn_to_nid() and it's helper __early_pfn_to_nid() are spread
+around include/linux/mm.h, include/linux/mmzone.h and mm/page_alloc.c.
 
-Replace these with calls to memblock_get_region_nid() to improve code
-robustness and to avoid possible breakage when
-CONFIG_HAVE_MEMBLOCK_NODE_MAP will be removed.
+Drop unused stub for __early_pfn_to_nid() and move its actual generic
+implementation close to its users.
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- arch/arm64/mm/numa.c | 9 ++++++---
- arch/x86/mm/numa.c   | 6 ++++--
- mm/memblock.c        | 8 +++++---
- mm/page_alloc.c      | 4 ++--
- 4 files changed, 17 insertions(+), 10 deletions(-)
+ include/linux/mm.h     |  4 ++--
+ include/linux/mmzone.h |  9 --------
+ mm/page_alloc.c        | 49 +++++++++++++++++++++---------------------
+ 3 files changed, 27 insertions(+), 35 deletions(-)
 
-diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
-index 4decf1659700..aafcee3e3f7e 100644
---- a/arch/arm64/mm/numa.c
-+++ b/arch/arm64/mm/numa.c
-@@ -350,13 +350,16 @@ static int __init numa_register_nodes(void)
- 	struct memblock_region *mblk;
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 5a323422d783..a404026d14d4 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2388,9 +2388,9 @@ extern void sparse_memory_present_with_active_regions(int nid);
  
- 	/* Check that valid nid is set to memblks */
--	for_each_memblock(memory, mblk)
--		if (mblk->nid == NUMA_NO_NODE || mblk->nid >= MAX_NUMNODES) {
-+	for_each_memblock(memory, mblk) {
-+		int mblk_nid = memblock_get_region_node(mblk);
-+
-+		if (mblk_nid == NUMA_NO_NODE || mblk_nid >= MAX_NUMNODES) {
- 			pr_warn("Warning: invalid memblk node %d [mem %#010Lx-%#010Lx]\n",
--				mblk->nid, mblk->base,
-+				mblk_nid, mblk->base,
- 				mblk->base + mblk->size - 1);
- 			return -EINVAL;
- 		}
-+	}
- 
- 	/* Finally register nodes. */
- 	for_each_node_mask(nid, numa_nodes_parsed) {
-diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-index 59ba008504dc..fe024b2ac796 100644
---- a/arch/x86/mm/numa.c
-+++ b/arch/x86/mm/numa.c
-@@ -517,8 +517,10 @@ static void __init numa_clear_kernel_node_hotplug(void)
- 	 *   reserve specific pages for Sandy Bridge graphics. ]
- 	 */
- 	for_each_memblock(reserved, mb_region) {
--		if (mb_region->nid != MAX_NUMNODES)
--			node_set(mb_region->nid, reserved_nodemask);
-+		int nid = memblock_get_region_node(mb_region);
-+
-+		if (nid != MAX_NUMNODES)
-+			node_set(nid, reserved_nodemask);
- 	}
- 
- 	/*
-diff --git a/mm/memblock.c b/mm/memblock.c
-index c79ba6f9920c..43e2fd3006c1 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -1207,13 +1207,15 @@ void __init_memblock __next_mem_pfn_range(int *idx, int nid,
+ #if !defined(CONFIG_HAVE_MEMBLOCK_NODE_MAP) && \
+     !defined(CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID)
+-static inline int __early_pfn_to_nid(unsigned long pfn,
+-					struct mminit_pfnnid_cache *state)
++static inline int early_pfn_to_nid(unsigned long pfn)
  {
- 	struct memblock_type *type = &memblock.memory;
- 	struct memblock_region *r;
-+	int r_nid;
- 
- 	while (++*idx < type->cnt) {
- 		r = &type->regions[*idx];
-+		r_nid = memblock_get_region_node(r);
- 
- 		if (PFN_UP(r->base) >= PFN_DOWN(r->base + r->size))
- 			continue;
--		if (nid == MAX_NUMNODES || nid == r->nid)
-+		if (nid == MAX_NUMNODES || nid == r_nid)
- 			break;
- 	}
- 	if (*idx >= type->cnt) {
-@@ -1226,7 +1228,7 @@ void __init_memblock __next_mem_pfn_range(int *idx, int nid,
- 	if (out_end_pfn)
- 		*out_end_pfn = PFN_DOWN(r->base + r->size);
- 	if (out_nid)
--		*out_nid = r->nid;
-+		*out_nid = r_nid;
++	BUILD_BUG_ON(IS_ENABLED(CONFIG_NUMA));
+ 	return 0;
  }
- 
- /**
-@@ -1810,7 +1812,7 @@ int __init_memblock memblock_search_pfn_nid(unsigned long pfn,
- 	*start_pfn = PFN_DOWN(type->regions[mid].base);
- 	*end_pfn = PFN_DOWN(type->regions[mid].base + type->regions[mid].size);
- 
--	return type->regions[mid].nid;
-+	return memblock_get_region_node(&type->regions[mid]);
- }
+ #else
+diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+index 1b9de7d220fb..7b5b6eba402f 100644
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -1078,15 +1078,6 @@ static inline struct zoneref *first_zones_zonelist(struct zonelist *zonelist,
+ #include <asm/sparsemem.h>
  #endif
  
+-#if !defined(CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID) && \
+-	!defined(CONFIG_HAVE_MEMBLOCK_NODE_MAP)
+-static inline unsigned long early_pfn_to_nid(unsigned long pfn)
+-{
+-	BUILD_BUG_ON(IS_ENABLED(CONFIG_NUMA));
+-	return 0;
+-}
+-#endif
+-
+ #ifdef CONFIG_FLATMEM
+ #define pfn_to_nid(pfn)		(0)
+ #endif
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 69827d4fa052..0d012eda1694 100644
+index 0d012eda1694..a802ee47e715 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -7208,7 +7208,7 @@ static void __init find_zone_movable_pfns_for_nodes(void)
- 			if (!memblock_is_hotpluggable(r))
- 				continue;
+@@ -1504,6 +1504,31 @@ void __free_pages_core(struct page *page, unsigned int order)
  
--			nid = r->nid;
-+			nid = memblock_get_region_node(r);
+ static struct mminit_pfnnid_cache early_pfnnid_cache __meminitdata;
  
- 			usable_startpfn = PFN_DOWN(r->base);
- 			zone_movable_pfn[nid] = zone_movable_pfn[nid] ?
-@@ -7229,7 +7229,7 @@ static void __init find_zone_movable_pfns_for_nodes(void)
- 			if (memblock_is_mirror(r))
- 				continue;
++#ifndef CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID
++
++/*
++ * Required by SPARSEMEM. Given a PFN, return what node the PFN is on.
++ */
++int __meminit __early_pfn_to_nid(unsigned long pfn,
++					struct mminit_pfnnid_cache *state)
++{
++	unsigned long start_pfn, end_pfn;
++	int nid;
++
++	if (state->last_start <= pfn && pfn < state->last_end)
++		return state->last_nid;
++
++	nid = memblock_search_pfn_nid(pfn, &start_pfn, &end_pfn);
++	if (nid != NUMA_NO_NODE) {
++		state->last_start = start_pfn;
++		state->last_end = end_pfn;
++		state->last_nid = nid;
++	}
++
++	return nid;
++}
++#endif /* CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID */
++
+ int __meminit early_pfn_to_nid(unsigned long pfn)
+ {
+ 	static DEFINE_SPINLOCK(early_pfn_lock);
+@@ -6299,30 +6324,6 @@ void __meminit init_currently_empty_zone(struct zone *zone,
+ }
  
--			nid = r->nid;
-+			nid = memblock_get_region_node(r);
+ #ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
+-#ifndef CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID
+-
+-/*
+- * Required by SPARSEMEM. Given a PFN, return what node the PFN is on.
+- */
+-int __meminit __early_pfn_to_nid(unsigned long pfn,
+-					struct mminit_pfnnid_cache *state)
+-{
+-	unsigned long start_pfn, end_pfn;
+-	int nid;
+-
+-	if (state->last_start <= pfn && pfn < state->last_end)
+-		return state->last_nid;
+-
+-	nid = memblock_search_pfn_nid(pfn, &start_pfn, &end_pfn);
+-	if (nid != NUMA_NO_NODE) {
+-		state->last_start = start_pfn;
+-		state->last_end = end_pfn;
+-		state->last_nid = nid;
+-	}
+-
+-	return nid;
+-}
+-#endif /* CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID */
  
- 			usable_startpfn = memblock_region_memory_base_pfn(r);
- 
+ /**
+  * free_bootmem_with_active_regions - Call memblock_free_early_nid for each active range
 -- 
 2.26.1
+
+
