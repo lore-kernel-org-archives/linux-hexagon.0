@@ -1,7 +1,7 @@
 From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v2 12/20] sparc32: simplify detection of memory zone boundaries
-Date: Wed, 29 Apr 2020 15:11:18 +0300
-Message-ID: <20200429121126.17989-13-rppt@kernel.org>
+Subject: [PATCH v2 14/20] xtensa: simplify detection of memory zone boundaries
+Date: Wed, 29 Apr 2020 15:11:20 +0300
+Message-ID: <20200429121126.17989-15-rppt@kernel.org>
 References: <20200429121126.17989-1-rppt@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,19 +12,19 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date
 	:Subject:To:From:Reply-To:Content-Type:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=Vj0ShFbbdgBQxMvpTGxtvjeZnmEzPsrZP+YoYYyxxQY=; b=CRUxsHo0C6yjsS
-	Df3rNA2TVbmEcIxDNlzicthmY7BkLNP2yWVSOIIYR7Eri7QoSQSODFo/+M6pn8G/h4fHEFkhJAk47
-	VjC38VEd/66ydQR0YxXv5QbyitQkxyd2SekP9GlbwDFnpAMX5R9ljxZbwF/lgIOLAk+yZypFeQS+c
-	6F3WKiNOk1S8NQyly6bGl1wKxFk/kZJCl4ukqtkZJgJfEqPq6dJA2fVRtFZ7dFs2Fd52LyHo8D3L1
-	q001Gve1LsH8Tno3Ozm9kGYWp5OLfdAOzf68OvVKa+fLdZBu4RQUHRPP9t3N1PLYU5kJMrl0gQpcJ
-	4dvBpG8YOCbIAUH/GE5g==;
+	List-Owner; bh=gF5q3IACKPnrtzRL29GCB7G4fUpuvJx6V3N7LrrJk9A=; b=OW2mzarcFDzD/3
+	nV8TgcOrTbq4+FkejKzjpqaXyhyBx1i/wdggYlZGMTh6CfMUkuZNrui1tC4gP9kN7cjTbjulwYnLC
+	Ba4iBTcVf+chNqI2i0MgatvxgMDvVez/mIbJTiIOU85TzIwAI5RpC/fq/jKXprOxHGf3LY/MMnpJr
+	f3AlgBE6yWmjVXltYFVlD8HO2igrvnYIo8ZJyHSkqBJZfMmjD0VFO5Beh0dvPAKro8K3iHj+z8j97
+	E6sZXuQJGEviI4Vl5BQkkxMmS7aVRaUL1RxJYpqOLj9YKmhfL3A2Z72FpGpo1wxwhtzTWUNBcS1Ek
+	Y8TQZ+rjjusGoYcIdWRQ==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1588162493;
- bh=PwNAuHT9V5jl2M06GaRQbE+89xoAz3U9lTg8JaLvxZM=;
+ s=default; t=1588162521;
+ bh=QWsvJ6DvyHT7m27f3KCOEA22ptVe2a2uUAEzfYObvug=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=YUh6MeP5N0j5F003uwP7Tb9XTSPLg1HiJZXgQKYH3aNOV1FgykIkvJX3NbJ/Qjv6x
- h5l1i+Lb2NA/Dz0Sd9NWYHhDPGIF6bIB3xpSE8x8qN/eX6xSrR27VlY2tefXFAHwKj
- RCuvhTEN1u2sy0E32qtQojsNXbmNPrAEDWik6Qwg=
+ b=sLMMyJgl66NS1Fmaq19lw3b89QqMmSF8m2U6Z06cK0zcrjZr82CAb0alxfZISVtiR
+ SwqZn2jptbWUyPmjlXlat1XNJ66wzmZGzOVdKqoTD1Cr3MHknQtfp0zwsVv/YnIdOA
+ M561eaKheyR84KzAYJIKo6VAoqeqzC0OkY/Hfs38=
 In-Reply-To: <20200429121126.17989-1-rppt@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
@@ -54,43 +54,31 @@ detection.
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- arch/sparc/mm/srmmu.c | 21 +++++----------------
- 1 file changed, 5 insertions(+), 16 deletions(-)
+ arch/xtensa/mm/init.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/sparc/mm/srmmu.c b/arch/sparc/mm/srmmu.c
-index b7c94de70cca..cc071dd7d8da 100644
---- a/arch/sparc/mm/srmmu.c
-+++ b/arch/sparc/mm/srmmu.c
-@@ -1008,24 +1008,13 @@ void __init srmmu_paging_init(void)
- 	kmap_init();
- 
- 	{
--		unsigned long zones_size[MAX_NR_ZONES];
--		unsigned long zholes_size[MAX_NR_ZONES];
--		unsigned long npages;
--		int znum;
-+		unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
- 
--		for (znum = 0; znum < MAX_NR_ZONES; znum++)
--			zones_size[znum] = zholes_size[znum] = 0;
-+		max_zone_pfn[ZONE_DMA] = max_low_pfn;
-+		max_zone_pfn[ZONE_NORMAL] = max_low_pfn;
-+		max_zone_pfn[ZONE_HIGHMEM] = highend_pfn;
- 
--		npages = max_low_pfn - pfn_base;
--
--		zones_size[ZONE_DMA] = npages;
--		zholes_size[ZONE_DMA] = npages - pages_avail;
--
--		npages = highend_pfn - max_low_pfn;
--		zones_size[ZONE_HIGHMEM] = npages;
--		zholes_size[ZONE_HIGHMEM] = npages - calc_highpages();
--
--		free_area_init_node(0, zones_size, pfn_base, zholes_size);
-+		free_area_init(max_zone_pfn);
- 	}
+diff --git a/arch/xtensa/mm/init.c b/arch/xtensa/mm/init.c
+index 19c625e6d81f..a05b306cf371 100644
+--- a/arch/xtensa/mm/init.c
++++ b/arch/xtensa/mm/init.c
+@@ -70,13 +70,13 @@ void __init bootmem_init(void)
+ void __init zones_init(void)
+ {
+ 	/* All pages are DMA-able, so we put them all in the DMA zone. */
+-	unsigned long zones_size[MAX_NR_ZONES] = {
+-		[ZONE_NORMAL] = max_low_pfn - ARCH_PFN_OFFSET,
++	unsigned long max_zone_pfn[MAX_NR_ZONES] = {
++		[ZONE_NORMAL] = max_low_pfn,
+ #ifdef CONFIG_HIGHMEM
+-		[ZONE_HIGHMEM] = max_pfn - max_low_pfn,
++		[ZONE_HIGHMEM] = max_pfn,
+ #endif
+ 	};
+-	free_area_init_node(0, zones_size, ARCH_PFN_OFFSET, NULL);
++	free_area_init(max_zone_pfn);
  }
  
+ #ifdef CONFIG_HIGHMEM
 -- 
 2.26.1
 
