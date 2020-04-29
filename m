@@ -1,75 +1,49 @@
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v2 20/20] docs/vm: update memory-models documentation
-Date: Wed, 29 Apr 2020 15:11:26 +0300
-Message-ID: <20200429121126.17989-21-rppt@kernel.org>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v2 16/20] mm: remove early_pfn_in_nid() and
+ CONFIG_NODES_SPAN_OTHER_NODES
+Date: Wed, 29 Apr 2020 07:17:06 -0700
+Message-ID: <20200429141706.GA25142@infradead.org>
 References: <20200429121126.17989-1-rppt@kernel.org>
+ <20200429121126.17989-17-rppt@kernel.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:Cc:List-Subscribe:
-	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:
-	Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date
-	:Subject:To:From:Reply-To:Content-Type:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=hbk7/hzpG5afATkzOcU5bw28WrDjBkFAS/aygYpRebs=; b=lUu3FbPqwbL1vU
-	HaxoOKNHIN8G+0w3ASuXQFVjmUhZugnEvxz75+ynpJVzN/UluxFKbGAx6aWdNucaRKqeGSLKGFN+Z
-	5Lhy8m1IW75WevYnUSbQjK585ehE9weJlJZ+1XS8g/6VjoDkmwvDSlPs+O4D8uVRhTzBraCKjJJXl
-	1SGunCvD6r05XIr6Mpit1INMjMBw+Of/Ju5PsOu3yvXpIdzcWHGaJCLscVlNeWbQpJ9dy15K0J7ij
-	e2XSQErfk99CKW095SoGcWyQgBJOj+WHTeJjQLUMZvB7lfT/YekqQ8CwcUsbjnskN/OCf8PAE/1y7
-	LJgpVUoxqDbUsftqwymQ==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1588162604;
- bh=vSBPyOKwrmQNqt7kyNkBHr9JqpNBLG1f44P+yYUwAD0=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=WoeR0IMjhESnMKZLgeFQpYaSM1Q0137VRdB9oM2DfU/SAAkdUyrTXqjy5uqkDMB4w
- A8OD0E3zWwQv5BZXvU0pC1x6W2MSkHROGVWsKhh68IOVd1n7tuhS5R+cHwtxzXCZoH
- XZaE67z9A52A2FknRpk/21Qqx9xMcUu4+BgH8q4Q=
-In-Reply-To: <20200429121126.17989-1-rppt@kernel.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 Content-Type: text/plain; charset="us-ascii"
-To: linux-kernel@vger.kernel.org
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Mike Rapoport <rppt@linux.ibm.com>, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Baoquan He <bhe@redhat.com>, Jonathan Corbet <corbet@lwn.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ley Foon Tan <ley.foon.tan@in>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
+	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=21m/t7HJQGMC3vgtA6hO5Xt0fbKtdsHbZN0Why9IqYY=; b=fXah6Zb7TeiWNv
+	2Yk6TutMvZvP0Dv2YfqyJy6j8P50/6zJ8GdvMOtJLGfStstTzHCBEJIDrWuDPyzQYh5G+gaIycIJH
+	Ll47xnbEseXidfMuHJe+6oy4ZImdTQOuktD5HBXdxzKnUaRo1jbAVmpvquQQ9rlrTpqyoNWzAg8XE
+	colWeu7C0hHfSMRflVFvLcUSnPVaYKht/H2wr5TnvbIlTMkWGr43bUPGKZxA3vUISmSA/N1CZiNe3
+	D0hsTCFKs5389+gum2Y3H1+1TWOchXedRIPwdqm39GX4OFIxDcabLUTwtwWvO3SXImPx9xpNysU8f
+	wXMT+B1hyXYD0OaQ4NrA==;
+Content-Disposition: inline
+In-Reply-To: <20200429121126.17989-17-rppt@kernel.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
+List-Post: <mailto:linux-snps-arc@lists.infradead.org>
+List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
+ <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
+Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, Ley Foon Tan <ley.foon.tan@intel.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Baoquan He <bhe@redhat.com>, Jonathan Corbet <corbet@lwn.net>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Hoan Tran <Hoan>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+On Wed, Apr 29, 2020 at 03:11:22PM +0300, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> The commit f47ac088c406 ("mm: memmap_init: iterate over memblock regions
+> rather that check each PFN") made early_pfn_in_nid() obsolete and since
+> CONFIG_NODES_SPAN_OTHER_NODES is only used to pick a stub or a real
+> implementation of early_pfn_in_nid() it is also not needed anymore.
 
-to reflect the updates to free_area_init() family of functions.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- Documentation/vm/memory-model.rst | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
-
-diff --git a/Documentation/vm/memory-model.rst b/Documentation/vm/memory-model.rst
-index 58a12376b7df..91228044ed16 100644
---- a/Documentation/vm/memory-model.rst
-+++ b/Documentation/vm/memory-model.rst
-@@ -46,11 +46,10 @@ maps the entire physical memory. For most architectures, the holes
- have entries in the `mem_map` array. The `struct page` objects
- corresponding to the holes are never fully initialized.
- 
--To allocate the `mem_map` array, architecture specific setup code
--should call :c:func:`free_area_init_node` function or its convenience
--wrapper :c:func:`free_area_init`. Yet, the mappings array is not
--usable until the call to :c:func:`memblock_free_all` that hands all
--the memory to the page allocator.
-+To allocate the `mem_map` array, architecture specific setup code should
-+call :c:func:`free_area_init` function. Yet, the mappings array is not
-+usable until the call to :c:func:`memblock_free_all` that hands all the
-+memory to the page allocator.
- 
- If an architecture enables `CONFIG_ARCH_HAS_HOLES_MEMORYMODEL` option,
- it may free parts of the `mem_map` array that do not cover the
--- 
-2.26.1
-
-
+I don't think you can quote a commit id for something that hasn't been
+commited to mainline yet.  Then again I would have just merged this
+patch into the one that obsoleted early_pfn_in_nid anyway.
