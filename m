@@ -1,177 +1,78 @@
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v2.5 16/20] mm: remove early_pfn_in_nid() and
- CONFIG_NODES_SPAN_OTHER_NODES
-Date: Wed, 29 Apr 2020 19:29:17 +0300
-Message-ID: <20200429162917.GL14260@kernel.org>
-References: <20200429121126.17989-1-rppt@kernel.org>
- <20200429121126.17989-17-rppt@kernel.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
+Subject: Re: [PATCH] hexagon: suppress error message for 'make clean'
+Date: Fri, 1 May 2020 14:33:21 +0900
+Message-ID: <CAK7LNAR+PjvE3yQS7xdKo5Cf_K1xDg+NijistAqWX7Ob=_irWg@mail.gmail.com>
+References: <20200424161502.656103-1-masahiroy@kernel.org> <009101d61a6b$71f93a70$55ebaf50$@codeaurora.org>
 Mime-Version: 1.0
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-06.nifty.com 0415Xv7h011238
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1588311238;
+        bh=oOUTjHbglUckIEy8WVvMgD3ZhjrrhESz7wu9wTM0qt8=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=jPIC9BRAIB9gWJZqCfy5olbgMzB5gtYjxvxZV8vB3/20I/w8YksC++qd7vBvzEYh2
+         GsSeFMclrVoYAkD8WZp0qlc+Vt5QAOYHhfjsRAThxSshwDkpgEw+12TwbY0TULiStT
+         qh6hnfD+fsDsOgsC8Uj3GgXmkwAVvbDrYWYn8RejYsv1eagVwJaMC0DQ+ThW+57Nqm
+         m94prNdcVoeJDpAa9zEcWxJwytj26VVPuBzvJ00iY/v6x2bmW518NNA3g1So15R8yz
+         TDZne2D0mkUFepXrZulc9eYmuzAQZuDhoeNNSHAhVaMAjwXsUzDZV8qZbnbgogh62e
+         TJxfU16w4E4yQ==
+In-Reply-To: <009101d61a6b$71f93a70$55ebaf50$@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=33g0klh+3GdofcME0FTHFeeBIPD1vFulNjGnAbw9ZFM=; b=NVqaABeRnvPPkl
-	N5O1fwPXI6oUZpT8ey9lSJRMN/veviuRu1ZEvNQuQvguQxzObSGnFVRUanyy5xGqImiYDT4Jcn/+E
-	HuMiizLtEJyZ2bBHLqfsmfypvwsbyh7tN+Fy0Vlvf7bcBRVIvSZvtcD5C1NiPFJRm6QWMwNJT0z0L
-	8E8s2s6AIN45rFA11mr9ZkoK/nL32XJ1dCLbYZ2LMTmJ26p9FLoY5F7WtngD5hgsCQOCaUPTfbe1y
-	RfCIUlFHL6m08TSjB1z3NLnaCTgeIgrG+BAkQKTpAkUbnW71XXuvEmRaAx3w20em0pFWgI7EQ5IQM
-	/3hwVNauUcVQkDomtnbw==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1588177793;
- bh=0WLAW3RaOJqIeviw62D+1sbYIwOWpLfyLvSFzBZ/1RI=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=bX4UmI7YY7MbsM77fB95EYPVrNNMyR/EBLX8BbChEAsts+ChnIZnmlY0s5J3v1ES0
- 21Fy8E5o4VRlcz1gU4A9jUkztNYslFtzPSQ8j0i0q67mtFD7Z5RqJBXEJMqoU2jMSR
- FjIyjtx7U4phJ9zZIH0PgtWqCfz1Qfs4hHO4D1HM=
-Content-Disposition: inline
-In-Reply-To: <20200429121126.17989-17-rppt@kernel.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Mike Rapoport <rppt@linux.ibm.com>, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-c6x-dev@linux-c6x.org, Baoquan He <bhe@redhat.com>, Jonathan Corbet <corbet@lwn.net>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <linux@armlinux.or>
+To: bcain@codeaurora.org
+Cc: linux-hexagon@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On Wed, Apr 29, 2020 at 03:11:22PM +0300, Mike Rapoport wrote:
-> From: Mike Rapoport <rppt@linux.ibm.com>
-> 
-> The commit f47ac088c406 ("mm: memmap_init: iterate over memblock regions
-> rather that check each PFN") made early_pfn_in_nid() obsolete and since
-> CONFIG_NODES_SPAN_OTHER_NODES is only used to pick a stub or a real
-> implementation of early_pfn_in_nid() it is also not needed anymore.
-> 
-> Remove both early_pfn_in_nid() and the CONFIG_NODES_SPAN_OTHER_NODES.
-> 
-> Co-developed-by: Hoan Tran <Hoan@os.amperecomputing.com>
-> Signed-off-by: Hoan Tran <Hoan@os.amperecomputing.com>
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> ---
+On Sat, Apr 25, 2020 at 4:06 AM Brian Cain <bcain@codeaurora.org> wrote:
+>
+> > -----Original Message-----
+> > From: linux-hexagon-owner@vger.kernel.org <linux-hexagon-
+> > owner@vger.kernel.org> On Behalf Of Masahiro Yamada
+> ...
+> > 'make ARCH=hexagon clean' emits an error message as follows:
+> >
+> >   $ make ARCH=hexagon clean
+> >   gcc: error: unrecognized command line option '-G0'
+> >
+> > You can suppress it by setting the correct CROSS_COMPILE=, but we should
+> > not require any compiler for cleaning.
+> >
+> > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+>
+>
+> Acked-by: Brian Cain <bcain@codeaurora.org>
 
-Here's the version with the updated changelog:
+Applied to linux-kbuild. Thanks.
 
-From 7415d1a9b7000c6eecd9f63770592e4d4a8d2463 Mon Sep 17 00:00:00 2001
-From: Mike Rapoport <rppt@linux.ibm.com>
-Date: Sat, 11 Apr 2020 11:26:49 +0300
-Subject: [PATCH v2.5] mm: remove early_pfn_in_nid() and CONFIG_NODES_SPAN_OTHER_NODES
 
-The memmap_init() function was made to iterate over memblock regions and as
-the result the early_pfn_in_nid() function became obsolete.
-Since CONFIG_NODES_SPAN_OTHER_NODES is only used to pick a stub or a real
-implementation of early_pfn_in_nid(), it is also not needed anymore.
+>
+> > ---
+> >
+> >  arch/hexagon/Makefile | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile index
+> > 4c5858b80f0e..c168c6980d05 100644
+> > --- a/arch/hexagon/Makefile
+> > +++ b/arch/hexagon/Makefile
+> > @@ -30,7 +30,7 @@ TIR_NAME := r19
+> >  KBUILD_CFLAGS += -ffixed-$(TIR_NAME) -
+> > DTHREADINFO_REG=$(TIR_NAME) -D__linux__  KBUILD_AFLAGS += -
+> > DTHREADINFO_REG=$(TIR_NAME)
+> >
+> > -LIBGCC := $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
+> > +LIBGCC := $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name
+> > +2>/dev/null)
+> >  libs-y += $(LIBGCC)
+> >
+> >  head-y := arch/hexagon/kernel/head.o
+> > --
+> > 2.25.1
+>
+>
 
-Remove both early_pfn_in_nid() and the CONFIG_NODES_SPAN_OTHER_NODES.
 
-Co-developed-by: Hoan Tran <Hoan@os.amperecomputing.com>
-Signed-off-by: Hoan Tran <Hoan@os.amperecomputing.com>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/powerpc/Kconfig |  9 ---------
- arch/sparc/Kconfig   |  9 ---------
- arch/x86/Kconfig     |  9 ---------
- mm/page_alloc.c      | 20 --------------------
- 4 files changed, 47 deletions(-)
-
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 5f86b22b7d2c..74f316deeae1 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -685,15 +685,6 @@ config ARCH_MEMORY_PROBE
- 	def_bool y
- 	depends on MEMORY_HOTPLUG
- 
--# Some NUMA nodes have memory ranges that span
--# other nodes.  Even though a pfn is valid and
--# between a node's start and end pfns, it may not
--# reside on that node.  See memmap_init_zone()
--# for details.
--config NODES_SPAN_OTHER_NODES
--	def_bool y
--	depends on NEED_MULTIPLE_NODES
--
- config STDBINUTILS
- 	bool "Using standard binutils settings"
- 	depends on 44x
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index 795206b7b552..0e4f3891b904 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -286,15 +286,6 @@ config NODES_SHIFT
- 	  Specify the maximum number of NUMA Nodes available on the target
- 	  system.  Increases memory reserved to accommodate various tables.
- 
--# Some NUMA nodes have memory ranges that span
--# other nodes.  Even though a pfn is valid and
--# between a node's start and end pfns, it may not
--# reside on that node.  See memmap_init_zone()
--# for details.
--config NODES_SPAN_OTHER_NODES
--	def_bool y
--	depends on NEED_MULTIPLE_NODES
--
- config ARCH_SPARSEMEM_ENABLE
- 	def_bool y if SPARC64
- 	select SPARSEMEM_VMEMMAP_ENABLE
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index f8bf218a169c..1ec2a5e2fef6 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1581,15 +1581,6 @@ config X86_64_ACPI_NUMA
- 	---help---
- 	  Enable ACPI SRAT based node topology detection.
- 
--# Some NUMA nodes have memory ranges that span
--# other nodes.  Even though a pfn is valid and
--# between a node's start and end pfns, it may not
--# reside on that node.  See memmap_init_zone()
--# for details.
--config NODES_SPAN_OTHER_NODES
--	def_bool y
--	depends on X86_64_ACPI_NUMA
--
- config NUMA_EMU
- 	bool "NUMA emulation"
- 	depends on NUMA
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 8d112defaead..d35ca0996a09 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1541,26 +1541,6 @@ int __meminit early_pfn_to_nid(unsigned long pfn)
- }
- #endif /* CONFIG_NEED_MULTIPLE_NODES */
- 
--#ifdef CONFIG_NODES_SPAN_OTHER_NODES
--/* Only safe to use early in boot when initialisation is single-threaded */
--static inline bool __meminit early_pfn_in_nid(unsigned long pfn, int node)
--{
--	int nid;
--
--	nid = __early_pfn_to_nid(pfn, &early_pfnnid_cache);
--	if (nid >= 0 && nid != node)
--		return false;
--	return true;
--}
--
--#else
--static inline bool __meminit early_pfn_in_nid(unsigned long pfn, int node)
--{
--	return true;
--}
--#endif
--
--
- void __init memblock_free_pages(struct page *page, unsigned long pfn,
- 							unsigned int order)
- {
 -- 
-2.26.1
+Best Regards
+Masahiro Yamada
