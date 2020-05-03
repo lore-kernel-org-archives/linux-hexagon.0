@@ -1,78 +1,113 @@
-From: Masahiro Yamada <masahiroy@kernel.org>
-Subject: Re: [PATCH] hexagon: suppress error message for 'make clean'
-Date: Fri, 1 May 2020 14:33:21 +0900
-Message-ID: <CAK7LNAR+PjvE3yQS7xdKo5Cf_K1xDg+NijistAqWX7Ob=_irWg@mail.gmail.com>
-References: <20200424161502.656103-1-masahiroy@kernel.org> <009101d61a6b$71f93a70$55ebaf50$@codeaurora.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v2 17/20] mm: free_area_init: allow defining max_zone_pfn
+ in descending order
+Date: Sun, 3 May 2020 10:41:38 -0700
+Message-ID: <20200503174138.GA114085@roeck-us.net>
+References: <20200429121126.17989-1-rppt@kernel.org>
+ <20200429121126.17989-18-rppt@kernel.org>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-06.nifty.com 0415Xv7h011238
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1588311238;
-        bh=oOUTjHbglUckIEy8WVvMgD3ZhjrrhESz7wu9wTM0qt8=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=jPIC9BRAIB9gWJZqCfy5olbgMzB5gtYjxvxZV8vB3/20I/w8YksC++qd7vBvzEYh2
-         GsSeFMclrVoYAkD8WZp0qlc+Vt5QAOYHhfjsRAThxSshwDkpgEw+12TwbY0TULiStT
-         qh6hnfD+fsDsOgsC8Uj3GgXmkwAVvbDrYWYn8RejYsv1eagVwJaMC0DQ+ThW+57Nqm
-         m94prNdcVoeJDpAa9zEcWxJwytj26VVPuBzvJ00iY/v6x2bmW518NNA3g1So15R8yz
-         TDZne2D0mkUFepXrZulc9eYmuzAQZuDhoeNNSHAhVaMAjwXsUzDZV8qZbnbgogh62e
-         TJxfU16w4E4yQ==
-In-Reply-To: <009101d61a6b$71f93a70$55ebaf50$@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20170209; h=Sender:Cc:List-Subscribe:
+	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:In-Reply-To:
+	Content-Type:MIME-Version:References:Message-ID:Subject:To:From:Date:Reply-To
+	:Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	 bh=E/mr9ZyjU5f7Vr/0eufu9euRQzca2mWViEzdzXjAhKM=; b=ANJSHk4N2bW4ncKyXTf6QJcXq
+	PFKrq+Joc2gUPAREEhLsijgz1pSpekyswjez9wpqfJgcjults6VaFHQ+VzQFxxrbQ/k1pZiPmVRxT
+	GhxzTgTwYLCAxby11JDgC2AZ80kTxQZMeCMSoxqR94Hwkw+fAPK9YKhtdEPaHawUwTUi3dsVrmG4h
+	065UScV+6cQHE/h0awvMBTXUpyiSb88W8Q4IHW2Av9r0lU6YpqgAxFqwEOGTxyW2Fqbu8qom2F0/R
+	cFn2oZhYeiS4G46FTZD6fSA18iYvLxscZ2E0JlLWifZWSqif91cK0xGDM0EBrwSOa6D3j13HuFZbv
+	YuKz9pHTA==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=sender:date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to:user-agent;
+ bh=E/mr9ZyjU5f7Vr/0eufu9euRQzca2mWViEzdzXjAhKM=;
+ b=rAOPFuXgQJ2mpINJ4bZeTHDkrsZEQFsbwUGlrvdK6kp/tJs9EcLfnaWFpQLaMjvlTN
+ PpGRnjbVlR/AVFM9AVMPY1HNoRLD+rgpHPyTxpKKlbrj05rCKcKZtY2qpz5bcSW3rVBO
+ IocR5gWdH3gQT2RwWqhl/NTjprRC2CBth012R+d19kLQzVIHkQC7ljzq6SUBEAwz0CS8
+ BnEP6HirMkFO0ICbg+hSwf+E0KnuOsGeUCXZA18VmuCvpAorlqiIGznMmafOkyr6R+Rc
+ Q2PQDp8BGjLWDFmIAM1Oj/Qg5ff8e5fmuTqOOSGH41UE65MVi0GaoynoX/HwzIYTjpMy
+ UfXQ==
+Content-Disposition: inline
+In-Reply-To: <20200429121126.17989-18-rppt@kernel.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: bcain@codeaurora.org
-Cc: linux-hexagon@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, Ley Foon Tan <ley.foon.tan@intel.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Baoquan He <bhe@redhat.com>, Jonathan Corbet <corbet@lwn.net>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Hoan Tran <Hoan>
 
-On Sat, Apr 25, 2020 at 4:06 AM Brian Cain <bcain@codeaurora.org> wrote:
->
-> > -----Original Message-----
-> > From: linux-hexagon-owner@vger.kernel.org <linux-hexagon-
-> > owner@vger.kernel.org> On Behalf Of Masahiro Yamada
-> ...
-> > 'make ARCH=hexagon clean' emits an error message as follows:
-> >
-> >   $ make ARCH=hexagon clean
-> >   gcc: error: unrecognized command line option '-G0'
-> >
-> > You can suppress it by setting the correct CROSS_COMPILE=, but we should
-> > not require any compiler for cleaning.
-> >
-> > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
->
->
-> Acked-by: Brian Cain <bcain@codeaurora.org>
+Hi,
 
-Applied to linux-kbuild. Thanks.
+On Wed, Apr 29, 2020 at 03:11:23PM +0300, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> Some architectures (e.g. ARC) have the ZONE_HIGHMEM zone below the
+> ZONE_NORMAL. Allowing free_area_init() parse max_zone_pfn array even it is
+> sorted in descending order allows using free_area_init() on such
+> architectures.
+> 
+> Add top -> down traversal of max_zone_pfn array in free_area_init() and use
+> the latter in ARC node/zone initialization.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 
+This patch causes my microblazeel qemu boot test in linux-next to fail.
+Reverting it fixes the problem.
 
->
-> > ---
-> >
-> >  arch/hexagon/Makefile | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile index
-> > 4c5858b80f0e..c168c6980d05 100644
-> > --- a/arch/hexagon/Makefile
-> > +++ b/arch/hexagon/Makefile
-> > @@ -30,7 +30,7 @@ TIR_NAME := r19
-> >  KBUILD_CFLAGS += -ffixed-$(TIR_NAME) -
-> > DTHREADINFO_REG=$(TIR_NAME) -D__linux__  KBUILD_AFLAGS += -
-> > DTHREADINFO_REG=$(TIR_NAME)
-> >
-> > -LIBGCC := $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
-> > +LIBGCC := $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name
-> > +2>/dev/null)
-> >  libs-y += $(LIBGCC)
-> >
-> >  head-y := arch/hexagon/kernel/head.o
-> > --
-> > 2.25.1
->
->
+qemu command line:
 
+qemu-system-microblazeel -M petalogix-ml605 -m 256 \
+	-kernel arch/microblaze/boot/linux.bin -no-reboot \
+	-initrd rootfs.cpio \
+	-append 'panic=-1 slub_debug=FZPUA rdinit=/sbin/init console=ttyS0,115200' \
+	-monitor none -serial stdio -nographic
 
--- 
-Best Regards
-Masahiro Yamada
+initrd:
+	https://github.com/groeck/linux-build-test/blob/master/rootfs/microblazeel/rootfs.cpio.gz
+configuration:
+	https://github.com/groeck/linux-build-test/blob/master/rootfs/microblazeel/qemu_microblazeel_ml605_defconfig
+
+Bisect log is below.
+
+Guenter
+
+---
+# bad: [fb9d670f57e3f6478602328bbbf71138be06ca4f] Add linux-next specific files for 20200501
+# good: [6a8b55ed4056ea5559ebe4f6a4b247f627870d4c] Linux 5.7-rc3
+git bisect start 'HEAD' 'v5.7-rc3'
+# good: [068b80b68a670f0b17288c8a3d1ee751f35162ab] Merge remote-tracking branch 'drm/drm-next'
+git bisect good 068b80b68a670f0b17288c8a3d1ee751f35162ab
+# good: [46c70fc6a3ac35cd72ddad248dcbe4eee716d2a5] Merge remote-tracking branch 'drivers-x86/for-next'
+git bisect good 46c70fc6a3ac35cd72ddad248dcbe4eee716d2a5
+# good: [f39c4ad479a2f005f972a2b941b40efa6b9c9349] Merge remote-tracking branch 'rpmsg/for-next'
+git bisect good f39c4ad479a2f005f972a2b941b40efa6b9c9349
+# bad: [165d3ee0162fe28efc2c8180176633e33515df15] ipc-convert-ipcs_idr-to-xarray-update
+git bisect bad 165d3ee0162fe28efc2c8180176633e33515df15
+# good: [001f1d211ed2ed0f005838dc4390993930bbbd69] mm: remove early_pfn_in_nid() and CONFIG_NODES_SPAN_OTHER_NODES
+git bisect good 001f1d211ed2ed0f005838dc4390993930bbbd69
+# bad: [aaad7401bd32f10c1d591dd886b3a9b9595c6d77] mm/vmsan: fix some typos in comment
+git bisect bad aaad7401bd32f10c1d591dd886b3a9b9595c6d77
+# bad: [09f9d0ab1fbed85623b283995aa7a7d78daa1611] khugepaged: allow to collapse PTE-mapped compound pages
+git bisect bad 09f9d0ab1fbed85623b283995aa7a7d78daa1611
+# bad: [c942fc8a3e5088407bc32d94f554bab205175f8a] mm/vmstat.c: do not show lowmem reserve protection information of empty zone
+git bisect bad c942fc8a3e5088407bc32d94f554bab205175f8a
+# bad: [b29358d269ace3826d8521bea842fc2984cfc11b] mm/page_alloc.c: rename free_pages_check() to check_free_page()
+git bisect bad b29358d269ace3826d8521bea842fc2984cfc11b
+# bad: [be0fb591a1f1df20a00c8f023f9ca4891f177b0d] mm: simplify find_min_pfn_with_active_regions()
+git bisect bad be0fb591a1f1df20a00c8f023f9ca4891f177b0d
+# bad: [c17422a008d36dcf3e9f51469758c5762716cb0a] mm: rename free_area_init_node() to free_area_init_memoryless_node()
+git bisect bad c17422a008d36dcf3e9f51469758c5762716cb0a
+# bad: [51a2f644fd020d5f090044825c388444d11029d5] mm: free_area_init: allow defining max_zone_pfn in descending order
+git bisect bad 51a2f644fd020d5f090044825c388444d11029d5
+# first bad commit: [51a2f644fd020d5f090044825c388444d11029d5] mm: free_area_init: allow defining max_zone_pfn in descending order
+
