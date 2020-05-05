@@ -1,202 +1,123 @@
-From: Mike Rapoport <rppt@kernel.org>
+From: Vineet Gupta <Vineet.Gupta1@synopsys.com>
 Subject: Re: [PATCH v2 17/20] mm: free_area_init: allow defining max_zone_pfn
  in descending order
-Date: Mon, 4 May 2020 18:39:01 +0300
-Message-ID: <20200504153901.GM14260@kernel.org>
+Date: Tue, 5 May 2020 06:23:37 +0000
+Message-ID: <a0b20e15-fddb-aa9c-fd67-f1c8e735b4a4@synopsys.com>
 References: <20200429121126.17989-1-rppt@kernel.org>
  <20200429121126.17989-18-rppt@kernel.org>
- <20200503174138.GA114085@roeck-us.net>
- <20200503184300.GA154219@roeck-us.net>
+ <20200503174138.GA114085@roeck-us.net> <20200503184300.GA154219@roeck-us.net>
+ <20200504153901.GM14260@kernel.org>
 Mime-Version: 1.0
+Content-Transfer-Encoding: base64
+Return-path: <linux-doc-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1588659839; bh=nnzMGwqbhMCV73hJU11QrodqXtI6lMd10mXOW56Lt+0=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+        b=jKfHU+wIHmW84geoH6Q1Xhf9lIpsLig/vAtGNSEB6SFEpK8xk7B+abxa7r4xPdmGs
+         /ti/7V1Hh0c6TqYpSELbTGM2eRUrJ+nFhvyou1S4bmpjg01+RH1+gAzhzyNaQtHLA9
+         VBa7zhkUpPOBnuCnEmJZpNkaYekhWr9LlEK9cHNTxPG/3YitjFQgF+AMVFrD18wmzj
+         XNJ7kl4RYmpK/EFuLX4/R1HU48oKXV2aJH3eoJhIDAqob40A39DzGdXQfJoAgAmDgS
+         HJGcD/WgnmEN8D+AI/n2lFqjy3Wx7sDFVnUxkqH0pjND3iQnXlGJK/oZhUfAAxqMdI
+         LL5LWqkS4/v1w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=nnzMGwqbhMCV73hJU11QrodqXtI6lMd10mXOW56Lt+0=;
+ b=OJ5xnIb1BIdY1B7fRvk4NGDuWhrhH62VrRyfWPsD+RXmCVlgJOu1c8xe7jlKIyf8D2PMx4JKymOP5foKfPPfduhBuvxU59A37IKmEsE06OMqw1ca5PWEvZcJI9SxrTIA1lbo6m90D7bBXXzyQzP/PVuqpzEM89ZILxz7msHm7qI=
+In-Reply-To: <20200504153901.GM14260@kernel.org>
+Content-Language: en-US
+Content-ID: <2AE79964EC942449B3B00D9349CD891C@namprd12.prod.outlook.com>
+Sender: linux-doc-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=eOdEw1RpFkW2t7LenYuKsS1FFX/HGHheIA+yHH1j7VM=; b=NZqzNpRg6h1xzg
-	MClILn54wDpW+23jUJV9m6yxr8XZLtlyM90N1wXtAw7IMZKO/wvcDCJiQKmvW5snp2gS7A2JnHwjo
-	V9IhY0LYGWY5aMv+tV2XY10J7p6frD3Bq7iUn6VvyvPRxbQ9bD/B17gy8J2CYqIP6POSBWqav6qv6
-	ItdCLBxRgt2ce1HuNhFG1maWPy3CJ1rolmy4QaZI/W+htneh42n7PpwuK/woi+H0qHOTPjPwcF2PX
-	kYgDosRMorrBRRVgs9UIID+D03EWC8gNAtpxG6cUe+c0ofF3iyqTuN+szMoGjVnHIySyrh60u0BFd
-	ikFCK6jk1o6LH6iTlaRQ==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1588606761;
- bh=K3AQD4/kSurqTKgiy9tnhsUhrYGtu7oPwWRQzafMBDk=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=r4eFD/8M6rkpVhWGJCM/XtjuL/CEeeN7FuJSwVNx6NS+9s41kdKOpAfrpyLGuvIjw
- Dsuxy71lGNPG6A1BQVCQEZ5Cg17/+/r+5sTXhGv9TOpm3Ji63adplTBcIG0ncWkgZc
- n7BzNcKe3WYWVs/gQPxwA3v+UREC5VfAHR93vTCo=
-Content-Disposition: inline
-In-Reply-To: <20200503184300.GA154219@roeck-us.net>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-snps-arc/>
-List-Post: <mailto:linux-snps-arc@lists.infradead.org>
-List-Help: <mailto:linux-snps-arc-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-snps-arc>, 
- <mailto:linux-snps-arc-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-snps-arc" <linux-snps-arc-bounces@lists.infradead.org>
-Errors-To: linux-snps-arc-bounces+gla-linux-snps-arc=m.gmane-mx.org@lists.infradead.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, Ley Foon Tan <ley.foon.tan@intel.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Greg Ungerer <gerg@linux-m68k.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Baoquan He <bhe@redhat.com>, Jonathan Corbet <corbet@lwn.net>, linux-hexagon@vger.kernel.org, Helge Deller <deller@gmx.de>, linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Hoan Tran <Hoan>
+To: Mike Rapoport <rppt@kernel.org>, Guenter Roeck <linux@roeck-us.net>
+Cc: Rich Felker <dalias@libc.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "x86@kernel.org" <x86@kernel.org>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, Ley Foon Tan <ley.foon.tan@intel.com>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, Greg Ungerer <gerg@linux-m68k.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, linux-c6x-dev@linux-c
 
-On Sun, May 03, 2020 at 11:43:00AM -0700, Guenter Roeck wrote:
-> On Sun, May 03, 2020 at 10:41:38AM -0700, Guenter Roeck wrote:
-> > Hi,
-> > 
-> > On Wed, Apr 29, 2020 at 03:11:23PM +0300, Mike Rapoport wrote:
-> > > From: Mike Rapoport <rppt@linux.ibm.com>
-> > > 
-> > > Some architectures (e.g. ARC) have the ZONE_HIGHMEM zone below the
-> > > ZONE_NORMAL. Allowing free_area_init() parse max_zone_pfn array even it is
-> > > sorted in descending order allows using free_area_init() on such
-> > > architectures.
-> > > 
-> > > Add top -> down traversal of max_zone_pfn array in free_area_init() and use
-> > > the latter in ARC node/zone initialization.
-> > > 
-> > > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> > 
-> > This patch causes my microblazeel qemu boot test in linux-next to fail.
-> > Reverting it fixes the problem.
-> > 
-> The same problem is seen with s390 emulations.
-
-Yeah, this patch breaks some others as well :(
-
-My assumption that max_zone_pfn defines architectural limit for maximal
-PFN that can belong to a zone was over-optimistic. Several arches
-actually do that, but others do
-
-	max_zone_pfn[ZONE_DMA] = MAX_DMA_PFN;
-	max_zone_pfn[ZONE_NORMAL] = max_pfn;
-
-where MAX_DMA_PFN is build-time constrain and max_pfn is run time limit
-for the current system.
-
-So, when max_pfn is lower than MAX_DMA_PFN, the free_init_area() will
-consider max_zone_pfn as descending and will wrongly calculate zone
-extents.
-
-That said, instead of trying to create a generic way to special case
-ARC, I suggest to simply use the below patch instead.
-
-diff --git a/arch/arc/mm/init.c b/arch/arc/mm/init.c
-index 41eb9be1653c..386959bac3d2 100644
---- a/arch/arc/mm/init.c
-+++ b/arch/arc/mm/init.c
-@@ -77,6 +77,11 @@ void __init early_init_dt_add_memory_arch(u64 base, u64 size)
- 		base, TO_MB(size), !in_use ? "Not used":"");
- }
- 
-+bool arch_has_descending_max_zone_pfns(void)
-+{
-+	return true;
-+}
-+
- /*
-  * First memory setup routine called from setup_arch()
-  * 1. setup swapper's mm @init_mm
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index b990e9734474..114f0e027144 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -7307,6 +7307,15 @@ static void check_for_memory(pg_data_t *pgdat, int nid)
- 	}
- }
- 
-+/*
-+ * Some architecturs, e.g. ARC may have ZONE_HIGHMEM below ZONE_NORMAL. For
-+ * such cases we allow max_zone_pfn sorted in the descending order
-+ */
-+bool __weak arch_has_descending_max_zone_pfns(void)
-+{
-+	return false;
-+}
-+
- /**
-  * free_area_init - Initialise all pg_data_t and zone data
-  * @max_zone_pfn: an array of max PFNs for each zone
-@@ -7324,7 +7333,7 @@ void __init free_area_init(unsigned long *max_zone_pfn)
- {
- 	unsigned long start_pfn, end_pfn;
- 	int i, nid, zone;
--	bool descending = false;
-+	bool descending;
- 
- 	/* Record where the zone boundaries are */
- 	memset(arch_zone_lowest_possible_pfn, 0,
-@@ -7333,14 +7342,7 @@ void __init free_area_init(unsigned long *max_zone_pfn)
- 				sizeof(arch_zone_highest_possible_pfn));
- 
- 	start_pfn = find_min_pfn_with_active_regions();
--
--	/*
--	 * Some architecturs, e.g. ARC may have ZONE_HIGHMEM below
--	 * ZONE_NORMAL. For such cases we allow max_zone_pfn sorted in the
--	 * descending order
--	 */
--	if (MAX_NR_ZONES > 1 && max_zone_pfn[0] > max_zone_pfn[1])
--		descending = true;
-+	descending = arch_has_descending_max_zone_pfns();
- 
- 	for (i = 0; i < MAX_NR_ZONES; i++) {
- 		if (descending)
-
-> Guenter
-> 
-> > qemu command line:
-> > 
-> > qemu-system-microblazeel -M petalogix-ml605 -m 256 \
-> > 	-kernel arch/microblaze/boot/linux.bin -no-reboot \
-> > 	-initrd rootfs.cpio \
-> > 	-append 'panic=-1 slub_debug=FZPUA rdinit=/sbin/init console=ttyS0,115200' \
-> > 	-monitor none -serial stdio -nographic
-> > 
-> > initrd:
-> > 	https://github.com/groeck/linux-build-test/blob/master/rootfs/microblazeel/rootfs.cpio.gz
-> > configuration:
-> > 	https://github.com/groeck/linux-build-test/blob/master/rootfs/microblazeel/qemu_microblazeel_ml605_defconfig
-> > 
-> > Bisect log is below.
-> > 
-> > Guenter
-> > 
-> > ---
-> > # bad: [fb9d670f57e3f6478602328bbbf71138be06ca4f] Add linux-next specific files for 20200501
-> > # good: [6a8b55ed4056ea5559ebe4f6a4b247f627870d4c] Linux 5.7-rc3
-> > git bisect start 'HEAD' 'v5.7-rc3'
-> > # good: [068b80b68a670f0b17288c8a3d1ee751f35162ab] Merge remote-tracking branch 'drm/drm-next'
-> > git bisect good 068b80b68a670f0b17288c8a3d1ee751f35162ab
-> > # good: [46c70fc6a3ac35cd72ddad248dcbe4eee716d2a5] Merge remote-tracking branch 'drivers-x86/for-next'
-> > git bisect good 46c70fc6a3ac35cd72ddad248dcbe4eee716d2a5
-> > # good: [f39c4ad479a2f005f972a2b941b40efa6b9c9349] Merge remote-tracking branch 'rpmsg/for-next'
-> > git bisect good f39c4ad479a2f005f972a2b941b40efa6b9c9349
-> > # bad: [165d3ee0162fe28efc2c8180176633e33515df15] ipc-convert-ipcs_idr-to-xarray-update
-> > git bisect bad 165d3ee0162fe28efc2c8180176633e33515df15
-> > # good: [001f1d211ed2ed0f005838dc4390993930bbbd69] mm: remove early_pfn_in_nid() and CONFIG_NODES_SPAN_OTHER_NODES
-> > git bisect good 001f1d211ed2ed0f005838dc4390993930bbbd69
-> > # bad: [aaad7401bd32f10c1d591dd886b3a9b9595c6d77] mm/vmsan: fix some typos in comment
-> > git bisect bad aaad7401bd32f10c1d591dd886b3a9b9595c6d77
-> > # bad: [09f9d0ab1fbed85623b283995aa7a7d78daa1611] khugepaged: allow to collapse PTE-mapped compound pages
-> > git bisect bad 09f9d0ab1fbed85623b283995aa7a7d78daa1611
-> > # bad: [c942fc8a3e5088407bc32d94f554bab205175f8a] mm/vmstat.c: do not show lowmem reserve protection information of empty zone
-> > git bisect bad c942fc8a3e5088407bc32d94f554bab205175f8a
-> > # bad: [b29358d269ace3826d8521bea842fc2984cfc11b] mm/page_alloc.c: rename free_pages_check() to check_free_page()
-> > git bisect bad b29358d269ace3826d8521bea842fc2984cfc11b
-> > # bad: [be0fb591a1f1df20a00c8f023f9ca4891f177b0d] mm: simplify find_min_pfn_with_active_regions()
-> > git bisect bad be0fb591a1f1df20a00c8f023f9ca4891f177b0d
-> > # bad: [c17422a008d36dcf3e9f51469758c5762716cb0a] mm: rename free_area_init_node() to free_area_init_memoryless_node()
-> > git bisect bad c17422a008d36dcf3e9f51469758c5762716cb0a
-> > # bad: [51a2f644fd020d5f090044825c388444d11029d5] mm: free_area_init: allow defining max_zone_pfn in descending order
-> > git bisect bad 51a2f644fd020d5f090044825c388444d11029d5
-> > # first bad commit: [51a2f644fd020d5f090044825c388444d11029d5] mm: free_area_init: allow defining max_zone_pfn in descending order
-
--- 
-Sincerely yours,
-Mike.
+SGkgTWlrZSwNCg0KT24gNS80LzIwIDg6MzkgQU0sIE1pa2UgUmFwb3BvcnQgd3JvdGU6DQo+IE9u
+IFN1biwgTWF5IDAzLCAyMDIwIGF0IDExOjQzOjAwQU0gLTA3MDAsIEd1ZW50ZXIgUm9lY2sgd3Jv
+dGU6DQo+PiBPbiBTdW4sIE1heSAwMywgMjAyMCBhdCAxMDo0MTozOEFNIC0wNzAwLCBHdWVudGVy
+IFJvZWNrIHdyb3RlOg0KPj4+IEhpLA0KPj4+DQo+Pj4gT24gV2VkLCBBcHIgMjksIDIwMjAgYXQg
+MDM6MTE6MjNQTSArMDMwMCwgTWlrZSBSYXBvcG9ydCB3cm90ZToNCj4+Pj4gRnJvbTogTWlrZSBS
+YXBvcG9ydCA8cnBwdEBsaW51eC5pYm0uY29tPg0KPj4+Pg0KPj4+PiBTb21lIGFyY2hpdGVjdHVy
+ZXMgKGUuZy4gQVJDKSBoYXZlIHRoZSBaT05FX0hJR0hNRU0gem9uZSBiZWxvdyB0aGUNCj4+Pj4g
+Wk9ORV9OT1JNQUwuIEFsbG93aW5nIGZyZWVfYXJlYV9pbml0KCkgcGFyc2UgbWF4X3pvbmVfcGZu
+IGFycmF5IGV2ZW4gaXQgaXMNCj4+Pj4gc29ydGVkIGluIGRlc2NlbmRpbmcgb3JkZXIgYWxsb3dz
+IHVzaW5nIGZyZWVfYXJlYV9pbml0KCkgb24gc3VjaA0KPj4+PiBhcmNoaXRlY3R1cmVzLg0KPj4+
+Pg0KPj4+PiBBZGQgdG9wIC0+IGRvd24gdHJhdmVyc2FsIG9mIG1heF96b25lX3BmbiBhcnJheSBp
+biBmcmVlX2FyZWFfaW5pdCgpIGFuZCB1c2UNCj4+Pj4gdGhlIGxhdHRlciBpbiBBUkMgbm9kZS96
+b25lIGluaXRpYWxpemF0aW9uLg0KPj4+Pg0KPj4+PiBTaWduZWQtb2ZmLWJ5OiBNaWtlIFJhcG9w
+b3J0IDxycHB0QGxpbnV4LmlibS5jb20+DQo+Pj4NCj4+PiBUaGlzIHBhdGNoIGNhdXNlcyBteSBt
+aWNyb2JsYXplZWwgcWVtdSBib290IHRlc3QgaW4gbGludXgtbmV4dCB0byBmYWlsLg0KPj4+IFJl
+dmVydGluZyBpdCBmaXhlcyB0aGUgcHJvYmxlbS4NCj4+Pg0KPj4gVGhlIHNhbWUgcHJvYmxlbSBp
+cyBzZWVuIHdpdGggczM5MCBlbXVsYXRpb25zLg0KPiANCj4gWWVhaCwgdGhpcyBwYXRjaCBicmVh
+a3Mgc29tZSBvdGhlcnMgYXMgd2VsbCA6KA0KPiANCj4gTXkgYXNzdW1wdGlvbiB0aGF0IG1heF96
+b25lX3BmbiBkZWZpbmVzIGFyY2hpdGVjdHVyYWwgbGltaXQgZm9yIG1heGltYWwNCj4gUEZOIHRo
+YXQgY2FuIGJlbG9uZyB0byBhIHpvbmUgd2FzIG92ZXItb3B0aW1pc3RpYy4gU2V2ZXJhbCBhcmNo
+ZXMNCj4gYWN0dWFsbHkgZG8gdGhhdCwgYnV0IG90aGVycyBkbw0KPiANCj4gCW1heF96b25lX3Bm
+bltaT05FX0RNQV0gPSBNQVhfRE1BX1BGTjsNCj4gCW1heF96b25lX3BmbltaT05FX05PUk1BTF0g
+PSBtYXhfcGZuOw0KPiANCj4gd2hlcmUgTUFYX0RNQV9QRk4gaXMgYnVpbGQtdGltZSBjb25zdHJh
+aW4gYW5kIG1heF9wZm4gaXMgcnVuIHRpbWUgbGltaXQNCj4gZm9yIHRoZSBjdXJyZW50IHN5c3Rl
+bS4NCj4gDQo+IFNvLCB3aGVuIG1heF9wZm4gaXMgbG93ZXIgdGhhbiBNQVhfRE1BX1BGTiwgdGhl
+IGZyZWVfaW5pdF9hcmVhKCkgd2lsbA0KPiBjb25zaWRlciBtYXhfem9uZV9wZm4gYXMgZGVzY2Vu
+ZGluZyBhbmQgd2lsbCB3cm9uZ2x5IGNhbGN1bGF0ZSB6b25lDQo+IGV4dGVudHMuDQo+IA0KPiBU
+aGF0IHNhaWQsIGluc3RlYWQgb2YgdHJ5aW5nIHRvIGNyZWF0ZSBhIGdlbmVyaWMgd2F5IHRvIHNw
+ZWNpYWwgY2FzZQ0KPiBBUkMsIEkgc3VnZ2VzdCB0byBzaW1wbHkgdXNlIHRoZSBiZWxvdyBwYXRj
+aCBpbnN0ZWFkLg0KDQpFdmVuIGZvciBBUkMgaXQgd2lsbCBiZSBhIGJpdCBtb3JlIGNvbXBsaWNh
+dGVkLiBIaWdobWVtIG9uIEFSQyBjYW4gYmUgc2V0dXAgaW4gMg0Kd2F5cyBzdWNoIHRoYXQgaXQg
+aXMgZGVzY2VuZGluZyBpbiBvbmUgY2FzZSwgYW5kIGFzY2VuZGluZyBpbiBvdGhlciAody5yLnQN
+CiJub3JtYWwiIG1lbSkgOi0oDQoNCkZpcnN0IHNvbWUgYmFzaWMgaW5mbyBhYm91dCBhbiBBUkMg
+TU1VIGJhc2VkIHN5c3RlbQ0KDQpBUkMgbG9naWNhbCBhZGRyZXNzIHNwYWNlICh2YXJpb3VzIGFk
+ZHJlc3NlcyBlbWJlZGRlZCBpbiBiaW5hcmllcykNCiAtIHRyYW5zbGF0ZWQgKDAgdG8gMHg2RkZG
+X0ZGRkYpICAtIGZvciB1c2Vyc3BhY2UNCiAtIHVudHJhbnNsYXRlZCAoMHg4MDAwXzAwMDAgdG8g
+MHhGRkZGX0ZGRkYpIC0ga2VybmVsDQoNCkFSQyBQaHlzaWNhbCBhZGRyZXNzIHNwYWNlIGlzIHR5
+cGljYWxseSBmcm9tIDB4ODAwMF8wMDAwIHRvIDB4RjAwMF8wMDAwLg0KQWJvdmUgdHJhbnNsYXRl
+ZCBzcGFjZSBtYXBzIGhlcmUgdmlhIE1NVS4gVW50cmFuc2xhdGVkIGlzIGltcGxpY2l0bHkgbWFw
+cGVkIChubw0KTU1VIGludm9sdmVkKS4NCg0KVGhlIHBoeXNpY2FsIGFkZHJlc3MgaW4gdHVybiBt
+YXBzIHRvIGEgQnVzIGFkZHJlc3MgLyBtZW1vcnkgKGRvbmUgYXQgdGhlDQppbnRlci1jb25uZWN0
+L05vQykuIFR5cGljYWxseSBQaHlzaWNhbCAweDgwMDBfMDAwMCBtYXAgdG8gRERSIDANCg0KTm93
+LA0KLSBISUdITUVNIHcvbyBQQUU0MCBhZGRzIFBoeXNpY2FsIGFkZHJlc3Mgc3BhY2UgMCB0byAw
+eDdGRkZfRkZGRi4NCi0gSElHSE1FTSB3aXRoIFBBRTQwIHVzZXMgcGh5c2ljYWwgYWRkcmVzcyBz
+cGFjZSBmcm9tIDB4MV8wMDAwXzAwMDAgdXB3YXJkcy4NCg0KQnV0IHRoZW4geW91IGNvdWxkIGFs
+c28gaGF2ZSBhIHN5c3RlbSB3aGljaCBoYXMgYm90aCBvZiBhYm92ZSBzbyB0aGUgYmltb2RhbCB1
+cC9kbg0Kd29uJ3Qgd29yay4NCg0KV2hpbGUgSSBhcHByZWNpYXRlIHRoZSBlZmZvcnQgdG8gcmVk
+dWNlIGNvbXBsZXhpdHksIGl0IHNlZW1zIHRoZSBjdXJyZW50IHdheSBvZg0Kc2V0dGluZyB0aGlu
+Z3MgdXAgYWxsb3dzIGZvciBtb3JlIGZsZXhpYmlsaXR5IGluIHNwZWNpZnlpbmcgdGhlIHN5c3Rl
+bSBtZW1vcnkgbWFwLg0KDQpQUzogSSBoYXZlbid0IGxvb2tlZCBhdCB5b3VyIHNlcmllcyB0b28g
+Y2FyZWZ1bGx5LCB0aGUgbWVudGlvbiBvZiBBUkMgY2F1Z2h0IG15DQphdHRlbnRpb24gOi0pIEkg
+Z3Vlc3MgSSBuZWVkIHRvIHJlYWQgaXQgbW9yZSBjYXJlZnVsbHkgdG8gdW5kZXJzdGFuZC4NCg0K
+DQo+IA0KPiBkaWZmIC0tZ2l0IGEvYXJjaC9hcmMvbW0vaW5pdC5jIGIvYXJjaC9hcmMvbW0vaW5p
+dC5jDQo+IGluZGV4IDQxZWI5YmUxNjUzYy4uMzg2OTU5YmFjM2QyIDEwMDY0NA0KPiAtLS0gYS9h
+cmNoL2FyYy9tbS9pbml0LmMNCj4gKysrIGIvYXJjaC9hcmMvbW0vaW5pdC5jDQo+IEBAIC03Nyw2
+ICs3NywxMSBAQCB2b2lkIF9faW5pdCBlYXJseV9pbml0X2R0X2FkZF9tZW1vcnlfYXJjaCh1NjQg
+YmFzZSwgdTY0IHNpemUpDQo+ICAJCWJhc2UsIFRPX01CKHNpemUpLCAhaW5fdXNlID8gIk5vdCB1
+c2VkIjoiIik7DQo+ICB9DQo+ICANCj4gK2Jvb2wgYXJjaF9oYXNfZGVzY2VuZGluZ19tYXhfem9u
+ZV9wZm5zKHZvaWQpDQo+ICt7DQo+ICsJcmV0dXJuIHRydWU7DQo+ICt9DQo+ICsNCj4gIC8qDQo+
+ICAgKiBGaXJzdCBtZW1vcnkgc2V0dXAgcm91dGluZSBjYWxsZWQgZnJvbSBzZXR1cF9hcmNoKCkN
+Cj4gICAqIDEuIHNldHVwIHN3YXBwZXIncyBtbSBAaW5pdF9tbQ0KPiBkaWZmIC0tZ2l0IGEvbW0v
+cGFnZV9hbGxvYy5jIGIvbW0vcGFnZV9hbGxvYy5jDQo+IGluZGV4IGI5OTBlOTczNDQ3NC4uMTE0
+ZjBlMDI3MTQ0IDEwMDY0NA0KPiAtLS0gYS9tbS9wYWdlX2FsbG9jLmMNCj4gKysrIGIvbW0vcGFn
+ZV9hbGxvYy5jDQo+IEBAIC03MzA3LDYgKzczMDcsMTUgQEAgc3RhdGljIHZvaWQgY2hlY2tfZm9y
+X21lbW9yeShwZ19kYXRhX3QgKnBnZGF0LCBpbnQgbmlkKQ0KPiAgCX0NCj4gIH0NCj4gIA0KPiAr
+LyoNCj4gKyAqIFNvbWUgYXJjaGl0ZWN0dXJzLCBlLmcuIEFSQyBtYXkgaGF2ZSBaT05FX0hJR0hN
+RU0gYmVsb3cgWk9ORV9OT1JNQUwuIEZvcg0KPiArICogc3VjaCBjYXNlcyB3ZSBhbGxvdyBtYXhf
+em9uZV9wZm4gc29ydGVkIGluIHRoZSBkZXNjZW5kaW5nIG9yZGVyDQo+ICsgKi8NCj4gK2Jvb2wg
+X193ZWFrIGFyY2hfaGFzX2Rlc2NlbmRpbmdfbWF4X3pvbmVfcGZucyh2b2lkKQ0KPiArew0KPiAr
+CXJldHVybiBmYWxzZTsNCj4gK30NCj4gKw0KPiAgLyoqDQo+ICAgKiBmcmVlX2FyZWFfaW5pdCAt
+IEluaXRpYWxpc2UgYWxsIHBnX2RhdGFfdCBhbmQgem9uZSBkYXRhDQo+ICAgKiBAbWF4X3pvbmVf
+cGZuOiBhbiBhcnJheSBvZiBtYXggUEZOcyBmb3IgZWFjaCB6b25lDQo+IEBAIC03MzI0LDcgKzcz
+MzMsNyBAQCB2b2lkIF9faW5pdCBmcmVlX2FyZWFfaW5pdCh1bnNpZ25lZCBsb25nICptYXhfem9u
+ZV9wZm4pDQo+ICB7DQo+ICAJdW5zaWduZWQgbG9uZyBzdGFydF9wZm4sIGVuZF9wZm47DQo+ICAJ
+aW50IGksIG5pZCwgem9uZTsNCj4gLQlib29sIGRlc2NlbmRpbmcgPSBmYWxzZTsNCj4gKwlib29s
+IGRlc2NlbmRpbmc7DQo+ICANCj4gIAkvKiBSZWNvcmQgd2hlcmUgdGhlIHpvbmUgYm91bmRhcmll
+cyBhcmUgKi8NCj4gIAltZW1zZXQoYXJjaF96b25lX2xvd2VzdF9wb3NzaWJsZV9wZm4sIDAsDQo+
+IEBAIC03MzMzLDE0ICs3MzQyLDcgQEAgdm9pZCBfX2luaXQgZnJlZV9hcmVhX2luaXQodW5zaWdu
+ZWQgbG9uZyAqbWF4X3pvbmVfcGZuKQ0KPiAgCQkJCXNpemVvZihhcmNoX3pvbmVfaGlnaGVzdF9w
+b3NzaWJsZV9wZm4pKTsNCj4gIA0KPiAgCXN0YXJ0X3BmbiA9IGZpbmRfbWluX3Bmbl93aXRoX2Fj
+dGl2ZV9yZWdpb25zKCk7DQo+IC0NCj4gLQkvKg0KPiAtCSAqIFNvbWUgYXJjaGl0ZWN0dXJzLCBl
+LmcuIEFSQyBtYXkgaGF2ZSBaT05FX0hJR0hNRU0gYmVsb3cNCj4gLQkgKiBaT05FX05PUk1BTC4g
+Rm9yIHN1Y2ggY2FzZXMgd2UgYWxsb3cgbWF4X3pvbmVfcGZuIHNvcnRlZCBpbiB0aGUNCj4gLQkg
+KiBkZXNjZW5kaW5nIG9yZGVyDQo+IC0JICovDQo+IC0JaWYgKE1BWF9OUl9aT05FUyA+IDEgJiYg
+bWF4X3pvbmVfcGZuWzBdID4gbWF4X3pvbmVfcGZuWzFdKQ0KPiAtCQlkZXNjZW5kaW5nID0gdHJ1
+ZTsNCj4gKwlkZXNjZW5kaW5nID0gYXJjaF9oYXNfZGVzY2VuZGluZ19tYXhfem9uZV9wZm5zKCk7
+DQo+ICANCj4gIAlmb3IgKGkgPSAwOyBpIDwgTUFYX05SX1pPTkVTOyBpKyspIHsNCj4gIAkJaWYg
+KGRlc2NlbmRpbmcpDQo+IA0K
