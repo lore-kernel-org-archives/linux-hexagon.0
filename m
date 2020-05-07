@@ -1,107 +1,96 @@
-From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: Re: [PATCH v2 17/20] mm: free_area_init: allow defining max_zone_pfn
- in descending order
-Date: Tue, 5 May 2020 23:15:22 +0300
-Message-ID: <20200505201522.GA683243@linux.ibm.com>
-References: <20200429121126.17989-1-rppt@kernel.org>
- <20200429121126.17989-18-rppt@kernel.org>
- <20200503174138.GA114085@roeck-us.net>
- <20200503184300.GA154219@roeck-us.net>
- <20200504153901.GM14260@kernel.org>
- <a0b20e15-fddb-aa9c-fd67-f1c8e735b4a4@synopsys.com>
- <20200505091946.GG342687@linux.ibm.com>
- <88b9465b-6e6d-86ca-3776-ccb7a5b60b7f@synopsys.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: Re: [PATCH v4 02/14] arm: add support for folded p4d page tables
+Date: Thu, 7 May 2020 14:16:56 +0200
+Message-ID: <39ba8a04-d6b5-649d-c289-0c8b27cb66c5@samsung.com>
+References: <20200414153455.21744-1-rppt@kernel.org>
+        <20200414153455.21744-3-rppt@kernel.org>
+        <CGME20200507121658eucas1p240cf4a3e0fe5c22dda5ec4f72734149f@eucas1p2.samsung.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:Cc:List-Subscribe:
-	List-Help:List-Post:List-Archive:List-Unsubscribe:List-Id:In-Reply-To:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:References:Message-ID:
-	Subject:To:From:Date:Reply-To:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
-	 bh=yJhsuzRLxUYgL5G7fTxknfBdVc++kYDaZbg2TEhLfSE=; b=uTLOV0lepIgugOaLOHBoFMqf3
-	+HMeo/e9AgVah0rUNyfhOmqqYnYhXGuZlymtKTgC7avI3Jh0zl4kK4rU/HZOW5Z96EwAZc1KEVxdd
-	gChRN0wEddEWJBWWQ+Nx0LLE8Fl7WV52LuLCvu8H02Aahqi3waHtxAhX5fG2t0iNqkscwpwDVJeYQ
-	W4oOzjUIQGyNjHu4BZfGVk4mtBlT8m/lKmERqAJR0VV+FT0sPYKTYXOi2gpivBa5D4HnUKoj97pbI
-	gBfuo+H4NiWV0p+C59exHjGUHaUffutlrPq89dH5fJ69DK9d1svZglCBdLDhwFcdWi2ZBohHt3cGO
-	eQ6tfuwQg==;
-Content-Disposition: inline
-In-Reply-To: <88b9465b-6e6d-86ca-3776-ccb7a5b60b7f@synopsys.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-Content-Type: text/plain; charset="iso-8859-1"
-To: Vineet Gupta <Vineet.Gupta1@synopsys.com>
-Cc: Rich Felker <dalias@libc.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, Greg Ungerer <gerg@linux-m68k.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-c6x-dev@linux-c6x.org" <linux-c6x-dev@linux-c6x.org>, Baoquan He <bhe@redhat.com>, Jonathan Corbet <corbet@lwn.net>, linux-sh@vger.kerne
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-arch-owner@vger.kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20200507121659euoutp0130134b196d36649fee372093381b253f~MviF4DxTt3103131031euoutp01p
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1588853819;
+        bh=+0bSafdqNc6S4bL9vEty9BPH/rbVn5QLED7naWqmpz8=;
+        h=Subject:To:Cc:From:Date:In-Reply-To:References:From;
+        b=LXFU2Q9Lhx6b8gh4rlmMfRU7Wl/uygI1LFV8ej1938MBW4PXQBu1mm6OYGHSJOCyH
+         CRip2q0s/ovbd/k6WdmcJkneHqwQob1RDdo0RPKut9fwHOSGljob338Ets2tYQnzXD
+         qLFZScLDfymGjBJQtA0thhhPMGogM7bwVnAUFbxI=
+In-Reply-To: <20200414153455.21744-3-rppt@kernel.org>
+Content-Language: en-US
+Sender: linux-arch-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>, linux-sh@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>, linux-hexagon@vger.kernel.org, Will Deacon <will@kernel.org>, kvmarm@lists.cs.columbia.edu, Jonas Bonn <jonas@southpole.se>, linux-arch@vger.kernel.org, Brian Cain <bcain@codeaurora.org>, Marc Zyngier <maz@kernel.org>, Russell King <linux@armlinux.org.uk>, Ley Foon Tan <ley.foon.tan@intel.com>, Mike Rapoport <rppt@linux.ibm.com>, Catalin Marinas <catalin.marinas@arm.com>, uclinux-h8-devel@lists.sourceforge.jp, Fenghua Yu <fenghua.yu@intel.com>, Arnd Bergmann <arnd@arndb.de>, kvm-ppc@vger.kernel.org, Stefan Kristiansson <stefa>
 
-On Tue, May 05, 2020 at 06:07:46PM +0000, Vineet Gupta wrote:
-> On 5/5/20 2:19 AM, Mike Rapoport wrote:
-> > From the code I've got the impression that it is either one of them. I.e
-> > the physical memory is either at
-> >
-> > 0x8000_0000 - <end of DDR 0 bank>
-> > 0x0000_0000 - <end of DDR 1 bank>
-> >
-> > or
-> >
-> > 0x0_8000_0000 - <end of DDR 0 bank>
-> > 0x1_0000_0000 - <end of DDR 1 bank>
-> >
-> > Is this possible to have a system with three live ranges? Like
-> >
-> > 0x0_0000_0000 - <end of DDR 1 bank>
-> > 0x0_8000_0000 - <end of DDR 0 bank>
-> > 0x1_0000_0000 - <end of DDR 2 bank>
->=20
-> We don't have such a system, but it is indeed possible in theory. The que=
-stion is
-> =A0- Can other arches have such a setup too
+Hi
 
-At the moment all architectures that support HIGHMEM have it above
-DMA/NORMAL. I'm not sure if such a setup is theoretically possible for
-other architectures, but as of now none of them support it in Linux.
+On 14.04.2020 17:34, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+>
+> Implement primitives necessary for the 4th level folding, add walks of p4d
+> level where appropriate, and remove __ARCH_USE_5LEVEL_HACK.
+>
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 
-The general case is somewhat like
+Today I've noticed that kexec is broken on ARM 32bit. Bisecting between 
+current linux-next and v5.7-rc1 pointed to this commit. I've tested this 
+on Odroid XU4 and Raspberry Pi4 boards. Here is the relevant log:
 
-	max_dma_pfn <=3D max_normal_pfn < max_high_pfn
+# kexec --kexec-syscall -l zImage --append "$(cat /proc/cmdline)"
+memory_range[0]:0x40000000..0xbe9fffff
+memory_range[0]:0x40000000..0xbe9fffff
+# kexec -e
+kexec_core: Starting new kernel
+8<--- cut here ---
+Unable to handle kernel paging request at virtual address c010f1f4
+pgd = c6817793
+[c010f1f4] *pgd=4000041e(bad)
+Internal error: Oops: 80d [#1] PREEMPT ARM
+Modules linked in:
+CPU: 0 PID: 1329 Comm: kexec Tainted: G        W 
+5.7.0-rc3-00127-g6cba81ed0f62 #611
+Hardware name: Samsung Exynos (Flattened Device Tree)
+PC is at machine_kexec+0x40/0xfc
+LR is at 0xffffffff
+pc : [<c010f0b4>]    lr : [<ffffffff>]    psr: 60000013
+sp : ebc13e60  ip : 40008000  fp : 00000001
+r10: 00000058  r9 : fee1dead  r8 : 00000001
+r7 : c121387c  r6 : 6c224000  r5 : ece40c00  r4 : ec222000
+r3 : c010f1f4  r2 : c1100000  r1 : c1100000  r0 : 418d0000
+Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+Control: 10c5387d  Table: 6bc14059  DAC: 00000051
+Process kexec (pid: 1329, stack limit = 0x366bb4dc)
+Stack: (0xebc13e60 to 0xebc14000)
+...
+[<c010f0b4>] (machine_kexec) from [<c01c0d84>] (kernel_kexec+0x74/0x7c)
+[<c01c0d84>] (kernel_kexec) from [<c014b1bc>] (__do_sys_reboot+0x1f8/0x210)
+[<c014b1bc>] (__do_sys_reboot) from [<c0100060>] (ret_fast_syscall+0x0/0x28)
+Exception stack(0xebc13fa8 to 0xebc13ff0)
+...
+---[ end trace 3e8d6c81723c778d ]---
+1329 Segmentation fault      ./kexec -e
 
-And of course, either max_dma_pfn or max_high_pfn or both may be not
-needed for an architecture.
+> ---
+>   arch/arm/include/asm/pgtable.h     |  1 -
+>   arch/arm/lib/uaccess_with_memcpy.c |  7 +++++-
+>   arch/arm/mach-sa1100/assabet.c     |  2 +-
+>   arch/arm/mm/dump.c                 | 29 +++++++++++++++++-----
+>   arch/arm/mm/fault-armv.c           |  7 +++++-
+>   arch/arm/mm/fault.c                | 22 ++++++++++------
+>   arch/arm/mm/idmap.c                |  3 ++-
+>   arch/arm/mm/init.c                 |  2 +-
+>   arch/arm/mm/ioremap.c              | 12 ++++++---
+>   arch/arm/mm/mm.h                   |  2 +-
+>   arch/arm/mm/mmu.c                  | 35 +++++++++++++++++++++-----
+>   arch/arm/mm/pgd.c                  | 40 ++++++++++++++++++++++++------
+>   12 files changed, 125 insertions(+), 37 deletions(-)
+>
+> ...
 
-> =A0- Is it not better to have the core retain the flexibility just in case
-
-Hmm, there is indeed flexibility in the nodes and zones initialization,
-but if you'd look more closely to free_area_init*() and friends, there
-is a lot of cruft and retrofitting ;-)
-
-What we have is two mutually exclusive paths, one that relies on the
-architecture to calculate zone sizes and find the holes between the
-zones (!CONFIG_HAVE_MEMBLOCK_NODE_MAP) and the other one that only
-requires the architectures to pass possible limit for each zone and
-detects the actual zone spans based on the knowlegde about the actual
-physical memory layout that comes from memblock.
-
-These patches attempt to drop the older method and switch all the
-architectures to use newer and simpler one.
-
-If the requirement to have support for 3-banks is a theoretical
-possibility, I would prefer to adjust ARC's version of
-arch_has_descending_max_zone_pfns() to cope with either of 2-banks
-configuration (PAE40 and non-PAE40) and deal with the third bank when/if
-it actually materializes.
-
-> Thx,
-> -Vineet
-
---=20
-Sincerely yours,
-Mike.
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
