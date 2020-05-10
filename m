@@ -1,93 +1,50 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 20/31] arm,sparc,unicore32: remove flush_icache_user_range
-Date: Sun, 10 May 2020 09:54:59 +0200
-Message-ID: <20200510075510.987823-21-hch@lst.de>
+Subject: [PATCH 24/31] xtensa: implement flush_icache_user_range
+Date: Sun, 10 May 2020 09:55:03 +0200
+Message-ID: <20200510075510.987823-25-hch@lst.de>
 References: <20200510075510.987823-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=QKVIgxxqArZPDCcD+fcp72AY7pKZ1eMD6jkvekw50ps=; b=SFmH8dDjpUnv5okqocrEumRxE0
-        GSHve/5u+rH7+mJMZMYqcf2lE+VgRjCAXI2buvlN08fadDZI15TpF7FLxEXBZSy5LcYVuLlb5iG3p
-        wEqdbBAZCM2nWi8aJGos4LN0RUiJDCzauZhT9CgSdgtW7wqsakPPmIRUaiQQsID6KZVhDCtTQoJDM
-        Fd/uO3AKv+HHE5g3qMop6VgVsx81OlxfeHuEWFJbf40nbWQpSM3ZwofwoMORyigd7wu6kOYAeeKmT
-        d37dS8hBRDF+rqQN8rZjpZpF6fPZq522Pa2XjEOGgg3JPyja+LX5wj2RboAYwRdBK2vCp3NAaK6y8
-        KCUmYYlA==;
+        bh=h1wlmdmJ+SbuSyPJIzXhJQXOtYNYFSmh0yN4ZKBWMKk=; b=lfX0+X5PBMIFZiffuU4usV1LLT
+        8RwgCLh11SKaJzMwL/11PCBnwFU0RQmjNSM74OctGeL3iXSNdBRM2pyO/36qGG76fJ5G552PdDpua
+        BiK4yXJUaQatBqA9eHDbmu6QdyxrOSn0CjzKHla0vqDE8pa8bnvLPGm4YeJ9hp/w7DS8gwelEvGxh
+        yRMp6Z6/B7l0lgC4bjLF0g7JJQE9qUw+/mqBYg2+w7zJH+6v/258QkcJYr6m/lXu5Gs3M46GvxiCd
+        gY7QyyTZxvqtz0G0Wv/Z5SOB0WROnYjbKKAWVMgW1ywN/QbFCMC2PXE1Sd+HYOoRXI/7JYyWxOoeH
+        nH8NIhgA==;
 In-Reply-To: <20200510075510.987823-1-hch@lst.de>
-Sender: linux-sh-owner@vger.kernel.org
+Sender: sparclinux-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Roman Zippel <zippel@linux-m68k.org>
 Cc: Jessica Yu <jeyu@kernel.org>, Michal Simek <monstr@monstr.eu>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-fsdevel@vger.kernel.org
 
-flush_icache_user_range is only used by <asm-generic/cacheflush.h>, so
-remove it from the architectures that implement it, but don't use
-<asm-generic/cacheflush.h>.
+The Xtensa implementation of flush_icache_range seems to be able to
+cope with user addresses.  Just define flush_icache_user_range to
+flush_icache_range.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/arm/include/asm/cacheflush.h       | 3 ---
- arch/sparc/include/asm/cacheflush_32.h  | 2 --
- arch/sparc/include/asm/cacheflush_64.h  | 1 -
- arch/unicore32/include/asm/cacheflush.h | 3 ---
- 4 files changed, 9 deletions(-)
+ arch/xtensa/include/asm/cacheflush.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/include/asm/cacheflush.h b/arch/arm/include/asm/cacheflush.h
-index 7114b9aa46b87..c78e14fcfb5df 100644
---- a/arch/arm/include/asm/cacheflush.h
-+++ b/arch/arm/include/asm/cacheflush.h
-@@ -318,9 +318,6 @@ extern void flush_kernel_dcache_page(struct page *);
- #define flush_dcache_mmap_lock(mapping)		xa_lock_irq(&mapping->i_pages)
- #define flush_dcache_mmap_unlock(mapping)	xa_unlock_irq(&mapping->i_pages)
+diff --git a/arch/xtensa/include/asm/cacheflush.h b/arch/xtensa/include/asm/cacheflush.h
+index a0d50be5a8cb1..460e666ad0761 100644
+--- a/arch/xtensa/include/asm/cacheflush.h
++++ b/arch/xtensa/include/asm/cacheflush.h
+@@ -107,6 +107,8 @@ void flush_cache_page(struct vm_area_struct*,
+ #define flush_cache_page  local_flush_cache_page
+ #endif
  
--#define flush_icache_user_range(vma,page,addr,len) \
--	flush_dcache_page(page)
--
- /*
-  * We don't appear to need to do anything here.  In fact, if we did, we'd
-  * duplicate cache flushing elsewhere performed by flush_dcache_page().
-diff --git a/arch/sparc/include/asm/cacheflush_32.h b/arch/sparc/include/asm/cacheflush_32.h
-index fb66094a2c30c..41c6d734a4741 100644
---- a/arch/sparc/include/asm/cacheflush_32.h
-+++ b/arch/sparc/include/asm/cacheflush_32.h
-@@ -17,8 +17,6 @@
- #define flush_icache_range(start, end)		do { } while (0)
- #define flush_icache_page(vma, pg)		do { } while (0)
- 
--#define flush_icache_user_range(vma,pg,adr,len)	do { } while (0)
--
- #define copy_to_user_page(vma, page, vaddr, dst, src, len) \
- 	do {							\
- 		flush_cache_page(vma, vaddr, page_to_pfn(page));\
-diff --git a/arch/sparc/include/asm/cacheflush_64.h b/arch/sparc/include/asm/cacheflush_64.h
-index e7517434d1fa6..b9341836597ec 100644
---- a/arch/sparc/include/asm/cacheflush_64.h
-+++ b/arch/sparc/include/asm/cacheflush_64.h
-@@ -49,7 +49,6 @@ void __flush_dcache_range(unsigned long start, unsigned long end);
- void flush_dcache_page(struct page *page);
- 
- #define flush_icache_page(vma, pg)	do { } while(0)
--#define flush_icache_user_range(vma,pg,adr,len)	do { } while (0)
- 
- void flush_ptrace_access(struct vm_area_struct *, struct page *,
- 			 unsigned long uaddr, void *kaddr,
-diff --git a/arch/unicore32/include/asm/cacheflush.h b/arch/unicore32/include/asm/cacheflush.h
-index 9393ca4047e93..ff0be92ebc320 100644
---- a/arch/unicore32/include/asm/cacheflush.h
-+++ b/arch/unicore32/include/asm/cacheflush.h
-@@ -162,9 +162,6 @@ extern void flush_dcache_page(struct page *);
- #define flush_dcache_mmap_lock(mapping)		do { } while (0)
- #define flush_dcache_mmap_unlock(mapping)	do { } while (0)
- 
--#define flush_icache_user_range(vma, page, addr, len)	\
--	flush_dcache_page(page)
--
- /*
-  * We don't appear to need to do anything here.  In fact, if we did, we'd
-  * duplicate cache flushing elsewhere performed by flush_dcache_page().
++#define flush_icache_user_range flush_icache_range
++
+ #define local_flush_cache_all()						\
+ 	do {								\
+ 		__flush_invalidate_dcache_all();			\
 -- 
 2.26.2
 
