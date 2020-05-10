@@ -1,47 +1,47 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 03/31] MIPS: unexport __flush_icache_user_range
-Date: Sun, 10 May 2020 09:54:42 +0200
-Message-ID: <20200510075510.987823-4-hch@lst.de>
+Subject: [PATCH 04/31] nds32: unexport flush_icache_page
+Date: Sun, 10 May 2020 09:54:43 +0200
+Message-ID: <20200510075510.987823-5-hch@lst.de>
 References: <20200510075510.987823-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-alpha-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=cJrBcFesCCHH++zA2oY5v0CcV8x8Hy3MLhhCCmCGutI=; b=Cg8ydy2JfxDHx5WmYnD7+gYELd
-        8yHBhwrMLD+8iu6qbARUIj6XxDlcwEvBbb7nXwQOrHKnxsroWOnlfuvlGUdDhV/0m1yHgAvs2wcX0
-        0nTesUo6HDGCtNqlprctVmEu0OjdVaV3FrOqUb+WfUd0ujwRbQByelb9z40XX+8BlAzc6SQk4wMOS
-        qx243a10+i11d788jTKiopU1cj87pLDj5CABp+NSUkX+73QGcY7uVvOAyFND1BQ33cdRDYJo3bl0r
-        HjzhAWhnzcKcNLGIc7bhJZGHWJH0xu2Yeaz4OZVWbPkWTQzzgGanwZBO+suwdAD8iv4drunTvEGcH
-        okQcV9+A==;
+        bh=NvlDCJ52IZIXq0+H620wKd1v1G0M5nfx6BSZiQRK5ug=; b=NGBT7Ze+wzfIfeJsuo6D3LAmqC
+        On5LQ/nUu5GokPFEn/bHNA6QR2B2+gEbQjCs6LY5hcdxLgPp8fxWD7Acl6JMe4XEeJ0IJbGUDiJVm
+        t34DtEvDzzCpX8paEM+Ww56XbmW9GTJKA/z80k/AXQtvb98GSS3x+8olOuFURNUf0tUzd3LJh0dtV
+        j5hNfyP2p5c75onJXMhJj6YVCVoGRHUmoi0UsKjHlrQXKzbgCJQK0jiufR8AboGLB7MZa130wVaza
+        Tndf4BDbOM+388hCDQeCerJ9pCdswbu+IL4zQ/c4LRCjUV67J70U8+soFFD1tFcI50b2wk7yMHXMN
+        uq3olJHg==;
 In-Reply-To: <20200510075510.987823-1-hch@lst.de>
-Sender: linux-alpha-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Roman Zippel <zippel@linux-m68k.org>
 Cc: Jessica Yu <jeyu@kernel.org>, Michal Simek <monstr@monstr.eu>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-fsdevel@vger.kernel.org
 
-__flush_icache_user_range is not used in modular code, so unexport it.
+flush_icache_page is only used by mm/memory.c.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/mips/mm/cache.c | 1 -
+ arch/nds32/mm/cacheflush.c | 1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/arch/mips/mm/cache.c b/arch/mips/mm/cache.c
-index 33b409391ddb6..ad6df1cea866f 100644
---- a/arch/mips/mm/cache.c
-+++ b/arch/mips/mm/cache.c
-@@ -36,7 +36,6 @@ EXPORT_SYMBOL_GPL(flush_icache_range);
- void (*local_flush_icache_range)(unsigned long start, unsigned long end);
- EXPORT_SYMBOL_GPL(local_flush_icache_range);
- void (*__flush_icache_user_range)(unsigned long start, unsigned long end);
--EXPORT_SYMBOL_GPL(__flush_icache_user_range);
- void (*__local_flush_icache_user_range)(unsigned long start, unsigned long end);
- EXPORT_SYMBOL_GPL(__local_flush_icache_user_range);
+diff --git a/arch/nds32/mm/cacheflush.c b/arch/nds32/mm/cacheflush.c
+index 254703653b6f5..8f168b33065fa 100644
+--- a/arch/nds32/mm/cacheflush.c
++++ b/arch/nds32/mm/cacheflush.c
+@@ -35,7 +35,6 @@ void flush_icache_page(struct vm_area_struct *vma, struct page *page)
+ 	kunmap_atomic((void *)kaddr);
+ 	local_irq_restore(flags);
+ }
+-EXPORT_SYMBOL(flush_icache_page);
  
+ void flush_icache_user_range(struct vm_area_struct *vma, struct page *page,
+ 	                     unsigned long addr, int len)
 -- 
 2.26.2
 
