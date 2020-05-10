@@ -1,51 +1,93 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 22/31] asm-generic: add a flush_icache_user_range stub
-Date: Sun, 10 May 2020 09:55:01 +0200
-Message-ID: <20200510075510.987823-23-hch@lst.de>
+Subject: [PATCH 15/31] microblaze: use asm-generic/cacheflush.h
+Date: Sun, 10 May 2020 09:54:54 +0200
+Message-ID: <20200510075510.987823-16-hch@lst.de>
 References: <20200510075510.987823-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=Va/n37rYCuAAoV36whN9eOvE6XYTvehBkXPYj8DvT9g=; b=Usj2wN1plegQb5kK/z8yEvAPtD
-        pKwFWkquIlrBQxUaK3+7Q0UvhcaNGaIo1Vw9g2ixpudxAmrHyvmm7w7+pnQTUCauDOCQWrl77gIY8
-        JJvPXOjffu2DCkPu0sOjOatlrG0v+OYuWsB+sb1uxgL770BCpg/kw/5W4Lj20epVcYSt8kiZkwIhs
-        eCxBhx5/XrpKoAeIxCR50uB4m1xBy/d4PtuXXfpgBmbNy684hmm1T0LinQMieeljCQMt40Iw0tucd
-        IWuG+Gl6EdCqsw6M0RzlX4TDvFWgGY4SY244LJ2ke7yY+LRc4yTKa4pqgq/kNTx6wF0gQWIx1bAtC
-        t5Cyja2A==;
+        bh=0vCVbab8LqnKZMFTDjGS9z17LyCubzzTTEgfa/2l87E=; b=rAiC/Hd8WPxcdGaIK+YBLYo+Go
+        2gdb6jgo+qIX00NX0gZ0E+3b3c5nv/Dy3HV4HYwpBO687h4Jo4Ltc0/42GPCymSSypI+qfueG7jRN
+        EjPY1/bZA2gpsMgGxph2x0ffB30PGYC9WDHVgo5V8UbC6iLbsl8NLNBugNIL6HdA1DXxEBmVLxofZ
+        o6CCGkpWdTkJS/zcOZKpp/pR9nF8jp8S78k9CzBYNa5xIIlcLYmup1VX0Tj4aLywsF3GAmpXO7bXb
+        VDpmIrif9kqxg1zp3WDOuB4HrEZ5UDdkvHo/lV/KxLTQBo3jDoSl1xCgsc9x4txt/7k7TYHvSLC5t
+        KgFSbZ+g==;
 In-Reply-To: <20200510075510.987823-1-hch@lst.de>
-Sender: linux-sh-owner@vger.kernel.org
+Sender: sparclinux-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Roman Zippel <zippel@linux-m68k.org>
 Cc: Jessica Yu <jeyu@kernel.org>, Michal Simek <monstr@monstr.eu>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-fsdevel@vger.kernel.org
 
-Define flush_icache_user_range to flush_icache_range unless the
-architecture provides its own implementation.
+Microblaze needs almost no cache flushing routines of its own.  Rely on
+asm-generic/cacheflush.h for the defaults.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/asm-generic/cacheflush.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/microblaze/include/asm/cacheflush.h | 29 ++----------------------
+ 1 file changed, 2 insertions(+), 27 deletions(-)
 
-diff --git a/include/asm-generic/cacheflush.h b/include/asm-generic/cacheflush.h
-index 2c9686fefb715..907fa5d164944 100644
---- a/include/asm-generic/cacheflush.h
-+++ b/include/asm-generic/cacheflush.h
-@@ -66,6 +66,10 @@ static inline void flush_icache_range(unsigned long start, unsigned long end)
- }
- #endif
+diff --git a/arch/microblaze/include/asm/cacheflush.h b/arch/microblaze/include/asm/cacheflush.h
+index 11f56c85056bb..39f8fb6768d8b 100644
+--- a/arch/microblaze/include/asm/cacheflush.h
++++ b/arch/microblaze/include/asm/cacheflush.h
+@@ -57,9 +57,6 @@ void microblaze_cache_init(void);
+ #define invalidate_icache()				mbc->iin();
+ #define invalidate_icache_range(start, end)		mbc->iinr(start, end);
  
-+#ifndef flush_icache_user_range
-+#define flush_icache_user_range flush_icache_range
-+#endif
-+
- #ifndef flush_icache_page
- static inline void flush_icache_page(struct vm_area_struct *vma,
- 				     struct page *page)
+-#define flush_icache_user_range(vma, pg, adr, len)	flush_icache();
+-#define flush_icache_page(vma, pg)			do { } while (0)
+-
+ #define enable_dcache()					mbc->de();
+ #define disable_dcache()				mbc->dd();
+ /* FIXME for LL-temac driver */
+@@ -77,27 +74,9 @@ do { \
+ 	flush_dcache_range((unsigned) (addr), (unsigned) (addr) + PAGE_SIZE); \
+ } while (0);
+ 
+-#define flush_dcache_mmap_lock(mapping)		do { } while (0)
+-#define flush_dcache_mmap_unlock(mapping)	do { } while (0)
+-
+-#define flush_cache_dup_mm(mm)				do { } while (0)
+-#define flush_cache_vmap(start, end)			do { } while (0)
+-#define flush_cache_vunmap(start, end)			do { } while (0)
+-#define flush_cache_mm(mm)			do { } while (0)
+-
+ #define flush_cache_page(vma, vmaddr, pfn) \
+ 	flush_dcache_range(pfn << PAGE_SHIFT, (pfn << PAGE_SHIFT) + PAGE_SIZE);
+ 
+-/* MS: kgdb code use this macro, wrong len with FLASH */
+-#if 0
+-#define flush_cache_range(vma, start, len)	{	\
+-	flush_icache_range((unsigned) (start), (unsigned) (start) + (len)); \
+-	flush_dcache_range((unsigned) (start), (unsigned) (start) + (len)); \
+-}
+-#endif
+-
+-#define flush_cache_range(vma, start, len) do { } while (0)
+-
+ static inline void copy_to_user_page(struct vm_area_struct *vma,
+ 				     struct page *page, unsigned long vaddr,
+ 				     void *dst, void *src, int len)
+@@ -109,12 +88,8 @@ static inline void copy_to_user_page(struct vm_area_struct *vma,
+ 		flush_dcache_range(addr, addr + PAGE_SIZE);
+ 	}
+ }
++#define copy_to_user_page copy_to_user_page
+ 
+-static inline void copy_from_user_page(struct vm_area_struct *vma,
+-				       struct page *page, unsigned long vaddr,
+-				       void *dst, void *src, int len)
+-{
+-	memcpy(dst, src, len);
+-}
++#include <asm-generic/cacheflush.h>
+ 
+ #endif /* _ASM_MICROBLAZE_CACHEFLUSH_H */
 -- 
 2.26.2
 
