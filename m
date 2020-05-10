@@ -1,65 +1,47 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: sort out the flush_icache_range mess
-Date: Sun, 10 May 2020 09:54:39 +0200
-Message-ID: <20200510075510.987823-1-hch@lst.de>
+Subject: [PATCH 02/31] arm64: fix the flush_icache_range arguments in machine_kexec
+Date: Sun, 10 May 2020 09:54:41 +0200
+Message-ID: <20200510075510.987823-3-hch@lst.de>
+References: <20200510075510.987823-1-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20170209; h=Sender:
-	Content-Transfer-Encoding:Content-Type:Cc:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-Id:Date:Subject:To
-	:From:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:
-	List-Owner; bh=4ipimoDiXJDciyHyBGTtxrk/MhBeWw3xmbNePYztvvo=; b=PpFFookTHctCwB
-	AOrSi3ECXjKy9ZZzueXvAWjzaXDJk51VcCEnYWzYvpyPqNl6RugGmo2aN+l1r4Uh4yopmPcNip542
-	A8PhmZkwLJYEYDAgxlgaS7i1YFWf950urM+p8EH5tYYDFw7+IlHTepZ9b/84Tkd0vSEXHt09sscHk
-	gsgzcqoO7i7O32jXHhRwF2BJNaz9ybyF4ciijvALB74opcZNFpar33cHUihg5+ChNAOU+JwUjexGL
-	OxWajnUTRG02jOJV3IveGxNzb95k3WPRwT7vBHnf3ECmhI2lBuk8uIeMc4lP1/8gLGhynsMk72I3s
-	8DLR+TUkiOXtCGqT13eA==;
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>, 
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
+        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=3tS2yoYzMrg0UOZvWJ9XhJh/dvXLnNSqXxggBe17EKo=; b=WXL6M2CDigCoTrrOTQbYj3cAL8
+        E3deOWdrOEf/MvabJAGLRmta3cWNWwpUQLs9O9xPQTtKR/zny74Qqodf5q0i+dtZQurd7PprMP02Z
+        zCH+GTfTy8/EdSdq0QXQphF2VrBTPB2QC+j/W5SBqTyJfjF4Ir7yViug7OoflVJe01E5mkja6Zolt
+        CDsmE1SOYiKE5y3yZTdhBjekedUaYvAaMvsWqPMmtfn/Rk0vH+dbLKa5ocleIqEB79TyGBfS64OjP
+        bRL1ISrh+zpzxAAawzcuf8lAmCNy3FMHgbJZrBMAp7jiYeGkwYsrNMVSSM7ORDs4kqkCf9ABdjlfh
+        PSvEFN7g==;
+In-Reply-To: <20200510075510.987823-1-hch@lst.de>
+Sender: linux-kernel-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-arch@vger.kernel.org, linux-xtensa@linux-xtensa.org, Michal Simek <monstr@monstr.eu>, Jessica Yu <jeyu@kernel.org>, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+Cc: Jessica Yu <jeyu@kernel.org>, Michal Simek <monstr@monstr.eu>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-fsdevel@vger.kernel.org
 
-Hi all,
+The second argument is the end "pointer", not the length.
 
-flush_icache_range is mostly used for kernel address, except for the following
-cases:
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ arch/arm64/kernel/machine_kexec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
- - the nommu brk and mmap implementations,
- - the read_code helper that is only used for binfmt_flat, binfmt_elf_fdpic,
-   and binfmt_aout including the broken ia32 compat version
- - binfmt_flat itself,
+diff --git a/arch/arm64/kernel/machine_kexec.c b/arch/arm64/kernel/machine_kexec.c
+index 8e9c924423b4e..a0b144cfaea71 100644
+--- a/arch/arm64/kernel/machine_kexec.c
++++ b/arch/arm64/kernel/machine_kexec.c
+@@ -177,6 +177,7 @@ void machine_kexec(struct kimage *kimage)
+ 	 * the offline CPUs. Therefore, we must use the __* variant here.
+ 	 */
+ 	__flush_icache_range((uintptr_t)reboot_code_buffer,
++			     (uintptr_t)reboot_code_buffer +
+ 			     arm64_relocate_new_kernel_size);
+ 
+ 	/* Flush the kimage list and its buffers. */
+-- 
+2.26.2
 
-none of which really are used by a typical MMU enabled kernel, as a.out can
-only be build for alpha and m68k to start with.
-
-But strangely enough commit ae92ef8a4424 ("PATCH] flush icache in correct
-context") added a "set_fs(KERNEL_DS)" around the flush_icache_range call
-in the module loader, because apparently m68k assumed user pointers.
-
-This series first cleans up the cacheflush implementations, largely by
-switching as much as possible to the asm-generic version after a few
-preparations, then moves the misnamed current flush_icache_user_range to
-a new name, to finally introduce a real flush_icache_user_range to be used
-for the above use cases to flush the instruction cache for a userspace
-address range.  The last patch then drops the set_fs in the module code
-and moves it into the m68k implementation.
-
-A git tree is available here:
-
-    git://git.infradead.org/users/hch/misc.git flush_icache_range
-
-Gitweb:
-
-    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/flush_icache_range
