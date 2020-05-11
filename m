@@ -1,29 +1,27 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 31/31] module: move the set_fs hack for flush_icache_range
- to m68k
-Date: Mon, 11 May 2020 09:40:39 +0200
-Message-ID: <CAMuHMdU_OxNoKfO=i903kx0mgk0-i2h4u2ase3m9_dn6oFh_5g@mail.gmail.com>
-References: <20200510075510.987823-1-hch@lst.de> <20200510075510.987823-32-hch@lst.de>
+Subject: Re: sort out the flush_icache_range mess
+Date: Mon, 11 May 2020 09:46:17 +0200
+Message-ID: <CAMuHMdXazsBw0mjJd0uFHQud7qbb5-Uw-PTDB3+-M=huRWOfgQ@mail.gmail.com>
+References: <20200510075510.987823-1-hch@lst.de>
 Mime-Version: 1.0
 Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <20200510075510.987823-32-hch@lst.de>
+In-Reply-To: <20200510075510.987823-1-hch@lst.de>
 Sender: linux-m68k-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Roman Zippel <zippel@linux-m68k.org>, Jessica Yu <jeyu@kernel.org>, Michal Simek <monstr@monstr.eu>, the arch/x86 maintainers <x86@kernel.org>, alpha <linux-alpha@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-c6x-dev@linux-c6x.org, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, Openrisc <openrisc@lists.librecores.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-riscv@lists.infradead.org, Linux-sh list <linu>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Roman Zippel <zippel@linux-m68k.org>, Linux-Arch <linux-arch@vger.kernel.org>, "open list:TENSILICA XTENSA PORT (xtensa)" <linux-xtensa@linux-xtensa.org>, Michal Simek <monstr@monstr.eu>, Jessica Yu <jeyu@kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-c6x-dev@linux-c6x.org, Linux-sh list <linux-sh@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linux-um <linux-um@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, linux-m68k <linux-m68k@lists.linux-m68k.o>
 
-On Sun, May 10, 2020 at 9:57 AM Christoph Hellwig <hch@lst.de> wrote:
->
-> flush_icache_range generally operates on kernel addresses, but for some
-> reason m68k needed a set_fs override.  Move that into the m68k code
-> insted of keeping it in the module loader.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+Hi Christoph,
 
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+On Sun, May 10, 2020 at 9:55 AM Christoph Hellwig <hch@lst.de> wrote:
+> none of which really are used by a typical MMU enabled kernel, as a.out can
+> only be build for alpha and m68k to start with.
+
+Quoting myself:
+"I think it's safe to assume no one still runs a.out binaries on m68k."
+http://lore.kernel.org/r/CAMuHMdW+m0Q+j3rsQdMXnrEPm+XB5Y2AQrxW5sD1mZAKgmEqoA@mail.gmail.com
 
 Gr{oetje,eeting}s,
 
