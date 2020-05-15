@@ -1,51 +1,125 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 20/29] asm-generic: add a flush_icache_user_range stub
-Date: Fri, 15 May 2020 16:36:37 +0200
-Message-ID: <20200515143646.3857579-21-hch@lst.de>
+Subject: [PATCH 17/29] riscv: use asm-generic/cacheflush.h
+Date: Fri, 15 May 2020 16:36:34 +0200
+Message-ID: <20200515143646.3857579-18-hch@lst.de>
 References: <20200515143646.3857579-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-mips-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=Va/n37rYCuAAoV36whN9eOvE6XYTvehBkXPYj8DvT9g=; b=ctWuRQSQm8rS/ZgMZ0waqIECcz
-        aFIM/BWNyMXjvOASfkTGUZOo6vMNbIwK9xYckekBpkm3A/WN6dWsznkOdAfPKu5MpxX285thggSXZ
-        CsTaCfCkUqAdKTUoEYv32Cy32lIFjbbKW2lO0V2Dhchc5ceEMRlgo1jG1tsyfNC729JaUejlDZpaH
-        dlKt45tjqS89b923xQbaQxHvlWs9q+1IKM7MoVW6tAML+3s8yN/8R18JS9PVQVE1NBtM+lPo5iSN8
-        cAPzk2JeV/EHyVwCHFALPhsDk6Mm5DErMd1YkCE3nJTAGCOFOYTr48WcyBKorP6855AyDpzT5xW6d
-        CqToPm5g==;
+        bh=HDHNR2vMO5LCySRH/6CT3QqjRsqvFZVzPMz3Qt7mA6o=; b=uAJfNv2TDWJ9JRrcHAJUafDd9C
+        KT8Rx9Bi4XWFozwmwOOqZsw3N64RQD9ErU02DTmQP9wUNQOf0ctXrgMstAhzy0XcLClxnojVhMHSL
+        o72cLiKWcbAIxAAtk5tDJ2JYF1SW/wJ3VMFyTu5yg8VxbDKil5E1qyNe7QfJqzY6uJ5PuwL7F7x5x
+        h0OKHzVB/oQMCDqHug9II4XGGw5HWXk4POJ5jWRB8Q+9GgljbxEiBFOxvUQ8fBl1TxTd3GPm8pcbk
+        CRNY1ZY6VC2rGV672WS/7S3Fxet+aDqDNd+FrRNCSE5AhEyFilH0csXCrw8hA1FZtyztlIyN9YIAY
+        aP4syW4g==;
 In-Reply-To: <20200515143646.3857579-1-hch@lst.de>
-Sender: linux-mips-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Roman Zippel <zippel@linux-m68k.org>
-Cc: Jessica Yu <jeyu@kernel.org>, Michal Simek <monstr@monstr.eu>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-fsdevel@vger.kernel.org
+Cc: Jessica Yu <jeyu@kernel.org>, Michal Simek <monstr@monstr.eu>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-fsdevel@vger.kernel.org, Palmer Dabbelt <palmerdabbelt@google.com>
 
-Define flush_icache_user_range to flush_icache_range unless the
-architecture provides its own implementation.
+RISC-V needs almost no cache flushing routines of its own.  Rely on
+asm-generic/cacheflush.h for the defaults.
+
+Also remove the pointless __KERNEL__ ifdef while we're at it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
 ---
- include/asm-generic/cacheflush.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/riscv/include/asm/cacheflush.h | 62 ++---------------------------
+ 1 file changed, 3 insertions(+), 59 deletions(-)
 
-diff --git a/include/asm-generic/cacheflush.h b/include/asm-generic/cacheflush.h
-index 2c9686fefb715..907fa5d164944 100644
---- a/include/asm-generic/cacheflush.h
-+++ b/include/asm-generic/cacheflush.h
-@@ -66,6 +66,10 @@ static inline void flush_icache_range(unsigned long start, unsigned long end)
- }
- #endif
+diff --git a/arch/riscv/include/asm/cacheflush.h b/arch/riscv/include/asm/cacheflush.h
+index c8677c75f82cb..a167b4fbdf007 100644
+--- a/arch/riscv/include/asm/cacheflush.h
++++ b/arch/riscv/include/asm/cacheflush.h
+@@ -8,65 +8,6 @@
  
-+#ifndef flush_icache_user_range
-+#define flush_icache_user_range flush_icache_range
-+#endif
+ #include <linux/mm.h>
+ 
+-#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 0
+-
+-/*
+- * The cache doesn't need to be flushed when TLB entries change when
+- * the cache is mapped to physical memory, not virtual memory
+- */
+-static inline void flush_cache_all(void)
+-{
+-}
+-
+-static inline void flush_cache_mm(struct mm_struct *mm)
+-{
+-}
+-
+-static inline void flush_cache_dup_mm(struct mm_struct *mm)
+-{
+-}
+-
+-static inline void flush_cache_range(struct vm_area_struct *vma,
+-				     unsigned long start,
+-				     unsigned long end)
+-{
+-}
+-
+-static inline void flush_cache_page(struct vm_area_struct *vma,
+-				    unsigned long vmaddr,
+-				    unsigned long pfn)
+-{
+-}
+-
+-static inline void flush_dcache_mmap_lock(struct address_space *mapping)
+-{
+-}
+-
+-static inline void flush_dcache_mmap_unlock(struct address_space *mapping)
+-{
+-}
+-
+-static inline void flush_icache_page(struct vm_area_struct *vma,
+-				     struct page *page)
+-{
+-}
+-
+-static inline void flush_cache_vmap(unsigned long start, unsigned long end)
+-{
+-}
+-
+-static inline void flush_cache_vunmap(unsigned long start, unsigned long end)
+-{
+-}
+-
+-#define copy_to_user_page(vma, page, vaddr, dst, src, len) \
+-	do { \
+-		memcpy(dst, src, len); \
+-		flush_icache_user_range(vma, page, vaddr, len); \
+-	} while (0)
+-#define copy_from_user_page(vma, page, vaddr, dst, src, len) \
+-	memcpy(dst, src, len)
+-
+ static inline void local_flush_icache_all(void)
+ {
+ 	asm volatile ("fence.i" ::: "memory");
+@@ -79,6 +20,7 @@ static inline void flush_dcache_page(struct page *page)
+ 	if (test_bit(PG_dcache_clean, &page->flags))
+ 		clear_bit(PG_dcache_clean, &page->flags);
+ }
++#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
+ 
+ /*
+  * RISC-V doesn't have an instruction to flush parts of the instruction cache,
+@@ -105,4 +47,6 @@ void flush_icache_mm(struct mm_struct *mm, bool local);
+ #define SYS_RISCV_FLUSH_ICACHE_LOCAL 1UL
+ #define SYS_RISCV_FLUSH_ICACHE_ALL   (SYS_RISCV_FLUSH_ICACHE_LOCAL)
+ 
++#include <asm-generic/cacheflush.h>
 +
- #ifndef flush_icache_page
- static inline void flush_icache_page(struct vm_area_struct *vma,
- 				     struct page *page)
+ #endif /* _ASM_RISCV_CACHEFLUSH_H */
 -- 
 2.26.2
 
