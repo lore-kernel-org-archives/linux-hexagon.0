@@ -1,48 +1,55 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 03/29] powerpc: unexport flush_icache_user_range
-Date: Fri, 15 May 2020 16:36:20 +0200
-Message-ID: <20200515143646.3857579-4-hch@lst.de>
+Subject: [PATCH 04/29] unicore32: remove flush_cache_user_range
+Date: Fri, 15 May 2020 16:36:21 +0200
+Message-ID: <20200515143646.3857579-5-hch@lst.de>
 References: <20200515143646.3857579-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-alpha-owner@vger.kernel.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=Z9YRs5dLpbvo98tj/Cgt22OOiGK6aHhMzE6epEWfQXc=; b=ZlhQE/DX4CKjdZl8xexqucGXRW
-        ecW0xdoSIe9Gq35tRpeBiirXpnuIuOEEr39MdMGz1PdURhzPLiTO5wahIkK5vw1PmAPLFD99ZDzpT
-        KfzkqvYyTU9LhznNbxGajjy8tQzBZAfMQC8HJfqoH5Sirl+L4HEisHonX50JZQe8vvMnXzsqw+8nd
-        n6IBEp27INvtNKjvuFTjxPOaCyavRVTpfVxqewr8imN9jFg90CqXRttj3krRvgExHWVSdjYWekCmo
-        h0GSVtWiDytYP4TT9HxbBtbdWa/cwt6vJMcpLMC4v/k/iown67sSCkP/8V0MX4v+5BPt/UyLUKy9X
-        x8dhpzzg==;
+        bh=nlhENnOEhFNbEFUndyREOb6FGEq18FGbNW1JKWIMMLQ=; b=ZfdEdhqxL8F1YAmWr7WGT1zwU5
+        UFFbJCs6yRahgHZ5y/4/E2IpBQXj51SylAl+ycAKCagb+m6uL/WbNC2uoF0F13HooPuPw/oousTIi
+        2qvWVP1qwgDvr2qdynM1GNd75vRN8p0fg++uU0kVJcNB964LkK3D+eBBAjiqtdVah1NKi/aG3eKcm
+        VO+sLsbkTU2f3Hm6uXrJhsYpGgQkzOviAGuMR2YfmLb+PppAM/wREpQr330jCYXXQTdWXWfAJI9B2
+        LBbSYtf/b3TIIqniyUJ3xHoZoXUG8WYtmGDxrYS/3cCC77rewR9oKsGnRxNg8BWicTknfGemg4Lej
+        oAvopoDw==;
 In-Reply-To: <20200515143646.3857579-1-hch@lst.de>
-Sender: linux-alpha-owner@vger.kernel.org
+Sender: sparclinux-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Roman Zippel <zippel@linux-m68k.org>
 Cc: Jessica Yu <jeyu@kernel.org>, Michal Simek <monstr@monstr.eu>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-fsdevel@vger.kernel.org
 
-flush_icache_user_range is only used by copy_to_user_page, which is
-only used by core VM code.
+flush_cache_user_range is an ARMism not used by any generic or unicore32
+specific code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/powerpc/mm/mem.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/unicore32/include/asm/cacheflush.h | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 041ed7cfd341a..f0d1bf0a8e14f 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -587,7 +587,6 @@ void flush_icache_user_range(struct vm_area_struct *vma, struct page *page,
- 	flush_icache_range(maddr, maddr + len);
- 	kunmap(page);
- }
--EXPORT_SYMBOL(flush_icache_user_range);
+diff --git a/arch/unicore32/include/asm/cacheflush.h b/arch/unicore32/include/asm/cacheflush.h
+index dc8c0b41538f8..9393ca4047e93 100644
+--- a/arch/unicore32/include/asm/cacheflush.h
++++ b/arch/unicore32/include/asm/cacheflush.h
+@@ -132,14 +132,6 @@ extern void flush_cache_page(struct vm_area_struct *vma,
  
+ #define flush_cache_dup_mm(mm) flush_cache_mm(mm)
+ 
+-/*
+- * flush_cache_user_range is used when we want to ensure that the
+- * Harvard caches are synchronised for the user space address range.
+- * This is used for the UniCore private sys_cacheflush system call.
+- */
+-#define flush_cache_user_range(vma, start, end) \
+-	__cpuc_coherent_user_range((start) & PAGE_MASK, PAGE_ALIGN(end))
+-
  /*
-  * System memory should not be in /proc/iomem but various tools expect it
+  * Perform necessary cache operations to ensure that data previously
+  * stored within this range of addresses can be executed by the CPU.
 -- 
 2.26.2
 
