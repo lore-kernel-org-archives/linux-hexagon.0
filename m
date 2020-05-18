@@ -1,42 +1,81 @@
-From: Jessica Yu <jeyu@kernel.org>
-Subject: Re: [PATCH 29/29] module: move the set_fs hack for
- flush_icache_range to m68k
-Date: Mon, 18 May 2020 15:04:44 +0200
-Message-ID: <20200518130444.GA21096@linux-8ccs.fritz.box>
+From: Mark Salter <msalter@redhat.com>
+Subject: Re: [PATCH 10/29] c6x: use asm-generic/cacheflush.h
+Date: Mon, 18 May 2020 14:20:42 -0400
+Message-ID: <5260142047d0339e00d4a74865c2f0b7511c89f6.camel@redhat.com>
 References: <20200515143646.3857579-1-hch@lst.de>
- <20200515143646.3857579-30-hch@lst.de>
+         <20200515143646.3857579-11-hch@lst.de>
 Mime-Version: 1.0
-Return-path: <linux-sh-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589807091;
-        bh=bQOel0Owh5Jsy7D7It/KRrP7k71oDOZIFpOrOzQ9AhA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YqZBNW7MWDqiTSCxmly8oMsUsg4WN7C2JY9aDcakJBGzWq/UP00eyjCdLpfBridZ5
-         yEWjvi7dzrZTtKaXjd/2d6IuYc59csAsUVZSfRs5jq7Rr7rdKAsQZJF1Mc/s+At7dk
-         CA/eN9nd7O70bEOB0H0VqgRfIrUmH9kT0XamFLi8=
-Content-Disposition: inline
-In-Reply-To: <20200515143646.3857579-30-hch@lst.de>
-Sender: linux-sh-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
 Content-Transfer-Encoding: 7bit
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Roman Zippel <zippel@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-fsdevel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589826057;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=bgUgYOhXHVrOhAbBYxlnYyhMzdekwGrXn9fI5GzJacU=;
+        b=LHpMJHvTqR4bS7BOLhElvkKPeYOYcOnKdUDWTIN1DiiFEuBj1Wfpg5VAxD8lGTo7Xqpq6m
+        fzJDo8yH9BGRHSZPsnBWeWIc47ShwX3Uy5323Khj9iu9hDqS3kxwPZvxz9cZKg/557JR6C
+        Mcl3BWeu/IUouc77fUatFePTVcQ61I0=
+In-Reply-To: <20200515143646.3857579-11-hch@lst.de>
+Sender: sparclinux-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-arch@vger.kernel.org, linux-xtensa@linux-xtensa.org, Michal Simek <monstr@monstr.eu>, Jessica Yu <jeyu@kernel.org>, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, x86@kernel.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 
-+++ Christoph Hellwig [15/05/20 16:36 +0200]:
->flush_icache_range generally operates on kernel addresses, but for some
->reason m68k needed a set_fs override.  Move that into the m68k code
->insted of keeping it in the module loader.
->
->Signed-off-by: Christoph Hellwig <hch@lst.de>
->Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
->Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
->---
-> arch/m68k/mm/cache.c | 4 ++++
-> kernel/module.c      | 8 --------
-> 2 files changed, 4 insertions(+), 8 deletions(-)
+On Fri, 2020-05-15 at 16:36 +0200, Christoph Hellwig wrote:
+> C6x needs almost no cache flushing routines of its own.  Rely on
+> asm-generic/cacheflush.h for the defaults.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/c6x/include/asm/cacheflush.h | 19 +------------------
+>  1 file changed, 1 insertion(+), 18 deletions(-)
+> 
+> diff --git a/arch/c6x/include/asm/cacheflush.h b/arch/c6x/include/asm/cacheflush.h
+> index 4540b40475e6c..10922d528de6d 100644
+> --- a/arch/c6x/include/asm/cacheflush.h
+> +++ b/arch/c6x/include/asm/cacheflush.h
+> @@ -16,21 +16,6 @@
+>  #include <asm/page.h>
+>  #include <asm/string.h>
+>  
+> -/*
+> - * virtually-indexed cache management (our cache is physically indexed)
+> - */
+> -#define flush_cache_all()			do {} while (0)
+> -#define flush_cache_mm(mm)			do {} while (0)
+> -#define flush_cache_dup_mm(mm)			do {} while (0)
+> -#define flush_cache_range(mm, start, end)	do {} while (0)
+> -#define flush_cache_page(vma, vmaddr, pfn)	do {} while (0)
+> -#define flush_cache_vmap(start, end)		do {} while (0)
+> -#define flush_cache_vunmap(start, end)		do {} while (0)
+> -#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 0
+> -#define flush_dcache_page(page)			do {} while (0)
+> -#define flush_dcache_mmap_lock(mapping)		do {} while (0)
+> -#define flush_dcache_mmap_unlock(mapping)	do {} while (0)
+> -
+>  /*
+>   * physically-indexed cache management
+>   */
+> @@ -49,14 +34,12 @@ do {								  \
+>  			(unsigned long) page_address(page) + PAGE_SIZE)); \
+>  } while (0)
+>  
+> -
+>  #define copy_to_user_page(vma, page, vaddr, dst, src, len) \
+>  do {						     \
+>  	memcpy(dst, src, len);			     \
+>  	flush_icache_range((unsigned) (dst), (unsigned) (dst) + (len)); \
+>  } while (0)
+>  
+> -#define copy_from_user_page(vma, page, vaddr, dst, src, len) \
+> -	memcpy(dst, src, len)
+> +#include <asm-generic/cacheflush.h>
+>  
+>  #endif /* _ASM_C6X_CACHEFLUSH_H */
 
-Thanks for cleaning this up. For module.c:
+Acked-by: Mark Salter <msalter@redhat.com>
 
-Acked-by: Jessica Yu <jeyu@kernel.org>
 
