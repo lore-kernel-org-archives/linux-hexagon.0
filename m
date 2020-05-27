@@ -1,62 +1,88 @@
-From: "Brian Cain" <bcain@codeaurora.org>
-Subject: RE: [PATCH] compiler/gcc: Raise minimum GCC version for kernel builds to 4.8
-Date: Tue, 26 May 2020 16:57:07 -0500
-Message-ID: <04ca01d633a8$9abb8070$d0328150$@codeaurora.org>
-References: <20200526153004.GA74229@roeck-us.net> <CAKwvOdnrsCCt_HU+fows6kBCs2jGcikDtMm_otQSKFEgqfojJw@mail.gmail.com>
-Reply-To: <bcain@codeaurora.org>
+From: Nathan Chancellor <natechancellor@gmail.com>
+Subject: [PATCH] media: omap3isp: Shuffle cacheflush.h and include mm.h
+Date: Tue, 26 May 2020 21:34:27 -0700
+Message-ID: <20200527043426.3242439-1-natechancellor@gmail.com>
+References: <20200515143646.3857579-7-hch@lst.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1590530231; h=Content-Transfer-Encoding: Content-Type:
- MIME-Version: Message-ID: Date: Subject: In-Reply-To: References: Cc:
- To: From: Reply-To: Sender;
- bh=Lx+JlsYWqs8sfPrQRTmH7W6Ju5CUj4LarP9b9J9tMIM=; b=OhiFuqL884sUy4VJsoO6MwbcPoU6ckp5T9xSYQBue688BgQhAY2/EzQu9ubxbj2MV0I+ng6L
- hywkEjsXWdgRxYfNZAiAHy79Dk0tgnjMxwqcWKaUidIxvEYVvI6hBdYVJkdAj7ydsZIewvrU
- zAlRLVGVuPaEU4moWtHX2HHRR/c=
-In-Reply-To: <CAKwvOdnrsCCt_HU+fows6kBCs2jGcikDtMm_otQSKFEgqfojJw@mail.gmail.com>
-Content-Language: en-us
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-ia64-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=lOpmpojWwwDKmdgvBgyDR/91akL7lsEVaaRXHGRRif0=;
+        b=RhgQiHKjSFxt0e4hdk9XFdFmwXlaqqy/oTAekflZtHFdhEKO64qFc1mpKDXZr69CPy
+         jdKKGgMYF3/PwLMQqZRA0p7MJV/Go6tkta/h4swizRoRpVhai4LlQKtDfpzOQXol3xcY
+         3TW/CBGWUO1G35QH1UIuJXs9WTI3G+E29PktRQFzMSdgmMsbx+ViIkPx4XIoQKnwHjtI
+         iuFirKyvXOkp6bKvGs8xYK3w/Dn4sctZ1lOJtxsH8Aa2nP03Bsx7PgwJODEguoGDFtQe
+         EV7yB1UHGazYqjCw0y7SPUOzeb1Rx+s20xn4YP/gkyyGkm4H/LKnhLTIPlstwN50FD9J
+         kU0w==
+In-Reply-To: <20200515143646.3857579-7-hch@lst.de>
+Sender: linux-ia64-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: 'Nick Desaulniers' <ndesaulniers@google.com>, 'Guenter Roeck' <linux@roeck-us.net>
-Cc: 'Will Deacon' <will@kernel.org>, linux-hexagon@vger.kernel.org, 'LKML' <linux-kernel@vger.kernel.org>, 'Thomas Gleixner' <tglx@linutronix.de>, 'Masahiro Yamada' <masahiroy@kernel.org>, 'Peter Zijlstra' <peterz@infradead.org>, 'Arnd Bergmann' <arnd@arndb.de>, sidneym@codeaurora.org
+To: hch@lst.de
+Cc: akpm@linux-foundation.org, arnd@arndb.de, jeyu@kernel.org, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-fsdevel@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, monstr@monstr.eu, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, x86@kernel.org, zippel@linux-m68k.org, Nathan Chancellor <natechancellor@gmail.com>
 
-> -----Original Message-----
-> From: linux-hexagon-owner@vger.kernel.org <linux-hexagon-
-> owner@vger.kernel.org> On Behalf Of Nick Desaulniers
-...
-> On Tue, May 26, 2020 at 8:30 AM Guenter Roeck <linux@roeck-us.net> =
-wrote:
-> >
-> > On Mon, May 11, 2020 at 09:41:37PM +0100, Will Deacon wrote:
-> > > It is very rare to see versions of GCC prior to 4.8 being used to
-> > > build the mainline kernel. These old compilers are also known to
-> > > have codegen issues which can lead to silent miscompilation:
-> > >
-> > > https://gcc.gnu.org/bugzilla/show_bug.cgi?id=3D58145
-> > >
-> > > Raise the minimum GCC version to 4.8 for building the kernel and
-> > > remove some tautological Kconfig dependencies as a consequence.
-> >
-> > My hexagon compiler is v4.6.1, and I have been unable to find a more
-> > recent version. Does anyone happen to have a pointer to a hexagon
-> > toolchain with gcc 4.8 or later ?
->=20
-> IIUC, hexagon moved to LLVM, though that target still has issues =
-building the
-> kernel.
-> =
-https://github.com/ClangBuiltLinux/linux/issues?q=3Dis%3Aopen+is%3Aissue+=
-lab
-> el%3A%22%5BARCH%5D+hexagon%22
+After mm.h was removed from the asm-generic version of cacheflush.h,
+s390 allyesconfig shows several warnings of the following nature:
 
-Indeed, we did move to llvm.  The build works with the clang_rt-builtins =
-lib.  But that issue indicates that it's an unnecessary wart to require =
-that.  From what I understand, other arches contribute these builtins =
-content to the kernel build, so we'll do the same.
+In file included from ./arch/s390/include/generated/asm/cacheflush.h:1,
+                 from drivers/media/platform/omap3isp/isp.c:42:
+./include/asm-generic/cacheflush.h:16:42: warning: 'struct mm_struct'
+declared inside parameter list will not be visible outside of this
+definition or declaration
 
-I'll prioritize this update.
+cacheflush.h does not include mm.h nor does it include any forward
+declaration of these structures hence the warning. To avoid this,
+include mm.h explicitly in this file and shuffle cacheflush.h below it.
 
--Brian
+Fixes: 19c0054597a0 ("asm-generic: don't include <linux/mm.h> in cacheflush.h")
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+
+I am aware the fixes tag is kind of irrelevant because that SHA will
+change in the next linux-next revision and this will probably get folded
+into the original patch anyways but still.
+
+The other solution would be to add forward declarations of these structs
+to the top of cacheflush.h, I just chose to do what Christoph did in the
+original patch. I am happy to do that instead if you all feel that is
+better.
+
+ drivers/media/platform/omap3isp/isp.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/platform/omap3isp/isp.c b/drivers/media/platform/omap3isp/isp.c
+index a4ee6b86663e..54106a768e54 100644
+--- a/drivers/media/platform/omap3isp/isp.c
++++ b/drivers/media/platform/omap3isp/isp.c
+@@ -39,8 +39,6 @@
+  *	Troy Laramy <t-laramy@ti.com>
+  */
+ 
+-#include <asm/cacheflush.h>
+-
+ #include <linux/clk.h>
+ #include <linux/clkdev.h>
+ #include <linux/delay.h>
+@@ -49,6 +47,7 @@
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/mfd/syscon.h>
++#include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/omap-iommu.h>
+ #include <linux/platform_device.h>
+@@ -58,6 +57,8 @@
+ #include <linux/sched.h>
+ #include <linux/vmalloc.h>
+ 
++#include <asm/cacheflush.h>
++
+ #ifdef CONFIG_ARM_DMA_USE_IOMMU
+ #include <asm/dma-iommu.h>
+ #endif
+-- 
+2.27.0.rc0
 
