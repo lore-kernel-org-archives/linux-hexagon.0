@@ -1,127 +1,98 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH] media: omap3isp: Shuffle cacheflush.h and include mm.h
-Date: Wed, 27 May 2020 16:45:27 +0300
-Message-ID: <20200527134527.GD6171@pendragon.ideasonboard.com>
-References: <20200515143646.3857579-7-hch@lst.de>
- <20200527043426.3242439-1-natechancellor@gmail.com>
- <CAMuHMdVSduTOi5bUgF9sLQdGADwyL1+qALWsKgin1TeOLGhAKQ@mail.gmail.com>
- <20200527081337.GA3506499@ubuntu-s3-xlarge-x86>
-Mime-Version: 1.0
-Return-path: <linux-m68k-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1590587141;
-        bh=FOT36A7X8Hk3Rh2sgJfgv1jk67oSyBWaXMLvby3ZVn0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K8tyyqP2+EBqMtHIXAixv68AVoyRavwX2+DntbLh2vrjNKUdhw1kPp5L8v8XcEQke
-         5hoxdGk3u1oikaekAvVN79PzMi7aqfwFJI9F8IdAk1sxTLb8aiHOOnYPs49h177hrO
-         RBBxk1jZGiThAgDTQMwbMwsU3yghDgrHe9UIOuIk=
-Content-Disposition: inline
-In-Reply-To: <20200527081337.GA3506499@ubuntu-s3-xlarge-x86>
-Sender: linux-m68k-owner@vger.kernel.org
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH v2] hexagon: defconfig: Cleanup from old Kconfig options
+Date: Wed, 27 May 2020 20:55:31 +0200
+Message-ID: <20200527185531.13599-1-krzk@kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590605743;
+        bh=aNFtU8zIfSmNdMSRneS41YVkmW+XR+pqe4/iN3ZpWfM=;
+        h=From:To:Subject:Date:From;
+        b=S2XjffAjtQYNsfxNnzbudEs+bMcog8JnlhGy6R1O94bNV4Tv2gHeP7pC4tgatX7kA
+         6R2NZAndtxOotI65VCPlkSXc5OH+C5WSB2AKjwLL/2eBNu/9oiq8qv3w+5CzV4cNZF
+         lE7lpT6tGql6F0ID1BSNz6aOg6NmCpyU9cTADWx4=
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Nathan Chancellor <natechancellor@gmail.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Christoph Hellwig <hch@lst.de>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Roman Zippel <zippel@linux-m68k.org>, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, sparclinux <sparclinux@vger.kernel.org>, linux-riscv@lists.infradead.org, Linux-Arch <linux-arch@vger.kernel.org>, linux-c6x-dev@linux-c6x.org, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, "open list:TENSILICA XTENSA PORT (xtensa)" <linux-xtensa@linux-xtensa.org>, Arnd Bergmann <arnd@arndb.de>, alpha <linux-alpha@vger.kernel.org>, linux-um <linux-um@lists.infradead.org>, linux-m68k <l>
+To: Brian Cain <bcain@codeaurora.org>, Krzysztof Kozlowski <krzk@kernel.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Nathan,
+Remove old, dead Kconfig options (in order appearing in this commit):
+ - EXPERIMENTAL is gone since v3.9;
+ - NETDEV_1000 and NETDEV_10000: commit f860b0522f65 ("drivers/net:
+   Kconfig and Makefile cleanup"); NET_ETHERNET should be replaced with
+   just ETHERNET but that is separate change;
+ - HID_SUPPORT: commit 1f41a6a99476 ("HID: Fix the generic Kconfig
+   options");
+ - INET_LRO: commit 7bbf3cae65b6 ("ipv4: Remove inet_lro library");
 
-(CC'ing Sakari Ailus and the linux-media mailing list)
+Remove also the CONFIG_UEVENT_HELPER_PATH because:
+1. It is disabled since commit 1be01d4a5714 ("driver: base: Disable
+   CONFIG_UEVENT_HELPER by default") as its dependency (UEVENT_HELPER) was
+   made default to 'n',
+2. It is not recommended (help message: "This should not be used today
+   [...] creates a high system load") and was kept only for ancient
+   userland,
+3. Certain userland specifically requests it to be disabled (systemd
+   README: "Legacy hotplug slows down the system and confuses udev").
 
-On Wed, May 27, 2020 at 01:13:37AM -0700, Nathan Chancellor wrote:
-> On Wed, May 27, 2020 at 09:02:51AM +0200, Geert Uytterhoeven wrote:
-> > On Wed, May 27, 2020 at 6:37 AM Nathan Chancellor wrote:
-> > > After mm.h was removed from the asm-generic version of cacheflush.h,
-> > > s390 allyesconfig shows several warnings of the following nature:
-> > >
-> > > In file included from ./arch/s390/include/generated/asm/cacheflush.h:1,
-> > >                  from drivers/media/platform/omap3isp/isp.c:42:
-> > > ./include/asm-generic/cacheflush.h:16:42: warning: 'struct mm_struct'
-> > > declared inside parameter list will not be visible outside of this
-> > > definition or declaration
-> > >
-> > > cacheflush.h does not include mm.h nor does it include any forward
-> > > declaration of these structures hence the warning. To avoid this,
-> > > include mm.h explicitly in this file and shuffle cacheflush.h below it.
-> > >
-> > > Fixes: 19c0054597a0 ("asm-generic: don't include <linux/mm.h> in cacheflush.h")
-> > > Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-> > 
-> > Thanks for your patch!
-> > 
-> > > I am aware the fixes tag is kind of irrelevant because that SHA will
-> > > change in the next linux-next revision and this will probably get folded
-> > > into the original patch anyways but still.
-> > >
-> > > The other solution would be to add forward declarations of these structs
-> > > to the top of cacheflush.h, I just chose to do what Christoph did in the
-> > > original patch. I am happy to do that instead if you all feel that is
-> > > better.
-> > 
-> > That actually looks like a better solution to me, as it would address the
-> > problem for all users.
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Richard Kuo <rkuo@codeaurora.org>
 
-Headers should be self-contained, so that would be the best fix in my
-opinion.
+---
 
-This being said, as cacheflush.h isn't needed in isp.c, I think we
-should also drop it. It seems to have been included there since the
-first driver version, and was likely a left-over from the out-of-tree
-development. Manual cache handling was part of
-drivers/media/platform/omap3isp/ispqueue.c and has been removed in
-commit fbac1400bd1a ("[media] omap3isp: Move to videobuf2").
+Changes since v1:
+1. Add Richard's Ack,
+2. Squash cleanup of old defconfigs with UEVENT_HELPER_PATH removal.
+---
+ arch/hexagon/configs/comet_defconfig | 6 ------
+ 1 file changed, 6 deletions(-)
 
-cacheflush.h can also be dropped from ispvideo.c which suffers from the
-same issue.
-
-> > >  drivers/media/platform/omap3isp/isp.c | 5 +++--
-> > >  1 file changed, 3 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/media/platform/omap3isp/isp.c b/drivers/media/platform/omap3isp/isp.c
-> > > index a4ee6b86663e..54106a768e54 100644
-> > > --- a/drivers/media/platform/omap3isp/isp.c
-> > > +++ b/drivers/media/platform/omap3isp/isp.c
-> > > @@ -39,8 +39,6 @@
-> > >   *     Troy Laramy <t-laramy@ti.com>
-> > >   */
-> > >
-> > > -#include <asm/cacheflush.h>
-> > > -
-> > >  #include <linux/clk.h>
-> > >  #include <linux/clkdev.h>
-> > >  #include <linux/delay.h>
-> > > @@ -49,6 +47,7 @@
-> > >  #include <linux/i2c.h>
-> > >  #include <linux/interrupt.h>
-> > >  #include <linux/mfd/syscon.h>
-> > > +#include <linux/mm.h>
-> > >  #include <linux/module.h>
-> > >  #include <linux/omap-iommu.h>
-> > >  #include <linux/platform_device.h>
-> > > @@ -58,6 +57,8 @@
-> > >  #include <linux/sched.h>
-> > >  #include <linux/vmalloc.h>
-> > >
-> > > +#include <asm/cacheflush.h>
-> > > +
-> > >  #ifdef CONFIG_ARM_DMA_USE_IOMMU
-> > >  #include <asm/dma-iommu.h>
-> > >  #endif
-> > 
-> > Why does this file need <asm/cacheflush.h> at all?
-> > It doesn't call any of the flush_*() functions, and seems to compile fine
-> > without (on arm32).
-> > 
-> > Perhaps it was included at the top intentionally, to override the definitions
-> > of copy_{to,from}_user_page()? Fortunately that doesn't seem to be the
-> > case, from a quick look at the assembler output.
-> > 
-> > So let's just remove the #include instead?
-> 
-> Sounds good to me. I can send a patch if needed or I suppose Andrew can
-> just make a small fixup patch for it. Let me know what I should do.
-
+diff --git a/arch/hexagon/configs/comet_defconfig b/arch/hexagon/configs/comet_defconfig
+index e324f65f41e7..6b9397aacdf9 100644
+--- a/arch/hexagon/configs/comet_defconfig
++++ b/arch/hexagon/configs/comet_defconfig
+@@ -1,7 +1,6 @@
+ CONFIG_SMP=y
+ CONFIG_DEFAULT_MMAP_MIN_ADDR=0
+ CONFIG_HZ_100=y
+-CONFIG_EXPERIMENTAL=y
+ CONFIG_CROSS_COMPILE="hexagon-"
+ CONFIG_LOCALVERSION="-smp"
+ # CONFIG_LOCALVERSION_AUTO is not set
+@@ -18,7 +17,6 @@ CONFIG_BLK_DEV_INITRD=y
+ CONFIG_EMBEDDED=y
+ # CONFIG_VM_EVENT_COUNTERS is not set
+ # CONFIG_BLK_DEV_BSG is not set
+-CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
+ # CONFIG_STANDALONE is not set
+ CONFIG_CONNECTOR=y
+ CONFIG_BLK_DEV_LOOP=y
+@@ -27,8 +25,6 @@ CONFIG_NETDEVICES=y
+ CONFIG_MII=y
+ CONFIG_PHYLIB=y
+ CONFIG_NET_ETHERNET=y
+-# CONFIG_NETDEV_1000 is not set
+-# CONFIG_NETDEV_10000 is not set
+ # CONFIG_INPUT_MOUSEDEV is not set
+ # CONFIG_INPUT_KEYBOARD is not set
+ # CONFIG_INPUT_MOUSE is not set
+@@ -42,7 +38,6 @@ CONFIG_SPI_DEBUG=y
+ CONFIG_SPI_BITBANG=y
+ # CONFIG_HWMON is not set
+ # CONFIG_VGA_CONSOLE is not set
+-# CONFIG_HID_SUPPORT is not set
+ # CONFIG_USB_SUPPORT is not set
+ CONFIG_EXT2_FS=y
+ CONFIG_EXT2_FS_XATTR=y
+@@ -68,7 +63,6 @@ CONFIG_INET=y
+ # CONFIG_INET_XFRM_MODE_TRANSPORT is not set
+ # CONFIG_INET_XFRM_MODE_TUNNEL is not set
+ # CONFIG_INET_XFRM_MODE_BEET is not set
+-# CONFIG_INET_LRO is not set
+ # CONFIG_INET_DIAG is not set
+ # CONFIG_IPV6 is not set
+ CONFIG_CRYPTO_MD5=y
 -- 
-Regards,
+2.17.1
 
-Laurent Pinchart
