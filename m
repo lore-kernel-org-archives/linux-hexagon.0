@@ -1,98 +1,74 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v2] hexagon: defconfig: Cleanup from old Kconfig options
-Date: Wed, 27 May 2020 20:55:31 +0200
-Message-ID: <20200527185531.13599-1-krzk@kernel.org>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590605743;
-        bh=aNFtU8zIfSmNdMSRneS41YVkmW+XR+pqe4/iN3ZpWfM=;
-        h=From:To:Subject:Date:From;
-        b=S2XjffAjtQYNsfxNnzbudEs+bMcog8JnlhGy6R1O94bNV4Tv2gHeP7pC4tgatX7kA
-         6R2NZAndtxOotI65VCPlkSXc5OH+C5WSB2AKjwLL/2eBNu/9oiq8qv3w+5CzV4cNZF
-         lE7lpT6tGql6F0ID1BSNz6aOg6NmCpyU9cTADWx4=
-Sender: linux-hexagon-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v4 08/14] powerpc: add support for folded p4d page
+ tables
+Date: Wed, 3 Jun 2020 12:05:22 -0700
+Message-ID: <20200603120522.7646d56a23088416a7d3fc1a@linux-foundation.org>
+References: <20200414153455.21744-1-rppt@kernel.org>
+        <20200414153455.21744-9-rppt@kernel.org>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-To: Brian Cain <bcain@codeaurora.org>, Krzysztof Kozlowski <krzk@kernel.org>, Richard Kuo <rkuo@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <kvm-ppc-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591211124;
+        bh=Q/m5m0oN16XVkE9B8qyre3sjNLjlsvtMr3faOM5/GEY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=r0JH+r6+eneNzPkKh10OQRnG/QlntwU5Ile5RdgUbb4S95xZcMJwqqczR44dEoW5/
+         dXJbJhSARnLrJiGeqA21ANe/57CLpUdIlqiMBG6WT4nQbXPfCWGsOTxjBMHqOIWaG6
+         YrNwC3X4+y9pXx6gFBNVV3K2D741HNKSuj4FGwes=
+In-Reply-To: <20200414153455.21744-9-rppt@kernel.org>
+Sender: kvm-ppc-owner@vger.kernel.org
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Brian Cain <bcain@codeaurora.org>, Catalin Marinas <catalin.marinas@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Guan Xuetao <gxt@pku.edu.cn>, James Morse <james.morse@arm.com>, Jonas Bonn <jonas@southpole.se>, Julien Thierry <julien.thierry.kdev@gmail.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Marc Zyngier <maz@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Rich Felker <dalias@libc.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Suzuki
 
-Remove old, dead Kconfig options (in order appearing in this commit):
- - EXPERIMENTAL is gone since v3.9;
- - NETDEV_1000 and NETDEV_10000: commit f860b0522f65 ("drivers/net:
-   Kconfig and Makefile cleanup"); NET_ETHERNET should be replaced with
-   just ETHERNET but that is separate change;
- - HID_SUPPORT: commit 1f41a6a99476 ("HID: Fix the generic Kconfig
-   options");
- - INET_LRO: commit 7bbf3cae65b6 ("ipv4: Remove inet_lro library");
+On Tue, 14 Apr 2020 18:34:49 +0300 Mike Rapoport <rppt@kernel.org> wrote:
 
-Remove also the CONFIG_UEVENT_HELPER_PATH because:
-1. It is disabled since commit 1be01d4a5714 ("driver: base: Disable
-   CONFIG_UEVENT_HELPER by default") as its dependency (UEVENT_HELPER) was
-   made default to 'n',
-2. It is not recommended (help message: "This should not be used today
-   [...] creates a high system load") and was kept only for ancient
-   userland,
-3. Certain userland specifically requests it to be disabled (systemd
-   README: "Legacy hotplug slows down the system and confuses udev").
+> Implement primitives necessary for the 4th level folding, add walks of p4d
+> level where appropriate and replace 5level-fixup.h with pgtable-nop4d.h.
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
+A bunch of new material just landed in linux-next/powerpc.
 
----
+The timing is awkward!  I trust this will be going into mainline during
+this merge window?  If not, please drop it and repull after -rc1.
 
-Changes since v1:
-1. Add Richard's Ack,
-2. Squash cleanup of old defconfigs with UEVENT_HELPER_PATH removal.
----
- arch/hexagon/configs/comet_defconfig | 6 ------
- 1 file changed, 6 deletions(-)
+arch/powerpc/mm/ptdump/ptdump.c:walk_pagetables() was a problem. 
+Here's what I ended up with - please check.
 
-diff --git a/arch/hexagon/configs/comet_defconfig b/arch/hexagon/configs/comet_defconfig
-index e324f65f41e7..6b9397aacdf9 100644
---- a/arch/hexagon/configs/comet_defconfig
-+++ b/arch/hexagon/configs/comet_defconfig
-@@ -1,7 +1,6 @@
- CONFIG_SMP=y
- CONFIG_DEFAULT_MMAP_MIN_ADDR=0
- CONFIG_HZ_100=y
--CONFIG_EXPERIMENTAL=y
- CONFIG_CROSS_COMPILE="hexagon-"
- CONFIG_LOCALVERSION="-smp"
- # CONFIG_LOCALVERSION_AUTO is not set
-@@ -18,7 +17,6 @@ CONFIG_BLK_DEV_INITRD=y
- CONFIG_EMBEDDED=y
- # CONFIG_VM_EVENT_COUNTERS is not set
- # CONFIG_BLK_DEV_BSG is not set
--CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
- # CONFIG_STANDALONE is not set
- CONFIG_CONNECTOR=y
- CONFIG_BLK_DEV_LOOP=y
-@@ -27,8 +25,6 @@ CONFIG_NETDEVICES=y
- CONFIG_MII=y
- CONFIG_PHYLIB=y
- CONFIG_NET_ETHERNET=y
--# CONFIG_NETDEV_1000 is not set
--# CONFIG_NETDEV_10000 is not set
- # CONFIG_INPUT_MOUSEDEV is not set
- # CONFIG_INPUT_KEYBOARD is not set
- # CONFIG_INPUT_MOUSE is not set
-@@ -42,7 +38,6 @@ CONFIG_SPI_DEBUG=y
- CONFIG_SPI_BITBANG=y
- # CONFIG_HWMON is not set
- # CONFIG_VGA_CONSOLE is not set
--# CONFIG_HID_SUPPORT is not set
- # CONFIG_USB_SUPPORT is not set
- CONFIG_EXT2_FS=y
- CONFIG_EXT2_FS_XATTR=y
-@@ -68,7 +63,6 @@ CONFIG_INET=y
- # CONFIG_INET_XFRM_MODE_TRANSPORT is not set
- # CONFIG_INET_XFRM_MODE_TUNNEL is not set
- # CONFIG_INET_XFRM_MODE_BEET is not set
--# CONFIG_INET_LRO is not set
- # CONFIG_INET_DIAG is not set
- # CONFIG_IPV6 is not set
- CONFIG_CRYPTO_MD5=y
--- 
-2.17.1
+static void walk_pagetables(struct pg_state *st)
+{
+	unsigned int i;
+	unsigned long addr = st->start_address & PGDIR_MASK;
+	pgd_t *pgd = pgd_offset_k(addr);
+
+	/*
+	 * Traverse the linux pagetable structure and dump pages that are in
+	 * the hash pagetable.
+	 */
+	for (i = pgd_index(addr); i < PTRS_PER_PGD; i++, pgd++, addr += PGDIR_SIZE) {
+		p4d_t *p4d = p4d_offset(pgd, 0);
+
+		if (pgd_none(*pgd) || pgd_is_leaf(*pgd))
+			note_page(st, addr, 1, p4d_val(*p4d), PGDIR_SIZE);
+		else if (is_hugepd(__hugepd(p4d_val(*p4d))))
+			walk_hugepd(st, (hugepd_t *)pgd, addr, PGDIR_SHIFT, 1);
+		else
+			/* pgd exists */
+			walk_pud(st, p4d, addr);
+	}
+}
+
+Mike's series "mm: consolidate definitions of page table accessors"
+took quite a lot of damage as well.  Patches which needed rework as a
+result of this were:
+
+powerpc-add-support-for-folded-p4d-page-tables-fix.patch
+mm-introduce-include-linux-pgtableh.patch
+mm-reorder-includes-after-introduction-of-linux-pgtableh.patch
+mm-pgtable-add-shortcuts-for-accessing-kernel-pmd-and-pte.patch
+mm-pgtable-add-shortcuts-for-accessing-kernel-pmd-and-pte-fix-2.patch
+mm-consolidate-pte_index-and-pte_offset_-definitions.patch
+mm-consolidate-pmd_index-and-pmd_offset-definitions.patch
+mm-consolidate-pud_index-and-pud_offset-definitions.patch
+mm-consolidate-pgd_index-and-pgd_offset_k-definitions.patch
 
