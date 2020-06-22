@@ -1,83 +1,66 @@
-From: Peter Xu <peterx@redhat.com>
-Subject: [PATCH 07/26] mm/hexagon: Use general page fault accounting
-Date: Fri, 19 Jun 2020 12:05:19 -0400
-Message-ID: <20200619160538.8641-8-peterx@redhat.com>
-References: <20200619160538.8641-1-peterx@redhat.com>
+From: Christian Brauner <christian.brauner@ubuntu.com>
+Subject: [PATCH 11/17] hexagon: switch to copy_thread_tls()
+Date: Tue, 23 Jun 2020 01:43:20 +0200
+Message-ID: <20200622234326.906346-12-christian.brauner@ubuntu.com>
+References: <20200622234326.906346-1-christian.brauner@ubuntu.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1592582756;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SagB2x6xDXMHuNfH0nszNoiVH7/+fXWLgMfhv8WOo7E=;
-        b=SXuQscfIp84Jam/3SNag7zZHTrGwnKri/xm+9Yk4bv7VuxQWefJbFQq4NZY2De8nCxOs6R
-        1mXbMC6ZG3ckJuBNrVEiNUYsea5P6aOF4kG2MDm8bfcnqAku/gO6u2oh3RECEVxm3CVA9s
-        FER3YW8QvV85Uw3gyq4cDyy2Z8+IJp4=
-In-Reply-To: <20200619160538.8641-1-peterx@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+In-Reply-To: <20200622234326.906346-1-christian.brauner@ubuntu.com>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, peterx@redhat.com, Andrew Morton <akpm@linux-foundation.org>, Andrea Arcangeli <aarcange@redhat.com>, Will Deacon <will@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Linus Torvalds <torvalds@linux-foundation.org>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Christian Brauner <christian.brauner@ubuntu.com>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-Use the general page fault accounting by passing regs into handle_mm_fault().
-It naturally solve the issue of multiple page fault accounting when page fault
-retry happened.
+Use the copy_thread_tls() calling convention which passes tls through a
+register. This is required so we can remove the copy_thread{_tls}() split
+and remove the HAVE_COPY_THREAD_TLS macro.
 
-Add the missing PERF_COUNT_SW_PAGE_FAULTS perf events too.  Note, the other two
-perf events (PERF_COUNT_SW_PAGE_FAULTS_[MAJ|MIN]) were done in handle_mm_fault().
-
-CC: Brian Cain <bcain@codeaurora.org>
-CC: linux-hexagon@vger.kernel.org
-Signed-off-by: Peter Xu <peterx@redhat.com>
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 ---
- arch/hexagon/mm/vm_fault.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/hexagon/Kconfig          | 1 +
+ arch/hexagon/kernel/process.c | 6 +++---
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/hexagon/mm/vm_fault.c b/arch/hexagon/mm/vm_fault.c
-index f04cd0a6d905..1b1802f30862 100644
---- a/arch/hexagon/mm/vm_fault.c
-+++ b/arch/hexagon/mm/vm_fault.c
-@@ -19,6 +19,7 @@
- #include <linux/signal.h>
- #include <linux/extable.h>
- #include <linux/hardirq.h>
-+#include <linux/perf_event.h>
- 
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index 667cfc511cf9..19bc2f2ee331 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -31,6 +31,7 @@ config HEXAGON
+ 	select GENERIC_CLOCKEVENTS_BROADCAST
+ 	select MODULES_USE_ELF_RELA
+ 	select GENERIC_CPU_DEVICES
++	select HAVE_COPY_THREAD_TLS
+ 	help
+ 	  Qualcomm Hexagon is a processor architecture designed for high
+ 	  performance and low power across a wide variety of applications.
+diff --git a/arch/hexagon/kernel/process.c b/arch/hexagon/kernel/process.c
+index ac07f5f4b76b..d756f9556dd7 100644
+--- a/arch/hexagon/kernel/process.c
++++ b/arch/hexagon/kernel/process.c
+@@ -50,8 +50,8 @@ void arch_cpu_idle(void)
  /*
-  * Decode of hardware exception sends us to one of several
-@@ -54,6 +55,8 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
+  * Copy architecture-specific thread state
+  */
+-int copy_thread(unsigned long clone_flags, unsigned long usp,
+-		unsigned long arg, struct task_struct *p)
++int copy_thread_tls(unsigned long clone_flags, unsigned long usp,
++		    unsigned long arg, struct task_struct *p, unsigned long tls)
+ {
+ 	struct thread_info *ti = task_thread_info(p);
+ 	struct hexagon_switch_stack *ss;
+@@ -100,7 +100,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
+ 	 * ugp is used to provide TLS support.
+ 	 */
+ 	if (clone_flags & CLONE_SETTLS)
+-		childregs->ugp = childregs->r04;
++		childregs->ugp = tls;
  
- 	if (user_mode(regs))
- 		flags |= FAULT_FLAG_USER;
-+
-+	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
- retry:
- 	down_read(&mm->mmap_sem);
- 	vma = find_vma(mm, address);
-@@ -89,7 +92,7 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
- 		break;
- 	}
- 
--	fault = handle_mm_fault(vma, address, flags, NULL);
-+	fault = handle_mm_fault(vma, address, flags, regs);
- 
- 	if (fault_signal_pending(fault, regs))
- 		return;
-@@ -97,10 +100,6 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
- 	/* The most common case -- we are done. */
- 	if (likely(!(fault & VM_FAULT_ERROR))) {
- 		if (flags & FAULT_FLAG_ALLOW_RETRY) {
--			if (fault & VM_FAULT_MAJOR)
--				current->maj_flt++;
--			else
--				current->min_flt++;
- 			if (fault & VM_FAULT_RETRY) {
- 				flags |= FAULT_FLAG_TRIED;
- 				goto retry;
+ 	/*
+ 	 * Parent sees new pid -- not necessary, not even possible at
 -- 
-2.26.2
+2.27.0
 
