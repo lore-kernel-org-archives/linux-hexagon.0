@@ -1,77 +1,41 @@
-From: "Brian Cain" <bcain@codeaurora.org>
-Subject: RE: [PATCH 11/17] hexagon: switch to copy_thread_tls()
-Date: Tue, 23 Jun 2020 11:11:37 -0500
-Message-ID: <14e701d64978$f9a2af60$ece80e20$@codeaurora.org>
-References: <20200622234326.906346-1-christian.brauner@ubuntu.com> <20200622234326.906346-12-christian.brauner@ubuntu.com>
-Reply-To: <bcain@codeaurora.org>
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH 17/17] arch: rename copy_thread_tls() back to copy_thread()
+Date: Thu, 25 Jun 2020 10:26:58 +0200
+Message-ID: <20200625082658.GC6319@alpha.franken.de>
+References: <20200622234326.906346-1-christian.brauner@ubuntu.com>
+ <20200622234326.906346-18-christian.brauner@ubuntu.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1592928732; h=Content-Transfer-Encoding: Content-Type:
- MIME-Version: Message-ID: Date: Subject: In-Reply-To: References: Cc:
- To: From: Reply-To: Sender;
- bh=tpu3koTLioptT4rbuRuixAw5FvFwl/Ar2ZGPQtaJuds=; b=kgyHKYH+dbE973OMmJOgxjlEYM46qO8kiD+2UznxXkvdjFYV32X+6NkvL96ktlltwhx8a/tm
- pnFSVUByeSzRjDxabF1SaNGXQP/bJnW38nHwRElx1JsDG2K4RUxrbTlK2sN/a3B5ycoQQz9K
- Z9kmeR+QRn9MWqiEy31eTu4bgD4=
-In-Reply-To: <20200622234326.906346-12-christian.brauner@ubuntu.com>
-Content-Language: en-us
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-hexagon.vger.kernel.org>
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Content-Disposition: inline
+In-Reply-To: <20200622234326.906346-18-christian.brauner@ubuntu.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
 Content-Type: text/plain; charset="us-ascii"
-To: 'Christian Brauner' <christian.brauner@ubuntu.com>, linux-kernel@vger.kernel.org
-Cc: 'Linus Torvalds' <torvalds@linux-foundation.org>, linux-hexagon@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, linux-mips@vger.kernel.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, Vincent Chen <deanbo422@gmail.com>, Will Deacon <will@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Brian Cain <bcain@codeaurora.org>, linux-xtensa@linux-xtensa.org, Helge Deller <deller@gmx.de>, x86@kernel.org, Russell King <>
 
-...
-> Cc: Brian Cain <bcain@codeaurora.org>
-> Cc: linux-hexagon@vger.kernel.org
-> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-> ---
->  arch/hexagon/Kconfig          | 1 +
->  arch/hexagon/kernel/process.c | 6 +++---
->  2 files changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig index
-> 667cfc511cf9..19bc2f2ee331 100644
-> --- a/arch/hexagon/Kconfig
-> +++ b/arch/hexagon/Kconfig
-> @@ -31,6 +31,7 @@ config HEXAGON
->  	select GENERIC_CLOCKEVENTS_BROADCAST
->  	select MODULES_USE_ELF_RELA
->  	select GENERIC_CPU_DEVICES
-> +	select HAVE_COPY_THREAD_TLS
->  	help
->  	  Qualcomm Hexagon is a processor architecture designed for high
->  	  performance and low power across a wide variety of applications.
-> diff --git a/arch/hexagon/kernel/process.c b/arch/hexagon/kernel/process.c
-> index ac07f5f4b76b..d756f9556dd7 100644
-> --- a/arch/hexagon/kernel/process.c
-> +++ b/arch/hexagon/kernel/process.c
-> @@ -50,8 +50,8 @@ void arch_cpu_idle(void)
->  /*
->   * Copy architecture-specific thread state
->   */
-> -int copy_thread(unsigned long clone_flags, unsigned long usp,
-> -		unsigned long arg, struct task_struct *p)
-> +int copy_thread_tls(unsigned long clone_flags, unsigned long usp,
-> +		    unsigned long arg, struct task_struct *p, unsigned long
-tls)
->  {
->  	struct thread_info *ti = task_thread_info(p);
->  	struct hexagon_switch_stack *ss;
-> @@ -100,7 +100,7 @@ int copy_thread(unsigned long clone_flags, unsigned
-> long usp,
->  	 * ugp is used to provide TLS support.
->  	 */
->  	if (clone_flags & CLONE_SETTLS)
-> -		childregs->ugp = childregs->r04;
-> +		childregs->ugp = tls;
-> 
->  	/*
->  	 * Parent sees new pid -- not necessary, not even possible at
-> --
-> 2.27.0
+On Tue, Jun 23, 2020 at 01:43:26AM +0200, Christian Brauner wrote:
+> Now that HAVE_COPY_THREAD_TLS has been removed, rename copy_thread_tls()
+> back simply copy_thread(). It's a simpler name, and doesn't imply that only
+> tls is copied here. This finishes an outstanding chunk of internal process
+> creation work since we've added clone3().
+> [..]
+>  arch/mips/kernel/process.c       | 2 +-
 
-Acked-by: Brian Cain <bcain@codeaurora.org>
+Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 
+Thomas.
 
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
