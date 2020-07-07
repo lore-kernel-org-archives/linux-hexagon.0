@@ -1,100 +1,84 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH RESEND 2/2] hexagon: defconfig: Cleanup from old Kconfig options
-Date: Tue,  7 Jul 2020 22:55:26 +0200
-Message-ID: <20200707205526.32649-2-krzk@kernel.org>
-References: <20200707205526.32649-1-krzk@kernel.org>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594155351;
-        bh=aNFtU8zIfSmNdMSRneS41YVkmW+XR+pqe4/iN3ZpWfM=;
-        h=From:To:Subject:Date:In-Reply-To:References:From;
-        b=UXv/pUvAcutYjyr7JQnK3J6kVcD9nc9qeVNmWBZxrW8iCusXXlXxHGHxavJv1Rbds
-         WIecc9OqKIU2RiRuZmZ6nH7rfDWeMrfibLJPDrhnzzn4Cqd3uvCJpNxh5KXPzjNwgh
-         xeP1dI+e8a1dekbxwN6yPhv+sWpj7Rxr53euUHzY=
-In-Reply-To: <20200707205526.32649-1-krzk@kernel.org>
-Sender: linux-hexagon-owner@vger.kernel.org
+From: Peter Xu <peterx@redhat.com>
+Subject: [PATCH v5 07/25] mm/hexagon: Use general page fault accounting
+Date: Tue,  7 Jul 2020 18:50:03 -0400
+Message-ID: <20200707225021.200906-8-peterx@redhat.com>
+References: <20200707225021.200906-1-peterx@redhat.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1594162238;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+4zIYRHOACURUfy9t13d60Z4Yb5Zt+j+VbtnlH1sD2o=;
+        b=BTg7Tj5fsYvk1DAKcyFIK0dRGwIKCyrigCi+dW6L13rnrI5kuwVbqgM9GaqTu9luUJTHOz
+        xZ99kZ1IkVZbqBnDJFkx7+coQWkJ2CwLzPN6LRO2FemT1J63fvy/M80XNLS5EOuQxqW0rn
+        IwcKegNOj5/7VDTfg8ILJ18hLLXCRGk=
+In-Reply-To: <20200707225021.200906-1-peterx@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Andrew Morton <akpm@linux-foundation.org>, Brian Cain <bcain@codeaurora.org>, Rob Herring <robh@kernel.org>, Richard Kuo <rkuo@codeaurora.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, peterx@redhat.com, Andrew Morton <akpm@linux-foundation.org>, Will Deacon <will@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, David Rientjes <rientjes@google.com>, John Hubbard <jhubbard@nvidia.com>, Michael Ellerman <mpe@ellerman.id.au>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-Remove old, dead Kconfig options (in order appearing in this commit):
- - EXPERIMENTAL is gone since v3.9;
- - NETDEV_1000 and NETDEV_10000: commit f860b0522f65 ("drivers/net:
-   Kconfig and Makefile cleanup"); NET_ETHERNET should be replaced with
-   just ETHERNET but that is separate change;
- - HID_SUPPORT: commit 1f41a6a99476 ("HID: Fix the generic Kconfig
-   options");
- - INET_LRO: commit 7bbf3cae65b6 ("ipv4: Remove inet_lro library");
+Use the general page fault accounting by passing regs into handle_mm_fault().
+It naturally solve the issue of multiple page fault accounting when page fault
+retry happened.
 
-Remove also the CONFIG_UEVENT_HELPER_PATH because:
-1. It is disabled since commit 1be01d4a5714 ("driver: base: Disable
-   CONFIG_UEVENT_HELPER by default") as its dependency (UEVENT_HELPER) was
-   made default to 'n',
-2. It is not recommended (help message: "This should not be used today
-   [...] creates a high system load") and was kept only for ancient
-   userland,
-3. Certain userland specifically requests it to be disabled (systemd
-   README: "Legacy hotplug slows down the system and confuses udev").
+Add the missing PERF_COUNT_SW_PAGE_FAULTS perf events too.  Note, the other two
+perf events (PERF_COUNT_SW_PAGE_FAULTS_[MAJ|MIN]) were done in handle_mm_fault().
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Richard Kuo <rkuo@codeaurora.org>
-
+CC: Brian Cain <bcain@codeaurora.org>
+CC: linux-hexagon@vger.kernel.org
+Acked-by: Brian Cain <bcain@codeaurora.org>
+Signed-off-by: Peter Xu <peterx@redhat.com>
 ---
+ arch/hexagon/mm/vm_fault.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-Changes since v1:
-1. Add Richard's Ack,
-2. Squash cleanup of old defconfigs with UEVENT_HELPER_PATH removal.
----
- arch/hexagon/configs/comet_defconfig | 6 ------
- 1 file changed, 6 deletions(-)
-
-diff --git a/arch/hexagon/configs/comet_defconfig b/arch/hexagon/configs/comet_defconfig
-index e324f65f41e7..6b9397aacdf9 100644
---- a/arch/hexagon/configs/comet_defconfig
-+++ b/arch/hexagon/configs/comet_defconfig
-@@ -1,7 +1,6 @@
- CONFIG_SMP=y
- CONFIG_DEFAULT_MMAP_MIN_ADDR=0
- CONFIG_HZ_100=y
--CONFIG_EXPERIMENTAL=y
- CONFIG_CROSS_COMPILE="hexagon-"
- CONFIG_LOCALVERSION="-smp"
- # CONFIG_LOCALVERSION_AUTO is not set
-@@ -18,7 +17,6 @@ CONFIG_BLK_DEV_INITRD=y
- CONFIG_EMBEDDED=y
- # CONFIG_VM_EVENT_COUNTERS is not set
- # CONFIG_BLK_DEV_BSG is not set
--CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
- # CONFIG_STANDALONE is not set
- CONFIG_CONNECTOR=y
- CONFIG_BLK_DEV_LOOP=y
-@@ -27,8 +25,6 @@ CONFIG_NETDEVICES=y
- CONFIG_MII=y
- CONFIG_PHYLIB=y
- CONFIG_NET_ETHERNET=y
--# CONFIG_NETDEV_1000 is not set
--# CONFIG_NETDEV_10000 is not set
- # CONFIG_INPUT_MOUSEDEV is not set
- # CONFIG_INPUT_KEYBOARD is not set
- # CONFIG_INPUT_MOUSE is not set
-@@ -42,7 +38,6 @@ CONFIG_SPI_DEBUG=y
- CONFIG_SPI_BITBANG=y
- # CONFIG_HWMON is not set
- # CONFIG_VGA_CONSOLE is not set
--# CONFIG_HID_SUPPORT is not set
- # CONFIG_USB_SUPPORT is not set
- CONFIG_EXT2_FS=y
- CONFIG_EXT2_FS_XATTR=y
-@@ -68,7 +63,6 @@ CONFIG_INET=y
- # CONFIG_INET_XFRM_MODE_TRANSPORT is not set
- # CONFIG_INET_XFRM_MODE_TUNNEL is not set
- # CONFIG_INET_XFRM_MODE_BEET is not set
--# CONFIG_INET_LRO is not set
- # CONFIG_INET_DIAG is not set
- # CONFIG_IPV6 is not set
- CONFIG_CRYPTO_MD5=y
+diff --git a/arch/hexagon/mm/vm_fault.c b/arch/hexagon/mm/vm_fault.c
+index f12f330e7946..ef32c5a84ff3 100644
+--- a/arch/hexagon/mm/vm_fault.c
++++ b/arch/hexagon/mm/vm_fault.c
+@@ -18,6 +18,7 @@
+ #include <linux/signal.h>
+ #include <linux/extable.h>
+ #include <linux/hardirq.h>
++#include <linux/perf_event.h>
+ 
+ /*
+  * Decode of hardware exception sends us to one of several
+@@ -53,6 +54,8 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
+ 
+ 	if (user_mode(regs))
+ 		flags |= FAULT_FLAG_USER;
++
++	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
+ retry:
+ 	mmap_read_lock(mm);
+ 	vma = find_vma(mm, address);
+@@ -88,7 +91,7 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
+ 		break;
+ 	}
+ 
+-	fault = handle_mm_fault(vma, address, flags, NULL);
++	fault = handle_mm_fault(vma, address, flags, regs);
+ 
+ 	if (fault_signal_pending(fault, regs))
+ 		return;
+@@ -96,10 +99,6 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
+ 	/* The most common case -- we are done. */
+ 	if (likely(!(fault & VM_FAULT_ERROR))) {
+ 		if (flags & FAULT_FLAG_ALLOW_RETRY) {
+-			if (fault & VM_FAULT_MAJOR)
+-				current->maj_flt++;
+-			else
+-				current->min_flt++;
+ 			if (fault & VM_FAULT_RETRY) {
+ 				flags |= FAULT_FLAG_TRIED;
+ 				goto retry;
 -- 
-2.17.1
+2.26.2
 
