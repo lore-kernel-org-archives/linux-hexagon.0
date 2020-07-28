@@ -1,84 +1,97 @@
-From: Peter Xu <peterx@redhat.com>
-Subject: [PATCH v5 07/25] mm/hexagon: Use general page fault accounting
-Date: Tue,  7 Jul 2020 18:50:03 -0400
-Message-ID: <20200707225021.200906-8-peterx@redhat.com>
-References: <20200707225021.200906-1-peterx@redhat.com>
+From: Nicholas Piggin <npiggin@gmail.com>
+Subject: [PATCH 07/24] hexagon: use asm-generic/mmu_context.h for no-op implementations
+Date: Tue, 28 Jul 2020 13:33:48 +1000
+Message-ID: <20200728033405.78469-8-npiggin@gmail.com>
+References: <20200728033405.78469-1-npiggin@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594162238;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+4zIYRHOACURUfy9t13d60Z4Yb5Zt+j+VbtnlH1sD2o=;
-        b=BTg7Tj5fsYvk1DAKcyFIK0dRGwIKCyrigCi+dW6L13rnrI5kuwVbqgM9GaqTu9luUJTHOz
-        xZ99kZ1IkVZbqBnDJFkx7+coQWkJ2CwLzPN6LRO2FemT1J63fvy/M80XNLS5EOuQxqW0rn
-        IwcKegNOj5/7VDTfg8ILJ18hLLXCRGk=
-In-Reply-To: <20200707225021.200906-1-peterx@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=HL7MtoQQEXJbD0R6d/PbjEBDKKa2Jd3NzBDoc9RLQlI=;
+        b=alOL57K1j81ubRKJUFCi4kYNgADnqsVICZmOks4Ew6eayB10wPf7QRXEIyQLQiQz+r
+         JULpy2JKO1zSwr3rdJIzFIdo3cOSvHCAv16IrpnjIZzLVoXBB3o3l1KfiHxOLuMYzj+7
+         zHhh9o/vHTqdaLRcE37Gy9CE+sCcQeNgzxn7B24EImXeaLx27nIOh8s6aUDv+Ks22Z4D
+         LckZxLW2BY8kq1RKzJF4W1xdSzb2EgaYbZJ/iDFh/gTQ5Z05NRLi++iva8t7mgWGqgqL
+         uRGJcB6oZT0MIKkE/ImH+lWjNq60Mx5fqvbHTKGP+uNnbhJJMOyDU6TDSNuZa6msgf4C
+         oq1w==
+In-Reply-To: <20200728033405.78469-1-npiggin@gmail.com>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, peterx@redhat.com, Andrew Morton <akpm@linux-foundation.org>, Will Deacon <will@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, David Rientjes <rientjes@google.com>, John Hubbard <jhubbard@nvidia.com>, Michael Ellerman <mpe@ellerman.id.au>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org
+To: linux-arch@vger.kernel.org
+Cc: Nicholas Piggin <npiggin@gmail.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, Arnd Bergmann <arnd@arndb.de>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-Use the general page fault accounting by passing regs into handle_mm_fault().
-It naturally solve the issue of multiple page fault accounting when page fault
-retry happened.
-
-Add the missing PERF_COUNT_SW_PAGE_FAULTS perf events too.  Note, the other two
-perf events (PERF_COUNT_SW_PAGE_FAULTS_[MAJ|MIN]) were done in handle_mm_fault().
-
-CC: Brian Cain <bcain@codeaurora.org>
-CC: linux-hexagon@vger.kernel.org
-Acked-by: Brian Cain <bcain@codeaurora.org>
-Signed-off-by: Peter Xu <peterx@redhat.com>
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 ---
- arch/hexagon/mm/vm_fault.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/hexagon/include/asm/mmu_context.h | 33 ++++----------------------
+ 1 file changed, 5 insertions(+), 28 deletions(-)
 
-diff --git a/arch/hexagon/mm/vm_fault.c b/arch/hexagon/mm/vm_fault.c
-index f12f330e7946..ef32c5a84ff3 100644
---- a/arch/hexagon/mm/vm_fault.c
-+++ b/arch/hexagon/mm/vm_fault.c
-@@ -18,6 +18,7 @@
- #include <linux/signal.h>
- #include <linux/extable.h>
- #include <linux/hardirq.h>
-+#include <linux/perf_event.h>
+diff --git a/arch/hexagon/include/asm/mmu_context.h b/arch/hexagon/include/asm/mmu_context.h
+index cdc4adc0300a..81947764c47d 100644
+--- a/arch/hexagon/include/asm/mmu_context.h
++++ b/arch/hexagon/include/asm/mmu_context.h
+@@ -15,39 +15,13 @@
+ #include <asm/pgalloc.h>
+ #include <asm/mem-layout.h>
+ 
+-static inline void destroy_context(struct mm_struct *mm)
+-{
+-}
+-
+ /*
+  * VM port hides all TLB management, so "lazy TLB" isn't very
+  * meaningful.  Even for ports to architectures with visble TLBs,
+  * this is almost invariably a null function.
++ *
++ * mm->context is set up by pgd_alloc, so no init_new_context required.
+  */
+-static inline void enter_lazy_tlb(struct mm_struct *mm,
+-	struct task_struct *tsk)
+-{
+-}
+-
+-/*
+- * Architecture-specific actions, if any, for memory map deactivation.
+- */
+-static inline void deactivate_mm(struct task_struct *tsk,
+-	struct mm_struct *mm)
+-{
+-}
+-
+-/**
+- * init_new_context - initialize context related info for new mm_struct instance
+- * @tsk: pointer to a task struct
+- * @mm: pointer to a new mm struct
+- */
+-static inline int init_new_context(struct task_struct *tsk,
+-					struct mm_struct *mm)
+-{
+-	/* mm->context is set up by pgd_alloc */
+-	return 0;
+-}
  
  /*
-  * Decode of hardware exception sends us to one of several
-@@ -53,6 +54,8 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
+  *  Switch active mm context
+@@ -74,6 +48,7 @@ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ /*
+  *  Activate new memory map for task
+  */
++#define activate_mm activate_mm
+ static inline void activate_mm(struct mm_struct *prev, struct mm_struct *next)
+ {
+ 	unsigned long flags;
+@@ -86,4 +61,6 @@ static inline void activate_mm(struct mm_struct *prev, struct mm_struct *next)
+ /*  Generic hooks for arch_dup_mmap and arch_exit_mmap  */
+ #include <asm-generic/mm_hooks.h>
  
- 	if (user_mode(regs))
- 		flags |= FAULT_FLAG_USER;
++#include <asm-generic/mmu_context.h>
 +
-+	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
- retry:
- 	mmap_read_lock(mm);
- 	vma = find_vma(mm, address);
-@@ -88,7 +91,7 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
- 		break;
- 	}
- 
--	fault = handle_mm_fault(vma, address, flags, NULL);
-+	fault = handle_mm_fault(vma, address, flags, regs);
- 
- 	if (fault_signal_pending(fault, regs))
- 		return;
-@@ -96,10 +99,6 @@ void do_page_fault(unsigned long address, long cause, struct pt_regs *regs)
- 	/* The most common case -- we are done. */
- 	if (likely(!(fault & VM_FAULT_ERROR))) {
- 		if (flags & FAULT_FLAG_ALLOW_RETRY) {
--			if (fault & VM_FAULT_MAJOR)
--				current->maj_flt++;
--			else
--				current->min_flt++;
- 			if (fault & VM_FAULT_RETRY) {
- 				flags |= FAULT_FLAG_TRIED;
- 				goto retry;
+ #endif
 -- 
-2.26.2
+2.23.0
 
