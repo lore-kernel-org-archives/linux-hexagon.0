@@ -1,24 +1,24 @@
 From: Nicholas Piggin <npiggin@gmail.com>
-Subject: [PATCH v2 07/23] hexagon: use asm-generic/mmu_context.h for no-op implementations
-Date: Thu, 27 Aug 2020 00:52:33 +1000
-Message-ID: <20200826145249.745432-8-npiggin@gmail.com>
-References: <20200826145249.745432-1-npiggin@gmail.com>
+Subject: [PATCH v3 07/23] hexagon: use asm-generic/mmu_context.h for no-op implementations
+Date: Wed,  2 Sep 2020 00:15:23 +1000
+Message-ID: <20200901141539.1757549-8-npiggin@gmail.com>
+References: <20200901141539.1757549-1-npiggin@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
         bh=eCO6eQrXV/q62wlJ5dCHYkGXNXvcNXkjUmp1GwIXZy0=;
-        b=RRiXPLTMXyNxkd/Q7cSppCEX4ypohtTUouPii1Ko6lFloN8J5gkEMLinRU6wt4LQS6
-         DESO9NUZRxUwuB//GtGcpHfxW+jUTGTO+b9WiHCTCM8XE7h69ydPbdwyRu0lgf/+ThZM
-         MhP2CJ1kDWYtrGOrgaTF7J899dRXB31I05zBRy6Xd2VkwBUGM2m1zNGgWueXOBWSDlOv
-         /Dn9Vhk1Wddl8VNkvumE7XqIoCaS9zLYW5TvXZLkV7PiqQ4zedbHYaIJdfKdSfz/Dj6n
-         903g+aLWs0KDriJmB34o2kFI8OwDEwuliPN/BaEMCUVrlfjBI0hj+YIWs+XeT4GhJ3uk
-         sIaA==
-In-Reply-To: <20200826145249.745432-1-npiggin@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+        b=jY0Xaw9JClMjKguKr4toi3p2h52MIKL8klJRnYZgFU374fx+7NSFwezgNkVvksRVOy
+         DYkQbHh7OHKuhcayw9z3bY5GcYg3oGuCrZLLRFoB/4MZq3ZzD4tuKb048U8PY8HJPD3G
+         WkGilznMqAHXKZWW5arP54iwQAqH+klI5v08g+l3XG4qDb39FE7bdubGz787QJKoEjSu
+         Q0hRLmVw+tp2JsWReiv9abKKc6uOy/oAhdh1NYAXW+W8LPsIa5SNCDXVCxlP54ntb8qu
+         cXcSVccpvMjq65/ErNO7QIUO9gnI+msCcv1artDIopurRB/jlS5gQB4fO6Dxm7udd3PF
+         yOtw==
+In-Reply-To: <20200901141539.1757549-1-npiggin@gmail.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-arch@vger.kernel.org
