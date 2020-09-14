@@ -1,7 +1,7 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 09/13] ARM: Clenaup PREEMPT_COUNT leftovers
-Date: Mon, 14 Sep 2020 22:42:18 +0200
-Message-ID: <20200914204441.888971282@linutronix.de>
+Subject: [patch 11/13] drm/i915: Clenaup PREEMPT_COUNT leftovers
+Date: Mon, 14 Sep 2020 22:42:20 +0200
+Message-ID: <20200914204442.098732980@linutronix.de>
 References: <20200914204209.256266093@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,31 +13,31 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Unsubscribe:List-Id:MIME-Version:References:Subject:To:From:Date:
 	Message-Id:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:List-Owner;
-	 bh=I71J+tY3K7bCtkqejLsb9MPjtDrWCqj3hU6eT3s2ltA=; b=QiqdjeVBnacB6p6o2jCkzEEwj
-	Iee9BxEIRU84Hdq09mLduEN0++oD+2EP9t7O1Nr6nPb5erikJvKRkVTR33KFCauB4C9AaY9nbbSHW
-	eSebN41a81d+bXhwCQMmUd1gAZNk93daSON9tvsz6nbaDEKHH18cr47XKyr1AEm6Yvhe92s/iIdRd
-	QLgHEYbNFJoo0z/5qpnywp/vror7hrVAFF8Gze/1ufoYYaHulGOLz3Ug/4CAjIzHeaStzNMgKe9/U
-	me7X66woDxmN/7uWDaL9E5+3N7oUicdXSPGv+ZngqqOeEaUVIDfFWanJtXob9rYy3RgACzumYSorN
-	B2H01Y9XA==;
+	 bh=f/SOJ5CWk4eYwwtTstBCFeuXygvThe957j/HsSXUh5A=; b=RbslokA0rGOMFIJ+KFbMy5SHb
+	GnaCTN8GDtYlbsOGwCbismkjbkjsW0095diH6wN+FDBn8GyRtSSu7m/2R5dKEHblS6l8OSAgcvbg3
+	wZdr7dhZFxpaayn2wWnkkPCMvGsEiDIXYBT9QpNHyL+bLYqIZ9i/4Fo8JZhVo2lkltvsez6rQNZhV
+	LYH6mijE5wtCTnAnqqwMX7VcBpFJPHerXS9IeFmK9Nn/Y76ALfYooj1Ji+iOrIsPecMRKWhl4bHEH
+	DkT+ppZNj3HOMCUKzoPzUv2eZq/Vre0J+2iSpnab4DIuR/6Xhb8t+KXJAhbvAoTKkgyenLBBTylgm
+	5OgX4jc8w==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1600116315;
+ s=2020; t=1600116317;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=8jOReEDZljlqa4dRpw6zeMP+ergwjtpRGdTwRrkKdMw=;
- b=vFnjOhcm6A5rkHvga94OSbt2wSr9aZ4/4+Gjp2chF1ha6JRKuOU3CNHmQq7Rg0ucK7RjRq
- d1D2Op6P1EtRbiw1cEqLOfkMOTw5M9OBQCUWIX2Vc7AfVnYS9V/tDPBpJkwrvrHwRdU1d7
- 7DUDLh3A28EHsBiZZaaiZ4XcKkxPFqmL/FjArWA/u2rDiLgyAiFFZv/ZPgW3uVZZIF0hNt
- SO4D6rz5myLzg+OIBie1VxAn7tKs9mhq1R5tw2SsZ+K8oofgfxbHrAuKz3D8rHzFCar81p
- rprjoEA30lfX7K/ss6o941PuhINzOHmOt/SOQ4kR19H9U8YiCZtP9wbcNIoZtg==
+ bh=Npom2EuTd1Uo7psEmtBh4sk2VgJVlpo8NVJUnRcKB8Y=;
+ b=W4+uvZLgtQPO+glf5eld0ZiR3ISK15YAJdt6WwDfLADo+AFztlldWd6dnTxcOG/enrCJ4/
+ 7u32/7TCACBuN+lo9boB/TOBAm6lrW4MkZvhScrz2WB81lO817FQoWuHqGyf0TAAuP0Ksy
+ bQAQSul1hAW3wOWSLEfq17ljxGNiuOhar1IwVKgwHYhek9tw/3yrLDOa9DFoBNHou7Q8sL
+ Le6TVnnkHmmXl+4IiF/zt1wPOBUG50o5ppXwlIGJ70nYtKJmMdCTQo/NKnxVnjfwqRAD6b
+ vnHkPQvTNh5QiYsQhxa5/jPIbzb3YqssC6+bhpF8Ptsv7cCXWCB03aLYCfb3oA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1600116315;
+ s=2020e; t=1600116317;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=8jOReEDZljlqa4dRpw6zeMP+ergwjtpRGdTwRrkKdMw=;
- b=JU7ChlHF+O/eQcV9Z/9GQyaR7D5Z3O57wqZXnRf3e7Ecka8E/GQOwYqD+fJd5CXXar201W
- f9H0fImrNN7UHEDQ==
+ bh=Npom2EuTd1Uo7psEmtBh4sk2VgJVlpo8NVJUnRcKB8Y=;
+ b=rmUXqBTTaScVxDZkMGFWRq5utqR7uYKuoMeo7quwxFSAzx9Kf0xGyQn88w3XHaSrv5KeED
+ X25Q3ysRxDcMBzBA==
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -49,67 +49,43 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Juri Lelli <juri.lelli@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Lai Jiangshan <jiangshanlai@gmail.com>, dri-devel@lists.freedesktop.org, Ben Segall <bsegall@google.com>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-hexagon@vger.kernel.org, Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-arch@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>, Brian Cain <bcain@codeaurora.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, David Airlie <airlied@linux.ie>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, intel-gfx@lists.freedesktop.org, Matt Turner <mattst88@gmail.com>, Valentin
+Cc: Juri Lelli <juri.lelli@redhat.com>, David Airlie <airlied@linux.ie>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Lai Jiangshan <jiangshanlai@gmail.com>, dri-devel@lists.freedesktop.org, Ben Segall <bsegall@google.com>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-hexagon@vger.kernel.org, Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-arch@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>, Brian Cain <bcain@codeaurora.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, Matt Turner <mattst88@gmail.com>, intel-gfx@lists.freedesktop.org, linux-xtensa@lin
 
 CONFIG_PREEMPT_COUNT is now unconditionally enabled and will be
 removed. Cleanup the leftovers before doing so.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: dri-devel@lists.freedesktop.org
 ---
- arch/arm/include/asm/assembler.h   |   11 -----------
- arch/arm/kernel/iwmmxt.S           |    2 --
- arch/arm/mach-ep93xx/crunch-bits.S |    2 --
- 3 files changed, 15 deletions(-)
+ drivers/gpu/drm/i915/Kconfig.debug |    1 -
+ drivers/gpu/drm/i915/i915_utils.h  |    3 +--
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
---- a/arch/arm/include/asm/assembler.h
-+++ b/arch/arm/include/asm/assembler.h
-@@ -212,7 +212,6 @@
- /*
-  * Increment/decrement the preempt count.
-  */
--#ifdef CONFIG_PREEMPT_COUNT
- 	.macro	inc_preempt_count, ti, tmp
- 	ldr	\tmp, [\ti, #TI_PREEMPT]	@ get preempt count
- 	add	\tmp, \tmp, #1			@ increment it
-@@ -229,16 +228,6 @@
- 	get_thread_info \ti
- 	dec_preempt_count \ti, \tmp
- 	.endm
--#else
--	.macro	inc_preempt_count, ti, tmp
--	.endm
--
--	.macro	dec_preempt_count, ti, tmp
--	.endm
--
--	.macro	dec_preempt_count_ti, ti, tmp
--	.endm
--#endif
+--- a/drivers/gpu/drm/i915/Kconfig.debug
++++ b/drivers/gpu/drm/i915/Kconfig.debug
+@@ -20,7 +20,6 @@ config DRM_I915_DEBUG
+ 	bool "Enable additional driver debugging"
+ 	depends on DRM_I915
+ 	select DEBUG_FS
+-	select PREEMPT_COUNT
+ 	select I2C_CHARDEV
+ 	select STACKDEPOT
+ 	select DRM_DP_AUX_CHARDEV
+--- a/drivers/gpu/drm/i915/i915_utils.h
++++ b/drivers/gpu/drm/i915/i915_utils.h
+@@ -337,8 +337,7 @@ wait_remaining_ms_from_jiffies(unsigned
+ 						   (Wmax))
+ #define wait_for(COND, MS)		_wait_for((COND), (MS) * 1000, 10, 1000)
  
- #define USERL(l, x...)				\
- 9999:	x;					\
---- a/arch/arm/kernel/iwmmxt.S
-+++ b/arch/arm/kernel/iwmmxt.S
-@@ -94,9 +94,7 @@ ENTRY(iwmmxt_task_enable)
- 	mov	r2, r2				@ cpwait
- 	bl	concan_save
- 
--#ifdef CONFIG_PREEMPT_COUNT
- 	get_thread_info r10
--#endif
- 4:	dec_preempt_count r10, r3
- 	ret	r9				@ normal exit from exception
- 
---- a/arch/arm/mach-ep93xx/crunch-bits.S
-+++ b/arch/arm/mach-ep93xx/crunch-bits.S
-@@ -191,9 +191,7 @@ ENTRY(crunch_task_enable)
- 	cfldr64		mvdx15, [r0, #CRUNCH_MVDX15]
- 
- 1:
--#ifdef CONFIG_PREEMPT_COUNT
- 	get_thread_info r10
--#endif
- 2:	dec_preempt_count r10, r3
- 	ret	lr
+-/* If CONFIG_PREEMPT_COUNT is disabled, in_atomic() always reports false. */
+-#if defined(CONFIG_DRM_I915_DEBUG) && defined(CONFIG_PREEMPT_COUNT)
++#ifdef CONFIG_DRM_I915_DEBUG
+ # define _WAIT_FOR_ATOMIC_CHECK(ATOMIC) WARN_ON_ONCE((ATOMIC) && !in_atomic())
+ #else
+ # define _WAIT_FOR_ATOMIC_CHECK(ATOMIC) do { } while (0)
