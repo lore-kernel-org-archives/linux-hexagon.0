@@ -1,7 +1,8 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 00/13] preempt: Make preempt count unconditional
-Date: Mon, 14 Sep 2020 22:42:09 +0200
-Message-ID: <20200914204209.256266093@linutronix.de>
+Subject: [patch 02/13] preempt: Make preempt count unconditional
+Date: Mon, 14 Sep 2020 22:42:11 +0200
+Message-ID: <20200914204441.115488215@linutronix.de>
+References: <20200914204209.256266093@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -9,34 +10,34 @@ Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.inf
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=merlin.20170209; h=Sender:Content-Transfer-Encoding:
 	Content-Type:Cc:List-Subscribe:List-Help:List-Post:List-Archive:
-	List-Unsubscribe:List-Id:MIME-Version:Subject:To:From:Date:Message-Id:
-	Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender
-	:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Owner;
-	bh=Sm6/kSGAjdRA6usFlzB5rcVI0BK1qVSfybEcHTG6WKM=; b=nYCvp6IFhd5w2BDSw9cf5IsUQa
-	NEivmHwGlww19YkRY8l52kqF5mQEI+yCS4GMZ0NmP9o2XCWc/IqM5oL/vBchSF4ccoygokhM/G1Ka
-	akfdq/nuNYfS3jkcuwmuVmUGHMHAsm7DJu2GXKtR7TzagO1LHFDaRFDZq9GFQaetkYocBK6uxjoQ9
-	GI/u1XQSrKYX0ouXS50zj9GkLjgggsAVIeZuxWCXnDnGgESCDgPDpVsZZPkdTiodUiA3vguLXOoQ1
-	rl7GJwvuc0YKxEbAcX0AT2AG7A66cXzZ88wyWfAVOEpNo+++qt/d5Jd1CkYL2wIyVFZDEzMFKv39m
-	HonUqctA==;
+	List-Unsubscribe:List-Id:MIME-Version:References:Subject:To:From:Date:
+	Message-Id:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:List-Owner;
+	 bh=yxbr15Nis8wlWo8pP/ziPYyT8fAvINf08wqJD8aWJ20=; b=AaJPkwqUt9/BbFYfC1smgV1yr
+	GRzz1tcb9K0lqt+0Uplfnt5ahyQNyfJgYaXum7hF7S+CP/hnExEog5x907QsXX+eptBe5m0j3qcc+
+	mqJ09ccyqSdPyep7gX4svw1sqNoOlKFJzhO3YtA8yp5MU5pqFAedflqF2cQoOsBHNESZW0sNXtupB
+	ozNpQtQIQnFP1Y8jpRIsKV/ltaNJsW02yL+F8W5Fbd8SfUUbiUsGhKp28ebvbu+MAPHiv8HqB5dzd
+	cEogDGC4OWgKFAdgMdqgs21dhv1Cv6v0eUxkIKtYcsq7MPF+/xcwqnSSfVzJ02PXm7aznii9GHeWE
+	di8YCrXcg==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1600116304;
+ s=2020; t=1600116306;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=9WPslsayaKn9l4KRCy6vC0tA0OD05xl/cJA1zjQzh9Q=;
- b=JAPA/qzJzqHcag6qcakOZ9GWUXDKy6NtfE7r1NQIWc0gTSVI1iY9yrfWEOEFzix8pmbAuS
- MuaADNs3pSiCLAI4n+a3p1Yf/IWnvCFznqLXHdFbrDe3FVowlmnsdQrS2jaIRBADVVI35z
- w4z5EtbZ4BM+lDYkm4gbkp+SUGbQKvIrUNGyKtK0Iy+a2fNL9PfeIjhLDWq/Rh541SefY6
- UEZRJAC+1zAPbDuYa0LqAwZ3otlmljq7saTqU/AENBQStLBF6lG25DUU28wlzUFRs8NAHx
- Sc5WJ3V+SMr9bgVMgPIVxmsQXr7EAdha5VH1MxCb2AQt5zljIPUjkUY/FDZVaw==
+ content-transfer-encoding:content-transfer-encoding:  references:references;
+ bh=+wlx0B5bXFGE1ZqmF2GOQz7Vu5f4dOGKH6MLdtZ/des=;
+ b=FKqpL2700K2KI8YRyNg486WotbPXB8OPjTNR7CD6hpf4WOsECuFHsf9Fl7xQ/njOCC4us1
+ V7/8dgt2Y8Q5bsUgPdX3cx6XhZz7xzGxkW9H08+RkTCs1S3zZRCuJ6BO6NdCa1sGP2ZZpX
+ 3bB1p3j0W8RPnI56xz7EqLgYOttnzUhttUOz6CqCP4LTLNoe43UQ+fBcsmVdaPtzMUWgf2
+ T1f1tMxghsrPiIICkGbkbj/aNUjRjRxUCjZE6DU4Hd0Nghaw+wzNONpacrfVovmhca4M2C
+ rQnc8p8FaD3ZJfM8rRAgyRFUboeWQsqzuPbUDTsqtxOETbLcX/pUl6ZnCc32nQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1600116304;
+ s=2020e; t=1600116306;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=9WPslsayaKn9l4KRCy6vC0tA0OD05xl/cJA1zjQzh9Q=;
- b=JVGAZSnCuZ9YvnhwM1nsyY3Yl860vCMg1V49xOerJHh7jF1cfp3RkRkcmNc+b0cld1O3y+
- vBmqvqKHtYT11hAw==
+ content-transfer-encoding:content-transfer-encoding:  references:references;
+ bh=+wlx0B5bXFGE1ZqmF2GOQz7Vu5f4dOGKH6MLdtZ/des=;
+ b=3ZJjdClz5oMHjfFfg9NKeHYyaj0Ejpc30NZ9Tracs4udi2vCXYHDiLEh6EZOsJaUpk6Jwn
+ e+AMA/J0ha4T1+Bg==
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -49,11 +50,6 @@ Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Juri Lelli <juri.lelli@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Lai Jiangshan <jiangshanlai@gmail.com>, dri-devel@lists.freedesktop.org, Ben Segall <bsegall@google.com>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-hexagon@vger.kernel.org, Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-arch@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>, Brian Cain <bcain@codeaurora.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, David Airlie <airlied@linux.ie>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, intel-gfx@lists.freedesktop.org, Matt Turner <mattst88@gmail.com>, Valentin
-
-Folks!
-
-While working on various preempt count related things, I stumbled (again)
-over the inconsistency of our preempt count handling.
 
 The handling of preempt_count() is inconsistent accross kernel
 configurations. On kernels which have PREEMPT_COUNT=n
@@ -93,61 +89,23 @@ impact due to the conditional branch/call.
 It's about time to make essential functionality of the kernel consistent
 accross the various preemption models.
 
-The series is also available from git:
+Enable CONFIG_PREEMPT_COUNT unconditionally. Follow up changes will remove
+the #ifdeffery and remove the config option at the end.
 
-   git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git preempt
-
-That's the first part of a larger effort related to preempt count:
-
- 1) The analysis of the usage sites of in_interrupt(), in_atomic(),
-    in_softirq() is still ongoing, but so far the number of buggy users is
-    clearly the vast majority. There will be seperate patch series
-    (currently 46 and counting) to address these issues once the analysis
-    is complete in the next days.
-
- 2) The long discussed state tracking of local irq disable in preempt count
-    which accounts interrupt disabled sections as atomic and avoids issuing
-    costly instructions (sti, cli, popf or their non X86 counterparts) when
-    the state does not change, i.e. nested irq_save() or irq_restore(). I
-    have this working on X86 already and contrary to my earlier attempts
-    this was reasonably straight forward due to the recent entry/exit code
-    consolidation.
-
-    What I've not done yet is to optimize the preempt count handling
-    of the [un]lock_irq* operations so they handle the interrupt disabled
-    state and the preempt count modification in one go. That's an obvious
-    add on, but correctness first ...
-
- 3) Lazy interrupt disabling as a straight forward extension to #2. This
-    avoids the actual disabling at the CPU level completely and catches an
-    incoming interrupt in the low level entry code, modifies the interrupt
-    disabled state on the return stack, notes the interrupt as pending in
-    software and raises it again when interrupts are reenabled. This has
-    still a few issues which I'm hunting down (cpuidle is unhappy ...)
-
-Thanks,
-
-	tglx
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/arm/include/asm/assembler.h                                 |   11 --
- arch/arm/kernel/iwmmxt.S                                         |    2 
- arch/arm/mach-ep93xx/crunch-bits.S                               |    2 
- arch/xtensa/kernel/entry.S                                       |    2 
- drivers/gpu/drm/i915/Kconfig.debug                               |    1 
- drivers/gpu/drm/i915/i915_utils.h                                |    3 
- include/linux/bit_spinlock.h                                     |    4 -
- include/linux/lockdep.h                                          |    6 -
- include/linux/pagemap.h                                          |    4 -
- include/linux/preempt.h                                          |   37 +---------
- include/linux/uaccess.h                                          |    6 -
- kernel/Kconfig.preempt                                           |    4 -
- kernel/sched/core.c                                              |    6 -
- lib/Kconfig.debug                                                |    3 
- lib/Kconfig.debug.rej                                            |   14 +--
- tools/testing/selftests/rcutorture/configs/rcu/SRCU-t            |    1 
- tools/testing/selftests/rcutorture/configs/rcu/SRCU-u            |    1 
- tools/testing/selftests/rcutorture/configs/rcu/TINY01            |    1 
- tools/testing/selftests/rcutorture/doc/TINY_RCU.txt              |    5 -
- tools/testing/selftests/rcutorture/doc/TREE_RCU-kconfig.txt      |    1 
- tools/testing/selftests/rcutorture/formal/srcu-cbmc/src/config.h |    1 
- 21 files changed, 23 insertions(+), 92 deletions(-)
+ kernel/Kconfig.preempt |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/kernel/Kconfig.preempt
++++ b/kernel/Kconfig.preempt
+@@ -75,8 +75,7 @@ config PREEMPT_RT
+ endchoice
+ 
+ config PREEMPT_COUNT
+-       bool
++       def_bool y
+ 
+ config PREEMPTION
+        bool
+-       select PREEMPT_COUNT
