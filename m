@@ -1,7 +1,7 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 02/13] preempt: Make preempt count unconditional
-Date: Mon, 14 Sep 2020 22:42:11 +0200
-Message-ID: <20200914204441.115488215@linutronix.de>
+Subject: [patch 01/13] lib/debug: Remove pointless ARCH_NO_PREEMPT dependencies
+Date: Mon, 14 Sep 2020 22:42:10 +0200
+Message-ID: <20200914204440.969090025@linutronix.de>
 References: <20200914204209.256266093@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,31 +13,31 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Unsubscribe:List-Id:MIME-Version:References:Subject:To:From:Date:
 	Message-Id:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:List-Owner;
-	 bh=yxbr15Nis8wlWo8pP/ziPYyT8fAvINf08wqJD8aWJ20=; b=AaJPkwqUt9/BbFYfC1smgV1yr
-	GRzz1tcb9K0lqt+0Uplfnt5ahyQNyfJgYaXum7hF7S+CP/hnExEog5x907QsXX+eptBe5m0j3qcc+
-	mqJ09ccyqSdPyep7gX4svw1sqNoOlKFJzhO3YtA8yp5MU5pqFAedflqF2cQoOsBHNESZW0sNXtupB
-	ozNpQtQIQnFP1Y8jpRIsKV/ltaNJsW02yL+F8W5Fbd8SfUUbiUsGhKp28ebvbu+MAPHiv8HqB5dzd
-	cEogDGC4OWgKFAdgMdqgs21dhv1Cv6v0eUxkIKtYcsq7MPF+/xcwqnSSfVzJ02PXm7aznii9GHeWE
-	di8YCrXcg==;
+	 bh=O75cXnFiiK1lJCwGybv8NNwXqvJXzgu3fflMSemY8R4=; b=rZ+IN0fgA2m9QTyL6ykmidq7q
+	LvIwLM/0uPDL4pZXeDjk9YzKp3+WA7JdrVwvWO6Chh+4J7pAAPSh2VtbRIUiTU4ngQUj0/Omlh52w
+	fHssBm9TcS1tGkcmdPR1eIEFWRs1i2beYS0bqHQONx5hgYqRr8B2oyp2vebW5I1n8iBVORWJaDxT4
+	hs53S7FeKY0mujjnej7abRpO3TywRmwK2RskMm4/ZcMDgfPh94MXj0hlHOhdO0SFVZg56lw2djW+j
+	11dqS4KpCRd/BM0ZdK9abmZfDl4zRyYpzXJjSB01dFfHWS2ITjZgB09SqljVfPz0jxGUOQEXxO1IC
+	Yo61qwtiQ==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1600116306;
+ s=2020; t=1600116305;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=+wlx0B5bXFGE1ZqmF2GOQz7Vu5f4dOGKH6MLdtZ/des=;
- b=FKqpL2700K2KI8YRyNg486WotbPXB8OPjTNR7CD6hpf4WOsECuFHsf9Fl7xQ/njOCC4us1
- V7/8dgt2Y8Q5bsUgPdX3cx6XhZz7xzGxkW9H08+RkTCs1S3zZRCuJ6BO6NdCa1sGP2ZZpX
- 3bB1p3j0W8RPnI56xz7EqLgYOttnzUhttUOz6CqCP4LTLNoe43UQ+fBcsmVdaPtzMUWgf2
- T1f1tMxghsrPiIICkGbkbj/aNUjRjRxUCjZE6DU4Hd0Nghaw+wzNONpacrfVovmhca4M2C
- rQnc8p8FaD3ZJfM8rRAgyRFUboeWQsqzuPbUDTsqtxOETbLcX/pUl6ZnCc32nQ==
+ bh=sKqpUZgQTSsofOfA1QdAWY2+LBfcprxU0W9PCOpQ7JY=;
+ b=uO+ld7WSpQY4vI69jsCu6Pz2RE8hrYv0Gf5wXsXRpBHLrOwLdq1mTBXH5kF9EQzLVjQ8dE
+ L9nryl5hXhHp4GAEJYk/MN1jCD5uAR0Lc9CYUCyrB5iaNdnDjumEicqwlc1xyf56QorUoO
+ uuiL35aqGp53wHsl6QrGtxfrGdDGxJVoXaT9mQ9NIlwuCv++BBc71raPpS2ikuywEKDnnN
+ zT0iPxwQe8ky13mLBUJaRhmhYsg+53xaAsyMbRHht54GnYUMN6nTgx9WKPIo86mWiJiR3V
+ E0z51mP0R5IBbmjI9Fx+cm/iN3YTH1Tg0+XL+eAlcW12YKEEbMjB3cccf0P+yQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1600116306;
+ s=2020e; t=1600116305;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=+wlx0B5bXFGE1ZqmF2GOQz7Vu5f4dOGKH6MLdtZ/des=;
- b=3ZJjdClz5oMHjfFfg9NKeHYyaj0Ejpc30NZ9Tracs4udi2vCXYHDiLEh6EZOsJaUpk6Jwn
- e+AMA/J0ha4T1+Bg==
+ bh=sKqpUZgQTSsofOfA1QdAWY2+LBfcprxU0W9PCOpQ7JY=;
+ b=kFv5VCuwJvLbfOKz3oy8dhCG/DCPgG09EZhdEaXg5ZPKl5YxMOg851zb3lfo1duSkOyL7R
+ vZCR4sfvPRoaC/AQ==
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -51,61 +51,49 @@ Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infrad
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Juri Lelli <juri.lelli@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Lai Jiangshan <jiangshanlai@gmail.com>, dri-devel@lists.freedesktop.org, Ben Segall <bsegall@google.com>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-hexagon@vger.kernel.org, Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-arch@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>, Brian Cain <bcain@codeaurora.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, David Airlie <airlied@linux.ie>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, intel-gfx@lists.freedesktop.org, Matt Turner <mattst88@gmail.com>, Valentin
 
-The handling of preempt_count() is inconsistent accross kernel
-configurations. On kernels which have PREEMPT_COUNT=n
-preempt_disable/enable() and the lock/unlock functions are not affecting
-the preempt count, only local_bh_disable/enable() and _bh variants of
-locking, soft interrupt delivery, hard interrupt and NMI context affect it.
+ARCH_NO_PREEMPT disables the selection of CONFIG_PREEMPT_VOLUNTARY and
+CONFIG_PREEMPT, but architectures which set this config option still
+support preempt count for hard and softirq accounting.
 
-It's therefore impossible to have a consistent set of checks which provide
-information about the context in which a function is called. In many cases
-it makes sense to have seperate functions for seperate contexts, but there
-are valid reasons to avoid that and handle different calling contexts
-conditionally.
+There is absolutely no reason to prevent lockdep from using the preempt
+counter nor is there a reason to prevent the enablement of
+CONFIG_DEBUG_ATOMIC_SLEEP on such architectures.
 
-The lack of such indicators which work on all kernel configuratios is a
-constant source of trouble because developers either do not understand the
-implications or try to work around this inconsistency in weird
-ways. Neither seem these issues be catched by reviewers and testing.
-
-Recently merged code does:
-
-	 gfp = preemptible() ? GFP_KERNEL : GFP_ATOMIC;
-
-Looks obviously correct, except for the fact that preemptible() is
-unconditionally false for CONFIF_PREEMPT_COUNT=n, i.e. all allocations in
-that code use GFP_ATOMIC on such kernels.
-
-Attempts to make preempt count unconditional and consistent have been
-rejected in the past with handwaving performance arguments.
-
-Freshly conducted benchmarks did not reveal any measurable impact from
-enabling preempt count unconditionally. On kernels with CONFIG_PREEMPT_NONE
-or CONFIG_PREEMPT_VOLUNTARY the preempt count is only incremented and
-decremented but the result of the decrement is not tested. Contrary to that
-enabling CONFIG_PREEMPT which tests the result has a small but measurable
-impact due to the conditional branch/call.
-
-It's about time to make essential functionality of the kernel consistent
-accross the various preemption models.
-
-Enable CONFIG_PREEMPT_COUNT unconditionally. Follow up changes will remove
-the #ifdeffery and remove the config option at the end.
+Remove the dependencies, which affects ALPHA, HEXAGON, M68K and UM.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: linux-um@lists.infradead.org
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-m68k@lists.linux-m68k.org
 ---
- kernel/Kconfig.preempt |    3 +--
+ lib/Kconfig.debug |    3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/kernel/Kconfig.preempt
-+++ b/kernel/Kconfig.preempt
-@@ -75,8 +75,7 @@ config PREEMPT_RT
- endchoice
- 
- config PREEMPT_COUNT
--       bool
-+       def_bool y
- 
- config PREEMPTION
-        bool
--       select PREEMPT_COUNT
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -1161,7 +1161,7 @@ config PROVE_LOCKING
+ 	select DEBUG_RWSEMS
+ 	select DEBUG_WW_MUTEX_SLOWPATH
+ 	select DEBUG_LOCK_ALLOC
+-	select PREEMPT_COUNT if !ARCH_NO_PREEMPT
++	select PREEMPT_COUNT
+ 	select TRACE_IRQFLAGS
+ 	default n
+ 	help
+@@ -1323,7 +1323,6 @@ config DEBUG_ATOMIC_SLEEP
+ 	bool "Sleep inside atomic section checking"
+ 	select PREEMPT_COUNT
+ 	depends on DEBUG_KERNEL
+-	depends on !ARCH_NO_PREEMPT
+ 	help
+ 	  If you say Y here, various routines which may sleep will become very
+ 	  noisy if they are called inside atomic sections: when a spinlock is
