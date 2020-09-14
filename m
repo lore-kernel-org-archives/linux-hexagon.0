@@ -1,7 +1,7 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 05/13] mm/pagemap: Clenaup PREEMPT_COUNT leftovers
-Date: Mon, 14 Sep 2020 22:42:14 +0200
-Message-ID: <20200914204441.486057928@linutronix.de>
+Subject: [patch 10/13] xtensa: Clenaup PREEMPT_COUNT leftovers
+Date: Mon, 14 Sep 2020 22:42:19 +0200
+Message-ID: <20200914204441.994684356@linutronix.de>
 References: <20200914204209.256266093@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,31 +13,31 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Unsubscribe:List-Id:MIME-Version:References:Subject:To:From:Date:
 	Message-Id:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:List-Owner;
-	 bh=q9HjIjXjiNaXFKjWL6n6KTk62DR0gQfGhCdMdmyc7hk=; b=VvFOIWECkxVWBjBWXwV40ytJL
-	lW4Hz6w9ZdPuT2UgDy29p32DF1IAYPjn935ZBxubrxRzt5ywasEl1bc6lTdw39eAYC1ZVlMuWVfeB
-	BX/+YEwXxeuDl+OYlbjV2AZuw6PaAui2SD7OQaTCxIAAmXbwkMY7IXzb3YSuhVGHc3PvHPAB7D57w
-	gjJR3cfKXNyHr9WjKw7KMHwelh//iwAk8tbgSwZtpQ4OtKaG3+CqBsn2C4w/vJTmgUzJrunUm1buL
-	XnJJNnoMDCZIAd82X812LzbYEuLZfM5TBP7DRSQzvQSRnun/GB5vkUZ+WO2Vs1C8vkIablPo298u5
-	7cLw02nCA==;
+	 bh=ajo7gaM9POwNFcU8bMNQKkyxSmCzS+hwdZX7rwaLJ4U=; b=WQ5gKa+uhhOejvaFDUW5Qp9ot
+	X3A5WqRCbUP5ixn9LDxD1XzHqIfndPvkBGWUn7xFMusleBvZ1GZFn4vz8Fai9hLpHUyvXgL4EUFHG
+	dpeH4IunGuUtHrScx+PTZPFN5fNcQ4aRbHcF/EZjUqOakLTiCgQOyIIewEN85VtU7fc5A2TR2sPif
+	kXGwq1bdM+PSWFGH+nFzX/ptoq+9PnIvNDdHO7UPlLgnj4jJDyVjRayGAHBayRqS6HblCv/BJDtf7
+	e/oOg+YGvK0Lj61A9TF5TINPRLw1STOQFY2NtbUK0UUVpoohPgLIFFLwBISpkDfLaqRiCG13DZiXe
+	vL/U33VqA==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1600116310;
+ s=2020; t=1600116316;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=JgtXFDXxZGfThbRDf0kz64PxO4briiyz9f7Eq57ONcE=;
- b=4P8s5xX/bAi2a+N+CIbhQrzcX7HvFJ7S6CNHYdIstAaonGR/+Dnp1rRjEv7pyPlLgNCFYx
- sFTsKc2IsAVS7kbywI0LEVkCa6iWPXHUhikvoBItTFVO86zjlB5Fn+D/mFFgSAQbIZQS53
- 00ZNDy4dfDU32t9qHFMauWVHXQtP0Qojy3xvBYG6atY0csq7zU4WIhUdO5c7N/c6aLPgTC
- Z464/mn2KP5p1MToHKTSzU6V5E1wKd/QmhgJgb7HxMSTZ+HFYru8UIB2rZH4RJycqwOVJD
- uGhpci7usAWJWI1a0nfucwZNnQUjJHBVkOYdQoqQaJQUx9zkmrQU6A8iuIY1nA==
+ bh=TRrTJ1jZm0XUMVVVU/gV/azUYmKke4wyEiIzxYaskEw=;
+ b=3TD4iEAa5z0918ENIAD9UxVHjDn6ypjdORbq/o3MOziAQLn2y1ZnbIN+xIaEaHclb0As+g
+ 58l/uRb7XMMAuEbOSN2Ue4Kh8MReixiWlQi5uyvfUGUgvgpdIeI9d9iu/KlurZfPHgCQ16
+ TElbADAbR1FhIsJ8R5Mm6lfip/Blm699jZkGnbmpWLLZhJtUitEXrKx74t54p2WgINTc7J
+ Eyh7FNLevwbWXZVNvHaiTDEXkbaqKcDlPV1IJ9AaJsejXEHERuNWJg72je9bpL2lFGOLKa
+ tLZfD1PaRIHn/gSUkFHjmh94UUn70FgTc3BXS0N8kofNqvF8MBi3aOXfALZc7Q==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1600116310;
+ s=2020e; t=1600116316;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=JgtXFDXxZGfThbRDf0kz64PxO4briiyz9f7Eq57ONcE=;
- b=iux8epOCVyhcOltC05jMckhTC3+4PPkpXc+cvBTMuwrFHucsc14BLoy7aSSCwXQ7rqsNPn
- xvgdzAI0oBjN5YAA==
+ bh=TRrTJ1jZm0XUMVVVU/gV/azUYmKke4wyEiIzxYaskEw=;
+ b=bHJIqI1achWaHiH5/5wVKP2PP0lec8Ju34VdhGbJlNLEqtL/PZG2iVbcTXhNbUAOwhfTJu
+ lVgqSlRYWtmPO0Bw==
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -49,28 +49,27 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Juri Lelli <juri.lelli@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Lai Jiangshan <jiangshanlai@gmail.com>, dri-devel@lists.freedesktop.org, Ben Segall <bsegall@google.com>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-hexagon@vger.kernel.org, Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-arch@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>, Brian Cain <bcain@codeaurora.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, David Airlie <airlied@linux.ie>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, intel-gfx@lists.freedesktop.org, Matt Turner <mattst88@gmail.com>, Valentin
+Cc: Juri Lelli <juri.lelli@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Lai Jiangshan <jiangshanlai@gmail.com>, dri-devel@lists.freedesktop.org, Ben Segall <bsegall@google.com>, Max Filippov <jcmvbkbc@gmail.com>, linux-kselftest@vger.kernel.org, linux-hexagon@vger.kernel.org, Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-arch@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>, Brian Cain <bcain@codeaurora.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, David Airlie <airlied@linux.ie>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, intel-gfx@lists.freedesktop.org, Matt Turner <mattst88@gmail.com>
 
 CONFIG_PREEMPT_COUNT is now unconditionally enabled and will be
 removed. Cleanup the leftovers before doing so.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-mm@kvack.org
+Cc: Chris Zankel <chris@zankel.net>
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: linux-xtensa@linux-xtensa.org
 ---
- include/linux/pagemap.h |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/xtensa/kernel/entry.S |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -168,9 +168,7 @@ void release_pages(struct page **pages,
- static inline int __page_cache_add_speculative(struct page *page, int count)
- {
- #ifdef CONFIG_TINY_RCU
--# ifdef CONFIG_PREEMPT_COUNT
--	VM_BUG_ON(!in_atomic() && !irqs_disabled());
--# endif
-+	VM_BUG_ON(preemptible())
- 	/*
- 	 * Preempt must be disabled here - we rely on rcu_read_lock doing
- 	 * this for us.
+--- a/arch/xtensa/kernel/entry.S
++++ b/arch/xtensa/kernel/entry.S
+@@ -819,7 +819,7 @@ ENTRY(debug_exception)
+ 	 * preemption if we have HW breakpoints to preserve DEBUGCAUSE.DBNUM
+ 	 * meaning.
+ 	 */
+-#if defined(CONFIG_PREEMPT_COUNT) && defined(CONFIG_HAVE_HW_BREAKPOINT)
++#ifdef CONFIG_HAVE_HW_BREAKPOINT
+ 	GET_THREAD_INFO(a2, a1)
+ 	l32i	a3, a2, TI_PRE_COUNT
+ 	addi	a3, a3, 1
