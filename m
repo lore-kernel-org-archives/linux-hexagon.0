@@ -1,7 +1,7 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 07/13] uaccess: Clenaup PREEMPT_COUNT leftovers
-Date: Mon, 14 Sep 2020 22:42:16 +0200
-Message-ID: <20200914204441.686695987@linutronix.de>
+Subject: [patch 08/13] sched: Clenaup PREEMPT_COUNT leftovers
+Date: Mon, 14 Sep 2020 22:42:17 +0200
+Message-ID: <20200914204441.794954043@linutronix.de>
 References: <20200914204209.256266093@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,31 +13,31 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Unsubscribe:List-Id:MIME-Version:References:Subject:To:From:Date:
 	Message-Id:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:List-Owner;
-	 bh=o1E89rV0arbbKZn+PusE1cP8rKvjj7Aml9GzR9cdGI0=; b=fq6ZIQAfFNYMmZRbhL9OfDarI
-	F9Vl6KZOvUt3gEbMbIIfGKzO96jBxifwVaZKUL4DkUv1cyCMiRqN7Al4BauiMuheGZSE6Scj+YKV0
-	KXBq+LW3LWsHtE21CQk1wZR2/OVAbGq+SmcSP8E76Lby5uw3d1Ul+5/X93ge8kyLyCkNZ6+sBesFF
-	cIcFET4XBFgakcoqpKp6Q3jtPcjdnXrGzpRRfi4rIaKufLXQfXvDaSJIYSgWcZKfCjaW92+p/ZO2K
-	5aO9+4fJkRkz+GikviCatBqMNGzjQjHM5lcaK7q1tXKLvPlphzY0Lae0oVlEgmk64UC8uTqcE/fUk
-	f1jM3S1iw==;
+	 bh=LliDEPZe44VCihoXSlWrMrTxWi/FYHlTB5WVpg//vrA=; b=UF2/BwAzjZz+rWWcuRbfd6g4t
+	7/89Zu2WwXzOMhsAIIRrVE3us8Y/79nDKRkuW9CjzCjTAeZveDMdOiJ6RrmuMZiRty/pAEe7QHZmq
+	ZPcEDivLcZ+S8/b0zC20WkQS80Rmk09QYQVJaTTXywogRTqWVkwuFEGimbn2jZJZPsnC8z3M7lYiY
+	zucydHH1UrBSH7wGcPLcvoWcF8krmA2Nz9+4poyT08pNNZ5S58L3UJpPA4mpOm2NfkoVrlLMG+G2A
+	8sdV/Qh8j2qKo2FNx6jDmK1qc2HATabT8H99YbyTK/8de68nZqWlh3q7mAeYggDXdL7ZEU1LOQ7gY
+	cJJf3V7qw==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1600116312;
+ s=2020; t=1600116314;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=RfxMqlPiepbkielPdHvAzLuC/W7nRAVZVsmDVELAHII=;
- b=pjt4ipoHz2SR+76u/tosh7gyPxQsg2oL/bqNd6MRCV4oI1z48eqv1u70tHD6lv8me21lrp
- r0nf9q7gfeNk/g6/mQbWoxxc6sgattZculBG7/CAEhhAosn3HO+ELh/5ZMKS01PZDGGPiV
- 5UPGaI9uTL9WPM9r49P7uaq5wk95tawOQtkcIzkOz6iSKD5SsqVW8RpHISt5xAmsNGRf/s
- PwQDlz+dCOVfrDUrCEkzB0vPklJs8f3/2QV6ZG5w6yyAxtpbaqFGEafdnTlhe/mPuQGW/2
- aaWaJRqL/bLlqEm3DE9P4rm0Ldlt8ELtOtjbcIXqqOCzZO06YL/N5kw2xvNEHQ==
+ bh=7peXevktBYsFk34wm8L75T0nsPk5gnSvk+DWEgeI/Vw=;
+ b=A1nP+uNHxXIHRSaQfo4YEEBXkNc5lEKqsa3e9ZF16Mjxoy2hyJe3jYIclstpFysB9+yhkl
+ 6BJmX4d0VGhUHfrqZ99YiKgnDDEKF/0G47GYpaJrPGTpN/QZTYqN5RoutXNpp3V1eagHEd
+ 1I8+FvO96pkUL+g/chBpkTP2STb2Yp9k9TlY1hsvNnP+5yKkzdcMXCCT5WYR0aFvr/f5Gb
+ v882kTY7TgtIhZxNAl+4R3t6wwqFtSFu6vh6GWbJdLdgHmEJejAg+EXh6pguxew3F9cvUQ
+ J0Q+f/McALfJaEP6IOZ2Ph7YeDaVLv5ly5xuP3c0lVjGvOu5v8C7SFXEDbJ1bg==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1600116312;
+ s=2020e; t=1600116314;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=RfxMqlPiepbkielPdHvAzLuC/W7nRAVZVsmDVELAHII=;
- b=KKlXvjmRL6XVp/lLKfPN8jJGOYdGr+dBLEzJxa2pQ6HTfXoVmCn9f/zEn0x26bRx145urU
- PFTkWVcFpRpLnPDg==
+ bh=7peXevktBYsFk34wm8L75T0nsPk5gnSvk+DWEgeI/Vw=;
+ b=zdd/Mm/JBQah2WSeC3g/P4gSriHqu9VTmesvYkyojBCblFCX+/r8LrnQYIfLtLeNfYCVhp
+ m1SdTR/ofp2HUZDQ==
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -55,21 +55,49 @@ CONFIG_PREEMPT_COUNT is now unconditionally enabled and will be
 removed. Cleanup the leftovers before doing so.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ben Segall <bsegall@google.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
 ---
- include/linux/uaccess.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/sched/core.c |    6 +-----
+ lib/Kconfig.debug   |    1 -
+ 2 files changed, 1 insertion(+), 6 deletions(-)
 
---- a/include/linux/uaccess.h
-+++ b/include/linux/uaccess.h
-@@ -230,9 +230,9 @@ static inline bool pagefault_disabled(vo
-  *
-  * This function should only be used by the fault handlers. Other users should
-  * stick to pagefault_disabled().
-- * Please NEVER use preempt_disable() to disable the fault handler. With
-- * !CONFIG_PREEMPT_COUNT, this is like a NOP. So the handler won't be disabled.
-- * in_atomic() will report different values based on !CONFIG_PREEMPT_COUNT.
-+ *
-+ * Please NEVER use preempt_disable() or local_irq_disable() to disable the
-+ * fault handler.
-  */
- #define faulthandler_disabled() (pagefault_disabled() || in_atomic())
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -3706,8 +3706,7 @@ asmlinkage __visible void schedule_tail(
+ 	 * finish_task_switch() for details.
+ 	 *
+ 	 * finish_task_switch() will drop rq->lock() and lower preempt_count
+-	 * and the preempt_enable() will end up enabling preemption (on
+-	 * PREEMPT_COUNT kernels).
++	 * and the preempt_enable() will end up enabling preemption.
+ 	 */
+ 
+ 	rq = finish_task_switch(prev);
+@@ -7311,9 +7310,6 @@ void __cant_sleep(const char *file, int
+ 	if (irqs_disabled())
+ 		return;
+ 
+-	if (!IS_ENABLED(CONFIG_PREEMPT_COUNT))
+-		return;
+-
+ 	if (preempt_count() > preempt_offset)
+ 		return;
+ 
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -1320,7 +1320,6 @@ config DEBUG_LOCKDEP
+ 
+ config DEBUG_ATOMIC_SLEEP
+ 	bool "Sleep inside atomic section checking"
+-	select PREEMPT_COUNT
+ 	depends on DEBUG_KERNEL
+ 	help
+ 	  If you say Y here, various routines which may sleep will become very
