@@ -1,21 +1,34 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: [patch 00/13] preempt: Make preempt count
  unconditional
-Date: Mon, 14 Sep 2020 13:59:15 -0700
-Message-ID: <CAHk-=win80rdof8Pb=5k6gT9j_v+hz-TQzKPVastZDvBe9RimQ@mail.gmail.com>
+Date: Mon, 14 Sep 2020 23:55:24 +0200
+Message-ID: <871rj4owfn.fsf@nanos.tec.linutronix.de>
 References: <20200914204209.256266093@linutronix.de>
+ <CAHk-=win80rdof8Pb=5k6gT9j_v+hz-TQzKPVastZDvBe9RimQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=linux-foundation.org; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=9Qs78FMzlt+im4GrVUJu3esmNYK1MSMDWWoqgBiwThs=;
- b=ERO6mM2HDltE439vWz9d9wZL1Z1US74Rep2fFSqw78LuIb7lPia7EGvlr1OC0CVjXq
- SMHEUg44TyaQk6ZJLSPy2HsSiKOu/iozCQgjKu5X4wpxZiRqxlsnhy+mopIISbxgK1FP
- TMlpT1uLwxNI5kovsL0EwxutKi15MuXbWCbt0=
-In-Reply-To: <20200914204209.256266093@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020; t=1600120524;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=P98RI5+x85ZIOTD3Swat6HzJBudR4USSg0DSBuPQYlw=;
+ b=hH9FYfj9DQJgslBAq+lFx+a3bfT/lIVYWHizRDv1sHkem67GYxpW96SdzpQkucjGarnE+M
+ fld5Lw29xJarEYiaUD4vuyzGvHaSSKqXk6qxyQup6A6bzrwHnnmSmCxo6yE/vPqfiXt0dD
+ R3pV6vuirJkXQ/z5VHHP3RKtA3FyXadYEGVpatQGuSs+ToljOeUzNBQNQ6fUtHgMCvxdJA
+ HGeFbenx9Fch23dD9CVHcFHCh2ZUgCX2NA5eXP/LYI0hb9YFgVRkOq3lQYpvKQmLDTr2hy
+ B9Jnvxymnsb7eDLHVb5DKLd1ZQ+CotthRBFCF28eXaCTJZZtyMZBvSDp8Ip8jw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020e; t=1600120524;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=P98RI5+x85ZIOTD3Swat6HzJBudR4USSg0DSBuPQYlw=;
+ b=YEE8eG0C2SZUbvfqTo7e2bqeeV6BT6id2YPrIOx3R8QOC3vypPq4XP5Xw+lbm3gssIjlYI
+ Hvox4aqD3LDjRKDg==
+In-Reply-To: <CAHk-=win80rdof8Pb=5k6gT9j_v+hz-TQzKPVastZDvBe9RimQ@mail.gmail.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
  <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
@@ -26,29 +39,88 @@ List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
  <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
 Errors-To: intel-gfx-bounces@lists.freedesktop.org
 Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Thomas Gleixner <tglx@linutronix.de>
+To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Juri Lelli <juri.lelli@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Lai Jiangshan <jiangshanlai@gmail.com>, dri-devel <dri-devel@lists.freedesktop.org>, Ben Segall <bsegall@google.com>, Linux-MM <linux-mm@kvack.org>, "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, linux-hexagon@vger.kernel.org, Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-arch <linux-arch@vger.kernel.org>, Brian Cain <bcain@codeaurora.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, David Airlie <airlied@linux.ie>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mel Gorman <mgorman@suse.de>, intel-gfx <intel-gfx@lists.freedesktop.org>, Matt Turner <mattst88@gmail.com>, Valentin Schneider <valen>
 
-On Mon, Sep 14, 2020 at 1:45 PM Thomas Gleixner <tglx@linutronix.de> wrote:
+On Mon, Sep 14 2020 at 13:59, Linus Torvalds wrote:
+> On Mon, Sep 14, 2020 at 1:45 PM Thomas Gleixner <tglx@linutronix.de> wrote:
+>>
+>> Recently merged code does:
+>>
+>>          gfp = preemptible() ? GFP_KERNEL : GFP_ATOMIC;
+>>
+>> Looks obviously correct, except for the fact that preemptible() is
+>> unconditionally false for CONFIF_PREEMPT_COUNT=n, i.e. all allocations in
+>> that code use GFP_ATOMIC on such kernels.
 >
-> Recently merged code does:
+> I don't think this is a good reason to entirely get rid of the
+> no-preempt thing.
+
+I did not say that this is a good reason. It just illustrates the
+problem.
+
+> The above is just garbage. It's bogus. You can't do it.
 >
->          gfp = preemptible() ? GFP_KERNEL : GFP_ATOMIC;
->
-> Looks obviously correct, except for the fact that preemptible() is
-> unconditionally false for CONFIF_PREEMPT_COUNT=n, i.e. all allocations in
-> that code use GFP_ATOMIC on such kernels.
+> Blaming the no-preempt code for this bug is extremely unfair, imho.
 
-I don't think this is a good reason to entirely get rid of the no-preempt thing.
+I'm not blaming the no-preempt code. I'm blaming inconsistency and there
+is no real good argument for inconsistent behaviour, TBH.
 
-The above is just garbage. It's bogus. You can't do it.
+> And the no-preempt code does help make for much better code generation
+> for simple spinlocks.
 
-Blaming the no-preempt code for this bug is extremely unfair, imho.
+Yes it does generate better code, but I tried hard to spot a difference
+in various metrics exposed by perf. It's all in the noise and I only
+can spot a difference when the actual preemption check after the
+decrement which still depends on CONFIG_PREEMPT is in place, but that's
+not the case for PREEMPT_NONE or PREEMPT_VOLUNTARY kernels where the
+decrement is just a decrement w/o any conditional behind it.
 
-And the no-preempt code does help make for much better code generation
-for simple spinlocks.
+> Where is that horribly buggy recent code? It's not in that exact
+> format, certainly, since 'grep' doesn't find it.
 
-Where is that horribly buggy recent code? It's not in that exact
-format, certainly, since 'grep' doesn't find it.
+Bah, that was stuff in next which got dropped again.
 
-             Linus
+But just look at any check which uses preemptible(), especially those
+which check !preemptible():
+
+In the X86 #GP handler we have:
+
+	/*
+	 * To be potentially processing a kprobe fault and to trust the result
+	 * from kprobe_running(), we have to be non-preemptible.
+	 */
+	if (!preemptible() &&
+	    kprobe_running() &&
+	    kprobe_fault_handler(regs, X86_TRAP_GP))
+		goto exit;
+
+and a similar check in the S390 code in kprobe_exceptions_notify(). That
+all magically 'works' because that code might have been actually tested
+with lockdep enabled which enforces PREEMPT_COUNT...
+
+The SG code has some interesting usage as well:
+
+		if (miter->__flags & SG_MITER_ATOMIC) {
+			WARN_ON_ONCE(preemptible());
+			kunmap_atomic(miter->addr);
+
+How is that WARN_ON_ONCE() supposed to catch anything? Especially as
+calling code does:
+
+	flags = SG_MITER_TO_SG;
+	if (!preemptible())
+		flags |= SG_MITER_ATOMIC;
+
+which is equally useless on kernels which have PREEMPT_COUNT=n.
+
+There are bugs which are related to in_atomic() or other in_***() usage
+all over the place as well.
+
+Inconsistency at the core level is a clear recipe for disaster and at
+some point we have to bite the bullet and accept that consistency is
+more important than the non measurable 3 cycles?
+
+Thanks,
+
+        tglx
