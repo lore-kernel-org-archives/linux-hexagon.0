@@ -1,7 +1,7 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 03/13] preempt: Clenaup PREEMPT_COUNT leftovers
-Date: Mon, 14 Sep 2020 22:42:12 +0200
-Message-ID: <20200914204441.268144917@linutronix.de>
+Subject: [patch 06/13] locking/bitspinlock: Clenaup PREEMPT_COUNT leftovers
+Date: Mon, 14 Sep 2020 22:42:15 +0200
+Message-ID: <20200914204441.579902354@linutronix.de>
 References: <20200914204209.256266093@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,31 +13,31 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Unsubscribe:List-Id:MIME-Version:References:Subject:To:From:Date:
 	Message-Id:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:List-Owner;
-	 bh=qtNZ6aJZzsDTR3sIWljsSOhmFC6KCl8JltrOG1zSjmU=; b=mHrutIlxZxs7OZKvoGYCy5EXh
-	Vhg8hw/N9jOJWBGiTFbwuG9KO8HoaTEqEVevaUPbkKjYMy7ec5fTWR/hOZBRIx8zHt7KCc1gPFwVa
-	1PQPTQqkrgj2GvNVLKRdF91wsfjY2Qi1kuYjAhhNw2wJIsPOxI9fJmHj7K6yIKPsrf7q1DcbRrR4d
-	apqeTycTDmFtPcG7FDsS6K63yHlP6nQeYHt2DdwY5OSKqYXLujiCeOOVJ5UilDp3s+bC2kULM66MQ
-	J2PvwPk1pnr4ZGOxz4pVCnDnpWFRijqO8A5iW0okxyIkP2h5oTqGnvLCPo1ip03x31Bkqy5QH1WlF
-	UG1yGc9pg==;
+	 bh=1qBNIe3NCr3W4qkVBiGg5hg54bMkW/edzTN+4q0s/do=; b=s8L/Qk/vT366VP+tseKR6W56N
+	vT2LzswbhzIo0sjW06WIr6lLOgy1iEWZliNO+9UB7IbpnxHkQkk5BiJiRqg0s/AR1dwRLjUj+0XYB
+	v5Lf+iHe5Koiun58j2jKIEgVOhbEtzvaWavWY1ev5iPjWasZ+sRZh6LA0N325vyQxYeJJk8LqFWm3
+	5rYDaGEwpX3ukcT2/cCfcJXtLcD8RQmw1BaNdsU6zCIYyzbWgAb+5qVn/kv4pj3Zd6zS9vySaxxEU
+	h2677zHtZ6l1SzfdULJ26XM9lGsFiqhifRpbAN6Dp0fPR+TUkIRpww4Hq2Ajucf8VykHPKQqQjdft
+	Z8uhKev8A==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1600116307;
+ s=2020; t=1600116311;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=ajWUogX9TC/RhWUhRjsoMZCVU/A2PO+1RO8AbyH0tUg=;
- b=RAb00UkvZ+1mWj/+2gg0IPuBWdTR5Qbi+PQESZyHXv1CItmopUrZlAq9TSJHNYfojgGSdR
- 5BE+RuwGi8NmBr2Uw0WAJiRD0XDvAGH4BH29hgBFptKvSMxgM8BhYnqVkeljZe18eS8Ed5
- j+wrWel9v3p5Pl/2zo/iLWFZpL8ffLCpF0hxbDL1lhhrvHtpVYUFVon3VNC3R9byNCimCH
- MTjQQNKWVR8cL03iEEhtjiXUOaaZS+ZBFeiRO3utQHEcD8qTjabtmfx5AFc6r3X1IC6UeD
- rfuYAssuCjUUppwvqtWIseLtNqUKUpCUGw2/twhDQc4NjP7+Ta76nsTyO4rvQw==
+ bh=jSFTo2fNR1Fdj7RHwVSUWdICcz7BXx9GuxCsTljfBDc=;
+ b=RL+GkltuYzZCWy8Cl1LjhwVE2UJSR7gGP8TiZHbtSgQnmRdyXbIOVVanHwJJVoDlIcYY5Q
+ LT96l5PoSA374gjRYkYij/UgBBRwAsUNJA27/lNUFgAab0YxBGxg+IQGVFDp6i0sbydVRc
+ IgZYFrlBf+xwTJJ8aV7qkci3qtWFLu9LbGCA31a69ZP2uifgnP2luS1nAIav4nxaYCJEkQ
+ BaAeIICjaUsuG+G/c/xCj5ieBqIiGoaPVVF7QnE/PLcdRXu4uEgJ+t+EnJKscI1HXpkBnh
+ uVgfLl8V0mb6gBn4Ey5eVzZRinNAX/sDY29X2dWyf7b2WPCGws3FVkfELbK5XA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1600116307;
+ s=2020e; t=1600116311;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=ajWUogX9TC/RhWUhRjsoMZCVU/A2PO+1RO8AbyH0tUg=;
- b=oQ2vMxxQ1S8jokngl4Em2aMbT6mff6jhwsdggEzoGhrKVDyfNVUrlVeH//sWkf+ZmBUC+x
- 4p1R9v6zXDc5VBCw==
+ bh=jSFTo2fNR1Fdj7RHwVSUWdICcz7BXx9GuxCsTljfBDc=;
+ b=iut+FC9xX/+WwHylk5Bo+ib2vZPOOOfiQ/k306Td/lwmjp/fN6Nz77KXB6ZCuxjuePB6sn
+ U5e1M/wY5OUVmsAw==
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>, 
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -55,97 +55,20 @@ CONFIG_PREEMPT_COUNT is now unconditionally enabled and will be
 removed. Cleanup the leftovers before doing so.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
 ---
- include/linux/preempt.h |   37 ++++---------------------------------
- 1 file changed, 4 insertions(+), 33 deletions(-)
+ include/linux/bit_spinlock.h |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/include/linux/preempt.h
-+++ b/include/linux/preempt.h
-@@ -56,8 +56,7 @@
- #define PREEMPT_DISABLED	(PREEMPT_DISABLE_OFFSET + PREEMPT_ENABLED)
- 
- /*
-- * Disable preemption until the scheduler is running -- use an unconditional
-- * value so that it also works on !PREEMPT_COUNT kernels.
-+ * Disable preemption until the scheduler is running.
-  *
-  * Reset by start_kernel()->sched_init()->init_idle()->init_idle_preempt_count().
-  */
-@@ -69,7 +68,6 @@
-  *
-  *    preempt_count() == 2*PREEMPT_DISABLE_OFFSET
-  *
-- * Note: PREEMPT_DISABLE_OFFSET is 0 for !PREEMPT_COUNT kernels.
-  * Note: See finish_task_switch().
-  */
- #define FORK_PREEMPT_COUNT	(2*PREEMPT_DISABLE_OFFSET + PREEMPT_ENABLED)
-@@ -106,11 +104,7 @@
- /*
-  * The preempt_count offset after preempt_disable();
-  */
--#if defined(CONFIG_PREEMPT_COUNT)
--# define PREEMPT_DISABLE_OFFSET	PREEMPT_OFFSET
--#else
--# define PREEMPT_DISABLE_OFFSET	0
--#endif
-+#define PREEMPT_DISABLE_OFFSET	PREEMPT_OFFSET
- 
- /*
-  * The preempt_count offset after spin_lock()
-@@ -122,8 +116,8 @@
-  *
-  *  spin_lock_bh()
-  *
-- * Which need to disable both preemption (CONFIG_PREEMPT_COUNT) and
-- * softirqs, such that unlock sequences of:
-+ * Which need to disable both preemption and softirqs, such that unlock
-+ * sequences of:
-  *
-  *  spin_unlock();
-  *  local_bh_enable();
-@@ -164,8 +158,6 @@ extern void preempt_count_sub(int val);
- #define preempt_count_inc() preempt_count_add(1)
- #define preempt_count_dec() preempt_count_sub(1)
- 
--#ifdef CONFIG_PREEMPT_COUNT
--
- #define preempt_disable() \
- do { \
- 	preempt_count_inc(); \
-@@ -231,27 +223,6 @@ do { \
- 	__preempt_count_dec(); \
- } while (0)
- 
--#else /* !CONFIG_PREEMPT_COUNT */
--
--/*
-- * Even if we don't have any preemption, we need preempt disable/enable
-- * to be barriers, so that we don't have things like get_user/put_user
-- * that can cause faults and scheduling migrate into our preempt-protected
-- * region.
-- */
--#define preempt_disable()			barrier()
--#define sched_preempt_enable_no_resched()	barrier()
--#define preempt_enable_no_resched()		barrier()
--#define preempt_enable()			barrier()
--#define preempt_check_resched()			do { } while (0)
--
--#define preempt_disable_notrace()		barrier()
--#define preempt_enable_no_resched_notrace()	barrier()
--#define preempt_enable_notrace()		barrier()
--#define preemptible()				0
--
--#endif /* CONFIG_PREEMPT_COUNT */
--
- #ifdef MODULE
- /*
-  * Modules have no business playing preemption tricks.
+--- a/include/linux/bit_spinlock.h
++++ b/include/linux/bit_spinlock.h
+@@ -90,10 +90,8 @@ static inline int bit_spin_is_locked(int
+ {
+ #if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
+ 	return test_bit(bitnum, addr);
+-#elif defined CONFIG_PREEMPT_COUNT
+-	return preempt_count();
+ #else
+-	return 1;
++	return preempt_count();
+ #endif
+ }
