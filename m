@@ -1,67 +1,73 @@
 From: "Paul E. McKenney" <paulmck@kernel.org>
 Subject: Re: [patch 00/13] preempt: Make preempt count unconditional
-Date: Wed, 16 Sep 2020 13:43:59 -0700
-Message-ID: <20200916204359.GB29330@paulmck-ThinkPad-P72>
+Date: Wed, 16 Sep 2020 13:48:41 -0700
+Message-ID: <20200916204841.GC29330@paulmck-ThinkPad-P72>
 References: <20200914204209.256266093@linutronix.de>
  <CAHk-=win80rdof8Pb=5k6gT9j_v+hz-TQzKPVastZDvBe9RimQ@mail.gmail.com>
  <871rj4owfn.fsf@nanos.tec.linutronix.de>
- <CAHk-=wj0eUuVQ=hRFZv_nY7g5ZLt7Fy3K7SMJL0ZCzniPtsbbg@mail.gmail.com>
- <87bli75t7v.fsf@nanos.tec.linutronix.de>
- <CAHk-=wht7kAeyR5xEW2ORj7m0hibVxZ3t+2ie8vNHLQfdbN2_g@mail.gmail.com>
- <CAKMK7uHAk9-Vy2cof0ws=DrcD52GHiCDiyHbjLd19CgpBU2rKQ@mail.gmail.com>
- <20200916152956.GV29330@paulmck-ThinkPad-P72>
- <CAHk-=wjsMycgMHJrCmeetR3r+K5bpSRtmVWfd8iaoQCYd_VYAg@mail.gmail.com>
+ <20200916192352.GO5449@casper.infradead.org>
 Reply-To: paulmck@kernel.org
 Mime-Version: 1.0
-Return-path: <linux-alpha-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600289039;
-        bh=MM/OYkhIqW+q1jlzGplM7TRGk23CKIsPg/gtHCbpw/s=;
+        s=default; t=1600289321;
+        bh=QF1zQJP79WVPgC7BQeqDP3DZhHjaF5z1yd8g5M2I7fo=;
         h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=ePzv3fwWqslNC9hLhuqpPOyt/s8elqT4skklSXCKPyGt5+DSX45Mij1jR0UQAfYSu
-         rlP0OmdNpXpvof5fQPOx2SpQZrxcPIGOMObx61mSVBfXvuGrzip0wCyXdOZekUurt/
-         goh6RQLFx9+QF+bnlf7qV2Wg9jJz35j9g42ob9HA=
+        b=akB9Q04wZh3xRPtHQo3QuvPylihDbICVfThimNTeh+6Dq0zpizzibT3VdQC852Awd
+         fuMHbK20SAzoAhLwH6t+euR5PcSNWcJa0SR4ujAxGLaUq8AJQAgfX4YxZ7alYezUvX
+         j37+068f8IMjVrTrNXFe4dEm94w3+K/HU0qZ4xJY=
 Content-Disposition: inline
-In-Reply-To: <CAHk-=wjsMycgMHJrCmeetR3r+K5bpSRtmVWfd8iaoQCYd_VYAg@mail.gmail.com>
-Sender: linux-alpha-owner@vger.kernel.org
+In-Reply-To: <20200916192352.GO5449@casper.infradead.org>
+Sender: linux-hexagon-owner@vger.kernel.org
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Daniel Vetter <daniel@ffwll.ch>, Thomas Gleixner <tglx@linutronix.de>, Ard Biesheuvel <ardb@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, LKML <linux-kernel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Valentin Schneider <valentin.schneider@arm.com>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, alpha <linux-alpha@vger.kernel.org>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-um <linux-um@lists.infradead.org>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, l
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Valentin Schneider <valentin.schneider@arm.com>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, alpha <linux-alpha@vger.kernel.org>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-um <linux-um@lists.infradead.org>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, Ingo Molnar <mingo@kerne>
 
-On Wed, Sep 16, 2020 at 11:32:00AM -0700, Linus Torvalds wrote:
-> On Wed, Sep 16, 2020 at 8:29 AM Paul E. McKenney <paulmck@kernel.org> wrote:
-> >
-> > All fair, but some of us need to write code that must handle being
-> > invoked from a wide variety of contexts.
+On Wed, Sep 16, 2020 at 08:23:52PM +0100, Matthew Wilcox wrote:
+> On Mon, Sep 14, 2020 at 11:55:24PM +0200, Thomas Gleixner wrote:
+> > But just look at any check which uses preemptible(), especially those
+> > which check !preemptible():
 > 
-> Note that I think that core functionality is different from random drivers.
+> hmm.
 > 
-> Of course core code can (and will) look at things like
+> +++ b/include/linux/preempt.h
+> @@ -180,7 +180,9 @@ do { \
+>  
+>  #define preempt_enable_no_resched() sched_preempt_enable_no_resched()
+>  
+> +#ifndef MODULE
+>  #define preemptible()  (preempt_count() == 0 && !irqs_disabled())
+> +#endif
+>  
+>  #ifdef CONFIG_PREEMPTION
+>  #define preempt_enable() \
 > 
->         if (in_interrupt())
->             .. schedule work asynchronously ..
 > 
-> because core code ends up being called from odd places, and code like
-> that is expected to have understanding of the rules it plays with.
+> $ git grep -w preemptible drivers
+> (slightly trimmed by hand to remove, eg, comments)
+> drivers/firmware/arm_sdei.c:    WARN_ON_ONCE(preemptible());
+> drivers/firmware/arm_sdei.c:    WARN_ON_ONCE(preemptible());
+> drivers/firmware/arm_sdei.c:    WARN_ON_ONCE(preemptible());
+> drivers/firmware/arm_sdei.c:    WARN_ON_ONCE(preemptible());
+> drivers/firmware/arm_sdei.c:    WARN_ON(preemptible());
+> drivers/firmware/efi/efi-pstore.c:                            preemptible(), record->size, record->psi->buf);
+> drivers/irqchip/irq-gic-v4.c:   WARN_ON(preemptible());
+> drivers/irqchip/irq-gic-v4.c:   WARN_ON(preemptible());
+> drivers/scsi/hisi_sas/hisi_sas_main.c:          if (!preemptible())
+> drivers/xen/time.c:     BUG_ON(preemptible());
 > 
-> But something like RCU is a very different beast from some "walk the
-> scatter-gather list" code.
-> 
-> RCU does its work in the background, and works with lots of different
-> things. And it's so core and used everywhere that it knows about these
-> things. I mean, we literally have special code explicitly to let RCU
-> know "we entered kernel context now".
-> 
-> But something like a driver list walking thing should not be doing
-> different things behind peoples back depending on whether they hold
-> spinlocks or not. It should either just work regardless, or there
-> should be a flag (or special interface) for the "you're being called
-> in a crtitical region".
-> 
-> Because dynamically changing behavior really is very confusing.
+> That only looks like two drivers that need more than WARNectomies.
 
-Whew!  I feel much better now.  ;-)
+I could easily imagine someone thinking that these did something in
+CONFIG_PREEMPT_NONE=y kernels.  In fact, I could easily imagine myself
+making that mistake.  :-/
+
+> Although maybe rcu_read_load_sched_held() or rcu_read_lock_any_held()
+> might get called from a module ...
+
+But yes, from the rcutorture module for certain and also from any other
+RCU-using module that includes the usual RCU debug checks.
 
 							Thanx, Paul
