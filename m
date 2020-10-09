@@ -1,86 +1,66 @@
 From: Michal Hocko <mhocko@suse.com>
-Subject: Re: [patch 00/13] preempt: Make preempt count unconditional
-Date: Tue, 29 Sep 2020 16:54:03 +0200
-Message-ID: <20200929145403.GE2277@dhcp22.suse.cz>
-References: <CAHk-=wj0eUuVQ=hRFZv_nY7g5ZLt7Fy3K7SMJL0ZCzniPtsbbg@mail.gmail.com>
- <87bli75t7v.fsf@nanos.tec.linutronix.de>
- <CAHk-=wht7kAeyR5xEW2ORj7m0hibVxZ3t+2ie8vNHLQfdbN2_g@mail.gmail.com>
- <CAKMK7uHAk9-Vy2cof0ws=DrcD52GHiCDiyHbjLd19CgpBU2rKQ@mail.gmail.com>
- <20200916152956.GV29330@paulmck-ThinkPad-P72>
- <CAKMK7uGFyfhEyt=jmdk2jDO-hq0_Pf0ck+cKSELHjr2U3rPuYQ@mail.gmail.com>
- <20200916205840.GD29330@paulmck-ThinkPad-P72>
- <CAKMK7uHL2dMv80b8uBXr=BqHD2TQeODQQM1MGYhAfCYbX7sLrA@mail.gmail.com>
- <20200929081938.GC22035@dhcp22.suse.cz>
- <20200929090003.GG438822@phenom.ffwll.local>
+Subject: Re: [RFC PATCH] kernel: allow to configure PREEMPT_NONE,
+ PREEMPT_VOLUNTARY on kernel command line
+Date: Fri, 9 Oct 2020 12:37:30 +0200
+Message-ID: <20201009103730.GJ4967@dhcp22.suse.cz>
+References: <20201007120401.11200-1-mhocko@kernel.org>
+ <20201009091218.GF4967@dhcp22.suse.cz>
+ <20201009094245.GG2628@hirez.programming.kicks-ass.net>
+ <20201009101044.GH4967@dhcp22.suse.cz>
+ <20201009101431.GJ2628@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
 Return-path: <linux-m68k-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1601391245;
+        t=1602239851;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=IgDvWNQP8iyuHEvr4G441L71BKSYFJPWhAP8LkzWJfg=;
-        b=eoKKMBN7CEGS/O8wpnxX5YX5p7R/6oj0pmjByAZssa/tlgDzObwBIbhZXkZHaNf3yxFnjs
-        /xxRgUM/x4iZ6RwvlYDvqSTGjNG6UgIhlOVv1JFsk77ppGGHvo3dx1IKn0uI5+hjhXkchS
-        /V0QnFBKAlwY5qjuSlhyF3uziX8+a1k=
+        bh=PSnE8Z6vmo+QjfFMOr8IzsEeysZ+b2m8XiyzgtxyjuU=;
+        b=TBEkdamhFsMR6aQi1th0/8dXZLXYyqk5xISPS7talJ6YDCQgCm/iVWjysiiw7bONwuX4IT
+        gpaSi8QFNmbXeDNV5vq+E+NauqSVoU//Kjf9/qOHetw3vQr0tF0HyDgv9hNj8Fs9TDYrt9
+        B5EJ74pYx1zFCHSIQVIQnRK9ZCJToVc=
 Content-Disposition: inline
-In-Reply-To: <20200929090003.GG438822@phenom.ffwll.local>
+In-Reply-To: <20201009101431.GJ2628@hirez.programming.kicks-ass.net>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Lai Jiangshan <jiangshanlai@gmail.com>, dri-devel <dri-devel@lists.freedesktop.org>, Ben Segall <bsegall@google.com>, Linux-MM <linux-mm@kvack.org>, "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, linux-hexagon@vger.kernel.org, Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-arch <linux-arch@vger.kernel.org>, Vincent Guittot <vincent.guittot@linaro.org>, Herbert Xu <herbert@gondor.apana.org.au>, Brian Cain <bcain@codeaurora.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Frederic Weisbecker <fweisbecker@suse.de>, LKML <linux-kernel@vger.kernel.org>, Mel Gorman <mgorman@suse.de>, Ingo Molnar <mingo@redhat.com>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, linux-alpha@vger.kernel.org, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-um@lists.infradead.org
 
-On Tue 29-09-20 11:00:03, Daniel Vetter wrote:
-> On Tue, Sep 29, 2020 at 10:19:38AM +0200, Michal Hocko wrote:
-> > On Wed 16-09-20 23:43:02, Daniel Vetter wrote:
-> > > I can
-> > > then figure out whether it's better to risk not spotting issues with
-> > > call_rcu vs slapping a memalloc_noio_save/restore around all these
-> > > critical section which force-degrades any allocation to GFP_ATOMIC at
+On Fri 09-10-20 12:14:31, Peter Zijlstra wrote:
+> On Fri, Oct 09, 2020 at 12:10:44PM +0200, Michal Hocko wrote:
+> > On Fri 09-10-20 11:42:45, Peter Zijlstra wrote:
+> > > On Fri, Oct 09, 2020 at 11:12:18AM +0200, Michal Hocko wrote:
+> > > > Is there any additional feedback? Should I split up the patch and repost
+> > > > for inclusion?
+> > > 
+> > > Maybe remove PREEMPT_NONE after that?  Since that's then equivalent to
+> > > building with VOLUNTARY and booting with preempt=none.
 > > 
-> > did you mean memalloc_noreclaim_* here?
+> > So do you mean that I should post an additional patch which does this on
+> > top? With a justification that there is one option less to chose from?
 > 
-> Yeah I picked the wrong one of that family of functions.
-> 
-> > > most, but has the risk that we run into code that assumes "GFP_KERNEL
-> > > never fails for small stuff" and has a decidedly less tested fallback
-> > > path than rcu code.
-> > 
-> > Even if the above then please note that memalloc_noreclaim_* or
-> > PF_MEMALLOC should be used with an extreme care. Essentially only for
-> > internal memory reclaimers. It grants access to _all_ the available
-> > memory so any abuse can be detrimental to the overall system operation.
-> > Allocation failure in this mode means that we are out of memory and any
-> > code relying on such an allocation has to carefuly consider failure.
-> > This is not a random allocation mode.
-> 
-> Agreed, that's why I don't like having these kind of automagic critical
-> sections. It's a bit a shotgun approach. Paul said that the code would
-> handle failures, but the problem is that it applies everywhere.
+> Exactly!
 
-Ohh, in the ideal world we wouldn't need anything like that. But then
-the reality fires:
-* PF_MEMALLOC (resp memalloc_noreclaim_* for that matter) is primarily used
-  to make sure that allocations from inside the memory reclaim - yeah that
-  happens - will not recurse.
-* PF_MEMALLOC_NO{FS,IO} (resp memalloc_no{fs,io}*) are used to mark no
-  fs/io reclaim recursion critical sections because controling that for
-  each allocation inside fs transaction (or other sensitive) or IO
-  contexts turned out to be unmaintainable and people simply fallen into
-  using NOFS/NOIO unconditionally which is causing reclaim imbalance
-  problems.
-* PF_MEMALLOC_NOCMA (resp memalloc_nocma*) is used for long term pinning
-  when CMA pages cannot be pinned because that would break the CMA
-  guarantees. Communicating this to all potential allocations during
-  pinning is simply unfeasible.
+It seems we have to get rid of CONFIG_NO_PREEMPT first
+$ git grep ARCH_NO_PREEMPT
+arch/Kconfig:config ARCH_NO_PREEMPT
+arch/alpha/Kconfig:     select ARCH_NO_PREEMPT
+arch/hexagon/Kconfig:   select ARCH_NO_PREEMPT
+arch/m68k/Kconfig:      select ARCH_NO_PREEMPT if !COLDFIRE
+arch/um/Kconfig:        select ARCH_NO_PREEMPT
+kernel/Kconfig.preempt: depends on !ARCH_NO_PREEMPT
+kernel/Kconfig.preempt: depends on !ARCH_NO_PREEMPT
+lib/Kconfig.debug:      select PREEMPT_COUNT if !ARCH_NO_PREEMPT
+lib/Kconfig.debug:      depends on !ARCH_NO_PREEMPT
 
-So you are absolutely right that these critical sections with side
-effects on all allocations are far from ideal from the API point of view
-but they are mostly mirroring a demand for functionality which is
-_practically_ impossible to achieve with our current code base. Not that
-we couldn't get back to drawing board and come up with a saner thing and
-rework the world...
+Is there anybody working on that. Is this even possible? I can see it
+has been added by 87a4c375995e ("kconfig: include kernel/Kconfig.preempt
+from init/Kconfig") but this looks more like a mechanical change and it
+has defined ARCH_NO_PREEMPT all arches which haven't included
+Kconfig.preempt. But is there any reason why those cannot support
+preemption for some reason? Cc respective maintainer (the email thread
+starts http://lkml.kernel.org/r/20201007120401.11200-1-mhocko@kernel.org
 -- 
 Michal Hocko
 SUSE Labs
