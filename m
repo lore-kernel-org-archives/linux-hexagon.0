@@ -1,69 +1,82 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [RFC PATCH] kernel: allow to configure PREEMPT_NONE,
- PREEMPT_VOLUNTARY on kernel command line
-Date: Fri, 9 Oct 2020 13:42:16 +0200
-Message-ID: <20201009114216.GM2628@hirez.programming.kicks-ass.net>
-References: <20201007120401.11200-1-mhocko@kernel.org>
- <20201009091218.GF4967@dhcp22.suse.cz>
- <20201009094245.GG2628@hirez.programming.kicks-ass.net>
- <20201009101044.GH4967@dhcp22.suse.cz>
- <20201009101431.GJ2628@hirez.programming.kicks-ass.net>
- <20201009103730.GJ4967@dhcp22.suse.cz>
+From: Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH] hexagon: add support for TIF_NOTIFY_SIGNAL
+Date: Thu, 29 Oct 2020 10:14:25 -0600
+Message-ID: <249d67ab-c3ea-0802-c06a-0f35ae3673d2@kernel.dk>
 Mime-Version: 1.0
-Return-path: <linux-m68k-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=RcamcxMM04cAFejMyuerox9iFyryVbfUvRjDUF6K+9E=; b=rV/73fj+p5/T3eYZYDymfCt5SP
-        EGKltICU3UJgzJot3PlAdj3AbR+gk5Fu9ALysyRXUjXz1Zz9lkn1oy67SKaaUgwwoVb88K0SV7Bsh
-        FqvpyAsddMNfO/uaOg5us46reQYdxoaw4V+Z56lK4XPhIyX56i/ukTdBdBh7EvlM1NHScvtTABqpo
-        znLocfz8vCn//mXjXUAto9jooaYcx8KnZYLrEJUFEaEecZwQ67rFlXOnv+PAUplGmjypRkBw6zEJZ
-        e0yFWzBMPGuSmWRNegKe32QuMxAhYnEeqk1p16v+xTaCE9aMZ0ypzDv+kqeYOcTeyxLPICzHhq0Jp
-        54eNIb9Q==;
-Content-Disposition: inline
-In-Reply-To: <20201009103730.GJ4967@dhcp22.suse.cz>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=7mALKINqLYfxoHF1hVcRnp1bQETJW6jJOL3z9Zr8PKs=;
+        b=hca5CQJiOZP4j5J9BnMNfZ9z2agIBD5RRjb+hkDEmn++g0ECZqM5kBLegGfJpDpepu
+         MGEAOPdbRL8N4qyZBU7BUk6pUI33gM2jBkEW+seCS9s8bB8ooS6Rd+Rqm/iuPnv23zSo
+         rllWi1d6V9WSOA/imzBcoMXhpdpRNA59wPL6WW99lDQ/IY+LdSCGw0y6820Ewx50i8Zt
+         Vlz9yx+aL24clO+OGrxIa/50LBcDd+s4Nz5i35aNuV+lPiPu90/tRHtJ9yNvu9CflKWM
+         DsKvm2Iwu9fRbtPPyax4lX3joJ3dmo562xzBN7fwuB0+sjey8OrC13101u5UTAbuVHO0
+         QCMA==
+Content-Language: en-US
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Michal Hocko <mhocko@suse.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Frederic Weisbecker <fweisbecker@suse.de>, LKML <linux-kernel@vger.kernel.org>, Mel Gorman <mgorman@suse.de>, Ingo Molnar <mingo@redhat.com>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, linux-alpha@vger.kernel.org, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-um@lists.infradead.org
+To: linux-hexagon@vger.kernel.org
 
-On Fri, Oct 09, 2020 at 12:37:30PM +0200, Michal Hocko wrote:
-> On Fri 09-10-20 12:14:31, Peter Zijlstra wrote:
-> > On Fri, Oct 09, 2020 at 12:10:44PM +0200, Michal Hocko wrote:
-> > > On Fri 09-10-20 11:42:45, Peter Zijlstra wrote:
-> > > > On Fri, Oct 09, 2020 at 11:12:18AM +0200, Michal Hocko wrote:
-> > > > > Is there any additional feedback? Should I split up the patch and repost
-> > > > > for inclusion?
-> > > > 
-> > > > Maybe remove PREEMPT_NONE after that?  Since that's then equivalent to
-> > > > building with VOLUNTARY and booting with preempt=none.
-> > > 
-> > > So do you mean that I should post an additional patch which does this on
-> > > top? With a justification that there is one option less to chose from?
-> > 
-> > Exactly!
-> 
-> It seems we have to get rid of CONFIG_NO_PREEMPT first
-> $ git grep ARCH_NO_PREEMPT
-> arch/Kconfig:config ARCH_NO_PREEMPT
-> arch/alpha/Kconfig:     select ARCH_NO_PREEMPT
-> arch/hexagon/Kconfig:   select ARCH_NO_PREEMPT
-> arch/m68k/Kconfig:      select ARCH_NO_PREEMPT if !COLDFIRE
-> arch/um/Kconfig:        select ARCH_NO_PREEMPT
-> kernel/Kconfig.preempt: depends on !ARCH_NO_PREEMPT
-> kernel/Kconfig.preempt: depends on !ARCH_NO_PREEMPT
-> lib/Kconfig.debug:      select PREEMPT_COUNT if !ARCH_NO_PREEMPT
-> lib/Kconfig.debug:      depends on !ARCH_NO_PREEMPT
-> 
-> Is there anybody working on that. Is this even possible? I can see it
-> has been added by 87a4c375995e ("kconfig: include kernel/Kconfig.preempt
-> from init/Kconfig") but this looks more like a mechanical change and it
-> has defined ARCH_NO_PREEMPT all arches which haven't included
-> Kconfig.preempt. But is there any reason why those cannot support
-> preemption for some reason? Cc respective maintainer (the email thread
-> starts http://lkml.kernel.org/r/20201007120401.11200-1-mhocko@kernel.org
+Wire up TIF_NOTIFY_SIGNAL handling for hexagon.
 
-I suspect we can drop ARCH_NO_PREEMPT from VOLUNTARY, IIRC there's no
-arch dependency there. PREEMPT itself obviously needs arch help.
+Cc: linux-hexagon@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+
+5.11 has support queued up for TIF_NOTIFY_SIGNAL, see this posting
+for details:
+
+https://lore.kernel.org/io-uring/20201026203230.386348-1-axboe@kernel.dk/
+
+As part of that work, I'm adding TIF_NOTIFY_SIGNAL support to all archs,
+as that will enable a set of cleanups once all of them support it. I'm
+happy carrying this patch if need be, or it can be funelled through the
+arch tree. Let me know.
+
+ arch/hexagon/include/asm/thread_info.h | 2 ++
+ arch/hexagon/kernel/process.c          | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/arch/hexagon/include/asm/thread_info.h b/arch/hexagon/include/asm/thread_info.h
+index 563da1986464..535976665bf0 100644
+--- a/arch/hexagon/include/asm/thread_info.h
++++ b/arch/hexagon/include/asm/thread_info.h
+@@ -95,6 +95,7 @@ register struct thread_info *__current_thread_info asm(QUOTED_THREADINFO_REG);
+ #define TIF_NEED_RESCHED        3       /* rescheduling necessary */
+ #define TIF_SINGLESTEP          4       /* restore ss @ return to usr mode */
+ #define TIF_RESTORE_SIGMASK     6       /* restore sig mask in do_signal() */
++#define TIF_NOTIFY_SIGNAL	7       /* signal notifications exist */
+ /* true if poll_idle() is polling TIF_NEED_RESCHED */
+ #define TIF_MEMDIE              17      /* OOM killer killed process */
+ 
+@@ -103,6 +104,7 @@ register struct thread_info *__current_thread_info asm(QUOTED_THREADINFO_REG);
+ #define _TIF_SIGPENDING         (1 << TIF_SIGPENDING)
+ #define _TIF_NEED_RESCHED       (1 << TIF_NEED_RESCHED)
+ #define _TIF_SINGLESTEP         (1 << TIF_SINGLESTEP)
++#define _TIF_NOTIFY_SIGNAL	(1 << TIF_NOTIFY_SIGNAL)
+ 
+ /* work to do on interrupt/exception return - All but TIF_SYSCALL_TRACE */
+ #define _TIF_WORK_MASK          (0x0000FFFF & ~_TIF_SYSCALL_TRACE)
+diff --git a/arch/hexagon/kernel/process.c b/arch/hexagon/kernel/process.c
+index 5a0a95d93ddb..82cd7a026eb3 100644
+--- a/arch/hexagon/kernel/process.c
++++ b/arch/hexagon/kernel/process.c
+@@ -174,7 +174,7 @@ int do_work_pending(struct pt_regs *regs, u32 thread_info_flags)
+ 		return 1;
+ 	}
+ 
+-	if (thread_info_flags & _TIF_SIGPENDING) {
++	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL)) {
+ 		do_signal(regs);
+ 		return 1;
+ 	}
+-- 
+2.29.0
+
+-- 
+Jens Axboe
+
