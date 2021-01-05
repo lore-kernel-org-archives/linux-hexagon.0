@@ -1,23 +1,35 @@
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH v2] arch: consolidate pm_power_off callback
-Date: Sun, 27 Dec 2020 15:01:28 +0100
-Message-ID: <20201227140129.19932-1-info@metux.net>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 13/17] local64.h: make <asm/local64.h> mandatory
+Date: Mon,  4 Jan 2021 19:59:11 -0500
+Message-ID: <20210105005915.3954208-13-sashal@kernel.org>
+References: <20210105005915.3954208-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=merlin.20170209; h=Sender:Content-Transfer-Encoding:
-	Content-Type:MIME-Version:Cc:List-Subscribe:List-Help:List-Post:List-Archive:
-	List-Unsubscribe:List-Id:Message-Id:Date:Subject:To:From:Reply-To:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Owner;
-	bh=LSM6TySbGAtx1jViFSHwZVRb0nGEggAWAHSwCsUJW8c=; b=yTORg4F5HhxOs7rwA0PYYHpOYC
-	XA7r9Yaya84pNwBX4Vf7Ik0hWYubAwXR35hLre6jKADi7KyOy8s3u1tV+Yoj7u35mKsdQbC1ial7P
-	WZV89Tghgc+LJgpwQyOoyat0PetM2ndjt/+06qJLFjO5V8gP0Qzy5oBSjsoexJBeq4lsEbVV/FSbr
-	qrbXJOvwaE/8Q7WVV6wf2TWdCESV02cYCwYoOwUDsYJunYIafZb9GyJp2kStKE5pK+GtAforSc3YZ
-	lRXdP3Wu9g77w+4v2wNOakfBU+RRDLbPkZGjnIW9woe6Ytv+/3YR3pqaRtXWFiP33aPlHBgnhnKmR
-	WQqTy8VQ==;
+	Content-Type:Cc:List-Subscribe:List-Help:List-Post:List-Archive:
+	List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:Message-Id:Date:
+	Subject:To:From:Reply-To:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	 bh=d7wwxT+ciEFQiEzImi/BvVu9s3gzyUS3yOf3DozlAeE=; b=DBReRT+Dx2YC2icrYe/Pr+51s
+	iA5O2YK0rLFKa3QXUf2u2QEfee/dsE0tup4feqDFo+sS4/8zfdewsFEcCNV+XrCt0E+zqH4f63z9w
+	nscARVYtXlaDk9CQlLRN4WuuHfwmtL2NDr0TrU9f3k3z+oEypyJfOps+Saz0ziM7rCC+hyha1wayq
+	hrJ6sN0KDmEAtPXCI62mAbUCJmajC33heP2z9LSoIdDN/ZhwF9k+3XwWPWPU0+D4Bbduval4nls86
+	gPk9VZvhNe2ZgHNGAE+1A2op8Ejlr3QPQHcnSJqw5VbgDcGRjsEa9hgAQyoYBPgqFweMKje0S586D
+	O6mdxS/Mg==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1609808380;
+ bh=k5tUJHFjMO2s79xpLs4QJPdGWhJciPZsye1o8rF3dAs=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=J3TSwo3nNU7X1fflv8qhWlBhn2SmnPDX6zcIj6O9oxknpuMjJ7N3yvo9ua4URUl0A
+ PuUfYceIKgapinnC/7xgRiktpmKCh88uXW3LIc+YIkYPxRD/9TsV1xs0NmEEJ6pjuk
+ oOPR+/OyUvkgYYruRtYDpBW7qfr/apzWLFoFvF4TGS/TmChN4wb9jYM6uX/RFJil+Z
+ yH/zKrmA41wjU1rucnDW1bq8SawDIgRo6A2eiQ22TOP0a4SI8/53r6h2GhKGeDbolu
+ KP0RRqhT1KCPIJETNATjvr6VeQAgN6iMWTc1LgWYyJbTxVaFthxWvx/CpUMxRgvKs3
+ 4F1Hff+G6hnoQ==
+In-Reply-To: <20210105005915.3954208-1-sashal@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -28,616 +40,291 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, benh@kernel.crashing.org, James.Bottomley@HansenPartnership.com, jcmvbkbc@gmail.com, paulus@samba.org, linux-csky@vger.kernel.org, hpa@zytor.com, linux-riscv@lists.infradead.org, will@kernel.org, tglx@linutronix.de, jonas@southpole.se, linux-s390@vger.kernel.org, sstabellini@kernel.org, linux-c6x-dev@linux-c6x.org, ysato@users.sourceforge.jp, linux-hexagon@vger.kernel.org, deller@gmx.de, x86@kernel.org, ley.foon.tan@intel.com, mingo@redhat.com, geert@linux-m68k.org, catalin.marinas@arm.com, linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-pm@vger.kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, bp@alien8.de, shorne@gmail.com, stefan.kristiansson@saunalahti.fi, christian@brauner.io, chris@zankel.net, tsb
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, linux-csky@vger.kernel.org, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>, Ley Foon Tan <ley.foon.tan@intel.com>, Christoph Hellwig <hch@infradead.org>, Mark Salter <msalter@redhat.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>, Aurelien Jacquiot <jacquiot.aurelien@gmail.com>, linux-m68k@lists.linux-m68k.org, linux-arm-kernel@lists.infradead.org, Jens Axboe <axboe@kernel.dk>, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Randy Dunlap <rdunlap@infradead.org>, linux-mips@vger.kernel.org, linux-alpha@vge
 
-Move the pm_power_off callback into one global place and also add an
-function for conditionally calling it (when not NULL), in order to remove
-code duplication in all individual archs.
+From: Randy Dunlap <rdunlap@infradead.org>
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+[ Upstream commit 87dbc209ea04645fd2351981f09eff5d23f8e2e9 ]
 
-----
+Make <asm-generic/local64.h> mandatory in include/asm-generic/Kbuild and
+remove all arch/*/include/asm/local64.h arch-specific files since they
+only #include <asm-generic/local64.h>.
 
-changes v2:
-  * fix forgotten removal of pm_power_off in arch/powerpc, as reported by lkp
+This fixes build errors on arch/c6x/ and arch/nios2/ for
+block/blk-iocost.c.
+
+Build-tested on 21 of 25 arch-es.  (tools problems on the others)
+
+Yes, we could even rename <asm-generic/local64.h> to
+<linux/local64.h> and change all #includes to use
+<linux/local64.h> instead.
+
+Link: https://lkml.kernel.org/r/20201227024446.17018-1-rdunlap@infradead.org
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Ley Foon Tan <ley.foon.tan@intel.com>
+Cc: Mark Salter <msalter@redhat.com>
+Cc: Aurelien Jacquiot <jacquiot.aurelien@gmail.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/kernel/process.c        |  6 ------
- arch/arc/kernel/reset.c            |  3 ---
- arch/arm/kernel/reboot.c           |  6 ++----
- arch/arm64/kernel/process.c        |  6 +-----
- arch/c6x/kernel/process.c          | 10 ++--------
- arch/csky/kernel/power.c           | 10 +++-------
- arch/h8300/kernel/process.c        |  3 ---
- arch/hexagon/kernel/reset.c        |  3 ---
- arch/ia64/kernel/process.c         |  5 +----
- arch/m68k/kernel/process.c         |  3 ---
- arch/microblaze/kernel/process.c   |  3 ---
- arch/mips/kernel/reset.c           |  6 +-----
- arch/nds32/kernel/process.c        |  7 ++-----
- arch/nios2/kernel/process.c        |  3 ---
- arch/openrisc/kernel/process.c     |  3 ---
- arch/parisc/kernel/process.c       |  9 +++------
- arch/powerpc/kernel/setup-common.c |  8 ++------
- arch/powerpc/xmon/xmon.c           |  4 ++--
- arch/riscv/kernel/reset.c          |  9 ++++-----
- arch/s390/kernel/setup.c           |  3 ---
- arch/sh/kernel/reboot.c            |  6 +-----
- arch/x86/kernel/reboot.c           | 15 ++++-----------
- arch/x86/xen/enlighten_pv.c        |  4 ++--
- arch/xtensa/kernel/process.c       |  4 ----
- include/linux/pm.h                 |  2 ++
- kernel/reboot.c                    | 10 ++++++++++
- 26 files changed, 42 insertions(+), 109 deletions(-)
+ arch/alpha/include/asm/local64.h   | 1 -
+ arch/arc/include/asm/Kbuild        | 1 -
+ arch/arm/include/asm/Kbuild        | 1 -
+ arch/arm64/include/asm/Kbuild      | 1 -
+ arch/csky/include/asm/Kbuild       | 1 -
+ arch/h8300/include/asm/Kbuild      | 1 -
+ arch/hexagon/include/asm/Kbuild    | 1 -
+ arch/ia64/include/asm/local64.h    | 1 -
+ arch/m68k/include/asm/Kbuild       | 1 -
+ arch/microblaze/include/asm/Kbuild | 1 -
+ arch/mips/include/asm/Kbuild       | 1 -
+ arch/nds32/include/asm/Kbuild      | 1 -
+ arch/parisc/include/asm/Kbuild     | 1 -
+ arch/powerpc/include/asm/Kbuild    | 1 -
+ arch/riscv/include/asm/Kbuild      | 1 -
+ arch/s390/include/asm/Kbuild       | 1 -
+ arch/sh/include/asm/Kbuild         | 1 -
+ arch/sparc/include/asm/Kbuild      | 1 -
+ arch/x86/include/asm/local64.h     | 1 -
+ arch/xtensa/include/asm/Kbuild     | 1 -
+ include/asm-generic/Kbuild         | 1 +
+ 21 files changed, 1 insertion(+), 20 deletions(-)
+ delete mode 100644 arch/alpha/include/asm/local64.h
+ delete mode 100644 arch/ia64/include/asm/local64.h
+ delete mode 100644 arch/x86/include/asm/local64.h
 
-diff --git a/arch/alpha/kernel/process.c b/arch/alpha/kernel/process.c
-index 6c71554206cc..df0df869751d 100644
---- a/arch/alpha/kernel/process.c
-+++ b/arch/alpha/kernel/process.c
-@@ -43,12 +43,6 @@
- #include "proto.h"
- #include "pci_impl.h"
+diff --git a/arch/alpha/include/asm/local64.h b/arch/alpha/include/asm/local64.h
+deleted file mode 100644
+index 36c93b5cc239b..0000000000000
+--- a/arch/alpha/include/asm/local64.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <asm-generic/local64.h>
+diff --git a/arch/arc/include/asm/Kbuild b/arch/arc/include/asm/Kbuild
+index 81f4edec0c2a9..3c1afa524b9c2 100644
+--- a/arch/arc/include/asm/Kbuild
++++ b/arch/arc/include/asm/Kbuild
+@@ -1,7 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ generic-y += extable.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+ generic-y += parport.h
+ generic-y += user.h
+diff --git a/arch/arm/include/asm/Kbuild b/arch/arm/include/asm/Kbuild
+index 383635b68763c..f1398b9267c08 100644
+--- a/arch/arm/include/asm/Kbuild
++++ b/arch/arm/include/asm/Kbuild
+@@ -2,7 +2,6 @@
+ generic-y += early_ioremap.h
+ generic-y += extable.h
+ generic-y += flat.h
+-generic-y += local64.h
+ generic-y += parport.h
+ generic-y += seccomp.h
  
--/*
-- * Power off function, if any
-- */
--void (*pm_power_off)(void) = machine_power_off;
--EXPORT_SYMBOL(pm_power_off);
--
- #ifdef CONFIG_ALPHA_WTINT
- /*
-  * Sleep the CPU.
-diff --git a/arch/arc/kernel/reset.c b/arch/arc/kernel/reset.c
-index fd6c3eb930ba..3a27b6a202d4 100644
---- a/arch/arc/kernel/reset.c
-+++ b/arch/arc/kernel/reset.c
-@@ -26,6 +26,3 @@ void machine_power_off(void)
- 	/* FIXME ::  power off ??? */
- 	machine_halt();
- }
--
--void (*pm_power_off) (void) = NULL;
--EXPORT_SYMBOL(pm_power_off);
-diff --git a/arch/arm/kernel/reboot.c b/arch/arm/kernel/reboot.c
-index 0ce388f15422..9e1bf0e9b3e0 100644
---- a/arch/arm/kernel/reboot.c
-+++ b/arch/arm/kernel/reboot.c
-@@ -6,6 +6,7 @@
- #include <linux/cpu.h>
- #include <linux/delay.h>
- #include <linux/reboot.h>
-+#include <linux/pm.h>
- 
- #include <asm/cacheflush.h>
- #include <asm/idmap.h>
-@@ -19,8 +20,6 @@ typedef void (*phys_reset_t)(unsigned long, bool);
-  * Function pointers to optional machine specific functions
-  */
- void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
--void (*pm_power_off)(void);
--EXPORT_SYMBOL(pm_power_off);
- 
- /*
-  * A temporary stack to use for CPU reset. This is static so that we
-@@ -118,8 +117,7 @@ void machine_power_off(void)
- 	local_irq_disable();
- 	smp_send_stop();
- 
--	if (pm_power_off)
--		pm_power_off();
-+	do_power_off();
- }
- 
- /*
-diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index 6616486a58fe..a5d4c1e80abd 100644
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -67,9 +67,6 @@ EXPORT_SYMBOL(__stack_chk_guard);
- /*
-  * Function pointers to optional machine specific functions
-  */
--void (*pm_power_off)(void);
--EXPORT_SYMBOL_GPL(pm_power_off);
--
- void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
- 
- static void noinstr __cpu_do_idle(void)
-@@ -172,8 +169,7 @@ void machine_power_off(void)
- {
- 	local_irq_disable();
- 	smp_send_stop();
--	if (pm_power_off)
--		pm_power_off();
-+	do_power_off();
- }
- 
- /*
-diff --git a/arch/c6x/kernel/process.c b/arch/c6x/kernel/process.c
-index 9f4fd6a40a10..8b4b24476162 100644
---- a/arch/c6x/kernel/process.c
-+++ b/arch/c6x/kernel/process.c
-@@ -15,6 +15,7 @@
- #include <linux/reboot.h>
- #include <linux/sched/task.h>
- #include <linux/sched/task_stack.h>
-+#include <linux/pm.h>
- 
- #include <asm/syscalls.h>
- 
-@@ -25,12 +26,6 @@ void	(*c6x_halt)(void);
- extern asmlinkage void ret_from_fork(void);
- extern asmlinkage void ret_from_kernel_thread(void);
- 
--/*
-- * power off function, if any
-- */
--void (*pm_power_off)(void);
--EXPORT_SYMBOL(pm_power_off);
--
- void arch_cpu_idle(void)
- {
- 	unsigned long tmp;
-@@ -71,8 +66,7 @@ void machine_halt(void)
- 
- void machine_power_off(void)
- {
--	if (pm_power_off)
--		pm_power_off();
-+	do_power_off();
- 	halt_loop();
- }
- 
-diff --git a/arch/csky/kernel/power.c b/arch/csky/kernel/power.c
-index 923ee4e381b8..c702e66ce03a 100644
---- a/arch/csky/kernel/power.c
-+++ b/arch/csky/kernel/power.c
-@@ -2,23 +2,19 @@
- // Copyright (C) 2018 Hangzhou C-SKY Microsystems co.,ltd.
- 
- #include <linux/reboot.h>
--
--void (*pm_power_off)(void);
--EXPORT_SYMBOL(pm_power_off);
-+#include <linux/pm.h>
- 
- void machine_power_off(void)
- {
- 	local_irq_disable();
--	if (pm_power_off)
--		pm_power_off();
-+	do_power_off();
- 	asm volatile ("bkpt");
- }
- 
- void machine_halt(void)
- {
- 	local_irq_disable();
--	if (pm_power_off)
--		pm_power_off();
-+	do_power_off();
- 	asm volatile ("bkpt");
- }
- 
-diff --git a/arch/h8300/kernel/process.c b/arch/h8300/kernel/process.c
-index bc1364db58fe..020bf78a779c 100644
---- a/arch/h8300/kernel/process.c
-+++ b/arch/h8300/kernel/process.c
-@@ -46,9 +46,6 @@
- #include <asm/traps.h>
- #include <asm/setup.h>
- 
--void (*pm_power_off)(void) = NULL;
--EXPORT_SYMBOL(pm_power_off);
--
- asmlinkage void ret_from_fork(void);
- asmlinkage void ret_from_kernel_thread(void);
- 
-diff --git a/arch/hexagon/kernel/reset.c b/arch/hexagon/kernel/reset.c
-index da36114d928f..8370ddbcdfd9 100644
---- a/arch/hexagon/kernel/reset.c
-+++ b/arch/hexagon/kernel/reset.c
-@@ -19,6 +19,3 @@ void machine_halt(void)
- void machine_restart(char *cmd)
- {
- }
--
--void (*pm_power_off)(void) = NULL;
--EXPORT_SYMBOL(pm_power_off);
-diff --git a/arch/ia64/kernel/process.c b/arch/ia64/kernel/process.c
-index 4ebbfa076a26..72104b967668 100644
---- a/arch/ia64/kernel/process.c
-+++ b/arch/ia64/kernel/process.c
-@@ -57,8 +57,6 @@ void (*ia64_mark_idle)(int);
- 
- unsigned long boot_option_idle_override = IDLE_NO_OVERRIDE;
- EXPORT_SYMBOL(boot_option_idle_override);
--void (*pm_power_off) (void);
--EXPORT_SYMBOL(pm_power_off);
- 
- static void
- ia64_do_show_stack (struct unw_frame_info *info, void *arg)
-@@ -602,8 +600,7 @@ machine_halt (void)
- void
- machine_power_off (void)
- {
--	if (pm_power_off)
--		pm_power_off();
-+	do_power_off()
- 	machine_halt();
- }
- 
-diff --git a/arch/m68k/kernel/process.c b/arch/m68k/kernel/process.c
-index 08359a6e058f..b8dc10a630e1 100644
---- a/arch/m68k/kernel/process.c
-+++ b/arch/m68k/kernel/process.c
-@@ -72,9 +72,6 @@ void machine_power_off(void)
- 	for (;;);
- }
- 
--void (*pm_power_off)(void) = machine_power_off;
--EXPORT_SYMBOL(pm_power_off);
--
- void show_regs(struct pt_regs * regs)
- {
- 	pr_info("Format %02x  Vector: %04x  PC: %08lx  Status: %04x    %s\n",
-diff --git a/arch/microblaze/kernel/process.c b/arch/microblaze/kernel/process.c
-index 657c2beb665e..f1dd66a14ab6 100644
---- a/arch/microblaze/kernel/process.c
-+++ b/arch/microblaze/kernel/process.c
-@@ -46,9 +46,6 @@ void show_regs(struct pt_regs *regs)
- 				regs->msr, regs->ear, regs->esr, regs->fsr);
- }
- 
--void (*pm_power_off)(void) = NULL;
--EXPORT_SYMBOL(pm_power_off);
--
- void flush_thread(void)
- {
- }
-diff --git a/arch/mips/kernel/reset.c b/arch/mips/kernel/reset.c
-index 6288780b779e..73e32eba422f 100644
---- a/arch/mips/kernel/reset.c
-+++ b/arch/mips/kernel/reset.c
-@@ -25,9 +25,6 @@
-  */
- void (*_machine_restart)(char *command);
- void (*_machine_halt)(void);
--void (*pm_power_off)(void);
--
--EXPORT_SYMBOL(pm_power_off);
- 
- static void machine_hang(void)
- {
-@@ -114,8 +111,7 @@ void machine_halt(void)
- 
- void machine_power_off(void)
- {
--	if (pm_power_off)
--		pm_power_off();
-+	do_power_off();
- 
- #ifdef CONFIG_SMP
- 	preempt_disable();
-diff --git a/arch/nds32/kernel/process.c b/arch/nds32/kernel/process.c
-index e01ad5d17224..624e2a563082 100644
---- a/arch/nds32/kernel/process.c
-+++ b/arch/nds32/kernel/process.c
-@@ -12,6 +12,7 @@
- #include <asm/fpu.h>
- #include <linux/ptrace.h>
- #include <linux/reboot.h>
-+#include <linux/pm.h>
- 
- #if IS_ENABLED(CONFIG_LAZY_FPU)
- struct task_struct *last_task_used_math;
-@@ -27,9 +28,6 @@ extern inline void arch_reset(char mode)
- 	}
- }
- 
--void (*pm_power_off) (void);
--EXPORT_SYMBOL(pm_power_off);
--
- static char reboot_mode_nds32 = 'h';
- 
- int __init reboot_setup(char *str)
-@@ -54,8 +52,7 @@ EXPORT_SYMBOL(machine_halt);
- 
- void machine_power_off(void)
- {
--	if (pm_power_off)
--		pm_power_off();
-+	do_power_off();
- }
- 
- EXPORT_SYMBOL(machine_power_off);
-diff --git a/arch/nios2/kernel/process.c b/arch/nios2/kernel/process.c
-index 50b4eb19a6cc..a6195cc02ea4 100644
---- a/arch/nios2/kernel/process.c
-+++ b/arch/nios2/kernel/process.c
-@@ -28,9 +28,6 @@
- asmlinkage void ret_from_fork(void);
- asmlinkage void ret_from_kernel_thread(void);
- 
--void (*pm_power_off)(void) = NULL;
--EXPORT_SYMBOL(pm_power_off);
--
- void arch_cpu_idle(void)
- {
- 	raw_local_irq_enable();
-diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-index 3c98728cce24..c02343bacf59 100644
---- a/arch/openrisc/kernel/process.c
-+++ b/arch/openrisc/kernel/process.c
-@@ -84,9 +84,6 @@ void arch_cpu_idle(void)
- 		mtspr(SPR_PMR, mfspr(SPR_PMR) | SPR_PMR_DME);
- }
- 
--void (*pm_power_off) (void) = machine_power_off;
--EXPORT_SYMBOL(pm_power_off);
--
- /*
-  * When a process does an "exec", machine state like FPU and debug
-  * registers need to be reset.  This is a hook function for that.
-diff --git a/arch/parisc/kernel/process.c b/arch/parisc/kernel/process.c
-index a92a23d6acd9..8b94599c9480 100644
---- a/arch/parisc/kernel/process.c
-+++ b/arch/parisc/kernel/process.c
-@@ -41,6 +41,7 @@
- #include <linux/rcupdate.h>
- #include <linux/random.h>
- #include <linux/nmi.h>
-+#include <linux/pm.h>
- 
- #include <asm/io.h>
- #include <asm/asm-offsets.h>
-@@ -117,9 +118,8 @@ void machine_power_off(void)
- 	pdc_chassis_send_status(PDC_CHASSIS_DIRECT_SHUTDOWN);
- 
- 	/* ipmi_poweroff may have been installed. */
--	if (pm_power_off)
--		pm_power_off();
--		
-+	do_power_off();
-+
- 	/* It seems we have no way to power the system off via
- 	 * software. The user has to press the button himself. */
- 
-@@ -132,9 +132,6 @@ void machine_power_off(void)
- 	for (;;);
- }
- 
--void (*pm_power_off)(void);
--EXPORT_SYMBOL(pm_power_off);
--
- void machine_halt(void)
- {
- 	machine_power_off();
-diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-index 71f38e9248be..3ed44b6ee232 100644
---- a/arch/powerpc/kernel/setup-common.c
-+++ b/arch/powerpc/kernel/setup-common.c
-@@ -32,6 +32,7 @@
- #include <linux/of_platform.h>
- #include <linux/hugetlb.h>
- #include <linux/pgtable.h>
-+#include <linux/pm.h>
- #include <asm/debugfs.h>
- #include <asm/io.h>
- #include <asm/paca.h>
-@@ -163,18 +164,13 @@ void machine_restart(char *cmd)
- void machine_power_off(void)
- {
- 	machine_shutdown();
--	if (pm_power_off)
--		pm_power_off();
--
-+	do_power_off();
- 	smp_send_stop();
- 	machine_hang();
- }
- /* Used by the G5 thermal driver */
- EXPORT_SYMBOL_GPL(machine_power_off);
- 
--void (*pm_power_off)(void);
--EXPORT_SYMBOL_GPL(pm_power_off);
--
- void machine_halt(void)
- {
- 	machine_shutdown();
-diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
-index dcd817ca2edf..38d76c283412 100644
---- a/arch/powerpc/xmon/xmon.c
-+++ b/arch/powerpc/xmon/xmon.c
-@@ -26,6 +26,7 @@
- #include <linux/ctype.h>
- #include <linux/highmem.h>
- #include <linux/security.h>
-+#include <linux/pm.h>
- 
- #include <asm/debugfs.h>
- #include <asm/ptrace.h>
-@@ -1237,8 +1238,7 @@ static void bootcmds(void)
- 	} else if (cmd == 'h') {
- 		ppc_md.halt();
- 	} else if (cmd == 'p') {
--		if (pm_power_off)
--			pm_power_off();
-+		do_power_off();
- 	}
- }
- 
-diff --git a/arch/riscv/kernel/reset.c b/arch/riscv/kernel/reset.c
-index ee5878d968cc..f8bcf4d8b19b 100644
---- a/arch/riscv/kernel/reset.c
-+++ b/arch/riscv/kernel/reset.c
-@@ -12,9 +12,6 @@ static void default_power_off(void)
- 		wait_for_interrupt();
- }
- 
--void (*pm_power_off)(void) = default_power_off;
--EXPORT_SYMBOL(pm_power_off);
--
- void machine_restart(char *cmd)
- {
- 	do_kernel_restart(cmd);
-@@ -23,10 +20,12 @@ void machine_restart(char *cmd)
- 
- void machine_halt(void)
- {
--	pm_power_off();
-+	do_power_off();
-+	default_power_off();
- }
- 
- void machine_power_off(void)
- {
--	pm_power_off();
-+	do_power_off();
-+	default_power_off();
- }
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 1fbed91c73bc..4e348d3b711f 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -302,9 +302,6 @@ void machine_power_off(void)
- /*
-  * Dummy power off function.
-  */
--void (*pm_power_off)(void) = machine_power_off;
--EXPORT_SYMBOL_GPL(pm_power_off);
--
- void *restart_stack;
- 
- unsigned long stack_alloc(void)
-diff --git a/arch/sh/kernel/reboot.c b/arch/sh/kernel/reboot.c
-index 5c33f036418b..8c9b63e1dbba 100644
---- a/arch/sh/kernel/reboot.c
-+++ b/arch/sh/kernel/reboot.c
-@@ -10,9 +10,6 @@
- #include <asm/tlbflush.h>
- #include <asm/traps.h>
- 
--void (*pm_power_off)(void);
--EXPORT_SYMBOL(pm_power_off);
--
- static void watchdog_trigger_immediate(void)
- {
- 	sh_wdt_write_cnt(0xFF);
-@@ -46,8 +43,7 @@ static void native_machine_shutdown(void)
- 
- static void native_machine_power_off(void)
- {
--	if (pm_power_off)
--		pm_power_off();
-+	do_power_off();
- }
- 
- static void native_machine_halt(void)
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index db115943e8bd..cddf9ca4e6f6 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -34,12 +34,6 @@
- #include <asm/efi.h>
- 
- /*
-- * Power off function, if any
-- */
--void (*pm_power_off)(void);
--EXPORT_SYMBOL(pm_power_off);
--
--/*
-  * This is set if we need to go through the 'emergency' path.
-  * When machine_emergency_restart() is called, we may be on
-  * an inconsistent state and won't be able to do a clean cleanup
-@@ -747,11 +741,10 @@ static void native_machine_halt(void)
- 
- static void native_machine_power_off(void)
- {
--	if (pm_power_off) {
--		if (!reboot_force)
--			machine_shutdown();
--		pm_power_off();
--	}
-+	if (!reboot_force)
-+		machine_shutdown();
-+	do_power_off();
-+
- 	/* A fallback in case there is no PM info available */
- 	tboot_shutdown(TB_SHUTDOWN_HALT);
- }
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 4409306364dc..7e5416c316d3 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -33,6 +33,7 @@
- #include <linux/gfp.h>
- #include <linux/edd.h>
- #include <linux/objtool.h>
-+#include <linux/pm.h>
- 
- #include <xen/xen.h>
- #include <xen/events.h>
-@@ -1084,8 +1085,7 @@ static void xen_machine_halt(void)
- 
- static void xen_machine_power_off(void)
- {
--	if (pm_power_off)
--		pm_power_off();
-+	do_power_off();
- 	xen_reboot(SHUTDOWN_poweroff);
- }
- 
-diff --git a/arch/xtensa/kernel/process.c b/arch/xtensa/kernel/process.c
-index 397a7de56377..fb8d5e9829ba 100644
---- a/arch/xtensa/kernel/process.c
-+++ b/arch/xtensa/kernel/process.c
-@@ -51,10 +51,6 @@
- extern void ret_from_fork(void);
- extern void ret_from_kernel_thread(void);
- 
--void (*pm_power_off)(void) = NULL;
--EXPORT_SYMBOL(pm_power_off);
--
--
- #ifdef CONFIG_STACKPROTECTOR
- #include <linux/stackprotector.h>
- unsigned long __stack_chk_guard __read_mostly;
-diff --git a/include/linux/pm.h b/include/linux/pm.h
-index 47aca6bac1d6..78627c970be0 100644
---- a/include/linux/pm.h
-+++ b/include/linux/pm.h
-@@ -22,6 +22,8 @@
- extern void (*pm_power_off)(void);
- extern void (*pm_power_off_prepare)(void);
- 
-+extern void do_power_off(void);
-+
- struct device; /* we have a circular dep with device.h */
- #ifdef CONFIG_VT_CONSOLE_SLEEP
- extern void pm_vt_switch_required(struct device *dev, bool required);
-diff --git a/kernel/reboot.c b/kernel/reboot.c
-index eb1b15850761..ec4cd66dd1ae 100644
---- a/kernel/reboot.c
-+++ b/kernel/reboot.c
-@@ -53,6 +53,16 @@ int reboot_force;
- void (*pm_power_off_prepare)(void);
- EXPORT_SYMBOL_GPL(pm_power_off_prepare);
- 
-+void (*pm_power_off)(void);
-+EXPORT_SYMBOL_GPL(pm_power_off);
-+
-+void do_power_off(void)
-+{
-+	if (pm_power_off)
-+		pm_power_off();
-+}
-+EXPORT_SYMBOL_GPL(do_power_off);
-+
- /**
-  *	emergency_restart - reboot the system
-  *
+diff --git a/arch/arm64/include/asm/Kbuild b/arch/arm64/include/asm/Kbuild
+index ff9cbb6312128..07ac208edc894 100644
+--- a/arch/arm64/include/asm/Kbuild
++++ b/arch/arm64/include/asm/Kbuild
+@@ -1,6 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
+ generic-y += early_ioremap.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+ generic-y += qrwlock.h
+ generic-y += qspinlock.h
+diff --git a/arch/csky/include/asm/Kbuild b/arch/csky/include/asm/Kbuild
+index 64876e59e2ef9..2a5a4d94fafad 100644
+--- a/arch/csky/include/asm/Kbuild
++++ b/arch/csky/include/asm/Kbuild
+@@ -2,7 +2,6 @@
+ generic-y += asm-offsets.h
+ generic-y += gpio.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += qrwlock.h
+ generic-y += seccomp.h
+ generic-y += user.h
+diff --git a/arch/h8300/include/asm/Kbuild b/arch/h8300/include/asm/Kbuild
+index ddf04f32b5467..60ee7f0d60a8f 100644
+--- a/arch/h8300/include/asm/Kbuild
++++ b/arch/h8300/include/asm/Kbuild
+@@ -2,7 +2,6 @@
+ generic-y += asm-offsets.h
+ generic-y += extable.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+ generic-y += parport.h
+ generic-y += spinlock.h
+diff --git a/arch/hexagon/include/asm/Kbuild b/arch/hexagon/include/asm/Kbuild
+index 373964bb177e4..3ece3c93fe086 100644
+--- a/arch/hexagon/include/asm/Kbuild
++++ b/arch/hexagon/include/asm/Kbuild
+@@ -2,5 +2,4 @@
+ generic-y += extable.h
+ generic-y += iomap.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+diff --git a/arch/ia64/include/asm/local64.h b/arch/ia64/include/asm/local64.h
+deleted file mode 100644
+index 36c93b5cc239b..0000000000000
+--- a/arch/ia64/include/asm/local64.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <asm-generic/local64.h>
+diff --git a/arch/m68k/include/asm/Kbuild b/arch/m68k/include/asm/Kbuild
+index 1bff55aa2d54e..0dbf9c5c6faeb 100644
+--- a/arch/m68k/include/asm/Kbuild
++++ b/arch/m68k/include/asm/Kbuild
+@@ -2,6 +2,5 @@
+ generated-y += syscall_table.h
+ generic-y += extable.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+ generic-y += spinlock.h
+diff --git a/arch/microblaze/include/asm/Kbuild b/arch/microblaze/include/asm/Kbuild
+index 63bce836b9f10..29b0e557aa7c5 100644
+--- a/arch/microblaze/include/asm/Kbuild
++++ b/arch/microblaze/include/asm/Kbuild
+@@ -2,7 +2,6 @@
+ generated-y += syscall_table.h
+ generic-y += extable.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+ generic-y += parport.h
+ generic-y += syscalls.h
+diff --git a/arch/mips/include/asm/Kbuild b/arch/mips/include/asm/Kbuild
+index 198b3bafdac97..95b4fa7bd0d1f 100644
+--- a/arch/mips/include/asm/Kbuild
++++ b/arch/mips/include/asm/Kbuild
+@@ -6,7 +6,6 @@ generated-y += syscall_table_64_n64.h
+ generated-y += syscall_table_64_o32.h
+ generic-y += export.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+ generic-y += parport.h
+ generic-y += qrwlock.h
+diff --git a/arch/nds32/include/asm/Kbuild b/arch/nds32/include/asm/Kbuild
+index ff1e94299317d..82a4453c9c2d5 100644
+--- a/arch/nds32/include/asm/Kbuild
++++ b/arch/nds32/include/asm/Kbuild
+@@ -4,6 +4,5 @@ generic-y += cmpxchg.h
+ generic-y += export.h
+ generic-y += gpio.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += parport.h
+ generic-y += user.h
+diff --git a/arch/parisc/include/asm/Kbuild b/arch/parisc/include/asm/Kbuild
+index e3ee5c0bfe80f..a1bd2adc63e3a 100644
+--- a/arch/parisc/include/asm/Kbuild
++++ b/arch/parisc/include/asm/Kbuild
+@@ -3,7 +3,6 @@ generated-y += syscall_table_32.h
+ generated-y += syscall_table_64.h
+ generated-y += syscall_table_c32.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+ generic-y += seccomp.h
+ generic-y += user.h
+diff --git a/arch/powerpc/include/asm/Kbuild b/arch/powerpc/include/asm/Kbuild
+index 90cd5c53af666..e1f9b4ea1c537 100644
+--- a/arch/powerpc/include/asm/Kbuild
++++ b/arch/powerpc/include/asm/Kbuild
+@@ -5,7 +5,6 @@ generated-y += syscall_table_c32.h
+ generated-y += syscall_table_spu.h
+ generic-y += export.h
+ generic-y += kvm_types.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+ generic-y += qrwlock.h
+ generic-y += vtime.h
+diff --git a/arch/riscv/include/asm/Kbuild b/arch/riscv/include/asm/Kbuild
+index 59dd7be550054..445ccc97305a5 100644
+--- a/arch/riscv/include/asm/Kbuild
++++ b/arch/riscv/include/asm/Kbuild
+@@ -3,6 +3,5 @@ generic-y += early_ioremap.h
+ generic-y += extable.h
+ generic-y += flat.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += user.h
+ generic-y += vmlinux.lds.h
+diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
+index 319efa0e6d024..1a18d7b82f86d 100644
+--- a/arch/s390/include/asm/Kbuild
++++ b/arch/s390/include/asm/Kbuild
+@@ -7,5 +7,4 @@ generated-y += unistd_nr.h
+ generic-y += asm-offsets.h
+ generic-y += export.h
+ generic-y += kvm_types.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+diff --git a/arch/sh/include/asm/Kbuild b/arch/sh/include/asm/Kbuild
+index 7435182ef8465..fc44d9c88b419 100644
+--- a/arch/sh/include/asm/Kbuild
++++ b/arch/sh/include/asm/Kbuild
+@@ -1,6 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
+ generated-y += syscall_table.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+ generic-y += parport.h
+diff --git a/arch/sparc/include/asm/Kbuild b/arch/sparc/include/asm/Kbuild
+index 5269a704801fa..3688fdae50e45 100644
+--- a/arch/sparc/include/asm/Kbuild
++++ b/arch/sparc/include/asm/Kbuild
+@@ -6,5 +6,4 @@ generated-y += syscall_table_64.h
+ generated-y += syscall_table_c32.h
+ generic-y += export.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+diff --git a/arch/x86/include/asm/local64.h b/arch/x86/include/asm/local64.h
+deleted file mode 100644
+index 36c93b5cc239b..0000000000000
+--- a/arch/x86/include/asm/local64.h
++++ /dev/null
+@@ -1 +0,0 @@
+-#include <asm-generic/local64.h>
+diff --git a/arch/xtensa/include/asm/Kbuild b/arch/xtensa/include/asm/Kbuild
+index c59c42a1221a8..adefb1636f7ae 100644
+--- a/arch/xtensa/include/asm/Kbuild
++++ b/arch/xtensa/include/asm/Kbuild
+@@ -2,7 +2,6 @@
+ generated-y += syscall_table.h
+ generic-y += extable.h
+ generic-y += kvm_para.h
+-generic-y += local64.h
+ generic-y += mcs_spinlock.h
+ generic-y += param.h
+ generic-y += qrwlock.h
+diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
+index e78bbb9a07e90..d1300c6e0a471 100644
+--- a/include/asm-generic/Kbuild
++++ b/include/asm-generic/Kbuild
+@@ -34,6 +34,7 @@ mandatory-y += kmap_types.h
+ mandatory-y += kprobes.h
+ mandatory-y += linkage.h
+ mandatory-y += local.h
++mandatory-y += local64.h
+ mandatory-y += mm-arch-hooks.h
+ mandatory-y += mmiowb.h
+ mandatory-y += mmu.h
 -- 
-2.11.0
+2.27.0
