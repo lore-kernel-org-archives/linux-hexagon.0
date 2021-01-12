@@ -1,8 +1,8 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 13/17] local64.h: make <asm/local64.h> mandatory
-Date: Mon,  4 Jan 2021 19:59:11 -0500
-Message-ID: <20210105005915.3954208-13-sashal@kernel.org>
-References: <20210105005915.3954208-1-sashal@kernel.org>
+From: Will Deacon <will@kernel.org>
+Subject: Re: [PATCH v2] arch: consolidate pm_power_off callback
+Date: Tue, 12 Jan 2021 14:05:00 +0000
+Message-ID: <20210112140459.GC9277@willie-the-truck>
+References: <20201227140129.19932-1-info@metux.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -10,26 +10,27 @@ Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradea
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=merlin.20170209; h=Sender:Content-Transfer-Encoding:
 	Content-Type:Cc:List-Subscribe:List-Help:List-Post:List-Archive:
-	List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:Message-Id:Date:
-	Subject:To:From:Reply-To:Content-ID:Content-Description:Resent-Date:
+	List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:Message-ID:
+	Subject:To:From:Date:Reply-To:Content-ID:Content-Description:Resent-Date:
 	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
-	 bh=d7wwxT+ciEFQiEzImi/BvVu9s3gzyUS3yOf3DozlAeE=; b=DBReRT+Dx2YC2icrYe/Pr+51s
-	iA5O2YK0rLFKa3QXUf2u2QEfee/dsE0tup4feqDFo+sS4/8zfdewsFEcCNV+XrCt0E+zqH4f63z9w
-	nscARVYtXlaDk9CQlLRN4WuuHfwmtL2NDr0TrU9f3k3z+oEypyJfOps+Saz0ziM7rCC+hyha1wayq
-	hrJ6sN0KDmEAtPXCI62mAbUCJmajC33heP2z9LSoIdDN/ZhwF9k+3XwWPWPU0+D4Bbduval4nls86
-	gPk9VZvhNe2ZgHNGAE+1A2op8Ejlr3QPQHcnSJqw5VbgDcGRjsEa9hgAQyoYBPgqFweMKje0S586D
-	O6mdxS/Mg==;
+	 bh=M78ElNjr9jAd6g6NCL8iIQoXhPAdtG1f6EeJBKK3Foc=; b=HVUv3+jAKMGdKs4KV0IKFQHgC
+	VZ9n1nY0+HR8vhLfWAx7oHShh2uZYDbG7EhlCpSfCRUrC/7poze94YwAYXw6lStwzfOQKQomFm3+W
+	79Xd92wUtEJlmpGZAM02iRb/xAXoDr7m3NL/ggXReXP0GyWKT56vAG50Coq66scnaFalcYuLfYeUo
+	Sd/sBAFKU5ipJKSHANzZvFFwbOH60oHI88ZhygoK13fE7HJDx63mYmpXGXIaF8190unuebc9pJ1Z8
+	QIhW/r7Sfsyx7uYDLM+qPGwyNvKxe5qapsmjsr+4jJDjPECAV4QpL/6Wx0JhuWsWGIsQSHJHb97LL
+	Nw25xawog==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1609808380;
- bh=k5tUJHFjMO2s79xpLs4QJPdGWhJciPZsye1o8rF3dAs=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=J3TSwo3nNU7X1fflv8qhWlBhn2SmnPDX6zcIj6O9oxknpuMjJ7N3yvo9ua4URUl0A
- PuUfYceIKgapinnC/7xgRiktpmKCh88uXW3LIc+YIkYPxRD/9TsV1xs0NmEEJ6pjuk
- oOPR+/OyUvkgYYruRtYDpBW7qfr/apzWLFoFvF4TGS/TmChN4wb9jYM6uX/RFJil+Z
- yH/zKrmA41wjU1rucnDW1bq8SawDIgRo6A2eiQ22TOP0a4SI8/53r6h2GhKGeDbolu
- KP0RRqhT1KCPIJETNATjvr6VeQAgN6iMWTc1LgWYyJbTxVaFthxWvx/CpUMxRgvKs3
- 4F1Hff+G6hnoQ==
-In-Reply-To: <20210105005915.3954208-1-sashal@kernel.org>
+ s=k20201202; t=1610460310;
+ bh=YIZSFd4ngdBu3d+V+tCrhUDlUF7epBaWbFsCZCkzGJs=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=S+ljzYYL3QMPhhApX5VwhFNyceVrA27EHM0FStNvwzUR1cQ7GFOIPOcEYTO0fdDaA
+ Kj7O7lmy0yWuWK+AZisJL2LrmlkoM/j63MxdM7S787vyvaT4LD71jTgKDStmGrzxuQ
+ L0/NqqEzqp6wU8ndgl0gsmTuxMJL2Vz98cUyPebone1iHGoyH3HLXEv/yY8kVzE9/C
+ 3JxXpkug6tFhHh2/KJ9Ii5coAgelm+gr542ObqppAE3GEOphOgXDNiAJFxaofg4s3u
+ N68pjfATVrUXDVMPlwIcydiug5iK5JLd2AIK2alwIqlmLf7Si7Qy4TLd2kqk9nbCgG
+ c2IYKYoLXP3bw==
+Content-Disposition: inline
+In-Reply-To: <20201227140129.19932-1-info@metux.net>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -40,291 +41,38 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, linux-csky@vger.kernel.org, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>, Ley Foon Tan <ley.foon.tan@intel.com>, Christoph Hellwig <hch@infradead.org>, Mark Salter <msalter@redhat.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>, Aurelien Jacquiot <jacquiot.aurelien@gmail.com>, linux-m68k@lists.linux-m68k.org, linux-arm-kernel@lists.infradead.org, Jens Axboe <axboe@kernel.dk>, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Randy Dunlap <rdunlap@infradead.org>, linux-mips@vger.kernel.org, linux-alpha@vge
+To: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, benh@kernel.crashing.org, linux-mips@vger.kernel.org, James.Bottomley@HansenPartnership.com, jcmvbkbc@gmail.com, paulus@samba.org, linux-csky@vger.kernel.org, hpa@zytor.com, linux-riscv@lists.infradead.org, tglx@linutronix.de, jonas@southpole.se, linux-s390@vger.kernel.org, sstabellini@kernel.org, linux-c6x-dev@linux-c6x.org, ysato@users.sourceforge.jp, linux-hexagon@vger.kernel.org, deller@gmx.de, x86@kernel.org, ley.foon.tan@intel.com, mingo@redhat.com, geert@linux-m68k.org, catalin.marinas@arm.com, linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-pm@vger.kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, bp@alien8.de, shorne@gmail.com, stefan.kristiansson@saunalahti.fi, christian@brauner.io, chris@zanke
 
-From: Randy Dunlap <rdunlap@infradead.org>
+On Sun, Dec 27, 2020 at 03:01:28PM +0100, Enrico Weigelt, metux IT consult wrote:
+> Move the pm_power_off callback into one global place and also add an
+> function for conditionally calling it (when not NULL), in order to remove
+> code duplication in all individual archs.
+> 
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 
-[ Upstream commit 87dbc209ea04645fd2351981f09eff5d23f8e2e9 ]
+[...]
 
-Make <asm-generic/local64.h> mandatory in include/asm-generic/Kbuild and
-remove all arch/*/include/asm/local64.h arch-specific files since they
-only #include <asm-generic/local64.h>.
+> diff --git a/kernel/reboot.c b/kernel/reboot.c
+> index eb1b15850761..ec4cd66dd1ae 100644
+> --- a/kernel/reboot.c
+> +++ b/kernel/reboot.c
+> @@ -53,6 +53,16 @@ int reboot_force;
+>  void (*pm_power_off_prepare)(void);
+>  EXPORT_SYMBOL_GPL(pm_power_off_prepare);
+>  
+> +void (*pm_power_off)(void);
+> +EXPORT_SYMBOL_GPL(pm_power_off);
+> +
+> +void do_power_off(void)
+> +{
+> +	if (pm_power_off)
+> +		pm_power_off();
+> +}
+> +EXPORT_SYMBOL_GPL(do_power_off);
 
-This fixes build errors on arch/c6x/ and arch/nios2/ for
-block/blk-iocost.c.
+Could this just live as a static inline in pm.h to avoid having to export
+the extra symbol?
 
-Build-tested on 21 of 25 arch-es.  (tools problems on the others)
-
-Yes, we could even rename <asm-generic/local64.h> to
-<linux/local64.h> and change all #includes to use
-<linux/local64.h> instead.
-
-Link: https://lkml.kernel.org/r/20201227024446.17018-1-rdunlap@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Ley Foon Tan <ley.foon.tan@intel.com>
-Cc: Mark Salter <msalter@redhat.com>
-Cc: Aurelien Jacquiot <jacquiot.aurelien@gmail.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/alpha/include/asm/local64.h   | 1 -
- arch/arc/include/asm/Kbuild        | 1 -
- arch/arm/include/asm/Kbuild        | 1 -
- arch/arm64/include/asm/Kbuild      | 1 -
- arch/csky/include/asm/Kbuild       | 1 -
- arch/h8300/include/asm/Kbuild      | 1 -
- arch/hexagon/include/asm/Kbuild    | 1 -
- arch/ia64/include/asm/local64.h    | 1 -
- arch/m68k/include/asm/Kbuild       | 1 -
- arch/microblaze/include/asm/Kbuild | 1 -
- arch/mips/include/asm/Kbuild       | 1 -
- arch/nds32/include/asm/Kbuild      | 1 -
- arch/parisc/include/asm/Kbuild     | 1 -
- arch/powerpc/include/asm/Kbuild    | 1 -
- arch/riscv/include/asm/Kbuild      | 1 -
- arch/s390/include/asm/Kbuild       | 1 -
- arch/sh/include/asm/Kbuild         | 1 -
- arch/sparc/include/asm/Kbuild      | 1 -
- arch/x86/include/asm/local64.h     | 1 -
- arch/xtensa/include/asm/Kbuild     | 1 -
- include/asm-generic/Kbuild         | 1 +
- 21 files changed, 1 insertion(+), 20 deletions(-)
- delete mode 100644 arch/alpha/include/asm/local64.h
- delete mode 100644 arch/ia64/include/asm/local64.h
- delete mode 100644 arch/x86/include/asm/local64.h
-
-diff --git a/arch/alpha/include/asm/local64.h b/arch/alpha/include/asm/local64.h
-deleted file mode 100644
-index 36c93b5cc239b..0000000000000
---- a/arch/alpha/include/asm/local64.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/local64.h>
-diff --git a/arch/arc/include/asm/Kbuild b/arch/arc/include/asm/Kbuild
-index 81f4edec0c2a9..3c1afa524b9c2 100644
---- a/arch/arc/include/asm/Kbuild
-+++ b/arch/arc/include/asm/Kbuild
-@@ -1,7 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- generic-y += extable.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += parport.h
- generic-y += user.h
-diff --git a/arch/arm/include/asm/Kbuild b/arch/arm/include/asm/Kbuild
-index 383635b68763c..f1398b9267c08 100644
---- a/arch/arm/include/asm/Kbuild
-+++ b/arch/arm/include/asm/Kbuild
-@@ -2,7 +2,6 @@
- generic-y += early_ioremap.h
- generic-y += extable.h
- generic-y += flat.h
--generic-y += local64.h
- generic-y += parport.h
- generic-y += seccomp.h
- 
-diff --git a/arch/arm64/include/asm/Kbuild b/arch/arm64/include/asm/Kbuild
-index ff9cbb6312128..07ac208edc894 100644
---- a/arch/arm64/include/asm/Kbuild
-+++ b/arch/arm64/include/asm/Kbuild
-@@ -1,6 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
- generic-y += early_ioremap.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += qrwlock.h
- generic-y += qspinlock.h
-diff --git a/arch/csky/include/asm/Kbuild b/arch/csky/include/asm/Kbuild
-index 64876e59e2ef9..2a5a4d94fafad 100644
---- a/arch/csky/include/asm/Kbuild
-+++ b/arch/csky/include/asm/Kbuild
-@@ -2,7 +2,6 @@
- generic-y += asm-offsets.h
- generic-y += gpio.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += qrwlock.h
- generic-y += seccomp.h
- generic-y += user.h
-diff --git a/arch/h8300/include/asm/Kbuild b/arch/h8300/include/asm/Kbuild
-index ddf04f32b5467..60ee7f0d60a8f 100644
---- a/arch/h8300/include/asm/Kbuild
-+++ b/arch/h8300/include/asm/Kbuild
-@@ -2,7 +2,6 @@
- generic-y += asm-offsets.h
- generic-y += extable.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += parport.h
- generic-y += spinlock.h
-diff --git a/arch/hexagon/include/asm/Kbuild b/arch/hexagon/include/asm/Kbuild
-index 373964bb177e4..3ece3c93fe086 100644
---- a/arch/hexagon/include/asm/Kbuild
-+++ b/arch/hexagon/include/asm/Kbuild
-@@ -2,5 +2,4 @@
- generic-y += extable.h
- generic-y += iomap.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
-diff --git a/arch/ia64/include/asm/local64.h b/arch/ia64/include/asm/local64.h
-deleted file mode 100644
-index 36c93b5cc239b..0000000000000
---- a/arch/ia64/include/asm/local64.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/local64.h>
-diff --git a/arch/m68k/include/asm/Kbuild b/arch/m68k/include/asm/Kbuild
-index 1bff55aa2d54e..0dbf9c5c6faeb 100644
---- a/arch/m68k/include/asm/Kbuild
-+++ b/arch/m68k/include/asm/Kbuild
-@@ -2,6 +2,5 @@
- generated-y += syscall_table.h
- generic-y += extable.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += spinlock.h
-diff --git a/arch/microblaze/include/asm/Kbuild b/arch/microblaze/include/asm/Kbuild
-index 63bce836b9f10..29b0e557aa7c5 100644
---- a/arch/microblaze/include/asm/Kbuild
-+++ b/arch/microblaze/include/asm/Kbuild
-@@ -2,7 +2,6 @@
- generated-y += syscall_table.h
- generic-y += extable.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += parport.h
- generic-y += syscalls.h
-diff --git a/arch/mips/include/asm/Kbuild b/arch/mips/include/asm/Kbuild
-index 198b3bafdac97..95b4fa7bd0d1f 100644
---- a/arch/mips/include/asm/Kbuild
-+++ b/arch/mips/include/asm/Kbuild
-@@ -6,7 +6,6 @@ generated-y += syscall_table_64_n64.h
- generated-y += syscall_table_64_o32.h
- generic-y += export.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += parport.h
- generic-y += qrwlock.h
-diff --git a/arch/nds32/include/asm/Kbuild b/arch/nds32/include/asm/Kbuild
-index ff1e94299317d..82a4453c9c2d5 100644
---- a/arch/nds32/include/asm/Kbuild
-+++ b/arch/nds32/include/asm/Kbuild
-@@ -4,6 +4,5 @@ generic-y += cmpxchg.h
- generic-y += export.h
- generic-y += gpio.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += parport.h
- generic-y += user.h
-diff --git a/arch/parisc/include/asm/Kbuild b/arch/parisc/include/asm/Kbuild
-index e3ee5c0bfe80f..a1bd2adc63e3a 100644
---- a/arch/parisc/include/asm/Kbuild
-+++ b/arch/parisc/include/asm/Kbuild
-@@ -3,7 +3,6 @@ generated-y += syscall_table_32.h
- generated-y += syscall_table_64.h
- generated-y += syscall_table_c32.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += seccomp.h
- generic-y += user.h
-diff --git a/arch/powerpc/include/asm/Kbuild b/arch/powerpc/include/asm/Kbuild
-index 90cd5c53af666..e1f9b4ea1c537 100644
---- a/arch/powerpc/include/asm/Kbuild
-+++ b/arch/powerpc/include/asm/Kbuild
-@@ -5,7 +5,6 @@ generated-y += syscall_table_c32.h
- generated-y += syscall_table_spu.h
- generic-y += export.h
- generic-y += kvm_types.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += qrwlock.h
- generic-y += vtime.h
-diff --git a/arch/riscv/include/asm/Kbuild b/arch/riscv/include/asm/Kbuild
-index 59dd7be550054..445ccc97305a5 100644
---- a/arch/riscv/include/asm/Kbuild
-+++ b/arch/riscv/include/asm/Kbuild
-@@ -3,6 +3,5 @@ generic-y += early_ioremap.h
- generic-y += extable.h
- generic-y += flat.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += user.h
- generic-y += vmlinux.lds.h
-diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
-index 319efa0e6d024..1a18d7b82f86d 100644
---- a/arch/s390/include/asm/Kbuild
-+++ b/arch/s390/include/asm/Kbuild
-@@ -7,5 +7,4 @@ generated-y += unistd_nr.h
- generic-y += asm-offsets.h
- generic-y += export.h
- generic-y += kvm_types.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
-diff --git a/arch/sh/include/asm/Kbuild b/arch/sh/include/asm/Kbuild
-index 7435182ef8465..fc44d9c88b419 100644
---- a/arch/sh/include/asm/Kbuild
-+++ b/arch/sh/include/asm/Kbuild
-@@ -1,6 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
- generated-y += syscall_table.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += parport.h
-diff --git a/arch/sparc/include/asm/Kbuild b/arch/sparc/include/asm/Kbuild
-index 5269a704801fa..3688fdae50e45 100644
---- a/arch/sparc/include/asm/Kbuild
-+++ b/arch/sparc/include/asm/Kbuild
-@@ -6,5 +6,4 @@ generated-y += syscall_table_64.h
- generated-y += syscall_table_c32.h
- generic-y += export.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
-diff --git a/arch/x86/include/asm/local64.h b/arch/x86/include/asm/local64.h
-deleted file mode 100644
-index 36c93b5cc239b..0000000000000
---- a/arch/x86/include/asm/local64.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/local64.h>
-diff --git a/arch/xtensa/include/asm/Kbuild b/arch/xtensa/include/asm/Kbuild
-index c59c42a1221a8..adefb1636f7ae 100644
---- a/arch/xtensa/include/asm/Kbuild
-+++ b/arch/xtensa/include/asm/Kbuild
-@@ -2,7 +2,6 @@
- generated-y += syscall_table.h
- generic-y += extable.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += param.h
- generic-y += qrwlock.h
-diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
-index e78bbb9a07e90..d1300c6e0a471 100644
---- a/include/asm-generic/Kbuild
-+++ b/include/asm-generic/Kbuild
-@@ -34,6 +34,7 @@ mandatory-y += kmap_types.h
- mandatory-y += kprobes.h
- mandatory-y += linkage.h
- mandatory-y += local.h
-+mandatory-y += local64.h
- mandatory-y += mm-arch-hooks.h
- mandatory-y += mmiowb.h
- mandatory-y += mmu.h
--- 
-2.27.0
+Will
