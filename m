@@ -1,60 +1,58 @@
-From: "Brian Cain" <bcain@codeaurora.org>
-Subject: RE: [PATCH 04/18] arch: hexagon: Don't select HAVE_OPROFILE
-Date: Fri, 15 Jan 2021 09:30:41 -0600
-Message-ID: <003a01d6eb53$63313330$29939990$@codeaurora.org>
-References: <cover.1610622251.git.viresh.kumar@linaro.org> <041ab89e12a71c1bf40d08926c3914c68af1504c.1610622251.git.viresh.kumar@linaro.org>
-Reply-To: <bcain@codeaurora.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH] hexagon: add arch/hexagon/Kbuild
+Date: Sat, 27 Feb 2021 14:55:34 +0900
+Message-ID: <20210227055534.4075178-1-masahiroy@kernel.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1610724672; h=Content-Transfer-Encoding: Content-Type:
- MIME-Version: Message-ID: Date: Subject: In-Reply-To: References: Cc:
- To: From: Reply-To: Sender;
- bh=q0/ru+LfZr7L2kRVGdNGG4rvKSg/SVssCMScCzWIjSY=; b=L+IsKs8FwKx9jG3pS2hifEwVuvWvX3MyL+QBXbTVekZMD9FQzRf7Pt8AHlPxa99fWKBHBYBi
- vEciTf9FsE/MAlHaZplkQnKJmZHfefMa8LDJLO+NEOSGBWqzIupkiu4yozB8zxGQ9sDFlgXo
- gnJrZzDXEmdN+tn6m/Pl1iON0AQ=
-Sender: bcain=codeaurora.org@mg.codeaurora.org
-In-Reply-To: <041ab89e12a71c1bf40d08926c3914c68af1504c.1610622251.git.viresh.kumar@linaro.org>
-Content-Language: en-us
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-08.nifty.com 11R5tbT9012049
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1614405337;
+        bh=Hh46TLDMGRj9Od269X4TVtHg2fLoWjuatPR/1X4lShc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=OIdXG+VDsWEkB6mZKMPYrqUW3tzApbSF2zYRUkMxHC/mvYsPfFdEu+Q5kHLwFOrHJ
+         QtgF248YEzhfsvtkdsQ2hz+KkGCybjSMQmQwKdyBVUNR3XhyPsMjgrjt0WhLC9IVns
+         +YYieSSmPsUoaOQWmoPUct1nfBEA9PC+peIpzI3dm8hXhCvjMYAETiYWXatJmseSqj
+         kgl6XDTOU7Iu4yRSsG2TahQOsFpCv17qTIM09XDlNQxk+Kpw5bG9yvS+p1VZfGph74
+         y6DX54mkN+Fyuh9dofMFivqPTCBkdeuZ/spDb3oc2lTfPcRSlXkKaUGNLZTltXI2sP
+         NiGGnwUZ+LHyw==
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: 'Viresh Kumar' <viresh.kumar@linaro.org>, 'Linus Torvalds' <torvalds@linux-foundation.org>, 'Robert Richter' <rric@kernel.org>
-Cc: 'Vincent Guittot' <vincent.guittot@linaro.org>, 'Arnd Bergmann' <arnd@kernel.org>, oprofile-list@lists.sf.net, 'William Cohen' <wcohen@redhat.com>, 'Alexander Viro' <viro@zeniv.linux.org.uk>, anmar.oueja@linaro.org, 'Christoph Hellwig' <hch@infradead.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kbuild@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org
 
-> -----Original Message-----
-> From: Viresh Kumar <viresh.kumar@linaro.org>
-> Sent: Thursday, January 14, 2021 5:35 AM
-...
-> The "oprofile" user-space tools don't use the kernel OPROFILE support any
-> more, and haven't in a long time. User-space has been converted to the
-perf
-> interfaces.
-> 
-> Don't select HAVE_OPROFILE for hexagon anymore.
+Use the standard obj-y form to specify the sub-directories under
+arch/hexagon/. No functional change intended.
 
-Acked-by: Brian Cain <bcain@codeaurora.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+---
 
-> Suggested-by: Christoph Hellwig <hch@infradead.org>
-> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> ---
->  arch/hexagon/Kconfig | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig index
-> 6e00c16a36b5..44a409967af1 100644
-> --- a/arch/hexagon/Kconfig
-> +++ b/arch/hexagon/Kconfig
-> @@ -7,7 +7,6 @@ config HEXAGON
->  	select ARCH_32BIT_OFF_T
->  	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
->  	select ARCH_NO_PREEMPT
-> -	select HAVE_OPROFILE
->  	# Other pending projects/to-do items.
->  	# select HAVE_REGS_AND_STACK_ACCESS_API
->  	# select HAVE_HW_BREAKPOINT if PERF_EVENTS
-> --
-> 2.25.0.rc1.19.g042ed3e048af
+ arch/hexagon/Kbuild   | 2 ++
+ arch/hexagon/Makefile | 5 +----
+ 2 files changed, 3 insertions(+), 4 deletions(-)
+ create mode 100644 arch/hexagon/Kbuild
 
+diff --git a/arch/hexagon/Kbuild b/arch/hexagon/Kbuild
+new file mode 100644
+index 000000000000..8421baba1351
+--- /dev/null
++++ b/arch/hexagon/Kbuild
+@@ -0,0 +1,2 @@
++# SPDX-License-Identifier: GPL-2.0-only
++obj-y += kernel/ mm/ lib/
+diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile
+index c168c6980d05..80583548b81e 100644
+--- a/arch/hexagon/Makefile
++++ b/arch/hexagon/Makefile
+@@ -34,7 +34,4 @@ LIBGCC := $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name 2>/dev/null)
+ libs-y += $(LIBGCC)
+ 
+ head-y := arch/hexagon/kernel/head.o
+-
+-core-y += arch/hexagon/kernel/ \
+-	arch/hexagon/mm/ \
+-	arch/hexagon/lib/
++core-y += arch/hexagon/
+-- 
+2.27.0
 
