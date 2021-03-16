@@ -1,108 +1,58 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH RESEND] mm: Move mem_init_print_info() into mm_init()
-Date: Tue, 16 Mar 2021 16:45:19 +0100
-Message-ID: <4d488195-7281-9238-b30d-9f89a6100fb9@csgroup.eu>
+From: Dave Hansen <dave.hansen@intel.com>
+Subject: Re: [PATCH] mm: Move mem_init_print_info() into mm_init()
+Date: Tue, 16 Mar 2021 14:16:35 -0700
+Message-ID: <009553ee-8d7b-0b60-8457-f8ac66e27fb4@intel.com>
 References: <20210316142637.92193-1-wangkefeng.wang@huawei.com>
- <20210316152901.70662-1-wangkefeng.wang@huawei.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-In-Reply-To: <20210316152901.70662-1-wangkefeng.wang@huawei.com>
-Content-Language: fr
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=desiato.20200630; h=Sender:Content-Transfer-Encoding
+	:Content-Type:List-Subscribe:List-Help:List-Post:List-Archive:
+	List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:Message-ID:From:
+	References:Cc:To:Subject:Reply-To:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	 bh=3RwmF1xmgLkkz7knebGm2uaO5vyODm/Z6xGr7kBjjGc=; b=dCV2er26dOvVR0le4f4tMjAWK
+	7bFSfG+QauaJC3M0MuQdM8kv0ZOk0ZmY0Bv7oInRTic9rpYSrpNa+mowd25e7p/e7dJBuKyDTOkM5
+	iX9g7fhQRo9q7CroKJUpIO0Urb7ITCJm+HcUuxSpLu7z1RC6DiECOAq7QznS9uXALst9h9vt7KdDe
+	onlFoM0b7/Cw3d7eLWcCXDXlUcKTCcpdbTd4VgW/+1fPM7y3EWagK5U1mobUUzS+7e240QcbEridm
+	Q94PGXMmwu67Hf+FNY8p9qTEclA6ZIImXXWeOCUytV4bBv8kM/faOAoKPDW/gJvt+CKtgQeVjf8Sw
+	LkRcNuutw==;
+In-Reply-To: <20210316142637.92193-1-wangkefeng.wang@huawei.com>
+Content-Language: en-US
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 To: Kefeng Wang <wangkefeng.wang@huawei.com>, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Huacai Chen <chenhuacai@kernel.org>, Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org, Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, linux-parisc@vger.kernel.org, linux-mips@vger.ker
+Cc: Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Richard Henderson <rth@twiddle.net>, Guo Ren <guoren@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Huacai Chen <chenhuacai@kernel.org>, Jonas Bonn <jonas@southpole.se>, Palmer Dabbelt <palmer@dabbelt.com>, Heiko Carstens <hca@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger
 
+On 3/16/21 7:26 AM, Kefeng Wang wrote:
+> diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+> index 5430c81eefc9..aa8387aab9c1 100644
+> --- a/arch/x86/mm/init_64.c
+> +++ b/arch/x86/mm/init_64.c
+> @@ -1350,8 +1350,6 @@ void __init mem_init(void)
+>  		kclist_add(&kcore_vsyscall, (void *)VSYSCALL_ADDR, PAGE_SIZE, KCORE_USER);
+>  
+>  	preallocate_vmalloc_pages();
+> -
+> -	mem_init_print_info(NULL);
+>  }
 
+Ignoring any issues with the printk...
 
-Le 16/03/2021 à 16:29, Kefeng Wang a écrit :
-> mem_init_print_info() is called in mem_init() on each architecture,
-> and pass NULL argument, so using void argument and move it into mm_init().
-> 
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> ---
-> 
-> Resend with 'str' line cleanup, and only test on ARM64 qemu.
-> 
->   arch/alpha/mm/init.c             | 1 -
->   arch/arc/mm/init.c               | 1 -
->   arch/arm/mm/init.c               | 2 --
->   arch/arm64/mm/init.c             | 2 --
->   arch/csky/mm/init.c              | 1 -
->   arch/h8300/mm/init.c             | 2 --
->   arch/hexagon/mm/init.c           | 1 -
->   arch/ia64/mm/init.c              | 1 -
->   arch/m68k/mm/init.c              | 1 -
->   arch/microblaze/mm/init.c        | 1 -
->   arch/mips/loongson64/numa.c      | 1 -
->   arch/mips/mm/init.c              | 1 -
->   arch/mips/sgi-ip27/ip27-memory.c | 1 -
->   arch/nds32/mm/init.c             | 1 -
->   arch/nios2/mm/init.c             | 1 -
->   arch/openrisc/mm/init.c          | 2 --
->   arch/parisc/mm/init.c            | 2 --
->   arch/powerpc/mm/mem.c            | 1 -
->   arch/riscv/mm/init.c             | 1 -
->   arch/s390/mm/init.c              | 2 --
->   arch/sh/mm/init.c                | 1 -
->   arch/sparc/mm/init_32.c          | 2 --
->   arch/sparc/mm/init_64.c          | 1 -
->   arch/um/kernel/mem.c             | 1 -
->   arch/x86/mm/init_32.c            | 2 --
->   arch/x86/mm/init_64.c            | 2 --
->   arch/xtensa/mm/init.c            | 1 -
->   include/linux/mm.h               | 2 +-
->   init/main.c                      | 1 +
->   mm/page_alloc.c                  | 6 +++---
->   30 files changed, 5 insertions(+), 40 deletions(-)
-> 
+Looks harmless enough on x86.  The 32-bit code has some cruft in
+mem_init() after mem_init_print_info(), so this patch will change the
+location of the mem_init_print_info(), but I think it's actually for the
+better, since it will be pushed later in boot.  As long as the x86
+pieces stay the same:
 
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 55d938297ce6..cf5a2114c6d4 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -7728,7 +7728,7 @@ unsigned long free_reserved_area(void *start, void *end, int poison, const char
->   	return pages;
->   }
->   
-> -void __init mem_init_print_info(const char *str)
-> +void __init mem_init_print_info(void)
->   {
->   	unsigned long physpages, codesize, datasize, rosize, bss_size;
->   	unsigned long init_code_size, init_data_size;
-> @@ -7767,7 +7767,7 @@ void __init mem_init_print_info(const char *str)
->   #ifdef	CONFIG_HIGHMEM
->   		", %luK highmem"
->   #endif
-> -		"%s%s)\n",
-> +		"%s)\n",
->   		nr_free_pages() << (PAGE_SHIFT - 10),
->   		physpages << (PAGE_SHIFT - 10),
->   		codesize >> 10, datasize >> 10, rosize >> 10,
-> @@ -7777,7 +7777,7 @@ void __init mem_init_print_info(const char *str)
->   #ifdef	CONFIG_HIGHMEM
->   		totalhigh_pages() << (PAGE_SHIFT - 10),
->   #endif
-> -		str ? ", " : "", str ? str : "");
-> +		"");
->   }
->   
->   /**
-> 
-
-What is the benefit of a %s to print a constant "" ?
-
-You should tidy up completely.
-
-Christophe
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
