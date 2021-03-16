@@ -1,38 +1,437 @@
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Subject: [PATCH] hexagon: fix warning comparing pointer to 0
-Date: Wed, 10 Mar 2021 14:53:39 +0800
-Message-ID: <1615359219-1528-1-git-send-email-jiapeng.chong@linux.alibaba.com>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: [PATCH] mm: Move mem_init_print_info() into mm_init()
+Date: Tue, 16 Mar 2021 22:26:37 +0800
+Message-ID: <20210316142637.92193-1-wangkefeng.wang@huawei.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: bcain@codeaurora.org
-Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=desiato.20200630; h=Sender:Content-Transfer-Encoding
+	:Content-Type:List-Subscribe:List-Help:List-Post:List-Archive:
+	List-Unsubscribe:List-Id:MIME-Version:Message-ID:Date:Subject:CC:To:From:
+	Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender
+	:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Owner;
+	bh=nT7mgjl+HVkXgd0bjy1Y0wPyq3hm99LhGz0T30K6hrg=; b=doOeQrt46Qojz6/Oz5Vy60G+nY
+	NtPb280RGg6bvWlqBi8wEMwcRPISc6+heUf4AO7aK3eMW5oCTP2k0xvZxA4gsnjGC1iaKtHOm6haj
+	qkRkVJAXKkc1pPymPTjmpeRugLkp6YNmrw0m9Jcknnivj6UHUmjqfjrH8Vzz2+c1YV8fIeJcgwiwT
+	saGX3FgaZb76rUdyjrv+husrZvR0CdxnYNV6BS/ZLKp+pK65BL43faDufE2NqxRo/Bye67iiuy8/p
+	Urp6AD0hp0rhueyvc+fe/vzIO1bMG32kW080uwMZsI+yQDKOP5gVnvBBoCZvKX+ERWCdWFFAZPh3i
+	2E1q18Dg==;
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Richard Henderson <rth@twiddle.net>, Guo Ren <guoren@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Huacai Chen <chenhuacai@kernel.org>, Jonas Bonn <jonas@southpole.se>, Palmer Dabbelt <palmer@dabbelt.com>, Heiko Carstens <hca@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, Peter
+ Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradea
 
-Fix the following coccicheck warning:
+mem_init_print_info() is called in mem_init() on each architecture,
+and pass NULL argument, cleanup it by using void argument and move
+it into mm_init().
 
-./arch/hexagon/kernel/traps.c:142:6-7: WARNING comparing pointer to 0.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 ---
- arch/hexagon/kernel/traps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/alpha/mm/init.c             | 1 -
+ arch/arc/mm/init.c               | 1 -
+ arch/arm/mm/init.c               | 2 --
+ arch/arm64/mm/init.c             | 2 --
+ arch/csky/mm/init.c              | 1 -
+ arch/h8300/mm/init.c             | 2 --
+ arch/hexagon/mm/init.c           | 1 -
+ arch/ia64/mm/init.c              | 1 -
+ arch/m68k/mm/init.c              | 1 -
+ arch/microblaze/mm/init.c        | 1 -
+ arch/mips/loongson64/numa.c      | 1 -
+ arch/mips/mm/init.c              | 1 -
+ arch/mips/sgi-ip27/ip27-memory.c | 1 -
+ arch/nds32/mm/init.c             | 1 -
+ arch/nios2/mm/init.c             | 1 -
+ arch/openrisc/mm/init.c          | 2 --
+ arch/parisc/mm/init.c            | 2 --
+ arch/powerpc/mm/mem.c            | 1 -
+ arch/riscv/mm/init.c             | 1 -
+ arch/s390/mm/init.c              | 2 --
+ arch/sh/mm/init.c                | 1 -
+ arch/sparc/mm/init_32.c          | 2 --
+ arch/sparc/mm/init_64.c          | 1 -
+ arch/um/kernel/mem.c             | 1 -
+ arch/x86/mm/init_32.c            | 2 --
+ arch/x86/mm/init_64.c            | 2 --
+ arch/xtensa/mm/init.c            | 1 -
+ include/linux/mm.h               | 2 +-
+ init/main.c                      | 1 +
+ mm/page_alloc.c                  | 2 +-
+ 30 files changed, 3 insertions(+), 38 deletions(-)
 
-diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
-index 904134b..58083df 100644
---- a/arch/hexagon/kernel/traps.c
-+++ b/arch/hexagon/kernel/traps.c
-@@ -139,7 +139,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 		}
+diff --git a/arch/alpha/mm/init.c b/arch/alpha/mm/init.c
+index 3c42b3147fd6..a97650a618f1 100644
+--- a/arch/alpha/mm/init.c
++++ b/arch/alpha/mm/init.c
+@@ -282,5 +282,4 @@ mem_init(void)
+ 	set_max_mapnr(max_low_pfn);
+ 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+ 	memblock_free_all();
+-	mem_init_print_info(NULL);
+ }
+diff --git a/arch/arc/mm/init.c b/arch/arc/mm/init.c
+index ce07e697916c..33832e36bdb7 100644
+--- a/arch/arc/mm/init.c
++++ b/arch/arc/mm/init.c
+@@ -194,7 +194,6 @@ void __init mem_init(void)
+ {
+ 	memblock_free_all();
+ 	highmem_init();
+-	mem_init_print_info(NULL);
+ }
  
- 		/* Attempt to continue past exception. */
--		if (0 == newfp) {
-+		if (!newfp) {
- 			struct pt_regs *regs = (struct pt_regs *) (((void *)fp)
- 						+ 8);
+ #ifdef CONFIG_HIGHMEM
+diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+index 828a2561b229..7022b7b5c400 100644
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -316,8 +316,6 @@ void __init mem_init(void)
  
+ 	free_highpages();
+ 
+-	mem_init_print_info(NULL);
+-
+ 	/*
+ 	 * Check boundaries twice: Some fundamental inconsistencies can
+ 	 * be detected at build time already.
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index 3685e12aba9b..e8f29a0bb2f1 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -491,8 +491,6 @@ void __init mem_init(void)
+ 	/* this will put all unused low memory onto the freelists */
+ 	memblock_free_all();
+ 
+-	mem_init_print_info(NULL);
+-
+ 	/*
+ 	 * Check boundaries twice: Some fundamental inconsistencies can be
+ 	 * detected at build time already.
+diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
+index 894050a8ce09..bf2004aa811a 100644
+--- a/arch/csky/mm/init.c
++++ b/arch/csky/mm/init.c
+@@ -107,7 +107,6 @@ void __init mem_init(void)
+ 			free_highmem_page(page);
+ 	}
+ #endif
+-	mem_init_print_info(NULL);
+ }
+ 
+ void free_initmem(void)
+diff --git a/arch/h8300/mm/init.c b/arch/h8300/mm/init.c
+index 1f3b345d68b9..f7bf4693e3b2 100644
+--- a/arch/h8300/mm/init.c
++++ b/arch/h8300/mm/init.c
+@@ -98,6 +98,4 @@ void __init mem_init(void)
+ 
+ 	/* this will put all low memory onto the freelists */
+ 	memblock_free_all();
+-
+-	mem_init_print_info(NULL);
+ }
+diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
+index f2e6c868e477..f01e91e10d95 100644
+--- a/arch/hexagon/mm/init.c
++++ b/arch/hexagon/mm/init.c
+@@ -55,7 +55,6 @@ void __init mem_init(void)
+ {
+ 	/*  No idea where this is actually declared.  Seems to evade LXR.  */
+ 	memblock_free_all();
+-	mem_init_print_info(NULL);
+ 
+ 	/*
+ 	 *  To-Do:  someone somewhere should wipe out the bootmem map
+diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
+index 16d0d7d22657..83280e2df807 100644
+--- a/arch/ia64/mm/init.c
++++ b/arch/ia64/mm/init.c
+@@ -659,7 +659,6 @@ mem_init (void)
+ 	set_max_mapnr(max_low_pfn);
+ 	high_memory = __va(max_low_pfn * PAGE_SIZE);
+ 	memblock_free_all();
+-	mem_init_print_info(NULL);
+ 
+ 	/*
+ 	 * For fsyscall entrpoints with no light-weight handler, use the ordinary
+diff --git a/arch/m68k/mm/init.c b/arch/m68k/mm/init.c
+index 14c1e541451c..1759ab875d47 100644
+--- a/arch/m68k/mm/init.c
++++ b/arch/m68k/mm/init.c
+@@ -153,5 +153,4 @@ void __init mem_init(void)
+ 	/* this will put all memory onto the freelists */
+ 	memblock_free_all();
+ 	init_pointer_tables();
+-	mem_init_print_info(NULL);
+ }
+diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
+index 05cf1fb3f5ff..ab55c70380a5 100644
+--- a/arch/microblaze/mm/init.c
++++ b/arch/microblaze/mm/init.c
+@@ -131,7 +131,6 @@ void __init mem_init(void)
+ 	highmem_setup();
+ #endif
+ 
+-	mem_init_print_info(NULL);
+ 	mem_init_done = 1;
+ }
+ 
+diff --git a/arch/mips/loongson64/numa.c b/arch/mips/loongson64/numa.c
+index 8315c871c435..fa9b4a487a47 100644
+--- a/arch/mips/loongson64/numa.c
++++ b/arch/mips/loongson64/numa.c
+@@ -178,7 +178,6 @@ void __init mem_init(void)
+ 	high_memory = (void *) __va(get_num_physpages() << PAGE_SHIFT);
+ 	memblock_free_all();
+ 	setup_zero_pages();	/* This comes from node 0 */
+-	mem_init_print_info(NULL);
+ }
+ 
+ /* All PCI device belongs to logical Node-0 */
+diff --git a/arch/mips/mm/init.c b/arch/mips/mm/init.c
+index 5cb73bf74a8b..c36358758969 100644
+--- a/arch/mips/mm/init.c
++++ b/arch/mips/mm/init.c
+@@ -467,7 +467,6 @@ void __init mem_init(void)
+ 	memblock_free_all();
+ 	setup_zero_pages();	/* Setup zeroed pages.  */
+ 	mem_init_free_highmem();
+-	mem_init_print_info(NULL);
+ 
+ #ifdef CONFIG_64BIT
+ 	if ((unsigned long) &_text > (unsigned long) CKSEG0)
+diff --git a/arch/mips/sgi-ip27/ip27-memory.c b/arch/mips/sgi-ip27/ip27-memory.c
+index 87bb6945ec25..6173684b5aaa 100644
+--- a/arch/mips/sgi-ip27/ip27-memory.c
++++ b/arch/mips/sgi-ip27/ip27-memory.c
+@@ -420,5 +420,4 @@ void __init mem_init(void)
+ 	high_memory = (void *) __va(get_num_physpages() << PAGE_SHIFT);
+ 	memblock_free_all();
+ 	setup_zero_pages();	/* This comes from node 0 */
+-	mem_init_print_info(NULL);
+ }
+diff --git a/arch/nds32/mm/init.c b/arch/nds32/mm/init.c
+index fa86f7b2f416..f63f839738c4 100644
+--- a/arch/nds32/mm/init.c
++++ b/arch/nds32/mm/init.c
+@@ -191,7 +191,6 @@ void __init mem_init(void)
+ 
+ 	/* this will put all low memory onto the freelists */
+ 	memblock_free_all();
+-	mem_init_print_info(NULL);
+ 
+ 	pr_info("virtual kernel memory layout:\n"
+ 		"    fixmap  : 0x%08lx - 0x%08lx   (%4ld kB)\n"
+diff --git a/arch/nios2/mm/init.c b/arch/nios2/mm/init.c
+index 61862dbb0e32..613fcaa5988a 100644
+--- a/arch/nios2/mm/init.c
++++ b/arch/nios2/mm/init.c
+@@ -71,7 +71,6 @@ void __init mem_init(void)
+ 
+ 	/* this will put all memory onto the freelists */
+ 	memblock_free_all();
+-	mem_init_print_info(NULL);
+ }
+ 
+ void __init mmu_init(void)
+diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
+index bf9b2310fc93..d5641198b90c 100644
+--- a/arch/openrisc/mm/init.c
++++ b/arch/openrisc/mm/init.c
+@@ -211,8 +211,6 @@ void __init mem_init(void)
+ 	/* this will put all low memory onto the freelists */
+ 	memblock_free_all();
+ 
+-	mem_init_print_info(NULL);
+-
+ 	printk("mem_init_done ...........................................\n");
+ 	mem_init_done = 1;
+ 	return;
+diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
+index 9ca4e4ff6895..591a4e939415 100644
+--- a/arch/parisc/mm/init.c
++++ b/arch/parisc/mm/init.c
+@@ -573,8 +573,6 @@ void __init mem_init(void)
+ #endif
+ 		parisc_vmalloc_start = SET_MAP_OFFSET(MAP_START);
+ 
+-	mem_init_print_info(NULL);
+-
+ #if 0
+ 	/*
+ 	 * Do not expose the virtual kernel memory layout to userspace.
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index 4e8ce6d85232..7e11c4cb08b8 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -312,7 +312,6 @@ void __init mem_init(void)
+ 		(mfspr(SPRN_TLB1CFG) & TLBnCFG_N_ENTRY) - 1;
+ #endif
+ 
+-	mem_init_print_info(NULL);
+ #ifdef CONFIG_PPC32
+ 	pr_info("Kernel virtual memory layout:\n");
+ #ifdef CONFIG_KASAN
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 7f5036fbee8c..3c5ee3b7d811 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -102,7 +102,6 @@ void __init mem_init(void)
+ 	high_memory = (void *)(__va(PFN_PHYS(max_low_pfn)));
+ 	memblock_free_all();
+ 
+-	mem_init_print_info(NULL);
+ 	print_vm_layout();
+ }
+ 
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 0e76b2127dc6..8ac710de1ab1 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -209,8 +209,6 @@ void __init mem_init(void)
+ 	setup_zero_pages();	/* Setup zeroed pages. */
+ 
+ 	cmma_init_nodat();
+-
+-	mem_init_print_info(NULL);
+ }
+ 
+ void free_initmem(void)
+diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
+index 0db6919af8d3..168d7d4dd735 100644
+--- a/arch/sh/mm/init.c
++++ b/arch/sh/mm/init.c
+@@ -359,7 +359,6 @@ void __init mem_init(void)
+ 
+ 	vsyscall_init();
+ 
+-	mem_init_print_info(NULL);
+ 	pr_info("virtual kernel memory layout:\n"
+ 		"    fixmap  : 0x%08lx - 0x%08lx   (%4ld kB)\n"
+ 		"    vmalloc : 0x%08lx - 0x%08lx   (%4ld MB)\n"
+diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
+index 6139c5700ccc..1e9f577f084d 100644
+--- a/arch/sparc/mm/init_32.c
++++ b/arch/sparc/mm/init_32.c
+@@ -292,8 +292,6 @@ void __init mem_init(void)
+ 
+ 		map_high_region(start_pfn, end_pfn);
+ 	}
+-
+-	mem_init_print_info(NULL);
+ }
+ 
+ void sparc_flush_page_to_ram(struct page *page)
+diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
+index 182bb7bdaa0a..e454f179cf5d 100644
+--- a/arch/sparc/mm/init_64.c
++++ b/arch/sparc/mm/init_64.c
+@@ -2520,7 +2520,6 @@ void __init mem_init(void)
+ 	}
+ 	mark_page_reserved(mem_map_zero);
+ 
+-	mem_init_print_info(NULL);
+ 
+ 	if (tlb_type == cheetah || tlb_type == cheetah_plus)
+ 		cheetah_ecache_flush_init();
+diff --git a/arch/um/kernel/mem.c b/arch/um/kernel/mem.c
+index 9242dc91d751..9019ff5905b1 100644
+--- a/arch/um/kernel/mem.c
++++ b/arch/um/kernel/mem.c
+@@ -54,7 +54,6 @@ void __init mem_init(void)
+ 	memblock_free_all();
+ 	max_low_pfn = totalram_pages();
+ 	max_pfn = max_low_pfn;
+-	mem_init_print_info(NULL);
+ 	kmalloc_ok = 1;
+ }
+ 
+diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
+index da31c2635ee4..21ffb03f6c72 100644
+--- a/arch/x86/mm/init_32.c
++++ b/arch/x86/mm/init_32.c
+@@ -755,8 +755,6 @@ void __init mem_init(void)
+ 	after_bootmem = 1;
+ 	x86_init.hyper.init_after_bootmem();
+ 
+-	mem_init_print_info(NULL);
+-
+ 	/*
+ 	 * Check boundaries twice: Some fundamental inconsistencies can
+ 	 * be detected at build time already.
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index 5430c81eefc9..aa8387aab9c1 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1350,8 +1350,6 @@ void __init mem_init(void)
+ 		kclist_add(&kcore_vsyscall, (void *)VSYSCALL_ADDR, PAGE_SIZE, KCORE_USER);
+ 
+ 	preallocate_vmalloc_pages();
+-
+-	mem_init_print_info(NULL);
+ }
+ 
+ #ifdef CONFIG_DEFERRED_STRUCT_PAGE_INIT
+diff --git a/arch/xtensa/mm/init.c b/arch/xtensa/mm/init.c
+index 2daeba9e454e..6a32b2cf2718 100644
+--- a/arch/xtensa/mm/init.c
++++ b/arch/xtensa/mm/init.c
+@@ -119,7 +119,6 @@ void __init mem_init(void)
+ 
+ 	memblock_free_all();
+ 
+-	mem_init_print_info(NULL);
+ 	pr_info("virtual kernel memory layout:\n"
+ #ifdef CONFIG_KASAN
+ 		"    kasan   : 0x%08lx - 0x%08lx  (%5lu MB)\n"
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 89314651dd62..c2e0b3495c5a 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2373,7 +2373,7 @@ extern unsigned long free_reserved_area(void *start, void *end,
+ 					int poison, const char *s);
+ 
+ extern void adjust_managed_page_count(struct page *page, long count);
+-extern void mem_init_print_info(const char *str);
++extern void mem_init_print_info(void);
+ 
+ extern void reserve_bootmem_region(phys_addr_t start, phys_addr_t end);
+ 
+diff --git a/init/main.c b/init/main.c
+index 53b278845b88..5581af5b4cb7 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -830,6 +830,7 @@ static void __init mm_init(void)
+ 	report_meminit();
+ 	stack_depot_init();
+ 	mem_init();
++	mem_init_print_info();
+ 	/* page_owner must be initialized after buddy is ready */
+ 	page_ext_init_flatmem_late();
+ 	kmem_cache_init();
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 55d938297ce6..e4a6bf69c806 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -7728,7 +7728,7 @@ unsigned long free_reserved_area(void *start, void *end, int poison, const char
+ 	return pages;
+ }
+ 
+-void __init mem_init_print_info(const char *str)
++void __init mem_init_print_info(void)
+ {
+ 	unsigned long physpages, codesize, datasize, rosize, bss_size;
+ 	unsigned long init_code_size, init_data_size;
 -- 
-1.8.3.1
-
+2.26.2
