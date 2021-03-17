@@ -1,93 +1,99 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 Subject: Re: [PATCH v2] mm: Move mem_init_print_info() into mm_init()
-Date: Wed, 17 Mar 2021 06:48:15 +0100
-Message-ID: <3f6959d6-1f37-8baf-a12e-3fbda6a17c7d@csgroup.eu>
+Date: Wed, 17 Mar 2021 13:57:57 +0800
+Message-ID: <fef8ca3b-97ae-5c19-69ea-bb1dfe88cf9c@huawei.com>
 References: <4d488195-7281-9238-b30d-9f89a6100fb9@csgroup.eu>
  <20210317015210.33641-1-wangkefeng.wang@huawei.com>
+ <3f6959d6-1f37-8baf-a12e-3fbda6a17c7d@csgroup.eu>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-In-Reply-To: <20210317015210.33641-1-wangkefeng.wang@huawei.com>
-Content-Language: fr
+Content-Transfer-Encoding: base64
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=desiato.20200630; h=Sender:Content-Type:
+	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
+	List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:Message-ID:From:
+	References:CC:To:Subject:Reply-To:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
+	 bh=teGDGGwjK95Xm8KLzNiU9MFhFAPDt/U/dlCBnoiw6Vg=; b=cNrPX/L/aw94hD1PkAsHfrOnG
+	iZWNQxXR+BU5Q0iu6BQehgHuScNuioWkecDWHHAXqTDJcmtpmpVFGZ4N5sBTxDY6AmWWbz4Eh3FLk
+	xes/tXz0YScIhb/+Qbsqvou4S0i8Irf0kSVZfeNifhFJtxo/xq6sSbTtN6lzndN5FEpdfRIBiQt27
+	fQN0dyLY1dnVuBGj/0dxOrNb9qdZjCQOfIB5URRlneNcUBwz8Gopx8weX06GjQgthTT6LAyMmOFNy
+	6JmYb+NzOdbWiXT/i7C+swcxcDWAOKevDStYBMQh9ILgJf2l1IJpWYmWehwfSfD9kHRzHbCISJOGE
+	pwdV4S93A==;
+In-Reply-To: <3f6959d6-1f37-8baf-a12e-3fbda6a17c7d@csgroup.eu>
+Content-Language: en-US
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 Content-Type: text/plain; charset="utf-8"; format="flowed"
-To: Kefeng Wang <wangkefeng.wang@huawei.com>, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Huacai Chen <chenhuacai@kernel.org>, Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org, Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, linux-parisc@vger.kernel.org, linux-mips@vger.ker
+To: Christophe Leroy <christophe.leroy@csgroup.eu>, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave
+ Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, Huacai Chen <chenhuacai@kernel.org>, Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org, Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, linux-parisc@vger.
 
-
-
-Le 17/03/2021 à 02:52, Kefeng Wang a écrit :
-> mem_init_print_info() is called in mem_init() on each architecture,
-> and pass NULL argument, so using void argument and move it into mm_init().
-> 
-> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> ---
-> v2:
-> - Cleanup 'str' line suggested by Christophe and ACK
-> 
->   arch/alpha/mm/init.c             |  1 -
->   arch/arc/mm/init.c               |  1 -
->   arch/arm/mm/init.c               |  2 --
->   arch/arm64/mm/init.c             |  2 --
->   arch/csky/mm/init.c              |  1 -
->   arch/h8300/mm/init.c             |  2 --
->   arch/hexagon/mm/init.c           |  1 -
->   arch/ia64/mm/init.c              |  1 -
->   arch/m68k/mm/init.c              |  1 -
->   arch/microblaze/mm/init.c        |  1 -
->   arch/mips/loongson64/numa.c      |  1 -
->   arch/mips/mm/init.c              |  1 -
->   arch/mips/sgi-ip27/ip27-memory.c |  1 -
->   arch/nds32/mm/init.c             |  1 -
->   arch/nios2/mm/init.c             |  1 -
->   arch/openrisc/mm/init.c          |  2 --
->   arch/parisc/mm/init.c            |  2 --
->   arch/powerpc/mm/mem.c            |  1 -
->   arch/riscv/mm/init.c             |  1 -
->   arch/s390/mm/init.c              |  2 --
->   arch/sh/mm/init.c                |  1 -
->   arch/sparc/mm/init_32.c          |  2 --
->   arch/sparc/mm/init_64.c          |  1 -
->   arch/um/kernel/mem.c             |  1 -
->   arch/x86/mm/init_32.c            |  2 --
->   arch/x86/mm/init_64.c            |  2 --
->   arch/xtensa/mm/init.c            |  1 -
->   include/linux/mm.h               |  2 +-
->   init/main.c                      |  1 +
->   mm/page_alloc.c                  | 10 +++++-----
->   30 files changed, 7 insertions(+), 42 deletions(-)
-> 
-
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 89314651dd62..c2e0b3495c5a 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -2373,7 +2373,7 @@ extern unsigned long free_reserved_area(void *start, void *end,
->   					int poison, const char *s);
->   
->   extern void adjust_managed_page_count(struct page *page, long count);
-> -extern void mem_init_print_info(const char *str);
-> +extern void mem_init_print_info(void);
-
-Sorry I didn't see that in previous patch.
-
-'extern' keyword is pointless for function prototypes and is deprecated, you should remove it.
-
-That said,
-
-Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr> # focussed on powerpc
-
->   
->   extern void reserve_bootmem_region(phys_addr_t start, phys_addr_t end);
->   
+Ck9uIDIwMjEvMy8xNyAxMzo0OCwgQ2hyaXN0b3BoZSBMZXJveSB3cm90ZToKPgo+Cj4gTGUgMTcv
+MDMvMjAyMSDDoCAwMjo1MiwgS2VmZW5nIFdhbmcgYSDDqWNyaXTCoDoKPj4gbWVtX2luaXRfcHJp
+bnRfaW5mbygpIGlzIGNhbGxlZCBpbiBtZW1faW5pdCgpIG9uIGVhY2ggYXJjaGl0ZWN0dXJlLAo+
+PiBhbmQgcGFzcyBOVUxMIGFyZ3VtZW50LCBzbyB1c2luZyB2b2lkIGFyZ3VtZW50IGFuZCBtb3Zl
+IGl0IGludG8gCj4+IG1tX2luaXQoKS4KPj4KPj4gQWNrZWQtYnk6IERhdmUgSGFuc2VuIDxkYXZl
+LmhhbnNlbkBsaW51eC5pbnRlbC5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6IEtlZmVuZyBXYW5nIDx3
+YW5na2VmZW5nLndhbmdAaHVhd2VpLmNvbT4KPj4gLS0tCj4+IHYyOgo+PiAtIENsZWFudXAgJ3N0
+cicgbGluZSBzdWdnZXN0ZWQgYnkgQ2hyaXN0b3BoZSBhbmQgQUNLCj4+Cj4+IMKgIGFyY2gvYWxw
+aGEvbW0vaW5pdC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAxIC0KPj4gwqAgYXJjaC9h
+cmMvbW0vaW5pdC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMSAtCj4+IMKgIGFy
+Y2gvYXJtL21tL2luaXQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDIgLS0KPj4g
+wqAgYXJjaC9hcm02NC9tbS9pbml0LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDIgLS0K
+Pj4gwqAgYXJjaC9jc2t5L21tL2luaXQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAx
+IC0KPj4gwqAgYXJjaC9oODMwMC9tbS9pbml0LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKg
+IDIgLS0KPj4gwqAgYXJjaC9oZXhhZ29uL21tL2luaXQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgIHzC
+oCAxIC0KPj4gwqAgYXJjaC9pYTY0L21tL2luaXQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+IHzCoCAxIC0KPj4gwqAgYXJjaC9tNjhrL21tL2luaXQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgIHzCoCAxIC0KPj4gwqAgYXJjaC9taWNyb2JsYXplL21tL2luaXQuY8KgwqDCoMKgwqDCoMKg
+IHzCoCAxIC0KPj4gwqAgYXJjaC9taXBzL2xvb25nc29uNjQvbnVtYS5jwqDCoMKgwqDCoCB8wqAg
+MSAtCj4+IMKgIGFyY2gvbWlwcy9tbS9pbml0LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8
+wqAgMSAtCj4+IMKgIGFyY2gvbWlwcy9zZ2ktaXAyNy9pcDI3LW1lbW9yeS5jIHzCoCAxIC0KPj4g
+wqAgYXJjaC9uZHMzMi9tbS9pbml0LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDEgLQo+
+PiDCoCBhcmNoL25pb3MyL21tL2luaXQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMSAt
+Cj4+IMKgIGFyY2gvb3BlbnJpc2MvbW0vaW5pdC5jwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAyIC0t
+Cj4+IMKgIGFyY2gvcGFyaXNjL21tL2luaXQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDIg
+LS0KPj4gwqAgYXJjaC9wb3dlcnBjL21tL21lbS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAg
+MSAtCj4+IMKgIGFyY2gvcmlzY3YvbW0vaW5pdC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzC
+oCAxIC0KPj4gwqAgYXJjaC9zMzkwL21tL2luaXQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+IHzCoCAyIC0tCj4+IMKgIGFyY2gvc2gvbW0vaW5pdC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgIHzCoCAxIC0KPj4gwqAgYXJjaC9zcGFyYy9tbS9pbml0XzMyLmPCoMKgwqDCoMKgwqDC
+oMKgwqAgfMKgIDIgLS0KPj4gwqAgYXJjaC9zcGFyYy9tbS9pbml0XzY0LmPCoMKgwqDCoMKgwqDC
+oMKgwqAgfMKgIDEgLQo+PiDCoCBhcmNoL3VtL2tlcm5lbC9tZW0uY8KgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoCB8wqAgMSAtCj4+IMKgIGFyY2gveDg2L21tL2luaXRfMzIuY8KgwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgfMKgIDIgLS0KPj4gwqAgYXJjaC94ODYvbW0vaW5pdF82NC5jwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCB8wqAgMiAtLQo+PiDCoCBhcmNoL3h0ZW5zYS9tbS9pbml0LmPCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgIHzCoCAxIC0KPj4gwqAgaW5jbHVkZS9saW51eC9tbS5owqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+PiDCoCBpbml0L21haW4uY8KgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMSArCj4+IMKgIG1tL3BhZ2VfYWxsb2Mu
+Y8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfCAxMCArKysrKy0tLS0tCj4+IMKg
+IDMwIGZpbGVzIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgNDIgZGVsZXRpb25zKC0pCj4+Cj4K
+Pj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvbW0uaCBiL2luY2x1ZGUvbGludXgvbW0uaAo+
+PiBpbmRleCA4OTMxNDY1MWRkNjIuLmMyZTBiMzQ5NWM1YSAxMDA2NDQKPj4gLS0tIGEvaW5jbHVk
+ZS9saW51eC9tbS5oCj4+ICsrKyBiL2luY2x1ZGUvbGludXgvbW0uaAo+PiBAQCAtMjM3Myw3ICsy
+MzczLDcgQEAgZXh0ZXJuIHVuc2lnbmVkIGxvbmcgZnJlZV9yZXNlcnZlZF9hcmVhKHZvaWQgCj4+
+ICpzdGFydCwgdm9pZCAqZW5kLAo+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgaW50IHBvaXNvbiwgY29uc3QgY2hhciAqcyk7Cj4+IMKgIMKgIGV4dGVybiB2b2lk
+IGFkanVzdF9tYW5hZ2VkX3BhZ2VfY291bnQoc3RydWN0IHBhZ2UgKnBhZ2UsIGxvbmcgCj4+IGNv
+dW50KTsKPj4gLWV4dGVybiB2b2lkIG1lbV9pbml0X3ByaW50X2luZm8oY29uc3QgY2hhciAqc3Ry
+KTsKPj4gK2V4dGVybiB2b2lkIG1lbV9pbml0X3ByaW50X2luZm8odm9pZCk7Cj4KPiBTb3JyeSBJ
+IGRpZG4ndCBzZWUgdGhhdCBpbiBwcmV2aW91cyBwYXRjaC4KPgo+ICdleHRlcm4nIGtleXdvcmQg
+aXMgcG9pbnRsZXNzIGZvciBmdW5jdGlvbiBwcm90b3R5cGVzIGFuZCBpcyAKPiBkZXByZWNhdGVk
+LCB5b3Ugc2hvdWxkIHJlbW92ZSBpdC4KPgo+IFRoYXQgc2FpZCwKPgo+IFJldmlld2VkLWJ5OiBD
+aHJpc3RvcGhlIExlcm95IDxjaHJpc3RvcGhlLmxlcm95QGMtcy5mcj4gIyBmb2N1c3NlZCBvbiAK
+PiBwb3dlcnBjClRoYW5rcywgbGV0J3Mgd2FpdCBmb3IgbW9yZSBmZWVkYmFjayBmcm9tIG90aGVy
+IGFyY2hpdGVjdHVyZXMsIGlmIApuZWNlc3NhcnkswqAgd2lsbCBzZW5kIGEgbmV3IG9uZS4KPgo+
+PiDCoCDCoCBleHRlcm4gdm9pZCByZXNlcnZlX2Jvb3RtZW1fcmVnaW9uKHBoeXNfYWRkcl90IHN0
+YXJ0LCBwaHlzX2FkZHJfdCAKPj4gZW5kKTsKPiAuCj4KCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LXJpc2N2IG1haWxpbmcgbGlzdApsaW51eC1y
+aXNjdkBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxt
+YW4vbGlzdGluZm8vbGludXgtcmlzY3YK
