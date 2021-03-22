@@ -1,45 +1,143 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH RFC 2/3] mm: remove xlate_dev_kmem_ptr()
-Date: Fri, 19 Mar 2021 15:54:29 +0100
-Message-ID: <CAMuHMdVP433iVhyaweDd8G6p3ZCgSDq6M_ACko_BTgm+5m0qnA@mail.gmail.com>
+From: Michal Hocko <mhocko@suse.com>
+Subject: Re: [PATCH RFC 1/3] drivers/char: remove /dev/kmem for good
+Date: Mon, 22 Mar 2021 14:35:41 +0100
+Message-ID: <YFidLVQs+/zw4aIF@dhcp22.suse.cz>
 References: <20210319143452.25948-1-david@redhat.com>
- <20210319143452.25948-3-david@redhat.com>
+ <20210319143452.25948-2-david@redhat.com>
 Mime-Version: 1.0
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-In-Reply-To: <20210319143452.25948-3-david@redhat.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Return-path: <linux-m68k-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1616420142; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=bNwpWnU/mOEb8vDk9U6PPMjzkSSiO3GF6Uf0hvYy86c=;
+        b=T/88LUerDCEZ5aLb09F83ICr41UqeH2rh4J7zrGpXp20VeYsZHJpi/YuD6UnXQW4pyzMJd
+        jBAgDV46TT0Kz09FM1vI9JNZIIaETu438nFrfjiK/6ELDm8IlG80pWXjuPGHfOvQ9qSqDa
+        nwk9Za/1Mcrl0+PJNnBW15dSnFPW4Rw=
+Content-Disposition: inline
+In-Reply-To: <20210319143452.25948-2-david@redhat.com>
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: David Hildenbrand <david@redhat.com>
-Cc: Rich Felker <dalias@libc.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, Linux-sh list <linux-sh@vger.kernel.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Palmer Dabbelt <palmerdabbelt@google.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Linux MM <linux-mm@kvack.org>, Paul Mackerras <paulus@samba.org>, sparclinux <sparclinux@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, Ingo Molnar <mingo@kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Brian Cain <bcain@codeaurora.org>, Helge Deller <deller@gmx.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Hillf Danton <hdanton@sina.com>, Matthew Wilcox <willy@infradead.org>, Oleksiy Avramchenko <oleksiy.avramchenko@sonymobile.com>, Steven Rostedt <rostedt@goodmis.org>, Minchan Kim <minchan@kernel.org>, huang ying <huang.ying.caritas@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Russell King <linux@armlinux.org.uk>, Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Brian Cain <bcain@codeaurora.org>, Geert
 
-On Fri, Mar 19, 2021 at 3:36 PM David Hildenbrand <david@redhat.com> wrote:
-> Since /dev/kmem has been removed, let's remove the xlate_dev_kmem_ptr()
-> leftovers.
-
+On Fri 19-03-21 15:34:50, David Hildenbrand wrote:
+> Exploring /dev/kmem and /dev/mem in the context of memory hot(un)plug and
+> memory ballooning, I started questioning the existance of /dev/kmem.
+> 
+> Comparing it with the /proc/kcore implementation, it does not seem to be
+> able to deal with things like
+> a) Pages unmapped from the direct mapping (e.g., to be used by secretmem)
+>   -> kern_addr_valid(). virt_addr_valid() is not sufficient.
+> b) Special cases like gart aperture memory that is not to be touched
+>   -> mem_pfn_is_ram()
+> Unless I am missing something, it's at least broken in some cases and might
+> fault/crash the machine.
+> 
+> Looks like its existance has been questioned before in 2005 and 2010
+> [1], after ~11 additional years, it might make sense to revive the
+> discussion.
+> 
+> CONFIG_DEVKMEM is only enabled in a single defconfig (on purpose or by
+> mistake?). All distributions I looked at disable it.
+> 
+> 1) /dev/kmem was popular for rootkits [2] before it got disabled
+>    basically everywhere. Ubuntu documents [3] "There is no modern user of
+>    /dev/kmem any more beyond attackers using it to load kernel rootkits.".
+>    RHEL documents in a BZ [5] "it served no practical purpose other than to
+>    serve as a potential security problem or to enable binary module drivers
+>    to access structures/functions they shouldn't be touching"
+> 
+> 2) /proc/kcore is a decent interface to have a controlled way to read
+>    kernel memory for debugging puposes. (will need some extensions to
+>    deal with memory offlining/unplug, memory ballooning, and poisoned
+>    pages, though)
+> 
+> 3) It might be useful for corner case debugging [1]. KDB/KGDB might be a
+>    better fit, especially, to write random memory; harder to shoot
+>    yourself into the foot.
+> 
+> 4) "Kernel Memory Editor" hasn't seen any updates since 2000 and seems
+>    to be incompatible with 64bit [1]. For educational purposes,
+>    /proc/kcore might be used to monitor value updates -- or older
+>    kernels can be used.
+> 
+> 5) It's broken on arm64, and therefore, completely disabled there.
+> 
+> Looks like it's essentially unused and has been replaced by better
+> suited interfaces for individual tasks (/proc/kcore, KDB/KGDB). Let's
+> just remove it.
+> 
+> [1] https://lwn.net/Articles/147901/
+> [2] https://www.linuxjournal.com/article/10505
+> [3] https://wiki.ubuntu.com/Security/Features#A.2Fdev.2Fkmem_disabled
+> [4] https://sourceforge.net/projects/kme/
+> [5] https://bugzilla.redhat.com/show_bug.cgi?id=154796
+> 
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Hillf Danton <hdanton@sina.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: Oleksiy Avramchenko <oleksiy.avramchenko@sonymobile.com>
+> Cc: Steven Rostedt <rostedt@goodmis.org>
+> Cc: Minchan Kim <minchan@kernel.org>
+> Cc: huang ying <huang.ying.caritas@gmail.com>
+> Cc: Jonathan Corbet <corbet@lwn.net>
+> Cc: Russell King <linux@armlinux.org.uk>
+> Cc: Liviu Dudau <liviu.dudau@arm.com>
+> Cc: Sudeep Holla <sudeep.holla@arm.com>
+> Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+> Cc: Andrew Lunn <andrew@lunn.ch>
+> Cc: Gregory Clement <gregory.clement@bootlin.com>
+> Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: Brian Cain <bcain@codeaurora.org>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: Jonas Bonn <jonas@southpole.se>
+> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+> Cc: Stafford Horne <shorne@gmail.com>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Chris Zankel <chris@zankel.net>
+> Cc: Max Filippov <jcmvbkbc@gmail.com>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> Cc: Rob Herring <robh@kernel.org>
+> Cc: "Pavel Machek (CIP)" <pavel@denx.de>
+> Cc: Theodore Dubois <tblodt@icloud.com>
+> Cc: "Alexander A. Klimov" <grandmaster@al2klimov.de>
+> Cc: Pavel Machek <pavel@ucw.cz>
+> Cc: Sam Ravnborg <sam@ravnborg.org>
+> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Cc: Andrey Zhizhikin <andrey.zhizhikin@leica-geosystems.com>
+> Cc: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Krzysztof Kozlowski <krzk@kernel.org>
+> Cc: Viresh Kumar <viresh.kumar@linaro.org>
+> Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Xiaoming Ni <nixiaoming@huawei.com>
+> Cc: Robert Richter <rric@kernel.org>
+> Cc: William Cohen <wcohen@redhat.com>
+> Cc: Corentin Labbe <clabbe@baylibre.com>
+> Cc: Kairui Song <kasong@redhat.com>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: linux-doc@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: uclinux-h8-devel@lists.sourceforge.jp
+> Cc: linux-hexagon@vger.kernel.org
+> Cc: linux-m68k@lists.linux-m68k.org
+> Cc: openrisc@lists.librecores.org
+> Cc: linux-sh@vger.kernel.org
+> Cc: sparclinux@vger.kernel.org
+> Cc: linux-xtensa@linux-xtensa.org
+> Cc: linux-fsdevel@vger.kernel.org
+> Cc: Linux API <linux-api@vger.kernel.org>
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 
->  arch/m68k/include/asm/io_mm.h   |  5 -----
-
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
+Acked-by: Michal Hocko <mhocko@suse.com>
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Michal Hocko
+SUSE Labs
