@@ -1,9 +1,9 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH v3 09/17] nios2: Convert to GENERIC_CMDLINE
-Date: Fri, 26 Mar 2021 13:44:56 +0000 (UTC)
-Message-ID: <85b1dc6339351cbc46d179e8fdb9dfc398e58303.1616765870.git.christophe.leroy@csgroup.eu>
+Subject: [PATCH v3 11/17] riscv: Convert to GENERIC_CMDLINE
+Date: Fri, 26 Mar 2021 13:44:58 +0000 (UTC)
+Message-ID: <46745e07b04139a22b5bd01dc37df97e6981e643.1616765870.git.christophe.leroy@csgroup.eu>
 References: <cover.1616765869.git.christophe.leroy@csgroup.eu>
-Return-path: <linux-mips-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 In-Reply-To: <cover.1616765869.git.christophe.leroy@csgroup.eu>
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -16,85 +16,96 @@ This converts the architecture to GENERIC_CMDLINE.
 
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
- arch/nios2/Kconfig        | 24 +-----------------------
- arch/nios2/kernel/setup.c | 13 ++++---------
- 2 files changed, 5 insertions(+), 32 deletions(-)
+ arch/riscv/Kconfig        | 44 +--------------------------------------
+ arch/riscv/kernel/setup.c |  5 ++---
+ 2 files changed, 3 insertions(+), 46 deletions(-)
 
-diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
-index c24955c81c92..f66c97b15813 100644
---- a/arch/nios2/Kconfig
-+++ b/arch/nios2/Kconfig
-@@ -90,31 +90,9 @@ config NIOS2_ALIGNMENT_TRAP
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 87d7b52f278f..3dbd50bed037 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -39,6 +39,7 @@ config RISCV
+ 	select EDAC_SUPPORT
+ 	select GENERIC_ARCH_TOPOLOGY if SMP
+ 	select GENERIC_ATOMIC64 if !64BIT
++	select GENERIC_CMDLINE
+ 	select GENERIC_EARLY_IOREMAP
+ 	select GENERIC_GETTIMEOFDAY if HAVE_GENERIC_VDSO
+ 	select GENERIC_IOREMAP
+@@ -390,49 +391,6 @@ endmenu
  
- comment "Boot options"
+ menu "Boot options"
  
--config CMDLINE_BOOL
--	bool "Default bootloader kernel arguments"
--	default y
--
 -config CMDLINE
--	string "Default kernel command string"
--	default ""
--	depends on CMDLINE_BOOL
+-	string "Built-in kernel command line"
 -	help
--	  On some platforms, there is currently no way for the boot loader to
--	  pass arguments to the kernel. For these platforms, you can supply
--	  some command-line options at build time by entering them here.  In
--	  other cases you can specify kernel args so that you don't have
--	  to set them up in board prom initialization routines.
+-	  For most platforms, the arguments for the kernel's command line
+-	  are provided at run-time, during boot. However, there are cases
+-	  where either no arguments are being provided or the provided
+-	  arguments are insufficient or even invalid.
+-
+-	  When that occurs, it is possible to define a built-in command
+-	  line here and choose how the kernel should use it later on.
+-
+-choice
+-	prompt "Built-in command line usage" if CMDLINE != ""
+-	default CMDLINE_FALLBACK
+-	help
+-	  Choose how the kernel will handle the provided built-in command
+-	  line.
+-
+-config CMDLINE_FALLBACK
+-	bool "Use bootloader kernel arguments if available"
+-	help
+-	  Use the built-in command line as fallback in case we get nothing
+-	  during boot. This is the default behaviour.
+-
+-config CMDLINE_EXTEND
+-	bool "Extend bootloader kernel arguments"
+-	help
+-	  The command-line arguments provided during boot will be
+-	  appended to the built-in command line. This is useful in
+-	  cases where the provided arguments are insufficient and
+-	  you don't want to or cannot modify them.
+-
 -
 -config CMDLINE_FORCE
--	bool "Force default kernel command string"
--	depends on CMDLINE_BOOL
+-	bool "Always use the default kernel command string"
 -	help
--	  Set this to have arguments from the default kernel command string
--	  override those passed by the boot loader.
+-	  Always use the built-in command line, even if we get one during
+-	  boot. This is useful in case you need to override the provided
+-	  command line on systems where you don't have or want control
+-	  over it.
 -
- config NIOS2_CMDLINE_IGNORE_DTB
- 	bool "Ignore kernel command string from DTB"
--	depends on CMDLINE_BOOL
-+	depends on CMDLINE != ""
- 	depends on !CMDLINE_FORCE
- 	default y
- 	help
-diff --git a/arch/nios2/kernel/setup.c b/arch/nios2/kernel/setup.c
-index d2f21957e99c..42464f457a6d 100644
---- a/arch/nios2/kernel/setup.c
-+++ b/arch/nios2/kernel/setup.c
+-endchoice
+-
+ config EFI_STUB
+ 	bool
+ 
+diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+index f8f15332caa2..e7c91ee478d1 100644
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
 @@ -20,6 +20,7 @@
- #include <linux/initrd.h>
- #include <linux/of_fdt.h>
- #include <linux/screen_info.h>
+ #include <linux/swiotlb.h>
+ #include <linux/smp.h>
+ #include <linux/efi.h>
 +#include <linux/cmdline.h>
  
- #include <asm/mmu_context.h>
- #include <asm/sections.h>
-@@ -108,7 +109,7 @@ asmlinkage void __init nios2_boot_init(unsigned r4, unsigned r5, unsigned r6,
- 				       unsigned r7)
- {
- 	unsigned dtb_passed = 0;
--	char cmdline_passed[COMMAND_LINE_SIZE] __maybe_unused = { 0, };
-+	char cmdline_passed[COMMAND_LINE_SIZE] = { 0, };
+ #include <asm/cpu_ops.h>
+ #include <asm/early_ioremap.h>
+@@ -228,10 +229,8 @@ static void __init parse_dtb(void)
+ 	}
  
- #if defined(CONFIG_NIOS2_PASS_CMDLINE)
- 	if (r4 == 0x534f494e) { /* r4 is magic NIOS */
-@@ -127,14 +128,8 @@ asmlinkage void __init nios2_boot_init(unsigned r4, unsigned r5, unsigned r6,
- 
- 	early_init_devtree((void *)dtb_passed);
- 
--#ifndef CONFIG_CMDLINE_FORCE
--	if (cmdline_passed[0])
--		strlcpy(boot_command_line, cmdline_passed, COMMAND_LINE_SIZE);
--#ifdef CONFIG_NIOS2_CMDLINE_IGNORE_DTB
--	else
--		strlcpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+ 	pr_err("No DTB passed to the kernel\n");
+-#ifdef CONFIG_CMDLINE_FORCE
+-	strlcpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
++	cmdline_build(boot_command_line, NULL, COMMAND_LINE_SIZE);
+ 	pr_info("Forcing kernel command line to: %s\n", boot_command_line);
 -#endif
--#endif
-+	if (cmdline_passed[0] || IS_ENABLED(CONFIG_NIOS2_CMDLINE_IGNORE_DTB))
-+		cmdline_build(boot_command_line, cmdline_passed, COMMAND_LINE_SIZE);
- 
- 	parse_early_param();
  }
+ 
+ void __init setup_arch(char **cmdline_p)
 -- 
 2.25.0
 
