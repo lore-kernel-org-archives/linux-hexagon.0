@@ -1,10 +1,10 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH v4 05/20] cmdline: Gives architectures opportunity to use
- generically defined boot cmdline manipulation
-Date: Fri,  2 Apr 2021 15:18:06 +0000 (UTC)
-Message-ID: <9cf63d0419bb51d91c5b1c83ce250dff1e7107cc.1617375802.git.christophe.leroy@csgroup.eu>
+Subject: [PATCH v4 03/20] x86/efi: Replace CONFIG_CMDLINE_OVERRIDE by
+ CONFIG_CMDLINE_FORCE
+Date: Fri,  2 Apr 2021 15:18:04 +0000 (UTC)
+Message-ID: <76542a49b685ddb41894fd53feb250fcec731b01.1617375802.git.christophe.leroy@csgroup.eu>
 References: <cover.1617375802.git.christophe.leroy@csgroup.eu>
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 In-Reply-To: <cover.1617375802.git.christophe.leroy@csgroup.eu>
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -13,125 +13,70 @@ Content-Transfer-Encoding: 7bit
 To: will@kernel.org, danielwa@cisco.com, robh@kernel.org, daniel@gimpelevich.san-francisco.ca.us, arnd@kernel.org, akpm@linux-foundation.org
 Cc: linux-arch@vger.kernel.org, devicetree@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, microblaze <monstr@monstr.eu>, linux-mips@vger.kernel.org, nios2 <ley.foon.tan@intel.com>, openrisc@lists.librecores.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-xtensa@linux-xtensa.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
 
-Most architectures have similar boot command line manipulation
-options. This patchs adds the definition in init/Kconfig, gated by
-CONFIG_HAVE_CMDLINE that the architectures can select to use them.
+During boot, x86 uses EFI driver. That driver is also used
+by ARM.
 
-CONFIG_CMDLINE_EXTEND is understood differently by architectures.
-For some of them it appends built-in CMDLINE to bootloader provided
-line. For others it appends the bootloader provided CMDLINE to the
-built-in one.
-To avoid confusion, this commit brings to different options:
-- CONFIG_CMDLINE_APPEND to append the built-in CMDLINE to the
-bootloader line.
-- CONFIG_CMDLINE_PREPEND to prepend the built-in CMDLINE in front of
-the bootloader line.
-
-For compatibility with existing architecture which uses CONFIG_OF, as
-OF has already been converted to generic cmdline, we keep
-CONFIG_CMDLINE_EXTEND as a synonym to CONFIG_CMDLINE_APPEND until
-arm, powerpc, riscv and sh architectures have been converted.
-
-A few differences are identified and will have to be taken
-into account when converting the architecture to generic cmdline:
-- riscv has CMDLINE_FALLBACK instead of CMDLINE_FROM_BOOTLOADER
-- Some architectures are using CONFIG_CMDLINE_OVERRIDE or
-CONFIG_CMDLINE_OVERWRITE instead of CONFIG_CMDLINE_FORCE.
+In order to refactor the command line processing in that driver
+in a following patch, rename CONFIG_CMDLINE_OVERRIDE by
+CONFIG_CMDLINE_FORCE on the x86 in order to be similar
+to ARM (and most other architectures).
 
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
-v3:
-- Comments from Will.
-- Remove CONFIG_CMDLINE_BOOL. Using CONFIG_CMDLINE != "" instead, like arm and powerpc.
-- Changed EXTEND to APPEND. Keep EXTEND for backward compatibility.
-
-v4:
-- Added CMDLINE_PREPEND as a dependency for INITRAMFS_FORCE
-- Removed the EXTEND || APPEND in cmdline.h, keep EXTEND as it
-   will always exit and switch to APPEND in last patch.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+v4: New
 ---
- init/Kconfig | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- usr/Kconfig  |  2 +-
- 2 files changed, 53 insertions(+), 1 deletion(-)
+ arch/x86/Kconfig                        | 4 ++--
+ arch/x86/kernel/setup.c                 | 2 +-
+ drivers/firmware/efi/libstub/x86-stub.c | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/init/Kconfig b/init/Kconfig
-index 5f5c776ef192..af0d84662cc2 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -117,6 +117,58 @@ config INIT_ENV_ARG_LIMIT
- 	  Maximum of each of the number of arguments and environment
- 	  variables passed to init from the kernel command line.
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 2792879d398e..a20684d56b4b 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2384,14 +2384,14 @@ config CMDLINE
+ 	  command line at boot time, it is appended to this string to
+ 	  form the full kernel command line, when the system boots.
  
-+config GENERIC_CMDLINE
-+	bool
-+
-+config CMDLINE
-+	string "Default kernel command string" if GENERIC_CMDLINE
-+	default ""
-+	help
-+	  Defines a default kernel command string.
-+	  If this string is not empty, additional choices are proposed
-+	  below to determine how it will be used by the kernel.
-+
-+choice
-+	prompt "Kernel command line type" if CMDLINE != ""
-+	default CMDLINE_PREPEND if ARCH_WANT_CMDLINE_PREPEND_BY_DEFAULT
-+	default CMDLINE_FROM_BOOTLOADER
-+	depends on GENERIC_CMDLINE
-+	help
-+	  Determine how the default kernel arguments are combined with any
-+	  arguments passed by the bootloader if any.
-+
-+config CMDLINE_FROM_BOOTLOADER
-+	bool "Use bootloader kernel arguments if available"
-+	help
-+	  Uses the command-line options passed by the boot loader. If
-+	  the boot loader doesn't provide any, the default kernel command
-+	  string provided in CMDLINE will be used.
-+
-+config CMDLINE_APPEND
-+	bool "Append to the bootloader kernel arguments"
-+	help
-+	  The default kernel command string will be appended to the
-+	  command-line arguments provided by the bootloader.
-+
-+config CMDLINE_PREPEND
-+	bool "Prepend to the bootloader kernel arguments"
-+	help
-+	  The default kernel command string will be prepended to the
-+	  command-line arguments provided by the bootloader.
-+
+-	  However, you can use the CONFIG_CMDLINE_OVERRIDE option to
++	  However, you can use the CONFIG_CMDLINE_FORCE option to
+ 	  change this behavior.
+ 
+ 	  In most cases, the command line (whether built-in or provided
+ 	  by the boot loader) should specify the device for the root
+ 	  file system.
+ 
+-config CMDLINE_OVERRIDE
 +config CMDLINE_FORCE
-+	bool "Always use the default kernel command string"
-+	help
-+	  Always use the default kernel command string, ignoring any
-+	  arguments provided by the bootloader.
-+endchoice
-+
-+config CMDLINE_EXTEND
-+	bool
-+	default CMDLINE_APPEND
-+	help
-+	  To be removed once all architectures are converted to generic CMDLINE
-+
- config COMPILE_TEST
- 	bool "Compile also drivers which will not load"
- 	depends on HAS_IOMEM
-diff --git a/usr/Kconfig b/usr/Kconfig
-index 8bbcf699fe3b..b397e6b114d1 100644
---- a/usr/Kconfig
-+++ b/usr/Kconfig
-@@ -24,7 +24,7 @@ config INITRAMFS_SOURCE
- 
- config INITRAMFS_FORCE
- 	bool "Ignore the initramfs passed by the bootloader"
--	depends on CMDLINE_EXTEND || CMDLINE_FORCE
-+	depends on CMDLINE_PREPEND || CMDLINE_APPEND || CMDLINE_FORCE
+ 	bool "Built-in command line overrides boot loader arguments"
+ 	depends on CMDLINE_BOOL && CMDLINE != ""
  	help
- 	  This option causes the kernel to ignore the initramfs image
- 	  (or initrd image) passed to it by the bootloader. This is
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index d883176ef2ce..6f2de58eeb54 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -884,7 +884,7 @@ void __init setup_arch(char **cmdline_p)
+ 	bss_resource.end = __pa_symbol(__bss_stop)-1;
+ 
+ #ifdef CONFIG_CMDLINE_BOOL
+-#ifdef CONFIG_CMDLINE_OVERRIDE
++#ifdef CONFIG_CMDLINE_FORCE
+ 	strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
+ #else
+ 	if (builtin_cmdline[0]) {
+diff --git a/drivers/firmware/efi/libstub/x86-stub.c b/drivers/firmware/efi/libstub/x86-stub.c
+index f14c4ff5839f..28659276b6ba 100644
+--- a/drivers/firmware/efi/libstub/x86-stub.c
++++ b/drivers/firmware/efi/libstub/x86-stub.c
+@@ -742,7 +742,7 @@ unsigned long efi_main(efi_handle_t handle,
+ 		goto fail;
+ 	}
+ #endif
+-	if (!IS_ENABLED(CONFIG_CMDLINE_OVERRIDE)) {
++	if (!IS_ENABLED(CONFIG_CMDLINE_FORCE)) {
+ 		unsigned long cmdline_paddr = ((u64)hdr->cmd_line_ptr |
+ 					       ((u64)boot_params->ext_cmd_line_ptr << 32));
+ 		status = efi_parse_options((char *)cmdline_paddr);
 -- 
 2.25.0
 
