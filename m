@@ -1,110 +1,116 @@
-From: Christophe Leroy <christophe.leroy-2tlSp11Fh4xulxpn9UvDqw@public.gmane.org>
-Subject: [PATCH v4 12/20] nios2: Convert to GENERIC_CMDLINE
-Date: Fri,  2 Apr 2021 15:18:13 +0000 (UTC)
-Message-ID: <9b4899b0abc156eb207b19fe0b24dd5bf0355b99.1617375802.git.christophe.leroy@csgroup.eu>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: [PATCH v4 08/20] arm: Convert to GENERIC_CMDLINE
+Date: Fri,  2 Apr 2021 15:18:09 +0000 (UTC)
+Message-ID: <2e49b9ae60a90aec8b555946279cab059a2812a4.1617375802.git.christophe.leroy@csgroup.eu>
 References: <cover.1617375802.git.christophe.leroy@csgroup.eu>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1617375802.git.christophe.leroy-2tlSp11Fh4xulxpn9UvDqw@public.gmane.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+In-Reply-To: <cover.1617375802.git.christophe.leroy@csgroup.eu>
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, danielwa-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, daniel-R/FLGEdV95bo9U+Z1CfBt0SU0eOFXohjCypLqA8HKkk@public.gmane.org, arnd-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
-Cc: linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, microblaze <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, linux-mips-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2 <ley.foon.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, openrisc-cunTk1MwBs9a3B2Vnqf2dGD2FQJk+8+b@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-riscv-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org
+To: will@kernel.org, danielwa@cisco.com, robh@kernel.org, daniel@gimpelevich.san-francisco.ca.us, arnd@kernel.org, akpm@linux-foundation.org
+Cc: linux-arch@vger.kernel.org, devicetree@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, microblaze <monstr@monstr.eu>, linux-mips@vger.kernel.org, nios2 <ley.foon.tan@intel.com>, openrisc@lists.librecores.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-xtensa@linux-xtensa.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
 
 This converts the architecture to GENERIC_CMDLINE.
 
-Signed-off-by: Christophe Leroy <christophe.leroy-2tlSp11Fh4xulxpn9UvDqw@public.gmane.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
-v4: Added missing selection of CONFIG_GENERIC_CMDLINE in Kconfig
+v4:
+- Removed dependency to ATAGS
+- Removed the message when forcing
 ---
- arch/nios2/Kconfig        | 25 ++-----------------------
- arch/nios2/kernel/setup.c | 13 ++++---------
- 2 files changed, 6 insertions(+), 32 deletions(-)
+ arch/arm/Kconfig              | 38 +----------------------------------
+ arch/arm/kernel/atags_parse.c | 13 +++---------
+ 2 files changed, 4 insertions(+), 47 deletions(-)
 
-diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
-index c24955c81c92..6018f3d626f8 100644
---- a/arch/nios2/Kconfig
-+++ b/arch/nios2/Kconfig
-@@ -10,6 +10,7 @@ config NIOS2
- 	select COMMON_CLK
- 	select TIMER_OF
- 	select GENERIC_ATOMIC64
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 5da96f5df48f..1a1808b0eef7 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -50,6 +50,7 @@ config ARM
+ 	select GENERIC_ARCH_TOPOLOGY if ARM_CPU_TOPOLOGY
+ 	select GENERIC_ATOMIC64 if CPU_V7M || CPU_V6 || !CPU_32v6K || !AEABI
+ 	select GENERIC_CLOCKEVENTS_BROADCAST if SMP
 +	select GENERIC_CMDLINE
- 	select GENERIC_CPU_DEVICES
- 	select GENERIC_IRQ_PROBE
- 	select GENERIC_IRQ_SHOW
-@@ -90,31 +91,9 @@ config NIOS2_ALIGNMENT_TRAP
+ 	select GENERIC_IRQ_IPI if SMP
+ 	select GENERIC_CPU_AUTOPROBE
+ 	select GENERIC_EARLY_IOREMAP
+@@ -1740,43 +1741,6 @@ config ARM_ATAG_DTB_COMPAT_CMDLINE_EXTEND
  
- comment "Boot options"
+ endchoice
  
--config CMDLINE_BOOL
--	bool "Default bootloader kernel arguments"
--	default y
--
 -config CMDLINE
 -	string "Default kernel command string"
 -	default ""
--	depends on CMDLINE_BOOL
 -	help
--	  On some platforms, there is currently no way for the boot loader to
--	  pass arguments to the kernel. For these platforms, you can supply
--	  some command-line options at build time by entering them here.  In
--	  other cases you can specify kernel args so that you don't have
--	  to set them up in board prom initialization routines.
+-	  On some architectures (e.g. CATS), there is currently no way
+-	  for the boot loader to pass arguments to the kernel. For these
+-	  architectures, you should supply some command-line options at build
+-	  time by entering them here. As a minimum, you should specify the
+-	  memory size and the root device (e.g., mem=64M root=/dev/nfs).
+-
+-choice
+-	prompt "Kernel command line type" if CMDLINE != ""
+-	default CMDLINE_FROM_BOOTLOADER
+-	depends on ATAGS
+-
+-config CMDLINE_FROM_BOOTLOADER
+-	bool "Use bootloader kernel arguments if available"
+-	help
+-	  Uses the command-line options passed by the boot loader. If
+-	  the boot loader doesn't provide any, the default kernel command
+-	  string provided in CMDLINE will be used.
+-
+-config CMDLINE_EXTEND
+-	bool "Extend bootloader kernel arguments"
+-	help
+-	  The command-line arguments provided by the boot loader will be
+-	  appended to the default kernel command string.
 -
 -config CMDLINE_FORCE
--	bool "Force default kernel command string"
--	depends on CMDLINE_BOOL
+-	bool "Always use the default kernel command string"
 -	help
--	  Set this to have arguments from the default kernel command string
--	  override those passed by the boot loader.
+-	  Always use the default kernel command string, even if the boot
+-	  loader passes other arguments to the kernel.
+-	  This is useful if you cannot or don't want to change the
+-	  command-line options your boot loader passes to the kernel.
+-endchoice
 -
- config NIOS2_CMDLINE_IGNORE_DTB
- 	bool "Ignore kernel command string from DTB"
--	depends on CMDLINE_BOOL
-+	depends on CMDLINE != ""
- 	depends on !CMDLINE_FORCE
- 	default y
- 	help
-diff --git a/arch/nios2/kernel/setup.c b/arch/nios2/kernel/setup.c
-index d2f21957e99c..5b38d3d0ad64 100644
---- a/arch/nios2/kernel/setup.c
-+++ b/arch/nios2/kernel/setup.c
-@@ -20,6 +20,7 @@
- #include <linux/initrd.h>
- #include <linux/of_fdt.h>
- #include <linux/screen_info.h>
+ config XIP_KERNEL
+ 	bool "Kernel Execute-In-Place from ROM"
+ 	depends on !ARM_LPAE && !ARCH_MULTIPLATFORM
+diff --git a/arch/arm/kernel/atags_parse.c b/arch/arm/kernel/atags_parse.c
+index 373b61f9a4f0..ef97ec015c51 100644
+--- a/arch/arm/kernel/atags_parse.c
++++ b/arch/arm/kernel/atags_parse.c
+@@ -14,6 +14,7 @@
+  * is not parsed in any way).
+  */
+ 
 +#include <linux/cmdline.h>
+ #include <linux/init.h>
+ #include <linux/initrd.h>
+ #include <linux/kernel.h>
+@@ -120,16 +121,8 @@ __tagtable(ATAG_REVISION, parse_tag_revision);
  
- #include <asm/mmu_context.h>
- #include <asm/sections.h>
-@@ -108,7 +109,7 @@ asmlinkage void __init nios2_boot_init(unsigned r4, unsigned r5, unsigned r6,
- 				       unsigned r7)
+ static int __init parse_tag_cmdline(const struct tag *tag)
  {
- 	unsigned dtb_passed = 0;
--	char cmdline_passed[COMMAND_LINE_SIZE] __maybe_unused = { 0, };
-+	char cmdline_passed[COMMAND_LINE_SIZE] = { 0, };
- 
- #if defined(CONFIG_NIOS2_PASS_CMDLINE)
- 	if (r4 == 0x534f494e) { /* r4 is magic NIOS */
-@@ -127,14 +128,8 @@ asmlinkage void __init nios2_boot_init(unsigned r4, unsigned r5, unsigned r6,
- 
- 	early_init_devtree((void *)dtb_passed);
- 
--#ifndef CONFIG_CMDLINE_FORCE
--	if (cmdline_passed[0])
--		strlcpy(boot_command_line, cmdline_passed, COMMAND_LINE_SIZE);
--#ifdef CONFIG_NIOS2_CMDLINE_IGNORE_DTB
--	else
--		strlcpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+-#if defined(CONFIG_CMDLINE_EXTEND)
+-	strlcat(default_command_line, " ", COMMAND_LINE_SIZE);
+-	strlcat(default_command_line, tag->u.cmdline.cmdline,
+-		COMMAND_LINE_SIZE);
+-#elif defined(CONFIG_CMDLINE_FORCE)
+-	pr_warn("Ignoring tag cmdline (using the default kernel command line)\n");
+-#else
+-	strlcpy(default_command_line, tag->u.cmdline.cmdline,
+-		COMMAND_LINE_SIZE);
 -#endif
--#endif
-+	if (cmdline_passed[0] || IS_ENABLED(CONFIG_NIOS2_CMDLINE_IGNORE_DTB))
-+		cmdline_build(boot_command_line, cmdline_passed);
- 
- 	parse_early_param();
++	cmdline_build(default_command_line, tag->u.cmdline.cmdline);
++
+ 	return 0;
  }
+ 
 -- 
 2.25.0
 
