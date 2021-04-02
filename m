@@ -1,10 +1,9 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH v4 03/20] x86/efi: Replace CONFIG_CMDLINE_OVERRIDE by
- CONFIG_CMDLINE_FORCE
-Date: Fri,  2 Apr 2021 15:18:04 +0000 (UTC)
-Message-ID: <76542a49b685ddb41894fd53feb250fcec731b01.1617375802.git.christophe.leroy@csgroup.eu>
+Subject: [PATCH v4 06/20] powerpc: convert strcpy to strlcpy in prom_init
+Date: Fri,  2 Apr 2021 15:18:07 +0000 (UTC)
+Message-ID: <03c0b931557967876abcebc7d0e3c6537eb6ab89.1617375802.git.christophe.leroy@csgroup.eu>
 References: <cover.1617375802.git.christophe.leroy@csgroup.eu>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 In-Reply-To: <cover.1617375802.git.christophe.leroy@csgroup.eu>
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -13,70 +12,70 @@ Content-Transfer-Encoding: 7bit
 To: will@kernel.org, danielwa@cisco.com, robh@kernel.org, daniel@gimpelevich.san-francisco.ca.us, arnd@kernel.org, akpm@linux-foundation.org
 Cc: linux-arch@vger.kernel.org, devicetree@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, microblaze <monstr@monstr.eu>, linux-mips@vger.kernel.org, nios2 <ley.foon.tan@intel.com>, openrisc@lists.librecores.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-xtensa@linux-xtensa.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
 
-During boot, x86 uses EFI driver. That driver is also used
-by ARM.
+From: Daniel Walker <danielwa@cisco.com>
 
-In order to refactor the command line processing in that driver
-in a following patch, rename CONFIG_CMDLINE_OVERRIDE by
-CONFIG_CMDLINE_FORCE on the x86 in order to be similar
-to ARM (and most other architectures).
+There's only two users of strcpy and one is the command
+line handling. The generic command line handling uses strlcpy
+and it makes sense to convert this one other user to strlcpy to
+keep prom_init size consistent.
 
+Cc: xe-linux-external@cisco.com
+Signed-off-by: Daniel Walker <danielwa@cisco.com>
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
-v4: New
----
- arch/x86/Kconfig                        | 4 ++--
- arch/x86/kernel/setup.c                 | 2 +-
- drivers/firmware/efi/libstub/x86-stub.c | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/prom_init.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 2792879d398e..a20684d56b4b 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -2384,14 +2384,14 @@ config CMDLINE
- 	  command line at boot time, it is appended to this string to
- 	  form the full kernel command line, when the system boots.
+diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
+index 41ed7e33d897..33316ee55265 100644
+--- a/arch/powerpc/kernel/prom_init.c
++++ b/arch/powerpc/kernel/prom_init.c
+@@ -242,15 +242,6 @@ static int __init prom_strcmp(const char *cs, const char *ct)
+ 	return 0;
+ }
  
--	  However, you can use the CONFIG_CMDLINE_OVERRIDE option to
-+	  However, you can use the CONFIG_CMDLINE_FORCE option to
- 	  change this behavior.
+-static char __init *prom_strcpy(char *dest, const char *src)
+-{
+-	char *tmp = dest;
+-
+-	while ((*dest++ = *src++) != '\0')
+-		/* nothing */;
+-	return tmp;
+-}
+-
+ static int __init prom_strncmp(const char *cs, const char *ct, size_t count)
+ {
+ 	unsigned char c1, c2;
+@@ -276,6 +267,20 @@ static size_t __init prom_strlen(const char *s)
+ 	return sc - s;
+ }
  
- 	  In most cases, the command line (whether built-in or provided
- 	  by the boot loader) should specify the device for the root
- 	  file system.
++static size_t __init prom_strlcpy(char *dest, const char *src, size_t size)
++{
++	size_t ret = prom_strlen(src);
++
++	if (size) {
++		size_t len = (ret >= size) ? size - 1 : ret;
++
++		memcpy(dest, src, len);
++		dest[len] = '\0';
++	}
++	return ret;
++}
++
++
+ static int __init prom_memcmp(const void *cs, const void *ct, size_t count)
+ {
+ 	const unsigned char *su1, *su2;
+@@ -2702,7 +2707,7 @@ static void __init flatten_device_tree(void)
  
--config CMDLINE_OVERRIDE
-+config CMDLINE_FORCE
- 	bool "Built-in command line overrides boot loader arguments"
- 	depends on CMDLINE_BOOL && CMDLINE != ""
- 	help
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index d883176ef2ce..6f2de58eeb54 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -884,7 +884,7 @@ void __init setup_arch(char **cmdline_p)
- 	bss_resource.end = __pa_symbol(__bss_stop)-1;
+ 	/* Add "phandle" in there, we'll need it */
+ 	namep = make_room(&mem_start, &mem_end, 16, 1);
+-	prom_strcpy(namep, "phandle");
++	prom_strlcpy(namep, "phandle", 8);
+ 	mem_start = (unsigned long)namep + prom_strlen(namep) + 1;
  
- #ifdef CONFIG_CMDLINE_BOOL
--#ifdef CONFIG_CMDLINE_OVERRIDE
-+#ifdef CONFIG_CMDLINE_FORCE
- 	strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
- #else
- 	if (builtin_cmdline[0]) {
-diff --git a/drivers/firmware/efi/libstub/x86-stub.c b/drivers/firmware/efi/libstub/x86-stub.c
-index f14c4ff5839f..28659276b6ba 100644
---- a/drivers/firmware/efi/libstub/x86-stub.c
-+++ b/drivers/firmware/efi/libstub/x86-stub.c
-@@ -742,7 +742,7 @@ unsigned long efi_main(efi_handle_t handle,
- 		goto fail;
- 	}
- #endif
--	if (!IS_ENABLED(CONFIG_CMDLINE_OVERRIDE)) {
-+	if (!IS_ENABLED(CONFIG_CMDLINE_FORCE)) {
- 		unsigned long cmdline_paddr = ((u64)hdr->cmd_line_ptr |
- 					       ((u64)boot_params->ext_cmd_line_ptr << 32));
- 		status = efi_parse_options((char *)cmdline_paddr);
+ 	/* Build string array */
 -- 
 2.25.0
 
