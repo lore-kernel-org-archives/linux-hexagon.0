@@ -1,136 +1,110 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH v4 07/20] powerpc: Convert to GENERIC_CMDLINE
-Date: Fri,  2 Apr 2021 15:18:08 +0000 (UTC)
-Message-ID: <bcc28f6552708885aecb14a7106b65afbffcc294.1617375802.git.christophe.leroy@csgroup.eu>
+From: Christophe Leroy <christophe.leroy-2tlSp11Fh4xulxpn9UvDqw@public.gmane.org>
+Subject: [PATCH v4 12/20] nios2: Convert to GENERIC_CMDLINE
+Date: Fri,  2 Apr 2021 15:18:13 +0000 (UTC)
+Message-ID: <9b4899b0abc156eb207b19fe0b24dd5bf0355b99.1617375802.git.christophe.leroy@csgroup.eu>
 References: <cover.1617375802.git.christophe.leroy@csgroup.eu>
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <cover.1617375802.git.christophe.leroy@csgroup.eu>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1617375802.git.christophe.leroy-2tlSp11Fh4xulxpn9UvDqw@public.gmane.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: will@kernel.org, danielwa@cisco.com, robh@kernel.org, daniel@gimpelevich.san-francisco.ca.us, arnd@kernel.org, akpm@linux-foundation.org
-Cc: linux-arch@vger.kernel.org, devicetree@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, microblaze <monstr@monstr.eu>, linux-mips@vger.kernel.org, nios2 <ley.foon.tan@intel.com>, openrisc@lists.librecores.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-xtensa@linux-xtensa.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
+To: will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, danielwa-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, daniel-R/FLGEdV95bo9U+Z1CfBt0SU0eOFXohjCypLqA8HKkk@public.gmane.org, arnd-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+Cc: linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, microblaze <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, linux-mips-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2 <ley.foon.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, openrisc-cunTk1MwBs9a3B2Vnqf2dGD2FQJk+8+b@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-riscv-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org
 
-This updates the powerpc code to use the new cmdline building function.
+This converts the architecture to GENERIC_CMDLINE.
 
-The cmdline_build() defines a temporary string in __initdata.
-powerpc uses __prombss instead at the moment, so we must
-call cmdline_build() with destination different from the source
-to allow GCC to optimise the temporary string out.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Christophe Leroy <christophe.leroy-2tlSp11Fh4xulxpn9UvDqw@public.gmane.org>
 ---
-v4:
-- Use cmdline_build() instead of __cmdline_build()
-- Add cmdline_strlcpy() define
+v4: Added missing selection of CONFIG_GENERIC_CMDLINE in Kconfig
 ---
- arch/powerpc/Kconfig            | 37 +--------------------------------
- arch/powerpc/kernel/prom_init.c | 21 +++++++++----------
- 2 files changed, 11 insertions(+), 47 deletions(-)
+ arch/nios2/Kconfig        | 25 ++-----------------------
+ arch/nios2/kernel/setup.c | 13 ++++---------
+ 2 files changed, 6 insertions(+), 32 deletions(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index c1344c05226c..6723f10ac246 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -168,6 +168,7 @@ config PPC
- 	select EDAC_SUPPORT
- 	select GENERIC_ATOMIC64			if PPC32
- 	select GENERIC_CLOCKEVENTS_BROADCAST	if SMP
+diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
+index c24955c81c92..6018f3d626f8 100644
+--- a/arch/nios2/Kconfig
++++ b/arch/nios2/Kconfig
+@@ -10,6 +10,7 @@ config NIOS2
+ 	select COMMON_CLK
+ 	select TIMER_OF
+ 	select GENERIC_ATOMIC64
 +	select GENERIC_CMDLINE
- 	select GENERIC_CMOS_UPDATE
- 	select GENERIC_CPU_AUTOPROBE
- 	select GENERIC_CPU_VULNERABILITIES	if PPC_BARRIER_NOSPEC
-@@ -888,42 +889,6 @@ config PPC_DENORMALISATION
- 	  Add support for handling denormalisation of single precision
- 	  values.  Useful for bare metal only.  If unsure say Y here.
+ 	select GENERIC_CPU_DEVICES
+ 	select GENERIC_IRQ_PROBE
+ 	select GENERIC_IRQ_SHOW
+@@ -90,31 +91,9 @@ config NIOS2_ALIGNMENT_TRAP
  
+ comment "Boot options"
+ 
+-config CMDLINE_BOOL
+-	bool "Default bootloader kernel arguments"
+-	default y
+-
 -config CMDLINE
--	string "Initial kernel command string"
+-	string "Default kernel command string"
 -	default ""
+-	depends on CMDLINE_BOOL
 -	help
 -	  On some platforms, there is currently no way for the boot loader to
 -	  pass arguments to the kernel. For these platforms, you can supply
 -	  some command-line options at build time by entering them here.  In
--	  most cases you will need to specify the root device here.
--
--choice
--	prompt "Kernel command line type" if CMDLINE != ""
--	default CMDLINE_FROM_BOOTLOADER
--
--config CMDLINE_FROM_BOOTLOADER
--	bool "Use bootloader kernel arguments if available"
--	help
--	  Uses the command-line options passed by the boot loader. If
--	  the boot loader doesn't provide any, the default kernel command
--	  string provided in CMDLINE will be used.
--
--config CMDLINE_EXTEND
--	bool "Extend bootloader kernel arguments"
--	help
--	  The command-line arguments provided by the boot loader will be
--	  appended to the default kernel command string.
+-	  other cases you can specify kernel args so that you don't have
+-	  to set them up in board prom initialization routines.
 -
 -config CMDLINE_FORCE
--	bool "Always use the default kernel command string"
+-	bool "Force default kernel command string"
+-	depends on CMDLINE_BOOL
 -	help
--	  Always use the default kernel command string, even if the boot
--	  loader passes other arguments to the kernel.
--	  This is useful if you cannot or don't want to change the
--	  command-line options your boot loader passes to the kernel.
+-	  Set this to have arguments from the default kernel command string
+-	  override those passed by the boot loader.
 -
--endchoice
--
- config EXTRA_TARGETS
- 	string "Additional default image types"
+ config NIOS2_CMDLINE_IGNORE_DTB
+ 	bool "Ignore kernel command string from DTB"
+-	depends on CMDLINE_BOOL
++	depends on CMDLINE != ""
+ 	depends on !CMDLINE_FORCE
+ 	default y
  	help
-diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
-index 33316ee55265..704afd028213 100644
---- a/arch/powerpc/kernel/prom_init.c
-+++ b/arch/powerpc/kernel/prom_init.c
-@@ -152,7 +152,7 @@ static struct prom_t __prombss prom;
- static unsigned long __prombss prom_entry;
- 
- static char __prombss of_stdout_device[256];
--static char __prombss prom_scratch[256];
-+static char __prombss prom_scratch[COMMAND_LINE_SIZE];
- 
- static unsigned long __prombss dt_header_start;
- static unsigned long __prombss dt_struct_start, dt_struct_end;
-@@ -770,24 +770,23 @@ static unsigned long prom_memparse(const char *ptr, const char **retptr)
-  * Early parsing of the command line passed to the kernel, used for
-  * "mem=x" and the options that affect the iommu
-  */
-+#define cmdline_strlcat prom_strlcat
-+#define cmdline_strlcpy prom_strlcpy
+diff --git a/arch/nios2/kernel/setup.c b/arch/nios2/kernel/setup.c
+index d2f21957e99c..5b38d3d0ad64 100644
+--- a/arch/nios2/kernel/setup.c
++++ b/arch/nios2/kernel/setup.c
+@@ -20,6 +20,7 @@
+ #include <linux/initrd.h>
+ #include <linux/of_fdt.h>
+ #include <linux/screen_info.h>
 +#include <linux/cmdline.h>
-+
- static void __init early_cmdline_parse(void)
+ 
+ #include <asm/mmu_context.h>
+ #include <asm/sections.h>
+@@ -108,7 +109,7 @@ asmlinkage void __init nios2_boot_init(unsigned r4, unsigned r5, unsigned r6,
+ 				       unsigned r7)
  {
- 	const char *opt;
--
--	char *p;
- 	int l = 0;
--
--	prom_cmd_line[0] = 0;
--	p = prom_cmd_line;
-+	bool truncated;
+ 	unsigned dtb_passed = 0;
+-	char cmdline_passed[COMMAND_LINE_SIZE] __maybe_unused = { 0, };
++	char cmdline_passed[COMMAND_LINE_SIZE] = { 0, };
  
- 	if (!IS_ENABLED(CONFIG_CMDLINE_FORCE) && (long)prom.chosen > 0)
--		l = prom_getprop(prom.chosen, "bootargs", p, COMMAND_LINE_SIZE-1);
-+		l = prom_getprop(prom.chosen, "bootargs", prom_scratch,
-+				 COMMAND_LINE_SIZE - 1);
+ #if defined(CONFIG_NIOS2_PASS_CMDLINE)
+ 	if (r4 == 0x534f494e) { /* r4 is magic NIOS */
+@@ -127,14 +128,8 @@ asmlinkage void __init nios2_boot_init(unsigned r4, unsigned r5, unsigned r6,
  
--	if (IS_ENABLED(CONFIG_CMDLINE_EXTEND) || l <= 0 || p[0] == '\0')
--		prom_strlcat(prom_cmd_line, " " CONFIG_CMDLINE,
--			     sizeof(prom_cmd_line));
-+	truncated = !__cmdline_build(prom_cmd_line, l > 0 ? prom_scratch : NULL);
+ 	early_init_devtree((void *)dtb_passed);
  
--	prom_printf("command line: %s\n", prom_cmd_line);
-+	prom_printf("command line: %s %s\n", prom_cmd_line, truncated ? "[truncated]" : "");
+-#ifndef CONFIG_CMDLINE_FORCE
+-	if (cmdline_passed[0])
+-		strlcpy(boot_command_line, cmdline_passed, COMMAND_LINE_SIZE);
+-#ifdef CONFIG_NIOS2_CMDLINE_IGNORE_DTB
+-	else
+-		strlcpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+-#endif
+-#endif
++	if (cmdline_passed[0] || IS_ENABLED(CONFIG_NIOS2_CMDLINE_IGNORE_DTB))
++		cmdline_build(boot_command_line, cmdline_passed);
  
- #ifdef CONFIG_PPC64
- 	opt = prom_strstr(prom_cmd_line, "iommu=");
+ 	parse_early_param();
+ }
 -- 
 2.25.0
 
