@@ -1,9 +1,9 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH v4 10/20] hexagon: Convert to GENERIC_CMDLINE
-Date: Fri,  2 Apr 2021 15:18:11 +0000 (UTC)
-Message-ID: <1180421ba35993f4a533708b91c93f1da07d14dc.1617375802.git.christophe.leroy@csgroup.eu>
+Subject: [PATCH v4 18/20] x86: Convert to GENERIC_CMDLINE
+Date: Fri,  2 Apr 2021 15:18:20 +0000 (UTC)
+Message-ID: <ab0fd4477964cdbf99e3dd2965a455aa3e738e4b.1617375802.git.christophe.leroy@csgroup.eu>
 References: <cover.1617375802.git.christophe.leroy@csgroup.eu>
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 In-Reply-To: <cover.1617375802.git.christophe.leroy@csgroup.eu>
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -16,81 +16,122 @@ This converts the architecture to GENERIC_CMDLINE.
 
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
- arch/hexagon/Kconfig        | 11 +----------
- arch/hexagon/kernel/setup.c | 10 ++--------
- 2 files changed, 3 insertions(+), 18 deletions(-)
+ arch/x86/Kconfig        | 45 ++---------------------------------------
+ arch/x86/kernel/setup.c | 17 ++--------------
+ 2 files changed, 4 insertions(+), 58 deletions(-)
 
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index 44a409967af1..1e69c99bae6b 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -18,6 +18,7 @@ config HEXAGON
- 	select HAVE_PERF_EVENTS
- 	# GENERIC_ALLOCATOR is used by dma_alloc_coherent()
- 	select GENERIC_ALLOCATOR
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index a20684d56b4b..66b384228ca3 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -104,6 +104,7 @@ config X86
+ 	select ARCH_USE_QUEUED_SPINLOCKS
+ 	select ARCH_USE_SYM_ANNOTATIONS
+ 	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
++	select ARCH_WANT_CMDLINE_PREPEND_BY_DEFAULT
+ 	select ARCH_WANT_DEFAULT_BPF_JIT	if X86_64
+ 	select ARCH_WANTS_DYNAMIC_TASK_STRUCT
+ 	select ARCH_WANT_HUGE_PMD_SHARE
+@@ -118,6 +119,7 @@ config X86
+ 	select EDAC_SUPPORT
+ 	select GENERIC_CLOCKEVENTS_BROADCAST	if X86_64 || (X86_32 && X86_LOCAL_APIC)
+ 	select GENERIC_CLOCKEVENTS_MIN_ADJUST
 +	select GENERIC_CMDLINE
- 	select GENERIC_IRQ_SHOW
- 	select HAVE_ARCH_KGDB
- 	select HAVE_ARCH_TRACEHOOK
-@@ -91,16 +92,6 @@ config HEXAGON_ARCH_VERSION
- 	int "Architecture version"
- 	default 2
+ 	select GENERIC_CMOS_UPDATE
+ 	select GENERIC_CPU_AUTOPROBE
+ 	select GENERIC_CPU_VULNERABILITIES
+@@ -2358,49 +2360,6 @@ choice
  
+ endchoice
+ 
+-config CMDLINE_BOOL
+-	bool "Built-in kernel command line"
+-	help
+-	  Allow for specifying boot arguments to the kernel at
+-	  build time.  On some systems (e.g. embedded ones), it is
+-	  necessary or convenient to provide some or all of the
+-	  kernel boot arguments with the kernel itself (that is,
+-	  to not rely on the boot loader to provide them.)
+-
+-	  To compile command line arguments into the kernel,
+-	  set this option to 'Y', then fill in the
+-	  boot arguments in CONFIG_CMDLINE.
+-
+-	  Systems with fully functional boot loaders (i.e. non-embedded)
+-	  should leave this option set to 'N'.
+-
 -config CMDLINE
--	string "Default kernel command string"
+-	string "Built-in kernel command string"
+-	depends on CMDLINE_BOOL
 -	default ""
 -	help
--	  On some platforms, there is currently no way for the boot loader
--	  to pass arguments to the kernel. For these, you should supply some
--	  command-line options at build time by entering them here.  At a
--	  minimum, you should specify the memory size and the root device
--	  (e.g., mem=64M root=/dev/nfs).
+-	  Enter arguments here that should be compiled into the kernel
+-	  image and used at boot time.  If the boot loader provides a
+-	  command line at boot time, it is appended to this string to
+-	  form the full kernel command line, when the system boots.
 -
- config SMP
- 	bool "Multi-Processing support"
- 	help
-diff --git a/arch/hexagon/kernel/setup.c b/arch/hexagon/kernel/setup.c
-index 1880d9beaf2b..78641ce219e2 100644
---- a/arch/hexagon/kernel/setup.c
-+++ b/arch/hexagon/kernel/setup.c
-@@ -13,6 +13,7 @@
- #include <linux/seq_file.h>
- #include <linux/console.h>
- #include <linux/of_fdt.h>
+-	  However, you can use the CONFIG_CMDLINE_FORCE option to
+-	  change this behavior.
+-
+-	  In most cases, the command line (whether built-in or provided
+-	  by the boot loader) should specify the device for the root
+-	  file system.
+-
+-config CMDLINE_FORCE
+-	bool "Built-in command line overrides boot loader arguments"
+-	depends on CMDLINE_BOOL && CMDLINE != ""
+-	help
+-	  Set this option to 'Y' to have the kernel ignore the boot loader
+-	  command line, and use ONLY the built-in command line.
+-
+-	  This is used to work around broken boot loaders.  This should
+-	  be set to 'N' under normal conditions.
+-
+ config MODIFY_LDT_SYSCALL
+ 	bool "Enable the LDT (local descriptor table)" if EXPERT
+ 	default y
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index 6f2de58eeb54..3f274b02e51c 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -5,6 +5,7 @@
+  * This file contains the setup_arch() code, which handles the architecture-dependent
+  * parts of early kernel initialization.
+  */
 +#include <linux/cmdline.h>
- #include <asm/io.h>
- #include <asm/sections.h>
- #include <asm/setup.h>
-@@ -22,7 +23,6 @@
- #include <asm/time.h>
+ #include <linux/console.h>
+ #include <linux/crash_dump.h>
+ #include <linux/dma-map-ops.h>
+@@ -161,9 +162,6 @@ unsigned long saved_video_mode;
+ #define RAMDISK_LOAD_FLAG		0x4000
  
- char cmd_line[COMMAND_LINE_SIZE];
--static char default_command_line[COMMAND_LINE_SIZE] __initdata = CONFIG_CMDLINE;
+ static char __initdata command_line[COMMAND_LINE_SIZE];
+-#ifdef CONFIG_CMDLINE_BOOL
+-static char __initdata builtin_cmdline[COMMAND_LINE_SIZE] = CONFIG_CMDLINE;
+-#endif
  
- int on_simulator;
+ #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
+ struct edd edd;
+@@ -883,18 +881,7 @@ void __init setup_arch(char **cmdline_p)
+ 	bss_resource.start = __pa_symbol(__bss_start);
+ 	bss_resource.end = __pa_symbol(__bss_stop)-1;
  
-@@ -38,8 +38,6 @@ void calibrate_delay(void)
+-#ifdef CONFIG_CMDLINE_BOOL
+-#ifdef CONFIG_CMDLINE_FORCE
+-	strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
+-#else
+-	if (builtin_cmdline[0]) {
+-		/* append boot loader cmdline to builtin */
+-		strlcat(builtin_cmdline, " ", COMMAND_LINE_SIZE);
+-		strlcat(builtin_cmdline, boot_command_line, COMMAND_LINE_SIZE);
+-		strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
+-	}
+-#endif
+-#endif
++	cmdline_build(boot_command_line, boot_command_line);
  
- void __init setup_arch(char **cmdline_p)
- {
--	char *p = &external_cmdline_buffer;
--
- 	/*
- 	 * These will eventually be pulled in via either some hypervisor
- 	 * or devicetree description.  Hardwiring for now.
-@@ -65,11 +63,7 @@ void __init setup_arch(char **cmdline_p)
- 	else
- 		on_simulator = 0;
- 
--	if (p[0] != '\0')
--		strlcpy(boot_command_line, p, COMMAND_LINE_SIZE);
--	else
--		strlcpy(boot_command_line, default_command_line,
--			COMMAND_LINE_SIZE);
-+	cmdline_build(boot_command_line, external_cmdline_buffer);
- 
- 	/*
- 	 * boot_command_line and the value set up by setup_arch
+ 	strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
+ 	*cmdline_p = command_line;
 -- 
 2.25.0
 
