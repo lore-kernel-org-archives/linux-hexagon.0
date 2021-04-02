@@ -1,9 +1,9 @@
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH v4 01/20] cmdline: Add generic function to build command line.
-Date: Fri,  2 Apr 2021 15:18:02 +0000 (UTC)
-Message-ID: <68db4e57bb88c523f76dcae12feafbb0cae1a85d.1617375802.git.christophe.leroy@csgroup.eu>
+Subject: [PATCH v4 02/20] drivers: of: use cmdline building function
+Date: Fri,  2 Apr 2021 15:18:03 +0000 (UTC)
+Message-ID: <b39c6cfefe9c8391a64ebfca3ae39fcc49e5c607.1617375802.git.christophe.leroy@csgroup.eu>
 References: <cover.1617375802.git.christophe.leroy@csgroup.eu>
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 In-Reply-To: <cover.1617375802.git.christophe.leroy@csgroup.eu>
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -12,111 +12,57 @@ Content-Transfer-Encoding: 7bit
 To: will@kernel.org, danielwa@cisco.com, robh@kernel.org, daniel@gimpelevich.san-francisco.ca.us, arnd@kernel.org, akpm@linux-foundation.org
 Cc: linux-arch@vger.kernel.org, devicetree@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, microblaze <monstr@monstr.eu>, linux-mips@vger.kernel.org, nios2 <ley.foon.tan@intel.com>, openrisc@lists.librecores.org, linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-xtensa@linux-xtensa.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
 
-This code provides architectures with a way to build command line
-based on what is built in the kernel and what is handed over by the
-bootloader, based on selected compile-time options.
+This patch uses the new cmdline building function to
+concatenate the of provided cmdline with built-in parts
+based on compile-time options.
 
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
-v3:
-- Addressed comments from Will
-- Added capability to have src == dst
-v4:
-- Add cmdline_strlcpy()
-- Removed cmdline_build() macro, __cmdline_build() becomes cmdline_build()
-- Fixed the destination length to COMMAND_LINE_SIZE
-- Truncate at a space not in a quote when too long
-- Added a message when forcing the command line
----
- include/linux/cmdline.h | 79 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 79 insertions(+)
- create mode 100644 include/linux/cmdline.h
+ drivers/of/fdt.c | 23 ++++-------------------
+ 1 file changed, 4 insertions(+), 19 deletions(-)
 
-diff --git a/include/linux/cmdline.h b/include/linux/cmdline.h
-new file mode 100644
-index 000000000000..a0773dc365c7
---- /dev/null
-+++ b/include/linux/cmdline.h
-@@ -0,0 +1,79 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_CMDLINE_H
-+#define _LINUX_CMDLINE_H
-+
-+#include <linux/string.h>
-+#include <linux/printk.h>
-+#include <asm/setup.h>
-+
-+/* Allow users to override strlcat/strlcpy, powerpc can't use strings so early*/
-+#ifndef cmdline_strlcat
-+#define cmdline_strlcat strlcat
-+#define cmdline_strlcpy strlcpy
-+#endif
-+
-+/*
-+ * This function will append or prepend a builtin command line to the command
-+ * line provided by the bootloader. Kconfig options can be used to alter
-+ * the behavior of this builtin command line.
-+ * @dst: The destination of the final command line (Min. size COMMAND_LINE_SIZE)
-+ * @src: The starting string or NULL if there isn't one. Must not equal dst.
-+ * Returns: false if the string was truncated, true otherwise
-+ */
-+static __always_inline bool __cmdline_build(char *dst, const char *src)
-+{
-+	int len;
-+	char *ptr, *last_space;
-+	bool in_quote = false;
-+
-+	if (IS_ENABLED(CONFIG_CMDLINE_FORCE))
-+		src = NULL;
-+
-+	dst[0] = 0;
-+
-+	if (IS_ENABLED(CONFIG_CMDLINE_PREPEND))
-+		len = cmdline_strlcat(dst, CONFIG_CMDLINE " ", COMMAND_LINE_SIZE);
-+
-+	len = cmdline_strlcat(dst, src, COMMAND_LINE_SIZE);
-+
-+	if (IS_ENABLED(CONFIG_CMDLINE_EXTEND))
-+		len = cmdline_strlcat(dst, " " CONFIG_CMDLINE, COMMAND_LINE_SIZE);
-+
-+	if (len < COMMAND_LINE_SIZE - 1)
-+		return true;
-+
-+	for (ptr = dst; *ptr; ptr++) {
-+		if (*ptr == '"')
-+			in_quote = !in_quote;
-+		if (*ptr == ' ' && !in_quote)
-+			last_space = ptr;
-+	}
-+	if (last_space)
-+		*last_space = 0;
-+
-+	return false;
-+}
-+
-+/*
-+ * This function will append or prepend a builtin command line to the command
-+ * line provided by the bootloader. Kconfig options can be used to alter
-+ * the behavior of this builtin command line.
-+ * @dst: The destination of the final command line (Min. size COMMAND_LINE_SIZE)
-+ * @src: The starting string or NULL if there isn't one.
-+ */
-+static __always_inline void cmdline_build(char *dst, const char *src)
-+{
-+	static char tmp[COMMAND_LINE_SIZE] __initdata;
-+
-+	if (src == dst) {
-+		cmdline_strlcpy(tmp, src, COMMAND_LINE_SIZE);
-+		src = tmp;
-+	}
-+	if (!__cmdline_build(dst, src))
-+		pr_warn("Command line is too long, it has been truncated\n");
-+
-+	if (IS_ENABLED(CONFIG_CMDLINE_FORCE))
-+		pr_info("Forcing kernel command line to: %s\n", dst);
-+}
-+
-+#endif /* _LINUX_CMDLINE_H */
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index dcc1dd96911a..7c5e9fb6039b 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -25,6 +25,7 @@
+ #include <linux/serial_core.h>
+ #include <linux/sysfs.h>
+ #include <linux/random.h>
++#include <linux/cmdline.h>
+ 
+ #include <asm/setup.h>  /* for COMMAND_LINE_SIZE */
+ #include <asm/page.h>
+@@ -1050,26 +1051,10 @@ int __init early_init_dt_scan_chosen(unsigned long node, const char *uname,
+ 
+ 	/* Retrieve command line */
+ 	p = of_get_flat_dt_prop(node, "bootargs", &l);
+-	if (p != NULL && l > 0)
+-		strlcpy(data, p, min(l, COMMAND_LINE_SIZE));
++	if (l <= 0)
++		p = NULL;
+ 
+-	/*
+-	 * CONFIG_CMDLINE is meant to be a default in case nothing else
+-	 * managed to set the command line, unless CONFIG_CMDLINE_FORCE
+-	 * is set in which case we override whatever was found earlier.
+-	 */
+-#ifdef CONFIG_CMDLINE
+-#if defined(CONFIG_CMDLINE_EXTEND)
+-	strlcat(data, " ", COMMAND_LINE_SIZE);
+-	strlcat(data, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+-#elif defined(CONFIG_CMDLINE_FORCE)
+-	strlcpy(data, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+-#else
+-	/* No arguments from boot loader, use kernel's  cmdl*/
+-	if (!((char *)data)[0])
+-		strlcpy(data, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+-#endif
+-#endif /* CONFIG_CMDLINE */
++	cmdline_build(data, p);
+ 
+ 	pr_debug("Command line is: %s\n", (char *)data);
+ 
 -- 
 2.25.0
 
