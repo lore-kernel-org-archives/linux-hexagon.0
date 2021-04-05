@@ -1,84 +1,89 @@
-From: Christophe Leroy <christophe.leroy-2tlSp11Fh4xulxpn9UvDqw@public.gmane.org>
-Subject: [RFC PATCH v6 1/1] cmdline: Add capability to both append and prepend at
- the same time
-Date: Sun,  4 Apr 2021 17:20:48 +0000 (UTC)
-Message-ID: <34d20d1dbb88f26d418b33985557b0475374a1a5.1617556785.git.christophe.leroy@csgroup.eu>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Kees Cook <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH RFC 1/3] drivers/char: remove /dev/kmem for good
+Date: Mon, 5 Apr 2021 10:16:35 -0700
+Message-ID: <202104051013.F432CAC4@keescook>
+References: <20210319143452.25948-1-david@redhat.com>
+ <20210319143452.25948-2-david@redhat.com>
+Mime-Version: 1.0
+Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ai3CdCbkrXPSlQhahzdlfMoVkl12Ktt9EKKlkNpbqIk=;
+        b=T5OZIJi1a+S0UmB8ju9dRtp9RWLpyoSfUudALSFJBsooFu63xRQSZft0M3qzy93k0r
+         z7x2JAHldp19Jlo5384VoYUVNQ2yeLvjJ5z5R7QVmttinVeV9VjzoAdj8fejaeiR8lyF
+         62143nJ12x8hml5vfS8LwEeOZj9TXLo/W5cC4=
+Content-Disposition: inline
+In-Reply-To: <20210319143452.25948-2-david-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, danielwa-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, daniel-R/FLGEdV95bo9U+Z1CfBt0SU0eOFXohjCypLqA8HKkk@public.gmane.org, arnd-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
-Cc: linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, microblaze <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, linux-mips-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2 <ley.foon.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, openrisc-cunTk1MwBs9a3B2Vnqf2dGD2FQJk+8+b@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-riscv-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org
+To: David Hildenbrand <david-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Hillf Danton <hdanton-k+cT0dCbe1g@public.gmane.org>, Michal Hocko <mhocko-IBi9RG/b67k@public.gmane.org>, Matthew Wilcox <willy-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Oleksiy Avramchenko <oleksiy.avramchenko-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>, Steven Rostedt <rostedt-nx8X9YLhiw1AfugRpC6u6w@public.gmane.org>, Minchan Kim <minchan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, huang ying <huang.ying.caritas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Liviu Dudau <liviu.dudau-5wv7dgnIgG8@public.gmane.org>, Sudeep Holla <sudeep.holla-5wv7dgnIgG8@public.gmane.org>, Lorenzo Pieralisi <lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Yoshinori Sato <ysato-Rn4VEauK+AKRv+LV9MX5uooqe+aC9MnS@public.gmane.org>, Brian Cain <b>
 
-One user has expressed the need to both append and prepend some
-built-in parameters to the command line provided by the bootloader.
+On Fri, Mar 19, 2021 at 03:34:50PM +0100, David Hildenbrand wrote:
+> Exploring /dev/kmem and /dev/mem in the context of memory hot(un)plug and
+> memory ballooning, I started questioning the existance of /dev/kmem.
+> 
+> Comparing it with the /proc/kcore implementation, it does not seem to be
+> able to deal with things like
+> a) Pages unmapped from the direct mapping (e.g., to be used by secretmem)
+>   -> kern_addr_valid(). virt_addr_valid() is not sufficient.
+> b) Special cases like gart aperture memory that is not to be touched
+>   -> mem_pfn_is_ram()
+> Unless I am missing something, it's at least broken in some cases and might
+> fault/crash the machine.
+> 
+> Looks like its existance has been questioned before in 2005 and 2010
+> [1], after ~11 additional years, it might make sense to revive the
+> discussion.
+> 
+> CONFIG_DEVKMEM is only enabled in a single defconfig (on purpose or by
+> mistake?). All distributions I looked at disable it.
+> 
+> 1) /dev/kmem was popular for rootkits [2] before it got disabled
+>    basically everywhere. Ubuntu documents [3] "There is no modern user of
+>    /dev/kmem any more beyond attackers using it to load kernel rootkits.".
+>    RHEL documents in a BZ [5] "it served no practical purpose other than to
+>    serve as a potential security problem or to enable binary module drivers
+>    to access structures/functions they shouldn't be touching"
+> 
+> 2) /proc/kcore is a decent interface to have a controlled way to read
+>    kernel memory for debugging puposes. (will need some extensions to
+>    deal with memory offlining/unplug, memory ballooning, and poisoned
+>    pages, though)
+> 
+> 3) It might be useful for corner case debugging [1]. KDB/KGDB might be a
+>    better fit, especially, to write random memory; harder to shoot
+>    yourself into the foot.
+> 
+> 4) "Kernel Memory Editor" hasn't seen any updates since 2000 and seems
+>    to be incompatible with 64bit [1]. For educational purposes,
+>    /proc/kcore might be used to monitor value updates -- or older
+>    kernels can be used.
+> 
+> 5) It's broken on arm64, and therefore, completely disabled there.
+> 
+> Looks like it's essentially unused and has been replaced by better
+> suited interfaces for individual tasks (/proc/kcore, KDB/KGDB). Let's
+> just remove it.
+> 
+> [1] https://lwn.net/Articles/147901/
+> [2] https://www.linuxjournal.com/article/10505
+> [3] https://wiki.ubuntu.com/Security/Features#A.2Fdev.2Fkmem_disabled
+> [4] https://sourceforge.net/projects/kme/
+> [5] https://bugzilla.redhat.com/show_bug.cgi?id=154796
+> 
+> [...]
+> Cc: Linux API <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+> Signed-off-by: David Hildenbrand <david-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 
-Allthough it is a corner case, it is easy to implement so let's do it.
+Yes please! As James Troup pointed out already, this was turned off in
+Ubuntu in 2008. I don't remember a single complaint from anyone who
+wasn't a rootkit author. ;)
 
-When the user chooses to prepend the bootloader provided command line
-with the built-in command line, he is offered the possibility to enter
-an additionnal built-in command line to be appended after the
-bootloader provided command line.
+Acked-by: Kees Cook <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 
-It is a complementary feature which has no impact on the already
-existing ones and/or the existing defconfig.
-
-Suggested-by: Daniel Walker <danielwa-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Christophe Leroy <christophe.leroy-2tlSp11Fh4xulxpn9UvDqw@public.gmane.org>
----
-Sending this out as an RFC, applies on top of the series
-("Implement GENERIC_CMDLINE"). I will add it to the series next spin
-unless someone is against it.
----
- include/linux/cmdline.h |  3 +++
- init/Kconfig            | 12 +++++++++++-
- 2 files changed, 14 insertions(+), 1 deletion(-)
-
-diff --git a/include/linux/cmdline.h b/include/linux/cmdline.h
-index 020028e2bdf0..fb274a4d5519 100644
---- a/include/linux/cmdline.h
-+++ b/include/linux/cmdline.h
-@@ -36,6 +36,9 @@ static __always_inline bool __cmdline_build(char *dst, const char *src)
- 
- 	len = cmdline_strlcat(dst, src, COMMAND_LINE_SIZE);
- 
-+	if (IS_ENABLED(CONFIG_CMDLINE_PREPEND))
-+		len = cmdline_strlcat(dst, " " CONFIG_CMDLINE_MORE, COMMAND_LINE_SIZE);
-+
- 	if (IS_ENABLED(CONFIG_CMDLINE_APPEND))
- 		len = cmdline_strlcat(dst, " " CONFIG_CMDLINE, COMMAND_LINE_SIZE);
- 
-diff --git a/init/Kconfig b/init/Kconfig
-index fa002e3765ab..cd3087ff4f28 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -128,6 +128,14 @@ config CMDLINE
- 	  If this string is not empty, additional choices are proposed
- 	  below to determine how it will be used by the kernel.
- 
-+config CMDLINE_MORE
-+	string "Additional default kernel command string" if GENERIC_CMDLINE && CMDLINE_PREPEND
-+	default ""
-+	help
-+	  Defines an additional default kernel command string.
-+	  If this string is not empty, it is appended to the
-+	  command-line arguments provided by the bootloader
-+
- choice
- 	prompt "Kernel command line type" if CMDLINE != ""
- 	default CMDLINE_PREPEND if ARCH_WANT_CMDLINE_PREPEND_BY_DEFAULT
-@@ -154,7 +162,9 @@ config CMDLINE_PREPEND
- 	bool "Prepend to the bootloader kernel arguments"
- 	help
- 	  The default kernel command string will be prepended to the
--	  command-line arguments provided by the bootloader.
-+	  command-line arguments provided by the bootloader. When this
-+	  option is selected, another string can be added which will
-+	  be appended.
- 
- config CMDLINE_FORCE
- 	bool "Always use the default kernel command string"
 -- 
-2.25.0
-
+Kees Cook
