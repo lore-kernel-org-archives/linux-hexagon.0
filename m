@@ -1,89 +1,82 @@
-From: Kees Cook <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH RFC 1/3] drivers/char: remove /dev/kmem for good
-Date: Mon, 5 Apr 2021 10:16:35 -0700
-Message-ID: <202104051013.F432CAC4@keescook>
-References: <20210319143452.25948-1-david@redhat.com>
- <20210319143452.25948-2-david@redhat.com>
+From: Daniel Walker <danielwa-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 00/20] Implement GENERIC_CMDLINE
+Date: Tue, 6 Apr 2021 09:56:10 -0700
+Message-ID: <20210406165610.GV2469518@zorba>
+References: <cover.1617375802.git.christophe.leroy@csgroup.eu>
 Mime-Version: 1.0
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=ai3CdCbkrXPSlQhahzdlfMoVkl12Ktt9EKKlkNpbqIk=;
-        b=T5OZIJi1a+S0UmB8ju9dRtp9RWLpyoSfUudALSFJBsooFu63xRQSZft0M3qzy93k0r
-         z7x2JAHldp19Jlo5384VoYUVNQ2yeLvjJ5z5R7QVmttinVeV9VjzoAdj8fejaeiR8lyF
-         62143nJ12x8hml5vfS8LwEeOZj9TXLo/W5cC4=
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=cisco.com; i=@cisco.com; l=2543; q=dns/txt; s=iport;
+  t=1617728176; x=1618937776;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=cZx99TFaCLts0bYspySXDfTAZA7sX1ryp1fo4EAJaBw=;
+  b=R4llpUe0760jIGN8ajhuGiyQ7AjZYDFP/5B615OEasNtvWFmppzuIAW3
+   VrXjn6ragzVpRW3qx6K7svEY9uYFl6mkjVVBmPY7xNyWJyQ+e3/gxLyR4
+   wdkyvt9igNCdF816s3S5UUiZ40gU303G8bibEWdCEFcS/weFez4fK01RN
+   g=;
 Content-Disposition: inline
-In-Reply-To: <20210319143452.25948-2-david-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <cover.1617375802.git.christophe.leroy-2tlSp11Fh4xulxpn9UvDqw@public.gmane.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: David Hildenbrand <david-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Hillf Danton <hdanton-k+cT0dCbe1g@public.gmane.org>, Michal Hocko <mhocko-IBi9RG/b67k@public.gmane.org>, Matthew Wilcox <willy-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Oleksiy Avramchenko <oleksiy.avramchenko-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>, Steven Rostedt <rostedt-nx8X9YLhiw1AfugRpC6u6w@public.gmane.org>, Minchan Kim <minchan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, huang ying <huang.ying.caritas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Liviu Dudau <liviu.dudau-5wv7dgnIgG8@public.gmane.org>, Sudeep Holla <sudeep.holla-5wv7dgnIgG8@public.gmane.org>, Lorenzo Pieralisi <lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Yoshinori Sato <ysato-Rn4VEauK+AKRv+LV9MX5uooqe+aC9MnS@public.gmane.org>, Brian Cain <b>
+To: Christophe Leroy <christophe.leroy-2tlSp11Fh4xulxpn9UvDqw@public.gmane.org>
+Cc: will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, daniel-R/FLGEdV95bo9U+Z1CfBt0SU0eOFXohjCypLqA8HKkk@public.gmane.org, arnd-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, microblaze <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, linux-mips-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2 <ley.foon.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, openrisc-cunTk1MwBs9a3B2Vnqf2dGD2FQJk+8+b@public.gmane.org, linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-riscv-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org
 
-On Fri, Mar 19, 2021 at 03:34:50PM +0100, David Hildenbrand wrote:
-> Exploring /dev/kmem and /dev/mem in the context of memory hot(un)plug and
-> memory ballooning, I started questioning the existance of /dev/kmem.
+On Fri, Apr 02, 2021 at 03:18:01PM +0000, Christophe Leroy wrote:
+> The purpose of this series is to improve and enhance the
+> handling of kernel boot arguments.
 > 
-> Comparing it with the /proc/kcore implementation, it does not seem to be
-> able to deal with things like
-> a) Pages unmapped from the direct mapping (e.g., to be used by secretmem)
->   -> kern_addr_valid(). virt_addr_valid() is not sufficient.
-> b) Special cases like gart aperture memory that is not to be touched
->   -> mem_pfn_is_ram()
-> Unless I am missing something, it's at least broken in some cases and might
-> fault/crash the machine.
+> Current situation is that most if not all architectures are using
+> similar options to do some manupulation on command line arguments:
+> - Prepend built-in arguments in front of bootloader provided arguments
+> - Append built-in arguments after bootloader provided arguments
+> - Replace bootloader provided arguments by built-in arguments
+> - Use built-in arguments when none is provided by bootloader.
 > 
-> Looks like its existance has been questioned before in 2005 and 2010
-> [1], after ~11 additional years, it might make sense to revive the
-> discussion.
+> On some architectures, all the options are possible. On other ones,
+> only a subset are available.
 > 
-> CONFIG_DEVKMEM is only enabled in a single defconfig (on purpose or by
-> mistake?). All distributions I looked at disable it.
+> The purpose of this series is to refactor and enhance the
+> handling of kernel boot arguments so that every architecture can
+> benefit from all possibilities.
 > 
-> 1) /dev/kmem was popular for rootkits [2] before it got disabled
->    basically everywhere. Ubuntu documents [3] "There is no modern user of
->    /dev/kmem any more beyond attackers using it to load kernel rootkits.".
->    RHEL documents in a BZ [5] "it served no practical purpose other than to
->    serve as a potential security problem or to enable binary module drivers
->    to access structures/functions they shouldn't be touching"
+> It is first focussed on powerpc but also extends the capability
+> for other arches.
 > 
-> 2) /proc/kcore is a decent interface to have a controlled way to read
->    kernel memory for debugging puposes. (will need some extensions to
->    deal with memory offlining/unplug, memory ballooning, and poisoned
->    pages, though)
+> The work has been focussed on minimising the churn in architectures
+> by keeping the most commonly used namings.
 > 
-> 3) It might be useful for corner case debugging [1]. KDB/KGDB might be a
->    better fit, especially, to write random memory; harder to shoot
->    yourself into the foot.
+> Main changes in V4:
+> - Included patch from Daniel to replace powerpc's strcpy() by strlcpy()
+> - Using strlcpy() instead of zeroing first char + strlcat() (idea taken frm Daniel's series)
+> - Reworked the convertion of EFI which was wrong in V3
+> - Added "too long" command line handling
+> - Changed cmdline macro into a function
+> - Done a few fixes in arch (NIOS2, SH, ARM)
+> - Taken comments into account (see individual responses for details)
+> - Tested on powerpc, build tested on ARM64, X86_64.
 > 
-> 4) "Kernel Memory Editor" hasn't seen any updates since 2000 and seems
->    to be incompatible with 64bit [1]. For educational purposes,
->    /proc/kcore might be used to monitor value updates -- or older
->    kernels can be used.
-> 
-> 5) It's broken on arm64, and therefore, completely disabled there.
-> 
-> Looks like it's essentially unused and has been replaced by better
-> suited interfaces for individual tasks (/proc/kcore, KDB/KGDB). Let's
-> just remove it.
-> 
-> [1] https://lwn.net/Articles/147901/
-> [2] https://www.linuxjournal.com/article/10505
-> [3] https://wiki.ubuntu.com/Security/Features#A.2Fdev.2Fkmem_disabled
-> [4] https://sourceforge.net/projects/kme/
-> [5] https://bugzilla.redhat.com/show_bug.cgi?id=154796
-> 
-> [...]
-> Cc: Linux API <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-> Signed-off-by: David Hildenbrand <david-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 
-Yes please! As James Troup pointed out already, this was turned off in
-Ubuntu in 2008. I don't remember a single complaint from anyone who
-wasn't a rootkit author. ;)
+Why submit your changes ? My changes have been around for almost 10 years, and
+are more widely used. Your changes are very new and unstable, but don't really
+solve the needs of people using my series.
 
-Acked-by: Kees Cook <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+I've tried to work with you and I take comments from you, but yet you insist to
+submit your own series.
 
--- 
-Kees Cook
+I would suggest this isn't going to go anyplace unless we work together.
+
+I can't really support your changes because, honestly, your changes are really
+ugly and they just look more and more like my changes with every passing
+iteration .. As the maturity of your changes continue they will just become my
+change set.
+
+I've been thru every iteration of these changes, and I see those attempts in
+your changes. Everything different in your changes I've tried, and found not to
+be useful, then it falls away in later iterations.
+
+When you give me comments on something which I haven't tried I typically
+incorporate it.
+
+Daniel
