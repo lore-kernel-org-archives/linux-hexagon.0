@@ -1,126 +1,236 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH] mm: Define ARCH_HAS_FIRST_USER_ADDRESS
-Date: Wed, 14 Apr 2021 08:10:49 +0200
-Message-ID: <ec7bbb30-dbbd-197b-4d65-eb3600fe6413@csgroup.eu>
-References: <1618368899-20311-1-git-send-email-anshuman.khandual@arm.com>
- <f29ba8e2-3071-c963-1e9f-e8c88526ed8d@csgroup.eu>
- <6d24d3cc-b2df-f0d7-f4bf-f505f679c77e@arm.com>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Subject: [PATCH] init: consolidate trap_init()
+Date: Wed, 14 Apr 2021 16:58:08 +0800
+Message-ID: <20210414165808.458a3d11@xhacker.debian>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <6d24d3cc-b2df-f0d7-f4bf-f505f679c77e@arm.com>
-Content-Language: fr
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
-Cc: linux-s390@vger.kernel.org, x86@kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-sh@vger.kernel.org, linux-um@lists.infradead.org, linux-mips@vger.kernel.org, linux-csky@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=Synaptics.onmicrosoft.com; s=selector2-Synaptics-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=08voTLsZcDJChYQ5jgeNzzEpKc8++MtNWQh8s3eoYvU=;
+ b=Vw5JlE3LAAEucBaNse013pBy2dqiuPE0YpK2oVLfOdq7y6Bo0fWn1/vfcVjeGrS558kbEYs60EnJZw3zOSIcVLweOF7BQxbLz2avVqenu93DmEuQSF0aflRBRtDIybBYvid7UlyFY3nz08xfv3hbR7u2VbL7SrPcajsIS3RQhqI=
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Content-Type: text/plain; charset="us-ascii"
+To: Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Yoshinori Sato <ysato@users.sourceforge.jp>, Brian Cain <bcain@codeaurora.org>, Nick Hu <nickhu@andestech.com>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: uclinux-h8-devel@lists.sourceforge.jp, linux-parisc@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, openrisc@lists.librecores.org, Anup Patel <anup@brainfault.org>, linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 
+Many architectures implement the trap_init() as NOP, since there is
+no such default for trap_init(), this empty stub is duplicated among
+these architectures. Provide a generic but weak NOP implementation
+to drop the empty stubs of trap_init() in these architectures.
 
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+---
+ arch/arc/kernel/traps.c      |  5 -----
+ arch/arm/kernel/traps.c      |  5 -----
+ arch/h8300/kernel/traps.c    | 13 -------------
+ arch/hexagon/kernel/traps.c  |  4 ----
+ arch/nds32/kernel/traps.c    |  5 -----
+ arch/nios2/kernel/traps.c    |  5 -----
+ arch/openrisc/kernel/traps.c |  5 -----
+ arch/parisc/kernel/traps.c   |  4 ----
+ arch/powerpc/kernel/traps.c  |  5 -----
+ arch/riscv/kernel/traps.c    |  5 -----
+ arch/um/kernel/trap.c        |  4 ----
+ init/main.c                  |  2 ++
+ 12 files changed, 2 insertions(+), 60 deletions(-)
 
-Le 14/04/2021 à 07:59, Anshuman Khandual a écrit :
-> 
-> 
-> On 4/14/21 10:52 AM, Christophe Leroy wrote:
->>
->>
->> Le 14/04/2021 à 04:54, Anshuman Khandual a écrit :
->>> Currently most platforms define FIRST_USER_ADDRESS as 0UL duplicating the
->>> same code all over. Instead define a new option ARCH_HAS_FIRST_USER_ADDRESS
->>> for those platforms which would override generic default FIRST_USER_ADDRESS
->>> value 0UL. This makes it much cleaner with reduced code.
->>>
->>> Cc: linux-alpha@vger.kernel.org
->>> Cc: linux-snps-arc@lists.infradead.org
->>> Cc: linux-arm-kernel@lists.infradead.org
->>> Cc: linux-csky@vger.kernel.org
->>> Cc: linux-hexagon@vger.kernel.org
->>> Cc: linux-ia64@vger.kernel.org
->>> Cc: linux-m68k@lists.linux-m68k.org
->>> Cc: linux-mips@vger.kernel.org
->>> Cc: openrisc@lists.librecores.org
->>> Cc: linux-parisc@vger.kernel.org
->>> Cc: linuxppc-dev@lists.ozlabs.org
->>> Cc: linux-riscv@lists.infradead.org
->>> Cc: linux-s390@vger.kernel.org
->>> Cc: linux-sh@vger.kernel.org
->>> Cc: sparclinux@vger.kernel.org
->>> Cc: linux-um@lists.infradead.org
->>> Cc: linux-xtensa@linux-xtensa.org
->>> Cc: x86@kernel.org
->>> Cc: linux-mm@kvack.org
->>> Cc: linux-kernel@vger.kernel.org
->>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
->>> ---
->>>    arch/alpha/include/asm/pgtable.h             | 1 -
->>>    arch/arc/include/asm/pgtable.h               | 6 ------
->>>    arch/arm/Kconfig                             | 1 +
->>>    arch/arm64/include/asm/pgtable.h             | 2 --
->>>    arch/csky/include/asm/pgtable.h              | 1 -
->>>    arch/hexagon/include/asm/pgtable.h           | 3 ---
->>>    arch/ia64/include/asm/pgtable.h              | 1 -
->>>    arch/m68k/include/asm/pgtable_mm.h           | 1 -
->>>    arch/microblaze/include/asm/pgtable.h        | 2 --
->>>    arch/mips/include/asm/pgtable-32.h           | 1 -
->>>    arch/mips/include/asm/pgtable-64.h           | 1 -
->>>    arch/nds32/Kconfig                           | 1 +
->>>    arch/nios2/include/asm/pgtable.h             | 2 --
->>>    arch/openrisc/include/asm/pgtable.h          | 1 -
->>>    arch/parisc/include/asm/pgtable.h            | 2 --
->>>    arch/powerpc/include/asm/book3s/pgtable.h    | 1 -
->>>    arch/powerpc/include/asm/nohash/32/pgtable.h | 1 -
->>>    arch/powerpc/include/asm/nohash/64/pgtable.h | 2 --
->>>    arch/riscv/include/asm/pgtable.h             | 2 --
->>>    arch/s390/include/asm/pgtable.h              | 2 --
->>>    arch/sh/include/asm/pgtable.h                | 2 --
->>>    arch/sparc/include/asm/pgtable_32.h          | 1 -
->>>    arch/sparc/include/asm/pgtable_64.h          | 3 ---
->>>    arch/um/include/asm/pgtable-2level.h         | 1 -
->>>    arch/um/include/asm/pgtable-3level.h         | 1 -
->>>    arch/x86/include/asm/pgtable_types.h         | 2 --
->>>    arch/xtensa/include/asm/pgtable.h            | 1 -
->>>    include/linux/mm.h                           | 4 ++++
->>>    mm/Kconfig                                   | 4 ++++
->>>    29 files changed, 10 insertions(+), 43 deletions(-)
->>>
->>> diff --git a/include/linux/mm.h b/include/linux/mm.h
->>> index 8ba434287387..47098ccd715e 100644
->>> --- a/include/linux/mm.h
->>> +++ b/include/linux/mm.h
->>> @@ -46,6 +46,10 @@ extern int sysctl_page_lock_unfairness;
->>>      void init_mm_internals(void);
->>>    +#ifndef ARCH_HAS_FIRST_USER_ADDRESS
->>
->> I guess you didn't test it ..... :)
-> 
-> In fact I did :) Though just booted it on arm64 and cross compiled on
-> multiple others platforms.
-> 
->>
->> should be #ifndef CONFIG_ARCH_HAS_FIRST_USER_ADDRESS
-> 
-> Right, meant that instead.
-> 
->>
->>> +#define FIRST_USER_ADDRESS    0UL
->>> +#endif
->>
->> But why do we need a config option at all for that ?
->>
->> Why not just:
->>
->> #ifndef FIRST_USER_ADDRESS
->> #define FIRST_USER_ADDRESS    0UL
->> #endif
-> 
-> This sounds simpler. But just wondering, would not there be any possibility
-> of build problems due to compilation sequence between arch and generic code ?
-> 
+diff --git a/arch/arc/kernel/traps.c b/arch/arc/kernel/traps.c
+index 57235e5c0cea..6b83e3f2b41c 100644
+--- a/arch/arc/kernel/traps.c
++++ b/arch/arc/kernel/traps.c
+@@ -20,11 +20,6 @@
+ #include <asm/unaligned.h>
+ #include <asm/kprobes.h>
+ 
+-void __init trap_init(void)
+-{
+-	return;
+-}
+-
+ void die(const char *str, struct pt_regs *regs, unsigned long address)
+ {
+ 	show_kernel_fault_diag(str, regs, address);
+diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
+index 17d5a785df28..9baccef20392 100644
+--- a/arch/arm/kernel/traps.c
++++ b/arch/arm/kernel/traps.c
+@@ -780,11 +780,6 @@ void abort(void)
+ 	panic("Oops failed to kill thread");
+ }
+ 
+-void __init trap_init(void)
+-{
+-	return;
+-}
+-
+ #ifdef CONFIG_KUSER_HELPERS
+ static void __init kuser_init(void *vectors)
+ {
+diff --git a/arch/h8300/kernel/traps.c b/arch/h8300/kernel/traps.c
+index 5d8b969cd8f3..c3a3ebf77fbb 100644
+--- a/arch/h8300/kernel/traps.c
++++ b/arch/h8300/kernel/traps.c
+@@ -30,19 +30,6 @@
+ 
+ static DEFINE_SPINLOCK(die_lock);
+ 
+-/*
+- * this must be called very early as the kernel might
+- * use some instruction that are emulated on the 060
+- */
+-
+-void __init base_trap_init(void)
+-{
+-}
+-
+-void __init trap_init(void)
+-{
+-}
+-
+ asmlinkage void set_esp0(unsigned long ssp)
+ {
+ 	current->thread.esp0 = ssp;
+diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
+index 904134b37232..edfc35dafeb1 100644
+--- a/arch/hexagon/kernel/traps.c
++++ b/arch/hexagon/kernel/traps.c
+@@ -28,10 +28,6 @@
+ #define TRAP_SYSCALL	1
+ #define TRAP_DEBUG	0xdb
+ 
+-void __init trap_init(void)
+-{
+-}
+-
+ #ifdef CONFIG_GENERIC_BUG
+ /* Maybe should resemble arch/sh/kernel/traps.c ?? */
+ int is_valid_bugaddr(unsigned long addr)
+diff --git a/arch/nds32/kernel/traps.c b/arch/nds32/kernel/traps.c
+index ee0d9ae192a5..f06421c645af 100644
+--- a/arch/nds32/kernel/traps.c
++++ b/arch/nds32/kernel/traps.c
+@@ -183,11 +183,6 @@ void __pgd_error(const char *file, int line, unsigned long val)
+ }
+ 
+ extern char *exception_vector, *exception_vector_end;
+-void __init trap_init(void)
+-{
+-	return;
+-}
+-
+ void __init early_trap_init(void)
+ {
+ 	unsigned long ivb = 0;
+diff --git a/arch/nios2/kernel/traps.c b/arch/nios2/kernel/traps.c
+index b172da4eb1a9..596986a74a26 100644
+--- a/arch/nios2/kernel/traps.c
++++ b/arch/nios2/kernel/traps.c
+@@ -105,11 +105,6 @@ void show_stack(struct task_struct *task, unsigned long *stack,
+ 	printk("%s\n", loglvl);
+ }
+ 
+-void __init trap_init(void)
+-{
+-	/* Nothing to do here */
+-}
+-
+ /* Breakpoint handler */
+ asmlinkage void breakpoint_c(struct pt_regs *fp)
+ {
+diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
+index 4d61333c2623..aa1e709405ac 100644
+--- a/arch/openrisc/kernel/traps.c
++++ b/arch/openrisc/kernel/traps.c
+@@ -231,11 +231,6 @@ void unhandled_exception(struct pt_regs *regs, int ea, int vector)
+ 	die("Oops", regs, 9);
+ }
+ 
+-void __init trap_init(void)
+-{
+-	/* Nothing needs to be done */
+-}
+-
+ asmlinkage void do_trap(struct pt_regs *regs, unsigned long address)
+ {
+ 	force_sig_fault(SIGTRAP, TRAP_BRKPT, (void __user *)regs->pc);
+diff --git a/arch/parisc/kernel/traps.c b/arch/parisc/kernel/traps.c
+index 8d8441d4562a..747c328fb886 100644
+--- a/arch/parisc/kernel/traps.c
++++ b/arch/parisc/kernel/traps.c
+@@ -859,7 +859,3 @@ void  __init early_trap_init(void)
+ 
+ 	initialize_ivt(&fault_vector_20);
+ }
+-
+-void __init trap_init(void)
+-{
+-}
+diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
+index a44a30b0688c..e952bee89684 100644
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -2207,11 +2207,6 @@ DEFINE_INTERRUPT_HANDLER(kernel_bad_stack)
+ 	die("Bad kernel stack pointer", regs, SIGABRT);
+ }
+ 
+-void __init trap_init(void)
+-{
+-}
+-
+-
+ #ifdef CONFIG_PPC_EMULATED_STATS
+ 
+ #define WARN_EMULATED_SETUP(type)	.type = { .name = #type }
+diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
+index 0879b5df11b9..b3f3d84de779 100644
+--- a/arch/riscv/kernel/traps.c
++++ b/arch/riscv/kernel/traps.c
+@@ -194,8 +194,3 @@ int is_valid_bugaddr(unsigned long pc)
+ 		return ((insn & __COMPRESSED_INSN_MASK) == __BUG_INSN_16);
+ }
+ #endif /* CONFIG_GENERIC_BUG */
+-
+-/* stvec & scratch is already set from head.S */
+-void trap_init(void)
+-{
+-}
+diff --git a/arch/um/kernel/trap.c b/arch/um/kernel/trap.c
+index ad12f78bda7e..3198c4767387 100644
+--- a/arch/um/kernel/trap.c
++++ b/arch/um/kernel/trap.c
+@@ -311,7 +311,3 @@ void winch(int sig, struct siginfo *unused_si, struct uml_pt_regs *regs)
+ {
+ 	do_IRQ(WINCH_IRQ, regs);
+ }
+-
+-void trap_init(void)
+-{
+-}
+diff --git a/init/main.c b/init/main.c
+index 53b278845b88..4bdbe2928530 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -790,6 +790,8 @@ static inline void initcall_debug_enable(void)
+ }
+ #endif
+ 
++void __init __weak trap_init(void) { }
++
+ /* Report memory auto-initialization states for this boot. */
+ static void __init report_meminit(void)
+ {
+-- 
+2.31.0
 
-For sure it has to be addresses carefully, but there are already a lot of stuff like that around 
-pgtables.h
-
-For instance, pte_offset_kernel() has a generic definition in linux/pgtables.h based on whether it 
-is already defined or not.
-
-Taking into account that FIRST_USER_ADDRESS is today in the architectures's asm/pgtables.h, I think 
-putting the fallback definition in linux/pgtable.h would do the trick.
