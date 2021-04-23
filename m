@@ -1,126 +1,70 @@
-From: Arnd Bergmann <arnd@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 Subject: Re: ARCH=hexagon unsupported?
-Date: Fri, 23 Apr 2021 11:36:51 +0200
-Message-ID: <CAK8P3a2DCCjOq+sB+9sRM7XrtnkromCs_+znv3dehqLiYFDQag@mail.gmail.com>
+Date: Fri, 23 Apr 2021 10:43:11 -0700
+Message-ID: <fa0bed95-5ddf-ecad-0613-2f13837578c3@infradead.org>
 References: <CAKwvOdngSxXGYAykAbC=GLE_uWGap220=k1zOSxe1ntuC=0wjA@mail.gmail.com>
+ <CAK8P3a2DCCjOq+sB+9sRM7XrtnkromCs_+znv3dehqLiYFDQag@mail.gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-arch-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619170635;
-        bh=DhWbEd6Zvej3S1gi9RrvaWUTau2t6QhBVtOz/AAHkCw=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=AWXh7jkigqZyb4phESyB8qzBxlF5kBw2rJTxmT89CflV8bWUOnwpS8uiVMUShm8Z3
-         024BBWofWDpYOSlZih/r2j5VtxR/KU4tZpFVxJ4NPvSdcpIz1zWaiyLErdRtTrop8A
-         sF+pKRnX70UKVtTTsZmiyt5DFaiOxFzgknqsEa5POLUnCrmZAEEzfoN7aZsz/me5Er
-         gv4g8qeemNIsjhQfvbtJVFTTyXWz3/pw8KIkjKaZkAcTOcxGFb64R7X81YeDWHNyyI
-         FT107TIQ1p24RWiWdzyPZ7R7XOCJGIbiny8UgVbHuvR9DeFgannYm+ikOAO1eVlWKC
-         XlSc5jOcBBJ2w==
-In-Reply-To: <CAKwvOdngSxXGYAykAbC=GLE_uWGap220=k1zOSxe1ntuC=0wjA@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:Content-Type
+        :In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:
+        Sender:Reply-To:Content-ID:Content-Description;
+        bh=D07Myy5xgLJyaySINjmTXcck3i4ZrKKFxHv5lMNfn/o=; b=fFdDv8CW5Q5VQidx3RhtqMzTyP
+        HNBtGbWC7zjgBRUN9+xa2UcwtMaeChfa6p1gXVQyu8ST0iYNn3/FtApQJN+fHws87aPHm3nxALogR
+        pQnxkVRvxv/Nm908rnmL/7pI7QQJkppzlUdYU65HUIi+T1/0ovu9kMQiEVyGfdGzLiL39ELsgodvR
+        HjuyFT25bLTzyhzloR988b83SSyiLn3w55IMx4pblhctRrqF75eMWcIL2Adn9bdMqEcwCnVA8qDuM
+        /pZpnHeJmUFRMVLNjrJlwEBfBOgSGe4QGuEAk6hjqRMsj7c58CsRc1D+qh+9ZBAr5RbE9ECow+phy
+        kA0ClydA==;
+In-Reply-To: <CAK8P3a2DCCjOq+sB+9sRM7XrtnkromCs_+znv3dehqLiYFDQag@mail.gmail.com>
+Content-Language: en-US
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Nick Desaulniers <ndesaulniers@google.com>
+To: Arnd Bergmann <arnd@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>
 Cc: "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, clang-built-linux <clang-built-linux@googlegroups.com>, Brian Cain <bcain@codeaurora.org>, linux-arch <linux-arch@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>
 
-On Fri, Apr 23, 2021 at 12:12 AM 'Nick Desaulniers' via Clang Built
-Linux <clang-built-linux@googlegroups.com> wrote:
->
-> Arnd,
-> No one can build ARCH=hexagon and
-> https://github.com/ClangBuiltLinux/linux/issues/759 has been open for
-> 2 years.
->
-> Trying to build
-> $ ARCH=hexagon CROSS_COMPILE=hexagon-linux-gnu make LLVM=1 LLVM_IAS=1 -j71
->
-> shows numerous issues, the latest of which
-> commit 8320514c91bea ("hexagon: switch to ->regset_get()")
-> has a very obvious typo which misspells the `struct` keyword and has
-> been in the tree for almost 1 year.
+On 4/23/21 2:36 AM, Arnd Bergmann wrote:
+> On Fri, Apr 23, 2021 at 12:12 AM 'Nick Desaulniers' via Clang Built
+> Linux <clang-built-linux@googlegroups.com> wrote:
+>>
+>> Arnd,
+>> No one can build ARCH=hexagon and
+>> https://github.com/ClangBuiltLinux/linux/issues/759 has been open for
+>> 2 years.
+>>
+>> Trying to build
+>> $ ARCH=hexagon CROSS_COMPILE=hexagon-linux-gnu make LLVM=1 LLVM_IAS=1 -j71
+>>
+>> shows numerous issues, the latest of which
+>> commit 8320514c91bea ("hexagon: switch to ->regset_get()")
+>> has a very obvious typo which misspells the `struct` keyword and has
+>> been in the tree for almost 1 year.
+> 
+> Thank you for looking into it.
+> 
+>> Why is arch/hexagon/ in the tree if no one can build it?
+> 
+> Removing it sounds reasonable to me, it's been broken for too long, and
+> we did the same thing for unicore32 that was in the same situation
+> where the gcc port was too old to build the kernel and the clang
+> port never quite work in mainline.
+> 
+> Guenter also brought up the issue a year ago, and nothing happened.
+> I see Brian still occasionally sends an Ack to a patch that gets merged
+> through another tree, but he has not send any patches or pull requests
+> himself after taking over maintainership from Richard Kuo in 2019,
+> and the four hexagon pull requests after 2014 only contained build fixes
+> from developers that don't have access to the hardware (Randy Dunlap,
+> Viresh Kumar, Mike Frysinger and me).
+> 
+>        Arnd
+> 
+> [1] https://lore.kernel.org/lkml/04ca01d633a8$9abb8070$d0328150$@codeaurora.org/
 
-Thank you for looking into it.
+There is no current gcc C compiler in the 3 locations that I know of to look.
+The one I tried is v4.6 and it is too old to work with current makefiles.
 
-> Why is arch/hexagon/ in the tree if no one can build it?
+-- 
+~Randy
 
-Removing it sounds reasonable to me, it's been broken for too long, and
-we did the same thing for unicore32 that was in the same situation
-where the gcc port was too old to build the kernel and the clang
-port never quite work in mainline.
-
-Guenter also brought up the issue a year ago, and nothing happened.
-I see Brian still occasionally sends an Ack to a patch that gets merged
-through another tree, but he has not send any patches or pull requests
-himself after taking over maintainership from Richard Kuo in 2019,
-and the four hexagon pull requests after 2014 only contained build fixes
-from developers that don't have access to the hardware (Randy Dunlap,
-Viresh Kumar, Mike Frysinger and me).
-
-       Arnd
-
-[1] https://lore.kernel.org/lkml/04ca01d633a8$9abb8070$d0328150$@codeaurora.org/
-
----
-$ git log --grep=linux-hexagon-kernel
-commit bb736a5c0e9a2605f11c2bbb60a68f757832da32
-Merge: 45979a956b92 18dd1793a340
-Author: Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Fri Sep 20 11:28:43 2019 -0700
-
-    Merge branch 'for-linus' of
-git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel
-
-    Pull Hexagon maintainership update from Richard Kuo:
-     "I am leaving QuIC, and Brian Cain will be taking over maintainership
-      of the Hexagon port"
-
-    * 'for-linus' of
-git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel:
-      Hexagon: change maintainer to Brian Cain
-
-commit 72d4c6e5893a122c2fd060ded2b490582a5bb377
-Merge: 1d176582c795 5c41aaad409c
-Author: Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu Sep 13 16:33:26 2018 -1000
-
-    Merge branch 'for-linus' of
-git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel
-
-    Pull hexagon fixes from Richard Kuo:
-     "Some fixes for compile warnings"
-
-    * 'for-linus' of
-git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel:
-      hexagon: modify ffs() and fls() to return int
-      arch/hexagon: fix kernel/dma.c build warning
-
-commit 2d618bdf71635463a4aa4ad0fe46ec852292bc0c
-Merge: f2125992e7cb 330e261c35df
-Author: Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue May 1 19:54:22 2018 -0700
-
-    Merge branch 'for-linus' of
-git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel
-
-    Pull hexagon fixes from Richard Kuo:
-     "Some small fixes for module compilation"
-
-    * 'for-linus' of
-git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel:
-      hexagon: export csum_partial_copy_nocheck
-      hexagon: add memset_io() helper
-
-commit 0cdf5a464070c8a2980a27113c47fb8e71babb9c
-Merge: 65c61bc5dbbc 02cc2ccfe771
-Author: Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu Sep 10 16:19:07 2015 -0700
-
-    Merge branch 'for-linus' of
-git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel
-
-    Pull hexagon updates from Richard Kuo:
-     "Just two fixes -- one for a uapi header and one for a timer interface"
-
-    * 'for-linus' of
-git://git.kernel.org/pub/scm/linux/kernel/git/rkuo/linux-hexagon-kernel:
-      Revert "Hexagon: fix signal.c compile error"
-      hexagon/time: Migrate to new 'set-state' interface
