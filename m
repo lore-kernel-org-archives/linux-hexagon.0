@@ -1,174 +1,90 @@
-From: "Brian Cain" <bcain@codeaurora.org>
-Subject: RE: ARCH=hexagon unsupported?
-Date: Mon, 26 Apr 2021 08:13:43 -0500
-Message-ID: <034f01d73a9d$fc4ed420$f4ec7c60$@codeaurora.org>
-References: <CAKwvOdngSxXGYAykAbC=GLE_uWGap220=k1zOSxe1ntuC=0wjA@mail.gmail.com> <CAK8P3a2DCCjOq+sB+9sRM7XrtnkromCs_+znv3dehqLiYFDQag@mail.gmail.com> <025b01d7386f$78deed80$6a9cc880$@codeaurora.org> <CAKwvOdnyowwDnHXPyJc8-KZg9vKy8zFn7hErazVT30+sPO8TyA@mail.gmail.com>
-Reply-To: <bcain@codeaurora.org>
+From: bcain@codeaurora.org
+Subject: [GIT PULL] hexagon changes for v5.13
+Date: Wed, 05 May 2021 16:09:59 -0500
+Message-ID: <a81e116ba3d64aab8d379703bedcf032@codeaurora.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1619442853; h=Content-Transfer-Encoding: Content-Type:
- MIME-Version: Message-ID: Date: Subject: In-Reply-To: References: Cc:
- To: From: Reply-To: Sender;
- bh=2aasOBDfVeKKukuy1LhKC7ZOGD0SUDLdz1bz/6bTWp8=; b=bMrrpEj31lTay8/KKgQWQCpuD2Td7UflW+eby1eXoyi6awQiNKLH4P1AUGi3kOlKK42ueNmp
- mQxApI2hV71DhCrVYKw06P98l7yTXFEc2Lz1Rqcit4Z8RMBuaYCfpyqg70ZdSYOiyWJIrsxQ
- TU0NPeVGJ42kS2RKD2RIXu+rEf8=
+ s=smtp; t=1620249018; h=Message-ID: Subject: Cc: To: From: Date:
+ Content-Transfer-Encoding: Content-Type: MIME-Version: Sender;
+ bh=ljqGh4vdZ4x6txKvkOy9TSMun4WY4aIky27Q4tklUF4=; b=BSckRQp6dQmX8tD83uSwpnCRm1PmQU4BbBPmBbbi59u+G5PAv3m9NfsoONxkgC/3ObQ7vt8Z
+ 7Z14nZKMSwb5oWxCorMJ+zh/bUA2bgaULKDDjhs6ZRhbfvuPNiBooMb8ssF4IgmbyRjVZvNH
+ XAA576YhzLnMvvhbaZcad55EceU=
 Sender: bcain=codeaurora.org@mg.codeaurora.org
-In-Reply-To: <CAKwvOdnyowwDnHXPyJc8-KZg9vKy8zFn7hErazVT30+sPO8TyA@mail.gmail.com>
-Content-Language: en-us
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: 'Nick Desaulniers' <ndesaulniers@google.com>
-Cc: 'Arnd Bergmann' <arnd@kernel.org>, "'open list:QUALCOMM HEXAGON...'" <linux-hexagon@vger.kernel.org>, 'clang-built-linux' <clang-built-linux@googlegroups.com>, 'linux-arch' <linux-arch@vger.kernel.org>, 'Guenter Roeck' <linux@roeck-us.net>, 'Randy Dunlap' <rdunlap@infradead.org>, 'Miguel Ojeda' <miguel.ojeda.sandonis@gmail.com>
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: Linus Torvalds <torvalds@linux-foundation.org>, linux-hexagon <linux-hexagon@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: sidneym@codeaurora.org, 'clang-built-linux' <clang-built-linux@googlegroups.com>
 
-> -----Original Message-----
-> From: Nick Desaulniers <ndesaulniers@google.com>
-> Sent: Friday, April 23, 2021 4:40 PM
-> To: Brian Cain <bcain@codeaurora.org>
-> Cc: Arnd Bergmann <arnd@kernel.org>; open list:QUALCOMM HEXAGON...
-> <linux-hexagon@vger.kernel.org>; clang-built-linux <clang-built-
-> linux@googlegroups.com>; linux-arch <linux-arch@vger.kernel.org>; =
-Guenter
-> Roeck <linux@roeck-us.net>; Randy Dunlap <rdunlap@infradead.org>; =
-Miguel
-> Ojeda <miguel.ojeda.sandonis@gmail.com>
-> Subject: Re: ARCH=3Dhexagon unsupported?
->=20
-> On Fri, Apr 23, 2021 at 11:35 AM Brian Cain <bcain@codeaurora.org> =
-wrote:
-> >
-> > > -----Original Message-----
-> > > From: Arnd Bergmann <arnd@kernel.org>
-> > > Sent: Friday, April 23, 2021 4:37 AM
-> > > To: Nick Desaulniers <ndesaulniers@google.com>
-> > > Cc: open list:QUALCOMM HEXAGON... <linux-hexagon@vger.kernel.org>;
-> > > clang-built-linux <clang-built-linux@googlegroups.com>; Brian Cain
-> > > <bcain@codeaurora.org>; linux-arch <linux-arch@vger.kernel.org>;
-> > > Guenter Roeck <linux@roeck-us.net>
-> > > Subject: Re: ARCH=3Dhexagon unsupported?
-> > >
-> > > On Fri, Apr 23, 2021 at 12:12 AM 'Nick Desaulniers' via Clang =
-Built
-> > > Linux <clang-built-linux@googlegroups.com> wrote:
-> > > >
-> > > > Arnd,
-> > > > No one can build ARCH=3Dhexagon and
-> > > > https://github.com/ClangBuiltLinux/linux/issues/759 has been =
-open
-> > > > for
-> > > > 2 years.
-> > > >
-> > > > Trying to build
-> > > > $ ARCH=3Dhexagon CROSS_COMPILE=3Dhexagon-linux-gnu make LLVM=3D1
-> > > LLVM_IAS=3D1
-> > > > -j71
-> > > >
-> > > > shows numerous issues, the latest of which commit 8320514c91bea
-> > > > ("hexagon: switch to ->regset_get()") has a very obvious typo
-> > > > which misspells the `struct` keyword and has been in the tree =
-for
-> > > > almost 1 year.
-> > >
-> > > Thank you for looking into it.
-> > >
-> > > > Why is arch/hexagon/ in the tree if no one can build it?
-> > >
-> > > Removing it sounds reasonable to me, it's been broken for too =
-long,
-> > > and we did the same thing for unicore32 that was in the same
-> > > situation where the gcc port was too old to build the kernel and =
-the
-> > > clang port never quite work in mainline.
-> > >
-> > > Guenter also brought up the issue a year ago, and nothing =
-happened.
-> > > I see Brian still occasionally sends an Ack to a patch that gets
-> > > merged through another tree, but he has not send any patches or =
-pull
-> > > requests himself after taking over maintainership from Richard Kuo
-> > > in 2019, and the four hexagon pull requests after 2014 only
-> > > contained build fixes from developers that don't have access to =
-the
-> > > hardware (Randy Dunlap, Viresh Kumar, Mike Frysinger and me).
-> >
-> > Nick, Arnd,
-> >
-> > I can appreciate your frustration, I can see that I have let the =
-community
-> down here.  I would like to keep hexagon in-tree and I am committed to
-> making the changes necessary to do so.
->=20
-> I'm very happy to hear that.
->=20
-> > I have a patch under internal review to address the cited build =
-issues and
-> libgcc/compiler-rt content.
->=20
-> We'd be first in line to help build test such a patch. Please consider =
-cc'ing
-> myself and clang-built-linux@googlegroups.com when such a patch is
-> available externally.  Further, we have the CI ready and waiting to =
-add new
-> architectures, even if it's just build testing. That would have caught
-> regressions like 8320514c91bea; we were down to 1 build failure with
-> https://github.com/ClangBuiltLinux/linux/issues/759 last I looked =
-which was
-> preventing us from adding Hexagon to any CI, but we must now dig =
-ourselves
-> out of a slightly deeper hole now.
->=20
-> Is this patch something you suspect will take quite some time to work =
-through
-> internal review?
+Linus,
 
-I don't think it should take long, no.  I should have a better idea =
-today of about how long it will take.  We will share it ASAP.
+Please pull the following changes for Hexagon: they contain build fixes.
 
-> > In addition, my team has been focusing on developing QEMU system =
-mode
-> support that would mitigate some of the need for having hardware =
-access.
-> We have landed support for userspace hexagon-linux in upstream QEMU.
->=20
-> That's also great to hear. QEMU is a critical part of our CI for boot =
-testing; if
-> there's more info on timelines or what's involved with booting a =
-hexagon
-> kernel in QEMU, we'd be very happy to know how or when that's =
-available.
->=20
-> > My team and I want to make hexagon's open source footprint larger, =
-not
-> smaller.  I realize that not being a good steward of the hexagon =
-kernel has not
-> helped, and we will do what we can to fix it.
->=20
-> A worthwhile and appreciated sentiment. I believe you.
->=20
-> Hexagon could be an interesting case for LLVM support in general for =
-the
-> Linux kernel; a case where each target or driver need not necessarily =
-have a
-> GCC backend to be acceptable.  But barring anyone from being able to =
-actually
-> build it (let alone run it), it's not that; it's less than that. It's =
-dead code that bit
-> rots further and burdens maintainers who are maintaining something =
-that's
-> already broken. I'm not sure who derives any benefit.
->=20
-> I think it's in everyone's best interest to see Linux support more =
-targets than
-> fewer, and 2020 has been a hard year, but I'm curious how long =
-something
-> has to be broken before folks say "enough." Please let's support this =
-properly
-> or recognize the situation for what it is.
-
-I don't think the special circumstances of 2020 are to blame, it's just =
-my failure to give this work the priority it deserves.  Agreed: we will =
-support the target properly.
-
+Thanks,
 -Brian
 
+===
+
+
+The following changes since commit 
+9ccce092fc64d19504fa54de4fd659e279cc92e7:
+
+   Merge tag 'for-linus-5.13-ofs-1' of 
+git://git.kernel.org/pub/scm/linux/kernel/git/hubcap/linux (2021-05-02 
+14:13:46 -0700)
+
+are available in the git repository at:
+
+   git://git.kernel.org/pub/scm/linux/kernel/git/bcain/linux 
+tags/hexagon-5.13-0
+
+for you to fetch changes up to f1f99adf05f2138ff2646d756d4674e302e8d02d:
+
+   Hexagon: add target builtins to kernel (2021-05-03 11:04:22 -0500)
+
+----------------------------------------------------------------
+Hexagon architecture build fixes + builtins
+
+Small build fixes applied:
+- use -mlong-calls to build
+- extend jumps in futex_atomic_*
+- etc
+
+Also, for convenience and portability, the hexagon compiler builtin
+functions like memcpy etc have been added to the kernel -- following the
+idiom used by other architectures.
+
+----------------------------------------------------------------
+Sid Manning (4):
+       Hexagon: fix build errors
+       Hexagon: change jumps to must-extend in futex_atomic_*
+       Hexagon: remove DEBUG from comet config
+       Hexagon: add target builtins to kernel
+
+  arch/hexagon/Makefile                    |  6 +--
+  arch/hexagon/configs/comet_defconfig     |  1 -
+  arch/hexagon/include/asm/futex.h         |  4 +-
+  arch/hexagon/include/asm/timex.h         |  3 +-
+  arch/hexagon/kernel/hexagon_ksyms.c      |  8 ++--
+  arch/hexagon/kernel/ptrace.c             |  4 +-
+  arch/hexagon/lib/Makefile                |  3 +-
+  arch/hexagon/lib/divsi3.S                | 67 
+++++++++++++++++++++++++++++++++
+  arch/hexagon/lib/memcpy_likely_aligned.S | 56 
+++++++++++++++++++++++++++
+  arch/hexagon/lib/modsi3.S                | 46 ++++++++++++++++++++++
+  arch/hexagon/lib/udivsi3.S               | 38 ++++++++++++++++++
+  arch/hexagon/lib/umodsi3.S               | 36 +++++++++++++++++
+  12 files changed, 258 insertions(+), 14 deletions(-)
+  create mode 100644 arch/hexagon/lib/divsi3.S
+  create mode 100644 arch/hexagon/lib/memcpy_likely_aligned.S
+  create mode 100644 arch/hexagon/lib/modsi3.S
+  create mode 100644 arch/hexagon/lib/udivsi3.S
+  create mode 100644 arch/hexagon/lib/umodsi3.S
+
+
+-- 
+Employee of Qualcomm Innovation Center, Inc.
+Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
