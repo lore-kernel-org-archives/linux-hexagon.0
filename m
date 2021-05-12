@@ -1,36 +1,56 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [GIT PULL] hexagon changes for v5.13
-Date: Thu, 6 May 2021 09:52:26 -0700
-Message-ID: <CAHk-=wiOp-Q0sFhmzGy2R=uMNV7Q26yqjeKNnwCnXgffnuDc9Q@mail.gmail.com>
-References: <a81e116ba3d64aab8d379703bedcf032@codeaurora.org>
- <CAHk-=wgU-ERpeM0CJnN8JTVVUsBRtgpvU33sKke67V6pZj6A=g@mail.gmail.com> <81ecc015b1bd773f583cc86490e392a0@codeaurora.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 4/5] hexagon: move core-y in arch/hexagon/Makefile to arch/hexagon/Kbuild
+Date: Wed, 12 May 2021 16:57:28 +0900
+Message-ID: <20210512075729.60291-4-masahiroy@kernel.org>
+References: <20210512075729.60291-1-masahiroy@kernel.org>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RWUyBsKmAFKnzuyTle8X+IqQwBw635MonpJL6f0XlXs=;
-        b=Toi2dF2JP14eu4kDfyv/A1fcV9pf6T+Oy+B/5i1euIBOSEjCs0r1EEBYOP0PvA837S
-         F3eZH0yldWBxMDKkApRB8/r4ihrk53nSarJ8P+bAJKHUUjAZxB6tuMnMXudJJCPPXAdJ
-         ANsg5C6zlsR30xcTNcPKU1hbbeizg3CKUy4gI=
-In-Reply-To: <81ecc015b1bd773f583cc86490e392a0@codeaurora.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kbuild-owner@vger.kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-07.nifty.com 14C7vbPv028192
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1620806263;
+        bh=XTnZp0dklxYATimLXSJ2reqvSr9cCkH20z3gSq6FZjM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ge9jUxdRcyf/fu5QiQH9815oSlmsyLsoDXUsismXQxLsT3T8om0VmcgfhRPqbQbON
+         LdoYRF50yEdDpN07kFDp0hDl0dXOFxI8W4FW7Ax6NUR8HGh7qDVo8Gdj6bqAKbYxmv
+         v/ciMhBFwKL1+ArMdSWiAfwntp8JNtzWHruQWcaE+5z7BJQBLhIE8HIB+GOukuXgIi
+         FQO5xIK6R5n8O0TGJP+IBKUTj+Qx8c/x23PG4rRFqiV1Zc4Q/GaP7LtXo6UISyli7j
+         MB+8jhFi4qd4iuc3MGq8UmsW/BGzM2dOW5z0AI4CD6jx4akfDdP1k7WNkPy19EuScQ
+         DD+mzGJMHwEiQ==
+In-Reply-To: <20210512075729.60291-1-masahiroy@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Brian Cain <bcain@codeaurora.org>
-Cc: linux-hexagon <linux-hexagon@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, sidneym@codeaurora.org, clang-built-linux <clang-built-linux@googlegroups.com>
+To: linux-kbuild@vger.kernel.org
+Cc: Masahiro Yamada <masahiroy@kernel.org>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, May 6, 2021 at 9:17 AM <bcain@codeaurora.org> wrote:
->
-> I apologize -- in my initial account setup I'd done the key creation
-> without a signing feature/capability.  So in order to sign the tag I
-> realized I needed a new subkey for signing.  I tried broadcasting the
-> new key but perhaps I did not send it correctly.  I'll try it again
-> today.
->
-> http://keyserver.ubuntu.com/pks/lookup?search=bcain&fingerprint=on&op=index
+Use obj-y to clean up Makefile.
 
-Ok, that ubuntu keyserver worked for me now, and I can verify the tag. Thanks.
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+---
 
-         Linus
+ arch/hexagon/Kbuild   | 1 +
+ arch/hexagon/Makefile | 4 ----
+ 2 files changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/arch/hexagon/Kbuild b/arch/hexagon/Kbuild
+index a4e40e534e6a..d930c2f954d5 100644
+--- a/arch/hexagon/Kbuild
++++ b/arch/hexagon/Kbuild
+@@ -1 +1,2 @@
+ # SPDX-License-Identifier: GPL-2.0-only
++obj += kernel/ mm/ lib/
+diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile
+index 74b644ea8a00..44312bc147d8 100644
+--- a/arch/hexagon/Makefile
++++ b/arch/hexagon/Makefile
+@@ -34,7 +34,3 @@ KBUILD_CFLAGS += -ffixed-$(TIR_NAME) -DTHREADINFO_REG=$(TIR_NAME) -D__linux__
+ KBUILD_AFLAGS += -DTHREADINFO_REG=$(TIR_NAME)
+ 
+ head-y := arch/hexagon/kernel/head.o
+-
+-core-y += arch/hexagon/kernel/ \
+-	arch/hexagon/mm/ \
+-	arch/hexagon/lib/
+-- 
+2.27.0
+
