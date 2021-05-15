@@ -1,7 +1,8 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Subject: [PATCH 4/6] [v2] arc: use generic strncpy/strnlen from_user
-Date: Sat, 15 May 2021 12:18:01 +0200
-Message-ID: <20210515101803.924427-5-arnd@kernel.org>
+Subject: [PATCH 5/6] [v2] asm-generic: uaccess: remove inline
+ strncpy_from_user/strnlen_user
+Date: Sat, 15 May 2021 12:18:02 +0200
+Message-ID: <20210515101803.924427-6-arnd@kernel.org>
 References: <20210515101803.924427-1-arnd@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,32 +14,32 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:Message-Id:Date:
 	Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:Resent-Date:
 	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
-	 bh=+ZTnrtv2xvdwi91A3pbmrpOaIfScV6wlu//Y5Skjs7w=; b=IGH/NNeF9VVy6IVZtU+NCOGS7
-	MqsXAmfBVncMLG9mrAmz9Meq3Id7+kkBT6YNN/eaESkNey26cuxAU9n6b43RGqKNxzPXJEf0E9q1G
-	OGRstXDUJJSP0+6sWPdwCq17tbEYS9VnACdTUtQXoxlTuPjXp7Wb03u5WEtN4MHZQqag3P5JeXo8L
-	Y2p1HXzr09oDh0R1TxiA25rn8eGVpcP2X+7nS+PA9LQ+lFTSjk1YKqannvPzE91GQepGmWIJfVkY7
-	m5w9rrTUfXQ9q+8SLArjuXLurDK2P7TnVNYI47pQbkOvD0cqJEX+y8XRhmqN9rGtSQt7OXnyMl/e/
-	Jpr7w4uQg==;
+	 bh=C+6wKKG2D7/4oWoMGqXCAv5s9VsY0k1K2vu5ITVngnM=; b=e5d7wDnjNIqU49svvlR/ZMUeg
+	66A56MOHqHZ69my3yZfQM3pyfLdX7Tc9BUiGI1Iq5Mh+xJsYZg8lI9ZykVJiabKAN984PLSLo+Xxk
+	8kaH5pAe40AMM9UxxVJGyRIAtiX7JSqgqqgSwi0c19FZP696IQRQFAPmaGqLOBEhonDO5VUcI214y
+	uJBWsVIxPrZjIdAu7eF7ztgTuRu+IquO2eDgbo/4+P6FxNXcItm2DYUGkuymORMHZGFwnMpkznm+v
+	BUw6irBf9mNr6lO8dMlwactumByYR6qoAtp6yIVjxXanH5Dn1mb1MiPv6VhJ39zZZpXP1lWxZjxQA
+	WvBEAcy9g==;
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=NaqXJV908V1jIAVejU+NdX55MLC7FA58Fe0o+EeCqG4=; b=wU1JLmm9mUirjVwBwAwpxvJZFm
- IFkiBwBTuzZDHbvrNtERcmMRFyFM/3q+coQnjklMDuLOczJ7PAxaIjIyA68MPwhTey+hgGdTITSnZ
- /66pSSNIHhdlLKK1C+/E3lARU9Rn58BObZUnT6D5ON/YyUdkVAnCQa0qLvMcjcorp7FuseduM8iDP
- u8fw5DtqWXtGuDNcHtmEpz9DeuJ2TPBjvdKfPSOHIHLz14GS0x0wOUljMN8S2eU/01XJbRdUoCyBq
- OF3PXEXwOL0m/fJ1EtKHw2DQRWYPBDb+kJikvPAb/OjgT8yvH3vB8OBu8R5irLDIb8ETkrkCRQcrU
- sbSbrxWQ==;
+ bh=FU4k2uMM9mwcp1WgQUinaWftWLJ6tL6ok/JHUHLhO1U=; b=ZLDjbvvIuiCTTZC+Dj4koBkiW2
+ ltVtaujtQ/TRzakEJqLkUnPrWASutLWy6J4TtLGtvX9XAr3KBkfqNCieVcHG8xYnYtmZutN9FUDTA
+ o+xOTGCjop13Jng79xBYmnwwCeNVIwy60lNTZVwuC4dsXnwEM6Mj5kEnd+2BukAGFejxC3SkwcsDr
+ d77y13CIgN8JPYD4EtdlDaOiA1txVDayAYcZzhuNioPqu8c9bSvGRN436cUbxtgEyAlNUl1Qc4TEP
+ eG+dIry7hsx+1/zihELAWi5o7cLzWTZS+bHrA8AowwoRd+qDVK9uQ4Rp5PPt0laqLnjDZC3LN1rFH
+ uBihVknQ==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1621073958;
- bh=5EiV6+uSoRXpKB9TPWxNu5WmBqsPjct5G2z66NyP0fw=;
+ s=k20201202; t=1621073962;
+ bh=OHYyLARVOpPFIbAcC7K6UIcn3rkRJrz96uQAgiEquDo=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=bjky3cSuDqZIES1KbepcV5Oby6RvxvISRH0AGI4mDxg/BM6uDnjAapszFc+ptgQNt
- J0tcmi3xigYXX6LJOuynlQSBPrO9WxPj+DHGujJh2g321TLT2yXZIWKChiUclVzNT4
- e58Rf8vzaJI19p63w017oebZKBmnLE1JxFJ1EqoB+mcwLFkW7KFxUSpVniv3oWMjB/
- AbImTti61Fc9PLzwUugONY6MJ21I7VRetVRK7MGExtcfjVaYKiPP3HYU+Cv6SlyudR
- o0/Wn48mXsLWAkQpjkkDV0eSXkAeuZeYrNAIMxNEqrbMd6pJyq6LaoRglM9p2zd//o
- ggJFHQ3qZVlvw==
+ b=qcRi/50ljOQgAZf8i+VFhWF6uabdLpEfT7FHBTtxYuSMtemuV9LrEtTDSACDtVyfw
+ salCHZmpn79xzNXb8B78wch24f//jkb6g+Fki5uCNdP8zNnv9UtDzG7e22EknaCACh
+ mrPOxaZq4mdM1UsevzFRyixsupIwTAYWl49hqhEg3ck/tFFeNs7qINE0LN5ZtJSLfX
+ H47TnEMDXTRGI4KAr0xEHobI2Wx0rYPpPUDbXbSo9MF06IlZHzfOPDMp3r4qLLEKvN
+ GNVZauk3D4wviEHeU3e+G301vOcgnCYQ7ZvM9PTwWoO0iy7NC/13CbD7OJqRdxhixA
+ j4vbx08vZ6TPA==
 In-Reply-To: <20210515101803.924427-1-arnd@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
@@ -55,162 +56,134 @@ Cc: Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>, Al Viro <viro
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-Most per-architecture versions of these functions are broken
-in some form, and they are almost certainly slower than the
-generic code as well.
+Consolidate the asm-generic implementation with the library version
+that is used everywhere else.
 
-This version is fairly slow because it always does byte accesses
-even for aligned data, and its checks for user_addr_max() differ
-from the generic code.
-
-Remove the ones for arc and instead use the generic version.
+These are the three versions for NOMMU kernels, which can in principle
+fall back to strncpy()/strnlen() as the version in asm-generic does,
+but this version is particularly inefficient when it scans the string
+one byte at a time twice. The generic version also lacks a check
+for user_addr_max(), but this is probably ok on NOMMU targets.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arc/Kconfig               |  2 +
- arch/arc/include/asm/uaccess.h | 83 ++--------------------------------
- arch/arc/mm/extable.c          | 12 -----
- 3 files changed, 7 insertions(+), 90 deletions(-)
+ arch/h8300/Kconfig            |  2 ++
+ arch/m68k/Kconfig             |  4 +--
+ arch/riscv/Kconfig            |  4 +--
+ include/asm-generic/uaccess.h | 46 ++++++-----------------------------
+ 4 files changed, 14 insertions(+), 42 deletions(-)
 
-diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
-index 2d98501c0897..a38f403a8811 100644
---- a/arch/arc/Kconfig
-+++ b/arch/arc/Kconfig
-@@ -27,6 +27,8 @@ config ARC
- 	select GENERIC_PENDING_IRQ if SMP
- 	select GENERIC_SCHED_CLOCK
- 	select GENERIC_SMP_IDLE_THREAD
+diff --git a/arch/h8300/Kconfig b/arch/h8300/Kconfig
+index 3e3e0f16f7e0..53dfd2d47e0e 100644
+--- a/arch/h8300/Kconfig
++++ b/arch/h8300/Kconfig
+@@ -11,6 +11,8 @@ config H8300
+ 	select GENERIC_IRQ_SHOW
+ 	select FRAME_POINTER
+ 	select GENERIC_CPU_DEVICES
 +	select GENERIC_STRNCPY_FROM_USER
 +	select GENERIC_STRNLEN_USER
- 	select HAVE_ARCH_KGDB
- 	select HAVE_ARCH_TRACEHOOK
- 	select HAVE_ARCH_TRANSPARENT_HUGEPAGE if ARC_MMU_V4
-diff --git a/arch/arc/include/asm/uaccess.h b/arch/arc/include/asm/uaccess.h
-index 3476348f361e..754a23f26736 100644
---- a/arch/arc/include/asm/uaccess.h
-+++ b/arch/arc/include/asm/uaccess.h
-@@ -655,96 +655,23 @@ static inline unsigned long __arc_clear_user(void __user *to, unsigned long n)
- 	return res;
- }
+ 	select MODULES_USE_ELF_RELA
+ 	select COMMON_CLK
+ 	select ARCH_WANT_FRAME_POINTERS
+diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
+index ed6b8050e3ed..5f1aafa7b2e2 100644
+--- a/arch/m68k/Kconfig
++++ b/arch/m68k/Kconfig
+@@ -17,8 +17,8 @@ config M68K
+ 	select GENERIC_CPU_DEVICES
+ 	select GENERIC_IOMAP
+ 	select GENERIC_IRQ_SHOW
+-	select GENERIC_STRNCPY_FROM_USER if MMU
+-	select GENERIC_STRNLEN_USER if MMU
++	select GENERIC_STRNCPY_FROM_USER
++	select GENERIC_STRNLEN_USER
+ 	select HAVE_AOUT if MMU
+ 	select HAVE_ASM_MODVERSIONS
+ 	select HAVE_DEBUG_BUGVERBOSE
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index a8ad8eb76120..ada7a2918c05 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -55,8 +55,8 @@ config RISCV
+ 	select GENERIC_PTDUMP if MMU
+ 	select GENERIC_SCHED_CLOCK
+ 	select GENERIC_SMP_IDLE_THREAD
+-	select GENERIC_STRNCPY_FROM_USER if MMU
+-	select GENERIC_STRNLEN_USER if MMU
++	select GENERIC_STRNCPY_FROM_USER
++	select GENERIC_STRNLEN_USER
+ 	select GENERIC_TIME_VSYSCALL if MMU && 64BIT
+ 	select HANDLE_DOMAIN_IRQ
+ 	select HAVE_ARCH_AUDITSYSCALL
+diff --git a/include/asm-generic/uaccess.h b/include/asm-generic/uaccess.h
+index c03889cc904c..83a48f430951 100644
+--- a/include/asm-generic/uaccess.h
++++ b/include/asm-generic/uaccess.h
+@@ -119,6 +119,11 @@ static inline void set_fs(mm_segment_t fs)
+ #ifndef uaccess_kernel
+ #define uaccess_kernel() (get_fs().seg == KERNEL_DS.seg)
+ #endif
++
++#ifndef user_addr_max
++#define user_addr_max() (uaccess_kernel() ? ~0UL : TASK_SIZE)
++#endif
++
+ #endif /* CONFIG_SET_FS */
  
+ #define access_ok(addr, size) __access_ok((unsigned long)(addr),(size))
+@@ -243,44 +248,6 @@ static inline int __get_user_fn(size_t size, const void __user *ptr, void *x)
+ 
+ extern int __get_user_bad(void) __attribute__((noreturn));
+ 
+-/*
+- * Copy a null terminated string from userspace.
+- */
+-#ifndef strncpy_from_user
 -static inline long
--__arc_strncpy_from_user(char *dst, const char __user *src, long count)
+-strncpy_from_user(char *dst, const char __user *src, long count)
 -{
--	long res = 0;
--	char val;
+-	char *tmp;
 -
 -	if (!access_ok(src, 1))
 -		return -EFAULT;
 -
--	if (count == 0)
--		return 0;
--
--	__asm__ __volatile__(
--	"	mov	lp_count, %5		\n"
--	"	lp	3f			\n"
--	"1:	ldb.ab  %3, [%2, 1]		\n"
--	"	breq.d	%3, 0, 3f               \n"
--	"	stb.ab  %3, [%1, 1]		\n"
--	"	add	%0, %0, 1	# Num of NON NULL bytes copied	\n"
--	"3:								\n"
--	"	.section .fixup, \"ax\"		\n"
--	"	.align 4			\n"
--	"4:	mov %0, %4		# sets @res as -EFAULT	\n"
--	"	j   3b				\n"
--	"	.previous			\n"
--	"	.section __ex_table, \"a\"	\n"
--	"	.align 4			\n"
--	"	.word   1b, 4b			\n"
--	"	.previous			\n"
--	: "+r"(res), "+r"(dst), "+r"(src), "=r"(val)
--	: "g"(-EFAULT), "r"(count)
--	: "lp_count", "memory");
--
--	return res;
+-	strncpy(dst, (const char __force *)src, count);
+-	for (tmp = dst; *tmp && count > 0; tmp++, count--)
+-		;
+-	return (tmp - dst);
 -}
+-#endif
 -
--static inline long __arc_strnlen_user(const char __user *s, long n)
+-#ifndef strnlen_user
+-/*
+- * Return the size of a string (including the ending 0)
+- *
+- * Return 0 on exception, a value greater than N if too long
+- *
+- * Unlike strnlen, strnlen_user includes the nul terminator in
+- * its returned count. Callers should check for a returned value
+- * greater than N as an indication the string is too long.
+- */
+-static inline long strnlen_user(const char __user *src, long n)
 -{
--	long res, tmp1, cnt;
--	char val;
--
--	if (!access_ok(s, 1))
+-	if (!access_ok(src, 1))
 -		return 0;
 -
--	__asm__ __volatile__(
--	"	mov %2, %1			\n"
--	"1:	ldb.ab  %3, [%0, 1]		\n"
--	"	breq.d  %3, 0, 2f		\n"
--	"	sub.f   %2, %2, 1		\n"
--	"	bnz 1b				\n"
--	"	sub %2, %2, 1			\n"
--	"2:	sub %0, %1, %2			\n"
--	"3:	;nop				\n"
--	"	.section .fixup, \"ax\"		\n"
--	"	.align 4			\n"
--	"4:	mov %0, 0			\n"
--	"	j   3b				\n"
--	"	.previous			\n"
--	"	.section __ex_table, \"a\"	\n"
--	"	.align 4			\n"
--	"	.word 1b, 4b			\n"
--	"	.previous			\n"
--	: "=r"(res), "=r"(tmp1), "=r"(cnt), "=r"(val)
--	: "0"(s), "1"(n)
--	: "memory");
--
--	return res;
+-	return strnlen(src, n) + 1;
 -}
+-#endif
 -
- #ifndef CONFIG_CC_OPTIMIZE_FOR_SIZE
+ /*
+  * Zero Userspace
+  */
+@@ -305,4 +272,7 @@ clear_user(void __user *to, unsigned long n)
  
- #define INLINE_COPY_TO_USER
- #define INLINE_COPY_FROM_USER
- 
- #define __clear_user(d, n)		__arc_clear_user(d, n)
--#define strncpy_from_user(d, s, n)	__arc_strncpy_from_user(d, s, n)
--#define strnlen_user(s, n)		__arc_strnlen_user(s, n)
- #else
- extern unsigned long arc_clear_user_noinline(void __user *to,
- 		unsigned long n);
--extern long arc_strncpy_from_user_noinline (char *dst, const char __user *src,
--		long count);
--extern long arc_strnlen_user_noinline(const char __user *src, long n);
--
- #define __clear_user(d, n)		arc_clear_user_noinline(d, n)
--#define strncpy_from_user(d, s, n)	arc_strncpy_from_user_noinline(d, s, n)
--#define strnlen_user(s, n)		arc_strnlen_user_noinline(s, n)
--
- #endif
+ #include <asm/extable.h>
  
 +extern long strncpy_from_user(char *dst, const char __user *src, long count);
-+#define strncpy_from_user(d, s, n)	strncpy_from_user(d, s, n)
 +extern long strnlen_user(const char __user *src, long n);
-+#define strnlen_user(s, n)		strnlen_user(s, n)
 +
- #include <asm/segment.h>
- #include <asm-generic/uaccess.h>
- 
-diff --git a/arch/arc/mm/extable.c b/arch/arc/mm/extable.c
-index b06b09ddf924..4e14c4244ea2 100644
---- a/arch/arc/mm/extable.c
-+++ b/arch/arc/mm/extable.c
-@@ -32,16 +32,4 @@ unsigned long arc_clear_user_noinline(void __user *to,
- }
- EXPORT_SYMBOL(arc_clear_user_noinline);
- 
--long arc_strncpy_from_user_noinline(char *dst, const char __user *src,
--		long count)
--{
--	return __arc_strncpy_from_user(dst, src, count);
--}
--EXPORT_SYMBOL(arc_strncpy_from_user_noinline);
--
--long arc_strnlen_user_noinline(const char __user *src, long n)
--{
--	return __arc_strnlen_user(src, n);
--}
--EXPORT_SYMBOL(arc_strnlen_user_noinline);
- #endif
+ #endif /* __ASM_GENERIC_UACCESS_H */
 -- 
 2.29.2
