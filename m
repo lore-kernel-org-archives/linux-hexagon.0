@@ -1,37 +1,40 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 4/5] asm-generic: uaccess: remove inline strncpy_from_user/strnlen_user
-Date: Mon, 17 May 2021 09:49:45 +0200
-Message-ID: <CAMuHMdXPWdNqeeyCuKheOyTT-DSqrhKQyotmY5YBhdbz-VgfwA@mail.gmail.com>
-References: <20210514220942.879805-1-arnd@kernel.org> <20210514220942.879805-5-arnd@kernel.org>
+From: Arnd Bergmann <arnd@kernel.org>
+Subject: Re: [PATCH 1/5] asm-generic/uaccess.h: remove __strncpy_from_user/__strnlen_user
+Date: Mon, 17 May 2021 10:42:54 +0200
+Message-ID: <CAK8P3a02V8k6aGkqtc0A7PiAwhJDCw6yMW=m4nmTmgVbwy316g@mail.gmail.com>
+References: <20210514220942.879805-1-arnd@kernel.org> <20210514220942.879805-2-arnd@kernel.org>
+ <CAMuHMdXr6gxbJu+otHV=PhoXvM7aoshs_A-SVpTmYw1iDdiqsg@mail.gmail.com>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <20210514220942.879805-5-arnd@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1621241043;
+        bh=pGxJJRkE9qeDtccc/YEcwOP1pJnAulKNh3xYI4CjqcE=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=VhyR280qktq3Yj7mvUPKACKxoTFcuZgScgzvJHx3l38cArr8+Z1PHUCauN7611dwt
+         NPqfUoJoLvybKsWnw5XBfWBnw8Kv/cK+DKuTDCcu6S3genrIH4gyCUDyMru0esHMq3
+         IQajegZypqB2swBYx+h3oZex0t4OU4xmY+RiLrkmtgPak2eiVPLgJdWphXaIjg2ZQR
+         xazekUTIUzom3w/On/AUGF/4aikSScp4WWIi0uoJhNFKiP0lEpNVnpQ48HG9k3wCGu
+         5YN9cseL+gw6iSznh8e4ihyONNGEmrxfyQM2XPKMRSASOUsEWkgPtNFIfn50Tm8Cvs
+         7//2tKougJRQA==
+In-Reply-To: <CAMuHMdXr6gxbJu+otHV=PhoXvM7aoshs_A-SVpTmYw1iDdiqsg@mail.gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Linux-Arch <linux-arch@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>, Vineet Gupta <vgupta@synopsys.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Brian Cain <bcain@codeaurora.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Sid Manning <sidneym@codeaurora.org>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>, arcml <linux-snps-arc@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "moderated list:H8/300 ARCHITECTURE" <uclinux-h8-d>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux-Arch <linux-arch@vger.kernel.org>, Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>, Vineet Gupta <vgupta@synopsys.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Brian Cain <bcain@codeaurora.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Sid Manning <sidneym@codeaurora.org>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>, arcml <linux-snps-arc@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "moderated list:H8/300 ARCHITECTURE" <uclinux-h8-devel@lists.sourceforge.jp>
 
-On Sat, May 15, 2021 at 12:11 AM Arnd Bergmann <arnd@kernel.org> wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+On Mon, May 17, 2021 at 9:42 AM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
 >
-> Consolidate the asm-generic implementation with the library version
-> that is used everywhere else.
+> On Sat, May 15, 2021 at 12:10 AM Arnd Bergmann <arnd@kernel.org> wrote:
+> > From: Arnd Bergmann <arnd@arndb.de>
+> >
+> > This is a preparation for changing over architectures to the
+> > generic implementation one at a time. As there are no callers
+> > of either __strncpy_from_user() or __strnlen_user(), fold these
+> > into the strncpy_from_user() strnlen_user() functions to make
 >
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ... and ...
 
->  arch/m68k/Kconfig             |  4 +--
+Fixed, thanks!
 
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+      Arnd
