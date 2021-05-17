@@ -1,68 +1,42 @@
-From: Arnd Bergmann <arnd@kernel.org>
-Subject: Re: [PATCH 5/6] [v2] asm-generic: uaccess: remove inline strncpy_from_user/strnlen_user
-Date: Mon, 17 May 2021 09:27:01 +0200
-Message-ID: <CAK8P3a2eDeSgB76SyzcpmQmV3uR1jwtOjZUoG9UYfDnYAWGyog@mail.gmail.com>
-References: <20210515101803.924427-1-arnd@kernel.org> <20210515101803.924427-6-arnd@kernel.org>
- <20210517062018.GC23581@lst.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 1/5] asm-generic/uaccess.h: remove __strncpy_from_user/__strnlen_user
+Date: Mon, 17 May 2021 09:42:02 +0200
+Message-ID: <CAMuHMdXr6gxbJu+otHV=PhoXvM7aoshs_A-SVpTmYw1iDdiqsg@mail.gmail.com>
+References: <20210514220942.879805-1-arnd@kernel.org> <20210514220942.879805-2-arnd@kernel.org>
 Mime-Version: 1.0
-Return-path: <linux-m68k-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621236490;
-        bh=WoQ2Tt9j1s8lZ+rFGz15/N+rcvIN9GuIXZT/n/mvPAI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=rz4nCnRs3MKPRjz0dKaFcIG7wjHT6KBRybD6Trvo3cwl2LtMEliatXLWXADfjInf4
-         ZurKjK+HSZugMQq4T93FIGYUf91CGscakYmybanqXsxFHKKMCODe6xFeOm9T4yqIKc
-         1PaYuHpasSko+WxNDMe/gfVOhwl02LQ7a9Q/twcx9iZj61UkRUvXQRv6inWu6oavnW
-         obIpBqlhMQ/9yzY5mvgiJYqKx/MlTHMrtTi9MYZWODtd1l34GSGJWS/BxBmTR6Pumm
-         mvZXtZTbU+uaHHN0eAih41AV/xVH950QQXPiSEe7NfGz1XKg22SmkmCmsyEzM+o5W0
-         8dyhDgzdQ8Egg==
-In-Reply-To: <20210517062018.GC23581@lst.de>
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <20210514220942.879805-2-arnd@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Christoph Hellwig <hch@lst.de>
-Cc: linux-arch <linux-arch@vger.kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, Vineet Gupta <vgupta@synopsys.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Brian Cain <bcain@codeaurora.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Sid Manning <sidneym@codeaurora.org>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>, "open list:SYNOPSYS ARC ARCHITECTURE" <linux-snps-arc@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, moderated list:H8/300 ARCHITECTURE
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Linux-Arch <linux-arch@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>, Vineet Gupta <vgupta@synopsys.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Brian Cain <bcain@codeaurora.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Sid Manning <sidneym@codeaurora.org>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>, arcml <linux-snps-arc@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "moderated list:H8/300 ARCHITECTURE" <uclinux-h8-d>
 
-On Mon, May 17, 2021 at 8:20 AM Christoph Hellwig <hch@lst.de> wrote:
+On Sat, May 15, 2021 at 12:10 AM Arnd Bergmann <arnd@kernel.org> wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 >
-> On Sat, May 15, 2021 at 12:18:02PM +0200, Arnd Bergmann wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
-> >
-> > Consolidate the asm-generic implementation with the library version
-> > that is used everywhere else.
-> >
-> > These are the three versions for NOMMU kernels,
+> This is a preparation for changing over architectures to the
+> generic implementation one at a time. As there are no callers
+> of either __strncpy_from_user() or __strnlen_user(), fold these
+> into the strncpy_from_user() strnlen_user() functions to make
+
+... and ...
+
+> each implementation independent of the others.
 >
-> I don't get the three versions part?
-
-Right, that was confusing. Rewording to
-
-| The inline version is used on three NOMMU architectures and is
-| particularly inefficient when it scans the string one byte at a time
-| twice. It also lacks a check for user_addr_max(), but this is
-| probably ok on NOMMU targets.
-|
-| Consolidate the asm-generic implementation with the library version
-| that is used everywhere else.  This version is generalized enough to
-| work efficiently on both MMU and NOMMU targets, and using the
-| same code everywhere reduces the potential for subtle bugs.
-
-> > +     select GENERIC_STRNCPY_FROM_USER
-> > +     select GENERIC_STRNLEN_USER
+> Many of these implementations have known bugs, but the intention
+> here is to not change behavior at all and stay compatible with
+> those bugs for the moment.
 >
-> Given that most architetures select the generic version I wonder
-> if it might be worth to add another patch to invert the logic so
-> that architectures with their own implementation need to sekect a symbol.
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Done now, using 'CONFIG_ARCH_HAS_{STRNCPY_FROM,STRNLEN}_USER'.
+Gr{oetje,eeting}s,
 
-There are still seven or eight architectures that provide their own though.
+                        Geert
 
-> > +extern long strncpy_from_user(char *dst, const char __user *src, long count);
-> > +extern long strnlen_user(const char __user *src, long n);
->
-> No need for the extern here.
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Removed.
-
-       Arnd
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
