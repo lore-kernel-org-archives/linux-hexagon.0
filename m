@@ -1,22 +1,22 @@
 From: Nick Desaulniers <ndesaulniers@google.com>
-Subject: Re: [PATCH 1/3] hexagon: Handle {,SOFT}IRQENTRY_TEXT in linker script
-Date: Tue, 1 Jun 2021 12:16:14 -0700
-Message-ID: <CAKwvOdnUdQHMungT97KcECo-HzMSLeDM7s=JCGh5XwOkR84+Rg@mail.gmail.com>
-References: <20210521011239.1332345-1-nathan@kernel.org> <20210521011239.1332345-2-nathan@kernel.org>
+Subject: Re: [PATCH 2/3] hexagon: Use common DISCARDS macro
+Date: Tue, 1 Jun 2021 12:18:35 -0700
+Message-ID: <CAKwvOd=T9HTUXETv2EJit0Qa8+p7NhTxcfZ3FYqy1xu--GNkgA@mail.gmail.com>
+References: <20210521011239.1332345-1-nathan@kernel.org> <20210521011239.1332345-3-nathan@kernel.org>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=V/jOJxrVdwVgkU5pbHsyaxFrpR7j0sbYKE51g0U8/jE=;
-        b=JNQVKx8YGqWIPolHIu7v69C0waidVaomhIcbK/bziEbTl7DykCEDGeYYUeLjtFfsff
-         oXQYZFYTAMZA0mrbtVQ8+hvf40tKDtC+0YeeNuM3fnUHbx4RXPwjjxXoUI6EGll9fdoT
-         xx87coe9CxpHI62e4tK/n1R0QIJcxiwM78wsY1bjJD5S85HVGCgiXEwWYsfYDIaa1FoM
-         5rXMOfyYCo1BYHGjht1LqOHqzSgzhN3nyICK9NNQs0jFCDAm8HX5wDGPhrKPVEENhAOp
-         Me/o1k/AvMlS+BtdWIkLq9s7TFT+W0lVn+rDsDRL47WJzhfZPHWCenbiim+pSKg+W2lf
-         BkXA==
-In-Reply-To: <20210521011239.1332345-2-nathan@kernel.org>
+        bh=vvgn/sxx7fGdQ0zzgT5kUctxtrwYDVPpVuGOvB0eRkA=;
+        b=pqfGVO0rokdZUODQi3AfTBRhuEcIua1lvBvXpame6DPSE4q2YkVue74W6/3vNeKk2o
+         uNhHpTK01zPwMuAsDr6x6qY1gUny7sCnZlAvs9Y4FN0Kfz/PIA0mWQAtP47f+llLIYI2
+         R66XJneli7t4gptoOzeLjN0SMTFCwDxA5aMfQFBavmjOkzY/1c1QqtIZpTXtx9H0pCmy
+         dqQE8MqfnXye6Setz6mXtDFdQ3ALtvBegeDzRX0R35oT73hcf1KVPgIJH7OFrkZ4QQRW
+         iFBCR1hawZI/d1/aDsLRKxaOhAD0DbDO1DnReU4ncqhTPKv0PwJST4e3hQ5y+w2nThrc
+         lf+A==
+In-Reply-To: <20210521011239.1332345-3-nathan@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -25,75 +25,52 @@ Cc: Brian Cain <bcain@codeaurora.org>, Andrew Morton <akpm@linux-foundation.org>
 
 On Thu, May 20, 2021 at 6:13 PM Nathan Chancellor <nathan@kernel.org> wrote:
 >
-> Patch "mm/slub: use stackdepot to save stack trace in objects" in -mm
-> selects CONFIG_STACKDEPOT when CONFIG_STACKTRACE_SUPPORT is selected and
-> CONFIG_STACKDEPOT requires IRQENTRY_TEXT and SOFTIRQENTRY_TEXT to be
-> handled after commit 505a0ef15f96 ("kasan: stackdepot: move
-> filter_irq_stacks() to stackdepot.c") due to the use of the
-> __{,soft}irqentry_text_{start,end} section symbols. If those sections
-> are not handled, the build is broken.
+> ld.lld warns that the '.modinfo' section is not currently handled:
 >
-> $ make ARCH=hexagon CROSS_COMPILE=hexagon-linux- LLVM=1 LLVM_IAS=1 defconfig all
-> ...
-> ld.lld: error: undefined symbol: __irqentry_text_start
-> >>> referenced by stackdepot.c
-> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
-> >>> referenced by stackdepot.c
-> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+> ld.lld: warning: kernel/built-in.a(workqueue.o):(.modinfo) is being placed in '.modinfo'
+> ld.lld: warning: kernel/built-in.a(printk/printk.o):(.modinfo) is being placed in '.modinfo'
+> ld.lld: warning: kernel/built-in.a(irq/spurious.o):(.modinfo) is being placed in '.modinfo'
+> ld.lld: warning: kernel/built-in.a(rcu/update.o):(.modinfo) is being placed in '.modinfo'
 >
-> ld.lld: error: undefined symbol: __irqentry_text_end
-> >>> referenced by stackdepot.c
-> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
-> >>> referenced by stackdepot.c
-> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+> The '.modinfo' section was added in commit 898490c010b5 ("moduleparam:
+> Save information about built-in modules in separate file") to the
+> DISCARDS macro but Hexagon has never used that macro. The unification of
+> DISCARDS happened in commit 023bf6f1b8bf ("linker script: unify usage of
+> discard definition") in 2009, prior to Hexagon being added in 2011.
 >
-> ld.lld: error: undefined symbol: __softirqentry_text_start
-> >>> referenced by stackdepot.c
-> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
-> >>> referenced by stackdepot.c
-> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+> Switch Hexagon over to the DISCARDS macro so that anything that is
+> expected to be discarded gets discarded.
 >
-> ld.lld: error: undefined symbol: __softirqentry_text_end
-> >>> referenced by stackdepot.c
-> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
-> >>> referenced by stackdepot.c
-> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
-> ...
->
-> Add these sections to the Hexagon linker script so the build continues
-> to work. ld.lld's orphan section warning would have caught this prior to
-> the -mm commit mentioned above:
->
-> ld.lld: warning: kernel/built-in.a(softirq.o):(.softirqentry.text) is being placed in '.softirqentry.text'
-> ld.lld: warning: kernel/built-in.a(softirq.o):(.softirqentry.text) is being placed in '.softirqentry.text'
-> ld.lld: warning: kernel/built-in.a(softirq.o):(.softirqentry.text) is being placed in '.softirqentry.text'
->
-> Fixes: 505a0ef15f96 ("kasan: stackdepot: move filter_irq_stacks() to stackdepot.c")
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1381
+> Fixes: e95bf452a9e2 ("Hexagon: Add configuration and makefiles for the Hexagon architecture.")
 > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 
-Thanks for the series, and sorry I didn't get around to reviewing
-before I took time off last week.
-
+Thanks for the patch.
 Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 
 > ---
->  arch/hexagon/kernel/vmlinux.lds.S | 2 ++
->  1 file changed, 2 insertions(+)
+>  arch/hexagon/kernel/vmlinux.lds.S | 7 +------
+>  1 file changed, 1 insertion(+), 6 deletions(-)
 >
 > diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
-> index 35b18e55eae8..20f19539c5fc 100644
+> index 20f19539c5fc..57465bff1fe4 100644
 > --- a/arch/hexagon/kernel/vmlinux.lds.S
 > +++ b/arch/hexagon/kernel/vmlinux.lds.S
-> @@ -38,6 +38,8 @@ SECTIONS
->         .text : AT(ADDR(.text)) {
->                 _text = .;
->                 TEXT_TEXT
-> +               IRQENTRY_TEXT
-> +               SOFTIRQENTRY_TEXT
->                 SCHED_TEXT
->                 CPUIDLE_TEXT
->                 LOCK_TEXT
+> @@ -61,14 +61,9 @@ SECTIONS
+>
+>         _end = .;
+>
+> -       /DISCARD/ : {
+> -               EXIT_TEXT
+> -               EXIT_DATA
+> -               EXIT_CALL
+> -       }
+> -
+>         STABS_DEBUG
+>         DWARF_DEBUG
+>         ELF_DETAILS
+>
+> +       DISCARDS
+>  }
 > --
 > 2.32.0.rc0
 >
