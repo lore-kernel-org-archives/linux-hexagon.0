@@ -1,313 +1,104 @@
-From: Masahiro Yamada <masahiroy@kernel.org>
-Subject: Re: [PATCH 1/5] kbuild: require all architectures to have arch/$(SRCARCH)/Kbuild
-Date: Wed, 26 May 2021 23:32:22 +0900
-Message-ID: <CAK7LNAS7cEj9h=Hi0O-AoFjJPg2mxp0zbi8boXj4O9aYt_yg6Q@mail.gmail.com>
-References: <20210512075729.60291-1-masahiroy@kernel.org>
+From: Nick Desaulniers <ndesaulniers@google.com>
+Subject: Re: [PATCH 1/3] hexagon: Handle {,SOFT}IRQENTRY_TEXT in linker script
+Date: Tue, 1 Jun 2021 12:16:14 -0700
+Message-ID: <CAKwvOdnUdQHMungT97KcECo-HzMSLeDM7s=JCGh5XwOkR84+Rg@mail.gmail.com>
+References: <20210521011239.1332345-1-nathan@kernel.org> <20210521011239.1332345-2-nathan@kernel.org>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-04.nifty.com 14QEX0hZ030416
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1622039581;
-        bh=K2JBpUyGmknhlRJpT71wl4Baxz8GsbPi2HBWhe0fUJY=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=cnmXS+DqWdAPC0p8MNIg0X+ZuRBIktoOUUR+EQB4vPPRCGwGVlLjEGNDw3EmAqZlv
-         xlyoU4qIgALC1L++WZgyjKMXDzp+GxzDeYEL0F6IhJRd7Rpw2XWDIFJ8o7cQRW8BJc
-         58bmB0Jh48QslQPtKIaufL8A/fujJ7UQngW2AlQLs93Fom+msv11CPKYfc9S8R6atG
-         3OOPiA7jJYoMBhNmRyZsxR2MDGv0EVvIwT7A7e7yI9l8/pHrO3j3QQFOzjOgPaV2AN
-         D3pbKwvq9+nlzItRdCDnwVjN2eBR7ykeJ5nQmYRfOW40+I524Aqu+Vsx77vDiJBmu1
-         zIUzibiWGcAvw==
-In-Reply-To: <20210512075729.60291-1-masahiroy@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=V/jOJxrVdwVgkU5pbHsyaxFrpR7j0sbYKE51g0U8/jE=;
+        b=JNQVKx8YGqWIPolHIu7v69C0waidVaomhIcbK/bziEbTl7DykCEDGeYYUeLjtFfsff
+         oXQYZFYTAMZA0mrbtVQ8+hvf40tKDtC+0YeeNuM3fnUHbx4RXPwjjxXoUI6EGll9fdoT
+         xx87coe9CxpHI62e4tK/n1R0QIJcxiwM78wsY1bjJD5S85HVGCgiXEwWYsfYDIaa1FoM
+         5rXMOfyYCo1BYHGjht1LqOHqzSgzhN3nyICK9NNQs0jFCDAm8HX5wDGPhrKPVEENhAOp
+         Me/o1k/AvMlS+BtdWIkLq9s7TFT+W0lVn+rDsDRL47WJzhfZPHWCenbiim+pSKg+W2lf
+         BkXA==
+In-Reply-To: <20210521011239.1332345-2-nathan@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@codeaurora.org>, Catalin Marinas <catalin.marinas@arm.com>, Chris Zankel <chris@zankel.net>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Greentime Hu <green.hu@gmail.com>, Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Ingo Molnar <mingo@redhat.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Jeff Dike <jdike@addtoit.com>, Jonas Bonn <jonas@southpole.se>, Ley Foon Tan <ley.foon.tan@intel.c>
+To: Nathan Chancellor <nathan@kernel.org>
+Cc: Brian Cain <bcain@codeaurora.org>, Andrew Morton <akpm@linux-foundation.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, clang-built-linux <clang-built-linux@googlegroups.com>
 
-On Wed, May 12, 2021 at 5:00 PM Masahiro Yamada <masahiroy@kernel.org> wrote:
+On Thu, May 20, 2021 at 6:13 PM Nathan Chancellor <nathan@kernel.org> wrote:
 >
-> arch/$(SRCARCH)/Kbuild is useful for Makefile cleanups because you can
-> use the obj-y syntax.
+> Patch "mm/slub: use stackdepot to save stack trace in objects" in -mm
+> selects CONFIG_STACKDEPOT when CONFIG_STACKTRACE_SUPPORT is selected and
+> CONFIG_STACKDEPOT requires IRQENTRY_TEXT and SOFTIRQENTRY_TEXT to be
+> handled after commit 505a0ef15f96 ("kasan: stackdepot: move
+> filter_irq_stacks() to stackdepot.c") due to the use of the
+> __{,soft}irqentry_text_{start,end} section symbols. If those sections
+> are not handled, the build is broken.
 >
-> Add an empty file if it is missing in arch/$(SRCARCH)/.
+> $ make ARCH=hexagon CROSS_COMPILE=hexagon-linux- LLVM=1 LLVM_IAS=1 defconfig all
+> ...
+> ld.lld: error: undefined symbol: __irqentry_text_start
+> >>> referenced by stackdepot.c
+> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+> >>> referenced by stackdepot.c
+> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
 >
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> ld.lld: error: undefined symbol: __irqentry_text_end
+> >>> referenced by stackdepot.c
+> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+> >>> referenced by stackdepot.c
+> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+>
+> ld.lld: error: undefined symbol: __softirqentry_text_start
+> >>> referenced by stackdepot.c
+> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+> >>> referenced by stackdepot.c
+> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+>
+> ld.lld: error: undefined symbol: __softirqentry_text_end
+> >>> referenced by stackdepot.c
+> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+> >>> referenced by stackdepot.c
+> >>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+> ...
+>
+> Add these sections to the Hexagon linker script so the build continues
+> to work. ld.lld's orphan section warning would have caught this prior to
+> the -mm commit mentioned above:
+>
+> ld.lld: warning: kernel/built-in.a(softirq.o):(.softirqentry.text) is being placed in '.softirqentry.text'
+> ld.lld: warning: kernel/built-in.a(softirq.o):(.softirqentry.text) is being placed in '.softirqentry.text'
+> ld.lld: warning: kernel/built-in.a(softirq.o):(.softirqentry.text) is being placed in '.softirqentry.text'
+>
+> Fixes: 505a0ef15f96 ("kasan: stackdepot: move filter_irq_stacks() to stackdepot.c")
+> Link: https://github.com/ClangBuiltLinux/linux/issues/1381
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+
+Thanks for the series, and sorry I didn't get around to reviewing
+before I took time off last week.
+
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+
 > ---
-
-
-Applied to linux-kbuild.
-
+>  arch/hexagon/kernel/vmlinux.lds.S | 2 ++
+>  1 file changed, 2 insertions(+)
 >
->  Makefile               | 2 +-
->  arch/alpha/Kbuild      | 1 +
->  arch/arc/Makefile      | 3 ---
->  arch/arm/Makefile      | 1 -
->  arch/arm64/Makefile    | 1 -
->  arch/csky/Kbuild       | 1 +
->  arch/h8300/Kbuild      | 1 +
->  arch/hexagon/Kbuild    | 1 +
->  arch/ia64/Kbuild       | 1 +
->  arch/microblaze/Kbuild | 1 +
->  arch/mips/Makefile     | 3 ---
->  arch/nds32/Kbuild      | 1 +
->  arch/nios2/Kbuild      | 1 +
->  arch/openrisc/Makefile | 1 -
->  arch/parisc/Kbuild     | 1 +
->  arch/powerpc/Makefile  | 3 ---
->  arch/riscv/Makefile    | 1 -
->  arch/s390/Makefile     | 3 ---
->  arch/sh/Kbuild         | 1 +
->  arch/sparc/Makefile    | 3 ---
->  arch/um/Kbuild         | 1 +
->  arch/x86/Makefile      | 3 ---
->  arch/xtensa/Kbuild     | 1 +
->  23 files changed, 13 insertions(+), 23 deletions(-)
->  create mode 100644 arch/alpha/Kbuild
->  create mode 100644 arch/csky/Kbuild
->  create mode 100644 arch/h8300/Kbuild
->  create mode 100644 arch/hexagon/Kbuild
->  create mode 100644 arch/ia64/Kbuild
->  create mode 100644 arch/microblaze/Kbuild
->  create mode 100644 arch/nds32/Kbuild
->  create mode 100644 arch/nios2/Kbuild
->  create mode 100644 arch/parisc/Kbuild
->  create mode 100644 arch/sh/Kbuild
->  create mode 100644 arch/um/Kbuild
->  create mode 100644 arch/xtensa/Kbuild
->
-> diff --git a/Makefile b/Makefile
-> index 15b6476d0f89..7df040b1b023 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -658,7 +658,7 @@ endif
->
->  ifeq ($(KBUILD_EXTMOD),)
->  # Objects we will link into vmlinux / subdirs we need to visit
-> -core-y         := init/ usr/
-> +core-y         := init/ usr/ arch/$(SRCARCH)/
->  drivers-y      := drivers/ sound/
->  drivers-$(CONFIG_SAMPLES) += samples/
->  drivers-$(CONFIG_NET) += net/
-> diff --git a/arch/alpha/Kbuild b/arch/alpha/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/alpha/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/arc/Makefile b/arch/arc/Makefile
-> index 4392c9c189c4..3e6d4b84797f 100644
-> --- a/arch/arc/Makefile
-> +++ b/arch/arc/Makefile
-> @@ -85,9 +85,6 @@ KBUILD_LDFLAGS        += $(ldflags-y)
->
->  head-y         := arch/arc/kernel/head.o
->
-> -# See arch/arc/Kbuild for content of core part of the kernel
-> -core-y         += arch/arc/
-> -
->  # w/o this dtb won't embed into kernel binary
->  core-y         += arch/arc/boot/dts/
->
-> diff --git a/arch/arm/Makefile b/arch/arm/Makefile
-> index 415c3514573a..173da685a52e 100644
-> --- a/arch/arm/Makefile
-> +++ b/arch/arm/Makefile
-> @@ -252,7 +252,6 @@ endif
->
->  export TEXT_OFFSET GZFLAGS MMUEXT
->
-> -core-y                         += arch/arm/
->  # If we have a machine-specific directory, then include it in the build.
->  core-y                         += $(machdirs) $(platdirs)
->
-> diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-> index 7ef44478560d..b73c151f3a53 100644
-> --- a/arch/arm64/Makefile
-> +++ b/arch/arm64/Makefile
-> @@ -149,7 +149,6 @@ KBUILD_CFLAGS += -DKASAN_SHADOW_SCALE_SHIFT=$(KASAN_SHADOW_SCALE_SHIFT)
->  KBUILD_CPPFLAGS += -DKASAN_SHADOW_SCALE_SHIFT=$(KASAN_SHADOW_SCALE_SHIFT)
->  KBUILD_AFLAGS += -DKASAN_SHADOW_SCALE_SHIFT=$(KASAN_SHADOW_SCALE_SHIFT)
->
-> -core-y         += arch/arm64/
->  libs-y         := arch/arm64/lib/ $(libs-y)
->  libs-$(CONFIG_EFI_STUB) += $(objtree)/drivers/firmware/efi/libstub/lib.a
->
-> diff --git a/arch/csky/Kbuild b/arch/csky/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/csky/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/h8300/Kbuild b/arch/h8300/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/h8300/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/hexagon/Kbuild b/arch/hexagon/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/hexagon/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/ia64/Kbuild b/arch/ia64/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/ia64/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/microblaze/Kbuild b/arch/microblaze/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/microblaze/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/mips/Makefile b/arch/mips/Makefile
-> index 258234c35a09..4e942b7ef022 100644
-> --- a/arch/mips/Makefile
-> +++ b/arch/mips/Makefile
-> @@ -332,9 +332,6 @@ head-y := arch/mips/kernel/head.o
->  libs-y                 += arch/mips/lib/
->  libs-$(CONFIG_MIPS_FP_SUPPORT) += arch/mips/math-emu/
->
-> -# See arch/mips/Kbuild for content of core part of the kernel
-> -core-y += arch/mips/
-> -
->  drivers-y                      += arch/mips/crypto/
->
->  # suspend and hibernation support
-> diff --git a/arch/nds32/Kbuild b/arch/nds32/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/nds32/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/nios2/Kbuild b/arch/nios2/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/nios2/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/openrisc/Makefile b/arch/openrisc/Makefile
-> index 410e7abfac69..c52de526e518 100644
-> --- a/arch/openrisc/Makefile
-> +++ b/arch/openrisc/Makefile
-> @@ -42,7 +42,6 @@ endif
->
->  head-y                 := arch/openrisc/kernel/head.o
->
-> -core-y         += arch/openrisc/
->  libs-y         += $(LIBGCC)
->
->  PHONY += vmlinux.bin
-> diff --git a/arch/parisc/Kbuild b/arch/parisc/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/parisc/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-> index 3212d076ac6a..af669aa75b73 100644
-> --- a/arch/powerpc/Makefile
-> +++ b/arch/powerpc/Makefile
-> @@ -267,9 +267,6 @@ head-$(CONFIG_PPC_FPU)              += arch/powerpc/kernel/fpu.o
->  head-$(CONFIG_ALTIVEC)         += arch/powerpc/kernel/vector.o
->  head-$(CONFIG_PPC_OF_BOOT_TRAMPOLINE)  += arch/powerpc/kernel/prom_init.o
->
-> -# See arch/powerpc/Kbuild for content of core part of the kernel
-> -core-y += arch/powerpc/
-> -
->  # Default to zImage, override when needed
->  all: zImage
->
-> diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-> index 3eb9590a0775..c5f359540862 100644
-> --- a/arch/riscv/Makefile
-> +++ b/arch/riscv/Makefile
-> @@ -90,7 +90,6 @@ endif
->
->  head-y := arch/riscv/kernel/head.o
->
-> -core-y += arch/riscv/
->  core-$(CONFIG_RISCV_ERRATA_ALTERNATIVE) += arch/riscv/errata/
->
->  libs-y += arch/riscv/lib/
-> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-> index e443ed9947bd..37b61645694c 100644
-> --- a/arch/s390/Makefile
-> +++ b/arch/s390/Makefile
-> @@ -128,9 +128,6 @@ OBJCOPYFLAGS        := -O binary
->
->  head-y         := arch/s390/kernel/head64.o
->
-> -# See arch/s390/Kbuild for content of core part of the kernel
-> -core-y         += arch/s390/
-> -
->  libs-y         += arch/s390/lib/
->  drivers-y      += drivers/s390/
->
-> diff --git a/arch/sh/Kbuild b/arch/sh/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/sh/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/sparc/Makefile b/arch/sparc/Makefile
-> index bee99e65fe23..4e65245bc755 100644
-> --- a/arch/sparc/Makefile
-> +++ b/arch/sparc/Makefile
-> @@ -58,9 +58,6 @@ endif
->
->  head-y                 := arch/sparc/kernel/head_$(BITS).o
->
-> -# See arch/sparc/Kbuild for the core part of the kernel
-> -core-y                 += arch/sparc/
-> -
->  libs-y                 += arch/sparc/prom/
->  libs-y                 += arch/sparc/lib/
->
-> diff --git a/arch/um/Kbuild b/arch/um/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/um/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
-> diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-> index c77c5d8a7b3e..4307bf48ec53 100644
-> --- a/arch/x86/Makefile
-> +++ b/arch/x86/Makefile
-> @@ -239,9 +239,6 @@ head-y += arch/x86/kernel/platform-quirks.o
->
->  libs-y  += arch/x86/lib/
->
-> -# See arch/x86/Kbuild for content of core part of the kernel
-> -core-y += arch/x86/
-> -
->  # drivers-y are linked after core-y
->  drivers-$(CONFIG_MATH_EMULATION) += arch/x86/math-emu/
->  drivers-$(CONFIG_PCI)            += arch/x86/pci/
-> diff --git a/arch/xtensa/Kbuild b/arch/xtensa/Kbuild
-> new file mode 100644
-> index 000000000000..a4e40e534e6a
-> --- /dev/null
-> +++ b/arch/xtensa/Kbuild
-> @@ -0,0 +1 @@
-> +# SPDX-License-Identifier: GPL-2.0-only
+> diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
+> index 35b18e55eae8..20f19539c5fc 100644
+> --- a/arch/hexagon/kernel/vmlinux.lds.S
+> +++ b/arch/hexagon/kernel/vmlinux.lds.S
+> @@ -38,6 +38,8 @@ SECTIONS
+>         .text : AT(ADDR(.text)) {
+>                 _text = .;
+>                 TEXT_TEXT
+> +               IRQENTRY_TEXT
+> +               SOFTIRQENTRY_TEXT
+>                 SCHED_TEXT
+>                 CPUIDLE_TEXT
+>                 LOCK_TEXT
 > --
-> 2.27.0
+> 2.32.0.rc0
 >
 
 
 -- 
-Best Regards
-Masahiro Yamada
+Thanks,
+~Nick Desaulniers
