@@ -1,40 +1,77 @@
-From: Chris Mason <clm@fb.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 Subject: Re: [PATCH] btrfs: Disable BTRFS on platforms having 256K pages
-Date: Thu, 10 Jun 2021 13:54:28 +0000
-Message-ID: <185278AF-1D87-432D-87E9-C86B3223113E@fb.com>
+Date: Thu, 10 Jun 2021 16:50:09 +0200
+Message-ID: <cdadf66e-0a6e-4efe-0326-7236c43b2735@csgroup.eu>
 References: <a16c31f3caf448dda5d9315e056585b6fafc22c5.1623302442.git.christophe.leroy@csgroup.eu>
+ <185278AF-1D87-432D-87E9-C86B3223113E@fb.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : references : in-reply-to : content-type : content-id
- : content-transfer-encoding : mime-version; s=facebook;
- bh=tKeWZwrbZWPBqmrF8s472Q4a1fYd4dLM6zjPEUlZa8c=;
- b=opVB72hJXdjQRdwvy60NwQTGvVAtzG/KQS/g7lglALJRD3mu4a8G2E0gfZen9zvyq0Ek
- 8pv5SjP68oTYlyRR88ETLHuYZ5LB2TnRM4vI57AlW4KSn/yZKBhyRAa2vs4QXKLPa0Ow
- Kg5/QvYv5AUU3t4njQsU7vPcMXk651YW4Oo= 
-In-Reply-To: <a16c31f3caf448dda5d9315e056585b6fafc22c5.1623302442.git.christophe.leroy@csgroup.eu>
-Content-Language: en-US
-Content-ID: <8C74CC486588ED45B87C30682826B4BF@namprd15.prod.outlook.com>
+In-Reply-To: <185278AF-1D87-432D-87E9-C86B3223113E@fb.com>
+Content-Language: fr
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Christophe Leroy <christophe.leroy@csgroup.eu>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+To: Chris Mason <clm@fb.com>
 Cc: Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
 
-DQo+IE9uIEp1biAxMCwgMjAyMSwgYXQgMToyMyBBTSwgQ2hyaXN0b3BoZSBMZXJveSA8Y2hyaXN0
-b3BoZS5sZXJveUBjc2dyb3VwLmV1PiB3cm90ZToNCj4gDQo+IFdpdGggYSBjb25maWcgaGF2aW5n
-IFBBR0VfU0laRSBzZXQgdG8gMjU2SywgQlRSRlMgYnVpbGQgZmFpbHMNCj4gd2l0aCB0aGUgZm9s
-bG93aW5nIG1lc3NhZ2UNCj4gDQo+IGluY2x1ZGUvbGludXgvY29tcGlsZXJfdHlwZXMuaDozMjY6
-Mzg6IGVycm9yOiBjYWxsIHRvICdfX2NvbXBpbGV0aW1lX2Fzc2VydF83OTEnIGRlY2xhcmVkIHdp
-dGggYXR0cmlidXRlIGVycm9yOiBCVUlMRF9CVUdfT04gZmFpbGVkOiAoQlRSRlNfTUFYX0NPTVBS
-RVNTRUQgJSBQQUdFX1NJWkUpICE9IDANCj4gDQo+IEJUUkZTX01BWF9DT01QUkVTU0VEIGJlaW5n
-IDEyOEssIEJUUkZTIGNhbm5vdCBzdXBwb3J0IHBsYXRmb3JtcyB3aXRoDQo+IDI1NksgcGFnZXMg
-YXQgdGhlIHRpbWUgYmVpbmcuDQo+IA0KPiBUaGVyZSBhcmUgdHdvIHBsYXRmb3JtcyB0aGF0IGNh
-biBzZWxlY3QgMjU2SyBwYWdlczoNCj4gLSBoZXhhZ29uDQo+IC0gcG93ZXJwYw0KPiANCj4gRGlz
-YWJsZSBCVFJGUyB3aGVuIDI1NksgcGFnZSBzaXplIGlzIHNlbGVjdGVkLg0KPiANCg0KV2XigJls
-bCBoYXZlIG90aGVyIHN1YnBhZ2UgYmxvY2tzaXplIGNvbmNlcm5zIHdpdGggMjU2SyBwYWdlcywg
-YnV0IHRoaXMgQlRSRlNfTUFYX0NPTVBSRVNTRUQgI2RlZmluZSBpcyBhcmJpdHJhcnkuICBJdOKA
-mXMganVzdCB0cnlpbmcgdG8gaGF2ZSBhbiB1cHBlciBib3VuZCBvbiB0aGUgYW1vdW50IG9mIG1l
-bW9yeSB3ZeKAmWxsIG5lZWQgdG8gdW5jb21wcmVzcyBhIHNpbmdsZSBwYWdl4oCZcyB3b3J0aCBv
-ZiByYW5kb20gcmVhZHMuDQoNCldlIGNvdWxkIGNoYW5nZSBpdCB0byBtYXgoUEFHRV9TSVpFLCAx
-MjhLKSBvciBqdXN0IGJ1bXAgdG8gMjU2Sy4NCg0KLWNocmlzDQoNCg==
+
+
+Le 10/06/2021 à 15:54, Chris Mason a écrit :
+> 
+>> On Jun 10, 2021, at 1:23 AM, Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
+>>
+>> With a config having PAGE_SIZE set to 256K, BTRFS build fails
+>> with the following message
+>>
+>> include/linux/compiler_types.h:326:38: error: call to '__compiletime_assert_791' declared with attribute error: BUILD_BUG_ON failed: (BTRFS_MAX_COMPRESSED % PAGE_SIZE) != 0
+>>
+>> BTRFS_MAX_COMPRESSED being 128K, BTRFS cannot support platforms with
+>> 256K pages at the time being.
+>>
+>> There are two platforms that can select 256K pages:
+>> - hexagon
+>> - powerpc
+>>
+>> Disable BTRFS when 256K page size is selected.
+>>
+> 
+> We’ll have other subpage blocksize concerns with 256K pages, but this BTRFS_MAX_COMPRESSED #define is arbitrary.  It’s just trying to have an upper bound on the amount of memory we’ll need to uncompress a single page’s worth of random reads.
+> 
+> We could change it to max(PAGE_SIZE, 128K) or just bump to 256K.
+> 
+
+But if 256K is problematic in other ways, is it worth bumping BTRFS_MAX_COMPRESSED to 256K ?
+
+David, in below mail, said that 256K support would require deaper changes. So disabling BTRFS 
+support seems the easiest solution for the time being, at least for Stable (I forgot the Fixes: tag 
+and the CC: to stable).
+
+On powerpc, 256k pages is a corner case, it requires customised binutils, so I don't think disabling 
+BTRFS is a issue there. For hexagon I don't know.
+
+
+https://lkml.org/lkml/2021/6/9/978
+
+Le 09/06/2021 à 17:22, David Sterba a écrit :
+ > On Wed, Jun 09, 2021 at 04:01:20PM +0200, Christophe Leroy wrote:
+ >> Le 09/06/2021 à 15:55, kernel test robot a écrit :
+ >>> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
+ >>> head:   368094df48e680fa51cedb68537408cfa64b788e
+ >>> commit: 4eeef098b43242ed145c83fba9989d586d707589 powerpc/44x: Remove STDBINUTILS kconfig option
+ >>> date:   4 months ago
+ >>> config: powerpc-randconfig-r012-20210609 (attached as .config)
+ >>> compiler: powerpc-linux-gcc (GCC) 9.3.0
+ >>
+ >> That's a BTRFS issue, and not directly linked to the above mentioned commit. Before that commit the
+ >> problem was already present.
+ >>
+ >> Problem is that with 256k PAGE_SIZE, following BUILD_BUG() pops up:
+ >>
+ >> BUILD_BUG_ON((BTRFS_MAX_COMPRESSED % PAGE_SIZE) != 0)
+ >
+ > A 256K page is a problem for btrfs, until now I was not even aware
+ > there's an architecture supporting that so. That the build fails is
+ > probably best thing. Maximum metadata nodesize supported is 64K and
+ > having that on a 256K page would need deeper changes, no top of the
+ > currently developed subpage changes (that do 4K blocks on 64K pages).
+ >
