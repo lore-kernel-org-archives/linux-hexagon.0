@@ -1,80 +1,52 @@
 From: David Sterba <dsterba@suse.cz>
-Subject: Re: [PATCH] btrfs: Disable BTRFS on platforms having 256K pages
-Date: Thu, 10 Jun 2021 18:20:46 +0200
-Message-ID: <20210610162046.GB28158@suse.cz>
+Subject: Re: [PATCH] fs: btrfs: Disable BTRFS on platforms having 256K pages
+Date: Fri, 11 Jun 2021 14:34:02 +0200
+Message-ID: <20210611123402.GD28158@twin.jikos.cz>
 References: <a16c31f3caf448dda5d9315e056585b6fafc22c5.1623302442.git.christophe.leroy@csgroup.eu>
- <185278AF-1D87-432D-87E9-C86B3223113E@fb.com>
- <cdadf66e-0a6e-4efe-0326-7236c43b2735@csgroup.eu>
 Reply-To: dsterba@suse.cz
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-btrfs-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1623342211;
+        t=1623415008;
         h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
          cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=KjKhr3a6YXymIHtw/GA/lThxHjdin/LlLBM4rjmo30o=;
-        b=OaCK2JwDCJzSG8mw0/KxhlY24EZJYzmrY1pCXj1ftvfhrFWiJeWwKCF6VRt/3GNGIZQTKI
-        64uAumwxrCoYdgNTs61JjnnHSiudVprP6OUXn6eQhEtgRh2PJr0hss4Xc4UV44n8M0sx8X
-        PenUaTJWzag3UNmGuL8gosguy0gx3Mk=
+        bh=WbubFKHB1YFq8+cLZPFZsL/iGgDagPXwRBHcKJ3qDmE=;
+        b=2peLsmD6OKg84vX05jlKeSSzhc+WJwWLotAAvUINC/onEs9TZQ3AbPHeWdfS+bddiLLzh6
+        0c23UqVPl326Qf2GLCycEtdoY9uZtjge95WU9F1EOEMHDadCrMP+/1vg8CqJ73tLjxiDvw
+        Lz8qAG0S58lqlW3qCvtVoDZc1BMWInk=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1623342211;
+        s=susede2_ed25519; t=1623415008;
         h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
          cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=KjKhr3a6YXymIHtw/GA/lThxHjdin/LlLBM4rjmo30o=;
-        b=Q1+SIX5fmet/R8yDOZj1UmQUYKVKEEmnbImI7UgkAOw2mAruK7BtMq2iRopww2P1n1GTgZ
-        Q69a5hyw9tRxW6Cg==
+        bh=WbubFKHB1YFq8+cLZPFZsL/iGgDagPXwRBHcKJ3qDmE=;
+        b=3v38kvCKiCtteusW+zZk3tG/vFy89Y7uWUqGSygE7PibOC0N0H5mMQie3rH4X648s2bwn9
+        4RHgSq2/8HIoKtBQ==
 Content-Disposition: inline
-In-Reply-To: <cdadf66e-0a6e-4efe-0326-7236c43b2735@csgroup.eu>
+In-Reply-To: <a16c31f3caf448dda5d9315e056585b6fafc22c5.1623302442.git.christophe.leroy@csgroup.eu>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
+Cc: Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-btrfs@vger.kernel.org, linux-hexagon@vger.kernel.org
 
-On Thu, Jun 10, 2021 at 04:50:09PM +0200, Christophe Leroy wrote:
+On Thu, Jun 10, 2021 at 05:23:02AM +0000, Christophe Leroy wrote:
+> With a config having PAGE_SIZE set to 256K, BTRFS build fails
+> with the following message
 > 
+>  include/linux/compiler_types.h:326:38: error: call to '__compiletime_assert_791' declared with attribute error: BUILD_BUG_ON failed: (BTRFS_MAX_COMPRESSED % PAGE_SIZE) != 0
 > 
-> Le 10/06/2021 à 15:54, Chris Mason a écrit :
-> > 
-> >> On Jun 10, 2021, at 1:23 AM, Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
-> >>
-> >> With a config having PAGE_SIZE set to 256K, BTRFS build fails
-> >> with the following message
-> >>
-> >> include/linux/compiler_types.h:326:38: error: call to '__compiletime_assert_791' declared with attribute error: BUILD_BUG_ON failed: (BTRFS_MAX_COMPRESSED % PAGE_SIZE) != 0
-> >>
-> >> BTRFS_MAX_COMPRESSED being 128K, BTRFS cannot support platforms with
-> >> 256K pages at the time being.
-> >>
-> >> There are two platforms that can select 256K pages:
-> >> - hexagon
-> >> - powerpc
-> >>
-> >> Disable BTRFS when 256K page size is selected.
-> >>
-> > 
-> > We’ll have other subpage blocksize concerns with 256K pages, but this BTRFS_MAX_COMPRESSED #define is arbitrary.  It’s just trying to have an upper bound on the amount of memory we’ll need to uncompress a single page’s worth of random reads.
-> > 
-> > We could change it to max(PAGE_SIZE, 128K) or just bump to 256K.
-> > 
+> BTRFS_MAX_COMPRESSED being 128K, BTRFS cannot support platforms with
+> 256K pages at the time being.
 > 
-> But if 256K is problematic in other ways, is it worth bumping BTRFS_MAX_COMPRESSED to 256K ?
+> There are two platforms that can select 256K pages:
+>  - hexagon
+>  - powerpc
 > 
-> David, in below mail, said that 256K support would require deaper changes. So disabling BTRFS 
-> support seems the easiest solution for the time being, at least for Stable (I forgot the Fixes: tag 
-> and the CC: to stable).
+> Disable BTRFS when 256K page size is selected.
 > 
-> On powerpc, 256k pages is a corner case, it requires customised binutils, so I don't think disabling 
-> BTRFS is a issue there. For hexagon I don't know.
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-That it blew up due to the max compressed size is a coincidence. We
-could have explicit BUILD_BUG_ONs for page size or other constraints
-derived from the page size like INLINE_EXTENT_BUFFER_PAGES.
-
-And there's no such thing like "just bump BTRFS_MAX_COMPRESSED to 256K".
-The constant is part of on-disk format for lzo and otherwise changing it
-would impact performance so this would need proper evaluation.
+With updated changelog added to misc-next, thanks.
