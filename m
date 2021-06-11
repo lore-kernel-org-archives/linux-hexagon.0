@@ -1,68 +1,70 @@
-From: Chris Mason <clm@fb.com>
+From: David Sterba <dsterba@suse.cz>
 Subject: Re: [PATCH] btrfs: Disable BTRFS on platforms having 256K pages
-Date: Fri, 11 Jun 2021 12:58:58 +0000
-Message-ID: <6769ED4C-15A8-4CFF-BF2B-26A5328257A0@fb.com>
+Date: Fri, 11 Jun 2021 15:21:22 +0200
+Message-ID: <20210611132121.GF28158@twin.jikos.cz>
 References: <a16c31f3caf448dda5d9315e056585b6fafc22c5.1623302442.git.christophe.leroy@csgroup.eu>
  <185278AF-1D87-432D-87E9-C86B3223113E@fb.com>
  <cdadf66e-0a6e-4efe-0326-7236c43b2735@csgroup.eu>
  <20210610162046.GB28158@suse.cz>
+ <6769ED4C-15A8-4CFF-BF2B-26A5328257A0@fb.com>
+Reply-To: dsterba@suse.cz
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : references : in-reply-to : content-type : content-id
- : content-transfer-encoding : mime-version; s=facebook;
- bh=1Odm7n1R5mKZBER6gJN89XcGzGFIJYcLUSrXgxBt45M=;
- b=GXyLfXH8Wh9HB/xBL9DGakGBSrAJhNviu8V8zPDIXiotVjMfxtvMpvNFvOox7SFmdxvP
- rGFb081cZ5Ahs8o5gL1bAGYXI45m2QT+aL/uo7IFCAP3XUwDseit/MFePSjuSCbeFIFS
- yLm9fOZFHACmyCRcCZZmGrWBaCajx7dEtJU= 
-In-Reply-To: <20210610162046.GB28158@suse.cz>
-Content-Language: en-US
-Content-ID: <3578489A2DE29A4CAA2B434D1802B8D6@namprd15.prod.outlook.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1623417847;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=IoZe2Do+YjFfznb3FBAGTMrmvEaWFCHdUpFU1G49nbI=;
+        b=DsPjPdR/cfZoznWMhaKw2jCReQocGLnq0vEnJz7X8/bGQYVgpxy7wp95U5fUoz1M7KM78/
+        lO2UK4i5tLunQSK1zEYRN1rTnR+kGQ05PFOwnRnWD6Fd6xeLJGkm/Jf2XaAB9oJSQApAgB
+        F2wxrLlTZqOTDKnNZkF7+OqUsTJI2GI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1623417847;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=IoZe2Do+YjFfznb3FBAGTMrmvEaWFCHdUpFU1G49nbI=;
+        b=3WXO5EAErIRttTmkRzoLqskq1oqP9k1xWfNAPTGWce7kDcJB+FkFYeIsKAoU0vg9toUpFm
+        f+ez2JLbfaxrODBA==
+Content-Disposition: inline
+In-Reply-To: <6769ED4C-15A8-4CFF-BF2B-26A5328257A0@fb.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-To: "dsterba@suse.cz" <dsterba@suse.cz>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+To: Chris Mason <clm@fb.com>
+Cc: "dsterba@suse.cz" <dsterba@suse.cz>, Christophe Leroy <christophe.leroy@csgroup.eu>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
 
-DQo+IE9uIEp1biAxMCwgMjAyMSwgYXQgMTI6MjAgUE0sIERhdmlkIFN0ZXJiYSA8ZHN0ZXJiYUBz
-dXNlLmN6PiB3cm90ZToNCj4gDQo+IE9uIFRodSwgSnVuIDEwLCAyMDIxIGF0IDA0OjUwOjA5UE0g
-KzAyMDAsIENocmlzdG9waGUgTGVyb3kgd3JvdGU6DQo+PiANCj4+IA0KPj4gTGUgMTAvMDYvMjAy
-MSDDoCAxNTo1NCwgQ2hyaXMgTWFzb24gYSDDqWNyaXQgOg0KPj4+IA0KPj4+PiBPbiBKdW4gMTAs
-IDIwMjEsIGF0IDE6MjMgQU0sIENocmlzdG9waGUgTGVyb3kgPGNocmlzdG9waGUubGVyb3lAY3Nn
-cm91cC5ldT4gd3JvdGU6DQo+Pj4+IA0KPj4+PiBXaXRoIGEgY29uZmlnIGhhdmluZyBQQUdFX1NJ
-WkUgc2V0IHRvIDI1NkssIEJUUkZTIGJ1aWxkIGZhaWxzDQo+Pj4+IHdpdGggdGhlIGZvbGxvd2lu
-ZyBtZXNzYWdlDQo+Pj4+IA0KPj4+PiBpbmNsdWRlL2xpbnV4L2NvbXBpbGVyX3R5cGVzLmg6MzI2
-OjM4OiBlcnJvcjogY2FsbCB0byAnX19jb21waWxldGltZV9hc3NlcnRfNzkxJyBkZWNsYXJlZCB3
-aXRoIGF0dHJpYnV0ZSBlcnJvcjogQlVJTERfQlVHX09OIGZhaWxlZDogKEJUUkZTX01BWF9DT01Q
-UkVTU0VEICUgUEFHRV9TSVpFKSAhPSAwDQo+Pj4+IA0KPj4+PiBCVFJGU19NQVhfQ09NUFJFU1NF
-RCBiZWluZyAxMjhLLCBCVFJGUyBjYW5ub3Qgc3VwcG9ydCBwbGF0Zm9ybXMgd2l0aA0KPj4+PiAy
-NTZLIHBhZ2VzIGF0IHRoZSB0aW1lIGJlaW5nLg0KPj4+PiANCj4+Pj4gVGhlcmUgYXJlIHR3byBw
-bGF0Zm9ybXMgdGhhdCBjYW4gc2VsZWN0IDI1NksgcGFnZXM6DQo+Pj4+IC0gaGV4YWdvbg0KPj4+
-PiAtIHBvd2VycGMNCj4+Pj4gDQo+Pj4+IERpc2FibGUgQlRSRlMgd2hlbiAyNTZLIHBhZ2Ugc2l6
-ZSBpcyBzZWxlY3RlZC4NCj4+Pj4gDQo+Pj4gDQo+Pj4gV2XigJlsbCBoYXZlIG90aGVyIHN1YnBh
-Z2UgYmxvY2tzaXplIGNvbmNlcm5zIHdpdGggMjU2SyBwYWdlcywgYnV0IHRoaXMgQlRSRlNfTUFY
-X0NPTVBSRVNTRUQgI2RlZmluZSBpcyBhcmJpdHJhcnkuICBJdOKAmXMganVzdCB0cnlpbmcgdG8g
-aGF2ZSBhbiB1cHBlciBib3VuZCBvbiB0aGUgYW1vdW50IG9mIG1lbW9yeSB3ZeKAmWxsIG5lZWQg
-dG8gdW5jb21wcmVzcyBhIHNpbmdsZSBwYWdl4oCZcyB3b3J0aCBvZiByYW5kb20gcmVhZHMuDQo+
-Pj4gDQo+Pj4gV2UgY291bGQgY2hhbmdlIGl0IHRvIG1heChQQUdFX1NJWkUsIDEyOEspIG9yIGp1
-c3QgYnVtcCB0byAyNTZLLg0KPj4+IA0KPj4gDQo+PiBCdXQgaWYgMjU2SyBpcyBwcm9ibGVtYXRp
-YyBpbiBvdGhlciB3YXlzLCBpcyBpdCB3b3J0aCBidW1waW5nIEJUUkZTX01BWF9DT01QUkVTU0VE
-IHRvIDI1NksgPw0KPj4gDQo+PiBEYXZpZCwgaW4gYmVsb3cgbWFpbCwgc2FpZCB0aGF0IDI1Nksg
-c3VwcG9ydCB3b3VsZCByZXF1aXJlIGRlYXBlciBjaGFuZ2VzLiBTbyBkaXNhYmxpbmcgQlRSRlMg
-DQo+PiBzdXBwb3J0IHNlZW1zIHRoZSBlYXNpZXN0IHNvbHV0aW9uIGZvciB0aGUgdGltZSBiZWlu
-ZywgYXQgbGVhc3QgZm9yIFN0YWJsZSAoSSBmb3Jnb3QgdGhlIEZpeGVzOiB0YWcgDQo+PiBhbmQg
-dGhlIENDOiB0byBzdGFibGUpLg0KPj4gDQo+PiBPbiBwb3dlcnBjLCAyNTZrIHBhZ2VzIGlzIGEg
-Y29ybmVyIGNhc2UsIGl0IHJlcXVpcmVzIGN1c3RvbWlzZWQgYmludXRpbHMsIHNvIEkgZG9uJ3Qg
-dGhpbmsgZGlzYWJsaW5nIA0KPj4gQlRSRlMgaXMgYSBpc3N1ZSB0aGVyZS4gRm9yIGhleGFnb24g
-SSBkb24ndCBrbm93Lg0KPiANCj4gVGhhdCBpdCBibGV3IHVwIGR1ZSB0byB0aGUgbWF4IGNvbXBy
-ZXNzZWQgc2l6ZSBpcyBhIGNvaW5jaWRlbmNlLiBXZQ0KPiBjb3VsZCBoYXZlIGV4cGxpY2l0IEJV
-SUxEX0JVR19PTnMgZm9yIHBhZ2Ugc2l6ZSBvciBvdGhlciBjb25zdHJhaW50cw0KPiBkZXJpdmVk
-IGZyb20gdGhlIHBhZ2Ugc2l6ZSBsaWtlIElOTElORV9FWFRFTlRfQlVGRkVSX1BBR0VTLg0KPiAN
-Cg0KUmlnaHQsIHRoZSBjb25zdHJhaW50IGlzIGJpZ2dlciBhbmQgbW9yZSBjb21wbGV4IHRoYW4g
-QlRSRlNfTUFYX0NPTVBSRVNTRUQuDQoNCj4gQW5kIHRoZXJlJ3Mgbm8gc3VjaCB0aGluZyBsaWtl
-ICJqdXN0IGJ1bXAgQlRSRlNfTUFYX0NPTVBSRVNTRUQgdG8gMjU2SyIuDQo+IFRoZSBjb25zdGFu
-dCBpcyBwYXJ0IG9mIG9uLWRpc2sgZm9ybWF0IGZvciBsem8gYW5kIG90aGVyd2lzZSBjaGFuZ2lu
-ZyBpdA0KPiB3b3VsZCBpbXBhY3QgcGVyZm9ybWFuY2Ugc28gdGhpcyB3b3VsZCBuZWVkIHByb3Bl
-ciBldmFsdWF0aW9uLg0KDQpTb3JyeSwgaG93IGlzIGl0IGJha2VkIGludG8gTFpPPyAgSXQgZGVm
-aW5pdGVseSB3aWxsIGhhdmUgcGVyZm9ybWFuY2UgaW1wbGljYXRpb25zLCBJIGFncmVlIHRoZXJl
-Lg0KDQotY2hyaXMNCg0K
+On Fri, Jun 11, 2021 at 12:58:58PM +0000, Chris Mason wrote:
+> > On Jun 10, 2021, at 12:20 PM, David Sterba <dsterba@suse.cz> wrote:
+> > On Thu, Jun 10, 2021 at 04:50:09PM +0200, Christophe Leroy wrote:
+> >> Le 10/06/2021 =E0 15:54, Chris Mason a =E9crit :
+> >>>> On Jun 10, 2021, at 1:23 AM, Christophe Leroy <christophe.leroy@csgr=
+oup.eu> wrote:
+> > And there's no such thing like "just bump BTRFS_MAX_COMPRESSED to 256K".
+> > The constant is part of on-disk format for lzo and otherwise changing it
+> > would impact performance so this would need proper evaluation.
+>=20
+> Sorry, how is it baked into LZO?  It definitely will have performance imp=
+lications, I agree there.
+
+lzo_decompress_bio:
+
+309         /*
+310          * Compressed data header check.
+311          *
+312          * The real compressed size can't exceed the maximum extent len=
+gth, and
+313          * all pages should be used (whole unused page with just the se=
+gment
+314          * header is not possible).  If this happens it means the compr=
+essed
+315          * extent is corrupted.
+316          */
+317         if (tot_len > min_t(size_t, BTRFS_MAX_COMPRESSED, srclen) ||
+318             tot_len < srclen - PAGE_SIZE) {
+319                 ret =3D -EUCLEAN;
+320                 goto done;
+321         }
