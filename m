@@ -1,57 +1,97 @@
-From: Chris Mason <clm@fb.com>
-Subject: Re: [PATCH] btrfs: Disable BTRFS on platforms having 256K pages
-Date: Fri, 11 Jun 2021 16:56:31 +0000
-Message-ID: <94F797B5-8936-44DF-ABA5-808C1F3F559F@fb.com>
+From: "Brian Cain" <bcain@codeaurora.org>
+Subject: RE: [PATCH] btrfs: Disable BTRFS on platforms having 256K pages
+Date: Sat, 12 Jun 2021 09:44:05 -0500
+Message-ID: <17a401d75f99$662cdc50$328694f0$@codeaurora.org>
 References: <a16c31f3caf448dda5d9315e056585b6fafc22c5.1623302442.git.christophe.leroy@csgroup.eu>
  <185278AF-1D87-432D-87E9-C86B3223113E@fb.com>
  <cdadf66e-0a6e-4efe-0326-7236c43b2735@csgroup.eu>
- <20210610162046.GB28158@suse.cz>
- <6769ED4C-15A8-4CFF-BF2B-26A5328257A0@fb.com>
- <20210611132121.GF28158@twin.jikos.cz>
+Reply-To: bcain@codeaurora.org
 Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org;
+ q=dns/txt; 
+ s=smtp; t=1623509055; h=Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Message-ID: Date: Subject: In-Reply-To: References: Cc:
+ To: From: Reply-To: Sender;
+ bh=RhtvN2QTW0JZFH6Rjd3vbX9yOl+YFdfv0SB17b2868c=;
+ b=k0HU4kB5Cyx6FrM/UIBPtCIku1SKtbNjdCm9wl6ykARbxvMzDtHf5oqEpfpOJe17LrWSELhO
+ OsEP+QVb+qX6QF4AFBPSkjfzRj+kgdlWXtNsFguU9/dT3Cp9FtzFU6WxOpqM5sIzToBLH9NY
+ qG3COBjl82y1Nzt2ZNaMMdzX88M=
+In-Reply-To: <cdadf66e-0a6e-4efe-0326-7236c43b2735@csgroup.eu>
+Content-Language: en-us
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : references : in-reply-to : content-type : content-id
- : content-transfer-encoding : mime-version; s=facebook;
- bh=kkrHewb9AjX4WCwsG6viMUjh2jA3sq7bDTycJFkaocs=;
- b=pfq6Zwlf3Sz2hHY14kk02ZPoyFbEjU9ZfVHKBni+Fv8NsW0BcqxyIOyJLzI6YGeyC3Fk
- 1KVNqt9QospJaZOlYW/JjEbHvkWCdEd6jiTKRrjqjZ58XwuVXj5VrbJibD54A2qPViD0
- 9cBvpOgXUN+cWNKzDLuqHhEAEswJxNr2dwY= 
-In-Reply-To: <20210611132121.GF28158@twin.jikos.cz>
-Content-Language: en-US
-Content-ID: <649F282159EC374A915FA51DB49FDE31@namprd15.prod.outlook.com>
-List-ID: <linux-hexagon.vger.kernel.org>
-To: "dsterba@suse.cz" <dsterba@suse.cz>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
+To: 'Christophe Leroy' <christophe.leroy@csgroup.eu>, 'Chris Mason' <clm@fb.com>
+Cc: linux-hexagon@vger.kernel.org, 'Josef Bacik' <josef@toxicpanda.com>, linux-kernel@vger.kernel.org, 'David Sterba' <dsterba@suse.com>, linuxppc-dev@lists.ozlabs.org, 'linux-btrfs' <linux-btrfs@vger.kernel.org>
 
-DQo+IE9uIEp1biAxMSwgMjAyMSwgYXQgOToyMSBBTSwgRGF2aWQgU3RlcmJhIDxkc3RlcmJhQHN1
-c2UuY3o+IHdyb3RlOg0KPiANCj4gT24gRnJpLCBKdW4gMTEsIDIwMjEgYXQgMTI6NTg6NThQTSAr
-MDAwMCwgQ2hyaXMgTWFzb24gd3JvdGU6DQo+Pj4gT24gSnVuIDEwLCAyMDIxLCBhdCAxMjoyMCBQ
-TSwgRGF2aWQgU3RlcmJhIDxkc3RlcmJhQHN1c2UuY3o+IHdyb3RlOg0KPj4+IE9uIFRodSwgSnVu
-IDEwLCAyMDIxIGF0IDA0OjUwOjA5UE0gKzAyMDAsIENocmlzdG9waGUgTGVyb3kgd3JvdGU6DQo+
-Pj4+IExlIDEwLzA2LzIwMjEgw6AgMTU6NTQsIENocmlzIE1hc29uIGEgw6ljcml0IDoNCj4+Pj4+
-PiBPbiBKdW4gMTAsIDIwMjEsIGF0IDE6MjMgQU0sIENocmlzdG9waGUgTGVyb3kgPGNocmlzdG9w
-aGUubGVyb3lAY3Nncm91cC5ldT4gd3JvdGU6DQo+Pj4gQW5kIHRoZXJlJ3Mgbm8gc3VjaCB0aGlu
-ZyBsaWtlICJqdXN0IGJ1bXAgQlRSRlNfTUFYX0NPTVBSRVNTRUQgdG8gMjU2SyIuDQo+Pj4gVGhl
-IGNvbnN0YW50IGlzIHBhcnQgb2Ygb24tZGlzayBmb3JtYXQgZm9yIGx6byBhbmQgb3RoZXJ3aXNl
-IGNoYW5naW5nIGl0DQo+Pj4gd291bGQgaW1wYWN0IHBlcmZvcm1hbmNlIHNvIHRoaXMgd291bGQg
-bmVlZCBwcm9wZXIgZXZhbHVhdGlvbi4NCj4+IA0KPj4gU29ycnksIGhvdyBpcyBpdCBiYWtlZCBp
-bnRvIExaTz8gIEl0IGRlZmluaXRlbHkgd2lsbCBoYXZlIHBlcmZvcm1hbmNlIGltcGxpY2F0aW9u
-cywgSSBhZ3JlZSB0aGVyZS4NCj4gDQo+IGx6b19kZWNvbXByZXNzX2JpbzoNCj4gDQo+IDMwOSAg
-ICAgICAgIC8qDQo+IDMxMCAgICAgICAgICAqIENvbXByZXNzZWQgZGF0YSBoZWFkZXIgY2hlY2su
-DQo+IDMxMSAgICAgICAgICAqDQo+IDMxMiAgICAgICAgICAqIFRoZSByZWFsIGNvbXByZXNzZWQg
-c2l6ZSBjYW4ndCBleGNlZWQgdGhlIG1heGltdW0gZXh0ZW50IGxlbmd0aCwgYW5kDQo+IDMxMyAg
-ICAgICAgICAqIGFsbCBwYWdlcyBzaG91bGQgYmUgdXNlZCAod2hvbGUgdW51c2VkIHBhZ2Ugd2l0
-aCBqdXN0IHRoZSBzZWdtZW50DQo+IDMxNCAgICAgICAgICAqIGhlYWRlciBpcyBub3QgcG9zc2li
-bGUpLiAgSWYgdGhpcyBoYXBwZW5zIGl0IG1lYW5zIHRoZSBjb21wcmVzc2VkDQo+IDMxNSAgICAg
-ICAgICAqIGV4dGVudCBpcyBjb3JydXB0ZWQuDQo+IDMxNiAgICAgICAgICAqLw0KPiAzMTcgICAg
-ICAgICBpZiAodG90X2xlbiA+IG1pbl90KHNpemVfdCwgQlRSRlNfTUFYX0NPTVBSRVNTRUQsIHNy
-Y2xlbikgfHwNCj4gMzE4ICAgICAgICAgICAgIHRvdF9sZW4gPCBzcmNsZW4gLSBQQUdFX1NJWkUp
-IHsNCj4gMzE5ICAgICAgICAgICAgICAgICByZXQgPSAtRVVDTEVBTjsNCj4gMzIwICAgICAgICAg
-ICAgICAgICBnb3RvIGRvbmU7DQo+IDMyMSAgICAgICAgIH0NCg0KQWggSSBzZWUsIHNvIGdvaW5n
-IGJhY2sgdG8gYW4gb2xkIExaTyBrZXJuZWwgd2lsbCBnZXQgdXBzZXQuICBPaywgZmFpciBlbm91
-Z2guICBTbyBpZiB3ZSB3YW50IHRvIGJ1bXAgdGhpcyBmb3Igb3RoZXIgcmVhc29ucywgd2XigJls
-bCBuZWVkIHRvIG1ha2UgYW4gTFpPIG1heCBzaXplIHRvIG1haW50YWluIGNvbXBhdGliaWxpdHku
-DQoNCi1jaHJpcw==
+
+
+> -----Original Message-----
+> From: Christophe Leroy <christophe.leroy@csgroup.eu>
+...
+> Le 10/06/2021 =C3=A0 15:54, Chris Mason a =C3=A9crit :
+> >
+> >> On Jun 10, 2021, at 1:23 AM, Christophe Leroy
+> <christophe.leroy@csgroup.eu> wrote:
+> >>
+> >> With a config having PAGE_SIZE set to 256K, BTRFS build fails
+> >> with the following message
+> >>
+> >> include/linux/compiler_types.h:326:38: error: call to
+> '__compiletime_assert_791' declared with attribute error: BUILD_BUG_ON
+> failed: (BTRFS_MAX_COMPRESSED % PAGE_SIZE) !=3D 0
+> >>
+> >> BTRFS_MAX_COMPRESSED being 128K, BTRFS cannot support platforms
+> with
+> >> 256K pages at the time being.
+> >>
+> >> There are two platforms that can select 256K pages:
+> >> - hexagon
+> >> - powerpc
+> >>
+> >> Disable BTRFS when 256K page size is selected.
+> >>
+> >
+> > We=E2=80=99ll have other subpage blocksize concerns with 256K pages, =
+but this
+> BTRFS_MAX_COMPRESSED #define is arbitrary.  It=E2=80=99s just trying =
+to have an
+> upper bound on the amount of memory we=E2=80=99ll need to uncompress a =
+single
+> page=E2=80=99s worth of random reads.
+> >
+> > We could change it to max(PAGE_SIZE, 128K) or just bump to 256K.
+> >
+>=20
+> But if 256K is problematic in other ways, is it worth bumping
+> BTRFS_MAX_COMPRESSED to 256K ?
+>=20
+> David, in below mail, said that 256K support would require deaper =
+changes. So
+> disabling BTRFS
+> support seems the easiest solution for the time being, at least for =
+Stable (I
+> forgot the Fixes: tag
+> and the CC: to stable).
+>=20
+> On powerpc, 256k pages is a corner case, it requires customised =
+binutils, so I
+> don't think disabling
+> BTRFS is a issue there. For hexagon I don't know.
+
+Larger page sizes like this are typical for hexagon.  Disabling btrfs on =
+hexagon seems appropriate.
+
+-Brian
+
