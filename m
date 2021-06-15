@@ -1,97 +1,57 @@
-From: "Brian Cain" <bcain@codeaurora.org>
-Subject: RE: [PATCH] btrfs: Disable BTRFS on platforms having 256K pages
-Date: Sat, 12 Jun 2021 09:44:05 -0500
-Message-ID: <17a401d75f99$662cdc50$328694f0$@codeaurora.org>
-References: <a16c31f3caf448dda5d9315e056585b6fafc22c5.1623302442.git.christophe.leroy@csgroup.eu>
- <185278AF-1D87-432D-87E9-C86B3223113E@fb.com>
- <cdadf66e-0a6e-4efe-0326-7236c43b2735@csgroup.eu>
-Reply-To: bcain@codeaurora.org
+From: Nathan Chancellor <nathan@kernel.org>
+Subject: Re: [PATCH 0/3] hexagon: Fix build error with CONFIG_STACKDEPOT and
+ select CONFIG_ARCH_WANT_LD_ORPHAN_WARN
+Date: Tue, 15 Jun 2021 10:25:37 -0700
+Message-ID: <YMjikYQsA9DmyRm8@MSI.localdomain>
+References: <20210521011239.1332345-1-nathan@kernel.org>
+ <0f3ac242-d187-57b5-e715-ea25933dbd52@kernel.org>
+ <09a301d75899$daf244f0$90d6ced0$@codeaurora.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org;
- q=dns/txt; 
- s=smtp; t=1623509055; h=Content-Transfer-Encoding: Content-Type:
- MIME-Version: Message-ID: Date: Subject: In-Reply-To: References: Cc:
- To: From: Reply-To: Sender;
- bh=RhtvN2QTW0JZFH6Rjd3vbX9yOl+YFdfv0SB17b2868c=;
- b=k0HU4kB5Cyx6FrM/UIBPtCIku1SKtbNjdCm9wl6ykARbxvMzDtHf5oqEpfpOJe17LrWSELhO
- OsEP+QVb+qX6QF4AFBPSkjfzRj+kgdlWXtNsFguU9/dT3Cp9FtzFU6WxOpqM5sIzToBLH9NY
- qG3COBjl82y1Nzt2ZNaMMdzX88M=
-In-Reply-To: <cdadf66e-0a6e-4efe-0326-7236c43b2735@csgroup.eu>
-Content-Language: en-us
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-Content-Type: text/plain; charset="utf-8"
-To: 'Christophe Leroy' <christophe.leroy@csgroup.eu>, 'Chris Mason' <clm@fb.com>
-Cc: linux-hexagon@vger.kernel.org, 'Josef Bacik' <josef@toxicpanda.com>, linux-kernel@vger.kernel.org, 'David Sterba' <dsterba@suse.com>, linuxppc-dev@lists.ozlabs.org, 'linux-btrfs' <linux-btrfs@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623777940;
+        bh=Eci6k0g98Hgau9oCi1zhhBUfXGggZ42HI8rbMPNXZKI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Y4qkUho5RFYScbT9ZStz7qn9cL97C2AbBgI051qEdWClV5xzZzT4FCl9mCzDWnHvq
+         60qYEehCUxccqwY/CLKr1GTq/cEduItxmS+7E/HgEc2rNFttwWgHrQpvZzYm2/HCvF
+         FTQ1IbzpsjN6J7N9M+6mrVUYivLQK4icUxFhdpT2Q6Hh+t0rtYs44Lz1LkFHBJcjh8
+         1wlFSHGVjPn1sGePXp8TEYVJ0YCdrVG8ADo0kTRtrWY0bBGtRJC9z3UMlSTZsuGrJV
+         4JpA6TN1vnWW38dwLf8N9LTMthLVL6RLCwdfuWJiJxfAah8IoKWedhLRbC7lOdVt2e
+         4+xSkmA/UqryA==
+Content-Disposition: inline
+In-Reply-To: <09a301d75899$daf244f0$90d6ced0$@codeaurora.org>
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Brian Cain <bcain@codeaurora.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: 'Nick Desaulniers' <ndesaulniers@google.com>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
 
+On Thu, Jun 03, 2021 at 11:59:43AM -0500, Brian Cain wrote:
+> > -----Original Message-----
+> > From: Nathan Chancellor <nathan@kernel.org>
+> ...
+> > On 5/20/2021 6:12 PM, Nathan Chancellor wrote:
+> > > Hi all,
+> ...
+> > Brian, did you have any comments on this series? ARCH=hexagon defconfig
+> > is currently broken in -next, it would be a real shame if this continued
+> > to regress after you just got Hexagon building in mainline. These
+> > patches seem like they would be worthy of a 5.13 pull request.
+> 
+> I have started the internal review process to get these queued up in my tree.  But I don't know if I would have it in time for 5.13.
+> 
+> > Otherwise, Andrew could pick them up with your ack and stick them in
+> > front of "mm/slub: use stackdepot to save stack trace in objects" so
+> > that there is no build regression.
+> 
+> Of course: I'll send my ack for the sake of keeping the build green.
+> 
+> -Brian
 
+Andrew, is there any way you can pick this up so that the Hexagon build
+can start being green? I explained the issue in the cover letter so that
+you know where to stick this patch set in your stack. If you have any
+more questions, please let me know.
 
-> -----Original Message-----
-> From: Christophe Leroy <christophe.leroy@csgroup.eu>
-...
-> Le 10/06/2021 =C3=A0 15:54, Chris Mason a =C3=A9crit :
-> >
-> >> On Jun 10, 2021, at 1:23 AM, Christophe Leroy
-> <christophe.leroy@csgroup.eu> wrote:
-> >>
-> >> With a config having PAGE_SIZE set to 256K, BTRFS build fails
-> >> with the following message
-> >>
-> >> include/linux/compiler_types.h:326:38: error: call to
-> '__compiletime_assert_791' declared with attribute error: BUILD_BUG_ON
-> failed: (BTRFS_MAX_COMPRESSED % PAGE_SIZE) !=3D 0
-> >>
-> >> BTRFS_MAX_COMPRESSED being 128K, BTRFS cannot support platforms
-> with
-> >> 256K pages at the time being.
-> >>
-> >> There are two platforms that can select 256K pages:
-> >> - hexagon
-> >> - powerpc
-> >>
-> >> Disable BTRFS when 256K page size is selected.
-> >>
-> >
-> > We=E2=80=99ll have other subpage blocksize concerns with 256K pages, =
-but this
-> BTRFS_MAX_COMPRESSED #define is arbitrary.  It=E2=80=99s just trying =
-to have an
-> upper bound on the amount of memory we=E2=80=99ll need to uncompress a =
-single
-> page=E2=80=99s worth of random reads.
-> >
-> > We could change it to max(PAGE_SIZE, 128K) or just bump to 256K.
-> >
->=20
-> But if 256K is problematic in other ways, is it worth bumping
-> BTRFS_MAX_COMPRESSED to 256K ?
->=20
-> David, in below mail, said that 256K support would require deaper =
-changes. So
-> disabling BTRFS
-> support seems the easiest solution for the time being, at least for =
-Stable (I
-> forgot the Fixes: tag
-> and the CC: to stable).
->=20
-> On powerpc, 256k pages is a corner case, it requires customised =
-binutils, so I
-> don't think disabling
-> BTRFS is a issue there. For hexagon I don't know.
-
-Larger page sizes like this are typical for hexagon.  Disabling btrfs on =
-hexagon seems appropriate.
-
--Brian
-
+Cheers,
+Nathan
