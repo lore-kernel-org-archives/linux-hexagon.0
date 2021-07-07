@@ -1,44 +1,58 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH] hexagon: cmpxchg: fix comment after rename of a documentation file
-Date: Sun, 27 Jun 2021 20:01:22 -0700
-Message-ID: <20210628030122.11180-1-rdunlap@infradead.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: how can we test the hexagon port in mainline
+Date: Wed, 7 Jul 2021 16:10:54 +0200
+Message-ID: <20210707141054.GA24828@lst.de>
+References: <20210623141854.GA32155@lst.de> <08df01d7683d$8f5b7b70$ae127250$@codeaurora.org> <CAK8P3a28_0KJpcLRQrDhFk8-ndxmfk7-Q2_qcRRiYkyh-NNZUQ@mail.gmail.com> <08e101d76842$94f78a60$bee69f20$@codeaurora.org> <20210623151746.GA4247@lst.de> <CAK8P3a2bG64ARjpwQ0ZhQ9P0g8B-=AwcHHAbYBXBS4B6Fy9pQw@mail.gmail.com> <YNQE0YJzC2xmWg+2@Ryzen-9-3900X.localdomain>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=i5WxxZc8tT6cAucoU1opsevqwz38zO18+wH7avWZ1ME=; b=LoTq6T4vTYCjcuEk8An7PXx+ki
-        EVh7Fj0g6XxkO9VUNH7eNpn8zk5yMoXfjwGYgnljQaDCpu1eIDJsDVnYkRghwnYSa1Zhw0/WrEyeq
-        NjIeBFdB8JJ1cZpyiP6u40xYkGAoC8GzQARnuGo3Q1z9d9hBGqGBCVdxeEZ9bhyd4N2r92Et4TurM
-        +rUv8r/4EWLnIyBYUFnKpU17zg4rkg4ctAwhgEb9Wma9UNHte8Xtb1pJn+B60drnJap5KwjFgzgR9
-        j8sJCoKj6IrzPvUvoR1pBT8vvHSJH0iXAk2uuHA/nkmivkwcRVNTc8vGGLBMcaWj/SowDAlXEPo6i
-        wVDF0cQQ==;
+Content-Disposition: inline
+In-Reply-To: <YNQE0YJzC2xmWg+2@Ryzen-9-3900X.localdomain>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-kernel@vger.kernel.org
-Cc: Randy Dunlap <rdunlap@infradead.org>, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Content-Transfer-Encoding: 7bit
+To: Nathan Chancellor <nathan@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>, Brian Cain <bcain@codeaurora.org>, Sid Manning <sidneym@codeaurora.org>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>, clang-built-linux@googlegroups.com
 
-Fix comment text after the rename of a document file from .txt to .rst.
+On Wed, Jun 23, 2021 at 09:06:41PM -0700, Nathan Chancellor wrote:
+> On Wed, Jun 23, 2021 at 05:35:38PM +0200, Arnd Bergmann wrote:
+> > On Wed, Jun 23, 2021 at 5:17 PM Christoph Hellwig <hch@lst.de> wrote:
+> > >
+> > > It seem like it still isn't complete enought for a kernel build, though:
+> > >
+> > > $ export CROSS_COMPILE=/opt/clang+llvm-12.0.0-cross-hexagon-unknown-linux-musl/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-
+> > > $ make ARCH=hexagon LLVM=1 oldconfig
+> > > ...
+> > > scripts/Kconfig.include:40: linker 'ld.lld' not found
+> > 
+> > I tried this using the prebuilt binaries from apt.llvm.org:
+> > 
+> > $ make ARCH=hexagon LLVM=1 O=obj-hexagon CROSS_COMPILE=hexagon-linux-
+> > LLVM_IAS=1 CC=llvm-12 defconfig modules vmlinux
+> > <stdin>:1515:2: warning: syscall clone3 not implemented [-W#warnings]
+> > #warning syscall clone3 not implemented
+> >  ^
+> > 1 warning generated.
+> > 
+> > Doing the same thing with allmodconfig results in an internal error
+> > with clang-12
+> > while compiling kernel/locking/lockdep.c. Same thing with clang-13.
+> > After turning
+> > off lock debugging, it seems fine.
+> 
+> I've reported this upstream with you on CC:
+> 
+> https://bugs.llvm.org/show_bug.cgi?id=50838
 
-Fixes: 387b14684f94 ("docs: locking: convert docs to ReST and rename to *.rst")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Brian Cain <bcain@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
----
- arch/hexagon/include/asm/cmpxchg.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I've not actually got any mail from that Cc..
 
---- linux-next-20210625.orig/arch/hexagon/include/asm/cmpxchg.h
-+++ linux-next-20210625/arch/hexagon/include/asm/cmpxchg.h
-@@ -46,7 +46,7 @@ static inline unsigned long __xchg(unsig
- 	sizeof(*(ptr))))
- 
- /*
-- *  see rt-mutex-design.txt; cmpxchg supposedly checks if *ptr == A and swaps.
-+ *  see rt-mutex-design.rst; cmpxchg supposedly checks if *ptr == A and swaps.
-  *  looks just like atomic_cmpxchg on our arch currently with a bunch of
-  *  variable casting.
-  */
+> Christoph, that toolchain should work (I had to install libtinfo5 and
+> libc++1-7 on Debian Buster):
+> 
+> $ export PATH=$HOME/tmp/clang+llvm-12.0.0-cross-hexagon-unknown-linux-musl/x86_64-linux-gnu/bin:$PATH
+> 
+> $ make -skj"$(nproc)" ARCH=hexagon CROSS_COMPILE=hexagon-unknown-linux-musl LLVM=1 LLVM_IAS=1 defconfig all
+
+hch@brick:~/work/linux$ make -j4 ARCH=hexagon
+CROSS_COMPILE=hexagon-unknown-linux-musl LLVM=1 LLVM_IAS=1 defconfig all
+HOSTCC  scripts/basic/fixdep
+clang: error while loading shared libraries: libtinfo.so.5: cannot open shared object file: No such file or directory
