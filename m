@@ -1,44 +1,80 @@
-From: Nick Desaulniers <ndesaulniers@google.com>
-Subject: Re: how can we test the hexagon port in mainline
-Date: Thu, 8 Jul 2021 12:08:44 -0700
-Message-ID: <CAKwvOdkQhq-hPr=S52D=kJVPGP507F78hY2PbC+hbuq3MZUkDw@mail.gmail.com>
-References: <20210623141854.GA32155@lst.de> <08df01d7683d$8f5b7b70$ae127250$@codeaurora.org>
- <CAK8P3a28_0KJpcLRQrDhFk8-ndxmfk7-Q2_qcRRiYkyh-NNZUQ@mail.gmail.com>
- <08e101d76842$94f78a60$bee69f20$@codeaurora.org> <20210623151746.GA4247@lst.de>
- <CAK8P3a2bG64ARjpwQ0ZhQ9P0g8B-=AwcHHAbYBXBS4B6Fy9pQw@mail.gmail.com>
- <YNQE0YJzC2xmWg+2@Ryzen-9-3900X.localdomain> <20210707141054.GA24828@lst.de>
- <1ee8fc44-3e8c-91c0-7909-a636757dbda4@kernel.org> <20210708052751.GA18789@lst.de>
- <CAKwvOd=iRLQPum8-jaCG90TPyxDptNB31yRHMEWgSMxjv=KuHA@mail.gmail.com> <0a6801d77428$13c88060$3b598120$@codeaurora.org>
+From: Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH] Hexagon: Export raw I/O routines for modules
+Date: Thu,  8 Jul 2021 16:38:50 -0700
+Message-ID: <20210708233849.3140194-1-nathan@kernel.org>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=yxq/oYeE5el0szoQlSwnFi3D5C8UV0iamECRppUCTb8=;
-        b=CS3c/rCTZLRhfSZCtAFxKSJZw+1e1IR2isTofp5binEMsCyeotR+El3bf6mQCQ7wzV
-         jWJVrjKqwkUrl/VQ13p+AJp8e9SLTn3+uYldNdocc5FmU6w/ISh4Hjnj12WnLq/EThgO
-         RbZbkm4tf7VyU3WqQYrHzFeeclUlFPuNKfF+ya3FOwYmCiWCvShmMWhtzPePt/2e6muW
-         holGzqrc5CfzyDkjL6U+Obpw4PhbRyRoFodiF7RVOGG4BUOmfOSeC11wHIYOKds4+G3B
-         DC2PS92JFmb/Unb81kfVM9358a4QlEBNkQ13Q/EUOUtc2N7DO9nV0/mST0Mi/s2lpHWG
-         e87g==
-In-Reply-To: <0a6801d77428$13c88060$3b598120$@codeaurora.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1625787592;
+        bh=kfQyKRysnqk2rwMhGbwxmhAhfrh6e/bHBlkPvbh8xX4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lXpCmUHcL3GCOKWWsZ4Svs6avH76vsfB03TkOw1vTUFKjontO124Snt0vckmqQjcs
+         xjbip2YWWHxMODSWKSW5eaeAsRi4HToYsdZb95JNmHrnY0ZPDb2/4XDG8vdjViXjOG
+         2FGN5UxPbSZE/UcnaLCCe0Ve0ZpXrdkQyaNVvvPlWcoIFSAfQrJu9WtDV7HMYpnuIb
+         I4zFaMHlRi59Uvn2SHhj8khwUnfi7NkudrU6D5roXj5LM9alMnH2xDoRI3D2SQRfUJ
+         oswtYDfgD4svfdARUgfnVuIumG2F+1ub8Kygt5DV9JJTfGjQtPs6elbk3WHEsYdTRO
+         s6mzNkRPsAhyw==
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: bcain@codeaurora.org
-Cc: Christoph Hellwig <hch@lst.de>, "Manning, Sid" <sidneym@quicinc.com>, Nathan Chancellor <nathan@kernel.org>, Sid Manning <sidneym@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
+To: Brian Cain <bcain@codeaurora.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, Nathan Chancellor <nathan@kernel.org>
 
-On Thu, Jul 8, 2021 at 11:36 AM Brian Cain <bcain@codeaurora.org> wrote:
->
-> > From: Nick Desaulniers <ndesaulniers@google.com>
-> > We're looking into statically linked images of clang to prevent these
-> > kinds of games.
->
-> Statically linking against libc++/libc++abi at least seems like a good idea.  Let me know if we can help.
+When building ARCH=hexagon allmodconfig, the following errors occur:
 
-Consider subscribing/reading/posting to
-https://github.com/ClangBuiltLinux/tc-build/issues/150.
+ERROR: modpost: "__raw_readsl" [drivers/i3c/master/svc-i3c-master.ko] undefined!
+ERROR: modpost: "__raw_writesl" [drivers/i3c/master/dw-i3c-master.ko] undefined!
+ERROR: modpost: "__raw_readsl" [drivers/i3c/master/dw-i3c-master.ko] undefined!
+ERROR: modpost: "__raw_writesl" [drivers/i3c/master/i3c-master-cdns.ko] undefined!
+ERROR: modpost: "__raw_readsl" [drivers/i3c/master/i3c-master-cdns.ko] undefined!
+
+Export these symbols so that modules can use them without any errors.
+
+Fixes: 013bf24c3829 ("Hexagon: Provide basic implementation and/or stubs for I/O routines.")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+
+It would be nice if this could get into 5.14 at some point so that we
+can build ARCH=hexagon allmodconfig in our CI.
+
+ arch/hexagon/lib/io.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/hexagon/lib/io.c b/arch/hexagon/lib/io.c
+index d35d69d6588c..55f75392857b 100644
+--- a/arch/hexagon/lib/io.c
++++ b/arch/hexagon/lib/io.c
+@@ -27,6 +27,7 @@ void __raw_readsw(const void __iomem *addr, void *data, int len)
+ 		*dst++ = *src;
+ 
+ }
++EXPORT_SYMBOL(__raw_readsw);
+ 
+ /*
+  * __raw_writesw - read words a short at a time
+@@ -47,6 +48,7 @@ void __raw_writesw(void __iomem *addr, const void *data, int len)
+ 
+ 
+ }
++EXPORT_SYMBOL(__raw_writesw);
+ 
+ /*  Pretty sure len is pre-adjusted for the length of the access already */
+ void __raw_readsl(const void __iomem *addr, void *data, int len)
+@@ -62,6 +64,7 @@ void __raw_readsl(const void __iomem *addr, void *data, int len)
+ 
+ 
+ }
++EXPORT_SYMBOL(__raw_readsl);
+ 
+ void __raw_writesl(void __iomem *addr, const void *data, int len)
+ {
+@@ -76,3 +79,4 @@ void __raw_writesl(void __iomem *addr, const void *data, int len)
+ 
+ 
+ }
++EXPORT_SYMBOL(__raw_writesl);
+
+base-commit: f55966571d5eb2876a11e48e798b4592fa1ffbb7
 -- 
-Thanks,
-~Nick Desaulniers
+2.32.0.93.g670b81a890
+
