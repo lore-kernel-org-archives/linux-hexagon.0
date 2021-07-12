@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-Subject: [PATCH 4/7] dma-mapping: simplify dma_init_coherent_memory
-Date: Mon, 12 Jul 2021 08:17:01 +0200
-Message-ID: <20210712061704.4162464-5-hch@lst.de>
+Subject: [PATCH 5/7] dma-mapping: add a dma_init_global_coherent helper
+Date: Mon, 12 Jul 2021 08:17:02 +0200
+Message-ID: <20210712061704.4162464-6-hch@lst.de>
 References: <20210712061704.4162464-1-hch@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -11,12 +11,12 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=eVxB7IvANlcif6hq/pqZXhaiA82oKpkzsJI2QfP+SPc=; b=rZgrnlJ0qlx2ZIn795mfHCSoCB
- StQY/6FsSQNEsU/FWRg9jy5p8sMfV7aEz1F0+WPJuJ/RYdOO5VMXORF8eSj0VT1Nt3lHQ0X9jp+of
- v99xmipPH5RZXef8CyYFeoMHesYxli/R/dRrivW6qi2YeCLNO4SC18NWllwnYRQo4F5/SSSiRJF4s
- S8Fpwl4CCjGgHwV5jzPS5SXg1jjUeT3kgs+gkkXk4uHvw8TCa8WjBcq0J1/WOoz35P+3rjngtjaKD
- hs1k+odKLzmtJ8wCGWdPo4U+r5XoFair8jVchXSO6s1xfNtDaLlhcCv+Mhn7oCplvqRsqaExsWvYP
- zRGcPGDg==;
+ bh=scCOCDZAM0ESIiijfdMPCg1lGN//v3TmQdJkkjnF864=; b=DzyK7yGpb0OScE1g15LS/6iqJf
+ BbNQMY9JTOUQ2+s0vSB2i34gqBttkK6b4ZGpW8V2mFyQwvOTtSE79ugUSqIegyl7MVqTwgkKJ0sAj
+ uQqeLXAo4L+FEaaw6ru+kmZGnYvqfqcSE+C1QrhhCk7tgRM8WMISvWTr084tlZ97eq9b8HeRtgM8A
+ TcGD5YrZz65+ColIsTUda2/TmspmnBb5gYVy2rVyMwC8A7vOjSWmZt/58Cn/PJ89UPn9ZdlrW6liB
+ dVRNDcBf29PrJ0zI4/ZhumJb50YxuXNSqbBHaJZB3pco0Pjabn+vvErFu+19G+4Ny89sQ7w3afRCp
+ SS+K34Xw==;
 In-Reply-To: <20210712061704.4162464-1-hch-jcswGhMUV9g@public.gmane.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
@@ -31,136 +31,82 @@ Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@publi
 To: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Brian Cain <bcain-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 Cc: linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vladimir Murzin <vladimir.murzin-5wv7dgnIgG8@public.gmane.org>, Dillon Min <dillon.minfei-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 
-Return the allocated dma_coherent_mem structure, set the
-use_dma_pfn_offset and print the failure warning inside of
-dma_init_coherent_memory instead of leaving that to the callers.
+Add a new helper to initialize the global coherent pool.  This both
+cleans up the existing initialization which indirects through the
+reserved_mem_ops that are normally only used for struct device, and
+also allows using the global pool for non-devicetree architectures.
 
 Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
 Tested-by: Dillon Min <dillon.minfei-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- kernel/dma/coherent.c | 78 ++++++++++++++++++-------------------------
- 1 file changed, 33 insertions(+), 45 deletions(-)
+ include/linux/dma-map-ops.h |  2 +-
+ kernel/dma/coherent.c       | 32 ++++++++++++++------------------
+ 2 files changed, 15 insertions(+), 19 deletions(-)
 
+diff --git a/include/linux/dma-map-ops.h b/include/linux/dma-map-ops.h
+index 0d53a96a3d64..7e49bb86a0c0 100644
+--- a/include/linux/dma-map-ops.h
++++ b/include/linux/dma-map-ops.h
+@@ -176,7 +176,7 @@ void *dma_alloc_from_global_coherent(struct device *dev, ssize_t size,
+ int dma_release_from_global_coherent(int order, void *vaddr);
+ int dma_mmap_from_global_coherent(struct vm_area_struct *vma, void *cpu_addr,
+ 		size_t size, int *ret);
+-
++int dma_init_global_coherent(phys_addr_t phys_addr, size_t size);
+ #else
+ static inline int dma_declare_coherent_memory(struct device *dev,
+ 		phys_addr_t phys_addr, dma_addr_t device_addr, size_t size)
 diff --git a/kernel/dma/coherent.c b/kernel/dma/coherent.c
-index 67b126afac5a..ab397ebfd5ad 100644
+index ab397ebfd5ad..160d4e246ecb 100644
 --- a/kernel/dma/coherent.c
 +++ b/kernel/dma/coherent.c
-@@ -37,51 +37,44 @@ static inline dma_addr_t dma_get_device_base(struct device *dev,
- 	return mem->device_base;
+@@ -300,6 +300,18 @@ int dma_mmap_from_global_coherent(struct vm_area_struct *vma, void *vaddr,
+ 					vaddr, size, ret);
  }
  
--static int dma_init_coherent_memory(phys_addr_t phys_addr,
--		dma_addr_t device_addr, size_t size,
--		struct dma_coherent_mem **mem)
-+static struct dma_coherent_mem *dma_init_coherent_memory(phys_addr_t phys_addr,
-+		dma_addr_t device_addr, size_t size, bool use_dma_pfn_offset)
- {
--	struct dma_coherent_mem *dma_mem = NULL;
--	void *mem_base = NULL;
-+	struct dma_coherent_mem *dma_mem;
- 	int pages = size >> PAGE_SHIFT;
- 	int bitmap_size = BITS_TO_LONGS(pages) * sizeof(long);
--	int ret;
-+	void *mem_base;
- 
--	if (!size) {
--		ret = -EINVAL;
--		goto out;
--	}
-+	if (!size)
-+		return ERR_PTR(-EINVAL);
- 
- 	mem_base = memremap(phys_addr, size, MEMREMAP_WC);
--	if (!mem_base) {
--		ret = -EINVAL;
--		goto out;
--	}
-+	if (!mem_base)
-+		return ERR_PTR(-EINVAL);
++int dma_init_global_coherent(phys_addr_t phys_addr, size_t size)
++{
++	struct dma_coherent_mem *mem;
 +
- 	dma_mem = kzalloc(sizeof(struct dma_coherent_mem), GFP_KERNEL);
--	if (!dma_mem) {
--		ret = -ENOMEM;
--		goto out;
--	}
-+	if (!dma_mem)
-+		goto out_unmap_membase;
- 	dma_mem->bitmap = kzalloc(bitmap_size, GFP_KERNEL);
--	if (!dma_mem->bitmap) {
--		ret = -ENOMEM;
--		goto out;
--	}
-+	if (!dma_mem->bitmap)
-+		goto out_free_dma_mem;
- 
- 	dma_mem->virt_base = mem_base;
- 	dma_mem->device_base = device_addr;
- 	dma_mem->pfn_base = PFN_DOWN(phys_addr);
- 	dma_mem->size = pages;
-+	dma_mem->use_dev_dma_pfn_offset = use_dma_pfn_offset;
- 	spin_lock_init(&dma_mem->spinlock);
- 
--	*mem = dma_mem;
--	return 0;
-+	return dma_mem;
- 
--out:
-+out_free_dma_mem:
- 	kfree(dma_mem);
--	if (mem_base)
--		memunmap(mem_base);
--	return ret;
-+out_unmap_membase:
-+	memunmap(mem_base);
-+	pr_err("Reserved memory: failed to init DMA memory pool at %pa, size %zd MiB\n",
-+		&phys_addr, size / SZ_1M);
-+	return ERR_PTR(-ENOMEM);
- }
- 
- static void dma_release_coherent_memory(struct dma_coherent_mem *mem)
-@@ -130,9 +123,9 @@ int dma_declare_coherent_memory(struct device *dev, phys_addr_t phys_addr,
- 	struct dma_coherent_mem *mem;
- 	int ret;
- 
--	ret = dma_init_coherent_memory(phys_addr, device_addr, size, &mem);
--	if (ret)
--		return ret;
-+	mem = dma_init_coherent_memory(phys_addr, device_addr, size, false);
++	mem = dma_init_coherent_memory(phys_addr, phys_addr, size, true);
 +	if (IS_ERR(mem))
 +		return PTR_ERR(mem);
++	dma_coherent_default_memory = mem;
++	pr_info("DMA: default coherent area is set\n");
++	return 0;
++}
++
+ /*
+  * Support for reserved memory regions defined in device tree
+  */
+@@ -367,26 +379,10 @@ static int __init rmem_dma_setup(struct reserved_mem *rmem)
  
- 	ret = dma_assign_coherent_memory(dev, mem);
- 	if (ret)
-@@ -319,21 +312,16 @@ static struct reserved_mem *dma_reserved_default_memory __initdata;
- 
- static int rmem_dma_device_init(struct reserved_mem *rmem, struct device *dev)
+ static int __init dma_init_reserved_memory(void)
  {
--	struct dma_coherent_mem *mem = rmem->priv;
+-	const struct reserved_mem_ops *ops;
 -	int ret;
 -
--	if (!mem) {
--		ret = dma_init_coherent_memory(rmem->base, rmem->base,
--					       rmem->size, &mem);
--		if (ret) {
--			pr_err("Reserved memory: failed to init DMA memory pool at %pa, size %ld MiB\n",
--				&rmem->base, (unsigned long)rmem->size / SZ_1M);
--			return ret;
--		}
-+	if (!rmem->priv) {
-+		struct dma_coherent_mem *mem;
-+
-+		mem = dma_init_coherent_memory(rmem->base, rmem->base,
-+					       rmem->size, true);
-+		if (IS_ERR(mem))
-+			return PTR_ERR(mem);
-+		rmem->priv = mem;
- 	}
--	mem->use_dev_dma_pfn_offset = true;
--	rmem->priv = mem;
--	dma_assign_coherent_memory(dev, mem);
-+	dma_assign_coherent_memory(dev, rmem->priv);
- 	return 0;
+ 	if (!dma_reserved_default_memory)
+ 		return -ENOMEM;
+-
+-	ops = dma_reserved_default_memory->ops;
+-
+-	/*
+-	 * We rely on rmem_dma_device_init() does not propagate error of
+-	 * dma_assign_coherent_memory() for "NULL" device.
+-	 */
+-	ret = ops->device_init(dma_reserved_default_memory, NULL);
+-
+-	if (!ret) {
+-		dma_coherent_default_memory = dma_reserved_default_memory->priv;
+-		pr_info("DMA: default coherent area is set\n");
+-	}
+-
+-	return ret;
++	return dma_init_global_coherent(dma_reserved_default_memory->base,
++					dma_reserved_default_memory->size);
  }
  
+ core_initcall(dma_init_reserved_memory);
 -- 
 2.30.2
