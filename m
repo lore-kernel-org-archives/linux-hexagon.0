@@ -1,80 +1,47 @@
-From: Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH] Hexagon: Export raw I/O routines for modules
-Date: Thu,  8 Jul 2021 16:38:50 -0700
-Message-ID: <20210708233849.3140194-1-nathan@kernel.org>
+From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+Subject: add support for the global coherent pool to the dma core
+Date: Mon, 12 Jul 2021 08:16:57 +0200
+Message-ID: <20210712061704.4162464-1-hch@lst.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625787592;
-        bh=kfQyKRysnqk2rwMhGbwxmhAhfrh6e/bHBlkPvbh8xX4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=lXpCmUHcL3GCOKWWsZ4Svs6avH76vsfB03TkOw1vTUFKjontO124Snt0vckmqQjcs
-         xjbip2YWWHxMODSWKSW5eaeAsRi4HToYsdZb95JNmHrnY0ZPDb2/4XDG8vdjViXjOG
-         2FGN5UxPbSZE/UcnaLCCe0Ve0ZpXrdkQyaNVvvPlWcoIFSAfQrJu9WtDV7HMYpnuIb
-         I4zFaMHlRi59Uvn2SHhj8khwUnfi7NkudrU6D5roXj5LM9alMnH2xDoRI3D2SQRfUJ
-         oswtYDfgD4svfdARUgfnVuIumG2F+1ub8Kygt5DV9JJTfGjQtPs6elbk3WHEsYdTRO
-         s6mzNkRPsAhyw==
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Brian Cain <bcain@codeaurora.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, Nathan Chancellor <nathan@kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+ Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+ Content-Description:In-Reply-To:References;
+ bh=tB53rqP9UurlO9Ubjzx5fIdyCBO9p4biSEwOPXSsFqo=; b=dzMdOtVbZVRxxudw8++DeGPLtl
+ rWxB7mGdvYuZ4AETWUbLfJHkL5g99xedhkEC8KrVXGsmNoSlWEJYkmw27IQ2HCHwgxqPeyGuF6n4z
+ QV9wDQYnD8Xvq+2OvZbS9BxxcfMtaMQm31nocFhIQsHL5sNTFpkFdq0RGPmo9w8EKt5Sgyqz2YJDp
+ Jmzgs5iBpf32uKiThPw9SABqwTDqjLZ3uoaQgfcF9XbmQu1cTVLTe2CGbZLHz2/AmYKVGEylaRWKo
+ T3qxVMUSY97ijE+OPbZ1AVZZwp8QbsOyfdmqGMkxYq8pjsTM7FWsjS9/wwxeczXm49LAbQbsFgFOu
+ 2WwsE6Uw==;
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Brian Cain <bcain-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Cc: linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vladimir Murzin <vladimir.murzin-5wv7dgnIgG8@public.gmane.org>, Dillon Min <dillon.minfei-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 
-When building ARCH=hexagon allmodconfig, the following errors occur:
+Hi all,
 
-ERROR: modpost: "__raw_readsl" [drivers/i3c/master/svc-i3c-master.ko] undefined!
-ERROR: modpost: "__raw_writesl" [drivers/i3c/master/dw-i3c-master.ko] undefined!
-ERROR: modpost: "__raw_readsl" [drivers/i3c/master/dw-i3c-master.ko] undefined!
-ERROR: modpost: "__raw_writesl" [drivers/i3c/master/i3c-master-cdns.ko] undefined!
-ERROR: modpost: "__raw_readsl" [drivers/i3c/master/i3c-master-cdns.ko] undefined!
+this series adds support for using the global coherent (aka uncached)
+pool to the generic dma-direct code and then switches arm-nommu and
+hexagon over to it, together with a bunch of cleanups.
 
-Export these symbols so that modules can use them without any errors.
-
-Fixes: 013bf24c3829 ("Hexagon: Provide basic implementation and/or stubs for I/O routines.")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
-
-It would be nice if this could get into 5.14 at some point so that we
-can build ARCH=hexagon allmodconfig in our CI.
-
- arch/hexagon/lib/io.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/arch/hexagon/lib/io.c b/arch/hexagon/lib/io.c
-index d35d69d6588c..55f75392857b 100644
---- a/arch/hexagon/lib/io.c
-+++ b/arch/hexagon/lib/io.c
-@@ -27,6 +27,7 @@ void __raw_readsw(const void __iomem *addr, void *data, int len)
- 		*dst++ = *src;
- 
- }
-+EXPORT_SYMBOL(__raw_readsw);
- 
- /*
-  * __raw_writesw - read words a short at a time
-@@ -47,6 +48,7 @@ void __raw_writesw(void __iomem *addr, const void *data, int len)
- 
- 
- }
-+EXPORT_SYMBOL(__raw_writesw);
- 
- /*  Pretty sure len is pre-adjusted for the length of the access already */
- void __raw_readsl(const void __iomem *addr, void *data, int len)
-@@ -62,6 +64,7 @@ void __raw_readsl(const void __iomem *addr, void *data, int len)
- 
- 
- }
-+EXPORT_SYMBOL(__raw_readsl);
- 
- void __raw_writesl(void __iomem *addr, const void *data, int len)
- {
-@@ -76,3 +79,4 @@ void __raw_writesl(void __iomem *addr, const void *data, int len)
- 
- 
- }
-+EXPORT_SYMBOL(__raw_writesl);
-
-base-commit: f55966571d5eb2876a11e48e798b4592fa1ffbb7
--- 
-2.32.0.93.g670b81a890
-
+Diffstat:
+ arch/arm/Kconfig                |    5 -
+ arch/arm/mm/dma-mapping-nommu.c |  173 +---------------------------------------
+ arch/hexagon/Kconfig            |    1 
+ arch/hexagon/kernel/dma.c       |   57 ++-----------
+ include/linux/dma-map-ops.h     |   18 ++--
+ kernel/dma/Kconfig              |    4 
+ kernel/dma/coherent.c           |  159 +++++++++++++++++-------------------
+ kernel/dma/direct.c             |   15 +++
+ 8 files changed, 124 insertions(+), 308 deletions(-)
