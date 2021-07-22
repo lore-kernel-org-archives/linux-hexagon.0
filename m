@@ -1,26 +1,35 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v3 6/9] microblaze: use generic strncpy/strnlen
- from_user
-Date: Thu, 22 Jul 2021 15:01:31 +0200
-Message-ID: <20210722130131.GF26225@lst.de>
-References: <20210722124814.778059-1-arnd@kernel.org> <20210722124814.778059-7-arnd@kernel.org>
+Subject: Re: [PATCH v3 7/9] asm-generic: uaccess: remove inline
+ strncpy_from_user/strnlen_user
+Date: Thu, 22 Jul 2021 15:02:09 +0200
+Message-ID: <20210722130209.GG26225@lst.de>
+References: <20210722124814.778059-1-arnd@kernel.org> <20210722124814.778059-8-arnd@kernel.org>
 Mime-Version: 1.0
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-path: <linux-mips-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20210722124814.778059-7-arnd@kernel.org>
+In-Reply-To: <20210722124814.778059-8-arnd@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Arnd Bergmann <arnd@kernel.org>
 Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Al Viro <viro@zeniv.linux.org.uk>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Brian Cain <bcain@codeaurora.org>, Chris Zankel <chris@zankel.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Hellwig <hch@lst.de>, Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Jeff Dike <jdike@addtoit.com>, Linus Walleij <linus.walleij@linaro.org>, Max Filippov <jcmvbkbc@gmail.com>, Michal Simek <monstr@monstr.eu>, Richard Weinberger <richard@nod.at>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Yoshinori
 
-On Thu, Jul 22, 2021 at 02:48:11PM +0200, Arnd Bergmann wrote:
+On Thu, Jul 22, 2021 at 02:48:12PM +0200, Arnd Bergmann wrote:
 > From: Arnd Bergmann <arnd@arndb.de>
 > 
-> Remove the microblaze implemenation of strncpy/strnlen and instead use
-> the generic versions.  The microblaze version is fairly slow because it
-> always does byte accesses even for aligned data, and it lacks a checks
-> for user_addr_max().
+> The inline version is used on three NOMMU architectures and is
+> particularly inefficient when it scans the string one byte at a time
+> twice. It also lacks a check for user_addr_max(), but this is
+> probably ok on NOMMU targets.
+> 
+> Consolidate the asm-generic implementation with the library version
+> that is used everywhere else.  This version is generalized enough to
+> work efficiently on both MMU and NOMMU targets, and using the
+> same code everywhere reduces the potential for subtle bugs.
+> 
+> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
 Looks good,
 
