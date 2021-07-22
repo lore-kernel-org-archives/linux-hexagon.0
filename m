@@ -1,20 +1,22 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Subject: [PATCH v3 0/6] asm-generic: strncpy_from_user/strnlen_user cleanup
-Date: Thu, 22 Jul 2021 14:48:05 +0200
-Message-ID: <20210722124814.778059-1-arnd@kernel.org>
+Subject: [PATCH v3 3/9] hexagon: use generic strncpy/strnlen from_user
+Date: Thu, 22 Jul 2021 14:48:08 +0200
+Message-ID: <20210722124814.778059-4-arnd@kernel.org>
+References: <20210722124814.778059-1-arnd@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-arch-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626958132;
-        bh=PX46ntR2F8mhtnTnqk6z0maUFKW3hKlsYGyDxWq8nt8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=uI8fZsAnCujH8W7YiEBRgCAjHShI6gE1mvUR0l57R+InmBX0WanZ/uw9vRAOln3Z8
-         nGIW49oPfs3Z0oGoceXArCb+pcxtHVC7BDgIPVu7ZQgOSXVYcpE0fh0cemOAHYvVRq
-         FKI2JY1Q7ji5J3em2CfLjWBtEWHTWOWxHMmXXgWyndwrPSlVntSikFKkr25MPmfWRd
-         v73iMcJt52+PkD+rdPNKZ3PKisAXpGa6fQ8OZroEymMb7Gi2et/DUC63IcI09aav3H
-         3ECp+pAFmA7kucS8vsrWJ92J66Z8gjShxT5O7vJdnqnBEe0ThenTNBxBPkUxQ1dKDS
-         brNKF2Qpg7HWw==
+        s=k20201202; t=1626958150;
+        bh=65tsEwW3CSKPEMHE16jlRd63QonTaTSPGaWpCNuisBY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Umcn3aLdmT58YL25nQIdnojBjQ0tfYBM41/WDsdS4dXmBGYMjrkkDTPCWjF/reSIX
+         wtiHyhC8LTgCD/Ekg4z8p52KSPagGnExoOvySs1pJOdYjwAVlp5aYzkXpxMrK7vUzV
+         mFcbj+edq2DS8NNCU4yUnnnefDBrPz/XYjyobnB77tc7YOgFGNlfI8UP+tmAFaHN46
+         yHXT41GcFDbZCJfGypi8G8DOsdDRA88nY83zsQRLeDJsizmzeIiVUPdsohzuFHPrrk
+         y6QhM3j3X6ow4iG+90w9dmFSgURM6lBybCHHlN/PK7+hb2yxdz3PCWUUw89+2W79o8
+         ekpwk10Ct+RKQ==
+In-Reply-To: <20210722124814.778059-1-arnd@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-arch@vger.kernel.org
@@ -22,114 +24,237 @@ Cc: Arnd Bergmann <arnd@arndb.de>, "James E.J. Bottomley" <James.Bottomley@Hanse
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-I had run into some regressions for the previous version of this
-series, the new version is based on v5.14-rc2 instead.
+Remove the hexagon implementation of strncpy/strnlen and instead use
+the generic version.  The hexagon version reads the data twice for
+strncpy() by doing an extra strnlen(), and it apparently lacks a check
+for user_addr_max().
 
-These two functions appear to be unnecessarily different between
-architectures, and the asm-generic version is a bit questionable,
-even for NOMMU architectures.
-
-Clean this up to just use the generic library version for anything
-that uses the generic version today. I've expanded on the patch
-descriptions a little, as suggested by Christoph Hellwig, but I
-suspect a more detailed review would uncover additional problems
-with the custom versions that are getting removed.
-
-I ended up adding patches for csky and microblaze as they had the
-same implementation that I removed elsewhere, these are now gone
-as well.
-
-If I hear no objections from architecture maintainers or new
-build regressions, I'll queue these up in the asm-generic tree
-for 5.15.
-
-       Arnd
-
-Link: https://lore.kernel.org/linux-arch/20210515101803.924427-1-arnd@kernel.org/
-
-Arnd Bergmann (9):
-  asm-generic/uaccess.h: remove __strncpy_from_user/__strnlen_user
-  h8300: remove stale strncpy_from_user
-  hexagon: use generic strncpy/strnlen from_user
-  arc: use generic strncpy/strnlen from_user
-  csky: use generic strncpy/strnlen from_user
-  microblaze: use generic strncpy/strnlen from_user
-  asm-generic: uaccess: remove inline strncpy_from_user/strnlen_user
-  asm-generic: remove extra strn{cpy_from,len}_user declarations
-  asm-generic: reverse GENERIC_{STRNCPY_FROM,STRNLEN}_USER symbols
-
- arch/alpha/Kconfig                        |   2 -
- arch/arc/include/asm/uaccess.h            |  72 -------------
- arch/arc/mm/extable.c                     |  12 ---
- arch/arm/Kconfig                          |   2 -
- arch/arm64/Kconfig                        |   2 -
- arch/csky/include/asm/uaccess.h           |   6 --
- arch/csky/lib/usercopy.c                  | 102 ------------------
- arch/h8300/kernel/h8300_ksyms.c           |   2 -
- arch/h8300/lib/Makefile                   |   2 +-
- arch/h8300/lib/strncpy.S                  |  35 ------
- arch/hexagon/include/asm/uaccess.h        |  31 ------
- arch/hexagon/kernel/hexagon_ksyms.c       |   1 -
- arch/hexagon/mm/Makefile                  |   2 +-
- arch/hexagon/mm/strnlen_user.S            | 126 ----------------------
- arch/ia64/Kconfig                         |   2 +
- arch/m68k/Kconfig                         |   2 -
- arch/microblaze/include/asm/uaccess.h     |  19 +---
- arch/microblaze/kernel/microblaze_ksyms.c |   3 -
- arch/microblaze/lib/uaccess_old.S         |  90 ----------------
- arch/mips/Kconfig                         |   2 +
- arch/nds32/Kconfig                        |   2 -
- arch/nios2/Kconfig                        |   2 -
- arch/openrisc/Kconfig                     |   2 -
- arch/parisc/Kconfig                       |   2 +-
- arch/powerpc/Kconfig                      |   2 -
- arch/riscv/Kconfig                        |   2 -
- arch/s390/Kconfig                         |   2 +
- arch/sh/Kconfig                           |   2 -
- arch/sparc/Kconfig                        |   2 -
- arch/um/Kconfig                           |   2 +
- arch/um/include/asm/uaccess.h             |   5 +-
- arch/um/kernel/skas/uaccess.c             |  14 ++-
- arch/x86/Kconfig                          |   2 -
- arch/xtensa/Kconfig                       |   3 +-
- arch/xtensa/include/asm/uaccess.h         |   3 +-
- include/asm-generic/uaccess.h             |  52 ++-------
- lib/Kconfig                               |  10 +-
- 37 files changed, 43 insertions(+), 581 deletions(-)
- delete mode 100644 arch/h8300/lib/strncpy.S
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/hexagon/Kconfig                |   2 +
+ arch/hexagon/include/asm/uaccess.h  |  33 +-------
+ arch/hexagon/kernel/hexagon_ksyms.c |   1 -
+ arch/hexagon/mm/Makefile            |   2 +-
+ arch/hexagon/mm/strnlen_user.S      | 126 ----------------------------
+ 5 files changed, 5 insertions(+), 159 deletions(-)
  delete mode 100644 arch/hexagon/mm/strnlen_user.S
 
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index e5a852080730..3bf4845fed4b 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -19,6 +19,8 @@ config HEXAGON
+ 	# GENERIC_ALLOCATOR is used by dma_alloc_coherent()
+ 	select GENERIC_ALLOCATOR
+ 	select GENERIC_IRQ_SHOW
++	select GENERIC_STRNCPY_FROM_USER
++	select GENERIC_STRNLEN_USER
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_TRACEHOOK
+ 	select NEED_SG_DMA_LENGTH
+diff --git a/arch/hexagon/include/asm/uaccess.h b/arch/hexagon/include/asm/uaccess.h
+index 59aa3a50744f..d950df12d8c5 100644
+--- a/arch/hexagon/include/asm/uaccess.h
++++ b/arch/hexagon/include/asm/uaccess.h
+@@ -57,42 +57,13 @@ unsigned long raw_copy_to_user(void __user *to, const void *from,
+ __kernel_size_t __clear_user_hexagon(void __user *dest, unsigned long count);
+ #define __clear_user(a, s) __clear_user_hexagon((a), (s))
+ 
+-extern long __strnlen_user(const char __user *src, long n);
+-
+-static inline strnlen_user(const char __user *src, long n)
+-{
+-        if (!access_ok(src, 1))
+-		return 0;
+-
+-	return __strnlen_user(src, n);
+-}
+-/*  get around the ifndef in asm-generic/uaccess.h  */
++extern long strnlen_user(const char __user *src, long n);
+ #define strnlen_user strnlen_user
+ 
+-static inline long strncpy_from_user(char *dst, const char __user *src, long n);
++extern long strncpy_from_user(char *dst, const char __user *src, long n)
+ #define strncpy_from_user strncpy_from_user
+ 
+ #include <asm-generic/uaccess.h>
+ 
+-/*  Todo:  an actual accelerated version of this.  */
+-static inline long strncpy_from_user(char *dst, const char __user *src, long n)
+-{
+-	long res = strnlen_user(src, n);
+-
+-	if (unlikely(!res))
+-		return -EFAULT;
+-
+-	if (res > n) {
+-		long left = raw_copy_from_user(dst, src, n);
+-		if (unlikely(left))
+-			memset(dst + (n - left), 0, left);
+-		return n;
+-	} else {
+-		long left = raw_copy_from_user(dst, src, res);
+-		if (unlikely(left))
+-			memset(dst + (res - left), 0, left);
+-		return res-1;
+-	}
+-}
+ 
+ #endif
+diff --git a/arch/hexagon/kernel/hexagon_ksyms.c b/arch/hexagon/kernel/hexagon_ksyms.c
+index 35545a7386a0..ec56ce2d92a2 100644
+--- a/arch/hexagon/kernel/hexagon_ksyms.c
++++ b/arch/hexagon/kernel/hexagon_ksyms.c
+@@ -15,7 +15,6 @@ EXPORT_SYMBOL(__clear_user_hexagon);
+ EXPORT_SYMBOL(raw_copy_from_user);
+ EXPORT_SYMBOL(raw_copy_to_user);
+ EXPORT_SYMBOL(iounmap);
+-EXPORT_SYMBOL(__strnlen_user);
+ EXPORT_SYMBOL(__vmgetie);
+ EXPORT_SYMBOL(__vmsetie);
+ EXPORT_SYMBOL(__vmyield);
+diff --git a/arch/hexagon/mm/Makefile b/arch/hexagon/mm/Makefile
+index 893838499591..49911a906fd0 100644
+--- a/arch/hexagon/mm/Makefile
++++ b/arch/hexagon/mm/Makefile
+@@ -4,4 +4,4 @@
+ #
+ 
+ obj-y := init.o ioremap.o uaccess.o vm_fault.o cache.o
+-obj-y += copy_to_user.o copy_from_user.o strnlen_user.o vm_tlb.o
++obj-y += copy_to_user.o copy_from_user.o vm_tlb.o
+diff --git a/arch/hexagon/mm/strnlen_user.S b/arch/hexagon/mm/strnlen_user.S
+deleted file mode 100644
+index 4b5574a7cc9c..000000000000
+--- a/arch/hexagon/mm/strnlen_user.S
++++ /dev/null
+@@ -1,126 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- * User string length functions for kernel
+- *
+- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+- */
+-
+-#define isrc	r0
+-#define max	r1	/*  Do not change!  */
+-
+-#define end	r2
+-#define tmp1	r3
+-
+-#define obo	r6	/*  off-by-one  */
+-#define start	r7
+-#define mod8	r8
+-#define dbuf    r15:14
+-#define dcmp	r13:12
+-
+-/*
+- * The vector mask version of this turned out *really* badly.
+- * The hardware loop version also turned out *really* badly.
+- * Seems straight pointer arithmetic basically wins here.
+- */
+-
+-#define fname __strnlen_user
+-
+-	.text
+-	.global fname
+-	.type fname, @function
+-	.p2align 5  /*  why?  */
+-fname:
+-	{
+-		mod8 = and(isrc,#7);
+-		end = add(isrc,max);
+-		start = isrc;
+-	}
+-	{
+-		P0 = cmp.eq(mod8,#0);
+-		mod8 = and(end,#7);
+-		dcmp = #0;
+-		if (P0.new) jump:t dw_loop;	/*  fire up the oven  */
+-	}
+-
+-alignment_loop:
+-fail_1:	{
+-		tmp1 = memb(start++#1);
+-	}
+-	{
+-		P0 = cmp.eq(tmp1,#0);
+-		if (P0.new) jump:nt exit_found;
+-		P1 = cmp.gtu(end,start);
+-		mod8 = and(start,#7);
+-	}
+-	{
+-		if (!P1) jump exit_error;  /*  hit the end  */
+-		P0 = cmp.eq(mod8,#0);
+-	}
+-	{
+-		if (!P0) jump alignment_loop;
+-	}
+-
+-
+-
+-dw_loop:
+-fail_2:	{
+-		dbuf = memd(start);
+-		obo = add(start,#1);
+-	}
+-	{
+-		P0 = vcmpb.eq(dbuf,dcmp);
+-	}
+-	{
+-		tmp1 = P0;
+-		P0 = cmp.gtu(end,start);
+-	}
+-	{
+-		tmp1 = ct0(tmp1);
+-		mod8 = and(end,#7);
+-		if (!P0) jump end_check;
+-	}
+-	{
+-		P0 = cmp.eq(tmp1,#32);
+-		if (!P0.new) jump:nt exit_found;
+-		if (!P0.new) start = add(obo,tmp1);
+-	}
+-	{
+-		start = add(start,#8);
+-		jump dw_loop;
+-	}	/*  might be nice to combine these jumps...   */
+-
+-
+-end_check:
+-	{
+-		P0 = cmp.gt(tmp1,mod8);
+-		if (P0.new) jump:nt exit_error;	/*  neverfound!  */
+-		start = add(obo,tmp1);
+-	}
+-
+-exit_found:
+-	{
+-		R0 = sub(start,isrc);
+-		jumpr R31;
+-	}
+-
+-exit_error:
+-	{
+-		R0 = add(max,#1);
+-		jumpr R31;
+-	}
+-
+-	/*  Uh, what does the "fixup" return here?  */
+-	.falign
+-fix_1:
+-	{
+-		R0 = #0;
+-		jumpr R31;
+-	}
+-
+-	.size fname,.-fname
+-
+-
+-.section __ex_table,"a"
+-.long fail_1,fix_1
+-.long fail_2,fix_1
+-.previous
 -- 
 2.29.2
 
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com> 
-Cc: Al Viro <viro@zeniv.linux.org.uk> 
-Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com> 
-Cc: Brian Cain <bcain@codeaurora.org> 
-Cc: Chris Zankel <chris@zankel.net> 
-Cc: Christian Borntraeger <borntraeger@de.ibm.com> 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Guo Ren <guoren@kernel.org> 
-Cc: Heiko Carstens <hca@linux.ibm.com> 
-Cc: Helge Deller <deller@gmx.de> 
-Cc: Jeff Dike <jdike@addtoit.com> 
-Cc: Linus Walleij <linus.walleij@linaro.org> 
-Cc: Max Filippov <jcmvbkbc@gmail.com> 
-Cc: Michal Simek <monstr@monstr.eu> 
-Cc: Richard Weinberger <richard@nod.at> 
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de> 
-Cc: Vasily Gorbik <gor@linux.ibm.com> 
-Cc: Vineet Gupta <vgupta@synopsys.com> 
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp> 
-Cc: linux-arch@vger.kernel.org 
-Cc: linux-csky@vger.kernel.org 
-Cc: linux-hexagon@vger.kernel.org 
-Cc: linux-ia64@vger.kernel.org 
-Cc: linux-kernel@vger.kernel.org 
-Cc: linux-mips@vger.kernel.org 
-Cc: linux-parisc@vger.kernel.org 
-Cc: linux-s390@vger.kernel.org 
-Cc: linux-snps-arc@lists.infradead.org 
-Cc: linux-um@lists.infradead.org 
-Cc: linux-xtensa@linux-xtensa.org 
-Cc: uclinux-h8-devel@lists.sourceforge.jp 
