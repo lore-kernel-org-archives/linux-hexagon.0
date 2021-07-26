@@ -1,42 +1,95 @@
-From: Helge Deller <deller@gmx.de>
-Subject: Re: [PATCH v3 9/9] asm-generic: reverse
- GENERIC_{STRNCPY_FROM,STRNLEN}_USER symbols
-Date: Mon, 26 Jul 2021 10:55:17 +0200
-Message-ID: <b89d9932-7498-edd2-0369-227ce17bcba6@gmx.de>
-References: <20210722124814.778059-1-arnd@kernel.org>
- <20210722124814.778059-10-arnd@kernel.org>
+From: Taylor Simpson <tsimpson@quicinc.com>
+Subject: RE: [PATCH 01/20] Hexagon HVX (target/hexagon) README
+Date: Mon, 26 Jul 2021 13:59:23 +0000
+Message-ID: <BYAPR02MB48863186EDD71439C60792A0DEE89@BYAPR02MB4886.namprd02.prod.outlook.com>
+References: <1625528074-19440-1-git-send-email-tsimpson@quicinc.com>
+ <1625528074-19440-2-git-send-email-tsimpson@quicinc.com>
+ <1b632e88-43d4-3034-cf7b-d42be056d842@landley.net>
+ <SN6PR02MB42054B50C60ABA378256492DB8159@SN6PR02MB4205.namprd02.prod.outlook.com>
+ <553c32e8-188c-5b2c-2f4a-a8cfd7b903a9@landley.net>
+ <BN7PR02MB4194007550E66EBE877625A6B8E19@BN7PR02MB4194.namprd02.prod.outlook.com>
+ <BYAPR02MB55091DE5B976956075B46FADBEE19@BYAPR02MB5509.namprd02.prod.outlook.com>
+ <8845de00-ddc7-86a3-600f-6ede81e168c2@landley.net>
+ <8192e9bb-a0de-1b2a-271c-ac7323be8244@landley.net>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-parisc-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1627289727;
-        bh=WkWs2yjbuB7rMLWgvsxBc4/Z976NwWWIEDiSOgTN55I=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=E7jOP/dwH1+3UHoNaSbTx2XDQRxAN5F8L7jEpZmRIgESVf9ne0KM7xfW0ObhH8vkT
-         ABXz8dsUiPiO1dwu3MUYUkMNesxVe0Yk5ji3YVzpNZGn/BfZ3uPtXbOes3Ed2hx1cN
-         YAlh6MXWhHfFt0OlfJQAeFIRfElfQswmhjdssuBY=
-In-Reply-To: <20210722124814.778059-10-arnd@kernel.org>
+Content-Transfer-Encoding: base64
+Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qccesdkim1;
+ t=1627307967; x=1627912767;
+ h=from:to:cc:subject:date:message-id:references:
+ in-reply-to:content-transfer-encoding:mime-version;
+ bh=NGuP+YzmlDDbIfqF3MMt7y2CfIODuVNaAGqkdRgzt3A=;
+ b=HigvYuOLPFrB1l1wDyt8wIQs6Bqj4VjTmXzLGBL7GtvMP0MxuHLS7QhW
+ PPKANTnPSkDUEyMiPWPapevXX/Dkh9vaUKf7zaXd2TtYVeiy6hYQS524K
+ UJXQnZUvG0Bt4ACY+b/WKjIrGJIGDrFDyMydOtPbpnxdg0F9QJG93JtLu A=;
+In-Reply-To: <8192e9bb-a0de-1b2a-271c-ac7323be8244@landley.net>
 Content-Language: en-US
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Arnd Bergmann <arnd@kernel.org>, linux-arch@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Al Viro <viro@zeniv.linux.org.uk>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Brian Cain <bcain@codeaurora.org>, Chris Zankel <chris@zankel.net>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Hellwig <hch@lst.de>, Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Jeff Dike <jdike@addtoit.com>, Linus Walleij <linus.walleij@linaro.org>, Max Filippov <jcmvbkbc@gmail.com>, Michal Simek <monstr@monstr.eu>, Richard Weinberger <richard@nod.at>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-csky@vger.ke
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+ <mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <https://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+ <mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org
+Sender: "Qemu-devel"
+ <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
+Content-Type: text/plain; charset="us-ascii"
+To: Rob Landley <rob@landley.net>, Sid Manning <sidneym@quicinc.com>, Brian Cain <bcain@quicinc.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
+Cc: "ale@rev.ng" <ale@rev.ng>, "peter.maydell@linaro.org" <peter.maydell@linaro.org>, "richard.henderson@linaro.org" <richard.henderson@linaro.org>, "philmd@redhat.com" <philmd@redhat.com>
 
-On 7/22/21 2:48 PM, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> Most architectures do not need a custom implementation, and in most
-> cases the generic implementation is preferred, so change the polariy
-> on these Kconfig symbols to require architectures to select them when
-> they provide their own version.
->
-> The new name is CONFIG_ARCH_HAS_{STRNCPY_FROM,STRNLEN}_USER.
->
-> The remaining architectures at the moment are: ia64, mips, parisc,
-> s390, um and xtensa. We should probably convert these as well, but
-> I was not sure how far to take this series.
+V2UncmUgd29ya2luZyBvbiBzeXN0ZW0gbW9kZSBzdXBwb3J0IGZvciBIZXhhZ29uLCBhbmQgd2Ug
+cGxhbiB0byB1cHN0cmVhbSBpdCB3aGVuIGl0IGlzIHJlYWR5Lg0KDQpUaGFua3MsDQpUYXlsb3IN
+Cg0KDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogUm9iIExhbmRsZXkg
+PHJvYkBsYW5kbGV5Lm5ldD4NCj4gU2VudDogTW9uZGF5LCBKdWx5IDI2LCAyMDIxIDM6NTUgQU0N
+Cj4gVG86IFNpZCBNYW5uaW5nIDxzaWRuZXltQHF1aWNpbmMuY29tPjsgQnJpYW4gQ2FpbiA8YmNh
+aW5AcXVpY2luYy5jb20+Ow0KPiBUYXlsb3IgU2ltcHNvbiA8dHNpbXBzb25AcXVpY2luYy5jb20+
+OyBxZW11LWRldmVsQG5vbmdudS5vcmc7IGxpbnV4LQ0KPiBoZXhhZ29uQHZnZXIua2VybmVsLm9y
+Zw0KPiBDYzogYWxlQHJldi5uZzsgcGV0ZXIubWF5ZGVsbEBsaW5hcm8ub3JnOyByaWNoYXJkLmhl
+bmRlcnNvbkBsaW5hcm8ub3JnOw0KPiBwaGlsbWRAcmVkaGF0LmNvbQ0KPiBTdWJqZWN0OiBSZTog
+W1BBVENIIDAxLzIwXSBIZXhhZ29uIEhWWCAodGFyZ2V0L2hleGFnb24pIFJFQURNRQ0KPiANCj4g
+T24gNy8yNi8yMSAyOjU3IEFNLCBSb2IgTGFuZGxleSB3cm90ZToNCj4gPiBBbnl3YXkuLi4gaXQg
+ZG9lc24ndCBsb29rIGxpa2UgcWVtdS1zeXN0ZW0taGV4YWdvbiAoc29mdG1tdSkgaXRzDQo+ID4g
+Y3VycmVudGx5IGluIHZhbmlsbGEgcWVtdT8gSXMgdGhlcmUgYSBwdWJsaWMgZm9yayB0aGF0IGhh
+cyB0aGlzIHNvbWV3aGVyZT8NCj4gDQo+IEkgZGlkIGEgbGl0dGxlIHdpbGQgZmxhaWxpbmcgdG8g
+Z2V0IC4vY29uZmlndXJlIHRvIGdpdmUgbWUgYSBxZW11LXN5c3RlbS1oZXhhZ29uDQo+IG9wdGlv
+biAocGF0Y2ggYXR0YWNoZWQpLCBJLkUuIGp1c3QgZW5vdWdoIHRvIGdldCBtZXNvbiB0byBzaHV0
+IHVwIGFuZCBxdWl0ZQ0KPiBwb3NzaWJseSBzdGlsbCBtaXNzaW5nIHNvbWV0aGluZyBpbXBvcnRh
+bnQuIChJcyB0aGlzIHB5dGhvbj8gSXQgbG9va3Mga2luZCBvZiBsaWtlDQo+IHB5dGhvbi4pDQo+
+IA0KPiBVbmZvcnR1bmF0ZWx5IGFmdGVyIGxpYmVyYWxseSBjcmliYmluZyBmcm9tIHRoZSBjcmlz
+IGFyY2hpdGVjdHVyZSAod2hpY2ggc2VlbXMNCj4gbGlrZSB0aGUgc2ltcGxlc3Qgb25lKSBJJ20g
+bGVmdCB3aXRoIHNldmVyYWwgbmV3IEMgZmlsZXMgdG8gaW1wbGVtZW50LCBhbGwNCj4gY3VycmVu
+dGx5IHplcm8gbGVuZ3RoIGluIHRoZSBwYXRjaDoNCj4gDQo+ICAgaHcvaGV4YWdvbi9ib290LmMN
+Cj4gICBody9oZXhhZ29uL2hleGFnb25fY29tZXQuYw0KPiAgIHRhcmdldC9oZXhhZ29uL21hY2hp
+bmUuYw0KPiAgIHRhcmdldC9oZXhhZ29uL21tdS5jDQo+IA0KPiAoSW4gdGhlb3J5IHRoZXJlJ3Mg
+YSAibm9uZSIgYm9hcmQgb24gYWxsIHRoZSBjdXJyZW50IHFlbXUtc3lzdGVtDQo+IGFyY2hpdGVj
+dHVyZXMsIGJ1dCBJJ3ZlIG5ldmVyIGZpZ3VyZWQgb3V0IHdoYXQgdG8gRE8gd2l0aCB0aG9zZS4u
+LikNCj4gDQo+IEFsbCB0aGlzIHJhaXNlcyB0d28gcHJvYmxlbXM6DQo+IA0KPiAxKSBJIGR1bm5v
+IGhvdyB0aGUgaGV4YWdvbiBtbXUgd29ya3MuIChJIGNhbiBwcmVzdW1hYmx5IHJlYWQgdGhlIGtl
+cm5lbA0KPiBjb2RlIGFuZCByZXZlcnNlIGVuZ2luZWVyIHdoYXQgdGhhdCdzIGxvb2tpbmcgZm9y
+LCBidXQgaXQgd291bGQgYmUgcmVhbGx5IG5pY2UNCj4gbm90IHRvIF9oYXZlXyB0bz8pDQo+IA0K
+PiAyKSBXaGF0J3MgYSBjb21ldCBib2FyZD8gKE1lbW9yeSBsYXlvdXQ/IEkvTyBkZXZpY2VzPyBJ
+IGd1ZXNzIGFsbCBJIG5lZWQgZm9yDQo+IHNlcmlhbCBjb25zb2xlIG9uIGluaXRyYW1mcyBpcyBh
+IGNvbnRpZ3VvdXMgYmxvY2sgb2YgRFJBTSwgdGltZXIgaW50ZXJydXB0IHRvDQo+IGRyaXZlIHRo
+ZSBzY2hlZHVsZXIsIGFuZCBhIHNlcmlhbCBwb3J0LiBJIGtlZXAgdGhpbmtpbmcgdGhlcmUgc2hv
+dWxkIGJlIGEgd2F5DQo+IHRvIHRlbGwgdGhlICJub25lIiBib2FyZCB0byBhZGQgdGhhdCBzdHVm
+ZiBmcm9tIHRoZSBjb21tYW5kIGxpbmUuLi4gYnV0DQo+IGR1bm5vIGhvdy4NCj4gIm1hcCBEUkFN
+IGhlcmUiLiAiYWRkIHRoaXMgY2xvY2sgaGFyZHdhcmUgYXQgaGVyZSIuICJhZGQgdGhpcyBraW5k
+IG9mIHNlcmlhbA0KPiBwb3J0IGF0IGhlcmUuIiAiY2FsbCBlbGZfbG9hZCBvbiB0aGlzIGZpbGUg
+YW5kIHN0YXJ0IGV4ZWN1dGluZyBhdCBpdHMgZW50cnkNCj4gcG9pbnQiLi4uKQ0KPiANCj4gMykg
+UmVhZGluZyB0aGUgYXJjaC9oZXhhZ29uIGtlcm5lbCBzdHVmZiBhbGEgInNvIHdoYXQgSVMgaW4g
+YSBjb21ldCBib2FyZCIuLi4NCj4gQ09ORklHX0hFWEFHT05fQ09NRVQgaXMgb25seSBldmVyIHVz
+ZWQgdG8gZ3VhcmQgb25lICNkZWZpbmUgaW4gYQ0KPiBoZWFkZXIgZmlsZToNCj4gDQo+ICAgYXJj
+aC9oZXhhZ29uL2luY2x1ZGUvYXNtL3RpbWVyLXJlZ3MuaDojZGVmaW5lDQo+IFJUT1NfVElNRVJf
+UkVHU19BRERSDQo+IA0KPiBXaGljaCBpcyB0aGVuIHVzZWQgdG8gaW5pdGlhbGl6ZSBzdHJ1Y3R1
+cmUgbWVtYmVycyBpbg0KPiBhcmNoL2hleGFnb24va2VybmVsL3RpbWUuYyB3aXRob3V0IGFueSBz
+b3J0IG9mIGd1YXJkIHRoZXJlLCBhbmQgbm8gaXQgaXNuJ3QNCj4gI2RlZmluZWQgdG8gMCBieSBk
+ZWZhdWx0IGFueXdoZXJlIEkgY2FuIHNlZT8gQW5kIG9mIGNvdXJzZSBvYmoteSArPSB0aW1lLm8N
+Cj4gaW4gYXJjaC9oZXhhZ29uL2tlcm5lbC9NYWtlZmlsZSBoYXMgbm8gY29uZmlnIGd1YXJkIHRo
+ZXJlIGVpdGhlci4gU28gaWYgaXQNCj4gd2Fzbid0IHNldCwgdGhlIGJ1aWxkIHdvdWxkIGJyZWFr
+LiBBbmQgdGhhdCdzIGN1cnJlbnRseSBhbGwgdGhlIHN5bWJvbCBkb2VzPw0KPiANCj4gQW55d2F5
+LCBJIHN0aWxsIGhvcGUgc29tZWJvZHkgZWxzZSBoYXMgYWxyZWFkeSBkb25lIG1vc3Qgb2YgdGhp
+cyBpbiBhIGdpdCB0cmVlDQo+IHNvbWV3aGVyZS4gOikNCj4gDQo+IFJvYg0K
 
-Acked-by: Helge Deller <deller@gmx.de> # parisc
-
-Thanks!
-Helge
