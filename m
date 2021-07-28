@@ -1,161 +1,92 @@
 From: "Brian Cain" <bcain@codeaurora.org>
-Subject: RE: [PATCH] hexagon: Clean up timer-regs.h
-Date: Wed, 28 Jul 2021 10:07:45 -0500
-Message-ID: <03bc01d783c2$52e6f200$f8b4d600$@codeaurora.org>
-References: <20210728001729.1960182-1-nathan@kernel.org>
+Subject: RE: [PATCH] Hexagon: Export raw I/O routines for modules
+Date: Wed, 28 Jul 2021 10:08:31 -0500
+Message-ID: <03be01d783c2$6e684420$4b38cc60$@codeaurora.org>
+References: <20210708233849.3140194-1-nathan@kernel.org> <YQCiZSj1gfnF5x/d@Ryzen-9-3900X.localdomain>
 Reply-To: <bcain@codeaurora.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1627484882; h=Content-Transfer-Encoding: Content-Type:
+ s=smtp; t=1627484925; h=Content-Transfer-Encoding: Content-Type:
  MIME-Version: Message-ID: Date: Subject: In-Reply-To: References: Cc:
  To: From: Reply-To: Sender;
- bh=sj2A2zR3rcI8P9VUMF3/9Yk8xk+GhmmV1rwmsS/dDMU=; b=mC3qGMR2gROfN8/EHK4FGKlgas4yi5oZ0mb3nu897gdZS2fpQVWWwQ5pqocuHek3zeHPQV9S
- USLI0cyq9WrFVJ5I7tcaN9HzuN7pTAPvSDfkg7g10qSkmlw78xJHCiGtRIhv//DOM/ugydSe
- IuxBXlLr1z/lyE2Y03IEy0/1vJw=
+ bh=3wwq0AErdGICOZ9un5uPRzTUaZOh9Woef+N1yP+Q6P8=; b=b/5f4x2MhMlsO17H3cmBueKURKOEaWiF9gQ2ZjCXUQqKCPFoQLUGDhhGyLkXy+X/aXvKkCi1
+ TTgmW9YxzyNKMBeg/6UH6/N1wo29KbGA8d5wlrKAh/5Hy5f2a3B5wBjPs5MSDpqaUKtr4585
+ xjknPWmUa4GmdFPj0XTq4Huze4k=
 Sender: bcain=codeaurora.org@mg.codeaurora.org
-In-Reply-To: <20210728001729.1960182-1-nathan@kernel.org>
+In-Reply-To: <YQCiZSj1gfnF5x/d@Ryzen-9-3900X.localdomain>
 Content-Language: en-us
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: 'Nathan Chancellor' <nathan@kernel.org>, 'Andrew Morton' <akpm@linux-foundation.org>
 Cc: 'Nick Desaulniers' <ndesaulniers@google.com>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, "'Manning, Sid'" <sidneym@quicinc.com>
 
+
+
 > -----Original Message-----
 > From: Nathan Chancellor <nathan@kernel.org>
 ...
-> When building allmodconfig, there is a warning about TIMER_ENABLE being
-> redefined:
+> On Thu, Jul 08, 2021 at 04:38:50PM -0700, Nathan Chancellor wrote:
+...
+> > Export these symbols so that modules can use them without any errors.
+> >
+> > Fixes: 013bf24c3829 ("Hexagon: Provide basic implementation and/or stubs
+> for I/O routines.")
+> > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> > ---
+> >
+> > It would be nice if this could get into 5.14 at some point so that we
+> > can build ARCH=hexagon allmodconfig in our CI.
+> >
+> >  arch/hexagon/lib/io.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> >
+> > diff --git a/arch/hexagon/lib/io.c b/arch/hexagon/lib/io.c
+> > index d35d69d6588c..55f75392857b 100644
+> > --- a/arch/hexagon/lib/io.c
+> > +++ b/arch/hexagon/lib/io.c
+> > @@ -27,6 +27,7 @@ void __raw_readsw(const void __iomem *addr, void
+> *data, int len)
+> >  		*dst++ = *src;
+> >
+> >  }
+> > +EXPORT_SYMBOL(__raw_readsw);
+> >
+> >  /*
+> >   * __raw_writesw - read words a short at a time
+> > @@ -47,6 +48,7 @@ void __raw_writesw(void __iomem *addr, const void
+> *data, int len)
+> >
+> >
+> >  }
+> > +EXPORT_SYMBOL(__raw_writesw);
+> >
+> >  /*  Pretty sure len is pre-adjusted for the length of the access
+already */
+> >  void __raw_readsl(const void __iomem *addr, void *data, int len)
+> > @@ -62,6 +64,7 @@ void __raw_readsl(const void __iomem *addr, void
+> *data, int len)
+> >
+> >
+> >  }
+> > +EXPORT_SYMBOL(__raw_readsl);
+> >
+> >  void __raw_writesl(void __iomem *addr, const void *data, int len)
+> >  {
+> > @@ -76,3 +79,4 @@ void __raw_writesl(void __iomem *addr, const void
+> *data, int len)
+> >
+> >
+> >  }
+> > +EXPORT_SYMBOL(__raw_writesl);
+> >
+> > base-commit: f55966571d5eb2876a11e48e798b4592fa1ffbb7
+> > --
+> > 2.32.0.93.g670b81a890
 > 
->  drivers/clocksource/timer-oxnas-rps.c:39:9: warning: 'TIMER_ENABLE'
->  macro redefined [-Wmacro-redefined]
->  #define TIMER_ENABLE            BIT(7)
->          ^
->  arch/hexagon/include/asm/timer-regs.h:13:9: note: previous definition
->  is here
->  #define TIMER_ENABLE            0
->          ^
->  1 warning generated.
-> 
-> The values in this header are only used in one file each, if they are
-> used at all. Remove the header and sink all of the constants into their
-> respective files.
-> 
-> TCX0_CLK_RATE is only used in arch/hexagon/include/asm/timex.h
-> 
-> TIMER_ENABLE, RTOS_TIMER_INT, RTOS_TIMER_REGS_ADDR are only used in
-> arch/hexagon/kernel/time.c.
-> 
-> SLEEP_CLK_RATE and TIMER_CLR_ON_MATCH have both been unused since
-> the
-> file's introduction in commit 71e4a47f32f4 ("Hexagon: Add time and timer
-> functions").
-> 
-> TIMER_ENABLE is redefined as BIT(0) so the shift is moved into the
-> definition, rather than its use.
-> 
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> ---
->  arch/hexagon/include/asm/timer-regs.h | 26 --------------------------
->  arch/hexagon/include/asm/timex.h      |  3 +--
->  arch/hexagon/kernel/time.c            | 12 ++++++++++--
->  3 files changed, 11 insertions(+), 30 deletions(-)
->  delete mode 100644 arch/hexagon/include/asm/timer-regs.h
-> 
-> diff --git a/arch/hexagon/include/asm/timer-regs.h
-> b/arch/hexagon/include/asm/timer-regs.h
-> deleted file mode 100644
-> index ee6c61423a05..000000000000
-> --- a/arch/hexagon/include/asm/timer-regs.h
-> +++ /dev/null
-> @@ -1,26 +0,0 @@
-> -/* SPDX-License-Identifier: GPL-2.0-only */
-> -/*
-> - * Timer support for Hexagon
-> - *
-> - * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
-> - */
-> -
-> -#ifndef _ASM_TIMER_REGS_H
-> -#define _ASM_TIMER_REGS_H
-> -
-> -/*  This stuff should go into a platform specific file  */
-> -#define TCX0_CLK_RATE		19200
-> -#define TIMER_ENABLE		0
-> -#define TIMER_CLR_ON_MATCH	1
-> -
-> -/*
-> - * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
-> - * release 1.1, and then it's "adjustable" and probably not defaulted.
-> - */
-> -#define RTOS_TIMER_INT		3
-> -#ifdef CONFIG_HEXAGON_COMET
-> -#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
-> -#endif
-> -#define SLEEP_CLK_RATE		32000
-> -
-> -#endif
-> diff --git a/arch/hexagon/include/asm/timex.h
-> b/arch/hexagon/include/asm/timex.h
-> index 8d4ec76fceb4..dfe69e118b2b 100644
-> --- a/arch/hexagon/include/asm/timex.h
-> +++ b/arch/hexagon/include/asm/timex.h
-> @@ -7,11 +7,10 @@
->  #define _ASM_TIMEX_H
-> 
->  #include <asm-generic/timex.h>
-> -#include <asm/timer-regs.h>
->  #include <asm/hexagon_vm.h>
-> 
->  /* Using TCX0 as our clock.  CLOCK_TICK_RATE scheduled to be removed. */
-> -#define CLOCK_TICK_RATE              TCX0_CLK_RATE
-> +#define CLOCK_TICK_RATE              19200
-> 
->  #define ARCH_HAS_READ_CURRENT_TIMER
-> 
-> diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
-> index feffe527ac92..febc95714d75 100644
-> --- a/arch/hexagon/kernel/time.c
-> +++ b/arch/hexagon/kernel/time.c
-> @@ -17,9 +17,10 @@
->  #include <linux/of_irq.h>
->  #include <linux/module.h>
-> 
-> -#include <asm/timer-regs.h>
->  #include <asm/hexagon_vm.h>
-> 
-> +#define TIMER_ENABLE		BIT(0)
-> +
->  /*
->   * For the clocksource we need:
->   *	pcycle frequency (600MHz)
-> @@ -33,6 +34,13 @@ cycles_t	pcycle_freq_mhz;
->  cycles_t	thread_freq_mhz;
->  cycles_t	sleep_clk_freq;
-> 
-> +/*
-> + * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
-> + * release 1.1, and then it's "adjustable" and probably not defaulted.
-> + */
-> +#define RTOS_TIMER_INT		3
-> +#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
-> +
->  static struct resource rtos_timer_resources[] = {
->  	{
->  		.start	= RTOS_TIMER_REGS_ADDR,
-> @@ -80,7 +88,7 @@ static int set_next_event(unsigned long delta, struct
-> clock_event_device *evt)
->  	iowrite32(0, &rtos_timer->clear);
-> 
->  	iowrite32(delta, &rtos_timer->match);
-> -	iowrite32(1 << TIMER_ENABLE, &rtos_timer->enable);
-> +	iowrite32(TIMER_ENABLE, &rtos_timer->enable);
->  	return 0;
->  }
-> 
-> 
-> base-commit: 7d549995d4e0d99b68e8a7793a0d23da6fc40fe8
+> Ping? Brian, if you do not want to carry this, can you give an ack so
+> that Andrew can?
 
 Acked-by: Brian Cain <bcain@codeaurora.org>
 
