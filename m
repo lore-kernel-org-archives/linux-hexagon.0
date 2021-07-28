@@ -1,95 +1,152 @@
-From: Taylor Simpson <tsimpson@quicinc.com>
-Subject: RE: [PATCH 01/20] Hexagon HVX (target/hexagon) README
-Date: Mon, 26 Jul 2021 13:59:23 +0000
-Message-ID: <BYAPR02MB48863186EDD71439C60792A0DEE89@BYAPR02MB4886.namprd02.prod.outlook.com>
-References: <1625528074-19440-1-git-send-email-tsimpson@quicinc.com>
- <1625528074-19440-2-git-send-email-tsimpson@quicinc.com>
- <1b632e88-43d4-3034-cf7b-d42be056d842@landley.net>
- <SN6PR02MB42054B50C60ABA378256492DB8159@SN6PR02MB4205.namprd02.prod.outlook.com>
- <553c32e8-188c-5b2c-2f4a-a8cfd7b903a9@landley.net>
- <BN7PR02MB4194007550E66EBE877625A6B8E19@BN7PR02MB4194.namprd02.prod.outlook.com>
- <BYAPR02MB55091DE5B976956075B46FADBEE19@BYAPR02MB5509.namprd02.prod.outlook.com>
- <8845de00-ddc7-86a3-600f-6ede81e168c2@landley.net>
- <8192e9bb-a0de-1b2a-271c-ac7323be8244@landley.net>
+From: Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH] hexagon: Clean up timer-regs.h
+Date: Tue, 27 Jul 2021 17:17:29 -0700
+Message-ID: <20210728001729.1960182-1-nathan@kernel.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qccesdkim1;
- t=1627307967; x=1627912767;
- h=from:to:cc:subject:date:message-id:references:
- in-reply-to:content-transfer-encoding:mime-version;
- bh=NGuP+YzmlDDbIfqF3MMt7y2CfIODuVNaAGqkdRgzt3A=;
- b=HigvYuOLPFrB1l1wDyt8wIQs6Bqj4VjTmXzLGBL7GtvMP0MxuHLS7QhW
- PPKANTnPSkDUEyMiPWPapevXX/Dkh9vaUKf7zaXd2TtYVeiy6hYQS524K
- UJXQnZUvG0Bt4ACY+b/WKjIrGJIGDrFDyMydOtPbpnxdg0F9QJG93JtLu A=;
-In-Reply-To: <8192e9bb-a0de-1b2a-271c-ac7323be8244@landley.net>
-Content-Language: en-US
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
- <mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <https://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
- <mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org
-Sender: "Qemu-devel"
- <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1627431456;
+        bh=R091R1EdVgUe6e6xsiZzOhnDa+5d7tNd55ALyjN6NYk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=AqyI+ulmGEnfHIJjk7i3DFjlehviw61gEnWnPpzZ7DPRC5e4F8Sr1/AuGkny2uhaZ
+         HlWYCw6DkC871jn50WHEpUMwb9vMB6d+nSg10Tj5PIA/w+rNes52ZMJDGmwxtf/k7t
+         2sC5SMLZg/CpBy/cCnSjxlv4YPAYJulrXTxi2k4WCV3BxkVe7eb6Z/XXnGgD6I8WsF
+         d8SSDg2qMBP73pgQuqfRyiBpK1HwbM7ph07eB5dKtn+ugZj4OjtRijEvW7iqvy2Nqa
+         AU4zXLj01XUa6GA6/pEInOcxA8NMZ/uvTmlu+MBt2Qsn+uv5a8TmgLMiWgtsaK3NRt
+         0KBnuxDUnKzRQ==
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Rob Landley <rob@landley.net>, Sid Manning <sidneym@quicinc.com>, Brian Cain <bcain@quicinc.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
-Cc: "ale@rev.ng" <ale@rev.ng>, "peter.maydell@linaro.org" <peter.maydell@linaro.org>, "richard.henderson@linaro.org" <richard.henderson@linaro.org>, "philmd@redhat.com" <philmd@redhat.com>
+To: Brian Cain <bcain@codeaurora.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, Nathan Chancellor <nathan@kernel.org>
 
-V2UncmUgd29ya2luZyBvbiBzeXN0ZW0gbW9kZSBzdXBwb3J0IGZvciBIZXhhZ29uLCBhbmQgd2Ug
-cGxhbiB0byB1cHN0cmVhbSBpdCB3aGVuIGl0IGlzIHJlYWR5Lg0KDQpUaGFua3MsDQpUYXlsb3IN
-Cg0KDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogUm9iIExhbmRsZXkg
-PHJvYkBsYW5kbGV5Lm5ldD4NCj4gU2VudDogTW9uZGF5LCBKdWx5IDI2LCAyMDIxIDM6NTUgQU0N
-Cj4gVG86IFNpZCBNYW5uaW5nIDxzaWRuZXltQHF1aWNpbmMuY29tPjsgQnJpYW4gQ2FpbiA8YmNh
-aW5AcXVpY2luYy5jb20+Ow0KPiBUYXlsb3IgU2ltcHNvbiA8dHNpbXBzb25AcXVpY2luYy5jb20+
-OyBxZW11LWRldmVsQG5vbmdudS5vcmc7IGxpbnV4LQ0KPiBoZXhhZ29uQHZnZXIua2VybmVsLm9y
-Zw0KPiBDYzogYWxlQHJldi5uZzsgcGV0ZXIubWF5ZGVsbEBsaW5hcm8ub3JnOyByaWNoYXJkLmhl
-bmRlcnNvbkBsaW5hcm8ub3JnOw0KPiBwaGlsbWRAcmVkaGF0LmNvbQ0KPiBTdWJqZWN0OiBSZTog
-W1BBVENIIDAxLzIwXSBIZXhhZ29uIEhWWCAodGFyZ2V0L2hleGFnb24pIFJFQURNRQ0KPiANCj4g
-T24gNy8yNi8yMSAyOjU3IEFNLCBSb2IgTGFuZGxleSB3cm90ZToNCj4gPiBBbnl3YXkuLi4gaXQg
-ZG9lc24ndCBsb29rIGxpa2UgcWVtdS1zeXN0ZW0taGV4YWdvbiAoc29mdG1tdSkgaXRzDQo+ID4g
-Y3VycmVudGx5IGluIHZhbmlsbGEgcWVtdT8gSXMgdGhlcmUgYSBwdWJsaWMgZm9yayB0aGF0IGhh
-cyB0aGlzIHNvbWV3aGVyZT8NCj4gDQo+IEkgZGlkIGEgbGl0dGxlIHdpbGQgZmxhaWxpbmcgdG8g
-Z2V0IC4vY29uZmlndXJlIHRvIGdpdmUgbWUgYSBxZW11LXN5c3RlbS1oZXhhZ29uDQo+IG9wdGlv
-biAocGF0Y2ggYXR0YWNoZWQpLCBJLkUuIGp1c3QgZW5vdWdoIHRvIGdldCBtZXNvbiB0byBzaHV0
-IHVwIGFuZCBxdWl0ZQ0KPiBwb3NzaWJseSBzdGlsbCBtaXNzaW5nIHNvbWV0aGluZyBpbXBvcnRh
-bnQuIChJcyB0aGlzIHB5dGhvbj8gSXQgbG9va3Mga2luZCBvZiBsaWtlDQo+IHB5dGhvbi4pDQo+
-IA0KPiBVbmZvcnR1bmF0ZWx5IGFmdGVyIGxpYmVyYWxseSBjcmliYmluZyBmcm9tIHRoZSBjcmlz
-IGFyY2hpdGVjdHVyZSAod2hpY2ggc2VlbXMNCj4gbGlrZSB0aGUgc2ltcGxlc3Qgb25lKSBJJ20g
-bGVmdCB3aXRoIHNldmVyYWwgbmV3IEMgZmlsZXMgdG8gaW1wbGVtZW50LCBhbGwNCj4gY3VycmVu
-dGx5IHplcm8gbGVuZ3RoIGluIHRoZSBwYXRjaDoNCj4gDQo+ICAgaHcvaGV4YWdvbi9ib290LmMN
-Cj4gICBody9oZXhhZ29uL2hleGFnb25fY29tZXQuYw0KPiAgIHRhcmdldC9oZXhhZ29uL21hY2hp
-bmUuYw0KPiAgIHRhcmdldC9oZXhhZ29uL21tdS5jDQo+IA0KPiAoSW4gdGhlb3J5IHRoZXJlJ3Mg
-YSAibm9uZSIgYm9hcmQgb24gYWxsIHRoZSBjdXJyZW50IHFlbXUtc3lzdGVtDQo+IGFyY2hpdGVj
-dHVyZXMsIGJ1dCBJJ3ZlIG5ldmVyIGZpZ3VyZWQgb3V0IHdoYXQgdG8gRE8gd2l0aCB0aG9zZS4u
-LikNCj4gDQo+IEFsbCB0aGlzIHJhaXNlcyB0d28gcHJvYmxlbXM6DQo+IA0KPiAxKSBJIGR1bm5v
-IGhvdyB0aGUgaGV4YWdvbiBtbXUgd29ya3MuIChJIGNhbiBwcmVzdW1hYmx5IHJlYWQgdGhlIGtl
-cm5lbA0KPiBjb2RlIGFuZCByZXZlcnNlIGVuZ2luZWVyIHdoYXQgdGhhdCdzIGxvb2tpbmcgZm9y
-LCBidXQgaXQgd291bGQgYmUgcmVhbGx5IG5pY2UNCj4gbm90IHRvIF9oYXZlXyB0bz8pDQo+IA0K
-PiAyKSBXaGF0J3MgYSBjb21ldCBib2FyZD8gKE1lbW9yeSBsYXlvdXQ/IEkvTyBkZXZpY2VzPyBJ
-IGd1ZXNzIGFsbCBJIG5lZWQgZm9yDQo+IHNlcmlhbCBjb25zb2xlIG9uIGluaXRyYW1mcyBpcyBh
-IGNvbnRpZ3VvdXMgYmxvY2sgb2YgRFJBTSwgdGltZXIgaW50ZXJydXB0IHRvDQo+IGRyaXZlIHRo
-ZSBzY2hlZHVsZXIsIGFuZCBhIHNlcmlhbCBwb3J0LiBJIGtlZXAgdGhpbmtpbmcgdGhlcmUgc2hv
-dWxkIGJlIGEgd2F5DQo+IHRvIHRlbGwgdGhlICJub25lIiBib2FyZCB0byBhZGQgdGhhdCBzdHVm
-ZiBmcm9tIHRoZSBjb21tYW5kIGxpbmUuLi4gYnV0DQo+IGR1bm5vIGhvdy4NCj4gIm1hcCBEUkFN
-IGhlcmUiLiAiYWRkIHRoaXMgY2xvY2sgaGFyZHdhcmUgYXQgaGVyZSIuICJhZGQgdGhpcyBraW5k
-IG9mIHNlcmlhbA0KPiBwb3J0IGF0IGhlcmUuIiAiY2FsbCBlbGZfbG9hZCBvbiB0aGlzIGZpbGUg
-YW5kIHN0YXJ0IGV4ZWN1dGluZyBhdCBpdHMgZW50cnkNCj4gcG9pbnQiLi4uKQ0KPiANCj4gMykg
-UmVhZGluZyB0aGUgYXJjaC9oZXhhZ29uIGtlcm5lbCBzdHVmZiBhbGEgInNvIHdoYXQgSVMgaW4g
-YSBjb21ldCBib2FyZCIuLi4NCj4gQ09ORklHX0hFWEFHT05fQ09NRVQgaXMgb25seSBldmVyIHVz
-ZWQgdG8gZ3VhcmQgb25lICNkZWZpbmUgaW4gYQ0KPiBoZWFkZXIgZmlsZToNCj4gDQo+ICAgYXJj
-aC9oZXhhZ29uL2luY2x1ZGUvYXNtL3RpbWVyLXJlZ3MuaDojZGVmaW5lDQo+IFJUT1NfVElNRVJf
-UkVHU19BRERSDQo+IA0KPiBXaGljaCBpcyB0aGVuIHVzZWQgdG8gaW5pdGlhbGl6ZSBzdHJ1Y3R1
-cmUgbWVtYmVycyBpbg0KPiBhcmNoL2hleGFnb24va2VybmVsL3RpbWUuYyB3aXRob3V0IGFueSBz
-b3J0IG9mIGd1YXJkIHRoZXJlLCBhbmQgbm8gaXQgaXNuJ3QNCj4gI2RlZmluZWQgdG8gMCBieSBk
-ZWZhdWx0IGFueXdoZXJlIEkgY2FuIHNlZT8gQW5kIG9mIGNvdXJzZSBvYmoteSArPSB0aW1lLm8N
-Cj4gaW4gYXJjaC9oZXhhZ29uL2tlcm5lbC9NYWtlZmlsZSBoYXMgbm8gY29uZmlnIGd1YXJkIHRo
-ZXJlIGVpdGhlci4gU28gaWYgaXQNCj4gd2Fzbid0IHNldCwgdGhlIGJ1aWxkIHdvdWxkIGJyZWFr
-LiBBbmQgdGhhdCdzIGN1cnJlbnRseSBhbGwgdGhlIHN5bWJvbCBkb2VzPw0KPiANCj4gQW55d2F5
-LCBJIHN0aWxsIGhvcGUgc29tZWJvZHkgZWxzZSBoYXMgYWxyZWFkeSBkb25lIG1vc3Qgb2YgdGhp
-cyBpbiBhIGdpdCB0cmVlDQo+IHNvbWV3aGVyZS4gOikNCj4gDQo+IFJvYg0K
+When building allmodconfig, there is a warning about TIMER_ENABLE being
+redefined:
+
+ drivers/clocksource/timer-oxnas-rps.c:39:9: warning: 'TIMER_ENABLE'
+ macro redefined [-Wmacro-redefined]
+ #define TIMER_ENABLE            BIT(7)
+         ^
+ arch/hexagon/include/asm/timer-regs.h:13:9: note: previous definition
+ is here
+ #define TIMER_ENABLE            0
+         ^
+ 1 warning generated.
+
+The values in this header are only used in one file each, if they are
+used at all. Remove the header and sink all of the constants into their
+respective files.
+
+TCX0_CLK_RATE is only used in arch/hexagon/include/asm/timex.h
+
+TIMER_ENABLE, RTOS_TIMER_INT, RTOS_TIMER_REGS_ADDR are only used in
+arch/hexagon/kernel/time.c.
+
+SLEEP_CLK_RATE and TIMER_CLR_ON_MATCH have both been unused since the
+file's introduction in commit 71e4a47f32f4 ("Hexagon: Add time and timer
+functions").
+
+TIMER_ENABLE is redefined as BIT(0) so the shift is moved into the
+definition, rather than its use.
+
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ arch/hexagon/include/asm/timer-regs.h | 26 --------------------------
+ arch/hexagon/include/asm/timex.h      |  3 +--
+ arch/hexagon/kernel/time.c            | 12 ++++++++++--
+ 3 files changed, 11 insertions(+), 30 deletions(-)
+ delete mode 100644 arch/hexagon/include/asm/timer-regs.h
+
+diff --git a/arch/hexagon/include/asm/timer-regs.h b/arch/hexagon/include/asm/timer-regs.h
+deleted file mode 100644
+index ee6c61423a05..000000000000
+--- a/arch/hexagon/include/asm/timer-regs.h
++++ /dev/null
+@@ -1,26 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- * Timer support for Hexagon
+- *
+- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+- */
+-
+-#ifndef _ASM_TIMER_REGS_H
+-#define _ASM_TIMER_REGS_H
+-
+-/*  This stuff should go into a platform specific file  */
+-#define TCX0_CLK_RATE		19200
+-#define TIMER_ENABLE		0
+-#define TIMER_CLR_ON_MATCH	1
+-
+-/*
+- * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
+- * release 1.1, and then it's "adjustable" and probably not defaulted.
+- */
+-#define RTOS_TIMER_INT		3
+-#ifdef CONFIG_HEXAGON_COMET
+-#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
+-#endif
+-#define SLEEP_CLK_RATE		32000
+-
+-#endif
+diff --git a/arch/hexagon/include/asm/timex.h b/arch/hexagon/include/asm/timex.h
+index 8d4ec76fceb4..dfe69e118b2b 100644
+--- a/arch/hexagon/include/asm/timex.h
++++ b/arch/hexagon/include/asm/timex.h
+@@ -7,11 +7,10 @@
+ #define _ASM_TIMEX_H
+ 
+ #include <asm-generic/timex.h>
+-#include <asm/timer-regs.h>
+ #include <asm/hexagon_vm.h>
+ 
+ /* Using TCX0 as our clock.  CLOCK_TICK_RATE scheduled to be removed. */
+-#define CLOCK_TICK_RATE              TCX0_CLK_RATE
++#define CLOCK_TICK_RATE              19200
+ 
+ #define ARCH_HAS_READ_CURRENT_TIMER
+ 
+diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
+index feffe527ac92..febc95714d75 100644
+--- a/arch/hexagon/kernel/time.c
++++ b/arch/hexagon/kernel/time.c
+@@ -17,9 +17,10 @@
+ #include <linux/of_irq.h>
+ #include <linux/module.h>
+ 
+-#include <asm/timer-regs.h>
+ #include <asm/hexagon_vm.h>
+ 
++#define TIMER_ENABLE		BIT(0)
++
+ /*
+  * For the clocksource we need:
+  *	pcycle frequency (600MHz)
+@@ -33,6 +34,13 @@ cycles_t	pcycle_freq_mhz;
+ cycles_t	thread_freq_mhz;
+ cycles_t	sleep_clk_freq;
+ 
++/*
++ * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
++ * release 1.1, and then it's "adjustable" and probably not defaulted.
++ */
++#define RTOS_TIMER_INT		3
++#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
++
+ static struct resource rtos_timer_resources[] = {
+ 	{
+ 		.start	= RTOS_TIMER_REGS_ADDR,
+@@ -80,7 +88,7 @@ static int set_next_event(unsigned long delta, struct clock_event_device *evt)
+ 	iowrite32(0, &rtos_timer->clear);
+ 
+ 	iowrite32(delta, &rtos_timer->match);
+-	iowrite32(1 << TIMER_ENABLE, &rtos_timer->enable);
++	iowrite32(TIMER_ENABLE, &rtos_timer->enable);
+ 	return 0;
+ }
+ 
+
+base-commit: 7d549995d4e0d99b68e8a7793a0d23da6fc40fe8
+-- 
+2.32.0.264.g75ae10bc75
 
