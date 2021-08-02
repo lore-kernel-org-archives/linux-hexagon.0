@@ -1,37 +1,88 @@
-From: Vineet Gupta <Vineet.Gupta1@synopsys.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 Subject: Re: [PATCH 2/3] trace: refactor TRACE_IRQFLAGS_SUPPORT in Kconfig
-Date: Sat, 31 Jul 2021 23:12:38 +0000
-Message-ID: <1036d104-44c1-b162-2262-973226628be2@synopsys.com>
+Date: Mon, 02 Aug 2021 12:56:13 +1000
+Message-ID: <87lf5klfle.fsf@mpe.ellerman.id.au>
 References: <20210731052233.4703-1-masahiroy@kernel.org>
  <20210731052233.4703-2-masahiroy@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
 Return-path: <linux-parisc-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1627773196; bh=/S86EVYPGY9xO3kUoJy56OQzYShJeYu8vWMcA/vI1hU=;
-        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-        b=cSknRoUDYnV5K4e9RsktZTB3QGt2oCEb40SBNrfyh9F+EmNso1AAl6mimKoLm4Z9q
-         khyQvwqSZMh/b/Bx1hwv6KmrDnrBMAkYlKcvTB6+yI+xCL5FSzLYTByDQnJ2OvadN+
-         3F9QsvB9tzuxlD09nUjofDPzIEIr0tmc8Cu9mI0vuYnj2NMrIug8z2eYy+4czpfEXj
-         Z3LmxLa5LXEHOkJWlry4xLGnfMHtmXYTKDJbbWD4mMGtv/4vHxsZdh+8/LFn9vS/5M
-         Z+6h3mB1Pq6c8L7GYiHzosHPQZDDYwhJii5aBORBdt6MwcDUNT/C6CovEDYJobnFjO
-         ynYFu45BOhzmQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/S86EVYPGY9xO3kUoJy56OQzYShJeYu8vWMcA/vI1hU=;
- b=YG5vmKaaTr8H8brX5rjKTHUnmj2TIgOVM/BnGwDsLv37PoaFI78mHpo97eW7w0cnAEtfgxQVbwI7la7nLB6605apE4qQrON0rxo+18q6Cy+kEKHeMHuCvyMsiZRoS3jt2urRBeFdIA08oyOzGgFlT5HL4upq6yltkbqR3lpRE4U=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1627872995;
+        bh=lgFF44D+VvUgGNOcyjoWgD9ieIKlVa+1W38G93yYucc=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=mk/OrQNAgyUtJh9QVu/sq6e2cVKMZEuh5t1elkMY1Gr3oABbY0LNl7+izatEJSZYL
+         zGYgU92C+VtRG3i2VpinkrgquF7osc3y3sT0rg1Dkyhhq3uC9pQ9Vyxzu9DIdALkJc
+         uVe/31b8NqskHAYnC6qUpRqajmu4XqURQ3LIDSg6AKfjRRV0hOE1uY7cgZepVTdX9e
+         8HP4jyVzz75vtA5OgyyRq7pJjgDvTYCj/aQ+sFQ1koQ2SqpBgqVF2xnWntozO8y/pw
+         uq0H9be0uwkFpXGGeabu1UoeiTG0mQrIQSbO5Gdvb2ehvStkNDQgftwpI5d9vMxe/C
+         vq3iTIN0uJtjQ==
 In-Reply-To: <20210731052233.4703-2-masahiroy@kernel.org>
-Content-Language: en-US
-Content-ID: <D343C53D18DD6D43ADCBB013B53C2A98@namprd12.prod.outlook.com>
 List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 To: Masahiro Yamada <masahiroy@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Ard Biesheuvel <ardb@kernel.org>, Borislav Petkov <bp@alien8.de>, Linus Walleij <linus.walleij@linaro.org>, Ley Foon Tan <ley.foon.tan@intel.com>, "x86@kernel.org" <x86@kernel.org>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, Anshuman Khandual <anshuman.khandual@arm.com>, Nick Hu <nickhu@andestech.com>, Thomas Gleixner <tglx@linutronix.de>, Mike Rapoport <rppt@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, YiFei Zhu <yifeifz2@illinois.edu>, Greentime Hu <green.hu@gmail.com>, Palmer
+Cc: Masahiro Yamada <masahiroy@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Ard Biesheuvel <ardb@kernel.org>, Borislav Petkov <bp@alien8.de>, Linus Walleij <linus.walleij@linaro.org>, Ley Foon Tan <ley.foon.tan@intel.com>, x86@kernel.org, linux-mips@vger.kernel.org, sparclinux@vger.kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>, Nick Hu <nickhu@andestech.com>, Thomas Gleixner <tglx@linutronix.de>, Mike Rapoport <rppt@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, linux-riscv@lists.infradead.org, YiFei Zhu <yifeifz2@illinois.edu>, Greentime Hu <green.hu@gmail.com>, Palmer Dabbelt <palmer@dabbelt.com>, Michal Simek <monstr@monstr.eu>, Helge Deller <deller@g>
 
-T24gNy8zMC8yMSAxMDoyMiBQTSwgTWFzYWhpcm8gWWFtYWRhIHdyb3RlOg0KPiBNYWtlIGFyY2hp
-dGVjdHVyZXMgc2VsZWN0IFRSQUNFX0lSUUZMQUdTX1NVUFBPUlQgaW5zdGVhZCBvZg0KPiBoYXZp
-bmcgbWFueSBkZWZpbmVzLg0KPg0KPiBTaWduZWQtb2ZmLWJ5OiBNYXNhaGlybyBZYW1hZGEgPG1h
-c2FoaXJveUBrZXJuZWwub3JnPg0KPiAtLS0NCj4NCj4gICBhcmNoL2FyYy9LY29uZmlnICAgICAg
-ICAgICAgICB8IDQgKy0tLQ0KPiBbc25pcC4uXQ0KDQoNCkFja2VkLWJ5OiBWaW5lZXQgR3VwdGEg
-PHZndXB0YUBzeW5vcHN5cy5jb20+wqDCoCAjYXJjaC9hcmMNCg0K
+Masahiro Yamada <masahiroy@kernel.org> writes:
+> Make architectures select TRACE_IRQFLAGS_SUPPORT instead of
+> having many defines.
+>
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> ---
+>
+>  arch/Kconfig                  | 3 +++
+>  arch/arc/Kconfig              | 4 +---
+>  arch/arm/Kconfig              | 5 +----
+>  arch/arm64/Kconfig            | 4 +---
+>  arch/csky/Kconfig             | 4 +---
+>  arch/hexagon/Kconfig          | 4 +---
+>  arch/microblaze/Kconfig       | 1 +
+>  arch/microblaze/Kconfig.debug | 5 -----
+>  arch/mips/Kconfig             | 1 +
+>  arch/mips/Kconfig.debug       | 4 ----
+>  arch/nds32/Kconfig            | 4 +---
+>  arch/nios2/Kconfig            | 3 ---
+>  arch/openrisc/Kconfig         | 4 +---
+>  arch/parisc/Kconfig           | 1 +
+>  arch/parisc/Kconfig.debug     | 3 ---
+>  arch/powerpc/Kconfig          | 5 +----
+>  arch/riscv/Kconfig            | 4 +---
+>  arch/s390/Kconfig             | 1 +
+>  arch/s390/Kconfig.debug       | 3 ---
+>  arch/sh/Kconfig               | 1 +
+>  arch/sh/Kconfig.debug         | 3 ---
+>  arch/sparc/Kconfig            | 1 +
+>  arch/sparc/Kconfig.debug      | 4 ----
+>  arch/um/Kconfig               | 5 +----
+>  arch/x86/Kconfig              | 1 +
+>  arch/x86/Kconfig.debug        | 3 ---
+>  arch/xtensa/Kconfig           | 4 +---
+>  27 files changed, 21 insertions(+), 64 deletions(-)
+
+> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+> index d01e3401581d..76a28452c042 100644
+> --- a/arch/powerpc/Kconfig
+> +++ b/arch/powerpc/Kconfig
+> @@ -94,10 +94,6 @@ config STACKTRACE_SUPPORT
+>  	bool
+>  	default y
+>  
+> -config TRACE_IRQFLAGS_SUPPORT
+> -	bool
+> -	default y
+> -
+>  config LOCKDEP_SUPPORT
+>  	bool
+>  	default y
+> @@ -271,6 +267,7 @@ config PPC
+>  	select STRICT_KERNEL_RWX if STRICT_MODULE_RWX
+>  	select SYSCTL_EXCEPTION_TRACE
+>  	select THREAD_INFO_IN_TASK
+> +	select TRACE_IRQFLAGS_SUPPORT
+>  	select VIRT_TO_BUS			if !PPC64
+>  	#
+>  	# Please keep this list sorted alphabetically.
+
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+
+cheers
