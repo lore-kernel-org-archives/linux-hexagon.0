@@ -1,298 +1,57 @@
-From: Helge Deller <deller@gmx.de>
-Subject: Re: [PATCH v2] init: consolidate trap_init()
-Date: Sun, 22 Aug 2021 21:48:36 +0200
-Message-ID: <8638c5bc-71cd-9407-e597-77bf9bec17ee@gmx.de>
-References: <20210414165808.458a3d11@xhacker.debian>
- <20210414180037.14602dab@xhacker.debian>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1629661817;
-        bh=pjk5jD1zqKrMDItorPB4yDhy+hHyj7Di150YCWUjJSA=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=L5srSGlwOnnWzNjCtJvhGJQxaLVCM4qEF6Z1J266F6xZnz8Cd93QXE+u5+swHfz0f
-         kJVrfLDjot0nP3MyPvX3LgMl/bObX5kl4PBzRvcPFQeYCAdBQQimDLyW2lYckBGP7W
-         T+g29G/rdCbDxXOA++Ww3ZJuKyje+CSGa2X0JD7o=
-In-Reply-To: <20210414180037.14602dab@xhacker.debian>
-Content-Language: en-US
-List-ID: <linux-hexagon.vger.kernel.org>
+From: Palmer Dabbelt <palmer@dabbelt.com>
+Subject: Re: [PATCH 2/3] trace: refactor TRACE_IRQFLAGS_SUPPORT in Kconfig
+Date: Tue, 24 Aug 2021 20:49:37 -0700 (PDT)
+Message-ID: <mhng-fae2ea79-c261-4e5d-8eae-21e60810a957@palmerdabbelt-glaptop>
+References: <20210731052233.4703-2-masahiroy@kernel.org>
+Mime-Version: 1.0 (MHng)
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
+	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
+	List-Unsubscribe:List-Id:Mime-Version:Message-ID:To:From:CC:In-Reply-To:
+	Subject:Date:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:List-Owner;
+	bh=6nR9aX/QVdFygrTD2IVeHOaN5/rV2NQhNSHli3tRxJ0=; b=tDXfwHfqZSKdtILyY5B3nGf47I
+	Xq/r8ezQqmbGlij/JwUsilu9xeP1TctySvfSBQz9xH0UjJeeUEG3CM3U+1vaQUDpgc8jZbClhHTtg
+	GCc2Hrduo+OM+j623bvPhP5xklytesLYTXN6MWhw5kuAh+MBjiUL2lCTj+154XgBYBSi08mfzHVyU
+	j6riIWHczS5+uPncIlfibl2VUgDHzAyqw0tRLaz+q5LensR30edYZJeuAn6yAJrWNUAGXIAcezkDV
+	zsvvIX8lvLuRruKLMnw8CpRYNW+oXC99u4hOnK8tYxL9t3vsRs1lO4szGNeVSdm6M4OLjnZSn7gDp
+	ACSlkGXw==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=dabbelt-com.20150623.gappssmtp.com; s=20150623;
+ h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
+ :content-transfer-encoding;
+ bh=CbvF3gcMl15CsJvEJlvAwV4jg0kS7/1c0/243X9NmVQ=;
+ b=nS8Xfv5Np514ewOr71qM5OVYQ4om375+9iia5AAYDaK3OM+hzJenuJr7dAU5cYremk
+ lMJSdk/H6gRuWyoAZ38Dxo4xTOwzwlYBTQ7mHvrJGvY2eRlpd9btrTwCc/T4R+lnp2Oz
+ tfjjB9XYA84IA+sxs7E0+0bjR3ImZY/NCblTCqWV1vz8ngiUx+QRlaWbVMisVRWW3rOO
+ yK85Pgi7JMY0nVAg9WrPZrM52PG/5lW+DmvVcQIgBTfNfdcKCdUHJCl4J+hHtwrGzLzq
+ JQXK/nMftIjnNhxqPt/IHdPMmbV0SixoX/iiQ7rUV+IDNkS5Y0uflbsJwBJg2KghrkLe
+ Gahg==
+In-Reply-To: <20210731052233.4703-2-masahiroy@kernel.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Jisheng Zhang <Jisheng.Zhang@synaptics.com>, Vineet Gupta <vgupta@synopsys.com>, Russell King <linux@armlinux.org.uk>, Yoshinori Sato <ysato@users.sourceforge.jp>, Brian Cain <bcain@codeaurora.org>, Nick Hu <nickhu@andestech.com>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eec>
-Cc: linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, linux-hexagon@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-um@lists.infradead.org, Anup Patel <anup@brainfault.org>, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org
+Cc: rostedt@goodmis.org, mingo@redhat.com, masahiroy@kernel.org, Arnd Bergmann <arnd@arndb.de>, ardb@kernel.org, bp@alien8.de, linus.walleij@linaro.org, ley.foon.tan@intel.com, x86@kernel.org, linux-mips@vger.kernel.org, sparclinux@vger.kernel.org, anshuman.khandual@arm.com, nickhu@andestech.com, tglx@linutronix.de, rppt@kernel.org, geert@linux-m68k.org, peterz@infradead.org, catalin.marinas@arm.com, linux-riscv@lists.infradead.org, yifeifz2@illinois.edu, green.hu@gmail.com, monstr@monstr.eu, deller@gmx.de, linux-sh@vger.kernel.org, vgupta@synopsys.com, u.kleine-koenig@pengutronix.de, guoren@kernel.org, samitolvanen@google.com, richard@nod.at, borntraeger@de.ibm.com, dalias@libc.org, aou@eecs.berkeley.edu, hca@linux.ibm.com, jdike@addtoit.com, jcmvbkbc@gmail.com, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, hpa@zytor.com, will@kernel.org, tsbogend
 
-On 4/14/21 12:00 PM, Jisheng Zhang wrote:
-> Many architectures implement the trap_init() as NOP, since there is
-> no such default for trap_init(), this empty stub is duplicated among
-> these architectures. Provide a generic but weak NOP implementation
-> to drop the empty stubs of trap_init() in these architectures.
+On Fri, 30 Jul 2021 22:22:32 PDT (-0700), masahiroy@kernel.org wrote:
+> Make architectures select TRACE_IRQFLAGS_SUPPORT instead of
+> having many defines.
 >
-> The alpha, microblaze and sparc32 have real trap_init() implementation
-> but the __init marker is missing, so add it to these three platforms.
->
-> Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 > ---
-> Since v1:
->   - add __init marker to trap_init() for alpha, microblaze and sparc32
->   - adjust the generic weak NOP trap_init() location to make it sits wit=
-h
->     other NOP implementations together
 >
->   arch/alpha/kernel/traps.c      |  2 +-
->   arch/arc/kernel/traps.c        |  5 -----
->   arch/arm/kernel/traps.c        |  5 -----
->   arch/h8300/kernel/traps.c      | 13 -------------
->   arch/hexagon/kernel/traps.c    |  4 ----
->   arch/microblaze/kernel/traps.c |  2 +-
->   arch/nds32/kernel/traps.c      |  5 -----
->   arch/nios2/kernel/traps.c      |  5 -----
->   arch/openrisc/kernel/traps.c   |  5 -----
->   arch/parisc/kernel/traps.c     |  4 ----
->   arch/powerpc/kernel/traps.c    |  5 -----
->   arch/riscv/kernel/traps.c      |  5 -----
->   arch/sparc/kernel/traps_32.c   |  2 +-
->   arch/um/kernel/trap.c          |  4 ----
->   init/main.c                    |  2 ++
->   15 files changed, 5 insertions(+), 63 deletions(-)
+>  arch/riscv/Kconfig            | 4 +---
 
-
-For parisc:
-
-Acked-by: Helge Deller <deller@gmx.de> # parisc
+Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
 
 Thanks!
-Helge
-
->
-> diff --git a/arch/alpha/kernel/traps.c b/arch/alpha/kernel/traps.c
-> index 921d4b6e4d95..96b203199c6c 100644
-> --- a/arch/alpha/kernel/traps.c
-> +++ b/arch/alpha/kernel/traps.c
-> @@ -973,7 +973,7 @@ do_entUnaUser(void __user * va, unsigned long opcode=
-,
->   	return;
->   }
->
-> -void
-> +void __init
->   trap_init(void)
->   {
->   	/* Tell PAL-code what global pointer we want in the kernel.  */
-> diff --git a/arch/arc/kernel/traps.c b/arch/arc/kernel/traps.c
-> index 57235e5c0cea..6b83e3f2b41c 100644
-> --- a/arch/arc/kernel/traps.c
-> +++ b/arch/arc/kernel/traps.c
-> @@ -20,11 +20,6 @@
->   #include <asm/unaligned.h>
->   #include <asm/kprobes.h>
->
-> -void __init trap_init(void)
-> -{
-> -	return;
-> -}
-> -
->   void die(const char *str, struct pt_regs *regs, unsigned long address)
->   {
->   	show_kernel_fault_diag(str, regs, address);
-> diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
-> index 17d5a785df28..9baccef20392 100644
-> --- a/arch/arm/kernel/traps.c
-> +++ b/arch/arm/kernel/traps.c
-> @@ -780,11 +780,6 @@ void abort(void)
->   	panic("Oops failed to kill thread");
->   }
->
-> -void __init trap_init(void)
-> -{
-> -	return;
-> -}
-> -
->   #ifdef CONFIG_KUSER_HELPERS
->   static void __init kuser_init(void *vectors)
->   {
-> diff --git a/arch/h8300/kernel/traps.c b/arch/h8300/kernel/traps.c
-> index 5d8b969cd8f3..c3a3ebf77fbb 100644
-> --- a/arch/h8300/kernel/traps.c
-> +++ b/arch/h8300/kernel/traps.c
-> @@ -30,19 +30,6 @@
->
->   static DEFINE_SPINLOCK(die_lock);
->
-> -/*
-> - * this must be called very early as the kernel might
-> - * use some instruction that are emulated on the 060
-> - */
-> -
-> -void __init base_trap_init(void)
-> -{
-> -}
-> -
-> -void __init trap_init(void)
-> -{
-> -}
-> -
->   asmlinkage void set_esp0(unsigned long ssp)
->   {
->   	current->thread.esp0 =3D ssp;
-> diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
-> index 904134b37232..edfc35dafeb1 100644
-> --- a/arch/hexagon/kernel/traps.c
-> +++ b/arch/hexagon/kernel/traps.c
-> @@ -28,10 +28,6 @@
->   #define TRAP_SYSCALL	1
->   #define TRAP_DEBUG	0xdb
->
-> -void __init trap_init(void)
-> -{
-> -}
-> -
->   #ifdef CONFIG_GENERIC_BUG
->   /* Maybe should resemble arch/sh/kernel/traps.c ?? */
->   int is_valid_bugaddr(unsigned long addr)
-> diff --git a/arch/microblaze/kernel/traps.c b/arch/microblaze/kernel/tra=
-ps.c
-> index 94b6fe93147d..7c15704fe56e 100644
-> --- a/arch/microblaze/kernel/traps.c
-> +++ b/arch/microblaze/kernel/traps.c
-> @@ -18,7 +18,7 @@
->   #include <asm/exceptions.h>
->   #include <asm/unwind.h>
->
-> -void trap_init(void)
-> +void __init trap_init(void)
->   {
->   	__enable_hw_exceptions();
->   }
-> diff --git a/arch/nds32/kernel/traps.c b/arch/nds32/kernel/traps.c
-> index ee0d9ae192a5..f06421c645af 100644
-> --- a/arch/nds32/kernel/traps.c
-> +++ b/arch/nds32/kernel/traps.c
-> @@ -183,11 +183,6 @@ void __pgd_error(const char *file, int line, unsign=
-ed long val)
->   }
->
->   extern char *exception_vector, *exception_vector_end;
-> -void __init trap_init(void)
-> -{
-> -	return;
-> -}
-> -
->   void __init early_trap_init(void)
->   {
->   	unsigned long ivb =3D 0;
-> diff --git a/arch/nios2/kernel/traps.c b/arch/nios2/kernel/traps.c
-> index b172da4eb1a9..596986a74a26 100644
-> --- a/arch/nios2/kernel/traps.c
-> +++ b/arch/nios2/kernel/traps.c
-> @@ -105,11 +105,6 @@ void show_stack(struct task_struct *task, unsigned =
-long *stack,
->   	printk("%s\n", loglvl);
->   }
->
-> -void __init trap_init(void)
-> -{
-> -	/* Nothing to do here */
-> -}
-> -
->   /* Breakpoint handler */
->   asmlinkage void breakpoint_c(struct pt_regs *fp)
->   {
-> diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
-> index 4d61333c2623..aa1e709405ac 100644
-> --- a/arch/openrisc/kernel/traps.c
-> +++ b/arch/openrisc/kernel/traps.c
-> @@ -231,11 +231,6 @@ void unhandled_exception(struct pt_regs *regs, int =
-ea, int vector)
->   	die("Oops", regs, 9);
->   }
->
-> -void __init trap_init(void)
-> -{
-> -	/* Nothing needs to be done */
-> -}
-> -
->   asmlinkage void do_trap(struct pt_regs *regs, unsigned long address)
->   {
->   	force_sig_fault(SIGTRAP, TRAP_BRKPT, (void __user *)regs->pc);
-> diff --git a/arch/parisc/kernel/traps.c b/arch/parisc/kernel/traps.c
-> index 8d8441d4562a..747c328fb886 100644
-> --- a/arch/parisc/kernel/traps.c
-> +++ b/arch/parisc/kernel/traps.c
-> @@ -859,7 +859,3 @@ void  __init early_trap_init(void)
->
->   	initialize_ivt(&fault_vector_20);
->   }
-> -
-> -void __init trap_init(void)
-> -{
-> -}
-> diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-> index a44a30b0688c..e952bee89684 100644
-> --- a/arch/powerpc/kernel/traps.c
-> +++ b/arch/powerpc/kernel/traps.c
-> @@ -2207,11 +2207,6 @@ DEFINE_INTERRUPT_HANDLER(kernel_bad_stack)
->   	die("Bad kernel stack pointer", regs, SIGABRT);
->   }
->
-> -void __init trap_init(void)
-> -{
-> -}
-> -
-> -
->   #ifdef CONFIG_PPC_EMULATED_STATS
->
->   #define WARN_EMULATED_SETUP(type)	.type =3D { .name =3D #type }
-> diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-> index 0879b5df11b9..b3f3d84de779 100644
-> --- a/arch/riscv/kernel/traps.c
-> +++ b/arch/riscv/kernel/traps.c
-> @@ -194,8 +194,3 @@ int is_valid_bugaddr(unsigned long pc)
->   		return ((insn & __COMPRESSED_INSN_MASK) =3D=3D __BUG_INSN_16);
->   }
->   #endif /* CONFIG_GENERIC_BUG */
-> -
-> -/* stvec & scratch is already set from head.S */
-> -void trap_init(void)
-> -{
-> -}
-> diff --git a/arch/sparc/kernel/traps_32.c b/arch/sparc/kernel/traps_32.c
-> index 247a0d9683b2..c4df20ec01e2 100644
-> --- a/arch/sparc/kernel/traps_32.c
-> +++ b/arch/sparc/kernel/traps_32.c
-> @@ -365,7 +365,7 @@ EXPORT_SYMBOL(do_BUG);
->    * up here so that timer interrupts work during initialization.
->    */
->
-> -void trap_init(void)
-> +void __init trap_init(void)
->   {
->   	extern void thread_info_offsets_are_bolixed_pete(void);
->
-> diff --git a/arch/um/kernel/trap.c b/arch/um/kernel/trap.c
-> index ad12f78bda7e..3198c4767387 100644
-> --- a/arch/um/kernel/trap.c
-> +++ b/arch/um/kernel/trap.c
-> @@ -311,7 +311,3 @@ void winch(int sig, struct siginfo *unused_si, struc=
-t uml_pt_regs *regs)
->   {
->   	do_IRQ(WINCH_IRQ, regs);
->   }
-> -
-> -void trap_init(void)
-> -{
-> -}
-> diff --git a/init/main.c b/init/main.c
-> index 53b278845b88..8d14674c4e00 100644
-> --- a/init/main.c
-> +++ b/init/main.c
-> @@ -779,6 +779,8 @@ void __init __weak poking_init(void) { }
->
->   void __init __weak pgtable_cache_init(void) { }
->
-> +void __init __weak trap_init(void) { }
-> +
->   bool initcall_debug;
->   core_param(initcall_debug, initcall_debug, bool, 0644);
->
->
-
