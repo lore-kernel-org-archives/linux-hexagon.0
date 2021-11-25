@@ -1,64 +1,57 @@
-From: Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH v2 0/3] Fixes for ARCH=hexagon allmodconfig
-Date: Mon, 15 Nov 2021 10:42:48 -0700
-Message-ID: <20211115174250.1994179-1-nathan@kernel.org>
+From: Rob Landley <rob@landley.net>
+Subject: Re: [PATCH 01/20] Hexagon HVX (target/hexagon) README
+Date: Thu, 25 Nov 2021 00:26:58 -0600
+Message-ID: <ee0ee7c5-22e5-2c79-695d-e66ae39bb5fb@landley.net>
+References: <1625528074-19440-1-git-send-email-tsimpson@quicinc.com>
+ <1625528074-19440-2-git-send-email-tsimpson@quicinc.com>
+ <1b632e88-43d4-3034-cf7b-d42be056d842@landley.net>
+ <SN6PR02MB42054B50C60ABA378256492DB8159@SN6PR02MB4205.namprd02.prod.outlook.com>
+ <553c32e8-188c-5b2c-2f4a-a8cfd7b903a9@landley.net>
+ <BN7PR02MB4194007550E66EBE877625A6B8E19@BN7PR02MB4194.namprd02.prod.outlook.com>
+ <BYAPR02MB55091DE5B976956075B46FADBEE19@BYAPR02MB5509.namprd02.prod.outlook.com>
+ <8845de00-ddc7-86a3-600f-6ede81e168c2@landley.net>
+ <8192e9bb-a0de-1b2a-271c-ac7323be8244@landley.net>
+ <BYAPR02MB48863186EDD71439C60792A0DEE89@BYAPR02MB4886.namprd02.prod.outlook.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636998196;
-        bh=+cRVGDX7Sl8y+R4yFnKNAcU2pi6NOfJ9gNgSyoE5d/M=;
-        h=From:To:Cc:Subject:Date:From;
-        b=bCTEuiBM6GatYDrfo2RCIN8ai8Pk0Ys/ylCly6tdj20NtCUJapWJzYfc43Ro2X3ds
-         zCdSOwTS9AG3E5Na43o7u9MvDBCQaw1PaoVIoOk+aDyfq6/KwFDPZ8HCZCo8X9he7Q
-         azXrc17i5fzAxOle+vkP2vVQ+NOuW4s3dPAWW76PlabVUtgXhVURs35CEQ7sVH4U5j
-         JxvUahUwtIGH5fA260TcP3axqknQDw8MBxaoog7z5ZY7mJL3raAAnXgkEU8vpmKaVV
-         1sGeak7IzBiLA7zKGCyTfYl6KYk303fy67mAnf5djVjdO6afmzKZeDzEp7uw5h/MPs
-         OAd3bqHG4SYZA==
-List-ID: <linux-hexagon.vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=landley-net.20210112.gappssmtp.com; s=20210112;
+ h=subject:to:cc:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-language:content-transfer-encoding;
+ bh=/ZqZmF+q1iwRbg9wNdhq1jqh+3PguSzbZtWn7yBzt60=;
+ b=VXJK1TU4jtMYNycpca5aWKzvU2ukuz5F3VcffWGQ35/7f5+0a5nkSfmje3P5MmNNEh
+ Nk1NVVjwGiXgvwlILu4bS1RdSTlwvfUCho51xcj5F7NATF1zXfminVNZVln4nVrlDs7P
+ MUMjgTdSUmhvorKebKb5NeZO3Yic2TdikmqGtQ30C/jKg1mbAd41pTbJgEIdLLxeLc+/
+ q9dcj67TjFjA7DVwJLcBAK226K07md0+lMmDnKmsJLNTfRu7zGptcMHukdZ4yqcvvcOz
+ LthwSHLoLRB7GZCwDqpzfGgzlbVWO83k4/tModrYJzr9eQ5qCwWYJDxZWxmiC9EkxvWz
+ QfsA==
+In-Reply-To: <BYAPR02MB48863186EDD71439C60792A0DEE89@BYAPR02MB4886.namprd02.prod.outlook.com>
+Content-Language: en-US
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+ <mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <https://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+ <mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org
+Sender: "Qemu-devel"
+ <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Andrew Morton <akpm@linux-foundation.org>, Brian Cain <bcain@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>, linux-kernel@vger.kernel.org, llvm@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>
+To: Taylor Simpson <tsimpson@quicinc.com>, Sid Manning <sidneym@quicinc.com>, Brian Cain <bcain@quicinc.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
+Cc: "ale@rev.ng" <ale@rev.ng>, "peter.maydell@linaro.org" <peter.maydell@linaro.org>, "richard.henderson@linaro.org" <richard.henderson@linaro.org>, "philmd@redhat.com" <philmd@redhat.com>
 
-This series fixes some issues noticed with ARCH=hexagon allmodconfig.
+On 7/26/21 8:59 AM, Taylor Simpson wrote:
+> We're working on system mode support for Hexagon, and we plan to upstream it when it is ready.
+> 
+> Thanks,
+> Taylor
 
-The first two patches were previously sent as individual patches but it
-makes sense to bundle them together after CONFIG_WERROR as they are both
-required to fix the build.
+Any progress on this? (Is there a way for outsiders to track the status?)
 
-The third patch is new, I only noticed it when building "normally", as
-opposed to with O=...
+Thanks,
 
-I would like to see these merged into mainline sooner rather than later
-since I initially sent them in July.
-
-v1 -> v2:
-
-https://lore.kernel.org/r/20210708233849.3140194-1-nathan@kernel.org/
-https://lore.kernel.org/r/20210728001729.1960182-1-nathan@kernel.org/
-
-* Add patch 3.
-* Add Brian Cain's ack on patches 1 and 2.
-* The warning in patch 2 is now an error because CONFIG_WERROR is
-  enabled with allmodconfig.
-* Add stable CC for patches 1 and 2 because they fix build errors.
-
-Nathan Chancellor (3):
-  hexagon: Export raw I/O routines for modules
-  hexagon: Clean up timer-regs.h
-  hexagon: Ignore vmlinux.lds
-
- arch/hexagon/include/asm/timer-regs.h | 26 --------------------------
- arch/hexagon/include/asm/timex.h      |  3 +--
- arch/hexagon/kernel/.gitignore        |  1 +
- arch/hexagon/kernel/time.c            | 12 ++++++++++--
- arch/hexagon/lib/io.c                 |  4 ++++
- 5 files changed, 16 insertions(+), 30 deletions(-)
- delete mode 100644 arch/hexagon/include/asm/timer-regs.h
- create mode 100644 arch/hexagon/kernel/.gitignore
-
-
-base-commit: fa55b7dcdc43c1aa1ba12bca9d2dd4318c2a0dbf
--- 
-2.34.0.rc0
+Rob
 
