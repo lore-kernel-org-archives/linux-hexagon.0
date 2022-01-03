@@ -1,56 +1,35 @@
-From: Jason Wang <wangborong@cdjrlc.com>
-Subject: [PATCH] hexagon: use strscpy to copy strings
-Date: Mon, 20 Dec 2021 16:50:13 +0800
-Message-ID: <20211220085013.959126-1-wangborong@cdjrlc.com>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Subject: Reference to non-existing config COMET_EARLY_UART_DEBUG
+Date: Mon, 3 Jan 2022 13:16:48 +0100
+Message-ID: <CAKXUXMwcPLAAviuotom39+9m3upZvir-az=_-ZxU0eOu8OPxWA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=lOyYQI0CIiGDaIpaEWbuQqbHJxkreGLXN8QH7/z8oI4=;
+        b=avHPEGVXj896OQFF1OF8lCa7weuU688Bgnpm0I6pbYz1jMhNj2SDgNGAGsxgYOWx+c
+         cpbaI+2zQm4NH4mEZp8vasOY2vT9Edc/3q82TLFpkKZxWA6McTVyivhnhlomW0gSZETH
+         c/VZWKq2H5c5gEIo3cKElPBM179+Pq/ivqeFhTjEWKBR0QYsdk7PtUcXqxxNdFLl5fbe
+         HC4xM3B/D6RSOJfP0r5Ky1dVi9E3oOY90BuvcNe59iqbvkxBcD7yKYZ0LNk6Km+UUyd+
+         JmUg+t8XZi1bG73eHLaBasdU9dgEVq0npwkZbvcXTc2AdFM5khqDAru/yuHfS9FXsEWD
+         GKig==
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: bcain@codeaurora.org
-Cc: wangborong@cdjrlc.com, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kernel-janitors <kernel-janitors@vger.kernel.org>
 
-The strlcpy should not be used because it doesn't limit the source
-length. So that it will lead some potential bugs.
+Dear Brian,
 
-But the strscpy doesn't require reading memory from the src string
-beyond the specified "count" bytes, and since the return value is
-easier to error-check than strlcpy()'s. In addition, the implementation
-is robust to the string changing out from underneath it, unlike the
-current strlcpy() implementation.
+In arch/hexagon/kernel/vm_init_segtable.S, an ifdef refers to
+CONFIG_COMET_EARLY_UART_DEBUG, but this config is never defined in the
+Kconfig files.
 
-Thus, replace strlcpy with strscpy.
+Can we delete this dead code in
+arch/hexagon/kernel/vm_init_segtable.S? If so, I will send a patch for
+that.
 
-Signed-off-by: Jason Wang <wangborong@cdjrlc.com>
----
- arch/hexagon/kernel/setup.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Best regards,
 
-diff --git a/arch/hexagon/kernel/setup.c b/arch/hexagon/kernel/setup.c
-index 1880d9beaf2b..621674e86232 100644
---- a/arch/hexagon/kernel/setup.c
-+++ b/arch/hexagon/kernel/setup.c
-@@ -66,9 +66,9 @@ void __init setup_arch(char **cmdline_p)
- 		on_simulator = 0;
- 
- 	if (p[0] != '\0')
--		strlcpy(boot_command_line, p, COMMAND_LINE_SIZE);
-+		strscpy(boot_command_line, p, COMMAND_LINE_SIZE);
- 	else
--		strlcpy(boot_command_line, default_command_line,
-+		strscpy(boot_command_line, default_command_line,
- 			COMMAND_LINE_SIZE);
- 
- 	/*
-@@ -76,7 +76,7 @@ void __init setup_arch(char **cmdline_p)
- 	 * are both picked up by the init code. If no reason to
- 	 * make them different, pass the same pointer back.
- 	 */
--	strlcpy(cmd_line, boot_command_line, COMMAND_LINE_SIZE);
-+	strscpy(cmd_line, boot_command_line, COMMAND_LINE_SIZE);
- 	*cmdline_p = cmd_line;
- 
- 	parse_early_param();
--- 
-2.34.1
-
+Lukas
