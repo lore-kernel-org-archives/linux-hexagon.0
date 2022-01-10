@@ -1,80 +1,69 @@
-From: Qu Wenruo <wqu@suse.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 Subject: Re: [PATCH] fs: btrfs: Disable BTRFS on platforms having 256K pages
-Date: Fri, 7 Jan 2022 13:21:53 +0800
-Message-ID: <7fc839d7-c13d-d658-5247-62540d76e7c0@suse.com>
+Date: Mon, 10 Jan 2022 08:29:44 +0000
+Message-ID: <3db6dbe8-7190-a2b1-f092-22bbbac6fedd@csgroup.eu>
 References: <a16c31f3caf448dda5d9315e056585b6fafc22c5.1623302442.git.christophe.leroy@csgroup.eu>
  <6c7a6762-6bec-842b-70b4-4a53297687d1@gmx.com>
- <CAEg-Je9UJDJ=hvLLqQDsHijWnxh1Z1CwaLKCFm+-bLTfCFingg@mail.gmail.com>
- <db88497c-ea17-27ca-6158-2a987acb7a1c@gmx.com>
- <87bl0o2lgo.fsf@mpe.ellerman.id.au>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=mimecast20200619;
-        t=1641532942;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+uLY0XYI6R+LPrwdz1fmC76iiLA2yfMqWxPreldZEhs=;
-        b=ndFstp9aHYCX0qtH7YWlOH5ZsOiYJqUDFEGFAdJ19umzj7Nwxooa1nL9nZpc4/HMevjLcj
-        C7pWmsFSPgNEe2RAtJPxoy3DF7p/WNWmcBlNejI1U5a3zxgaXfVQmev7w1/T/cSti68G5m
-        o66Ve5iMWTQ2LDw1omgc6UKbzoi/dJ8=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+In-Reply-To: <6c7a6762-6bec-842b-70b4-4a53297687d1@gmx.com>
 Content-Language: en-US
-In-Reply-To: <87bl0o2lgo.fsf@mpe.ellerman.id.au>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Michael Ellerman <mpe@ellerman.id.au>, Qu Wenruo <quwenruo.btrfs@gmx.com>, Neal Gompa <ngompa13@gmail.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>, Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org, Btrfs BTRFS <linux-btrfs@vger.kernel.org>, linux-hexagon@vger.kernel.org, Hector Martin <marcan@marcan.st>
+Content-ID: <1CDF836275BD8E4DACC3EFBD2A1624BC@FRAP264.PROD.OUTLOOK.COM>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+To: Qu Wenruo <quwenruo.btrfs@gmx.com>, Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>
+Cc: "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>
 
-
-
-On 2022/1/7 12:55, Michael Ellerman wrote:
-> Qu Wenruo <quwenruo.btrfs@gmx.com> writes:
->> On 2022/1/7 00:31, Neal Gompa wrote:
->>> On Wed, Jan 5, 2022 at 7:05 AM Qu Wenruo <quwenruo.btrfs@gmx.com> wrote:
->>>>
->>>> Hi Christophe,
->>>>
->>>> I'm recently enhancing the subpage support for btrfs, and my current
->>>> branch should solve the problem for btrfs to support larger page sizes.
->>>>
->>>> But unfortunately my current test environment can only provide page size
->>>> with 64K or 4K, no 16K or 128K/256K support.
->>>>
->>>> Mind to test my new branch on 128K page size systems?
->>>> (256K page size support is still lacking though, which will be addressed
->>>> in the future)
->>>>
->>>> https://github.com/adam900710/linux/tree/metadata_subpage_switch
->>>>
->>>
->>> The Linux Asahi folks have a 16K page environment (M1 Macs)...
->>
->> Su Yue kindly helped me testing 16K page size, and it's pretty OK there.
->>
->> So I'm not that concerned.
->>
->> It's 128K page size that I'm a little concerned, and I have not machine
->> supporting that large page size to do the test.
-> 
-> Did Christophe say he had a 128K system to test on?
-> 
-> In mainline powerpc only supports 4K/16K/64K/256K.
-> 
-> AFAIK there's no arch with 128K page size support, but that's only based
-> on some grepping, maybe it's hidden somewhere.
-
-My bad, I thought there would be 128K since there is 256K and 64K 
-support, but that's totally wrong.
-
-I'll get PPC guys informed when the 256K page size problem is solved, 
-and then ask for your help.
-
-Thanks,
-Qu
-
-> 
-> cheers
-> 
-
+SGkgUXUsDQoNCkxlIDA1LzAxLzIwMjIgw6AgMDA6MzIsIFF1IFdlbnJ1byBhIMOpY3JpdMKgOg0K
+PiBIaSBDaHJpc3RvcGhlLA0KPiANCj4gSSdtIHJlY2VudGx5IGVuaGFuY2luZyB0aGUgc3VicGFn
+ZSBzdXBwb3J0IGZvciBidHJmcywgYW5kIG15IGN1cnJlbnQNCj4gYnJhbmNoIHNob3VsZCBzb2x2
+ZSB0aGUgcHJvYmxlbSBmb3IgYnRyZnMgdG8gc3VwcG9ydCBsYXJnZXIgcGFnZSBzaXplcy4NCj4g
+DQo+IEJ1dCB1bmZvcnR1bmF0ZWx5IG15IGN1cnJlbnQgdGVzdCBlbnZpcm9ubWVudCBjYW4gb25s
+eSBwcm92aWRlIHBhZ2Ugc2l6ZQ0KPiB3aXRoIDY0SyBvciA0Sywgbm8gMTZLIG9yIDEyOEsvMjU2
+SyBzdXBwb3J0Lg0KPiANCj4gTWluZCB0byB0ZXN0IG15IG5ldyBicmFuY2ggb24gMTI4SyBwYWdl
+IHNpemUgc3lzdGVtcz8NCj4gKDI1NksgcGFnZSBzaXplIHN1cHBvcnQgaXMgc3RpbGwgbGFja2lu
+ZyB0aG91Z2gsIHdoaWNoIHdpbGwgYmUgYWRkcmVzc2VkDQo+IGluIHRoZSBmdXR1cmUpDQoNCg0K
+SSBkb24ndCBoYXZlIGFueSBzeXN0ZW0gd2l0aCBkaXNrLCBJIG9ubHkgdXNlIGZsYXNoZGlza3Mg
+d2l0aCBVQklGUyANCmZpbGVzeXN0ZW0uDQoNClRoZSByZWFzb24gd2h5IEkgZGlkIHRoaXMgY29t
+bWl0IHdhcyBiZWNhdXNlIG9mIGEgYnVpbGQgZmFpbHVyZSByZXBvcnRlZCANCmJ5IEtlcm5lbCBC
+dWlsZCBSb2JvdCwgdGhhdCdzIGl0Lg0KDQpBbHNvIG5vdGUgdGhhdCBwb3dlcnBjIGRvZXNuJ3Qg
+aGF2ZSAxMjhLIHBhZ2VzLiBPbmx5IDQvMTYvNjQvMjU2Lg0KDQpBbmQgZm9yIDI1NiBpdCByZXF1
+aXJlcyBhIHNwZWNpYWwgdmVyc2lvbiBvZiBsZCBhbmQgYmludXRpbHMgdGhhdCBJIA0KZG9uJ3Qg
+aGF2ZS4NCg0KSSBoYXZlIGEgYm9hcmQgd2hlcmUgSSBjYW4gZG8gMTZrIHBhZ2VzLCBidXQgYWdh
+aW4gdGhhdCBib2FyZCBoYXMgbm8gZGlzay4NCg0KQ2hyaXN0b3BoZQ0KDQo+IA0KPiBodHRwczov
+L2dpdGh1Yi5jb20vYWRhbTkwMDcxMC9saW51eC90cmVlL21ldGFkYXRhX3N1YnBhZ2Vfc3dpdGNo
+DQo+IA0KPiBUaGFua3MsDQo+IFF1DQo+IA0KPiBPbiAyMDIxLzYvMTAgMTM6MjMsIENocmlzdG9w
+aGUgTGVyb3kgd3JvdGU6DQo+PiBXaXRoIGEgY29uZmlnIGhhdmluZyBQQUdFX1NJWkUgc2V0IHRv
+IDI1NkssIEJUUkZTIGJ1aWxkIGZhaWxzDQo+PiB3aXRoIHRoZSBmb2xsb3dpbmcgbWVzc2FnZQ0K
+Pj4NCj4+IMKgIGluY2x1ZGUvbGludXgvY29tcGlsZXJfdHlwZXMuaDozMjY6Mzg6IGVycm9yOiBj
+YWxsIHRvIA0KPj4gJ19fY29tcGlsZXRpbWVfYXNzZXJ0Xzc5MScgZGVjbGFyZWQgd2l0aCBhdHRy
+aWJ1dGUgZXJyb3I6IEJVSUxEX0JVR19PTiANCj4+IGZhaWxlZDogKEJUUkZTX01BWF9DT01QUkVT
+U0VEICUgUEFHRV9TSVpFKSAhPSAwDQo+Pg0KPj4gQlRSRlNfTUFYX0NPTVBSRVNTRUQgYmVpbmcg
+MTI4SywgQlRSRlMgY2Fubm90IHN1cHBvcnQgcGxhdGZvcm1zIHdpdGgNCj4+IDI1NksgcGFnZXMg
+YXQgdGhlIHRpbWUgYmVpbmcuDQo+Pg0KPj4gVGhlcmUgYXJlIHR3byBwbGF0Zm9ybXMgdGhhdCBj
+YW4gc2VsZWN0IDI1NksgcGFnZXM6DQo+PiDCoCAtIGhleGFnb24NCj4+IMKgIC0gcG93ZXJwYw0K
+Pj4NCj4+IERpc2FibGUgQlRSRlMgd2hlbiAyNTZLIHBhZ2Ugc2l6ZSBpcyBzZWxlY3RlZC4NCj4+
+DQo+PiBSZXBvcnRlZC1ieToga2VybmVsIHRlc3Qgcm9ib3QgPGxrcEBpbnRlbC5jb20+DQo+PiBT
+aWduZWQtb2ZmLWJ5OiBDaHJpc3RvcGhlIExlcm95IDxjaHJpc3RvcGhlLmxlcm95QGNzZ3JvdXAu
+ZXU+DQo+PiAtLS0NCj4+IMKgIGZzL2J0cmZzL0tjb25maWcgfCAyICsrDQo+PiDCoCAxIGZpbGUg
+Y2hhbmdlZCwgMiBpbnNlcnRpb25zKCspDQo+Pg0KPj4gZGlmZiAtLWdpdCBhL2ZzL2J0cmZzL0tj
+b25maWcgYi9mcy9idHJmcy9LY29uZmlnDQo+PiBpbmRleCA2OGI5NWFkODIxMjYuLjUyMGEwZjZh
+N2Q5ZSAxMDA2NDQNCj4+IC0tLSBhL2ZzL2J0cmZzL0tjb25maWcNCj4+ICsrKyBiL2ZzL2J0cmZz
+L0tjb25maWcNCj4+IEBAIC0xOCw2ICsxOCw4IEBAIGNvbmZpZyBCVFJGU19GUw0KPj4gwqDCoMKg
+wqDCoCBzZWxlY3QgUkFJRDZfUFENCj4+IMKgwqDCoMKgwqAgc2VsZWN0IFhPUl9CTE9DS1MNCj4+
+IMKgwqDCoMKgwqAgc2VsZWN0IFNSQ1UNCj4+ICvCoMKgwqAgZGVwZW5kcyBvbiAhUFBDXzI1Nktf
+UEFHRVPCoMKgwqAgIyBwb3dlcnBjDQo+PiArwqDCoMKgIGRlcGVuZHMgb24gIVBBR0VfU0laRV8y
+NTZLQsKgwqDCoCAjIGhleGFnb24NCj4+DQo+PiDCoMKgwqDCoMKgIGhlbHANCj4+IMKgwqDCoMKg
+wqDCoMKgIEJ0cmZzIGlzIGEgZ2VuZXJhbCBwdXJwb3NlIGNvcHktb24td3JpdGUgZmlsZXN5c3Rl
+bSB3aXRoIGV4dGVudHMs
