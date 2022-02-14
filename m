@@ -1,88 +1,102 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 04/14] x86: use more conventional access_ok() definition
-Date: Mon, 14 Feb 2022 12:24:13 -0800
-Message-ID: <CAHk-=wgYu67OwP4LhcrPdDVxv2mOsx-Xsc2DKoVW6GZwKFtOYQ@mail.gmail.com>
+From: Robin Murphy <robin.murphy@arm.com>
+Subject: Re: [PATCH 08/14] arm64: simplify access_ok()
+Date: Mon, 14 Feb 2022 21:06:58 +0000
+Message-ID: <cc6006c6-b073-7cc0-484d-7ddd193a8c2c@arm.com>
 References: <20220214163452.1568807-1-arnd@kernel.org>
- <20220214163452.1568807-5-arnd@kernel.org>
- <YgqLFYqIqkIsNC92@infradead.org>
- <CAK8P3a1F3JaYaJPy9bSCG1+YV6EN05PE0DbwpD_GT1qRwFSJ-w@mail.gmail.com>
- <CAHk-=whq6_Nh3cB3FieP481VcRyCu69X3=wO1yLHGmcZEj69SA@mail.gmail.com>
+ <20220214163452.1568807-9-arnd@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:Cc:To:Subject:Message-ID:Date:From:
-	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=O08YakNFoh0O+PgdlXe8WxjZnSF2bECCtrNghGObx24=; b=bb8nFnn9reIJbE
-	ZUjYzY6KHRi5rg5sg6q+5lSs4aca3luEjfinttpharOCnGQPSnPhzgcE80NCNQYCBKF849/EpuN9c
-	teeT/zbPu8394TGqDzRoDR8XJKTcg6yOBbshY7DK8NhA/fCWxS1CI/Th9NVJ3WWGSExhLr6OSaM9O
-	zPVpwyjFDxEypZpZwZmoBJzNu18+SCzgNCwuqW7HcjLftTb7zwnxMlMPoyrBI6F+RXfiYlvzNI7gS
-	Bp7dkb9nASqe042fQZMJjbeqAJWkznt5FQ5T0u6Yyspr4vCyHmZzvx25ZAtYy9Jb7tJv0a7iMIZaA
-	km/X7cHL42sAN8G273Ew==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=linux-foundation.org; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=uV1vHLzIr83T8MOCn12tMQAgRRvl8B7jglczOSl4CII=;
- b=JVRzXzobglXSiT0bLuA7vSr1HiJLXJeQF0BO276l66RCTCZjx8953KmFOVPMErrs0l
- on/NKX4mjsS9TS9bqhorHzBzM+OjtKgBLqdNoyLvrA639t1A433SV7/dJ5dxrhaCdPXH
- bTp5UzrLKiAt8Y3WQUfvdICLgLXk8cVAfLq1E=
-In-Reply-To: <CAHk-=whq6_Nh3cB3FieP481VcRyCu69X3=wO1yLHGmcZEj69SA@mail.gmail.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Christoph Hellwig <hch@lst.de>, linux-arch <linux-arch@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Linux API <linux-api@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, sparclinux <sparclinux@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, linux-riscv <linux-riscv@lists.infradead.org>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Brian Cain <bcain@codeaurora.org>, Helge Deller <deller@gmx.de>, the arch/x86 maintainers <x86@kern>
+Return-path: <linux-m68k-owner@vger.kernel.org>
+Content-Language: en-GB
+In-Reply-To: <20220214163452.1568807-9-arnd@kernel.org>
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: Arnd Bergmann <arnd@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-api@vger.kernel.org, arnd@arndb.de, linux-kernel@vger.kernel.org
+Cc: linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org, bcain@codeaurora.org, geert@linux-m68k.org, monstr@monstr.eu, tsbogend@alpha.franken.de, nickhu@andestech.com, green.hu@gmail.com, dinguyen@kernel.org, shorne@gmail.com, deller@gmx.de, mpe@ellerman.id.au, peterz@infradead.org, mingo@redhat.com, mark.rutland@arm.com, hca@linux.ibm.com, dalias@libc.org, davem@davemloft.net, richard@nod.at, x86@kernel.org, jcmvbkbc@gmail.com, ebiederm@xmission.com, akpm@linux-foundation.org, ardb@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-pa
 
-On Mon, Feb 14, 2022 at 12:01 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> x86-64 has always(*) used TASK_SIZE_MAX for access_ok(), and the
-> get_user() assembler implementation does the same.
+On 2022-02-14 16:34, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> arm64 has an inline asm implementation of access_ok() that is derived from
+> the 32-bit arm version and optimized for the case that both the limit and
+> the size are variable. With set_fs() gone, the limit is always constant,
+> and the size usually is as well, so just using the default implementation
+> reduces the check into a comparison against a constant that can be
+> scheduled by the compiler.
 
-Side note: we could just check the sign bit instead, and avoid big
-constants that way.
+Aww, I still vividly remember the birth of this madness, sat with my 
+phone on a Saturday morning waiting for my bike to be MOT'd, staring at 
+the 7-instruction sequence that Mark and I had come up with and certain 
+that it could be shortened still. Kinda sad to see it go, but at the 
+same time, glad that it can.
 
-Right now we actually have this complexity in the x86-64 user access code:
+Acked-by: Robin Murphy <robin.murphy@arm.com>
 
-  #ifdef CONFIG_X86_5LEVEL
-  #define LOAD_TASK_SIZE_MINUS_N(n) \
-        ALTERNATIVE __stringify(mov $((1 << 47) - 4096 - (n)),%rdx), \
-                    __stringify(mov $((1 << 56) - 4096 - (n)),%rdx),
-X86_FEATURE_LA57
-  #else
-  #define LOAD_TASK_SIZE_MINUS_N(n) \
-          mov $(TASK_SIZE_MAX - (n)),%_ASM_DX
-  #endif
+> On a defconfig build, this saves over 28KB of .text.
 
-just because the code tries to get that TASK_SIZE_MAX boundary just right.
+Not to mention saving those "WTF is going on there... oh yeah, 
+access_ok()" moments when looking through disassembly :)
 
-And getting that boundary just right is important on 32-bit x86, but
-it's *much* less important on x86-64.
+Cheers,
+Robin.
 
-There's still a (weak) reason to do it even for 64-bit code: page
-faults outside the valid user space range don't actually cause a #PF
-fault - they cause #GP - and then we have the #GP handler warn about
-"this address hasn't been checked".
-
-Which is nice and useful for doing syzbot kind of randomization loads
-(ie user accesses that didn't go through access_ok() will stand out
-nicely), but maybe it's not worth this. syzbot would be fine with only
-the "sign bit set" case warning for the same thing.
-
-So on x86-64, we could just check the sign of the address instead, and
-simplify and shrink those get/put_user() code sequences (but
-array_index_mask_nospec() currently uses the carry flag computation
-too, so we'd have to change that part as well, maybe not worth it).
-
-                  Linus
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>   arch/arm64/include/asm/uaccess.h | 28 +++++-----------------------
+>   1 file changed, 5 insertions(+), 23 deletions(-)
+> 
+> diff --git a/arch/arm64/include/asm/uaccess.h b/arch/arm64/include/asm/uaccess.h
+> index 357f7bd9c981..e8dce0cc5eaa 100644
+> --- a/arch/arm64/include/asm/uaccess.h
+> +++ b/arch/arm64/include/asm/uaccess.h
+> @@ -26,6 +26,8 @@
+>   #include <asm/memory.h>
+>   #include <asm/extable.h>
+>   
+> +static inline int __access_ok(const void __user *ptr, unsigned long size);
+> +
+>   /*
+>    * Test whether a block of memory is a valid user space address.
+>    * Returns 1 if the range is valid, 0 otherwise.
+> @@ -33,10 +35,8 @@
+>    * This is equivalent to the following test:
+>    * (u65)addr + (u65)size <= (u65)TASK_SIZE_MAX
+>    */
+> -static inline unsigned long __access_ok(const void __user *addr, unsigned long size)
+> +static inline int access_ok(const void __user *addr, unsigned long size)
+>   {
+> -	unsigned long ret, limit = TASK_SIZE_MAX - 1;
+> -
+>   	/*
+>   	 * Asynchronous I/O running in a kernel thread does not have the
+>   	 * TIF_TAGGED_ADDR flag of the process owning the mm, so always untag
+> @@ -46,27 +46,9 @@ static inline unsigned long __access_ok(const void __user *addr, unsigned long s
+>   	    (current->flags & PF_KTHREAD || test_thread_flag(TIF_TAGGED_ADDR)))
+>   		addr = untagged_addr(addr);
+>   
+> -	__chk_user_ptr(addr);
+> -	asm volatile(
+> -	// A + B <= C + 1 for all A,B,C, in four easy steps:
+> -	// 1: X = A + B; X' = X % 2^64
+> -	"	adds	%0, %3, %2\n"
+> -	// 2: Set C = 0 if X > 2^64, to guarantee X' > C in step 4
+> -	"	csel	%1, xzr, %1, hi\n"
+> -	// 3: Set X' = ~0 if X >= 2^64. For X == 2^64, this decrements X'
+> -	//    to compensate for the carry flag being set in step 4. For
+> -	//    X > 2^64, X' merely has to remain nonzero, which it does.
+> -	"	csinv	%0, %0, xzr, cc\n"
+> -	// 4: For X < 2^64, this gives us X' - C - 1 <= 0, where the -1
+> -	//    comes from the carry in being clear. Otherwise, we are
+> -	//    testing X' - C == 0, subject to the previous adjustments.
+> -	"	sbcs	xzr, %0, %1\n"
+> -	"	cset	%0, ls\n"
+> -	: "=&r" (ret), "+r" (limit) : "Ir" (size), "0" (addr) : "cc");
+> -
+> -	return ret;
+> +	return likely(__access_ok(addr, size));
+>   }
+> -#define __access_ok __access_ok
+> +#define access_ok access_ok
+>   
+>   #include <asm-generic/access_ok.h>
+>   
