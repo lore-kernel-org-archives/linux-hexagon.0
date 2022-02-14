@@ -1,154 +1,136 @@
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH 26/30] hexagon/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date: Mon, 14 Feb 2022 08:00:49 +0530
-Message-ID: <1644805853-21338-27-git-send-email-anshuman.khandual@arm.com>
-References: <1644805853-21338-1-git-send-email-anshuman.khandual@arm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1644805853-21338-1-git-send-email-anshuman.khandual@arm.com>
+From: Arnd Bergmann <arnd@kernel.org>
+Subject: [PATCH 01/14] uaccess: fix integer overflow on access_ok()
+Date: Mon, 14 Feb 2022 17:34:39 +0100
+Message-ID: <20220214163452.1568807-2-arnd@kernel.org>
+References: <20220214163452.1568807-1-arnd@kernel.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644856553;
+        bh=rSFbUFHYbR/4za9tBP+uUtPbOSoTyakm57XSAj/Auqo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=OZ4O1gNSNtwwNmiHhjY6IhU0E4BJ5We8XbBhorxEj9WTOfzc8GW6A9wXhW3abITrh
+         5VICuXJSDow6iYHC0e3qjJUZrd0nY+ZxgCA70cKABEhGmYygXnXVotyKfOCbgpbVrm
+         pGuK4IQR59nad5NN7zMl26jmakL0tF5IsM3zVKvJuUsbgvtw8ymirj23M7AeUqRAbK
+         Nb4ZCpdR7LXfqeDbObSioCUxRgm3spWcYhdjYFVER3t9sUGge35gaIcf4USGqAeqIv
+         Op0kZQjMjQu+Uf/UqNmdKlInWq80ZiSg5HRmKlo5FLGvtYFTEQ1arJmMBawI+kUcs8
+         VAdmt64TVWmMQ==
+In-Reply-To: <20220214163452.1568807-1-arnd@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>, Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, linux-arch@vger.kernel.org, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-api@vger.kernel.org, arnd@arndb.de, linux-kernel@vger.kernel.org
+Cc: linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org, bcain@codeaurora.org, geert@linux-m68k.org, monstr@monstr.eu, tsbogend@alpha.franken.de, nickhu@andestech.com, green.hu@gmail.com, dinguyen@kernel.org, shorne@gmail.com, deller@gmx.de, mpe@ellerman.id.au, peterz@infradead.org, mingo@redhat.com, mark.rutland@arm.com, hca@linux.ibm.com, dalias@libc.org, davem@davemloft.net, richard@nod.at, x86@kernel.org, jcmvbkbc@gmail.com, ebiederm@xmission.com, akpm@linux-foundation.org, ardb@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-pa
 
-This defines and exports a platform specific custom vm_get_page_prot() via
-subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
-macros can be dropped which are no longer needed.
+From: Arnd Bergmann <arnd@arndb.de>
 
-Cc: Brian Cain <bcain@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Three architectures check the end of a user access against the
+address limit without taking a possible overflow into account.
+Passing a negative length or another overflow in here returns
+success when it should not.
+
+Use the most common correct implementation here, which optimizes
+for a constant 'size' argument, and turns the common case into a
+single comparison.
+
+Cc: stable@vger.kernel.org
+Fixes: da551281947c ("csky: User access")
+Fixes: f663b60f5215 ("microblaze: Fix uaccess_ok macro")
+Fixes: 7567746e1c0d ("Hexagon: Add user access functions")
+Reported-by: David Laight <David.Laight@aculab.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/hexagon/Kconfig               |  1 +
- arch/hexagon/include/asm/pgtable.h | 24 -----------
- arch/hexagon/mm/init.c             | 67 ++++++++++++++++++++++++++++++
- 3 files changed, 68 insertions(+), 24 deletions(-)
+ arch/csky/include/asm/uaccess.h       |  7 +++----
+ arch/hexagon/include/asm/uaccess.h    | 18 +++++++++---------
+ arch/microblaze/include/asm/uaccess.h | 19 ++++---------------
+ 3 files changed, 16 insertions(+), 28 deletions(-)
 
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index 15dd8f38b698..cdc5df32a1e3 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -6,6 +6,7 @@ config HEXAGON
- 	def_bool y
- 	select ARCH_32BIT_OFF_T
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
-+	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_NO_PREEMPT
- 	select DMA_GLOBAL_POOL
- 	# Other pending projects/to-do items.
-diff --git a/arch/hexagon/include/asm/pgtable.h b/arch/hexagon/include/asm/pgtable.h
-index 18cd6ea9ab23..5eceddfe013d 100644
---- a/arch/hexagon/include/asm/pgtable.h
-+++ b/arch/hexagon/include/asm/pgtable.h
-@@ -127,31 +127,7 @@ extern unsigned long _dflt_cache_att;
- #define CACHEDEF	(CACHE_DEFAULT << 6)
+diff --git a/arch/csky/include/asm/uaccess.h b/arch/csky/include/asm/uaccess.h
+index c40f06ee8d3e..ac5a54f57d40 100644
+--- a/arch/csky/include/asm/uaccess.h
++++ b/arch/csky/include/asm/uaccess.h
+@@ -3,14 +3,13 @@
+ #ifndef __ASM_CSKY_UACCESS_H
+ #define __ASM_CSKY_UACCESS_H
  
- /* Private (copy-on-write) page protections. */
--#define __P000 __pgprot(_PAGE_PRESENT | _PAGE_USER | CACHEDEF)
--#define __P001 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | CACHEDEF)
--#define __P010 __P000	/* Write-only copy-on-write */
--#define __P011 __P001	/* Read/Write copy-on-write */
--#define __P100 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_EXECUTE | CACHEDEF)
--#define __P101 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_EXECUTE | \
--			_PAGE_READ | CACHEDEF)
--#define __P110 __P100	/* Write/execute copy-on-write */
--#define __P111 __P101	/* Read/Write/Execute, copy-on-write */
--
- /* Shared page protections. */
--#define __S000 __P000
--#define __S001 __P001
--#define __S010 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_WRITE | CACHEDEF)
--#define __S011 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | \
--			_PAGE_WRITE | CACHEDEF)
--#define __S100 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_EXECUTE | CACHEDEF)
--#define __S101 __P101
--#define __S110 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_EXECUTE | _PAGE_WRITE | CACHEDEF)
--#define __S111 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | \
--			_PAGE_EXECUTE | _PAGE_WRITE | CACHEDEF)
+-#define user_addr_max() \
+-	(uaccess_kernel() ? KERNEL_DS.seg : get_fs().seg)
++#define user_addr_max() (current_thread_info()->addr_limit.seg)
  
- extern pgd_t swapper_pg_dir[PTRS_PER_PGD];  /* located in head.S */
+ static inline int __access_ok(unsigned long addr, unsigned long size)
+ {
+-	unsigned long limit = current_thread_info()->addr_limit.seg;
++	unsigned long limit = user_addr_max();
  
-diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
-index f01e91e10d95..b53595fc4103 100644
---- a/arch/hexagon/mm/init.c
-+++ b/arch/hexagon/mm/init.c
-@@ -236,3 +236,70 @@ void __init setup_arch_memory(void)
- 	 *  which is called by start_kernel() later on in the process
- 	 */
+-	return ((addr < limit) && ((addr + size) < limit));
++	return (size <= limit) && (addr <= (limit - size));
  }
-+
-+pgprot_t vm_get_page_prot(unsigned long vm_flags)
+ #define __access_ok __access_ok
+ 
+diff --git a/arch/hexagon/include/asm/uaccess.h b/arch/hexagon/include/asm/uaccess.h
+index ef5bfef8d490..719ba3f3c45c 100644
+--- a/arch/hexagon/include/asm/uaccess.h
++++ b/arch/hexagon/include/asm/uaccess.h
+@@ -25,17 +25,17 @@
+  * Returns true (nonzero) if the memory block *may* be valid, false (zero)
+  * if it is definitely invalid.
+  *
+- * User address space in Hexagon, like x86, goes to 0xbfffffff, so the
+- * simple MSB-based tests used by MIPS won't work.  Some further
+- * optimization is probably possible here, but for now, keep it
+- * reasonably simple and not *too* slow.  After all, we've got the
+- * MMU for backup.
+  */
++#define uaccess_kernel() (get_fs().seg == KERNEL_DS.seg)
++#define user_addr_max() (uaccess_kernel() ? ~0UL : TASK_SIZE)
+ 
+-#define __access_ok(addr, size) \
+-	((get_fs().seg == KERNEL_DS.seg) || \
+-	(((unsigned long)addr < get_fs().seg) && \
+-	  (unsigned long)size < (get_fs().seg - (unsigned long)addr)))
++static inline int __access_ok(unsigned long addr, unsigned long size)
 +{
-+	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
-+	case VM_NONE:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				CACHEDEF);
-+	case VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_READ | CACHEDEF);
-+	/* Write-only copy-on-write */
-+	case VM_WRITE:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				CACHEDEF);
-+	/* Read/Write copy-on-write */
-+	case VM_WRITE | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_READ | CACHEDEF);
-+	case VM_EXEC:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | CACHEDEF);
-+	case VM_EXEC | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | _PAGE_READ |
-+				CACHEDEF);
-+	/* Write/execute copy-on-write */
-+	case VM_EXEC | VM_WRITE:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | CACHEDEF);
-+	/* Read/Write/Execute, copy-on-write */
-+	case VM_EXEC | VM_WRITE | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | _PAGE_READ |
-+				CACHEDEF);
-+	case VM_SHARED:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				CACHEDEF);
-+	case VM_SHARED | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_READ | CACHEDEF);
-+	case VM_SHARED | VM_WRITE:
-+		return  __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_WRITE | CACHEDEF);
-+	case VM_SHARED | VM_WRITE | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_READ | _PAGE_WRITE |
-+				CACHEDEF);
-+	case VM_SHARED | VM_EXEC:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | CACHEDEF);
-+	case VM_SHARED | VM_EXEC | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | _PAGE_READ |
-+				CACHEDEF);
-+	case VM_SHARED | VM_EXEC | VM_WRITE:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | _PAGE_WRITE |
-+				CACHEDEF);
-+	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_READ | _PAGE_EXECUTE |
-+				_PAGE_WRITE | CACHEDEF);
-+	default:
-+		BUILD_BUG();
-+	}
++	unsigned long limit = TASK_SIZE;
++
++	return (size <= limit) && (addr <= (limit - size));
 +}
-+EXPORT_SYMBOL(vm_get_page_prot);
++#define __access_ok __access_ok
+ 
+ /*
+  * When a kernel-mode page fault is taken, the faulting instruction
+diff --git a/arch/microblaze/include/asm/uaccess.h b/arch/microblaze/include/asm/uaccess.h
+index d2a8ef9f8978..5b6e0e7788f4 100644
+--- a/arch/microblaze/include/asm/uaccess.h
++++ b/arch/microblaze/include/asm/uaccess.h
+@@ -39,24 +39,13 @@
+ 
+ # define uaccess_kernel()	(get_fs().seg == KERNEL_DS.seg)
+ 
+-static inline int access_ok(const void __user *addr, unsigned long size)
++static inline int __access_ok(unsigned long addr, unsigned long size)
+ {
+-	if (!size)
+-		goto ok;
++	unsigned long limit = user_addr_max();
+ 
+-	if ((get_fs().seg < ((unsigned long)addr)) ||
+-			(get_fs().seg < ((unsigned long)addr + size - 1))) {
+-		pr_devel("ACCESS fail at 0x%08x (size 0x%x), seg 0x%08x\n",
+-			(__force u32)addr, (u32)size,
+-			(u32)get_fs().seg);
+-		return 0;
+-	}
+-ok:
+-	pr_devel("ACCESS OK at 0x%08x (size 0x%x), seg 0x%08x\n",
+-			(__force u32)addr, (u32)size,
+-			(u32)get_fs().seg);
+-	return 1;
++	return (size <= limit) && (addr <= (limit - size));
+ }
++#define access_ok(addr, size) __access_ok((unsigned long)addr, size)
+ 
+ # define __FIXUP_SECTION	".section .fixup,\"ax\"\n"
+ # define __EX_TABLE_SECTION	".section __ex_table,\"a\"\n"
 -- 
-2.25.1
+2.29.2
 
