@@ -1,52 +1,67 @@
-From: Arnd Bergmann <arnd@kernel.org>
-Subject: Re: [PATCH 03/14] nds32: fix access_ok() checks in get/put_user
-Date: Tue, 15 Feb 2022 10:18:15 +0100
-Message-ID: <CAK8P3a1XkWNQcFEhJQ0+qWzih1YRQDS_N8xiosN7FHn3yoTJpQ@mail.gmail.com>
-References: <20220214163452.1568807-1-arnd@kernel.org> <20220214163452.1568807-4-arnd@kernel.org>
- <YgqK1ihlJvRFHJ9h@infradead.org>
+From: Ard Biesheuvel <ardb@kernel.org>
+Subject: Re: [PATCH 08/14] arm64: simplify access_ok()
+Date: Tue, 15 Feb 2022 10:21:16 +0100
+Message-ID: <CAMj1kXGkG0KMD2rnKAJc3V7X9LP1grbcHTNYMnj_q4GiYfG2pQ@mail.gmail.com>
+References: <20220214163452.1568807-1-arnd@kernel.org> <20220214163452.1568807-9-arnd@kernel.org>
+ <CAMj1kXHixUFjV=4m3tzfGz7AiRWc-VczymbKuZq7dyZZNuLKxQ@mail.gmail.com> <CAK8P3a2VfvDkueaJNTA9SiB+PFsi_Q17AX+aL46ueooW2ahmQw@mail.gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-mips-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644916713;
-        bh=auvbexz8OfCE17jezkrwExlxQUSMdLXG0OAD2bmLs8A=;
+        s=k20201202; t=1644916891;
+        bh=RZSvrBa9M+3bZFIsmIZDqZd7d5VDsf+KxZINLGmOa8g=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=R1Pf445AMn7iEf0TcHJGtZqUinPVYRIlRYIhUK+pqFhNMydlmGdLOnDcwqdoOpcxv
-         rM+QtlC5MX40dddlY60U1EemOtvK01KeP4rBm30AWnHXp/wG3B2AqNZ0rlunLaOMbW
-         tr7Vs0w/mpIoN0XApZa80K1xHxowMUZXp7dP4/BbBM9W+v5sudL1uLbQT49sSxdXFp
-         TQxXAYDRaUN8F2rMT1u+N/nJuunLdz+VObtLisWpW965HLfjJNrl621lEvA4NBgly+
-         FEKN2xUIJ9o0fBCy3UJA1PmxKT+NsxLFmCAClaf0u/3M6fW1/dPCwNdFwRQIJqLuEw
-         iPMY1EoXY49Bg==
-In-Reply-To: <YgqK1ihlJvRFHJ9h@infradead.org>
+        b=RAHiiSoOT+qkGjStonZhYrYy/J3OZkS+nBm5D1plR6odf8spdLFI55sA0GVSG+gX1
+         FmPcCDRzKeNuLVHvCjfGJTHBTxbwgzR030DFU2LsjuGz8pZEhKbeR/hgIeCQIxEcqx
+         HIj4CCTOLKxrGhK2W31aOh+D7o/B8cTcO951Ev77NRvhE6lAtkLsACcoUhM/z6tTLu
+         qhTXBSD0ylFj48SjE2u2QLeEZrRNw+HEiuL8QU8JNZPpShvXVrQypqOZsWhDE9yRc2
+         D5rdiVAwgITkzu5kXiFsxejSLdB78l1bk+Ac3J6FFkDPU8n6d+5fZ9lqTH30MQ3R7+
+         eJDiITKNJvo0Q==
+In-Reply-To: <CAK8P3a2VfvDkueaJNTA9SiB+PFsi_Q17AX+aL46ueooW2ahmQw@mail.gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch <linux-arch@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Linux API <linux-api@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, sparclinux <sparclinux@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, linux-riscv <linux-riscv@lists.infradead.org>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, linux-s390 <linux-s39>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch <linux-arch@vger.kernel.org>, Linux Memory Management List <linux-mm@kvack.org>, Linux API <linux-api@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Russell King <linux@armlinux.org.uk>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@codeaurora.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Nick Hu <nickhu@andestech.com>, Greentime Hu <green.hu@gmail.com>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@eller>
 
-On Mon, Feb 14, 2022 at 6:01 PM Christoph Hellwig <hch@infradead.org> wrote:
+On Tue, 15 Feb 2022 at 10:13, Arnd Bergmann <arnd@kernel.org> wrote:
 >
-> On Mon, Feb 14, 2022 at 05:34:41PM +0100, Arnd Bergmann wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
+> On Tue, Feb 15, 2022 at 9:17 AM Ard Biesheuvel <ardb@kernel.org> wrote:
+> > On Mon, 14 Feb 2022 at 17:37, Arnd Bergmann <arnd@kernel.org> wrote:
+> > > From: Arnd Bergmann <arnd@arndb.de>
+> > >
 > >
-> > The get_user()/put_user() functions are meant to check for
-> > access_ok(), while the __get_user()/__put_user() functions
-> > don't.
+> > With set_fs() out of the picture, wouldn't it be sufficient to check
+> > that bit #55 is clear? (the bit that selects between TTBR0 and TTBR1)
+> > That would also remove the need to strip the tag from the address.
 > >
-> > This broke in 4.19 for nds32, when it gained an extraneous
-> > check in __get_user(), but lost the check it needs in
-> > __put_user().
+> > Something like
+> >
+> >     asm goto("tbnz  %0, #55, %2     \n"
+> >              "tbnz  %1, #55, %2     \n"
+> >              :: "r"(addr), "r"(addr + size - 1) :: notok);
+> >     return 1;
+> > notok:
+> >     return 0;
+> >
+> > with an additional sanity check on the size which the compiler could
+> > eliminate for compile-time constant values.
 >
-> Can we follow the lead of MIPS (which this was originally copied
-> from I think) and kill the pointless __get/put_user_check wrapper
-> that just obsfucate the code?
+> That should work, but I don't see it as a clear enough advantage to
+> have a custom implementation. For the constant-size case, it probably
+> isn't better than a compiler-scheduled comparison against a
+> constant limit, but it does hurt maintainability when the next person
+> wants to change the behavior of access_ok() globally.
+>
 
-I had another look, but I think that would be a bigger change than
-I want to have in a fix for stable backports, as nds32 also uses
-the _check versions in __{get,put}_user_error.
+arm64 also has this leading up to the range check, and I think we'd no
+longer need it:
 
-If we instead clean it up in a separate patch, it should be done for
-all eight architectures that do the same thing, but at that point,
-the time seems better spent at coming up with a new set of
-calling conventions that work with asm-goto.
+    if (IS_ENABLED(CONFIG_ARM64_TAGGED_ADDR_ABI) &&
+        (current->flags & PF_KTHREAD || test_thread_flag(TIF_TAGGED_ADDR)))
+            addr = untagged_addr(addr);
 
-         Arnd
+> If we want to get into micro-optimizing uaccess, I think a better target
+> would be a CONFIG_CC_HAS_ASM_GOTO_OUTPUT version
+> of __get_user()/__put_user as we have on x86 and powerpc.
+>
+>          Arnd
