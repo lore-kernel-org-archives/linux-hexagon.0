@@ -1,39 +1,25 @@
-From: Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [PATCH 14/14] uaccess: drop set_fs leftovers
-Date: Tue, 15 Feb 2022 03:03:43 +0000
-Message-ID: <YgsYD2nW9GjWJtn5@zeniv-ca.linux.org.uk>
-References: <20220214163452.1568807-1-arnd@kernel.org>
- <20220214163452.1568807-15-arnd@kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 09/14] m68k: drop custom __access_ok()
+Date: Tue, 15 Feb 2022 07:29:42 +0100
+Message-ID: <20220215062942.GA12551@lst.de>
+References: <20220214163452.1568807-1-arnd@kernel.org> <20220214163452.1568807-10-arnd@kernel.org> <Ygr11RGjj3C9uAUg@zeniv-ca.linux.org.uk>
 Mime-Version: 1.0
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-m68k-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20220214163452.1568807-15-arnd@kernel.org>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+In-Reply-To: <Ygr11RGjj3C9uAUg@zeniv-ca.linux.org.uk>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-api@vger.kernel.org, arnd@arndb.de, linux-kernel@vger.kernel.org, linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org, bcain@codeaurora.org, geert@linux-m68k.org, monstr@monstr.eu, tsbogend@alpha.franken.de, nickhu@andestech.com, green.hu@gmail.com, dinguyen@kernel.org, shorne@gmail.com, deller@gmx.de, mpe@ellerman.id.au, peterz@infradead.org, mingo@redhat.com, mark.rutland@arm.com, hca@linux.ibm.com, dalias@libc.org, davem@davemloft.net, richard@nod.at, x86@kernel.org, jcmvbkbc@gmail.com, ebiederm@xmission.com, akpm@linux-foundation.org, ardb@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.in
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Arnd Bergmann <arnd@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-api@vger.kernel.org, arnd@arndb.de, linux-kernel@vger.kernel.org, linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org, bcain@codeaurora.org, geert@linux-m68k.org, monstr@monstr.eu, tsbogend@alpha.franken.de, nickhu@andestech.com, green.hu@gmail.com, dinguyen@kernel.org, shorne@gmail.com, deller@gmx.de, mpe@ellerman.id.au, peterz@infradead.org, mingo@redhat.com, mark.rutland@arm.com, hca@linux.ibm.com, dalias@libc.org, davem@davemloft.net, richard@nod.at, x86@kernel.org, jcmvbkbc@gmail.com, ebiederm@xmission.com, akpm@linux-foundation.org, ardb@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infrade
 
-On Mon, Feb 14, 2022 at 05:34:52PM +0100, Arnd Bergmann wrote:
-> diff --git a/arch/parisc/include/asm/futex.h b/arch/parisc/include/asm/futex.h
-> index b5835325d44b..2f4a1b1ef387 100644
-> --- a/arch/parisc/include/asm/futex.h
-> +++ b/arch/parisc/include/asm/futex.h
-> @@ -99,7 +99,7 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
->  	/* futex.c wants to do a cmpxchg_inatomic on kernel NULL, which is
->  	 * our gateway page, and causes no end of trouble...
->  	 */
-> -	if (uaccess_kernel() && !uaddr)
-> +	if (!uaddr)
->  		return -EFAULT;
+On Tue, Feb 15, 2022 at 12:37:41AM +0000, Al Viro wrote:
+> Perhaps simply wrap that sucker into #ifdef CONFIG_CPU_HAS_ADDRESS_SPACES
+> (and trim the comment down to "coldfire and 68000 will pick generic
+> variant")?
 
-	Huh?  uaccess_kernel() is removed since it becomes always false now,
-so this looks odd.
-
-	AFAICS, the comment above that check refers to futex_detect_cmpxchg()
--> cmpxchg_futex_value_locked() -> futex_atomic_cmpxchg_inatomic() call chain.
-Which had been gone since commit 3297481d688a (futex: Remove futex_cmpxchg
-detection).  The comment *and* the check should've been killed off back
-then.
-	Let's make sure to get both now...
+I wonder if we should invert CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE,
+select the separate address space config for s390, sparc64, non-coldfire
+m68k and mips with EVA and then just have one single access_ok for
+overlapping address space (as added by Arnd) and non-overlapping ones
+(always return true).
