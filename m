@@ -1,7 +1,7 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Subject: [PATCH v2 05/18] x86: remove __range_not_ok()
-Date: Wed, 16 Feb 2022 14:13:19 +0100
-Message-ID: <20220216131332.1489939-6-arnd@kernel.org>
+Subject: [PATCH v2 06/18] x86: use more conventional access_ok() definition
+Date: Wed, 16 Feb 2022 14:13:20 +0100
+Message-ID: <20220216131332.1489939-7-arnd@kernel.org>
 References: <20220216131332.1489939-1-arnd@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,22 +13,22 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
 	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=VFlLl/07X8gRThW+7Nu/VJd/MjaRXyhMYqYHB/nnARM=; b=lw0/tNFgLwOfVt
-	9PwLYRzIglJFROqyWBvgaRDzilKXad2WF8RDoVK5MJ6VME/2LJzwaF56dNVv/mgyfW9OVa5Cw51Vz
-	KxwnDgh28JIAhI4RlctLyg1R75v+QZq9G38pJMrurZ1p6gVepIdupRX7cJXta+Rv5i3OYaYiNkybQ
-	sPOXdVjs/VqK2764A/D8vS0whOrsQ0vX/Z1aeU36HZvY1+UZ0BRxvDYzPbZxOiTNZ0SH6E+b+mOQM
-	cxFP5lxw88DhnHZxsu12OY8YMfub8cfxBmWjKx145u5FVRY4vnCSbY1soVaV/pSgY6NW7W6Am4SAl
-	+LYqcBOG2d2o/JLXbd/Q==;
+	List-Owner; bh=Ergh7cGYRE6HyKLVs6WQu1YmGVbzwTlMAQOcFSP4mwA=; b=YZMZnprjpBNSjH
+	CTSOYjyDWrTjrBaC6UjDHMU/G9/J3ArDtB74Ud2hmeMYirELZjlqqUQsnFv265f3plhmqa1rV99K6
+	XsH1lzQ4piT+siY5z9/2MRcPErvEibGy9FwtauxNSIBgXCyqR0a/FaUkw1/ehxM92BWaPOyfkg8Hx
+	bY1IKhJPiBAfGWddm+X7XkU3A8ZmZevq5rwmQytm99hrf2qzaX6qapD39fgaCbwM3KRY/Xxd3ijAX
+	NnOgXfwBer4EwRvk0kWrvyJsdx8l7wLnWkaaa3vxHu+TiYY4qUTv7nqlvZYQOm8W60orKOxdU/Ip7
+	duss01y0uWBgOoq99ufQ==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1645017393;
- bh=lx487dro4zL/zPL193Oy6nweU7A4WVV+sN3sqinseG4=;
+ s=k20201202; t=1645017403;
+ bh=FL3MwLnWcBo8JSN1gcn5jt3T6ZS9T2mg8wS4azHPBik=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=omMDrhEPLws0kx3FaJdMKyiFQbfwIcb5C7tofQAI2lXuZWrTiTUwDFHKrcpaJ13Ok
- NsykM6tJoZvXy9HpScnzw03vekziZH4+cmNWuN8sFx6q+kht1g72i5yzFbnCgaADFX
- 3buM3JcSdiMZxvMTvsPMSDWKxY3LFEssTkxEvrPD9rYjO0WAcv/PY2WS7xtaDGc4wy
- DxYAh6OJOKM+eKboklR6CEThuRYhYEyLLFqlkJ2zwQTnKoB+HomGSt++/CH7kJczaj
- yZMo0S4/Pd73o6yZAoHMI5U6kMVwrUt/QgHtW6Ao2qPNSByCOZz+CMYBy1uC+ywZu0
- EVn+6B86qN3Bg==
+ b=Y2Mjm03t4E3XFheH9yqQ6BGU3tXKnLCiOO/OwTUtf1lgBYcrWial86jpIz7PtRFIw
+ avWAsmqN07Ju1N9aZWFEK6djiU4xxVsrWrIldgYbLMAINPBCIE+Gm9knAbw2ZJ5YQU
+ 0At6HGqJSzJ5Apl70hqpM+UJUgnBEg8NWGL9S7AWW9MhT9XDK6p1AAJUM3JogLfwD2
+ 1lrWss7flCDtYrrnfWGqToUCjUhfOxjIFu9y4/66Sjvu+ZaCBq+vjebdXEQiJu+If4
+ gZzt/RXBM8sHm8w1g75IDg7GXTr01G1sdmyHMVFaBZouzSWgTlBFAfWq558NJn3p1E
+ Mzr/8UqWDZOoA==
 In-Reply-To: <20220216131332.1489939-1-arnd@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
@@ -45,121 +45,66 @@ Cc: linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org, bcain@codeaurora.
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The __range_not_ok() helper is an x86 (and sparc64) specific interface
-that does roughly the same thing as __access_ok(), but with different
-calling conventions.
+The way that access_ok() is defined on x86 is slightly different from
+most other architectures, and a bit more complex.
 
-Change this to use the normal interface in order for consistency as we
-clean up all access_ok() implementations.
+The generic version tends to result in the best output on all
+architectures, as it results in single comparison against a constant
+limit for calls with a known size.
 
-This changes the limit from TASK_SIZE to TASK_SIZE_MAX, which Al points
-out is the right thing do do here anyway.
+There are a few callers of __range_not_ok(), all of which use TASK_SIZE
+as the limit rather than TASK_SIZE_MAX, but I could not see any reason
+for picking this. Changing these to call __access_ok() instead uses the
+default limit, but keeps the behavior otherwise.
 
-The callers have to use __access_ok() instead of the normal access_ok()
-though, because on x86 that contains a WARN_ON_IN_IRQ() check that cannot
-be used inside of NMI context while tracing.
+x86 is the only architecture with a WARN_ON_IN_IRQ() checking
+access_ok(), but it's probably best to leave that in place.
 
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Link: https://lore.kernel.org/lkml/YgsUKcXGR7r4nINj@zeniv-ca.linux.org.uk/
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/x86/events/core.c         |  2 +-
- arch/x86/include/asm/uaccess.h | 10 ++++++----
- arch/x86/kernel/dumpstack.c    |  2 +-
- arch/x86/kernel/stacktrace.c   |  2 +-
- arch/x86/lib/usercopy.c        |  2 +-
- 5 files changed, 10 insertions(+), 8 deletions(-)
+ arch/x86/include/asm/uaccess.h | 25 +++----------------------
+ 1 file changed, 3 insertions(+), 22 deletions(-)
 
-diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
-index e686c5e0537b..eef816fc216d 100644
---- a/arch/x86/events/core.c
-+++ b/arch/x86/events/core.c
-@@ -2794,7 +2794,7 @@ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *re
- static inline int
- valid_user_frame(const void __user *fp, unsigned long size)
- {
--	return (__range_not_ok(fp, size, TASK_SIZE) == 0);
-+	return __access_ok(fp, size);
- }
- 
- static unsigned long get_segment_base(unsigned int segment)
 diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
-index ac96f9b2d64b..79c4869ccdd6 100644
+index 79c4869ccdd6..a59ba2578e64 100644
 --- a/arch/x86/include/asm/uaccess.h
 +++ b/arch/x86/include/asm/uaccess.h
-@@ -16,8 +16,10 @@
+@@ -16,33 +16,14 @@
   * Test whether a block of memory is a valid user space address.
   * Returns 0 if the range is valid, nonzero otherwise.
   */
--static inline bool __chk_range_not_ok(unsigned long addr, unsigned long size, unsigned long limit)
-+static inline bool __chk_range_not_ok(unsigned long addr, unsigned long size)
+-static inline bool __chk_range_not_ok(unsigned long addr, unsigned long size)
++static inline bool __access_ok(void __user *ptr, unsigned long size)
  {
-+	unsigned long limit = TASK_SIZE_MAX;
-+
- 	/*
- 	 * If we have used "sizeof()" for the size,
- 	 * we know it won't overflow the limit (but
-@@ -35,10 +37,10 @@ static inline bool __chk_range_not_ok(unsigned long addr, unsigned long size, un
- 	return unlikely(addr > limit);
+ 	unsigned long limit = TASK_SIZE_MAX;
++	unsigned long addr = ptr;
+ 
+-	/*
+-	 * If we have used "sizeof()" for the size,
+-	 * we know it won't overflow the limit (but
+-	 * it might overflow the 'addr', so it's
+-	 * important to subtract the size from the
+-	 * limit, not add it to the address).
+-	 */
+-	if (__builtin_constant_p(size))
+-		return unlikely(addr > limit - size);
+-
+-	/* Arbitrary sizes? Be careful about overflow */
+-	addr += size;
+-	if (unlikely(addr < size))
+-		return true;
+-	return unlikely(addr > limit);
++	return (size <= limit) && (addr <= (limit - size));
  }
  
--#define __range_not_ok(addr, size, limit)				\
-+#define __access_ok(addr, size)						\
- ({									\
- 	__chk_user_ptr(addr);						\
--	__chk_range_not_ok((unsigned long __force)(addr), size, limit); \
-+	!__chk_range_not_ok((unsigned long __force)(addr), size);	\
- })
- 
+-#define __access_ok(addr, size)						\
+-({									\
+-	__chk_user_ptr(addr);						\
+-	!__chk_range_not_ok((unsigned long __force)(addr), size);	\
+-})
+-
  #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
-@@ -69,7 +71,7 @@ static inline bool pagefault_disabled(void);
- #define access_ok(addr, size)					\
- ({									\
- 	WARN_ON_IN_IRQ();						\
--	likely(!__range_not_ok(addr, size, TASK_SIZE_MAX));		\
-+	likely(__access_ok(addr, size));				\
- })
- 
- extern int __get_user_1(void);
-diff --git a/arch/x86/kernel/dumpstack.c b/arch/x86/kernel/dumpstack.c
-index 53de044e5654..da534fb7b5c6 100644
---- a/arch/x86/kernel/dumpstack.c
-+++ b/arch/x86/kernel/dumpstack.c
-@@ -85,7 +85,7 @@ static int copy_code(struct pt_regs *regs, u8 *buf, unsigned long src,
- 	 * Make sure userspace isn't trying to trick us into dumping kernel
- 	 * memory by pointing the userspace instruction pointer at it.
- 	 */
--	if (__chk_range_not_ok(src, nbytes, TASK_SIZE_MAX))
-+	if (!__access_ok((void __user *)src, nbytes))
- 		return -EINVAL;
- 
- 	/*
-diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
-index 15b058eefc4e..ee117fcf46ed 100644
---- a/arch/x86/kernel/stacktrace.c
-+++ b/arch/x86/kernel/stacktrace.c
-@@ -90,7 +90,7 @@ copy_stack_frame(const struct stack_frame_user __user *fp,
- {
- 	int ret;
- 
--	if (__range_not_ok(fp, sizeof(*frame), TASK_SIZE))
-+	if (!__access_ok(fp, sizeof(*frame)))
- 		return 0;
- 
- 	ret = 1;
-diff --git a/arch/x86/lib/usercopy.c b/arch/x86/lib/usercopy.c
-index c3e8a62ca561..ad0139d25401 100644
---- a/arch/x86/lib/usercopy.c
-+++ b/arch/x86/lib/usercopy.c
-@@ -32,7 +32,7 @@ copy_from_user_nmi(void *to, const void __user *from, unsigned long n)
- {
- 	unsigned long ret;
- 
--	if (__range_not_ok(from, n, TASK_SIZE))
-+	if (!__access_ok(from, n))
- 		return n;
- 
- 	if (!nmi_uaccess_okay())
+ static inline bool pagefault_disabled(void);
+ # define WARN_ON_IN_IRQ()	\
 -- 
 2.29.2
