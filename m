@@ -1,47 +1,62 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Subject: Re: [PATCH v2 15/18] sparc64: remove CONFIG_SET_FS support
-Date: Wed, 16 Feb 2022 23:01:16 +0100
-Message-ID: <CAK8P3a1kV=0G9WYkdjYCiBu=fuT1fbPGHVD9cgHX3ht6J3MFEw@mail.gmail.com>
-References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-16-arnd@kernel.org>
- <Yg1D08+olCSGmnYU@ravnborg.org> <Yg1FRZcrhlh5C//V@ravnborg.org>
+Subject: Re: [PATCH v2 18/18] uaccess: drop maining CONFIG_SET_FS users
+Date: Wed, 16 Feb 2022 23:02:45 +0100
+Message-ID: <CAK8P3a2gx2w=RDECNbrO4Zu3ZUTfz2UrLbNSz+ieCgMEFiK3TA@mail.gmail.com>
+References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-19-arnd@kernel.org>
+ <Yg1F/VT4vRX4aHEt@ravnborg.org>
 Mime-Version: 1.0
 Return-path: <linux-arch-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645048894;
-        bh=3GAgFKFSz4rrd4LtvDFKA/i0kbB+vNidxSnLES7CC90=;
+        s=k20201202; t=1645048982;
+        bh=ay/5589FenTcDxawo4c9r5D5w/FgYtE3zMvoHKiKBw4=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=PmqZtAPQ8jm+06IO3B2Rv5fRROrQMNnQvWotR0srStYZ55QvmYnwNkxoJHkIp+2JO
-         AVqNKyYOz3jKBBKy2IQjZi6kElAZ5xZKm4cstzsUcFi8OJbCDtXinwC+lBAG0Kspfv
-         j4KEB/+z/qg5rsxzJPFnhxgZkp3vlZ87N7BmFP/KZojtrFxuhABgfVyssK+XTy50tx
-         yIjZNZrmpv+d/GmxXVJtlcCXljyt9V2jjwg+cZzJg9AE7+KH14sNrO2oqwgGkshdJQ
-         dwh+m0ZaItgHQ691RkIYXHtH9hK3sSviXzH3Xv6AyuPQdc48pm/GIV1nZ7hn73HjQ7
-         oD/Q5Rjdb1ORw==
-In-Reply-To: <Yg1FRZcrhlh5C//V@ravnborg.org>
+        b=mp2N4j25K83NMCfLyY4s4Fvr/02r2is80WsbciAWUvDE4/m4hXq9EgLORcancLhbT
+         umY9FHnexAjN//UsA7q/C9fckLYXF0oQ8KHvfjTR59rKGClK+gPz3WGNFPqYUuSPAl
+         tKqmRElhXMvcu84IyYLNk1Jx9OrqFY1VeIjfZrMgYnNZnH7Q43IubRg0WPfzhGBBBX
+         /OdSxH8IZ7Kz0nHhQxDWelZPRHLPHQFw8aTJU8Fd/gQNcc2Tz29BgNtd0/VTT0Eadn
+         af5BPEGJl881/LlmZF1PoTMkEDGEvxPy+W0AvrAYWFrqce134uQiJLaLzOGaZJOGGy
+         d7XYuXjZgGD6w==
+In-Reply-To: <Yg1F/VT4vRX4aHEt@ravnborg.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Sam Ravnborg <sam@ravnborg.org>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch <linux-arch@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Linux API <linux-api@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, Russell King - ARM Linux <linux@armlinux.org.uk>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@codeaurora.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Nick Hu <nickhu@andestech.com>, Greentime Hu <green.hu@gmail.com>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>
 
-On Wed, Feb 16, 2022 at 7:41 PM Sam Ravnborg <sam@ravnborg.org> wrote:
-> On Wed, Feb 16, 2022 at 07:34:59PM +0100, Sam Ravnborg wrote:
+On Wed, Feb 16, 2022 at 7:44 PM Sam Ravnborg <sam@ravnborg.org> wrote:
+>
+> Hi Arnd,
+>
+> Fix spelling in $subject...
 
+done
+
+> sparc/Kconfig b/arch/sparc/Kconfig
+> > index 9f6f9bce5292..9276f321b3e3 100644
+> > --- a/arch/sparc/Kconfig
+> > +++ b/arch/sparc/Kconfig
+> > @@ -46,7 +46,6 @@ config SPARC
+> >       select LOCKDEP_SMALL if LOCKDEP
+> >       select NEED_DMA_MAP_STATE
+> >       select NEED_SG_DMA_LENGTH
+> > -     select SET_FS
+> >       select TRACE_IRQFLAGS_SUPPORT
 > >
-> > I think you somehow missed the Kconfig change, and also the related
-> > sparc32 change which continue to have set_fs() after this patch.
+> >  config SPARC32
+> > @@ -101,6 +100,7 @@ config SPARC64
+> >       select HAVE_SETUP_PER_CPU_AREA
+> >       select NEED_PER_CPU_EMBED_FIRST_CHUNK
+> >       select NEED_PER_CPU_PAGE_FIRST_CHUNK
+> > +     select SET_FS
+> This looks wrong - looks like some merge went wrong here.
 
-Right, thanks for pointing out the issue.
+Fixed now.
 
-> I now notice the sparc32 bits are in the last patch.
-> To avoid breaking bisect-ability on sparc64 I think you need to merge
-> the sparc32 changes with this patch, unless the sparc64 changes can
-> coexist with CONFIG_SET_FS continue to be set.
+>
+> Other than the above the sparc32 changes looks fine, and with the Kconf
+> stuff fixed:
+> Acked-by: Sam Ravnborg <sam@ravnborg.org> # for sparc32 changes
 
-I originally had them in the reverse order and broke bisectability during my
-rebase. The end result is still fine, but now I need to move the 'select
-SET_FS' from CONFIG_SPARC to CONFIG_SPARC32 in this patch
-and then remove it again from there in the last step.
+Thanks!
 
-I've done that in my local copy now.
-
-         Arnd
+      Arnd
