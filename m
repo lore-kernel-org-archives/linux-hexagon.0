@@ -1,7 +1,7 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Subject: [PATCH v2 10/18] m68k: fix access_ok for coldfire
-Date: Wed, 16 Feb 2022 14:13:24 +0100
-Message-ID: <20220216131332.1489939-11-arnd@kernel.org>
+Subject: [PATCH v2 11/18] arm64: simplify access_ok()
+Date: Wed, 16 Feb 2022 14:13:25 +0100
+Message-ID: <20220216131332.1489939-12-arnd@kernel.org>
 References: <20220216131332.1489939-1-arnd@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,22 +13,22 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
 	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=z0jy45CPcCnMWU49RuEWvQg0lS/kQhbe4GrVY3z8Tk0=; b=h278Z+SOXzXKGT
-	vQq0MjRnl3o5NoquCb1smv52aDDGioSPK2UmYPMhqpyBmb1qRfAq4uZPeF6uDe/M1tm/MObG8Nadn
-	+O8zDdj2BkZsz66866EBXUIUL/3XIG1/NVuDKQKhix9cXmrrkbKs2SjeLJJkOom6ycdHZ4bPMfW9a
-	66ulhPEnAYxPluot5SEFR6KDC8imjfr8mwrzJdCtGwsYg2QwKt57fJEs7bDA4b5XHTsMEiA0drmHG
-	S1kSOoZLDFM79pHTLWK+IFLffKGZa5siei4xBmkb+FGprwKenjoiztOOj5gD54MSn4wif1qWRh3M8
-	cQXb4H6v/X4CTidg0YRA==;
+	List-Owner; bh=bYwQviIFmPkdN3qsmu/EjTuViqQ3hnJi2HR6zaI7Zgo=; b=keBOftEQLyEdpF
+	iZRiRU6TkRtXF2xlgQooua1PGl/rpOZ6MV3dnyOHDvRfehpRd84ziYAxdphRkEyc2A/lORvCPyTWs
+	k2pwVrknkaX1OyQjXBXw++ONmk5Miiz3oRfnETSkzS1ntLoFyIQLTdW2n+rXSdzQf6pKbI6D7IQfr
+	cJjHWnKzBz6RVMC5UCxaqkwnOvs/neKKigVMMGx/FisMgCMv0m5kWZuoM04iiiHazvpzvNiqkzIyv
+	9hkNrBeDgTP7MaNJNzx+nmwhshyb52vHvDCqhx0O/5LOLgm49zErGcbOOMZV0OYmj70tE4ompHNHb
+	7vhWKJjKkhZmtJG0qECw==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1645017443;
- bh=MxlH7OSdWg2oRBDys6vsaBDtcNFNrqae9GgCDj46MDk=;
+ s=k20201202; t=1645017454;
+ bh=vo9dsIEQPQMwDE1F9151Sj8jUgLpMoSWAhLaZqQrPZo=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=sjI1N/Ysf6UohThwc+VXydeUqwNugfP8doF9H67EicATD6oaAkDsrCNS3AC/ubFNd
- ziBIxKGEAeyq4Bw3XdZgjBuNcKHeB1enctrHaLGU2ykGVgZHDsnbC5Wzwde0sZPsGo
- WD7WBQJHRS/PhCcVbk/s6TQX9q0zFJnPZsK3bgY0sTLsXoxe2RYo46AhoXLG6T8vLY
- ptfvBD5j0ki8uiIVLlwxNojr8S73bqQ6CnNgAESnFCyQrATHgA3qg0Clpwhp7O6ene
- UNjiTeS5j4av8zOGlm3gJWoU7z2Cw6gaTV6tNodGA/Zj7EYErzSRxKmSguUvyWCtWL
- X2GGlpG3o7PVg==
+ b=lBOJyeVG43t32e6bfIFQr2JNVmm/3CNnrSPgqp1aywEBs/TnQkH6UoCiuwvYMO5MT
+ lwj96h6bIunw0aUrOBHuzAKda33BuKaGijgF6GnixzSz0Sdjj9nkHeXMHqnuG3V0jx
+ 44u9TnpCcEvGf+Vd6ksaKYU1m1gu9FHVMuqt7U7Z/oHjVq7rSyW4eH2Jx7Z461guOE
+ mcS1xOazBw3oe3viFMv1lFKhgYJQk0K4Po3WN6QX2wQnkyybT7djomYdy6S5JuLuay
+ gvNVGTV6/HrfYqwdbeOKnPWvh89RBj9KN27iwj3K2hOs52sURTV04KxU5EHc02P7Ol
+ oUX9kkXIU5HPQ==
 In-Reply-To: <20220216131332.1489939-1-arnd@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
@@ -45,46 +45,83 @@ Cc: linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org, bcain@codeaurora.
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-While most m68k platforms use separate address spaces for user
-and kernel space, at least coldfire does not, and the other
-ones have a TASK_SIZE that is less than the entire 4GB address
-range.
+arm64 has an inline asm implementation of access_ok() that is derived from
+the 32-bit arm version and optimized for the case that both the limit and
+the size are variable. With set_fs() gone, the limit is always constant,
+and the size usually is as well, so just using the default implementation
+reduces the check into a comparison against a constant that can be
+scheduled by the compiler.
 
-Using the default implementation of __access_ok() stops coldfire
-user space from trivially accessing kernel memory.
+On a defconfig build, this saves over 28KB of .text.
 
+Acked-by: Robin Murphy <robin.murphy@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/m68k/include/asm/uaccess.h | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/uaccess.h | 34 ++++++++++----------------------
+ 1 file changed, 10 insertions(+), 24 deletions(-)
 
-diff --git a/arch/m68k/include/asm/uaccess.h b/arch/m68k/include/asm/uaccess.h
-index 79617c0b2f91..8eb625e75452 100644
---- a/arch/m68k/include/asm/uaccess.h
-+++ b/arch/m68k/include/asm/uaccess.h
-@@ -12,14 +12,21 @@
+diff --git a/arch/arm64/include/asm/uaccess.h b/arch/arm64/include/asm/uaccess.h
+index 2e20879fe3cf..199c553b740a 100644
+--- a/arch/arm64/include/asm/uaccess.h
++++ b/arch/arm64/include/asm/uaccess.h
+@@ -26,6 +26,14 @@
+ #include <asm/memory.h>
  #include <asm/extable.h>
  
- /* We let the MMU do all checking */
--static inline int access_ok(const void __user *addr,
-+static inline int access_ok(const void __user *ptr,
- 			    unsigned long size)
- {
-+	unsigned long limit = TASK_SIZE;
++static inline int __access_ok(const void __user *ptr, unsigned long size)
++{
++	unsigned long limit = TASK_SIZE_MAX;
 +	unsigned long addr = (unsigned long)ptr;
 +
- 	/*
- 	 * XXX: for !CONFIG_CPU_HAS_ADDRESS_SPACES this really needs to check
- 	 * for TASK_SIZE!
-+	 * Removing this helper is probably sufficient.
- 	 */
--	return 1;
-+	if (IS_ENABLED(CONFIG_CPU_HAS_ADDRESS_SPACES))
-+		return 1;
-+
 +	return (size <= limit) && (addr <= (limit - size));
++}
++
+ /*
+  * Test whether a block of memory is a valid user space address.
+  * Returns 1 if the range is valid, 0 otherwise.
+@@ -33,10 +41,8 @@
+  * This is equivalent to the following test:
+  * (u65)addr + (u65)size <= (u65)TASK_SIZE_MAX
+  */
+-static inline unsigned long __range_ok(const void __user *addr, unsigned long size)
++static inline int access_ok(const void __user *addr, unsigned long size)
+ {
+-	unsigned long ret, limit = TASK_SIZE_MAX - 1;
+-
+ 	/*
+ 	 * Asynchronous I/O running in a kernel thread does not have the
+ 	 * TIF_TAGGED_ADDR flag of the process owning the mm, so always untag
+@@ -46,29 +52,9 @@ static inline unsigned long __range_ok(const void __user *addr, unsigned long si
+ 	    (current->flags & PF_KTHREAD || test_thread_flag(TIF_TAGGED_ADDR)))
+ 		addr = untagged_addr(addr);
+ 
+-	__chk_user_ptr(addr);
+-	asm volatile(
+-	// A + B <= C + 1 for all A,B,C, in four easy steps:
+-	// 1: X = A + B; X' = X % 2^64
+-	"	adds	%0, %3, %2\n"
+-	// 2: Set C = 0 if X > 2^64, to guarantee X' > C in step 4
+-	"	csel	%1, xzr, %1, hi\n"
+-	// 3: Set X' = ~0 if X >= 2^64. For X == 2^64, this decrements X'
+-	//    to compensate for the carry flag being set in step 4. For
+-	//    X > 2^64, X' merely has to remain nonzero, which it does.
+-	"	csinv	%0, %0, xzr, cc\n"
+-	// 4: For X < 2^64, this gives us X' - C - 1 <= 0, where the -1
+-	//    comes from the carry in being clear. Otherwise, we are
+-	//    testing X' - C == 0, subject to the previous adjustments.
+-	"	sbcs	xzr, %0, %1\n"
+-	"	cset	%0, ls\n"
+-	: "=&r" (ret), "+r" (limit) : "Ir" (size), "0" (addr) : "cc");
+-
+-	return ret;
++	return likely(__access_ok(addr, size));
  }
  
+-#define access_ok(addr, size)	__range_ok(addr, size)
+-
  /*
+  * User access enabling/disabling.
+  */
 -- 
 2.29.2
