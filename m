@@ -1,44 +1,41 @@
 From: Arnd Bergmann <arnd@kernel.org>
 Subject: Re: [PATCH 11/14] sparc64: remove CONFIG_SET_FS support
-Date: Wed, 16 Feb 2022 14:06:25 +0100
-Message-ID: <CAK8P3a0PwjB+KE+j3_sknZuiuY-kUe_J76nYac-mx82dccA3Rw@mail.gmail.com>
+Date: Wed, 16 Feb 2022 14:07:00 +0100
+Message-ID: <CAK8P3a30supB-MNzhoELOerOemxwTfDFFqZrzmNDQA=WW+VLbw@mail.gmail.com>
 References: <20220214163452.1568807-1-arnd@kernel.org> <20220214163452.1568807-12-arnd@kernel.org>
- <YgqMLYJs0RMecMck@infradead.org>
+ <Ygr4Q2/KxfF86ETa@zeniv-ca.linux.org.uk>
 Mime-Version: 1.0
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645016803;
-        bh=XpyXyO6XeLPMFwMT57AZNzNQgXnMBZ2Ni2r+dAXZ1s0=;
+        s=k20201202; t=1645016838;
+        bh=1AijW/WQHr1DB1sxEAf5u6qv337FtGM78rBteqtJsFc=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=m86IV6YQZzHRJuDux3taFbaRjn+w9RuI6vh4wtLv8qscNybLMG9S7+2rm1PNzrb20
-         Dd5S6VsCYA0xUl1vOFFn3tNcP5kMF/3okjlp1F0h2o1Xvta1epkmZYCJUZnDs3yLoA
-         VzYx4F/n1Ow3YwU1D9VL3p/ZapRwreq4wU2F2zdBEZVDPHlhJZ5UCirUITvqXKP03u
-         mjPPXaT5ZCAExBhxPZs+6x/NgZOCXftC+3jOhCw6lYUHk202K2WWgJTp7zViNeOTI3
-         d6qcX+NrilxdmbmnVfKB2lTecLHUYHmjxyqYH1gVkIK8Gk+2LbSYNZnzPmnsXhuwAQ
-         I1fP9Rg2mGbLg==
-In-Reply-To: <YgqMLYJs0RMecMck@infradead.org>
+        b=iN729W8eTzLUmDGyJvEI0HE0OkfEC9ALEUXFXgdGhQXPvSwBAbGx4Bm4JUzW2PC8s
+         BUMcbAlGBg1oLv2VeML280237jVmEo5gaC6UDs56p3vjvFXfFS/uKYdSKjDuePRk1L
+         ktHY4DZBfIfbMM+DZtBJsD1tLcjqddiWlefZ3tjDhL0ZaU2r/dIUVsti11RXTBoqeV
+         Fv+44VNG8OJe97by5ltQ4+nZVecfzeBcTyXFP1Nn1XVJH9wwXssVksGeqND4hscY9C
+         RdLVWj/y1SlCH/eoBwY9xia343UtnPrsFJT6xH3Aw2TalwP1wcgKbcKqShewHfbFGA
+         MgV75zhrtRvrQ==
+In-Reply-To: <Ygr4Q2/KxfF86ETa@zeniv-ca.linux.org.uk>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch <linux-arch@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Linux API <linux-api@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, sparclinux <sparclinux@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, linux-riscv <linux-riscv@lists.infradead.org>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, linux-s390 <linux-s39>
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch <linux-arch@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Linux API <linux-api@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Russell King - ARM Linux <linux@armlinux.org.uk>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@codeaurora.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Nick Hu <nickhu@andestech.com>, Greentime Hu <green.hu@gmail.com>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.a>
 
-On Mon, Feb 14, 2022 at 6:06 PM Christoph Hellwig <hch@infradead.org> wrote:
+On Tue, Feb 15, 2022 at 1:48 AM Al Viro <viro@zeniv.linux.org.uk> wrote:
 >
-> >  void prom_world(int enter)
-> >  {
-> > -     if (!enter)
-> > -             set_fs(get_fs());
-> > -
-> >       __asm__ __volatile__("flushw");
-> >  }
+> On Mon, Feb 14, 2022 at 05:34:49PM +0100, Arnd Bergmann wrote:
 >
-> The enter argument is now unused.
+> > -/*
+> > - * Sparc64 is segmented, though more like the M68K than the I386.
+> > - * We use the secondary ASI to address user memory, which references a
+> > - * completely different VM map, thus there is zero chance of the user
+> > - * doing something queer and tricking us into poking kernel memory.
+>
+> Actually, this part of comment probably ought to stay - it is relevant
+> for understanding what's going on (e.g. why is access_ok() always true, etc.)
 
-Right, good point. I'll add a comment, but I think I will leave that
-as this seems
-too hard to change the callers in assembly code for this. If any
-sparc64 developer
-wants to clean that up, I'm happy to integrate the cleanup patch in my series.
+Ok, I've put it back now.
 
-         Arnd
+       Arnd
