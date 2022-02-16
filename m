@@ -1,48 +1,47 @@
-From: Christophe Leroy <christophe.leroy-2tlSp11Fh4xulxpn9UvDqw@public.gmane.org>
-Subject: Re: [PATCH 08/14] arm64: simplify access_ok()
-Date: Wed, 16 Feb 2022 19:43:22 +0000
-Message-ID: <07050857-c9d2-bab2-2191-8d244d6f7708@csgroup.eu>
-References: <20220214163452.1568807-1-arnd@kernel.org>
- <20220214163452.1568807-9-arnd@kernel.org>
- <CAMj1kXHixUFjV=4m3tzfGz7AiRWc-VczymbKuZq7dyZZNuLKxQ@mail.gmail.com>
- <CAK8P3a2VfvDkueaJNTA9SiB+PFsi_Q17AX+aL46ueooW2ahmQw@mail.gmail.com>
+From: Arnd Bergmann <arnd@kernel.org>
+Subject: Re: [PATCH v2 15/18] sparc64: remove CONFIG_SET_FS support
+Date: Wed, 16 Feb 2022 23:01:16 +0100
+Message-ID: <CAK8P3a1kV=0G9WYkdjYCiBu=fuT1fbPGHVD9cgHX3ht6J3MFEw@mail.gmail.com>
+References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-16-arnd@kernel.org>
+ <Yg1D08+olCSGmnYU@ravnborg.org> <Yg1FRZcrhlh5C//V@ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAK8P3a2VfvDkueaJNTA9SiB+PFsi_Q17AX+aL46ueooW2ahmQw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: en-US
-Content-ID: <960826EF45C096488B90F51C2BE6F213-CLPaqP/Z8av9SOyiPdwG7kEZadJ+ESx9@public.gmane.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1645048894;
+        bh=3GAgFKFSz4rrd4LtvDFKA/i0kbB+vNidxSnLES7CC90=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=PmqZtAPQ8jm+06IO3B2Rv5fRROrQMNnQvWotR0srStYZ55QvmYnwNkxoJHkIp+2JO
+         AVqNKyYOz3jKBBKy2IQjZi6kElAZ5xZKm4cstzsUcFi8OJbCDtXinwC+lBAG0Kspfv
+         j4KEB/+z/qg5rsxzJPFnhxgZkp3vlZ87N7BmFP/KZojtrFxuhABgfVyssK+XTy50tx
+         yIjZNZrmpv+d/GmxXVJtlcCXljyt9V2jjwg+cZzJg9AE7+KH14sNrO2oqwgGkshdJQ
+         dwh+m0ZaItgHQ691RkIYXHtH9hK3sSviXzH3Xv6AyuPQdc48pm/GIV1nZ7hn73HjQ7
+         oD/Q5Rjdb1ORw==
+In-Reply-To: <Yg1FRZcrhlh5C//V@ravnborg.org>
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Arnd Bergmann <arnd-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ard Biesheuvel <ardb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rich Felker <dalias-8zAoT0mYgF4@public.gmane.org>, "linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-ia64-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, "open list:MIPS" <linux-mips-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Memory Management List <linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org>, Guo Ren <guoren-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "open list:SPARC + UltraSPARC (sparc/sparc64)" <sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-riscv <linux-riscv-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, linux-arch <linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "open list:S390" <linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Cain <bcain-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Helge Deller <deller-Mmb7MZpHnFY@public.gmane.org>, X86 ML <x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ru
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch <linux-arch@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Linux API <linux-api@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, Russell King - ARM Linux <linux@armlinux.org.uk>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@codeaurora.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Nick Hu <nickhu@andestech.com>, Greentime Hu <green.hu@gmail.com>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>
 
-DQoNCkxlIDE1LzAyLzIwMjIgw6AgMTA6MTIsIEFybmQgQmVyZ21hbm4gYSDDqWNyaXTCoDoNCj4g
-T24gVHVlLCBGZWIgMTUsIDIwMjIgYXQgOToxNyBBTSBBcmQgQmllc2hldXZlbCA8YXJkYkBrZXJu
-ZWwub3JnPiB3cm90ZToNCj4+IE9uIE1vbiwgMTQgRmViIDIwMjIgYXQgMTc6MzcsIEFybmQgQmVy
-Z21hbm4gPGFybmRAa2VybmVsLm9yZz4gd3JvdGU6DQo+Pj4gRnJvbTogQXJuZCBCZXJnbWFubiA8
-YXJuZEBhcm5kYi5kZT4NCj4+Pg0KPj4NCj4+IFdpdGggc2V0X2ZzKCkgb3V0IG9mIHRoZSBwaWN0
-dXJlLCB3b3VsZG4ndCBpdCBiZSBzdWZmaWNpZW50IHRvIGNoZWNrDQo+PiB0aGF0IGJpdCAjNTUg
-aXMgY2xlYXI/ICh0aGUgYml0IHRoYXQgc2VsZWN0cyBiZXR3ZWVuIFRUQlIwIGFuZCBUVEJSMSkN
-Cj4+IFRoYXQgd291bGQgYWxzbyByZW1vdmUgdGhlIG5lZWQgdG8gc3RyaXAgdGhlIHRhZyBmcm9t
-IHRoZSBhZGRyZXNzLg0KPj4NCj4+IFNvbWV0aGluZyBsaWtlDQo+Pg0KPj4gICAgICBhc20gZ290
-bygidGJueiAgJTAsICM1NSwgJTIgICAgIFxuIg0KPj4gICAgICAgICAgICAgICAidGJueiAgJTEs
-ICM1NSwgJTIgICAgIFxuIg0KPj4gICAgICAgICAgICAgICA6OiAiciIoYWRkciksICJyIihhZGRy
-ICsgc2l6ZSAtIDEpIDo6IG5vdG9rKTsNCj4+ICAgICAgcmV0dXJuIDE7DQo+PiBub3RvazoNCj4+
-ICAgICAgcmV0dXJuIDA7DQo+Pg0KPj4gd2l0aCBhbiBhZGRpdGlvbmFsIHNhbml0eSBjaGVjayBv
-biB0aGUgc2l6ZSB3aGljaCB0aGUgY29tcGlsZXIgY291bGQNCj4+IGVsaW1pbmF0ZSBmb3IgY29t
-cGlsZS10aW1lIGNvbnN0YW50IHZhbHVlcy4NCj4gDQo+IFRoYXQgc2hvdWxkIHdvcmssIGJ1dCBJ
-IGRvbid0IHNlZSBpdCBhcyBhIGNsZWFyIGVub3VnaCBhZHZhbnRhZ2UgdG8NCj4gaGF2ZSBhIGN1
-c3RvbSBpbXBsZW1lbnRhdGlvbi4gRm9yIHRoZSBjb25zdGFudC1zaXplIGNhc2UsIGl0IHByb2Jh
-Ymx5DQo+IGlzbid0IGJldHRlciB0aGFuIGEgY29tcGlsZXItc2NoZWR1bGVkIGNvbXBhcmlzb24g
-YWdhaW5zdCBhDQo+IGNvbnN0YW50IGxpbWl0LCBidXQgaXQgZG9lcyBodXJ0IG1haW50YWluYWJp
-bGl0eSB3aGVuIHRoZSBuZXh0IHBlcnNvbg0KPiB3YW50cyB0byBjaGFuZ2UgdGhlIGJlaGF2aW9y
-IG9mIGFjY2Vzc19vaygpIGdsb2JhbGx5Lg0KPiANCj4gSWYgd2Ugd2FudCB0byBnZXQgaW50byBt
-aWNyby1vcHRpbWl6aW5nIHVhY2Nlc3MsIEkgdGhpbmsgYSBiZXR0ZXIgdGFyZ2V0DQo+IHdvdWxk
-IGJlIGEgQ09ORklHX0NDX0hBU19BU01fR09UT19PVVRQVVQgdmVyc2lvbg0KPiBvZiBfX2dldF91
-c2VyKCkvX19wdXRfdXNlciBhcyB3ZSBoYXZlIG9uIHg4NiBhbmQgcG93ZXJwYy4NCj4gDQoNClRo
-ZXJlIGlzIGFsc28gdGhlIHVzZXIgYmxvY2sgYWNjZXNzZXMgd2l0aCANCnVzZXJfYWNjZXNzX2Jl
-Z2luKCkvdXNlcl9hY2Nlc3NfZW5kKCkgdG9nZXRoZXIgd2l0aCB1bnNhZmVfcHV0X3VzZXIoKSAN
-CmFuZCB1bnNhZmVfZ2V0X3VzZXIoKSB3aGljaCBhbGxvd2VkIHVzIHRvIG9wdGltaXNlIHVzZXIg
-YWNjZXNzZXMgb24gDQpwb3dlcnBjLCBlc3BlY2lhbGx5IGluIHRoZSBzaWduYWwgY29kZS4NCg0K
-Q2hyaXN0b3BoZQ==
+On Wed, Feb 16, 2022 at 7:41 PM Sam Ravnborg <sam@ravnborg.org> wrote:
+> On Wed, Feb 16, 2022 at 07:34:59PM +0100, Sam Ravnborg wrote:
+
+> >
+> > I think you somehow missed the Kconfig change, and also the related
+> > sparc32 change which continue to have set_fs() after this patch.
+
+Right, thanks for pointing out the issue.
+
+> I now notice the sparc32 bits are in the last patch.
+> To avoid breaking bisect-ability on sparc64 I think you need to merge
+> the sparc32 changes with this patch, unless the sparc64 changes can
+> coexist with CONFIG_SET_FS continue to be set.
+
+I originally had them in the reverse order and broke bisectability during my
+rebase. The end result is still fine, but now I need to move the 'select
+SET_FS' from CONFIG_SPARC to CONFIG_SPARC32 in this patch
+and then remove it again from there in the last step.
+
+I've done that in my local copy now.
+
+         Arnd
