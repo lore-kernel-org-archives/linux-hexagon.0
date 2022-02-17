@@ -1,62 +1,47 @@
-From: Arnd Bergmann <arnd@kernel.org>
-Subject: Re: [PATCH v2 18/18] uaccess: drop maining CONFIG_SET_FS users
-Date: Wed, 16 Feb 2022 23:02:45 +0100
-Message-ID: <CAK8P3a2gx2w=RDECNbrO4Zu3ZUTfz2UrLbNSz+ieCgMEFiK3TA@mail.gmail.com>
-References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-19-arnd@kernel.org>
- <Yg1F/VT4vRX4aHEt@ravnborg.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: Re: [PATCH v2 00/18] clean up asm/uaccess.h, kill set_fs for good
+Date: Thu, 17 Feb 2022 07:20:11 +0000
+Message-ID: <00496df2-f9f2-2547-3ca3-7989e4713d6b@csgroup.eu>
+References: <20220216131332.1489939-1-arnd@kernel.org>
 Mime-Version: 1.0
-Return-path: <linux-arch-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645048982;
-        bh=ay/5589FenTcDxawo4c9r5D5w/FgYtE3zMvoHKiKBw4=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=mp2N4j25K83NMCfLyY4s4Fvr/02r2is80WsbciAWUvDE4/m4hXq9EgLORcancLhbT
-         umY9FHnexAjN//UsA7q/C9fckLYXF0oQ8KHvfjTR59rKGClK+gPz3WGNFPqYUuSPAl
-         tKqmRElhXMvcu84IyYLNk1Jx9OrqFY1VeIjfZrMgYnNZnH7Q43IubRg0WPfzhGBBBX
-         /OdSxH8IZ7Kz0nHhQxDWelZPRHLPHQFw8aTJU8Fd/gQNcc2Tz29BgNtd0/VTT0Eadn
-         af5BPEGJl881/LlmZF1PoTMkEDGEvxPy+W0AvrAYWFrqce134uQiJLaLzOGaZJOGGy
-         d7XYuXjZgGD6w==
-In-Reply-To: <Yg1F/VT4vRX4aHEt@ravnborg.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <sparclinux-owner@vger.kernel.org>
+In-Reply-To: <20220216131332.1489939-1-arnd@kernel.org>
+Content-Language: en-US
+Content-ID: <8997F03B17969542A071796ACE700BFF@FRAP264.PROD.OUTLOOK.COM>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch <linux-arch@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Linux API <linux-api@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, Russell King - ARM Linux <linux@armlinux.org.uk>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@codeaurora.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Nick Hu <nickhu@andestech.com>, Greentime Hu <green.hu@gmail.com>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>
+To: Arnd Bergmann <arnd@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>, "arnd@arndb.de" <arnd@arndb.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>
+Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "dalias@libc.org" <dalias@libc.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "peterz@infradead.org" <peterz@infradead.org>, "jcmvbkbc@gmail.com" <jcmvbkbc@gmail.com>, "guoren@kernel.org" <guoren@kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "will@kernel.org" <will@kernel.org>, "ardb@kernel.org" <ardb@kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "bcain@codeaurora.org" <bcain@codeaurora.org>, "deller@gmx.de" <deller@gmx.de>, "x86@kernel.org" <x86@kernel.org>, linux
 
-On Wed, Feb 16, 2022 at 7:44 PM Sam Ravnborg <sam@ravnborg.org> wrote:
->
-> Hi Arnd,
->
-> Fix spelling in $subject...
-
-done
-
-> sparc/Kconfig b/arch/sparc/Kconfig
-> > index 9f6f9bce5292..9276f321b3e3 100644
-> > --- a/arch/sparc/Kconfig
-> > +++ b/arch/sparc/Kconfig
-> > @@ -46,7 +46,6 @@ config SPARC
-> >       select LOCKDEP_SMALL if LOCKDEP
-> >       select NEED_DMA_MAP_STATE
-> >       select NEED_SG_DMA_LENGTH
-> > -     select SET_FS
-> >       select TRACE_IRQFLAGS_SUPPORT
-> >
-> >  config SPARC32
-> > @@ -101,6 +100,7 @@ config SPARC64
-> >       select HAVE_SETUP_PER_CPU_AREA
-> >       select NEED_PER_CPU_EMBED_FIRST_CHUNK
-> >       select NEED_PER_CPU_PAGE_FIRST_CHUNK
-> > +     select SET_FS
-> This looks wrong - looks like some merge went wrong here.
-
-Fixed now.
-
->
-> Other than the above the sparc32 changes looks fine, and with the Kconf
-> stuff fixed:
-> Acked-by: Sam Ravnborg <sam@ravnborg.org> # for sparc32 changes
-
-Thanks!
-
-      Arnd
+DQoNCkxlIDE2LzAyLzIwMjIgw6AgMTQ6MTMsIEFybmQgQmVyZ21hbm4gYSDDqWNyaXTCoDoNCj4g
+RnJvbTogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4NCj4gDQo+IENocmlzdG9waCBIZWxs
+d2lnIGFuZCBhIGZldyBvdGhlcnMgc3BlbnQgYSBodWdlIGVmZm9ydCBvbiByZW1vdmluZw0KPiBz
+ZXRfZnMoKSBmcm9tIG1vc3Qgb2YgdGhlIGltcG9ydGFudCBhcmNoaXRlY3R1cmVzLCBidXQgYWJv
+dXQgaGFsZiB0aGUNCj4gb3RoZXIgYXJjaGl0ZWN0dXJlcyB3ZXJlIG5ldmVyIGNvbXBsZXRlZCBl
+dmVuIHRob3VnaCBtb3N0IG9mIHRoZW0gZG9uJ3QNCj4gYWN0dWFsbHkgdXNlIHNldF9mcygpIGF0
+IGFsbC4NCj4gDQo+IEkgZGlkIGEgcGF0Y2ggZm9yIG1pY3JvYmxhemUgYXQgc29tZSBwb2ludCwg
+d2hpY2ggdHVybmVkIG91dCB0byBiZSBmYWlybHkNCj4gZ2VuZXJpYywgYW5kIG5vdyBwb3J0ZWQg
+aXQgdG8gbW9zdCBvdGhlciBhcmNoaXRlY3R1cmVzLCB1c2luZyBuZXcgZ2VuZXJpYw0KPiBpbXBs
+ZW1lbnRhdGlvbnMgb2YgYWNjZXNzX29rKCkgYW5kIF9fe2dldCxwdXR9X2tlcm5lbF9ub2NoZWNr
+KCkuDQo+IA0KPiBUaHJlZSBhcmNoaXRlY3R1cmVzIChzcGFyYzY0LCBpYTY0LCBhbmQgc2gpIG5l
+ZWRlZCBzb21lIGV4dHJhIHdvcmssDQo+IHdoaWNoIEkgYWxzbyBjb21wbGV0ZWQuDQo+IA0KPiBU
+aGUgZmluYWwgc2VyaWVzIGNvbnRhaW5zIGV4dHJhIGNsZWFudXAgY2hhbmdlcyB0aGF0IHRvdWNo
+IGFsbA0KPiBhcmNoaXRlY3R1cmVzLiBQbGVhc2UgcmV2aWV3IGFuZCB0ZXN0IHRoZXNlLCBzbyB3
+ZSBjYW4gbWVyZ2UgdGhlbQ0KPiBmb3IgdjUuMTguDQoNCkFzIGEgZnVydGhlciBjbGVhbnVwLCBo
+YXZlIHlvdSB0aG91Z2h0IGFib3V0IG1ha2luZyBhIGdlbmVyaWMgdmVyc2lvbiBvZiANCmNsZWFy
+X3VzZXIoKSA/IE9uIGFsbW9zdCBhbGwgYXJjaGl0ZWN0dXJlcywgY2xlYXJfdXNlcigpIGRvZXMg
+YW4gDQphY2Nlc3Nfb2soKSB0aGVuIGNhbGxzIF9fY2xlYXJfdXNlcigpIG9yIHNpbWlsYXIuDQoN
+Ck1heWJlIGFsc28gdGhlIHNhbWUgd2l0aCBwdXRfdXNlcigpIGFuZCBnZXRfdXNlcigpID8gQWZ0
+ZXIgYWxsIGl0IGlzIA0KanVzdCBhY2Nlc3Nfb2soKSBmb2xsb3dlZCBieSBfX3B1dF91c2VyKCkg
+b3IgX19nZXRfdXNlcigpID8gSXQgc2VlbXMgDQptb3JlIHRyaWNreSB0aG91Z2gsIGFzIHNvbWUg
+YXJjaGl0ZWN0dXJlcyBzZWVtcyB0byBoYXZlIGxlc3MgdHJpdmlhbCANCnN0dWZmIHRoZXJlLg0K
+DQpJIGFsc28gc2VlIGFsbCBhcmNoaXRlY3R1cmVzIGhhdmUgYSBwcm90b3R5cGUgZm9yIHN0cm5j
+cHlfZnJvbV91c2VyKCkgDQphbmQgc3Rybmxlbl91c2VyKCkuIENvdWxkIGJlIGEgY29tbW9uIHBy
+b3RvdHlwZSBpbnN0ZWFkIHdoZW4gd2UgaGF2ZSANCkdFTkVSSUNfU1RSTkNQWV9GUk9NX1VTRVIg
+LyBHRU5FUklDX1NUUk5MRU5fVVNFUg0KDQpBbmQgd2UgaGF2ZSBhbHNvIA0KdXNlcl9hY2Nlc3Nf
+YmVnaW4oKS91c2VyX3JlYWRfYWNjZXNzX2JlZ2luKCkvdXNlcl93cml0ZV9hY2Nlc3NfYmVnaW4o
+KSANCndoaWNoIGNhbGwgYWNjZXNzX29rKCkgdGhlbiBkbyB0aGUgcmVhbCB3b3JrLiBDb3VsZCBi
+ZSBtYWRlIGdlbmVyaWMgd2l0aCANCmNhbGwgdG8gc29tZSBhcmNoIHNwZWNpZmljIF9fdXNlcl9h
+Y2Nlc3NfYmVnaW4oKSBhbmQgZnJpZW5kcyBhZnRlciB0aGUgDQphY2Nlc3Nfb2soKSBhbmQgZXZl
+bnR1YWxseSB0aGUgbWlnaHRfZmF1bHQoKS4NCg0KQ2hyaXN0b3BoZQ==
