@@ -1,59 +1,112 @@
-From: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
-Subject: Re: [PATCH v2 13/18] uaccess: generalize access_ok()
-Date: Thu, 17 Feb 2022 11:15:11 -0800
-Message-ID: <CALCETrVOvYPN4_6hS8wpm2v9bGZupZ5x4=vZAseG57OUgvLGfw@mail.gmail.com>
-References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-14-arnd@kernel.org>
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH v2 18/18] uaccess: drop maining CONFIG_SET_FS users
+Date: Thu, 17 Feb 2022 16:36:20 -0600
+Message-ID: <8735khi0ij.fsf@email.froward.int.ebiederm.org>
+References: <20220216131332.1489939-1-arnd@kernel.org>
+        <20220216131332.1489939-19-arnd@kernel.org>
 Mime-Version: 1.0
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amacapital-net.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=+RZ8CAgnGa1bk5gBxds4oezzFjZLQMV+wOvrmesI1Hw=;
-        b=aC4vKGs+W+TwIvfSuol31sXb0DdwmBd+7ynpizLCKhXxCJFdEAZpxJvcWGa/FztIyE
-         kaM//DxAJXCDh5aNx4GSOgCqArnp/pPXpeZOwL6NCOz09LePB9aHf9rLmhVNdEQhmOfG
-         zcHXwBp2FYlRXI6tXnhZ/KCBgXws1BhNZED9tFrHvUNz3V476fnXQSLMeM+Shpqaev6m
-         W07DvhrokY4sorGqrqwhi0S/cnzs7UTqO0cIGR6WWEAN8VmZadQ9VO/+zsTblOwHPeWg
-         SsUN3Cw66rH7ga20AFYG5KTR6BdWsnByVkv9VANJJ9bhC1jZcqQ2NhN41BgDZLcdhMyk
-         TY3g==
-In-Reply-To: <20220216131332.1489939-14-arnd-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <20220216131332.1489939-19-arnd@kernel.org> (Arnd Bergmann's
+        message of "Wed, 16 Feb 2022 14:13:32 +0100")
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Arnd Bergmann <arnd-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, guoren-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, bcain-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, tsbogend-I1c7kopa9pxLokYuJOExCg@public.gmane.org, nickhu-MUIXKm3Oiri1Z/+hSey0Gg@public.gmane.org, green.hu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dinguyen-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, shorne-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, deller-Mmb7MZpHnFY@public.gmane.org, mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org, peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, mingo-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, hca-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org, dalias-8zAoT0mYgF4@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, richard-/L3Ra7n9ekc@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, ardb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-alpha-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-snps-arc-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-api@vger.kernel.org, arnd@arndb.de, linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk, linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org, bcain@codeaurora.org, geert@linux-m68k.org, monstr@monstr.eu, tsbogend@alpha.franken.de, nickhu@andestech.com, green.hu@gmail.com, dinguyen@kernel.org, shorne@gmail.com, deller@gmx.de, mpe@ellerman.id.au, peterz@infradead.org, mingo@redhat.com, mark.rutland@arm.com, hca@linux.ibm.com, dalias@libc.org, davem@davemloft.net, richard@nod.at, x86@kernel.org, jcmvbkbc@gmail.com, akpm@linux-foundation.org, ardb@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.
 
-On Wed, Feb 16, 2022 at 5:19 AM Arnd Bergmann <arnd-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
->
-> From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
->
-> There are many different ways that access_ok() is defined across
-> architectures, but in the end, they all just compare against the
-> user_addr_max() value or they accept anything.
->
-> Provide one definition that works for most architectures, checking
-> against TASK_SIZE_MAX for user processes or skipping the check inside
-> of uaccess_kernel() sections.
->
-> For architectures without CONFIG_SET_FS(), this should be the fastest
-> check, as it comes down to a single comparison of a pointer against a
-> compile-time constant, while the architecture specific versions tend to
-> do something more complex for historic reasons or get something wrong.
+Arnd Bergmann <arnd@kernel.org> writes:
 
-This isn't actually optimal.  On x86, TASK_SIZE_MAX is a bizarre
-constant that has a very specific value to work around a bug^Wdesign
-error^Wfeature of Intel CPUs.  TASK_SIZE_MAX is the maximum address at
-which userspace is permitted to allocate memory, but there is a huge
-gap between user and kernel addresses, and any value in the gap would
-be adequate for the comparison.  If we wanted to optimize this, simply
-checking the high bit (which x86 can do without any immediate
-constants at all) would be sufficient and, for an access known to fit
-in 32 bits, one could get even fancier and completely ignore the size
-of the access.  (For accesses not known to fit in 32 bits, I suspect
-some creativity could still come up with a construction that's
-substantially faster than the one in your patch.)
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> There are no remaining callers of set_fs(), so CONFIG_SET_FS
+> can be removed globally, along with the thread_info field and
+> any references to it.
+>
+> This turns access_ok() into a cheaper check against TASK_SIZE_MAX.
+>
+> With CONFIG_SET_FS gone, so drop all remaining references to
+> set_fs()/get_fs(), mm_segment_t and uaccess_kernel().
 
-So there's plenty of room for optimization here.
+For the bits I have looked at recently, and think I understand.
 
-(This is not in any respect a NAK -- it's just an observation that
-this could be even better.)
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  fs/exec.c                                 |  6 --
+>  kernel/exit.c                             | 14 -----
+>  kernel/kthread.c                          |  5 --
+>
+> diff --git a/fs/exec.c b/fs/exec.c
+> index 79f2c9483302..bc68a0c089ac 100644
+> --- a/fs/exec.c
+> +++ b/fs/exec.c
+> @@ -1303,12 +1303,6 @@ int begin_new_exec(struct linux_binprm * bprm)
+>  	if (retval)
+>  		goto out_unlock;
+>  
+> -	/*
+> -	 * Ensure that the uaccess routines can actually operate on userspace
+> -	 * pointers:
+> -	 */
+> -	force_uaccess_begin();
+> -
+>  	if (me->flags & PF_KTHREAD)
+>  		free_kthread_struct(me);
+>  	me->flags &= ~(PF_RANDOMIZE | PF_FORKNOEXEC | PF_KTHREAD |
+> diff --git a/kernel/exit.c b/kernel/exit.c
+> index b00a25bb4ab9..0884a75bc2f8 100644
+> --- a/kernel/exit.c
+> +++ b/kernel/exit.c
+> @@ -737,20 +737,6 @@ void __noreturn do_exit(long code)
+>  
+>  	WARN_ON(blk_needs_flush_plug(tsk));
+>  
+> -	/*
+> -	 * If do_dead is called because this processes oopsed, it's possible
+> -	 * that get_fs() was left as KERNEL_DS, so reset it to USER_DS before
+> -	 * continuing. Amongst other possible reasons, this is to prevent
+> -	 * mm_release()->clear_child_tid() from writing to a user-controlled
+> -	 * kernel address.
+> -	 *
+> -	 * On uptodate architectures force_uaccess_begin is a noop.  On
+> -	 * architectures that still have set_fs/get_fs in addition to handling
+> -	 * oopses handles kernel threads that run as set_fs(KERNEL_DS) by
+> -	 * default.
+> -	 */
+> -	force_uaccess_begin();
+> -
+>  	kcov_task_exit(tsk);
+>  
+>  	coredump_task_exit(tsk);
+> diff --git a/kernel/kthread.c b/kernel/kthread.c
+> index 38c6dd822da8..16c2275d4b50 100644
+> --- a/kernel/kthread.c
+> +++ b/kernel/kthread.c
+> @@ -55,7 +55,6 @@ struct kthread {
+>  	int result;
+>  	int (*threadfn)(void *);
+>  	void *data;
+> -	mm_segment_t oldfs;
+>  	struct completion parked;
+>  	struct completion exited;
+>  #ifdef CONFIG_BLK_CGROUP
+> @@ -1441,8 +1440,6 @@ void kthread_use_mm(struct mm_struct *mm)
+>  		mmdrop(active_mm);
+>  	else
+>  		smp_mb();
+> -
+> -	to_kthread(tsk)->oldfs = force_uaccess_begin();
+>  }
+>  EXPORT_SYMBOL_GPL(kthread_use_mm);
+>  
+> @@ -1457,8 +1454,6 @@ void kthread_unuse_mm(struct mm_struct *mm)
+>  	WARN_ON_ONCE(!(tsk->flags & PF_KTHREAD));
+>  	WARN_ON_ONCE(!tsk->mm);
+>  
+> -	force_uaccess_end(to_kthread(tsk)->oldfs);
+> -
+>  	task_lock(tsk);
+>  	/*
+>  	 * When a kthread stops operating on an address space, the loop
