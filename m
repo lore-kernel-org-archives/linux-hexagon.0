@@ -1,65 +1,63 @@
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: [PATCH v2 05/18] x86: remove __range_not_ok()
-Date: Fri, 18 Feb 2022 15:45:56 +0000
-Message-ID: <905678e9e05d40b9a4e13e7b1a34cb68@AcuMS.aculab.com>
-References: <20220216131332.1489939-1-arnd@kernel.org>
- <20220216131332.1489939-6-arnd@kernel.org> <20220218062851.GC22576@lst.de>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH v2 13/18] uaccess: generalize access_ok()
+Date: Fri, 18 Feb 2022 10:07:07 -0800
+Message-ID: <CALCETrWTB65vJXsQTPd_o7BRoSU=uqD0pFzKS+r4YgDuiCCqaQ@mail.gmail.com>
+References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-14-arnd@kernel.org>
+ <CALCETrVOvYPN4_6hS8wpm2v9bGZupZ5x4=vZAseG57OUgvLGfw@mail.gmail.com> <93a1ee797e9d4f789dff85a3c0f0c232@AcuMS.aculab.com>
 Mime-Version: 1.0
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amacapital-net.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3DIqXxPmp6dtbTijOx2KTFQ/AdtfYUTWecKVh7q3dDI=;
+        b=5c/qRto3YK3Y6/Rhnnpp4RzKmf8QhiKseObhkqXIpnLfhpnv2ua8Z7YCExbmjSYUCG
+         SbBSycxSpm4FRe5zOaxst92xyRDLRie0B4d4p8x0W6snNr+dG6MghxLfcakTWMQA17Pf
+         gOp7JS9gIpdJumtDaMv9IluyX8dB5LI5eLR/YC2U+D7T5N3aQr9NOYHAOP982E02xanw
+         SC1uTLhbyKEp3+LiMa1bFSquyveVGLxTCPf/eSvmTiEZzxEI+wIe4AMdv5VgRD2GYf6G
+         kO3gnVVxKK1wWuKxjcQ5nhLyDgmj/c1nxTJoqfRQTmuVCBNlEZ4IpVOo74LURbiOVsEg
+         CBWA==
+In-Reply-To: <93a1ee797e9d4f789dff85a3c0f0c232@AcuMS.aculab.com>
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:In-Reply-To:References:
-	Message-ID:Date:Subject:CC:To:From:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=9HjOUxkJDZcKY2lpfenRwzN0l0eUl60EzGlOOrevbww=; b=mvRy11ASXQtD2e
-	0jjAq4uWUqcmIQ5iD0lw12xNuymiFh4OP+++G3T6RqFnmn4es90gHj7nW5oBrY/vpNnswIL9X38Zw
-	4gVHLN5vpBNKr9p0TxP/8I33QA+bvSbVPStw71tAK9iM3B5Vj5ELGLjLa1LjckGFPBf+Euru97V2c
-	HODM8CaZGij1Px7LfZGw7URViQwUd1mdaWSmqyRe0j6RwH1sPbyDKCdN0JFsRjTkLBUzsgTXGO4x0
-	MnckAhVXve3gUgal0IIc0bhrnJzo9/KRsn4Oj/jL/q2Fc9/rxsLHUzIzYAySRx9cToM1owiMM16Ck
-	0S0RZIMNcj8DQxO1YdWQ==;
-In-Reply-To: <20220218062851.GC22576@lst.de>
-Content-Language: en-US
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: 'Christoph Hellwig' <hch@lst.de>, Arnd Bergmann <arnd@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>, "arnd@arndb.de" <arnd@arndb.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>, "linux@armlinux.org.uk" <linux@armlinux.org.uk>, "will@kernel.org" <will@kernel.org>, "guoren@kernel.org" <guoren@kernel.org>, "bcain@codeaurora.org" <bcain@codeaurora.org>, "geert@linux-m68k.org" <geert@linux-m68k.org>, "monstr@monstr.eu" <monstr@monstr.eu>, "tsbogend@alpha.franken.de" <tsbogend@alpha.franken.de>, "nickhu@andestech.com" <nickhu@andestech.com>, "green.hu@gmail.com" <green.hu@gmail.com>, "dinguyen@kernel.org" <dinguyen@kernel.org>, "shorne@gmail.com" <shorne@gmail.com>, "deller@gmx.de" <deller@gmx.de>, mp
+To: David Laight <David.Laight@aculab.com>
+Cc: Arnd Bergmann <arnd@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>, "arnd@arndb.de" <arnd@arndb.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>, "linux@armlinux.org.uk" <linux@armlinux.org.uk>, "will@kernel.org" <will@kernel.org>, "guoren@kernel.org" <guoren@kernel.org>, "bcain@codeaurora.org" <bcain@codeaurora.org>, "geert@linux-m68k.org" <geert@linux-m68k.org>, "monstr@monstr.eu" <monstr@monstr.eu>, "tsbogend@alpha.franken.de" <tsbogend@alpha.franken.de>, "nickhu@andestech.com" <nickhu>
 
-From: Christoph Hellwig
-> Sent: 18 February 2022 06:29
-...
-> 
-> > diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
-> > index 15b058eefc4e..ee117fcf46ed 100644
-> > --- a/arch/x86/kernel/stacktrace.c
-> > +++ b/arch/x86/kernel/stacktrace.c
-> > @@ -90,7 +90,7 @@ copy_stack_frame(const struct stack_frame_user __user *fp,
-> >  {
-> >  	int ret;
+On Fri, Feb 18, 2022 at 1:30 AM David Laight <David.Laight@aculab.com> wrote:
+>
+> From: Andy Lutomirski
+> > Sent: 17 February 2022 19:15
+> ...
+> > This isn't actually optimal.  On x86, TASK_SIZE_MAX is a bizarre
+> > constant that has a very specific value to work around a bug^Wdesign
+> > error^Wfeature of Intel CPUs.  TASK_SIZE_MAX is the maximum address at
+> > which userspace is permitted to allocate memory, but there is a huge
+> > gap between user and kernel addresses, and any value in the gap would
+> > be adequate for the comparison.  If we wanted to optimize this, simply
+> > checking the high bit (which x86 can do without any immediate
+> > constants at all) would be sufficient and, for an access known to fit
+> > in 32 bits, one could get even fancier and completely ignore the size
+> > of the access.  (For accesses not known to fit in 32 bits, I suspect
+> > some creativity could still come up with a construction that's
+> > substantially faster than the one in your patch.)
 > >
-> > -	if (__range_not_ok(fp, sizeof(*frame), TASK_SIZE))
-> > +	if (!__access_ok(fp, sizeof(*frame)))
-> >  		return 0;
-> 
-> Just switch the __get_user calls below to get_user instead.
+> > So there's plenty of room for optimization here.
+> >
+> > (This is not in any respect a NAK -- it's just an observation that
+> > this could be even better.)
+>
+> For 64bit arch that use the top bit to separate user/kernel
+> you can test '(addr | size) >> 62)'.
+> The compiler optimises out constant sizes.
+>
+> This has all been mentioned a lot of times.
+> You do get different fault types.
+>
+> OTOH an explicit check for constant size (less than something big)
+> can use the cheaper test of the sign bit.
+> Big constant sizes could be compile time errors.
 
-Is this worth doing at all?
-How much userspace code is actually compiled with stack frames?
-
-Won't work well for a 32bit process on a 64bit kernel either.
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+The different fault type issue may well be a real problem.  Right now
+the core x86 fault code reserves the right to grouch if we get #GP
+instead of #PF.  We could change that.
