@@ -1,12 +1,13 @@
 From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v2 10/18] m68k: fix access_ok for coldfire
-Date: Fri, 18 Feb 2022 07:30:50 +0100
-Message-ID: <20220218063050.GG22576@lst.de>
-References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-11-arnd@kernel.org>
+Subject: Re: [PATCH v2 12/18] uaccess: fix type mismatch warnings from
+ access_ok()
+Date: Fri, 18 Feb 2022 07:31:27 +0100
+Message-ID: <20220218063127.GH22576@lst.de>
+References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-13-arnd@kernel.org>
 Mime-Version: 1.0
-Return-path: <linux-alpha-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20220216131332.1489939-11-arnd@kernel.org>
+In-Reply-To: <20220216131332.1489939-13-arnd@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
