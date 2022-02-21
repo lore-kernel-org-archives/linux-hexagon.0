@@ -1,154 +1,72 @@
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V2 26/30] hexagon/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date: Mon, 21 Feb 2022 12:08:35 +0530
-Message-ID: <1645425519-9034-27-git-send-email-anshuman.khandual@arm.com>
-References: <1645425519-9034-1-git-send-email-anshuman.khandual@arm.com>
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <1645425519-9034-1-git-send-email-anshuman.khandual@arm.com>
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH v2 09/18] mips: use simpler access_ok()
+Date: Mon, 21 Feb 2022 14:24:56 +0100
+Message-ID: <20220221132456.GA7139@alpha.franken.de>
+References: <20220216131332.1489939-1-arnd@kernel.org>
+ <20220216131332.1489939-10-arnd@kernel.org>
+Mime-Version: 1.0
+Return-path: <linux-mips-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20220216131332.1489939-10-arnd@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: linux-mm@kvack.org, akpm@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>, Christoph Hellwig <hch@infradead.org>, linux-arch@vger.kernel.org, Brian Cain <bcain@codeaurora.org>, linux-hexagon@vger.kernel.org
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-api@vger.kernel.org, arnd@arndb.de, linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk, linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org, bcain@codeaurora.org, geert@linux-m68k.org, monstr@monstr.eu, nickhu@andestech.com, green.hu@gmail.com, dinguyen@kernel.org, shorne@gmail.com, deller@gmx.de, mpe@ellerman.id.au, peterz@infradead.org, mingo@redhat.com, mark.rutland@arm.com, hca@linux.ibm.com, dalias@libc.org, davem@davemloft.net, richard@nod.at, x86@kernel.org, jcmvbkbc@gmail.com, ebiederm@xmission.com, akpm@linux-foundation.org, ardb@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.org
 
-This defines and exports a platform specific custom vm_get_page_prot() via
-subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
-macros can be dropped which are no longer needed.
+On Wed, Feb 16, 2022 at 02:13:23PM +0100, Arnd Bergmann wrote:
+> 
+> diff --git a/arch/mips/include/asm/uaccess.h b/arch/mips/include/asm/uaccess.h
+> index db9a8e002b62..d7c89dc3426c 100644
+> --- a/arch/mips/include/asm/uaccess.h
+> +++ b/arch/mips/include/asm/uaccess.h
+> @@ -19,6 +19,7 @@
+>  #ifdef CONFIG_32BIT
+>  
+>  #define __UA_LIMIT 0x80000000UL
+> +#define TASK_SIZE_MAX	__UA_LIMIT
+>  
+>  #define __UA_ADDR	".word"
+>  #define __UA_LA		"la"
+> @@ -33,6 +34,7 @@
+>  extern u64 __ua_limit;
+>  
+>  #define __UA_LIMIT	__ua_limit
+> +#define TASK_SIZE_MAX	XKSSEG
 
-Cc: Brian Cain <bcain@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
----
- arch/hexagon/Kconfig               |  1 +
- arch/hexagon/include/asm/pgtable.h | 24 -----------
- arch/hexagon/mm/init.c             | 67 ++++++++++++++++++++++++++++++
- 3 files changed, 68 insertions(+), 24 deletions(-)
+this doesn't work. For every access above maximum implemented virtual address
+space of the CPU an address error will be issued, but not a TLB miss.
+And address error isn't able to handle this situation.
 
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index 15dd8f38b698..cdc5df32a1e3 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -6,6 +6,7 @@ config HEXAGON
- 	def_bool y
- 	select ARCH_32BIT_OFF_T
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
-+	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_NO_PREEMPT
- 	select DMA_GLOBAL_POOL
- 	# Other pending projects/to-do items.
-diff --git a/arch/hexagon/include/asm/pgtable.h b/arch/hexagon/include/asm/pgtable.h
-index 18cd6ea9ab23..5eceddfe013d 100644
---- a/arch/hexagon/include/asm/pgtable.h
-+++ b/arch/hexagon/include/asm/pgtable.h
-@@ -127,31 +127,7 @@ extern unsigned long _dflt_cache_att;
- #define CACHEDEF	(CACHE_DEFAULT << 6)
- 
- /* Private (copy-on-write) page protections. */
--#define __P000 __pgprot(_PAGE_PRESENT | _PAGE_USER | CACHEDEF)
--#define __P001 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | CACHEDEF)
--#define __P010 __P000	/* Write-only copy-on-write */
--#define __P011 __P001	/* Read/Write copy-on-write */
--#define __P100 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_EXECUTE | CACHEDEF)
--#define __P101 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_EXECUTE | \
--			_PAGE_READ | CACHEDEF)
--#define __P110 __P100	/* Write/execute copy-on-write */
--#define __P111 __P101	/* Read/Write/Execute, copy-on-write */
--
- /* Shared page protections. */
--#define __S000 __P000
--#define __S001 __P001
--#define __S010 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_WRITE | CACHEDEF)
--#define __S011 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | \
--			_PAGE_WRITE | CACHEDEF)
--#define __S100 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_EXECUTE | CACHEDEF)
--#define __S101 __P101
--#define __S110 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_EXECUTE | _PAGE_WRITE | CACHEDEF)
--#define __S111 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | \
--			_PAGE_EXECUTE | _PAGE_WRITE | CACHEDEF)
- 
- extern pgd_t swapper_pg_dir[PTRS_PER_PGD];  /* located in head.S */
- 
-diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
-index f01e91e10d95..b53595fc4103 100644
---- a/arch/hexagon/mm/init.c
-+++ b/arch/hexagon/mm/init.c
-@@ -236,3 +236,70 @@ void __init setup_arch_memory(void)
- 	 *  which is called by start_kernel() later on in the process
- 	 */
- }
+With this patch
+
+diff --git a/arch/mips/kernel/unaligned.c b/arch/mips/kernel/unaligned.c
+index df4b708c04a9..3911f1481f3d 100644
+--- a/arch/mips/kernel/unaligned.c
++++ b/arch/mips/kernel/unaligned.c
+@@ -1480,6 +1480,13 @@ asmlinkage void do_ade(struct pt_regs *regs)
+ 	prev_state = exception_enter();
+ 	perf_sw_event(PERF_COUNT_SW_ALIGNMENT_FAULTS,
+ 			1, regs, regs->cp0_badvaddr);
 +
-+pgprot_t vm_get_page_prot(unsigned long vm_flags)
-+{
-+	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
-+	case VM_NONE:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				CACHEDEF);
-+	case VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_READ | CACHEDEF);
-+	/* Write-only copy-on-write */
-+	case VM_WRITE:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				CACHEDEF);
-+	/* Read/Write copy-on-write */
-+	case VM_WRITE | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_READ | CACHEDEF);
-+	case VM_EXEC:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | CACHEDEF);
-+	case VM_EXEC | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | _PAGE_READ |
-+				CACHEDEF);
-+	/* Write/execute copy-on-write */
-+	case VM_EXEC | VM_WRITE:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | CACHEDEF);
-+	/* Read/Write/Execute, copy-on-write */
-+	case VM_EXEC | VM_WRITE | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | _PAGE_READ |
-+				CACHEDEF);
-+	case VM_SHARED:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				CACHEDEF);
-+	case VM_SHARED | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_READ | CACHEDEF);
-+	case VM_SHARED | VM_WRITE:
-+		return  __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_WRITE | CACHEDEF);
-+	case VM_SHARED | VM_WRITE | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_READ | _PAGE_WRITE |
-+				CACHEDEF);
-+	case VM_SHARED | VM_EXEC:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | CACHEDEF);
-+	case VM_SHARED | VM_EXEC | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | _PAGE_READ |
-+				CACHEDEF);
-+	case VM_SHARED | VM_EXEC | VM_WRITE:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_EXECUTE | _PAGE_WRITE |
-+				CACHEDEF);
-+	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-+		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+				_PAGE_READ | _PAGE_EXECUTE |
-+				_PAGE_WRITE | CACHEDEF);
-+	default:
-+		BUILD_BUG();
++	/* Are we prepared to handle this kernel fault?	 */
++	if (fixup_exception(regs)) {
++		current->thread.cp0_baduaddr = regs->cp0_badvaddr;
++		return;
 +	}
-+}
-+EXPORT_SYMBOL(vm_get_page_prot);
--- 
-2.25.1
++
+ 	/*
+ 	 * Did we catch a fault trying to load an instruction?
+ 	 */
 
+I at least get my simple test cases fixed, but I'm not sure this is
+correct.
+
+Is there a reason to not also #define TASK_SIZE_MAX   __UA_LIMIT like
+for the 32bit case ?
+
+Thomas.
+
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
