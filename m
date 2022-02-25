@@ -1,25 +1,24 @@
 From: Dinh Nguyen <dinguyen@kernel.org>
-Subject: Re: [PATCH v2 12/18] uaccess: fix type mismatch warnings from
- access_ok()
-Date: Thu, 24 Feb 2022 22:30:31 -0600
-Message-ID: <824a2d98-e992-0406-518f-adcde2a1372a@kernel.org>
+Subject: Re: [PATCH v2 13/18] uaccess: generalize access_ok()
+Date: Thu, 24 Feb 2022 22:31:04 -0600
+Message-ID: <d12e6bcc-089d-568b-62cf-036c68c08ca0@kernel.org>
 References: <20220216131332.1489939-1-arnd@kernel.org>
- <20220216131332.1489939-13-arnd@kernel.org>
+ <20220216131332.1489939-14-arnd@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-m68k-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645763438;
-        bh=K1RaOpayOFOl9YrWjbFso6AxJRaB7d/hqz1cXZ69p68=;
+        s=k20201202; t=1645763491;
+        bh=GLLjJ1DIY+pcaD5Wxr3GGBnMqVEARs5wDghfvFD40O8=;
         h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=JQKxpsomaZBRaWmc5cvV6ib4A8rCg4TPitG6KtMN/3RrAcjKVTJT4yK2eDFUJ+cMs
-         GGe2lQ0KwF+iTYeA1pEDWDB2RtmKuBiOhrq1UD43RSIKmGPeCxSvHgFkEuaxQ4Olvr
-         2eAzhesO8mAMjdIVrsZ1nZFTt4sdpEeKUGFwUAwfuxPbqH/Wkgj8BdxrL7OB3VWTTd
-         G6bo95wROzxmQJyLOX4tRd/qfCxU6mfLup3kLD3UTh5ardnvCDEhsvub+4i3ykdyNs
-         K3IteETxgQ/sIy9c1oYc4VbyW0VV1YzXNoLx5Km6wu9MsETEo+EXnMVoPFvUjaAbVy
-         MOmcxBoXdOugg==
+        b=hIVBklbMz20Too2yeCCQf4FR/ynGbzZ2XY3Q4fmoq3AjGgtKL335uxFhoNA+O7GwZ
+         1xI9NTIagmUc/WGvwJaXmKN3m6iRlWo7xNSh2VqLx5iFbuZhtPqHWNdyPZFCcQmvJg
+         B/wRcBuuSGk7QMYD4O/BWhUPyLQM2U2ZADwP6zy8YV9xa2LwvKMXbfS9owW1MUfUTw
+         6fHO3FMrRRy8SAogw4atZuZJaPKXrV3/3aWAhAbetYfwpuO/cHRAnjSsimimMy3Xa2
+         RW5lD3MIKq24lj+jc1tNunbJNi08raKakbPeJIfU1woaZaqtvTkkP3acIOYmeu0z/S
+         VxtoRQs+6FTNQ==
 Content-Language: en-US
-In-Reply-To: <20220216131332.1489939-13-arnd@kernel.org>
+In-Reply-To: <20220216131332.1489939-14-arnd@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"; format="flowed"
 To: Arnd Bergmann <arnd@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-api@vger.kernel.org, arnd@arndb.de, linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk
@@ -30,21 +29,46 @@ Cc: linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org, bcain@codeaurora.
 On 2/16/22 07:13, Arnd Bergmann wrote:
 > From: Arnd Bergmann <arnd@arndb.de>
 > 
-> On some architectures, access_ok() does not do any argument type
-> checking, so replacing the definition with a generic one causes
-> a few warnings for harmless issues that were never caught before.
+> There are many different ways that access_ok() is defined across
+> architectures, but in the end, they all just compare against the
+> user_addr_max() value or they accept anything.
 > 
-> Fix the ones that I found either through my own test builds or
-> that were reported by the 0-day bot.
+> Provide one definition that works for most architectures, checking
+> against TASK_SIZE_MAX for user processes or skipping the check inside
+> of uaccess_kernel() sections.
 > 
-> Reported-by: kernel test robot <lkp@intel.com>
+> For architectures without CONFIG_SET_FS(), this should be the fastest
+> check, as it comes down to a single comparison of a pointer against a
+> compile-time constant, while the architecture specific versions tend to
+> do something more complex for historic reasons or get something wrong.
+> 
+> Type checking for __user annotations is handled inconsistently across
+> architectures, but this is easily simplified as well by using an inline
+> function that takes a 'const void __user *' argument. A handful of
+> callers need an extra __user annotation for this.
+> 
+> Some architectures had trick to use 33-bit or 65-bit arithmetic on the
+> addresses to calculate the overflow, however this simpler version uses
+> fewer registers, which means it can produce better object code in the
+> end despite needing a second (statically predicted) branch.
+> 
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Acked-by: Mark Rutland <mark.rutland@arm.com> [arm64, asm-generic]
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
->   arch/arc/kernel/process.c           |  2 +-
->   arch/arm/kernel/swp_emulate.c       |  2 +-
->   arch/arm/kernel/traps.c             |  2 +-
->   arch/csky/kernel/signal.c           |  2 +-
->   arch/mips/sibyte/common/sb_tbprof.c |  6 +++---
->   arch/nios2/kernel/signal.c          | 20 +++++++++++---------
+>   arch/Kconfig                          |  7 ++++
+>   arch/alpha/include/asm/uaccess.h      | 34 +++------------
+>   arch/arc/include/asm/uaccess.h        | 29 -------------
+>   arch/arm/include/asm/uaccess.h        | 20 +--------
+>   arch/arm64/include/asm/uaccess.h      | 11 ++---
+>   arch/csky/include/asm/uaccess.h       |  8 ----
+>   arch/hexagon/include/asm/uaccess.h    | 25 ------------
+>   arch/ia64/include/asm/uaccess.h       |  5 +--
+>   arch/m68k/Kconfig.cpu                 |  1 +
+>   arch/m68k/include/asm/uaccess.h       | 19 +--------
+>   arch/microblaze/include/asm/uaccess.h |  8 +---
+>   arch/mips/include/asm/uaccess.h       | 29 +------------
+>   arch/nds32/include/asm/uaccess.h      |  7 +---
+>   arch/nios2/include/asm/uaccess.h      | 11 +----
 
 Acked-by: Dinh Nguyen <dinguyen@kernel.org>
