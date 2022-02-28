@@ -1,9 +1,9 @@
 From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V3 28/30] ia64/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date: Mon, 28 Feb 2022 16:17:51 +0530
-Message-ID: <1646045273-9343-29-git-send-email-anshuman.khandual@arm.com>
+Subject: [PATCH V3 29/30] mm/mmap: Drop generic vm_get_page_prot()
+Date: Mon, 28 Feb 2022 16:17:52 +0530
+Message-ID: <1646045273-9343-30-git-send-email-anshuman.khandual@arm.com>
 References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-path: <linux-parisc-owner@vger.kernel.org>
 In-Reply-To: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 MIME-Version: 1.0
@@ -12,115 +12,69 @@ Content-Transfer-Encoding: 7bit
 To: linux-mm@kvack.org, akpm@linux-foundation.org
 Cc: linux-kernel@vger.kernel.org, geert@linux-m68k.org, Anshuman Khandual <anshuman.khandual@arm.com>, Christoph Hellwig <hch@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, linux-alpha@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-parisc@vger.kernel.org, openrisc@lists.librecores.org, linux-um@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org
 
-This defines and exports a platform specific custom vm_get_page_prot() via
-subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
-macros can be dropped which are no longer needed.
+All available platforms export their own vm_get_page_prot() implementation
+via ARCH_HAS_VM_GET_PAGE_PROT. Hence a generic implementation is no longer
+needed.
 
-Cc: linux-ia64@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/ia64/Kconfig               |  1 +
- arch/ia64/include/asm/pgtable.h | 17 --------------
- arch/ia64/mm/init.c             | 41 ++++++++++++++++++++++++++++++++-
- 3 files changed, 41 insertions(+), 18 deletions(-)
+ mm/mmap.c | 40 ----------------------------------------
+ 1 file changed, 40 deletions(-)
 
-diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
-index a7e01573abd8..0ab15e8d5783 100644
---- a/arch/ia64/Kconfig
-+++ b/arch/ia64/Kconfig
-@@ -11,6 +11,7 @@ config IA64
- 	select ARCH_HAS_DMA_MARK_CLEAN
- 	select ARCH_HAS_STRNCPY_FROM_USER
- 	select ARCH_HAS_STRNLEN_USER
-+	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_MIGHT_HAVE_PC_SERIO
- 	select ACPI
-diff --git a/arch/ia64/include/asm/pgtable.h b/arch/ia64/include/asm/pgtable.h
-index 9584b2c5f394..8154c78bba56 100644
---- a/arch/ia64/include/asm/pgtable.h
-+++ b/arch/ia64/include/asm/pgtable.h
-@@ -161,23 +161,6 @@
-  * attempts to write to the page.
+diff --git a/mm/mmap.c b/mm/mmap.c
+index c13dd9c37866..ff343f76a825 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -102,46 +102,6 @@ static void unmap_region(struct mm_struct *mm,
+  *								w: (no) no
+  *								x: (yes) yes
   */
- 	/* xwr */
--#define __P000	PAGE_NONE
--#define __P001	PAGE_READONLY
--#define __P010	PAGE_READONLY	/* write to priv pg -> copy & make writable */
--#define __P011	PAGE_READONLY	/* ditto */
--#define __P100	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_X_RX)
--#define __P101	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RX)
--#define __P110	PAGE_COPY_EXEC
--#define __P111	PAGE_COPY_EXEC
--
--#define __S000	PAGE_NONE
--#define __S001	PAGE_READONLY
--#define __S010	PAGE_SHARED	/* we don't have (and don't need) write-only */
--#define __S011	PAGE_SHARED
--#define __S100	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_X_RX)
--#define __S101	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RX)
--#define __S110	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RWX)
--#define __S111	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RWX)
+-pgprot_t vm_get_page_prot(unsigned long vm_flags)
+-{
+-	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
+-	case VM_NONE:
+-		return __P000;
+-	case VM_READ:
+-		return __P001;
+-	case VM_WRITE:
+-		return __P010;
+-	case VM_READ | VM_WRITE:
+-		return __P011;
+-	case VM_EXEC:
+-		return __P100;
+-	case VM_EXEC | VM_READ:
+-		return __P101;
+-	case VM_EXEC | VM_WRITE:
+-		return __P110;
+-	case VM_EXEC | VM_READ | VM_WRITE:
+-		return __P111;
+-	case VM_SHARED:
+-		return __S000;
+-	case VM_SHARED | VM_READ:
+-		return __S001;
+-	case VM_SHARED | VM_WRITE:
+-		return __S010;
+-	case VM_SHARED | VM_READ | VM_WRITE:
+-		return __S011;
+-	case VM_SHARED | VM_EXEC:
+-		return __S100;
+-	case VM_SHARED | VM_EXEC | VM_READ:
+-		return __S101;
+-	case VM_SHARED | VM_EXEC | VM_WRITE:
+-		return __S110;
+-	case VM_SHARED | VM_EXEC | VM_READ | VM_WRITE:
+-		return __S111;
+-	default:
+-		BUILD_BUG();
+-	}
+-}
+-EXPORT_SYMBOL(vm_get_page_prot);
+ #endif	/* CONFIG_ARCH_HAS_VM_GET_PAGE_PROT */
  
- #define pgd_ERROR(e)	printk("%s:%d: bad pgd %016lx.\n", __FILE__, __LINE__, pgd_val(e))
- #if CONFIG_PGTABLE_LEVELS == 4
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index 5d165607bf35..2a922883e30f 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -273,7 +273,7 @@ static int __init gate_vma_init(void)
- 	gate_vma.vm_start = FIXADDR_USER_START;
- 	gate_vma.vm_end = FIXADDR_USER_END;
- 	gate_vma.vm_flags = VM_READ | VM_MAYREAD | VM_EXEC | VM_MAYEXEC;
--	gate_vma.vm_page_prot = __P101;
-+	gate_vma.vm_page_prot = __pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RX);
- 
- 	return 0;
- }
-@@ -492,3 +492,42 @@ void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
- 	__remove_pages(start_pfn, nr_pages, altmap);
- }
- #endif
-+
-+pgprot_t vm_get_page_prot(unsigned long vm_flags)
-+{
-+	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
-+	case VM_NONE:
-+		return PAGE_NONE;
-+	case VM_READ:
-+	/* write to priv pg -> copy & make writable */
-+	case VM_WRITE:
-+	/* write to priv pg -> copy & make writable */
-+	case VM_WRITE | VM_READ:
-+		return PAGE_READONLY;
-+	case VM_EXEC:
-+		return __pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_X_RX);
-+	case VM_EXEC | VM_READ:
-+		return __pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RX);
-+	case VM_EXEC | VM_WRITE:
-+	case VM_EXEC | VM_WRITE | VM_READ:
-+		return PAGE_COPY_EXEC;
-+	case VM_SHARED:
-+		return PAGE_NONE;
-+	case VM_SHARED | VM_READ:
-+		return PAGE_READONLY;
-+	/* we don't have (and don't need) write-only */
-+	case VM_SHARED | VM_WRITE:
-+	case VM_SHARED | VM_WRITE | VM_READ:
-+		return PAGE_SHARED;
-+	case VM_SHARED | VM_EXEC:
-+		return __pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_X_RX);
-+	case VM_SHARED | VM_EXEC | VM_READ:
-+		return __pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RX);
-+	case VM_SHARED | VM_EXEC | VM_WRITE:
-+	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-+		return __pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RWX);
-+	default:
-+		BUILD_BUG();
-+	}
-+}
-+EXPORT_SYMBOL(vm_get_page_prot);
+ static pgprot_t vm_pgprot_modify(pgprot_t oldprot, unsigned long vm_flags)
 -- 
 2.25.1
 
