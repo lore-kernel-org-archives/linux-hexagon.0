@@ -1,109 +1,57 @@
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
-Subject: Re: [PATCH 2/6] bitops: always define asm-generic non-atomic bitops
-Date: Mon,  6 Jun 2022 16:21:35 +0200
-Message-ID: <20220606142135.965134-1-alexandr.lobakin@intel.com>
-References: <20220606114908.962562-1-alexandr.lobakin@intel.com> <20220606114908.962562-3-alexandr.lobakin@intel.com> <Yp32xDZ/qF8hM6p0@FVFF77S0Q05N>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654525944; x=1686061944;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=UxE8NFVyWkYcl6VDWo0Xc7AS/+WRnnbtxB431hbdf8E=;
-  b=BICLIJM1RRUCHuX5r1LZbr9NC+T+7i63AocrimLUDszR/dCCi89tIQkF
-   5mXYjeKhFHeEvnHqrwDg+Jp4eU/uw+qrvz0lh8zr5Vatiw+8/bWTa9B2o
-   I0bD2HMpA4B7RcvOqjq+UvXDNx3qDGBQUJK0ecrZB+g5nSpmiJfMNBYi+
-   aW22VdsYFlfiIbBlcT+K17FNEsy9E5DI0h8D2qTKDaSO6vCOl7NKQNQ6a
-   pRqjzv16kzSegYarBS+O4/A5MivnXSkE3ObHjlZ84/8eFM////8/bdiZb
-   xj4CZ8u3k8aKcMRRk+obDxVkgPJsjZht12QuKVpmUphsNBo7ZiiRTiE8S
-   A==;
-In-Reply-To: <Yp32xDZ/qF8hM6p0@FVFF77S0Q05N>
-Content-Disposition: inline
-List-ID: <linux-hexagon.vger.kernel.org>
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Richard Henderson <rth@twiddle.net>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m6
-
 From: Mark Rutland <mark.rutland@arm.com>
-Date: Mon, 6 Jun 2022 13:44:52 +0100
+Subject: Re: [PATCH 3/6] bitops: define gen_test_bit() the same way as the
+ rest of functions
+Date: Mon, 6 Jun 2022 17:19:42 +0100
+Message-ID: <Yp4pEULDFq13A9Wp@FVFF77S0Q05N.cambridge.arm.com>
+References: <20220606114908.962562-1-alexandr.lobakin@intel.com>
+ <20220606114908.962562-4-alexandr.lobakin@intel.com>
+Mime-Version: 1.0
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20220606114908.962562-4-alexandr.lobakin@intel.com>
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Alexander Lobakin <alexandr.lobakin@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Richard Henderson <rth@twiddle.net>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-sh@vger.kernel.org, 
 
-> On Mon, Jun 06, 2022 at 01:49:03PM +0200, Alexander Lobakin wrote:
-> > Move generic non-atomic bitops from the asm-generic header which
-> > gets included only when there are no architecture-specific
-> > alternatives, to a separate independent file to make them always
-> > available.
-> > 
-> > Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-> > ---
-> >  .../asm-generic/bitops/generic-non-atomic.h   | 124 ++++++++++++++++++
-> >  include/asm-generic/bitops/non-atomic.h       | 109 ++-------------
-> >  2 files changed, 132 insertions(+), 101 deletions(-)
-> >  create mode 100644 include/asm-generic/bitops/generic-non-atomic.h
-> > 
-> > diff --git a/include/asm-generic/bitops/generic-non-atomic.h b/include/asm-generic/bitops/generic-non-atomic.h
-> > new file mode 100644
-> > index 000000000000..7a60adfa6e7d
-> > --- /dev/null
-> > +++ b/include/asm-generic/bitops/generic-non-atomic.h
-> > @@ -0,0 +1,124 @@
-> > +/* SPDX-License-Identifier: GPL-2.0-only */
-> > +#ifndef __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H
-> > +#define __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H
-> > +
-> > +#include <linux/bits.h>
-> > +
-> > +#ifndef _LINUX_BITOPS_H
-> > +#error only <linux/bitops.h> can be included directly
-> > +#endif
-> > +
-> > +/*
-> > + * Generic definitions for bit operations, should not be used in regular code
-> > + * directly.
-> > + */
-> > +
-> > +/**
-> > + * gen___set_bit - Set a bit in memory
-> > + * @nr: the bit to set
-> > + * @addr: the address to start counting from
-> > + *
-> > + * Unlike set_bit(), this function is non-atomic and may be reordered.
-> > + * If it's called on the same region of memory simultaneously, the effect
-> > + * may be that only one operation succeeds.
-> > + */
-> > +static __always_inline void
-> > +gen___set_bit(unsigned int nr, volatile unsigned long *addr)
+On Mon, Jun 06, 2022 at 01:49:04PM +0200, Alexander Lobakin wrote:
+> Currently, the generic test_bit() function is defined as a one-liner
+> and in case with constant bitmaps the compiler is unable to optimize
+> it to a constant. At the same time, gen_test_and_*_bit() are being
+> optimized pretty good.
+> Define gen_test_bit() the same way as they are defined.
 > 
-> Could we please use 'generic' rather than 'gen' as the prefix?
-> 
-> That'd match what we did for the generic atomic_*() and atomic64_*() functions
-> in commits
-> 
-> * f8b6455a9d381fc5 ("locking/atomic: atomic: support ARCH_ATOMIC")
-> * 1bdadf46eff6804a ("locking/atomic: atomic64: support ARCH_ATOMIC")
-> 
-> ... and it avoids any potential confusion with 'gen' meaning 'generated' or
-> similar.
+> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
 
-Sure! Thanks for giving the hint, I do agree it would look better
-and will rename in v2.
+Regardless of whether compilers prefer this, I think it's nicer to have the
+structure consistent with the rest of the functions, so FWIW:
 
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+
+Mark.
+
+> ---
+>  include/asm-generic/bitops/generic-non-atomic.h | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 > 
-> Thanks,
-> Mark.
+> diff --git a/include/asm-generic/bitops/generic-non-atomic.h b/include/asm-generic/bitops/generic-non-atomic.h
+> index 7a60adfa6e7d..202d8a3b40e1 100644
+> --- a/include/asm-generic/bitops/generic-non-atomic.h
+> +++ b/include/asm-generic/bitops/generic-non-atomic.h
+> @@ -118,7 +118,11 @@ gen___test_and_change_bit(unsigned int nr, volatile unsigned long *addr)
+>  static __always_inline int
+>  gen_test_bit(unsigned int nr, const volatile unsigned long *addr)
+>  {
+> -	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
+> +	const unsigned long *p = (const unsigned long *)addr + BIT_WORD(nr);
+> +	unsigned long mask = BIT_MASK(nr);
+> +	unsigned long val = *p;
+> +
+> +	return !!(val & mask);
+>  }
+>  
+>  #endif /* __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H */
+> -- 
+> 2.36.1
 > 
-> > +{
-> > +	unsigned long mask = BIT_MASK(nr);
-> > +	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-> > +
-> > +	*p  |= mask;
-> > +}
-
-[...]
-
-> > -- 
-> > 2.36.1
-
-Thanks,
-Al
