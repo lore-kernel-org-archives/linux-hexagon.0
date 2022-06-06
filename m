@@ -1,142 +1,138 @@
-From: Heiko Carstens <hca@linux.ibm.com>
-Subject: Re: [PATCH v5] mm: Avoid unnecessary page fault retires on shared
- memory types
-Date: Tue, 31 May 2022 09:59:37 +0200
-Message-ID: <YpXK6VO8y6ZQlimG@osiris>
-References: <20220530183450.42886-1-peterx@redhat.com>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
+Subject: [PATCH 0/6] bitops: let optimize out non-atomic bitops on compile-time constants
+Date: Mon,  6 Jun 2022 13:49:01 +0200
+Message-ID: <20220606114908.962562-1-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1654516220; x=1686052220;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=Tok61MYj1lPncNWg8YTmTokMBB2SXOwOPzh2SXZuY+c=;
+  b=XKoxWk72FsxbJ1jHDPwgCphlSNC7DZ8yZKOj+aZm3GrMNuWfrVRw+ZGK
+   6MsXi9Z5kNlRC1YfU5Bob140DdatfXw3pOVWkphUiNrsngtTFFBfnBQlD
+   lm30Ku/l9+K69HEQ7XKyqj3xMso5E9Gfr16SzIJIsj0fVU1ZRB3HnjN63
+   pgQyokJUCf6URizRg5eL8HXc2mPgds47/a4BoaMgIG7saogmWfo9fmRvq
+   WDkUqhTvO3eDCRMcVLFZtqlLmveErdTzuCUknxWdm/NklTsFiDmwOu5fk
+   mMS4VkLQTYVcJXqZZxbUfNvcCyfBlvw+T5bMWwsrPYhPxlZbyxDbgXNcC
+   g==;
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=vJpad1Ws9FzZ+519RnE2ii45eeDrMTi6fWGgcjdDZGE=; b=uO8L8JRZ6cDgId
-	58tNuKmEykZw3P88Jzgpz2zdLDrpebK9GLwIHAuRkpgFz4bRrSjFRxizUTvfU6m4f52E1fGe7eUXX
-	nnuPk6xp18HgfW95NkkBePBUGKAnfnKIxF5Lgw7wIXKE8Q7Wfw1K0oE6+aJa0hHhDAwUc0uww70Er
-	HPkuNGuIqlYSoLDo0dCuSd2Ic7KEnDGb40n1+EsyH40qQX1esBFrDriWGttFaKATj/LtcHNku0xOe
-	5WJ6teKCkvS2d03rW0EcEsmV3MnAIscq9333IW+HbB8FNKXQpfOVocnkv8saTy9fYJg5Zi+rLAQ1A
-	re795lYnIMDjRb+O8RXA==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=fCDCNg9Fl0rDsWI5cVbkr7yPCpu4aY2vi3Um9DXKuyo=;
- b=TwuPNcBR4U1XYDHdlIDZYKqcL5KJT69oeeTAf0vy5m7ooDBj90SBRisXK63xMXHvK8l0
- Ov/cquTEsxXxBim+UukTU2rsQcn6NprZ4HWRN68SlwYgZXcr9qZgM89RGc6MwoI/bqEL
- o6GOS/aiaC9dqiy4ahWeqSt5T6xN5hmciCI34Qmd0QVrEU1vbyvV2QBCOIg+JzaMgATb
- 8jaFh0BsNFxNOHSjg3UgeRvf/2N2Wujv9geXH5fdOj7Ye52btvKTOJPDKvku8NHfDMem
- dO2O0Q0YLPZWYG0qyBQJvfeeNv5XIulDxvgh2q56ULI3MONZBMZ+0s0xvmHu5XqW+/Ip CA== 
-Content-Disposition: inline
-In-Reply-To: <20220530183450.42886-1-peterx@redhat.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Peter Xu <peterx@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, Ingo Molnar <mingo@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org, Stafford Horne <shorne@gmail.com>, "David S . Miller" <davem@davemloft.net>, Johannes Berg <johannes@sipsolutions.net>, Brian Cain <bcain@quicinc.com>, x86@kernel.org, linux-parisc@vger.kernel.org, Richard Henderson <rth@twiddle.net>, Christian Borntraeger <borntraeger@linux.ibm.com>, Richard Weinberger <richard@nod.at>, linux-hexagon@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Janosch Frank <frankja@linux.ibm.com>, Albert Ou <aou@eecs.berkeley.edu>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Dave Hansen <dave.hansen@linux.intel.com>, linux-ia64@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>
+Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Richard Henderson <rth@twiddle.net>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
 
-On Mon, May 30, 2022 at 02:34:50PM -0400, Peter Xu wrote:
-> I observed that for each of the shared file-backed page faults, we're very
-> likely to retry one more time for the 1st write fault upon no page.  It's
-> because we'll need to release the mmap lock for dirty rate limit purpose
-> with balance_dirty_pages_ratelimited() (in fault_dirty_shared_page()).
-> 
-> Then after that throttling we return VM_FAULT_RETRY.
-> 
-> We did that probably because VM_FAULT_RETRY is the only way we can return
-> to the fault handler at that time telling it we've released the mmap lock.
-> 
-> However that's not ideal because it's very likely the fault does not need
-> to be retried at all since the pgtable was well installed before the
-> throttling, so the next continuous fault (including taking mmap read lock,
-> walk the pgtable, etc.) could be in most cases unnecessary.
-> 
-> It's not only slowing down page faults for shared file-backed, but also add
-> more mmap lock contention which is in most cases not needed at all.
-> 
-> To observe this, one could try to write to some shmem page and look at
-> "pgfault" value in /proc/vmstat, then we should expect 2 counts for each
-> shmem write simply because we retried, and vm event "pgfault" will capture
-> that.
-> 
-> To make it more efficient, add a new VM_FAULT_COMPLETED return code just to
-> show that we've completed the whole fault and released the lock.  It's also
-> a hint that we should very possibly not need another fault immediately on
-> this page because we've just completed it.
-> 
-> This patch provides a ~12% perf boost on my aarch64 test VM with a simple
-> program sequentially dirtying 400MB shmem file being mmap()ed and these are
-> the time it needs:
-> 
->   Before: 650.980 ms (+-1.94%)
->   After:  569.396 ms (+-1.38%)
-> 
-> I believe it could help more than that.
-> 
-> We need some special care on GUP and the s390 pgfault handler (for gmap
-> code before returning from pgfault), the rest changes in the page fault
-> handlers should be relatively straightforward.
-> 
-> Another thing to mention is that mm_account_fault() does take this new
-> fault as a generic fault to be accounted, unlike VM_FAULT_RETRY.
-> 
-> I explicitly didn't touch hmm_vma_fault() and break_ksm() because they do
-> not handle VM_FAULT_RETRY even with existing code, so I'm literally keeping
-> them as-is.
-> 
-> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-> Acked-by: Vineet Gupta <vgupta@kernel.org>
-> Acked-by: Guo Ren <guoren@kernel.org>
-> Acked-by: Max Filippov <jcmvbkbc@gmail.com>
-> Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-> Reviewed-by: Alistair Popple <apopple@nvidia.com>
-> Reviewed-by: Ingo Molnar <mingo@kernel.org>
-> Signed-off-by: Peter Xu <peterx@redhat.com>
-> ---
-...
->  arch/s390/mm/fault.c          | 12 ++++++++++++
-> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-> index e173b6187ad5..973dcd05c293 100644
-> --- a/arch/s390/mm/fault.c
-> +++ b/arch/s390/mm/fault.c
-> @@ -433,6 +433,17 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
->  			goto out_up;
->  		goto out;
->  	}
-> +
-> +	/* The fault is fully completed (including releasing mmap lock) */
-> +	if (fault & VM_FAULT_COMPLETED) {
-> +		if (gmap) {
-> +			mmap_read_lock(mm);
-> +			goto out_gmap;
-> +		}
-> +		fault = 0;
-> +		goto out;
-> +	}
-> +
->  	if (unlikely(fault & VM_FAULT_ERROR))
->  		goto out_up;
->  
-> @@ -452,6 +463,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
->  		mmap_read_lock(mm);
->  		goto retry;
->  	}
-> +out_gmap:
->  	if (IS_ENABLED(CONFIG_PGSTE) && gmap) {
->  		address =  __gmap_link(gmap, current->thread.gmap_addr,
->  				       address);
+While I was working on converting some structure fields from a fixed
+type to a bitmap, I started observing code size increase not only in
+places where the code works with the converted structure fields, but
+also where the converted vars were on the stack. That said, the
+following code:
 
-FWIW:
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+	DECLARE_BITMAP(foo, BITS_PER_LONG) = { }; // -> unsigned long foo[1];
+	unsigned long bar = BIT(BAR_BIT);
+	unsigned long baz = 0;
+
+	__set_bit(FOO_BIT, foo);
+	baz |= BIT(BAZ_BIT);
+
+	BUILD_BUG_ON(!__builtin_constant_p(test_bit(FOO_BIT, foo));
+	BUILD_BUG_ON(!__builtin_constant_p(bar & BAR_BIT));
+	BUILD_BUG_ON(!__builtin_constant_p(baz & BAZ_BIT));
+
+triggers the first assertion on x86_64, which means that the
+compiler is unable to evaluate it to a compile-time initializer
+when the architecture-specific bitop is used even if it's obvious.
+I found that this is due to that many architecture-specific
+non-atomic bitop implementations use inline asm or other hacks which
+are faster or more robust when working with "real" variables (i.e.
+fields from the structures etc.), but the compilers have no clue how
+to optimize them out when called on compile-time constants.
+
+So, in order to let the compiler optimize out such cases, expand the
+test_bit() and __*_bit() definitions with a compile-time condition
+check, so that they will pick the generic C non-atomic bitop
+implementations when all of the arguments passed are compile-time
+constants, which means that the result will be a compile-time
+constant as well and the compiler will produce more efficient and
+simple code in 100% cases (no changes when there's at least one
+non-compile-time-constant argument).
+The condition itself:
+
+if (
+__builtin_constant_p(nr) &&	/* <- bit position is constant */
+__builtin_constant_p(!!addr) &&	/* <- compiler knows bitmap addr is
+				      always either NULL or not */
+addr &&				/* <- bitmap addr is not NULL */
+__builtin_constant_p(*addr)	/* <- compiler knows the value of
+				      the target bitmap */
+)
+	/* then pick the generic C variant
+else
+	/* old code path, arch-specific
+
+I also tried __is_constexpr() as suggested by Andy, but it was
+always returning 0 ('not a constant') for the 2,3 and 4th
+conditions.
+
+The savings on x86_64 with LLVM are insane (.text):
+
+$ scripts/bloat-o-meter -c vmlinux.{base,test}
+add/remove: 72/75 grow/shrink: 182/518 up/down: 53925/-137810 (-83885)
+
+$ scripts/bloat-o-meter -c vmlinux.{base,mod}
+add/remove: 7/1 grow/shrink: 1/19 up/down: 1135/-4082 (-2947)
+
+$ scripts/bloat-o-meter -c vmlinux.{base,all}
+add/remove: 79/76 grow/shrink: 184/537 up/down: 55076/-141892 (-86816)
+
+And the following:
+
+	DECLARE_BITMAP(flags, __IP_TUNNEL_FLAG_NUM) = { };
+	__be16 flags;
+
+	__set_bit(IP_TUNNEL_CSUM_BIT, flags);
+
+	tun_flags = cpu_to_be16(*flags & U16_MAX);
+
+	if (test_bit(IP_TUNNEL_VTI_BIT, flags))
+		tun_flags |= VTI_ISVTI;
+
+	BUILD_BUG_ON(!__builtin_constant_p(tun_flags));
+
+doesn't blow up anymore.
+
+The series has been in intel-next for a while with no reported issues.
+Also available on my open GH[0].
+
+[0] https://github.com/alobakin/linux/commits/bitops
+
+Alexander Lobakin (6):
+  ia64, processor: fix -Wincompatible-pointer-types in ia64_get_irr()
+  bitops: always define asm-generic non-atomic bitops
+  bitops: define gen_test_bit() the same way as the rest of functions
+  bitops: unify non-atomic bitops prototypes across architectures
+  bitops: wrap non-atomic bitops with a transparent macro
+  bitops: let optimize out non-atomic bitops on compile-time constants
+
+ arch/alpha/include/asm/bitops.h               |  28 ++--
+ arch/hexagon/include/asm/bitops.h             |  23 ++--
+ arch/ia64/include/asm/bitops.h                |  40 +++---
+ arch/ia64/include/asm/processor.h             |   2 +-
+ arch/m68k/include/asm/bitops.h                |  47 +++++--
+ arch/sh/include/asm/bitops-op32.h             |  32 +++--
+ arch/sparc/include/asm/bitops_32.h            |  18 +--
+ arch/sparc/lib/atomic32.c                     |  12 +-
+ .../asm-generic/bitops/generic-non-atomic.h   | 128 ++++++++++++++++++
+ .../bitops/instrumented-non-atomic.h          |  35 +++--
+ include/asm-generic/bitops/non-atomic.h       | 123 ++---------------
+ include/linux/bitops.h                        |  45 ++++++
+ tools/include/asm-generic/bitops/non-atomic.h |  34 +++--
+ tools/include/linux/bitops.h                  |  16 +++
+ 14 files changed, 363 insertions(+), 220 deletions(-)
+ create mode 100644 include/asm-generic/bitops/generic-non-atomic.h
+
+base-commit: f2906aa863381afb0015a9eb7fefad885d4e5a56
+-- 
+2.36.1
+
