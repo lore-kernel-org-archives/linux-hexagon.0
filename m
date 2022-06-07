@@ -1,80 +1,103 @@
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
-Subject: Re: [PATCH 5/6] bitops: wrap non-atomic bitops with a transparent macro
-Date: Tue,  7 Jun 2022 13:07:05 +0200
-Message-ID: <20220607110705.72887-1-alexandr.lobakin@intel.com>
-References: <20220606114908.962562-1-alexandr.lobakin@intel.com> <20220606114908.962562-6-alexandr.lobakin@intel.com> <Yp4q5KlIxmlznvuh@FVFF77S0Q05N.cambridge.arm.com> <20220607105718.72434-1-alexandr.lobakin@intel.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 0/6] bitops: let optimize out non-atomic bitops on
+ compile-time constants
+Date: Tue, 7 Jun 2022 14:45:41 +0200
+Message-ID: <CAMuHMdXR0Nu+RENB8rFnJFiW=T0P7Kq_XAG7t1MF=fdyD6pUGw@mail.gmail.com>
+References: <20220606114908.962562-1-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654600093; x=1686136093;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=LehJpdli2K1kf6xsEwsX5oR/25DuYLSpUF31DPXQGNU=;
-  b=Hxe0iItbIGbxHeLqEenzuHtMgUYwsX+vSY59uBIU2y6sY/JpwJetD+rF
-   lnOXsnA99+RuqBeQLIao9cJXcDDKF4CyLphIbQl+Jej7/zLBlsB2j48Pm
-   lodzC+HOWaNSB4ZPb7ZWsRBUIe6hBndIq4CY+UFolzmyMWdSEZIWBMuwO
-   ZmVe0u1Ypueglv72qyh4a8FEI6O6fhFMuD35ZA1EnEPIPW7Vxrq7nmQ1W
-   FKLybDrCUmw3Od5F8WU+Z2FupIJEgMN7/yVfE6075VL6+u80rmvzVdGYj
-   p+CtZGTYWn5LZnix4t8iiXgEnbzgZiOQb0lhphZkR+zAdwI7G/RSyvXpn
-   w==;
-In-Reply-To: <20220607105718.72434-1-alexandr.lobakin@intel.com>
+Return-path: <linux-ia64-owner@vger.kernel.org>
+In-Reply-To: <20220606114908.962562-1-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Richard Henderson <rth@twiddle.net>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Alexander Lobakin <alexandr.lobakin@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Richard Henderson <rth@twiddle.net>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, alpha <linux-alpha@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.>
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
-Date: Tue, 7 Jun 2022 12:57:18 +0200
+Hi Alexander,
 
-> From: Mark Rutland <mark.rutland@arm.com>
-> Date: Mon, 6 Jun 2022 17:27:16 +0100
-> 
-> > On Mon, Jun 06, 2022 at 01:49:06PM +0200, Alexander Lobakin wrote:
-> > > In preparation for altering the non-atomic bitops with a macro, wrap
-> > > them in a transparent definition. This requires prepending one more
-> > > '_' to their names in order to be able to do that seamlessly.
-> > > sparc32 already has the triple-underscored functions, so I had to
-> > > rename them ('___' -> 'sp32_').
-> > 
-> > Could we use an 'arch_' prefix here, like we do for the atomics, or is that
-> > already overloaded?
-> 
-> Yeah it is, for example, x86 has 'arch_' functions defined in its
-> architecture headers[0] and at the same time uses generic
-> instrumented '__' helpers[1], so on x86 both underscored and 'arch_'
-> are defined and they are not the same.
+On Mon, Jun 6, 2022 at 1:50 PM Alexander Lobakin
+<alexandr.lobakin@intel.com> wrote:
+> While I was working on converting some structure fields from a fixed
+> type to a bitmap, I started observing code size increase not only in
+> places where the code works with the converted structure fields, but
+> also where the converted vars were on the stack. That said, the
+> following code:
+>
+>         DECLARE_BITMAP(foo, BITS_PER_LONG) = { }; // -> unsigned long foo[1];
+>         unsigned long bar = BIT(BAR_BIT);
+>         unsigned long baz = 0;
+>
+>         __set_bit(FOO_BIT, foo);
+>         baz |= BIT(BAZ_BIT);
+>
+>         BUILD_BUG_ON(!__builtin_constant_p(test_bit(FOO_BIT, foo));
+>         BUILD_BUG_ON(!__builtin_constant_p(bar & BAR_BIT));
+>         BUILD_BUG_ON(!__builtin_constant_p(baz & BAZ_BIT));
+>
+> triggers the first assertion on x86_64, which means that the
+> compiler is unable to evaluate it to a compile-time initializer
+> when the architecture-specific bitop is used even if it's obvious.
+> I found that this is due to that many architecture-specific
+> non-atomic bitop implementations use inline asm or other hacks which
+> are faster or more robust when working with "real" variables (i.e.
+> fields from the structures etc.), but the compilers have no clue how
+> to optimize them out when called on compile-time constants.
+>
+> So, in order to let the compiler optimize out such cases, expand the
+> test_bit() and __*_bit() definitions with a compile-time condition
+> check, so that they will pick the generic C non-atomic bitop
+> implementations when all of the arguments passed are compile-time
+> constants, which means that the result will be a compile-time
+> constant as well and the compiler will produce more efficient and
+> simple code in 100% cases (no changes when there's at least one
+> non-compile-time-constant argument).
+> The condition itself:
+>
+> if (
+> __builtin_constant_p(nr) &&     /* <- bit position is constant */
+> __builtin_constant_p(!!addr) && /* <- compiler knows bitmap addr is
+>                                       always either NULL or not */
+> addr &&                         /* <- bitmap addr is not NULL */
+> __builtin_constant_p(*addr)     /* <- compiler knows the value of
+>                                       the target bitmap */
+> )
+>         /* then pick the generic C variant
+> else
+>         /* old code path, arch-specific
+>
+> I also tried __is_constexpr() as suggested by Andy, but it was
+> always returning 0 ('not a constant') for the 2,3 and 4th
+> conditions.
+>
+> The savings on x86_64 with LLVM are insane (.text):
+>
+> $ scripts/bloat-o-meter -c vmlinux.{base,test}
+> add/remove: 72/75 grow/shrink: 182/518 up/down: 53925/-137810 (-83885)
+>
+> $ scripts/bloat-o-meter -c vmlinux.{base,mod}
+> add/remove: 7/1 grow/shrink: 1/19 up/down: 1135/-4082 (-2947)
+>
+> $ scripts/bloat-o-meter -c vmlinux.{base,all}
+> add/remove: 79/76 grow/shrink: 184/537 up/down: 55076/-141892 (-86816)
 
-Oh well, forgot to attach the links. Can be found at the bottom of
-this mail.
+Thank you!
 
-> Same with those sparc32 triple-underscored, sparc32 at the same time
-> uses generic non-instrumented, so it has underscored, 'arch_' and
-> triple-underscored.
-> 
-> In general, bitops are overloaded with tons of prefixes already :)
-> I'm not really glad that I introduced one more level, but not that
-> we have many options here.
-> 
-> > 
-> > Thanks,
-> > Mark.
-> > 
-> > > 
-> > > Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-> > > ---
-> 
-> [...]
-> 
-> > > -- 
-> > > 2.36.1
-> 
-> Thanks,
-> Olek
+I gave it a try on m68k, and am a bit disappointed seeing an increase
+in code size:
 
-[0] https://elixir.bootlin.com/linux/v5.19-rc1/source/arch/x86/include/asm/bitops.h#L136
-[1] https://elixir.bootlin.com/linux/v5.19-rc1/source/include/asm-generic/bitops/instrumented-non-atomic.h#L93
+    add/remove: 49/13 grow/shrink: 279/138 up/down: 6434/-3342 (3092)
 
-Thanks,
-Olek
+This is atari_defconfig on a tree based on v5.19-rc1, with
+m68k-linux-gnu-gcc (Ubuntu 9.4.0-1ubuntu1~20.04) 9.4.0, GNU ld (GNU
+Binutils for Ubuntu) 2.34).
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
