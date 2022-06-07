@@ -1,89 +1,67 @@
-From: Yury Norov <yury.norov@gmail.com>
-Subject: Re: [PATCH 4/6] bitops: unify non-atomic bitops prototypes across
- architectures
-Date: Mon, 6 Jun 2022 13:48:50 -0700
-Message-ID: <Yp5oMmzNlq+Ut4So@yury-laptop>
-References: <20220606114908.962562-1-alexandr.lobakin@intel.com>
- <20220606114908.962562-5-alexandr.lobakin@intel.com>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
+Subject: Re: [PATCH 5/6] bitops: wrap non-atomic bitops with a transparent macro
+Date: Tue,  7 Jun 2022 12:57:18 +0200
+Message-ID: <20220607105718.72434-1-alexandr.lobakin@intel.com>
+References: <20220606114908.962562-1-alexandr.lobakin@intel.com> <20220606114908.962562-6-alexandr.lobakin@intel.com> <Yp4q5KlIxmlznvuh@FVFF77S0Q05N.cambridge.arm.com>
 Mime-Version: 1.0
-Return-path: <sparclinux-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=g2dcvEx5ujIfq/vGwsQoEKMbkEYSqcC+pGjcA0dBu1c=;
-        b=f7b0v5dv8hmLnBlzL8WyYq5cOW64Y5WX7Dmpl69JKaPauL++ld78WKF8ntff7E3FD9
-         /EFPnKoGaHbNkPIgpiRh5FlgefHuwLc1yxNkOW+bHut9SVnVZCbu/JkykiPElo5zPWjp
-         nCuHLbsnuv21eFXD2iNnywm2Hbn427FK25GFy6T1JFuumczjXmgtp3nChf3HO/XhNBhM
-         NXjSU4JD0/Av3t8AAMTU1yL794U7NXS8pa6qxIcfy7ouTJCp/SF65MboQcoKMXA5+/fk
-         R0q5tIVK+/ksEV405xlxflOCs1qdnp/FFVTP6I8k8VtwErnFZfCokgUB0civbDGx+Ib2
-         7GIg==
-Content-Disposition: inline
-In-Reply-To: <20220606114908.962562-5-alexandr.lobakin@intel.com>
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Richard Henderson <rth@twiddle.net>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-m68k-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1654599503; x=1686135503;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=xf+xgYb0NBQxQ+h8wlDbNS86vV9+HUcg11x5pXMRmAQ=;
+  b=R2doGKjQuidWS+kP8eBepGTA0o9o2t3YZ1d7pIhaFSvt+amH2modQtqO
+   8OXFpDR1Z0iyOCd16iZiqBN0B3rqGDTOVsbechc0N7hrbOxTNobw4TjlR
+   mZnUK96IULjtFZscvt4FX/X7NxFu+6UeSj9yRomviIhVU79qUDGgV3pzV
+   nM2ANswMciiasZldd+Q0ziDOPbh84MQx9RfZhl8JeFTZ0b0mgNRSS/zkq
+   IvlAXc4Bmpx7shijjRfhE/f94CLJ95gH7ghQNxVijNeDlD2LDB0N5SzXH
+   RlNIwSHZaIpfnei5qaSSy5sA3JElSl0AOm8f6cxPa6PxvWRnQ71S6xloD
+   g==;
+In-Reply-To: <Yp4q5KlIxmlznvuh@FVFF77S0Q05N.cambridge.arm.com>
+List-ID: <linux-hexagon.vger.kernel.org>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Richard Henderson <rth@twiddle.net>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m6
 
-On Mon, Jun 06, 2022 at 01:49:05PM +0200, Alexander Lobakin wrote:
-> Currently, there is a mess with the prototypes of the non-atomic
-> bitops across the different architectures:
-> 
-> ret	bool, int, unsigned long
-> nr	int, long, unsigned int, unsigned long
-> addr	volatile unsigned long *, volatile void *
-> 
-> Thankfully, it doesn't provoke any bugs, but can sometimes make
-> the compiler angry when it's not handy at all.
-> Adjust all the prototypes to the following standard:
-> 
-> ret	bool				retval can be only 0 or 1
-> nr	unsigned long			native; signed makes no sense
-> addr	volatile unsigned long *	bitmaps are arrays of ulongs
-> 
-> Finally, add some static assertions in order to prevent people from
-> making a mess in this room again.
-> I also used the %__always_inline attribute consistently they always
-> get resolved to the actual operations.
-> 
-> Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-> ---
+From: Mark Rutland <mark.rutland@arm.com>
+Date: Mon, 6 Jun 2022 17:27:16 +0100
 
-Reviewed-by: Yury Norov <yury.norov@gmail.com>
+> On Mon, Jun 06, 2022 at 01:49:06PM +0200, Alexander Lobakin wrote:
+> > In preparation for altering the non-atomic bitops with a macro, wrap
+> > them in a transparent definition. This requires prepending one more
+> > '_' to their names in order to be able to do that seamlessly.
+> > sparc32 already has the triple-underscored functions, so I had to
+> > rename them ('___' -> 'sp32_').
+> 
+> Could we use an 'arch_' prefix here, like we do for the atomics, or is that
+> already overloaded?
+
+Yeah it is, for example, x86 has 'arch_' functions defined in its
+architecture headers[0] and at the same time uses generic
+instrumented '__' helpers[1], so on x86 both underscored and 'arch_'
+are defined and they are not the same.
+Same with those sparc32 triple-underscored, sparc32 at the same time
+uses generic non-instrumented, so it has underscored, 'arch_' and
+triple-underscored.
+
+In general, bitops are overloaded with tons of prefixes already :)
+I'm not really glad that I introduced one more level, but not that
+we have many options here.
+
+> 
+> Thanks,
+> Mark.
+> 
+> > 
+> > Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+> > ---
 
 [...]
 
-> diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-> index 7aaed501f768..5520ac9b1c24 100644
-> --- a/include/linux/bitops.h
-> +++ b/include/linux/bitops.h
-> @@ -26,12 +26,25 @@ extern unsigned int __sw_hweight16(unsigned int w);
->  extern unsigned int __sw_hweight32(unsigned int w);
->  extern unsigned long __sw_hweight64(__u64 w);
->  
-> +#include <asm-generic/bitops/generic-non-atomic.h>
-> +
->  /*
->   * Include this here because some architectures need generic_ffs/fls in
->   * scope
->   */
->  #include <asm/bitops.h>
->  
-> +/* Check that the bitops prototypes are sane */
-> +#define __check_bitop_pr(name)	static_assert(__same_type(name, gen_##name))
-> +__check_bitop_pr(__set_bit);
-> +__check_bitop_pr(__clear_bit);
-> +__check_bitop_pr(__change_bit);
-> +__check_bitop_pr(__test_and_set_bit);
-> +__check_bitop_pr(__test_and_clear_bit);
-> +__check_bitop_pr(__test_and_change_bit);
-> +__check_bitop_pr(test_bit);
-> +#undef __check_bitop_pr
-
-This one is amazing trick! And the series is good overall. Do you want me to
-take it in bitmap tree, when it's ready, or you'll move it somehow else?
+> > -- 
+> > 2.36.1
 
 Thanks,
-Yury
+Olek
