@@ -1,54 +1,40 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 20/36] arch/idle: Change arch_cpu_idle() IRQ behaviour
-Date: Wed, 8 Jun 2022 18:22:12 +0200
-Message-ID: <CAK8P3a2y5+nrQFzhjrTTZe+d57Ug261J3kwLNe8Mu8i2qxtG2w@mail.gmail.com>
-References: <20220608142723.103523089@infradead.org> <20220608144517.188449351@infradead.org>
+From: Stephen Boyd <sboyd@kernel.org>
+Subject: Re: [PATCH 36/36] cpuidle,clk: Remove trace_.*_rcuidle()
+Date: Wed, 08 Jun 2022 13:03:13 -0700
+Message-ID: <20220608200315.0DFC6C34116@smtp.kernel.org>
+References: <20220608142723.103523089@infradead.org> <20220608144518.199614455@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:Cc:To:Subject:Message-ID:Date:From:
-	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=TApYdMgHAH3Az6LnedImzAIwieBInDFK7MwFAA4T1mI=; b=KYf2qB7xypUAEH
-	gNKCXVxYy1A2ExIq8juvETQWmbPySxJA7EyJ8O1ESuQj3Rbs4Of99HIrs6ASY5K2w+BRnQxAmUSZH
-	eO5wMg/9DJOlnHvPHrxZxd66rNbQ3fSMIH7Ppnsp+Q7K1tB05AvP8C62aybJSHilKVsUpbX0WdRIC
-	i50c24WfbEWUhX89NdhlKqaX2XxPKyQHu5bSy4ojErx70+KlgW70dwhQL+Yhdjtcr3UVdOrfq7OXw
-	EzEYv5O8aywyRWQUgc3U4UjAA6xnNr+RkI8YizwH15b76PTSM4FiHKPRjeiNbynH6BFlN7DuIUTMC
-	wvfXAblk2zJ07iOIDOGA==;
-In-Reply-To: <20220608144517.188449351@infradead.org>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1654718595;
+	bh=YZj1RmoUZo+LYT5ptsLh5yk+BpSbCXtp2v5Q3jvJ2yk=;
+	h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
+	b=rOeLrE8rnpKlWp1L6QV8jwDsJJaMtcMr7WDG2/vqLSawxjnGItPceVZFlHTUrnWyn
+	 9+efmotoys2/zcmyQ+2SiY2vmlncrC9YSx9eX2LtQ3gTK4bn8zXIJLPC3S1yBpMZZw
+	 2qreZHAHeGZgvi1VuNxh+OEn8aBYZhVnWOgh8n+AYCKFEvGc8lv11v15OZafMlMiPE
+	 0xDVpRNMj8gOLpIXJeYzglBnvFvkh+GCkt4QDHid18PobTg6Mb0qcnz3/6cipnr2To
+	 eQCv7sinD98qIhIYXSEjsJPBZidTnTnYxN2cPw54PLu4ECKoLyinDEhUapDw9DnRAK
+	 XLR4CpCut9s5A==
+In-Reply-To: <20220608144518.199614455@infradead.org>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-um>,
- <mailto:linux-um-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-um/>
-List-Post: <mailto:linux-um@lists.infradead.org>
-List-Help: <mailto:linux-um-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-um>,
- <mailto:linux-um-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-um" <linux-um-bounces@lists.infradead.org>
-Errors-To: linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, Russell King - ARM Linux <linux@armlinux.org.uk>, Hans Ulli Kroll <ulli.kroll@googlemail.com>, Linus Walleij <linus.walleij@linaro.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Sascha Hauer <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, NXP Linux Team <linux-imx@nxp.com>, Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, bcain@quicinc.com, Huacai Chen <chenhuacai@kernel.org>, Xuerui Wang <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, Sam Creasey <sammy@sammy.net>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.fran>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev" <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Content-Type: text/plain; charset="us-ascii"
+To: peterz@infradead.org
+Cc: juri.lelli@redhat.com, rafael@kernel.org, linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, srivatsa@csail.mit.edu, linux-arch@vger.kernel.org, vincent.guittot@linaro.org, chenhuacai@kernel.org, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, catalin.marinas@arm.com, xen-devel@lists.xenproject.org, mattst88@gmail.com, borntraeger@linux.ibm.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, jiangshanlai@gmail.com, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, rth@twiddle.net, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, senozhatsky@chromium.org, t@lists.ozlabs.org, jolsa@kernel.org
 
-On Wed, Jun 8, 2022 at 4:27 PM Peter Zijlstra <peterz@infradead.org> wrote:
->
-> Current arch_cpu_idle() is called with IRQs disabled, but will return
-> with IRQs enabled.
->
-> However, the very first thing the generic code does after calling
-> arch_cpu_idle() is raw_local_irq_disable(). This means that
-> architectures that can idle with IRQs disabled end up doing a
-> pointless 'enable-disable' dance.
->
-> Therefore, push this IRQ disabling into the idle function, meaning
-> that those architectures can avoid the pointless IRQ state flipping.
->
+Quoting Peter Zijlstra (2022-06-08 07:27:59)
+> OMAP was the one and only user.
+>=20
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> ---
 
-I think you now need to add the a raw_local_irq_disable(); in loongarch
-as well.
-
-       Arnd
+Acked-by: Stephen Boyd <sboyd@kernel.org>
