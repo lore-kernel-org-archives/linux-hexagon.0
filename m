@@ -1,73 +1,62 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 06/36] cpuidle,riscv: Push RCU-idle into driver
-Date: Wed, 08 Jun 2022 16:27:29 +0200
-Message-ID: <20220608144516.297980240@infradead.org>
+Subject: [PATCH 09/36] cpuidle,imx6: Push RCU-idle into driver
+Date: Wed, 08 Jun 2022 16:27:32 +0200
+Message-ID: <20220608144516.489126887@infradead.org>
 References: <20220608142723.103523089@infradead.org>
 Mime-Version: 1.0
-Return-path: <linux-ia64-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
-        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
-        Content-ID:Content-Description:In-Reply-To;
-        bh=cRgbn3QvpupGZaeUDgwKs7FEGzBWq3dUbK0A/YX8NGM=; b=ia4syF8cgg/6m5v3rZXIu02WY+
-        Q3HePbOq+lusahEVPAuv+ncctlM4B9LyQ4IDnvEM36XkiL3pQJQOuJOs9y3ihqwJctvWOB66u3JYJ
-        Qlt03iuvX/XofwOn8uNcW04i6nCJxlVEF9rLtDq+x0rD/Bc0A8t60ry8e0E2SVYvpfWb+XQCvkuTI
-        tNiz4zf5Ag+DBhIJ7WsXCnJ+D0Uq+V1s+5EQfEWdabNYdzP3AqCW24rU9LjP4pHcIEaJ/PfULfT6D
-        4hFRz16hmpY73XFLbpgY1hKdTTQepj9C9EdlQCPakl0mKOu1mjEe+GnDEVBUwMaBhtc9PVxMw7FCv
-        arFlzdAQ==;
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+ Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
+ Content-ID:Content-Description:In-Reply-To;
+ bh=vvLwebALuO06Z1aX8J6kQrwqaL5iBz0X7E8LlI1b2uQ=; b=Q7F83ia8UIiOgZBYPdseLSfVcX
+ fd1A47vBrZfxmsAiR/xl9gW4bE0gTf/YoXWA7i0L4s6hdeyInRbvJxphp2ct7rHMcAjOpumtTOXla
+ kCHhvSeqbknKSzusfMS0cPVUddgycIDiAi/gMB72y87uoWeS9XNyFVoldQqHiGPSZ7TOmt0RkBrr8
+ OZtMT+qFPLvTi4Atjpzwddq/pxu/gm+1vIS+xOsRB6WuFkQSrB/cB1hqLpGCTzp5XjujYYrJI8egq
+ m1+E81UoNtWrbGhPnOm/e0s2DOPOjD3cR82rcmdV4yqY9TPecmPva7MxHVXdeWic0XTm2Kurl0SV6
+ /dgVoRTQ==;
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: peterz@infradead.org
-Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com, ao
+Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org, linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, catalin.marinas@arm.com, xen-devel@lists.xenproject.org, mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, jiangshanlai@gmail.com, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, rth@twiddle.net, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, paul
 
 Doing RCU-idle outside the driver, only to then temporarily enable it
 again, at least twice, before going idle is daft.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/cpuidle/cpuidle-riscv-sbi.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm/mach-imx/cpuidle-imx6sx.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/cpuidle/cpuidle-riscv-sbi.c
-+++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
-@@ -116,12 +116,12 @@ static int __sbi_enter_domain_idle_state
- 		return -1;
+--- a/arch/arm/mach-imx/cpuidle-imx6sx.c
++++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
+@@ -47,7 +47,9 @@ static int imx6sx_enter_wait(struct cpui
+ 		cpu_pm_enter();
+ 		cpu_cluster_pm_enter();
  
- 	/* Do runtime PM to manage a hierarchical CPU toplogy. */
--	rcu_irq_enter_irqson();
- 	if (s2idle)
- 		dev_pm_genpd_suspend(pd_dev);
- 	else
- 		pm_runtime_put_sync_suspend(pd_dev);
--	rcu_irq_exit_irqson();
-+
-+	rcu_idle_enter();
++		rcu_idle_enter();
+ 		cpu_suspend(0, imx6sx_idle_finish);
++		rcu_idle_exit();
  
- 	if (sbi_is_domain_state_available())
- 		state = sbi_get_domain_state();
-@@ -130,12 +130,12 @@ static int __sbi_enter_domain_idle_state
- 
- 	ret = sbi_suspend(state) ? -1 : idx;
- 
--	rcu_irq_enter_irqson();
-+	rcu_idle_exit();
-+
- 	if (s2idle)
- 		dev_pm_genpd_resume(pd_dev);
- 	else
- 		pm_runtime_get_sync(pd_dev);
--	rcu_irq_exit_irqson();
- 
- 	cpu_pm_exit();
- 
-@@ -246,6 +246,7 @@ static int sbi_dt_cpu_init_topology(stru
- 	 * of a shared state for the domain, assumes the domain states are all
- 	 * deeper states.
- 	 */
-+	drv->states[state_count - 1].flags |= CPUIDLE_FLAG_RCU_IDLE;
- 	drv->states[state_count - 1].enter = sbi_enter_domain_idle_state;
- 	drv->states[state_count - 1].enter_s2idle =
- 					sbi_enter_s2idle_domain_idle_state;
-
-
+ 		cpu_cluster_pm_exit();
+ 		cpu_pm_exit();
+@@ -87,7 +89,8 @@ static struct cpuidle_driver imx6sx_cpui
+ 			 */
+ 			.exit_latency = 300,
+ 			.target_residency = 500,
+-			.flags = CPUIDLE_FLAG_TIMER_STOP,
++			.flags = CPUIDLE_FLAG_TIMER_STOP |
++				 CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter = imx6sx_enter_wait,
+ 			.name = "LOW-POWER-IDLE",
+ 			.desc = "ARM power off",
