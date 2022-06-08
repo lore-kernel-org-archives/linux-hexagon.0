@@ -1,132 +1,54 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH 02/36] x86/idle: Replace x86_idle with a static_call
-Date: Wed, 8 Jun 2022 20:13:07 +0200
-Message-ID: <CAJZ5v0g=jcRkMhVoNkZzSaM0viK0C7WN6T5C1_3VQ5GGGQkSzQ@mail.gmail.com>
-References: <20220608142723.103523089@infradead.org> <20220608144516.047149313@infradead.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 20/36] arch/idle: Change arch_cpu_idle() IRQ behaviour
+Date: Wed, 8 Jun 2022 18:22:12 +0200
+Message-ID: <CAK8P3a2y5+nrQFzhjrTTZe+d57Ug261J3kwLNe8Mu8i2qxtG2w@mail.gmail.com>
+References: <20220608142723.103523089@infradead.org> <20220608144517.188449351@infradead.org>
 Mime-Version: 1.0
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20220608144516.047149313@infradead.org>
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Return-path: <linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:Cc:To:Subject:Message-ID:Date:From:
+	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=TApYdMgHAH3Az6LnedImzAIwieBInDFK7MwFAA4T1mI=; b=KYf2qB7xypUAEH
+	gNKCXVxYy1A2ExIq8juvETQWmbPySxJA7EyJ8O1ESuQj3Rbs4Of99HIrs6ASY5K2w+BRnQxAmUSZH
+	eO5wMg/9DJOlnHvPHrxZxd66rNbQ3fSMIH7Ppnsp+Q7K1tB05AvP8C62aybJSHilKVsUpbX0WdRIC
+	i50c24WfbEWUhX89NdhlKqaX2XxPKyQHu5bSy4ojErx70+KlgW70dwhQL+Yhdjtcr3UVdOrfq7OXw
+	EzEYv5O8aywyRWQUgc3U4UjAA6xnNr+RkI8YizwH15b76PTSM4FiHKPRjeiNbynH6BFlN7DuIUTMC
+	wvfXAblk2zJ07iOIDOGA==;
+In-Reply-To: <20220608144517.188449351@infradead.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-um>,
+ <mailto:linux-um-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-um/>
+List-Post: <mailto:linux-um@lists.infradead.org>
+List-Help: <mailto:linux-um-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-um>,
+ <mailto:linux-um-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-um" <linux-um-bounces@lists.infradead.org>
+Errors-To: linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org
 To: Peter Zijlstra <peterz@infradead.org>
-Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, Russell King - ARM Linux <linux@armlinux.org.uk>, ulli.kroll@googlemail.com, Linus Walleij <linus.walleij@linaro.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Sascha Hauer <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, bcain@quicinc.com, Huacai Chen <chenhuacai@kernel.org>, kernel@xen0n.name, Geert Uytterhoeven <geert@linux-m68k.org>, sammy@sammy.net, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.fra>
+Cc: Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, Russell King - ARM Linux <linux@armlinux.org.uk>, Hans Ulli Kroll <ulli.kroll@googlemail.com>, Linus Walleij <linus.walleij@linaro.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Sascha Hauer <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, NXP Linux Team <linux-imx@nxp.com>, Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, bcain@quicinc.com, Huacai Chen <chenhuacai@kernel.org>, Xuerui Wang <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, Sam Creasey <sammy@sammy.net>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.fran>
 
-On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
+On Wed, Jun 8, 2022 at 4:27 PM Peter Zijlstra <peterz@infradead.org> wrote:
 >
-> Typical boot time setup; no need to suffer an indirect call for that.
+> Current arch_cpu_idle() is called with IRQs disabled, but will return
+> with IRQs enabled.
+>
+> However, the very first thing the generic code does after calling
+> arch_cpu_idle() is raw_local_irq_disable(). This means that
+> architectures that can idle with IRQs disabled end up doing a
+> pointless 'enable-disable' dance.
+>
+> Therefore, push this IRQ disabling into the idle function, meaning
+> that those architectures can avoid the pointless IRQ state flipping.
 >
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
 
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+I think you now need to add the a raw_local_irq_disable(); in loongarch
+as well.
 
-> ---
->  arch/x86/kernel/process.c |   50 +++++++++++++++++++++++++---------------------
->  1 file changed, 28 insertions(+), 22 deletions(-)
->
-> --- a/arch/x86/kernel/process.c
-> +++ b/arch/x86/kernel/process.c
-> @@ -24,6 +24,7 @@
->  #include <linux/cpuidle.h>
->  #include <linux/acpi.h>
->  #include <linux/elf-randomize.h>
-> +#include <linux/static_call.h>
->  #include <trace/events/power.h>
->  #include <linux/hw_breakpoint.h>
->  #include <asm/cpu.h>
-> @@ -692,7 +693,23 @@ void __switch_to_xtra(struct task_struct
->  unsigned long boot_option_idle_override = IDLE_NO_OVERRIDE;
->  EXPORT_SYMBOL(boot_option_idle_override);
->
-> -static void (*x86_idle)(void);
-> +/*
-> + * We use this if we don't have any better idle routine..
-> + */
-> +void __cpuidle default_idle(void)
-> +{
-> +       raw_safe_halt();
-> +}
-> +#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
-> +EXPORT_SYMBOL(default_idle);
-> +#endif
-> +
-> +DEFINE_STATIC_CALL_NULL(x86_idle, default_idle);
-> +
-> +static bool x86_idle_set(void)
-> +{
-> +       return !!static_call_query(x86_idle);
-> +}
->
->  #ifndef CONFIG_SMP
->  static inline void play_dead(void)
-> @@ -715,28 +732,17 @@ void arch_cpu_idle_dead(void)
->  /*
->   * Called from the generic idle code.
->   */
-> -void arch_cpu_idle(void)
-> -{
-> -       x86_idle();
-> -}
-> -
-> -/*
-> - * We use this if we don't have any better idle routine..
-> - */
-> -void __cpuidle default_idle(void)
-> +void __cpuidle arch_cpu_idle(void)
->  {
-> -       raw_safe_halt();
-> +       static_call(x86_idle)();
->  }
-> -#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
-> -EXPORT_SYMBOL(default_idle);
-> -#endif
->
->  #ifdef CONFIG_XEN
->  bool xen_set_default_idle(void)
->  {
-> -       bool ret = !!x86_idle;
-> +       bool ret = x86_idle_set();
->
-> -       x86_idle = default_idle;
-> +       static_call_update(x86_idle, default_idle);
->
->         return ret;
->  }
-> @@ -859,20 +865,20 @@ void select_idle_routine(const struct cp
->         if (boot_option_idle_override == IDLE_POLL && smp_num_siblings > 1)
->                 pr_warn_once("WARNING: polling idle and HT enabled, performance may degrade\n");
->  #endif
-> -       if (x86_idle || boot_option_idle_override == IDLE_POLL)
-> +       if (x86_idle_set() || boot_option_idle_override == IDLE_POLL)
->                 return;
->
->         if (boot_cpu_has_bug(X86_BUG_AMD_E400)) {
->                 pr_info("using AMD E400 aware idle routine\n");
-> -               x86_idle = amd_e400_idle;
-> +               static_call_update(x86_idle, amd_e400_idle);
->         } else if (prefer_mwait_c1_over_halt(c)) {
->                 pr_info("using mwait in idle threads\n");
-> -               x86_idle = mwait_idle;
-> +               static_call_update(x86_idle, mwait_idle);
->         } else if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST)) {
->                 pr_info("using TDX aware idle routine\n");
-> -               x86_idle = tdx_safe_halt;
-> +               static_call_update(x86_idle, tdx_safe_halt);
->         } else
-> -               x86_idle = default_idle;
-> +               static_call_update(x86_idle, default_idle);
->  }
->
->  void amd_e400_c1e_apic_setup(void)
-> @@ -925,7 +931,7 @@ static int __init idle_setup(char *str)
->                  * To continue to load the CPU idle driver, don't touch
->                  * the boot_option_idle_override.
->                  */
-> -               x86_idle = default_idle;
-> +               static_call_update(x86_idle, default_idle);
->                 boot_option_idle_override = IDLE_HALT;
->         } else if (!strcmp(str, "nomwait")) {
->                 /*
->
->
+       Arnd
