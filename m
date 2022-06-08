@@ -1,163 +1,109 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 13/36] cpuidle,dt: Push RCU-idle into driver
-Date: Wed, 08 Jun 2022 16:27:36 +0200
-Message-ID: <20220608144516.743744529@infradead.org>
+Subject: [PATCH 07/36] cpuidle,tegra: Push RCU-idle into driver
+Date: Wed, 08 Jun 2022 16:27:30 +0200
+Message-ID: <20220608144516.362668063@infradead.org>
 References: <20220608142723.103523089@infradead.org>
 Mime-Version: 1.0
-Return-path: <linux-arch-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
-        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
-        Content-ID:Content-Description:In-Reply-To;
-        bh=ou5L3Xuucqh3BNNcA7ggTsb03AZP3YIS722c+bYuzBQ=; b=BlrojMz/WbhW29sFV97MzV8OkQ
-        RbPl1tJnHXIxdvTZTXTAPTmSz82CraWzijvfQReGUaxdfpAVsIqf9Bb7I3yG0HKOfVEo+V/hsP2Tv
-        xAP72un6N9viz+BOTJqpO3xb9FBcnrwXu0Gqj13RaQnBFwYVICpLsQ8t1YVJW3yIqgPUGxlKeZQQa
-        wm9PfHjlB6b5hxLvDrFrmSoKqCA8FrBYK4ijrnoK9S26gtG5d7JvNQgnB3qFhJdY6O5LRL7OKQml2
-        wR/6W03N4QPRSI/uLHemk8EACeFDyHzTzxsOWMn7vQaYtoNYqZ8KVlqIi2qkvjgfrO7eQCRMWk3/x
-        gAoOvSaw==;
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
+ Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
+ Content-ID:Content-Description:In-Reply-To;
+ bh=OtG2eksypqTPnibPh4fnaffiD2hY+EVznlbJ2kHLrow=; b=OVXFxuucL+euI7qJ0DHWP+HSd+
+ K0Ja573cJSNgJwZfmTV/5FSX0IvQJrgOo9v/0uLAq5TdSmJQtXAZyIW9o/35yTdAOleYqjANFEm+E
+ l56+S1viwHvjXO62dxEnDYPCdtMwVOYv/k+oP4A2fDyCb6sOHq4kRNEOvqcsJ/5x/Zoh6zkng8v4u
+ /0d1tlL+++2dqJwM54DkEmGHC+DPLj6jQdLOk++gXXVkvZXV4HarSMkLWNk/RWR6rJjZ3hTgPD+7o
+ fRFAUGoXS/CQX8DE/ix3aPY/jnZckpcWrGai1TDNvAnceUPXNMM/pOlZZ/Tt52+3oavm+6TFmtcmc
+ EkhLqJ7w==;
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: peterz@infradead.org
-Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com, ao
+Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org, linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, catalin.marinas@arm.com, xen-devel@lists.xenproject.org, mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, jiangshanlai@gmail.com, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, rth@twiddle.net, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, paul
 
 Doing RCU-idle outside the driver, only to then temporarily enable it
-again before going idle is daft.
-
-Notably: this converts all dt_init_idle_driver() and
-__CPU_PM_CPU_IDLE_ENTER() users for they are inextrably intertwined.
+again, at least twice, before going idle is daft.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/arm/mach-omap2/cpuidle34xx.c    |    4 ++--
- drivers/acpi/processor_idle.c        |    2 ++
- drivers/cpuidle/cpuidle-arm.c        |    1 +
- drivers/cpuidle/cpuidle-big_little.c |    8 ++++++--
- drivers/cpuidle/cpuidle-psci.c       |    1 +
- drivers/cpuidle/cpuidle-qcom-spm.c   |    1 +
- drivers/cpuidle/cpuidle-riscv-sbi.c  |    1 +
- drivers/cpuidle/dt_idle_states.c     |    2 +-
- include/linux/cpuidle.h              |    4 ++++
- 9 files changed, 19 insertions(+), 5 deletions(-)
+ drivers/cpuidle/cpuidle-tegra.c |   21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -1200,6 +1200,8 @@ static int acpi_processor_setup_lpi_stat
- 		state->target_residency = lpi->min_residency;
- 		if (lpi->arch_flags)
- 			state->flags |= CPUIDLE_FLAG_TIMER_STOP;
-+		if (lpi->entry_method == ACPI_CSTATE_FFH)
-+			state->flags |= CPUIDLE_FLAG_RCU_IDLE;
- 		state->enter = acpi_idle_lpi_enter;
- 		drv->safe_state_index = i;
+--- a/drivers/cpuidle/cpuidle-tegra.c
++++ b/drivers/cpuidle/cpuidle-tegra.c
+@@ -180,9 +180,11 @@ static int tegra_cpuidle_state_enter(str
  	}
---- a/drivers/cpuidle/cpuidle-arm.c
-+++ b/drivers/cpuidle/cpuidle-arm.c
-@@ -53,6 +53,7 @@ static struct cpuidle_driver arm_idle_dr
- 	 * handler for idle state index 0.
- 	 */
- 	.states[0] = {
-+		.flags			= CPUIDLE_FLAG_RCU_IDLE,
- 		.enter                  = arm_enter_idle_state,
- 		.exit_latency           = 1,
- 		.target_residency       = 1,
---- a/drivers/cpuidle/cpuidle-big_little.c
-+++ b/drivers/cpuidle/cpuidle-big_little.c
-@@ -64,7 +64,8 @@ static struct cpuidle_driver bl_idle_lit
- 		.enter			= bl_enter_powerdown,
- 		.exit_latency		= 700,
- 		.target_residency	= 2500,
--		.flags			= CPUIDLE_FLAG_TIMER_STOP,
-+		.flags			= CPUIDLE_FLAG_TIMER_STOP |
-+					  CPUIDLE_FLAG_RCU_IDLE,
- 		.name			= "C1",
- 		.desc			= "ARM little-cluster power down",
- 	},
-@@ -85,7 +86,8 @@ static struct cpuidle_driver bl_idle_big
- 		.enter			= bl_enter_powerdown,
- 		.exit_latency		= 500,
- 		.target_residency	= 2000,
--		.flags			= CPUIDLE_FLAG_TIMER_STOP,
-+		.flags			= CPUIDLE_FLAG_TIMER_STOP |
-+					  CPUIDLE_FLAG_RCU_IDLE,
- 		.name			= "C1",
- 		.desc			= "ARM big-cluster power down",
- 	},
-@@ -124,11 +126,13 @@ static int bl_enter_powerdown(struct cpu
- 				struct cpuidle_driver *drv, int idx)
- {
+ 
+ 	local_fiq_disable();
+-	RCU_NONIDLE(tegra_pm_set_cpu_in_lp2());
++	tegra_pm_set_cpu_in_lp2();
  	cpu_pm_enter();
+ 
 +	rcu_idle_enter();
++
+ 	switch (index) {
+ 	case TEGRA_C7:
+ 		err = tegra_cpuidle_c7_enter();
+@@ -197,8 +199,10 @@ static int tegra_cpuidle_state_enter(str
+ 		break;
+ 	}
  
- 	cpu_suspend(0, bl_powerdown_finisher);
- 
- 	/* signals the MCPM core that CPU is out of low power state */
- 	mcpm_cpu_powered_up();
 +	rcu_idle_exit();
- 
++
  	cpu_pm_exit();
+-	RCU_NONIDLE(tegra_pm_clear_cpu_in_lp2());
++	tegra_pm_clear_cpu_in_lp2();
+ 	local_fiq_enable();
  
---- a/drivers/cpuidle/cpuidle-psci.c
-+++ b/drivers/cpuidle/cpuidle-psci.c
-@@ -357,6 +357,7 @@ static int psci_idle_init_cpu(struct dev
- 	 * PSCI idle states relies on architectural WFI to be represented as
- 	 * state index 0.
- 	 */
-+	drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
- 	drv->states[0].enter = psci_enter_idle_state;
- 	drv->states[0].exit_latency = 1;
- 	drv->states[0].target_residency = 1;
---- a/drivers/cpuidle/cpuidle-qcom-spm.c
-+++ b/drivers/cpuidle/cpuidle-qcom-spm.c
-@@ -72,6 +72,7 @@ static struct cpuidle_driver qcom_spm_id
- 	.owner = THIS_MODULE,
- 	.states[0] = {
- 		.enter			= spm_enter_idle_state,
-+		.flags			= CPUIDLE_FLAG_RCU_IDLE,
- 		.exit_latency		= 1,
- 		.target_residency	= 1,
- 		.power_usage		= UINT_MAX,
---- a/drivers/cpuidle/cpuidle-riscv-sbi.c
-+++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
-@@ -332,6 +332,7 @@ static int sbi_cpuidle_init_cpu(struct d
- 	drv->cpumask = (struct cpumask *)cpumask_of(cpu);
+ 	return err ?: index;
+@@ -226,6 +230,7 @@ static int tegra_cpuidle_enter(struct cp
+ 			       struct cpuidle_driver *drv,
+ 			       int index)
+ {
++	bool do_rcu = drv->states[index].flags & CPUIDLE_FLAG_RCU_IDLE;
+ 	unsigned int cpu = cpu_logical_map(dev->cpu);
+ 	int ret;
  
- 	/* RISC-V architectural WFI to be represented as state index 0. */
-+	drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
- 	drv->states[0].enter = sbi_cpuidle_enter_state;
- 	drv->states[0].exit_latency = 1;
- 	drv->states[0].target_residency = 1;
---- a/drivers/cpuidle/dt_idle_states.c
-+++ b/drivers/cpuidle/dt_idle_states.c
-@@ -77,7 +77,7 @@ static int init_state_node(struct cpuidl
- 	if (err)
- 		desc = state_node->name;
+@@ -233,9 +238,13 @@ static int tegra_cpuidle_enter(struct cp
+ 	if (dev->states_usage[index].disable)
+ 		return -1;
  
--	idle_state->flags = 0;
-+	idle_state->flags = CPUIDLE_FLAG_RCU_IDLE;
- 	if (of_property_read_bool(state_node, "local-timer-stop"))
- 		idle_state->flags |= CPUIDLE_FLAG_TIMER_STOP;
- 	/*
---- a/include/linux/cpuidle.h
-+++ b/include/linux/cpuidle.h
-@@ -282,14 +282,18 @@ extern s64 cpuidle_governor_latency_req(
- 	int __ret = 0;							\
- 									\
- 	if (!idx) {							\
-+		rcu_idle_enter();					\
- 		cpu_do_idle();						\
-+		rcu_idle_exit();					\
- 		return idx;						\
- 	}								\
- 									\
- 	if (!is_retention)						\
- 		__ret =  cpu_pm_enter();				\
- 	if (!__ret) {							\
-+		rcu_idle_enter();					\
- 		__ret = low_level_idle_enter(state);			\
-+		rcu_idle_exit();					\
- 		if (!is_retention)					\
- 			cpu_pm_exit();					\
- 	}								\
-
-
+-	if (index == TEGRA_C1)
++	if (index == TEGRA_C1) {
++		if (do_rcu)
++			rcu_idle_enter();
+ 		ret = arm_cpuidle_simple_enter(dev, drv, index);
+-	else
++		if (do_rcu)
++			rcu_idle_exit();
++	} else
+ 		ret = tegra_cpuidle_state_enter(dev, index, cpu);
+ 
+ 	if (ret < 0) {
+@@ -285,7 +294,8 @@ static struct cpuidle_driver tegra_idle_
+ 			.exit_latency		= 2000,
+ 			.target_residency	= 2200,
+ 			.power_usage		= 100,
+-			.flags			= CPUIDLE_FLAG_TIMER_STOP,
++			.flags			= CPUIDLE_FLAG_TIMER_STOP |
++						  CPUIDLE_FLAG_RCU_IDLE,
+ 			.name			= "C7",
+ 			.desc			= "CPU core powered off",
+ 		},
+@@ -295,6 +305,7 @@ static struct cpuidle_driver tegra_idle_
+ 			.target_residency	= 10000,
+ 			.power_usage		= 0,
+ 			.flags			= CPUIDLE_FLAG_TIMER_STOP |
++						  CPUIDLE_FLAG_RCU_IDLE   |
+ 						  CPUIDLE_FLAG_COUPLED,
+ 			.name			= "CC6",
+ 			.desc			= "CPU cluster powered off",
