@@ -1,244 +1,148 @@
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
-Subject: Re: [PATCH 0/6] bitops: let optimize out non-atomic bitops on compile-time constants
-Date: Wed,  8 Jun 2022 15:31:38 +0200
-Message-ID: <20220608133138.2147035-1-alexandr.lobakin@intel.com>
-References: <20220606114908.962562-1-alexandr.lobakin@intel.com> <CAMuHMdXR0Nu+RENB8rFnJFiW=T0P7Kq_XAG7t1MF=fdyD6pUGw@mail.gmail.com> <20220607154759.43549-1-alexandr.lobakin@intel.com> <CAMuHMdUeM_ntgZzmeHVMJ_8neyOSRUa_xDNE46eM7cHt_sDj1g@mail.gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 26/36] cpuidle,sched: Remove annotations from TIF_{POLLING_NRFLAG,NEED_RESCHED}
+Date: Wed, 08 Jun 2022 16:27:49 +0200
+Message-ID: <20220608144517.570101266@infradead.org>
+References: <20220608142723.103523089@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-m68k-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654695182; x=1686231182;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=gxuttTxPyrSskyskfXi5UIRK88lHEMAzdlLBZKj/ZFY=;
-  b=Fi+maoZpf8J+E00qunbwXuB6ZqbFAfSLV+kUsSjpsPkssJN1/ttfC9BC
-   5J7qPBm2+md1KwCA0K4A6enX0ev6Zvp6kloXTnRLVTEUIW1nxdwigHpax
-   ZFff/mPVLk11q6pKUeaSWfUfNPkX3TPjv/XPmPFgUrW+tHgOO6bOrQ2uj
-   6NicsIl/eLISUEV3m1/X2ehuHGYKvjFlYg95BSVWzGr0zDO9kUV2ZIW25
-   G6jC5AQq7blmt5QtMVkf58H+4lH5MpIYBmk/zbhxLcLN1a91BWgkYgXjR
-   BBOd8z3swnkmfvVoLWmIiEwliann5NIfIYdXv4pL2RB9xPsBk+AYQ07j7
-   Q==;
-In-Reply-To: <CAMuHMdUeM_ntgZzmeHVMJ_8neyOSRUa_xDNE46eM7cHt_sDj1g@mail.gmail.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
+        Content-ID:Content-Description:In-Reply-To;
+        bh=o5HILV8lXWZVR34kQkfXu7ELtM3PHvDf12JWqGFz8as=; b=IHv5dA5xONKsf6YvlQ/r5zZAXC
+        z8+ORB0iuI9NP+6CPk0aEmrUBqk0vF+4sxBwbSZMsZ/NC3S3ZS38ZU9G35HcA+0UaCrG/E9E2EDya
+        UReQc8yVMX9pQI9jRJz7p1XHl/kZg0b9sz5G4w60p8kG48dZM3JHI9u9B3cwEc9mWpdE1irkTHwHv
+        vFAuUWNdgGncaOHJ29M9zRZ7mTLIHItHgHZTBRk/yw0+J5vvdVaXpILAqvpeL4ZG4iFIXkLeni8oT
+        hj5R5Sb8cBmHtO4CcW0rlPwzsaXP+dBDNey1h5Tusr3iBUhw4anJ2Y7TMiZYOXMDPrxId092Aephk
+        NIa0kBnw==;
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Richard Henderson <rth@twiddle.net>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, alpha <linux-alpha@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: peterz@infradead.org
+Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com, ao
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 8 Jun 2022 11:55:08 +0200
+vmlinux.o: warning: objtool: mwait_idle+0x5: call to current_set_polling_and_test() leaves .noinstr.text section
+vmlinux.o: warning: objtool: acpi_processor_ffh_cstate_enter+0xc5: call to current_set_polling_and_test() leaves .noinstr.text section
+vmlinux.o: warning: objtool: cpu_idle_poll.isra.0+0x73: call to test_ti_thread_flag() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle+0xbc: call to current_set_polling_and_test() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_irq+0xea: call to current_set_polling_and_test() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_s2idle+0xb4: call to current_set_polling_and_test() leaves .noinstr.text section
 
-> Hi Olek,
-> 
-> On Tue, Jun 7, 2022 at 5:51 PM Alexander Lobakin
-> <alexandr.lobakin@intel.com> wrote:
-> > From: Geert Uytterhoeven <geert@linux-m68k.org>
-> > > On Mon, Jun 6, 2022 at 1:50 PM Alexander Lobakin
-> > > <alexandr.lobakin@intel.com> wrote:
-> > > > While I was working on converting some structure fields from a fixed
-> > > > type to a bitmap, I started observing code size increase not only in
-> > > > places where the code works with the converted structure fields, but
-> > > > also where the converted vars were on the stack. That said, the
-> > > > following code:
-> > > >
-> > > >         DECLARE_BITMAP(foo, BITS_PER_LONG) = { }; // -> unsigned long foo[1];
-> > > >         unsigned long bar = BIT(BAR_BIT);
-> > > >         unsigned long baz = 0;
-> > > >
-> > > >         __set_bit(FOO_BIT, foo);
-> > > >         baz |= BIT(BAZ_BIT);
-> > > >
-> > > >         BUILD_BUG_ON(!__builtin_constant_p(test_bit(FOO_BIT, foo));
-> > > >         BUILD_BUG_ON(!__builtin_constant_p(bar & BAR_BIT));
-> > > >         BUILD_BUG_ON(!__builtin_constant_p(baz & BAZ_BIT));
-> > > >
-> > > > triggers the first assertion on x86_64, which means that the
-> > > > compiler is unable to evaluate it to a compile-time initializer
-> > > > when the architecture-specific bitop is used even if it's obvious.
-> > > > I found that this is due to that many architecture-specific
-> > > > non-atomic bitop implementations use inline asm or other hacks which
-> > > > are faster or more robust when working with "real" variables (i.e.
-> > > > fields from the structures etc.), but the compilers have no clue how
-> > > > to optimize them out when called on compile-time constants.
-> > > >
-> > > > So, in order to let the compiler optimize out such cases, expand the
-> > > > test_bit() and __*_bit() definitions with a compile-time condition
-> > > > check, so that they will pick the generic C non-atomic bitop
-> > > > implementations when all of the arguments passed are compile-time
-> > > > constants, which means that the result will be a compile-time
-> > > > constant as well and the compiler will produce more efficient and
-> > > > simple code in 100% cases (no changes when there's at least one
-> > > > non-compile-time-constant argument).
-> > > > The condition itself:
-> > > >
-> > > > if (
-> > > > __builtin_constant_p(nr) &&     /* <- bit position is constant */
-> > > > __builtin_constant_p(!!addr) && /* <- compiler knows bitmap addr is
-> > > >                                       always either NULL or not */
-> > > > addr &&                         /* <- bitmap addr is not NULL */
-> > > > __builtin_constant_p(*addr)     /* <- compiler knows the value of
-> > > >                                       the target bitmap */
-> > > > )
-> > > >         /* then pick the generic C variant
-> > > > else
-> > > >         /* old code path, arch-specific
-> > > >
-> > > > I also tried __is_constexpr() as suggested by Andy, but it was
-> > > > always returning 0 ('not a constant') for the 2,3 and 4th
-> > > > conditions.
-> > > >
-> > > > The savings on x86_64 with LLVM are insane (.text):
-> > > >
-> > > > $ scripts/bloat-o-meter -c vmlinux.{base,test}
-> > > > add/remove: 72/75 grow/shrink: 182/518 up/down: 53925/-137810 (-83885)
-> > > >
-> > > > $ scripts/bloat-o-meter -c vmlinux.{base,mod}
-> > > > add/remove: 7/1 grow/shrink: 1/19 up/down: 1135/-4082 (-2947)
-> > > >
-> > > > $ scripts/bloat-o-meter -c vmlinux.{base,all}
-> > > > add/remove: 79/76 grow/shrink: 184/537 up/down: 55076/-141892 (-86816)
-> > >
-> > > Thank you!
-> > >
-> > > I gave it a try on m68k, and am a bit disappointed seeing an increase
-> > > in code size:
-> > >
-> > >     add/remove: 49/13 grow/shrink: 279/138 up/down: 6434/-3342 (3092)
-> >
-> > Ufff, that sucks =\
-> > Could you please try to compile the following code snippet (with the
-> > series applied)?
-> >
-> >         unsigned long map;
-> >
-> >         bitmap_zero(&map, BITS_PER_LONG);
-> >         __set_bit(1, &map);
-> >         BUILD_BUG_ON(!__builtin_constant_p(map));
-> >
-> > If it fails during the vmlinux linkage, it will mean that on your
-> > architecture/setup the compiler is unable to optimize the generic
-> > implementations to compile-time constants and I'll need to debug
-> > this more (probably via some compiler explorer).
-> 
-> Builds and links fine.
+vmlinux.o: warning: objtool: intel_idle+0xa6: call to current_clr_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_irq+0xbf: call to current_clr_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_s2idle+0xa1: call to current_clr_polling() leaves .noinstr.text section
 
-Ok, so that means the main task is still achieved.
+vmlinux.o: warning: objtool: mwait_idle+0xe: call to __current_set_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: acpi_processor_ffh_cstate_enter+0xc5: call to __current_set_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: cpu_idle_poll.isra.0+0x73: call to test_ti_thread_flag() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle+0xbc: call to __current_set_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_irq+0xea: call to __current_set_polling() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_s2idle+0xb4: call to __current_set_polling() leaves .noinstr.text section
 
-> 
-> > You could also check the vmlinux size after applying each patch
-> > to see which one does this if you feel like it :)
-> 
-> The (incremental) impact of the various patches is shown below:
-> 
->     bitops: unify non-atomic bitops prototypes across architectures
->       add/remove: 4/11 grow/shrink: 123/160 up/down: 1700/-2786 (-1086)
-> 
->     bitops: let optimize out non-atomic bitops on compile-time constants
->       add/remove: 50/7 grow/shrink: 280/101 up/down: 6798/-2620 (4178)
-> 
-> I.e. the total impact is -1086 + 4178 = +3092
-> 
-> Looking at the impact of the last change on a single file, with rather
-> small functions to make it easier to analyze, the results are:
-> 
->     bloat-o-meter net/core/sock.o{.orig,}
->     add/remove: 3/1 grow/shrink: 20/3 up/down: 286/-68 (218)
->     Function                                     old     new   delta
->     sock_flag                                      -      38     +38
->     sock_set_flag                                  -      22     +22
->     sock_reset_flag                                -      22     +22
->     sock_recv_errqueue                           264     284     +20
->     sock_alloc_send_pskb                         406     424     +18
->     __sock_set_timestamps                        104     122     +18
->     sock_setsockopt                             2412    2428     +16
->     sock_pfree                                    52      66     +14
->     sock_wfree                                   236     248     +12
->     sk_wait_data                                 222     234     +12
->     sk_destruct                                   70      82     +12
->     sk_wake_async                                 40      50     +10
->     sk_set_memalloc                               74      84     +10
->     __sock_queue_rcv_skb                         254     264     +10
->     __sk_backlog_rcv                              92     102     +10
->     sock_getsockopt                             1734    1742      +8
->     sock_no_linger                                36      42      +6
->     sk_clone_lock                                478     484      +6
->     sk_clear_memalloc                             98     104      +6
->     __sk_receive_skb                             194     200      +6
->     sock_init_data                               344     348      +4
->     __sock_cmsg_send                             196     200      +4
->     sk_common_release                            152     154      +2
->     sock_set_keepalive                            62      60      -2
->     sock_enable_timestamp                         80      72      -8
->     sock_valbool_flag                             34      12     -22
->     bset_mem_set_bit                              36       -     -36
->     Total: Before=18862, After=19080, chg +1.16%
-> 
-> Several small inline functions are no longer inlined.
-> And e.g. __sk_backlog_rcv() increases as it now calls sock_flag()
-> out-of-line, and needs to save more on the stack:
-> 
->  __sk_backlog_rcv:
-> +       move.l %a3,-(%sp)       |,
->         move.l %d2,-(%sp)       |,
-> -       move.l 8(%sp),%a0       | sk, sk
-> -| arch/m68k/include/asm/bitops.h:163:  return (addr[nr >> 5] & (1UL
-> << (nr & 31))) != 0;
-> -       move.l 76(%a0),%d0      | MEM[(const long unsigned int
-> *)sk_6(D) + 76B], _14
-> +       move.l 12(%sp),%a3      | sk, sk
->  | net/core/sock.c:330:         BUG_ON(!sock_flag(sk, SOCK_MEMALLOC));
-> -       btst #14,%d0    |, _14
-> -       jne .L193               |
-> +       pea 14.w                |
-> +       move.l %a3,-(%sp)       | sk,
-> +       jsr sock_flag           |
-> +       addq.l #8,%sp   |,
-> +       tst.b %d0       | tmp50
-> +       jne .L192               |
->         pea 330.w               |
->         pea .LC0                |
->         pea .LC3                |
->         jsr _printk             |
->         trap #7
-> 
-> Note that the above is with atari_defconfig, which has
-> CONFIG_CC_OPTIMIZE_FOR_SIZE=y.
-> 
-> Switching to CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y results in a kernel
-> that is ca. 25% larger, and the net impact of this series is:
-> 
->     add/remove: 24/27 grow/shrink: 227/233 up/down: 7494/-8080 (-586)
-> 
-> i.e. a reduction in size...
+vmlinux.o: warning: objtool: cpu_idle_poll.isra.0+0x73: call to test_ti_thread_flag() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_s2idle+0x73: call to test_ti_thread_flag.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_irq+0x91: call to test_ti_thread_flag.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle+0x78: call to test_ti_thread_flag.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: acpi_safe_halt+0xf: call to test_ti_thread_flag.constprop.0() leaves .noinstr.text section
 
-Much thanks for such an analysis!
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ include/linux/sched/idle.h  |   40 ++++++++++++++++++++++++++++++----------
+ include/linux/thread_info.h |   18 +++++++++++++++++-
+ 2 files changed, 47 insertions(+), 11 deletions(-)
 
-I see that previously it was uninlining bset_mem_set_bit(), which is
-m68k implementation of __set_bit(), and now it uninlined the "outer"
-sock_*_flag().
-I'd name it sort of normal, but the intention was to not change the
-existing code when we're unable to optimize it out... And those sock
-helpers are usually from that side, since @sk is never anything
-constant. It's unexpected that the compiler is unable to resolve the
-expression to the original bitop call on `-Os`. Dunno if it's
-okay <O> __builtin_constant_p() still gives the desired results, so
-I guess it is, but at the same time that function layout rebalance
-can potentially hurt performance. Or improve it ._.
+--- a/include/linux/sched/idle.h
++++ b/include/linux/sched/idle.h
+@@ -23,12 +23,37 @@ static inline void wake_up_if_idle(int c
+  */
+ #ifdef TIF_POLLING_NRFLAG
+ 
+-static inline void __current_set_polling(void)
++#ifdef _ASM_GENERIC_BITOPS_INSTRUMENTED_ATOMIC_H
++
++static __always_inline void __current_set_polling(void)
+ {
+-	set_thread_flag(TIF_POLLING_NRFLAG);
++	arch_set_bit(TIF_POLLING_NRFLAG,
++		     (unsigned long *)(&current_thread_info()->flags));
+ }
+ 
+-static inline bool __must_check current_set_polling_and_test(void)
++static __always_inline void __current_clr_polling(void)
++{
++	arch_clear_bit(TIF_POLLING_NRFLAG,
++		       (unsigned long *)(&current_thread_info()->flags));
++}
++
++#else
++
++static __always_inline void __current_set_polling(void)
++{
++	set_bit(TIF_POLLING_NRFLAG,
++		(unsigned long *)(&current_thread_info()->flags));
++}
++
++static __always_inline void __current_clr_polling(void)
++{
++	clear_bit(TIF_POLLING_NRFLAG,
++		  (unsigned long *)(&current_thread_info()->flags));
++}
++
++#endif /* _ASM_GENERIC_BITOPS_INSTRUMENTED_ATOMIC_H */
++
++static __always_inline bool __must_check current_set_polling_and_test(void)
+ {
+ 	__current_set_polling();
+ 
+@@ -41,12 +66,7 @@ static inline bool __must_check current_
+ 	return unlikely(tif_need_resched());
+ }
+ 
+-static inline void __current_clr_polling(void)
+-{
+-	clear_thread_flag(TIF_POLLING_NRFLAG);
+-}
+-
+-static inline bool __must_check current_clr_polling_and_test(void)
++static __always_inline bool __must_check current_clr_polling_and_test(void)
+ {
+ 	__current_clr_polling();
+ 
+@@ -73,7 +93,7 @@ static inline bool __must_check current_
+ }
+ #endif
+ 
+-static inline void current_clr_polling(void)
++static __always_inline void current_clr_polling(void)
+ {
+ 	__current_clr_polling();
+ 
+--- a/include/linux/thread_info.h
++++ b/include/linux/thread_info.h
+@@ -177,7 +177,23 @@ static __always_inline unsigned long rea
+ 	clear_ti_thread_flag(task_thread_info(t), TIF_##fl)
+ #endif /* !CONFIG_GENERIC_ENTRY */
+ 
+-#define tif_need_resched() test_thread_flag(TIF_NEED_RESCHED)
++#ifdef _ASM_GENERIC_BITOPS_INSTRUMENTED_NON_ATOMIC_H
++
++static __always_inline bool tif_need_resched(void)
++{
++	return arch_test_bit(TIF_NEED_RESCHED,
++			     (unsigned long *)(&current_thread_info()->flags));
++}
++
++#else
++
++static __always_inline bool tif_need_resched(void)
++{
++	return test_bit(TIF_NEED_RESCHED,
++			(unsigned long *)(&current_thread_info()->flags));
++}
++
++#endif /* _ASM_GENERIC_BITOPS_INSTRUMENTED_NON_ATOMIC_H */
+ 
+ #ifndef CONFIG_HAVE_ARCH_WITHIN_STACK_FRAMES
+ static inline int arch_within_stack_frames(const void * const stack,
 
-BTW, after updating LLVM 13 -> 14 I'm now getting -3Kb (was -86).
-GCC 12 still gives -30.
 
-> 
-> Gr{oetje,eeting}s,
-> 
->                         Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
-
-Thanks,
-Olek
