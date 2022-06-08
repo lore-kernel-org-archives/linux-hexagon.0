@@ -1,158 +1,136 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 29/36] cpuidle,xenpv: Make more PARAVIRT_XXL noinstr clean
-Date: Wed, 08 Jun 2022 16:27:52 +0200
-Message-ID: <20220608144517.759631860@infradead.org>
+Subject: [PATCH 02/36] x86/idle: Replace x86_idle with a static_call
+Date: Wed, 08 Jun 2022 16:27:25 +0200
+Message-ID: <20220608144516.047149313@infradead.org>
 References: <20220608142723.103523089@infradead.org>
 Mime-Version: 1.0
-Return-path: <linux-parisc-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+        d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
         Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
         Content-ID:Content-Description:In-Reply-To;
-        bh=nZ3sIP+AfjwnKNI5o4cLuwY0yE/41XdF+GjWsz9OuTg=; b=mbC6p5hVAZP95iyythFlHTocTE
-        77HZJQSBw+0xv+Gb5FmLhgK3Da7YCXiKH0OoEBj+a1AAv0bZzURBroLP7m5QWnMtFamk8vMtrVd5u
-        Q9P3L5rPMxMbfr1YpjuVNCsIX1B2+syJOFUNOA/KZraCCo3vgKrvYClArRlaOCEF/rDrJ/XtPQLa6
-        Or5cxPtIYknzFS6i2M6yiK5KHQrLNtaGwxtcdS2yyrYbB8+VCfi46WNJqLrG3yljdFHyrXIRgDcs4
-        LtnbLvJ/dVfpI/DXi3l6UF8Cw71t1atAu0TZsSI2UU7p9SiLTqbWnMexbVKFzX3a1Gek5uxJ0d30k
-        PPjLpnYQ==;
+        bh=O62myI6pQAS8t81lbED6UulH15u+VxDiccCxL8l46b0=; b=gT8EMkBd6bMPLcSrcn+tIlmqrQ
+        gTlIn15eBCUJQJ7odUKeDR2ZWGk6cr6CL+IgYOg0zC0XwW4KvSjAi4QIaQShcZztyyB5uW4tjGOZ+
+        Xx0k619Zyq8PzUIepWyk++0mEYVwQwRDrMoV5OMsBFqmPNytGFdVmw1KNESQJd2/bvekElwzIcwfq
+        h9dM8RgSuGh8dAJ/hoh8FLTtUTAzinFeiF1y1HPLwogXCp0Uo4fTbKBO+SfwljZRT7cvOxCuC5v2c
+        rVPi+OaAn7J4nbIx17Sn50Rh+9lBzO0j0yDzRiHN+flr/WJFb/Do9/yGDSiiRsQ1W4fIUFcfmvAbk
+        rGLVyLLg==;
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: peterz@infradead.org
 Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com, ao
 
-vmlinux.o: warning: objtool: acpi_idle_enter_s2idle+0xde: call to wbinvd() leaves .noinstr.text section
-vmlinux.o: warning: objtool: default_idle+0x4: call to arch_safe_halt() leaves .noinstr.text section
-vmlinux.o: warning: objtool: xen_safe_halt+0xa: call to HYPERVISOR_sched_op.constprop.0() leaves .noinstr.text section
+Typical boot time setup; no need to suffer an indirect call for that.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
 ---
- arch/x86/include/asm/paravirt.h      |    6 ++++--
- arch/x86/include/asm/special_insns.h |    4 ++--
- arch/x86/include/asm/xen/hypercall.h |    2 +-
- arch/x86/kernel/paravirt.c           |   14 ++++++++++++--
- arch/x86/xen/enlighten_pv.c          |    2 +-
- arch/x86/xen/irq.c                   |    2 +-
- 6 files changed, 21 insertions(+), 9 deletions(-)
+ arch/x86/kernel/process.c |   50 +++++++++++++++++++++++++---------------------
+ 1 file changed, 28 insertions(+), 22 deletions(-)
 
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -168,7 +168,7 @@ static inline void __write_cr4(unsigned
- 	PVOP_VCALL1(cpu.write_cr4, x);
- }
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -24,6 +24,7 @@
+ #include <linux/cpuidle.h>
+ #include <linux/acpi.h>
+ #include <linux/elf-randomize.h>
++#include <linux/static_call.h>
+ #include <trace/events/power.h>
+ #include <linux/hw_breakpoint.h>
+ #include <asm/cpu.h>
+@@ -692,7 +693,23 @@ void __switch_to_xtra(struct task_struct
+ unsigned long boot_option_idle_override = IDLE_NO_OVERRIDE;
+ EXPORT_SYMBOL(boot_option_idle_override);
  
--static inline void arch_safe_halt(void)
-+static __always_inline void arch_safe_halt(void)
- {
- 	PVOP_VCALL0(irq.safe_halt);
- }
-@@ -178,7 +178,9 @@ static inline void halt(void)
- 	PVOP_VCALL0(irq.halt);
- }
- 
--static inline void wbinvd(void)
-+extern noinstr void pv_native_wbinvd(void);
-+
-+static __always_inline void wbinvd(void)
- {
- 	PVOP_ALT_VCALL0(cpu.wbinvd, "wbinvd", ALT_NOT(X86_FEATURE_XENPV));
- }
---- a/arch/x86/include/asm/special_insns.h
-+++ b/arch/x86/include/asm/special_insns.h
-@@ -115,7 +115,7 @@ static inline void wrpkru(u32 pkru)
- }
- #endif
- 
--static inline void native_wbinvd(void)
-+static __always_inline void native_wbinvd(void)
- {
- 	asm volatile("wbinvd": : :"memory");
- }
-@@ -179,7 +179,7 @@ static inline void __write_cr4(unsigned
- 	native_write_cr4(x);
- }
- 
--static inline void wbinvd(void)
-+static __always_inline void wbinvd(void)
- {
- 	native_wbinvd();
- }
---- a/arch/x86/include/asm/xen/hypercall.h
-+++ b/arch/x86/include/asm/xen/hypercall.h
-@@ -382,7 +382,7 @@ MULTI_stack_switch(struct multicall_entr
- }
- #endif
- 
--static inline int
-+static __always_inline int
- HYPERVISOR_sched_op(int cmd, void *arg)
- {
- 	return _hypercall2(int, sched_op, cmd, arg);
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -233,6 +233,11 @@ static noinstr void pv_native_set_debugr
- 	native_set_debugreg(regno, val);
- }
- 
-+noinstr void pv_native_wbinvd(void)
+-static void (*x86_idle)(void);
++/*
++ * We use this if we don't have any better idle routine..
++ */
++void __cpuidle default_idle(void)
 +{
-+	native_wbinvd();
++	raw_safe_halt();
 +}
++#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
++EXPORT_SYMBOL(default_idle);
++#endif
 +
- static noinstr void pv_native_irq_enable(void)
- {
- 	native_irq_enable();
-@@ -242,6 +247,11 @@ static noinstr void pv_native_irq_disabl
- {
- 	native_irq_disable();
- }
++DEFINE_STATIC_CALL_NULL(x86_idle, default_idle);
 +
-+static noinstr void pv_native_safe_halt(void)
++static bool x86_idle_set(void)
 +{
-+	native_safe_halt();
++	return !!static_call_query(x86_idle);
 +}
+ 
+ #ifndef CONFIG_SMP
+ static inline void play_dead(void)
+@@ -715,28 +732,17 @@ void arch_cpu_idle_dead(void)
+ /*
+  * Called from the generic idle code.
+  */
+-void arch_cpu_idle(void)
+-{
+-	x86_idle();
+-}
+-
+-/*
+- * We use this if we don't have any better idle routine..
+- */
+-void __cpuidle default_idle(void)
++void __cpuidle arch_cpu_idle(void)
+ {
+-	raw_safe_halt();
++	static_call(x86_idle)();
+ }
+-#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
+-EXPORT_SYMBOL(default_idle);
+-#endif
+ 
+ #ifdef CONFIG_XEN
+ bool xen_set_default_idle(void)
+ {
+-	bool ret = !!x86_idle;
++	bool ret = x86_idle_set();
+ 
+-	x86_idle = default_idle;
++	static_call_update(x86_idle, default_idle);
+ 
+ 	return ret;
+ }
+@@ -859,20 +865,20 @@ void select_idle_routine(const struct cp
+ 	if (boot_option_idle_override == IDLE_POLL && smp_num_siblings > 1)
+ 		pr_warn_once("WARNING: polling idle and HT enabled, performance may degrade\n");
  #endif
+-	if (x86_idle || boot_option_idle_override == IDLE_POLL)
++	if (x86_idle_set() || boot_option_idle_override == IDLE_POLL)
+ 		return;
  
- enum paravirt_lazy_mode paravirt_get_lazy_mode(void)
-@@ -273,7 +283,7 @@ struct paravirt_patch_template pv_ops =
- 	.cpu.read_cr0		= native_read_cr0,
- 	.cpu.write_cr0		= native_write_cr0,
- 	.cpu.write_cr4		= native_write_cr4,
--	.cpu.wbinvd		= native_wbinvd,
-+	.cpu.wbinvd		= pv_native_wbinvd,
- 	.cpu.read_msr		= native_read_msr,
- 	.cpu.write_msr		= native_write_msr,
- 	.cpu.read_msr_safe	= native_read_msr_safe,
-@@ -307,7 +317,7 @@ struct paravirt_patch_template pv_ops =
- 	.irq.save_fl		= __PV_IS_CALLEE_SAVE(native_save_fl),
- 	.irq.irq_disable	= __PV_IS_CALLEE_SAVE(pv_native_irq_disable),
- 	.irq.irq_enable		= __PV_IS_CALLEE_SAVE(pv_native_irq_enable),
--	.irq.safe_halt		= native_safe_halt,
-+	.irq.safe_halt		= pv_native_safe_halt,
- 	.irq.halt		= native_halt,
- #endif /* CONFIG_PARAVIRT_XXL */
- 
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1019,7 +1019,7 @@ static const typeof(pv_ops) xen_cpu_ops
- 
- 		.write_cr4 = xen_write_cr4,
- 
--		.wbinvd = native_wbinvd,
-+		.wbinvd = pv_native_wbinvd,
- 
- 		.read_msr = xen_read_msr,
- 		.write_msr = xen_write_msr,
---- a/arch/x86/xen/irq.c
-+++ b/arch/x86/xen/irq.c
-@@ -24,7 +24,7 @@ noinstr void xen_force_evtchn_callback(v
- 	(void)HYPERVISOR_xen_version(0, NULL);
+ 	if (boot_cpu_has_bug(X86_BUG_AMD_E400)) {
+ 		pr_info("using AMD E400 aware idle routine\n");
+-		x86_idle = amd_e400_idle;
++		static_call_update(x86_idle, amd_e400_idle);
+ 	} else if (prefer_mwait_c1_over_halt(c)) {
+ 		pr_info("using mwait in idle threads\n");
+-		x86_idle = mwait_idle;
++		static_call_update(x86_idle, mwait_idle);
+ 	} else if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST)) {
+ 		pr_info("using TDX aware idle routine\n");
+-		x86_idle = tdx_safe_halt;
++		static_call_update(x86_idle, tdx_safe_halt);
+ 	} else
+-		x86_idle = default_idle;
++		static_call_update(x86_idle, default_idle);
  }
  
--static void xen_safe_halt(void)
-+static noinstr void xen_safe_halt(void)
- {
- 	/* Blocking includes an implicit local_irq_enable(). */
- 	if (HYPERVISOR_sched_op(SCHEDOP_block, NULL) != 0)
+ void amd_e400_c1e_apic_setup(void)
+@@ -925,7 +931,7 @@ static int __init idle_setup(char *str)
+ 		 * To continue to load the CPU idle driver, don't touch
+ 		 * the boot_option_idle_override.
+ 		 */
+-		x86_idle = default_idle;
++		static_call_update(x86_idle, default_idle);
+ 		boot_option_idle_override = IDLE_HALT;
+ 	} else if (!strcmp(str, "nomwait")) {
+ 		/*
 
 
