@@ -1,69 +1,50 @@
-From: Petr Mladek <pmladek@suse.com>
-Subject: Re: [PATCH 24/36] printk: Remove trace_.*_rcuidle() usage
-Date: Thu, 9 Jun 2022 11:16:46 +0200
-Message-ID: <YqG6URbihTNCk9YR@alley>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 33/36] cpuidle,omap3: Use WFI for omap3_pm_idle()
+Date: Thu, 9 Jun 2022 11:40:46 +0200
+Message-ID: <YqHAHpGVe10I8O1z@worktop.programming.kicks-ass.net>
 References: <20220608142723.103523089@infradead.org>
- <20220608144517.444659212@infradead.org>
+ <20220608144518.010587032@infradead.org>
+ <CAK8P3a0g-fNu9=BUECSXcNeWT7XWHQMnSXZE-XYE+5eakHxKxA@mail.gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-m68k-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1654766212; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=d57/DrqDiiJ2foYz2ew+5Cqn+PqODCYrsHqzu7X2C2Q=;
-        b=fo+sYmFjpmQOmpyD3JvJl9AYNinBjxAVeUE+HbamyvnKBmUJ4aJ/YSAu3A8+CqB7Ibeuz8
-        5d8JOsM43+X+4Im3fKziKImYEhGOTr+/e/e7kKF981tYnqb1CU7vBLnpyqhaj1HOQaPm0q
-        8dfR9EB/TBh2sOsSKiFiTu8q7nOVsPQ=
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=jxhFyRA7gcpqWtRQyvyD3abswc2PbVc4FSoswUV5Ukc=; b=eTVis02Li1gUMyvYNvhtQOfPjM
+        7jPK+tlnMQu8YlONdKYuGGzg5f4OtA6n+DLuvaVtWLmmwBKEcjK3gJJFZyuUsx9s+WrgcdXDtEGo5
+        n/0BitYa/9Tv9a5PHDy4FBaJ0usEOIIGYMMcR/SAKx38GPSteGLT2qjJKdgzgVt9Wb+/EeSMk/GCj
+        o7MIldwwpKDLAKlNGDE/FUzTM2RKPEJfDUWHFxb549VYWV718uWBpBWrwfwVc4Y51nI2XmOQdPNke
+        dbtUv13RdN1xprVJqbJ/lLZKhjUqu4j3NGqJXLsSZjtm/Jap7nXVhvEByTNVwWiNq35HcNs4n5id9
+        tqC7XoNQ==;
 Content-Disposition: inline
-In-Reply-To: <20220608144517.444659212@infradead.org>
+In-Reply-To: <CAK8P3a0g-fNu9=BUECSXcNeWT7XWHQMnSXZE-XYE+5eakHxKxA@mail.gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@hansenpartnership.com, deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu, 
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, Russell King - ARM Linux <linux@armlinux.org.uk>, Hans Ulli Kroll <ulli.kroll@googlemail.com>, Linus Walleij <linus.walleij@linaro.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Sascha Hauer <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, NXP Linux Team <linux-imx@nxp.com>, Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, bcain@quicinc.com, Huacai Chen <chenhuacai@kernel.org>, Xuerui Wang <kernel@xen0n.name>, Geert Uytterhoeven <gee>
 
-On Wed 2022-06-08 16:27:47, Peter Zijlstra wrote:
-> The problem, per commit fc98c3c8c9dc ("printk: use rcuidle console
-> tracepoint"), was printk usage from the cpuidle path where RCU was
-> already disabled.
+On Wed, Jun 08, 2022 at 06:28:33PM +0200, Arnd Bergmann wrote:
+> On Wed, Jun 8, 2022 at 4:27 PM Peter Zijlstra <peterz@infradead.org> wrote:
+> >
+> > arch_cpu_idle() is a very simple idle interface and exposes only a
+> > single idle state and is expected to not require RCU and not do any
+> > tracing/instrumentation.
+> >
+> > As such, omap_sram_idle() is not a valid implementation. Replace it
+> > with the simple (shallow) omap3_do_wfi() call. Leaving the more
+> > complicated idle states for the cpuidle driver.
+> >
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 > 
-> Per the patches earlier in this series, this is no longer the case.
-
-My understanding is that this series reduces a lot the amount
-of code called with RCU disabled. As a result the particular printk()
-call mentioned by commit fc98c3c8c9dc ("printk: use rcuidle console
-tracepoint") is called with RCU enabled now. Hence this particular
-problem is fixed better way now.
-
-But is this true in general?
-Does this "prevent" calling printk() a safe way in code with
-RCU disabled?
-
-I am not sure if anyone cares. printk() is the best effort
-functionality because of the consoles code anyway. Also I wonder
-if anyone uses this trace_console().
-
-Therefore if this patch allows to remove some tricky tracing
-code then it might be worth it. But if trace_console_rcuidle()
-variant is still going to be available then I would keep using it.
-
-Best Regards,
-Petr
-
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  kernel/printk/printk.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> I see similar code in omap2:
 > 
-> --- a/kernel/printk/printk.c
-> +++ b/kernel/printk/printk.c
-> @@ -2238,7 +2238,7 @@ static u16 printk_sprint(char *text, u16
->  		}
->  	}
->  
-> -	trace_console_rcuidle(text, text_len);
-> +	trace_console(text, text_len);
->  
->  	return text_len;
->  }
+> omap2_pm_idle()
+>  -> omap2_enter_full_retention()
+>      -> omap2_sram_suspend()
 > 
+> Is that code path safe to use without RCU or does it need a similar change?
+
+It needs a similar change, clearly I was running on fumes to not have
+found that when grepping around the omap code :/
