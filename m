@@ -1,46 +1,69 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH 33/36] cpuidle,omap3: Use WFI for omap3_pm_idle()
-Date: Thu, 9 Jun 2022 10:39:22 +0300
-Message-ID: <YqGjqgSrTRseJW6M@atomide.com>
+From: Petr Mladek <pmladek@suse.com>
+Subject: Re: [PATCH 24/36] printk: Remove trace_.*_rcuidle() usage
+Date: Thu, 9 Jun 2022 11:16:46 +0200
+Message-ID: <YqG6URbihTNCk9YR@alley>
 References: <20220608142723.103523089@infradead.org>
- <20220608144518.010587032@infradead.org>
- <CAK8P3a0g-fNu9=BUECSXcNeWT7XWHQMnSXZE-XYE+5eakHxKxA@mail.gmail.com>
+ <20220608144517.444659212@infradead.org>
 Mime-Version: 1.0
-Return-path: <linux-alpha-owner@vger.kernel.org>
+Return-path: <linux-m68k-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1654766212; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=d57/DrqDiiJ2foYz2ew+5Cqn+PqODCYrsHqzu7X2C2Q=;
+        b=fo+sYmFjpmQOmpyD3JvJl9AYNinBjxAVeUE+HbamyvnKBmUJ4aJ/YSAu3A8+CqB7Ibeuz8
+        5d8JOsM43+X+4Im3fKziKImYEhGOTr+/e/e7kKF981tYnqb1CU7vBLnpyqhaj1HOQaPm0q
+        8dfR9EB/TBh2sOsSKiFiTu8q7nOVsPQ=
 Content-Disposition: inline
-In-Reply-To: <CAK8P3a0g-fNu9=BUECSXcNeWT7XWHQMnSXZE-XYE+5eakHxKxA@mail.gmail.com>
+In-Reply-To: <20220608144517.444659212@infradead.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Peter Zijlstra <peterz@infradead.org>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, Russell King - ARM Linux <linux@armlinux.org.uk>, Hans Ulli Kroll <ulli.kroll@googlemail.com>, Linus Walleij <linus.walleij@linaro.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Sascha Hauer <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, NXP Linux Team <linux-imx@nxp.com>, Kevin Hilman <khilman@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, bcain@quicinc.com, Huacai Chen <chenhuacai@kernel.org>, Xuerui Wang <kernel@xen0n.name>, Geert
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@hansenpartnership.com, deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu, 
 
-* Arnd Bergmann <arnd@arndb.de> [220608 18:18]:
-> On Wed, Jun 8, 2022 at 4:27 PM Peter Zijlstra <peterz@infradead.org> wrote:
-> >
-> > arch_cpu_idle() is a very simple idle interface and exposes only a
-> > single idle state and is expected to not require RCU and not do any
-> > tracing/instrumentation.
-> >
-> > As such, omap_sram_idle() is not a valid implementation. Replace it
-> > with the simple (shallow) omap3_do_wfi() call. Leaving the more
-> > complicated idle states for the cpuidle driver.
-
-Agreed it makes sense to limit deeper idle states to cpuidle. Hopefully
-there is some informative splat for attempting to use arch_cpu_ide()
-for deeper idle states :)
-
-> I see similar code in omap2:
+On Wed 2022-06-08 16:27:47, Peter Zijlstra wrote:
+> The problem, per commit fc98c3c8c9dc ("printk: use rcuidle console
+> tracepoint"), was printk usage from the cpuidle path where RCU was
+> already disabled.
 > 
-> omap2_pm_idle()
->  -> omap2_enter_full_retention()
->      -> omap2_sram_suspend()
+> Per the patches earlier in this series, this is no longer the case.
+
+My understanding is that this series reduces a lot the amount
+of code called with RCU disabled. As a result the particular printk()
+call mentioned by commit fc98c3c8c9dc ("printk: use rcuidle console
+tracepoint") is called with RCU enabled now. Hence this particular
+problem is fixed better way now.
+
+But is this true in general?
+Does this "prevent" calling printk() a safe way in code with
+RCU disabled?
+
+I am not sure if anyone cares. printk() is the best effort
+functionality because of the consoles code anyway. Also I wonder
+if anyone uses this trace_console().
+
+Therefore if this patch allows to remove some tricky tracing
+code then it might be worth it. But if trace_console_rcuidle()
+variant is still going to be available then I would keep using it.
+
+Best Regards,
+Petr
+
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> ---
+>  kernel/printk/printk.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Is that code path safe to use without RCU or does it need a similar change?
-
-Seems like a similar change should be done for omap2. Then anybody who
-cares to implement a minimal cpuidle support can do so.
-
-Regards,
-
-Tony
+> --- a/kernel/printk/printk.c
+> +++ b/kernel/printk/printk.c
+> @@ -2238,7 +2238,7 @@ static u16 printk_sprint(char *text, u16
+>  		}
+>  	}
+>  
+> -	trace_console_rcuidle(text, text_len);
+> +	trace_console(text, text_len);
+>  
+>  	return text_len;
+>  }
+> 
