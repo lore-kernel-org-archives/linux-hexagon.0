@@ -1,23 +1,34 @@
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: [PATCH v2 1/6] ia64, processor: fix -Wincompatible-pointer-types
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2 1/6] ia64, processor: fix -Wincompatible-pointer-types
  in ia64_get_irr()
-Date: Fri, 10 Jun 2022 12:18:03 +0000
-Message-ID: <8711f7d6bdc148bd916d87515e71b3c2@AcuMS.aculab.com>
+Date: Fri, 10 Jun 2022 16:46:21 +0300
+Message-ID: <YqNLLTAY0t62Jxq4@smile.fi.intel.com>
 References: <20220610113427.908751-1-alexandr.lobakin@intel.com>
  <20220610113427.908751-2-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-ia64-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1654868792; x=1686404792;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ravTgUnKG4C+bKIq95tFE0q0c60bszYzURjmYJ4owCY=;
+  b=K7AyFHdPnXsk0KEWuJAxX7QZT133eEFKuejLuhSP4XcKmarPFG2JzYHx
+   sLO8v4Dve6m07IAY2r4OUBjsgGLgC5n4FGaHB4U7pWlfMvY1HsI80G7YL
+   Yi5cB2vTAMPycmSQyaerOQe+y/gEeUCTrqKQjZBekkYnlS3cvy3h5p/gT
+   Qj4GfnBjhjKsrVGSXh/UfyJZZdH8R4mc/PmhqEB8Q7QF0CuzKYuscx6Ly
+   t5jLOSQDb4y/Um+aZo9Fkd3JaMhn0NahioElwSXtoSmSfl389lcVYIOSn
+   NHuS/7CZhZX3GCNrmb+9RO/9pdDWLZt8Thk+ybxU7fFCAqqFpB/HFEcmD
+   Q==;
+Content-Disposition: inline
 In-Reply-To: <20220610113427.908751-2-alexandr.lobakin@intel.com>
-Content-Language: en-US
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: 'Alexander Lobakin' <alexandr.lobakin@intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-m68k@lists.linux-m68k.org" <>
+Content-Transfer-Encoding: 7bit
+To: Alexander Lobakin <alexandr.lobakin@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-ke
 
-From: Alexander Lobakin
-> Sent: 10 June 2022 12:34
-> 
+On Fri, Jun 10, 2022 at 01:34:22PM +0200, Alexander Lobakin wrote:
 > test_bit(), as any other bitmap op, takes `unsigned long *` as a
 > second argument (pointer to the actual bitmap), as any bitmap
 > itself is an array of unsigned longs. However, the ia64_get_irr()
@@ -30,13 +41,8 @@ From: Alexander Lobakin
 > Define @irr as `unsigned long` to fix that. That implies no
 > functional changes. Has been hidden for 16 years!
 
-Wouldn't it be better to just test the bit?
-As in:
-	return irr & (1ull << bit);
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-    David
-
-> 
 > Fixes: a58786917ce2 ("[IA64] avoid broken SAL_CACHE_FLUSH implementations")
 > Cc: stable@vger.kernel.org # 2.6.16+
 > Reported-by: kernel test robot <lkp@intel.com>
@@ -55,13 +61,15 @@ As in:
 >  	unsigned int bit = vector % 64;
 > -	u64 irr;
 > +	unsigned long irr;
-> 
+>  
 >  	switch (reg) {
 >  	case 0: irr = ia64_getreg(_IA64_REG_CR_IRR0); break;
-> --
+> -- 
 > 2.36.1
+> 
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+-- 
+With Best Regards,
+Andy Shevchenko
+
 
