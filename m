@@ -1,113 +1,155 @@
-From: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Subject: Re: [PATCH 04/36] cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE
-Date: Thu, 9 Jun 2022 16:49:21 -0700
-Message-ID: <20220609164921.5e61711d@jacob-builder>
-References: <20220608142723.103523089@infradead.org>
-        <20220608144516.172460444@infradead.org>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
+Subject: [PATCH v2 0/6] bitops: let optimize out non-atomic bitops on compile-time constants
+Date: Fri, 10 Jun 2022 13:34:21 +0200
+Message-ID: <20220610113427.908751-1-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-arch-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654818322; x=1686354322;
-  h=date:from:to:cc:subject:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=/qix89+4Yux2UyS3QMBWmKLCne+VvkXES21cCGFIhLs=;
-  b=EkaTUs0rea+454rYaBsqSroRFg0PamD4jU6O0eq1wv/5itn58fVYLUXz
-   hlWtv1Ogpl7/5XIS618tIb0uG/q2+eGCMXsttxiOJDTm6dvjif29rcsmN
-   nWpOfx8wOz2WQB1f6Ul8b7EGNqASBsmk3lVSAAbjuyEvvEhAIHeX8zQmg
-   +ufj+64/oRf3ev5vJZH5Yejs7zEtNES51/2LxU4etWbj7BVv+kw0q1QiP
-   unGfwpuQghUcTK8rXLxr286tVxF9gYfN+irF5pYrEItvr0xmkc2yTnQok
-   EbNfwxaIzp9UCsQ8gskKbD4HfjRVXi6KKS6myyqzqnJkOJaWOKufoYQaK
-   A==;
-In-Reply-To: <20220608144516.172460444@infradead.org>
+  t=1654860928; x=1686396928;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=lB5zlFU8ozw7+6CLJK8PifBqONusbCYHzssMxh4LrsQ=;
+  b=JR5zB0zunO6CRt0gTUGy6RWEo+YoOkNeZU5PiYR63dPj8DP1SH1vNlIC
+   mZ9WA/chrlpcxt/09Mr+55zpVqnd9xraF+KSqq27kfkeR4vml7coM2OOf
+   RreoWbc5pdbNAyvYscQJK3NVWFe6VLZDurlKW3UYPWGVJZvlSF9LJ6PdA
+   7uG5XoqeVp25kwsXiKi41ASBgo6PS5EQTsXJy7iQxyFCQ6b9J+/LTF1EF
+   vq8kE+pxctSkY2ir3JZaxops+N6OLdgYLjBPyr3qw5OeF+Se2C1Ha6KT7
+   8rw6VQCQ0ljOl4pYM5qB9Tlx4En88oITMgTVTSGCnkZuHztt0VQcHQ+Q2
+   Q==;
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com, ao
+To: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>
+Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
 
-Hi Peter,
+While I was working on converting some structure fields from a fixed
+type to a bitmap, I started observing code size increase not only in
+places where the code works with the converted structure fields, but
+also where the converted vars were on the stack. That said, the
+following code:
 
-On Wed, 08 Jun 2022 16:27:27 +0200, Peter Zijlstra <peterz@infradead.org>
-wrote:
+	DECLARE_BITMAP(foo, BITS_PER_LONG) = { }; // -> unsigned long foo[1];
+	unsigned long bar = BIT(BAR_BIT);
+	unsigned long baz = 0;
 
-> Commit c227233ad64c ("intel_idle: enable interrupts before C1 on
-> Xeons") wrecked intel_idle in two ways:
-> 
->  - must not have tracing in idle functions
->  - must return with IRQs disabled
-> 
-> Additionally, it added a branch for no good reason.
-> 
-> Fixes: c227233ad64c ("intel_idle: enable interrupts before C1 on Xeons")
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  drivers/idle/intel_idle.c |   48
-> +++++++++++++++++++++++++++++++++++----------- 1 file changed, 37
-> insertions(+), 11 deletions(-)
-> 
-> --- a/drivers/idle/intel_idle.c
-> +++ b/drivers/idle/intel_idle.c
-> @@ -129,21 +137,37 @@ static unsigned int mwait_substates __in
->   *
->   * Must be called under local_irq_disable().
->   */
-nit: this comment is no long true, right?
+	__set_bit(FOO_BIT, foo);
+	baz |= BIT(BAZ_BIT);
 
-> +
-> -static __cpuidle int intel_idle(struct cpuidle_device *dev,
-> -				struct cpuidle_driver *drv, int index)
-> +static __always_inline int __intel_idle(struct cpuidle_device *dev,
-> +					struct cpuidle_driver *drv, int
-> index) {
->  	struct cpuidle_state *state = &drv->states[index];
->  	unsigned long eax = flg2MWAIT(state->flags);
->  	unsigned long ecx = 1; /* break on interrupt flag */
->  
-> -	if (state->flags & CPUIDLE_FLAG_IRQ_ENABLE)
-> -		local_irq_enable();
-> -
->  	mwait_idle_with_hints(eax, ecx);
->  
->  	return index;
->  }
->  
-> +static __cpuidle int intel_idle(struct cpuidle_device *dev,
-> +				struct cpuidle_driver *drv, int index)
-> +{
-> +	return __intel_idle(dev, drv, index);
-> +}
-> +
-> +static __cpuidle int intel_idle_irq(struct cpuidle_device *dev,
-> +				    struct cpuidle_driver *drv, int
-> index) +{
-> +	int ret;
-> +
-> +	raw_local_irq_enable();
-> +	ret = __intel_idle(dev, drv, index);
-> +	raw_local_irq_disable();
-> +
-> +	return ret;
-> +}
-> +
->  /**
->   * intel_idle_s2idle - Ask the processor to enter the given idle state.
->   * @dev: cpuidle device of the target CPU.
-> @@ -1801,6 +1824,9 @@ static void __init intel_idle_init_cstat
->  		/* Structure copy. */
->  		drv->states[drv->state_count] =
-> cpuidle_state_table[cstate]; 
-> +		if (cpuidle_state_table[cstate].flags &
-> CPUIDLE_FLAG_IRQ_ENABLE)
-> +			drv->states[drv->state_count].enter =
-> intel_idle_irq; +
->  		if ((disabled_states_mask & BIT(drv->state_count)) ||
->  		    ((icpu->use_acpi || force_use_acpi) &&
->  		     intel_idle_off_by_default(mwait_hint) &&
-> 
-> 
+	BUILD_BUG_ON(!__builtin_constant_p(test_bit(FOO_BIT, foo));
+	BUILD_BUG_ON(!__builtin_constant_p(bar & BAR_BIT));
+	BUILD_BUG_ON(!__builtin_constant_p(baz & BAZ_BIT));
 
+triggers the first assertion on x86_64, which means that the
+compiler is unable to evaluate it to a compile-time initializer
+when the architecture-specific bitop is used even if it's obvious.
+I found that this is due to that many architecture-specific
+non-atomic bitop implementations use inline asm or other hacks which
+are faster or more robust when working with "real" variables (i.e.
+fields from the structures etc.), but the compilers have no clue how
+to optimize them out when called on compile-time constants.
 
-Thanks,
+So, in order to let the compiler optimize out such cases, expand the
+test_bit() and __*_bit() definitions with a compile-time condition
+check, so that they will pick the generic C non-atomic bitop
+implementations when all of the arguments passed are compile-time
+constants, which means that the result will be a compile-time
+constant as well and the compiler will produce more efficient and
+simple code in 100% cases (no changes when there's at least one
+non-compile-time-constant argument).
+The condition itself:
 
-Jacob
+if (
+__builtin_constant_p(nr) &&	/* <- bit position is constant */
+__builtin_constant_p(!!addr) &&	/* <- compiler knows bitmap addr is
+				      always either NULL or not */
+addr &&				/* <- bitmap addr is not NULL */
+__builtin_constant_p(*addr)	/* <- compiler knows the value of
+				      the target bitmap */
+)
+	/* then pick the generic C variant
+else
+	/* old code path, arch-specific
+
+I also tried __is_constexpr() as suggested by Andy, but it was
+always returning 0 ('not a constant') for the 2,3 and 4th
+conditions.
+
+The savings are architecture, compiler and compiler flags dependent,
+for example, on x86_64 -O2:
+
+GCC 12: add/remove: 78/29 grow/shrink: 332/525 up/down: 31325/-61560 (-30235)
+LLVM 13: add/remove: 79/76 grow/shrink: 184/537 up/down: 55076/-141892 (-86816)
+LLVM 14: add/remove: 10/3 grow/shrink: 93/138 up/down: 3705/-6992 (-3287)
+
+and ARM64 (courtesy of Mark[0]):
+
+GCC 11: add/remove: 92/29 grow/shrink: 933/2766 up/down: 39340/-82580 (-43240)
+LLVM 14: add/remove: 21/11 grow/shrink: 620/651 up/down: 12060/-15824 (-3764)
+
+And the following:
+
+	DECLARE_BITMAP(flags, __IP_TUNNEL_FLAG_NUM) = { };
+	__be16 flags;
+
+	__set_bit(IP_TUNNEL_CSUM_BIT, flags);
+
+	tun_flags = cpu_to_be16(*flags & U16_MAX);
+
+	if (test_bit(IP_TUNNEL_VTI_BIT, flags))
+		tun_flags |= VTI_ISVTI;
+
+	BUILD_BUG_ON(!__builtin_constant_p(tun_flags));
+
+doesn't blow up anymore, so that we now can e.g. use fixed bitmaps
+in compile-time assertions etc.
+
+The series has been in intel-next for a while with no reported issues.
+
+From v1[1]:
+* change 'gen_' prefixes to '_generic' to disambiguate from
+  'generated' etc. (Mark);
+* define a separate 'const_' set to use in the optimization to keep
+  the generic test_bit() atomic-safe (Marco);
+* unify arch_{test,__*}_bit() as well and include them in the type
+  check;
+* add more relevant and up-to-date bloat-o-meter results, including
+  ARM64 (me, Mark);
+* pick a couple '*-by' tags (Mark, Yury).
+
+Also available on my open GH[2].
+
+[0] https://lore.kernel.org/all/Yp4GQFQYD32Rs9Cw@FVFF77S0Q05N
+[1] https://lore.kernel.org/all/20220606114908.962562-1-alexandr.lobakin@intel.com
+[2] https://github.com/alobakin/linux/commits/bitops
+
+Alexander Lobakin (6):
+  ia64, processor: fix -Wincompatible-pointer-types in ia64_get_irr()
+  bitops: always define asm-generic non-atomic bitops
+  bitops: unify non-atomic bitops prototypes across architectures
+  bitops: define const_*() versions of the non-atomics
+  bitops: wrap non-atomic bitops with a transparent macro
+  bitops: let optimize out non-atomic bitops on compile-time constants
+
+ arch/alpha/include/asm/bitops.h               |  28 ++--
+ arch/hexagon/include/asm/bitops.h             |  23 ++-
+ arch/ia64/include/asm/bitops.h                |  40 ++---
+ arch/ia64/include/asm/processor.h             |   2 +-
+ arch/m68k/include/asm/bitops.h                |  47 ++++--
+ arch/sh/include/asm/bitops-op32.h             |  32 ++--
+ arch/sparc/include/asm/bitops_32.h            |  18 +-
+ arch/sparc/lib/atomic32.c                     |  12 +-
+ arch/x86/include/asm/bitops.h                 |  22 +--
+ .../asm-generic/bitops/generic-non-atomic.h   | 155 ++++++++++++++++++
+ .../bitops/instrumented-non-atomic.h          |  35 ++--
+ include/asm-generic/bitops/non-atomic.h       | 123 ++------------
+ include/linux/bitops.h                        |  50 ++++++
+ tools/include/asm-generic/bitops/non-atomic.h |  34 ++--
+ tools/include/linux/bitops.h                  |  16 ++
+ 15 files changed, 407 insertions(+), 230 deletions(-)
+ create mode 100644 include/asm-generic/bitops/generic-non-atomic.h
+
+base-commit: 874c8ca1e60b2c564a48f7e7acc40d328d5c8733
+-- 
+2.36.1
+
