@@ -1,62 +1,71 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 21/36] x86/tdx: Remove TDX_HCALL_ISSUE_STI
-Date: Mon, 13 Jun 2022 10:41:27 +0200
-Message-ID: <Yqb4N3iwh1X7378o@hirez.programming.kicks-ass.net>
+Subject: Re: [PATCH 04/36] cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE
+Date: Mon, 13 Jun 2022 10:44:22 +0200
+Message-ID: <Yqb45vclY2KVL0wZ@hirez.programming.kicks-ass.net>
 References: <20220608142723.103523089@infradead.org>
- <20220608144517.251109029@infradead.org>
- <CAJhGHyCnu_BsKf5STMMJKMWm0NVZ8qXT8Qh=BhhCjSSgwchL3Q@mail.gmail.com>
+ <20220608144516.172460444@infradead.org>
+ <20220609164921.5e61711d@jacob-builder>
 Mime-Version: 1.0
-Return-path: <linux-alpha-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=TBu1hM1Fbte1hrb329bc3ivTNLPSxYZoE9gYu5eRiHg=; b=KxzripGEv6RXnFm15+8ZNtwXqY
-        Y0JQlZmUiuwVauVjo8mNReXrjzu7dWBx//TAFwSPTKyr6Zo77tWh01rzDl7XPFXl1EJF1ttjF28Oa
-        Y26cGarHrml+WTzUDghfHXbs5buhMtFUXZKnD8izBxoX/odIuIn/MS3zL+yigJd7n7oUAZgV4ByN7
-        p6X3IE5tp4AkqXkq6o5D71vN0FpfLBNWJd/uWUgeZWDMiUNKEwdAFHXa2Yb8/dwobM0HWB5ZW2n2y
-        erfG8/B2Ujcs2fyWLmikq2G1n9ndEAxh8tSaS3kLIgdEhCz5PunbXVo7FDX4cQ6brXM4ITD5NqgrB
-        fH7JUAsQ==;
-Content-Disposition: inline
-In-Reply-To: <CAJhGHyCnu_BsKf5STMMJKMWm0NVZ8qXT8Qh=BhhCjSSgwchL3Q@mail.gmail.com>
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: Richard Henderson <rth@twiddle.net>, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, Will Deacon <will@kernel.org>, guoren@kernel.org, bcain@quicinc.com, Huacai Chen <chenhuacai@kernel.org>, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@hansenpartnership.com, deller@gmx.de, Michael Ellerman <mpe@ellerman.id.au>, benh@kernel.crashing.org, 
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=pN3d4KEFcv2ptnSv0mvCj6MvUML0g63O/kngZ8T7P5U=; b=jHY41velXm5OfTDUZVWOgGoGBS
+ 3XcfJnIs2Kw4MnQzhXHXXp0NuTvYgWNNcy9H8ZMc64VSaMQLttlBqVnSkycnBSdvSyy0Jak2Oc/oh
+ vvGayo0C9yY99bqhrLdUZmtWJXcMrqnljzCxzdeOwv7I5/kT19cRmZ3SrWtebHTgXMFdZAZxKh/LD
+ FLvZqYIpmAvjq1lnM+gSi7696QvqdD2nf0hqYc6h4USx92PA9LVEoUSL3WQM5ig7zhrj1+/gECYeb
+ R1xWNHwwSLm1F21Q9Cu7wJn7J1PofxmN5bqxHgiOokEGCrOE72TMA7ta7eHf7Pxf1c+Q+Jc6wUzzF
+ Why4PJmw==;
+Content-Disposition: inline
+In-Reply-To: <20220609164921.5e61711d@jacob-builder>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org, linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, catalin.marinas@arm.com, xen-devel@lists.xenproject.org, mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, jiangshanlai@gmail.com, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, rth@twiddle.net, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, paul
 
-On Mon, Jun 13, 2022 at 04:26:01PM +0800, Lai Jiangshan wrote:
-> On Wed, Jun 8, 2022 at 10:48 PM Peter Zijlstra <peterz@infradead.org> wrote:
-> >
-> > Now that arch_cpu_idle() is expected to return with IRQs disabled,
-> > avoid the useless STI/CLI dance.
-> >
-> > Per the specs this is supposed to work, but nobody has yet relied up
-> > this behaviour so broken implementations are possible.
+On Thu, Jun 09, 2022 at 04:49:21PM -0700, Jacob Pan wrote:
+> Hi Peter,
 > 
-> I'm totally newbie here.
+> On Wed, 08 Jun 2022 16:27:27 +0200, Peter Zijlstra <peterz@infradead.org>
+> wrote:
 > 
-> The point of safe_halt() is that STI must be used and be used
-> directly before HLT to enable IRQ during the halting and stop
-> the halting if there is any IRQ.
+> > Commit c227233ad64c ("intel_idle: enable interrupts before C1 on
+> > Xeons") wrecked intel_idle in two ways:
+> > 
+> >  - must not have tracing in idle functions
+> >  - must return with IRQs disabled
+> > 
+> > Additionally, it added a branch for no good reason.
+> > 
+> > Fixes: c227233ad64c ("intel_idle: enable interrupts before C1 on Xeons")
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > ---
+> >  drivers/idle/intel_idle.c |   48
+> > +++++++++++++++++++++++++++++++++++----------- 1 file changed, 37
+> > insertions(+), 11 deletions(-)
+> > 
+> > --- a/drivers/idle/intel_idle.c
+> > +++ b/drivers/idle/intel_idle.c
+> > @@ -129,21 +137,37 @@ static unsigned int mwait_substates __in
+> >   *
+> >   * Must be called under local_irq_disable().
+> >   */
+> nit: this comment is no long true, right?
 
-Correct; on real hardware. But this is virt...
+It still is, all the idle routines are called with interrupts disabled,
+but must also exit with interrupts disabled.
 
-> In TDX case, STI must be used directly before the hypercall.
-> Otherwise, no IRQ can come and the vcpu would be stalled forever.
-> 
-> Although the hypercall has an "irq_disabled" argument.
-> But the hypervisor doesn't (and can't) touch the IRQ flags no matter
-> what the "irq_disabled" argument is.  The IRQ is not enabled during
-> the halting if the IRQ is disabled before the hypercall even if
-> irq_disabled=false.
-
-All we need the VMM to do is wake the vCPU, and it can do that,
-irrespective of the guest's IF.
-
-So the VMM can (and does) know if there's an interrupt pending, and
-that's all that's needed to wake from this hypercall. Once the vCPU is
-back up and running again, we'll eventually set IF again and the pending
-interrupt will get delivered and all's well.
-
-Think of this like MWAIT with ECX[0] set if you will.
+If the idle method requires interrupts to be enabled, it must be sure to
+disable them again before returning. Given all the RCU/tracing concerns
+it must use raw_local_irq_*() for this though.
