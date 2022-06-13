@@ -1,154 +1,81 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 34.5/36] cpuidle,omap4: Push RCU-idle into
- omap4_enter_lowpower()
-Date: Mon, 13 Jun 2022 15:39:05 +0300
-Message-ID: <Yqcv6crSNKuSWoTu@atomide.com>
-References: <20220608142723.103523089@infradead.org>
- <20220608144518.073801916@infradead.org>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
+Subject: Re: [PATCH v2 2/6] bitops: always define asm-generic non-atomic bitops
+Date: Mon, 13 Jun 2022 16:19:47 +0200
+Message-ID: <20220613141947.1176100-1-alexandr.lobakin@intel.com>
+References: <20220610113427.908751-1-alexandr.lobakin@intel.com> <20220610113427.908751-3-alexandr.lobakin@intel.com> <YqNMO0ioGzJ1IkoA@smile.fi.intel.com> <22042c14bc6a437d9c6b235fbfa32c8a@intel.com> <CANpmjNNZAeMQjzNyXLeKY4cp_m-xJBU1vs7PgT+7_sJwxtEEAg@mail.gmail.com>
 Mime-Version: 1.0
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-Content-Disposition: inline
-In-Reply-To: <20220608144518.073801916@infradead.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@hansenpartnership.com, deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com, 
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-m68k-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1655130093; x=1686666093;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=kRJcWACmO/lwAN79tjxhatvQLKzpV/YPdBZo5g5JtF4=;
+  b=Ilxw8Xw2W7MusTNqmJ+s0Uz+bLzQzZ3jhilka9H0oN4yHst6U+MfWoKB
+   ywRhtSZMzgu7n/E8qH3qsXUF+snSIOalZY/VcEirFrW+tWov2qD73wnsX
+   TOcmB6fK/mcFh4BIsfi1o3FtWgVt/OTiJHpVXK7FQuYb2GjC0ouv0hbvU
+   ot/V/fz2M7Q5yefBLLZt98Zd6j1oNKEa/6eMpnYEnnRDXYu7Ix2X6KxGj
+   tEizP98o3RZI/R+MM1vCv5pZCzggcGKz6X0xZYEp4TxQgrEqCRss6OCrn
+   pxmnEeDpO0ygQDFtbBqgCoUMtWaA8ZmjpShIOnsdKAZslBVdI1LtAZGxA
+   A==;
+In-Reply-To: <CANpmjNNZAeMQjzNyXLeKY4cp_m-xJBU1vs7PgT+7_sJwxtEEAg@mail.gmail.com>
+List-ID: <linux-hexagon.vger.kernel.org>
+To: Marco Elver <elver@google.com>
+Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Tony Luck <tony.luck@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Borislav Petkov <bp@suse.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
 
-OMAP4 uses full SoC suspend modes as idle states, as such it needs the
-whole power-domain and clock-domain code from the idle path.
+From: Marco Elver <elver@google.com>
+Date: Fri, 10 Jun 2022 18:32:36 +0200
 
-All that code is not suitable to run with RCU disabled, as such push
-RCU-idle deeper still.
+> On Fri, 10 Jun 2022 at 18:02, Luck, Tony <tony.luck@intel.com> wrote:
+> >
+> > > > +/**
+> > > > + * generic_test_bit - Determine whether a bit is set
+> > > > + * @nr: bit number to test
+> > > > + * @addr: Address to start counting from
+> > > > + */
+> > >
+> > > Shouldn't we add in this or in separate patch a big NOTE to explain that this
+> > > is actually atomic and must be kept as a such?
+> >
+> > "atomic" isn't really the right word. The volatile access makes sure that the
+> > compiler does the test at the point that the source code asked, and doesn't
+> > move it before/after other operations.
+> 
+> It's listed in Documentation/atomic_bitops.txt.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
----
+Oh, so my memory was actually correct that I saw it in the docs
+somewhere.
+WDYT, should I mention this here in the code (block comment) as well
+that it's atomic and must not lose `volatile` as Andy suggested or
+it's sufficient to have it in the docs (+ it's not underscored)?
 
-Peter here's one more for your series, looks like this is needed to avoid
-warnings similar to what you did for omap3.
+> 
+> It is as "atomic" as READ_ONCE() or atomic_read() is. Though you are
+> right that the "atomicity" of reading one bit is almost a given,
+> because we can't really read half a bit.
+> The main thing is that the compiler keeps it "atomic" and e.g. doesn't
+> fuse the load with another or elide it completely, and then transforms
+> the code in concurrency-unfriendly ways.
+> 
+> Like READ_ONCE() and friends, test_bit(), unlike non-atomic bitops,
+> may also be used to dependency-order some subsequent marked (viz.
+> atomic) operations.
+> 
+> > But there is no such thing as an atomic test_bit() operation:
+> >
+> >         if (test_bit(5, addr)) {
+> >                 /* some other CPU nukes bit 5 */
+> >
+> >                 /* I know it was set when I looked, but now, could be anything */
+> 
+> The operation itself is atomic, because reading half a bit is
+> impossible. Whether or not that bit is modified concurrently is a
+> different problem.
+> 
+> Thanks,
+> -- Marco
 
----
- arch/arm/mach-omap2/common.h              |  6 ++++--
- arch/arm/mach-omap2/cpuidle44xx.c         |  8 ++------
- arch/arm/mach-omap2/omap-mpuss-lowpower.c | 12 +++++++++++-
- arch/arm/mach-omap2/pm44xx.c              |  2 +-
- 4 files changed, 18 insertions(+), 10 deletions(-)
-
-diff --git a/arch/arm/mach-omap2/common.h b/arch/arm/mach-omap2/common.h
---- a/arch/arm/mach-omap2/common.h
-+++ b/arch/arm/mach-omap2/common.h
-@@ -284,11 +284,13 @@ extern u32 omap4_get_cpu1_ns_pa_addr(void);
- 
- #if defined(CONFIG_SMP) && defined(CONFIG_PM)
- extern int omap4_mpuss_init(void);
--extern int omap4_enter_lowpower(unsigned int cpu, unsigned int power_state);
-+extern int omap4_enter_lowpower(unsigned int cpu, unsigned int power_state,
-+				bool rcuidle);
- extern int omap4_hotplug_cpu(unsigned int cpu, unsigned int power_state);
- #else
- static inline int omap4_enter_lowpower(unsigned int cpu,
--					unsigned int power_state)
-+					unsigned int power_state,
-+					bool rcuidle)
- {
- 	cpu_do_idle();
- 	return 0;
-diff --git a/arch/arm/mach-omap2/cpuidle44xx.c b/arch/arm/mach-omap2/cpuidle44xx.c
---- a/arch/arm/mach-omap2/cpuidle44xx.c
-+++ b/arch/arm/mach-omap2/cpuidle44xx.c
-@@ -105,9 +105,7 @@ static int omap_enter_idle_smp(struct cpuidle_device *dev,
- 	}
- 	raw_spin_unlock_irqrestore(&mpu_lock, flag);
- 
--	cpuidle_rcu_enter();
--	omap4_enter_lowpower(dev->cpu, cx->cpu_state);
--	cpuidle_rcu_exit();
-+	omap4_enter_lowpower(dev->cpu, cx->cpu_state, true);
- 
- 	raw_spin_lock_irqsave(&mpu_lock, flag);
- 	if (cx->mpu_state_vote == num_online_cpus())
-@@ -186,10 +184,8 @@ static int omap_enter_idle_coupled(struct cpuidle_device *dev,
- 		}
- 	}
- 
--	cpuidle_rcu_enter();
--	omap4_enter_lowpower(dev->cpu, cx->cpu_state);
-+	omap4_enter_lowpower(dev->cpu, cx->cpu_state, true);
- 	cpu_done[dev->cpu] = true;
--	cpuidle_rcu_exit();
- 
- 	/* Wakeup CPU1 only if it is not offlined */
- 	if (dev->cpu == 0 && cpumask_test_cpu(1, cpu_online_mask)) {
-diff --git a/arch/arm/mach-omap2/omap-mpuss-lowpower.c b/arch/arm/mach-omap2/omap-mpuss-lowpower.c
---- a/arch/arm/mach-omap2/omap-mpuss-lowpower.c
-+++ b/arch/arm/mach-omap2/omap-mpuss-lowpower.c
-@@ -33,6 +33,7 @@
-  * and first to wake-up when MPUSS low power states are excercised
-  */
- 
-+#include <linux/cpuidle.h>
- #include <linux/kernel.h>
- #include <linux/io.h>
- #include <linux/errno.h>
-@@ -214,6 +215,7 @@ static void __init save_l2x0_context(void)
-  * of OMAP4 MPUSS subsystem
-  * @cpu : CPU ID
-  * @power_state: Low power state.
-+ * @rcuidle: RCU needs to be idled
-  *
-  * MPUSS states for the context save:
-  * save_state =
-@@ -222,7 +224,8 @@ static void __init save_l2x0_context(void)
-  *	2 - CPUx L1 and logic lost + GIC lost: MPUSS OSWR
-  *	3 - CPUx L1 and logic lost + GIC + L2 lost: DEVICE OFF
-  */
--int omap4_enter_lowpower(unsigned int cpu, unsigned int power_state)
-+int omap4_enter_lowpower(unsigned int cpu, unsigned int power_state,
-+			 bool rcuidle)
- {
- 	struct omap4_cpu_pm_info *pm_info = &per_cpu(omap4_pm_info, cpu);
- 	unsigned int save_state = 0, cpu_logic_state = PWRDM_POWER_RET;
-@@ -268,6 +271,10 @@ int omap4_enter_lowpower(unsigned int cpu, unsigned int power_state)
- 	cpu_clear_prev_logic_pwrst(cpu);
- 	pwrdm_set_next_pwrst(pm_info->pwrdm, power_state);
- 	pwrdm_set_logic_retst(pm_info->pwrdm, cpu_logic_state);
-+
-+	if (rcuidle)
-+		cpuidle_rcu_enter();
-+
- 	set_cpu_wakeup_addr(cpu, __pa_symbol(omap_pm_ops.resume));
- 	omap_pm_ops.scu_prepare(cpu, power_state);
- 	l2x0_pwrst_prepare(cpu, save_state);
-@@ -283,6 +290,9 @@ int omap4_enter_lowpower(unsigned int cpu, unsigned int power_state)
- 	if (IS_PM44XX_ERRATUM(PM_OMAP4_ROM_SMP_BOOT_ERRATUM_GICD) && cpu)
- 		gic_dist_enable();
- 
-+	if (rcuidle)
-+		cpuidle_rcu_exit();
-+
- 	/*
- 	 * Restore the CPUx power state to ON otherwise CPUx
- 	 * power domain can transitions to programmed low power
-diff --git a/arch/arm/mach-omap2/pm44xx.c b/arch/arm/mach-omap2/pm44xx.c
---- a/arch/arm/mach-omap2/pm44xx.c
-+++ b/arch/arm/mach-omap2/pm44xx.c
-@@ -76,7 +76,7 @@ static int omap4_pm_suspend(void)
- 	 * domain CSWR is not supported by hardware.
- 	 * More details can be found in OMAP4430 TRM section 4.3.4.2.
- 	 */
--	omap4_enter_lowpower(cpu_id, cpu_suspend_state);
-+	omap4_enter_lowpower(cpu_id, cpu_suspend_state, false);
- 
- 	/* Restore next powerdomain state */
- 	list_for_each_entry(pwrst, &pwrst_list, node) {
--- 
-2.36.1
-
+Thanks,
+Olek
