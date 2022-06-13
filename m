@@ -1,157 +1,59 @@
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
-Subject: Re: [PATCH v2 0/6] bitops: let optimize out non-atomic bitops on compile-time constants
-Date: Mon, 13 Jun 2022 16:26:45 +0200
-Message-ID: <20220613142645.1176423-1-alexandr.lobakin@intel.com>
+From: Marco Elver <elver@google.com>
+Subject: Re: [PATCH v2 2/6] bitops: always define asm-generic non-atomic bitops
+Date: Mon, 13 Jun 2022 16:33:17 +0200
+Message-ID: <CANpmjNM0noP8ieQztyEvijz+MG-cDxxmfwaX_QTpnyT5G33EGA@mail.gmail.com>
 References: <20220610113427.908751-1-alexandr.lobakin@intel.com>
+ <20220610113427.908751-3-alexandr.lobakin@intel.com> <YqNMO0ioGzJ1IkoA@smile.fi.intel.com>
+ <22042c14bc6a437d9c6b235fbfa32c8a@intel.com> <CANpmjNNZAeMQjzNyXLeKY4cp_m-xJBU1vs7PgT+7_sJwxtEEAg@mail.gmail.com>
+ <20220613141947.1176100-1-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1655130497; x=1686666497;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=KP/RtJ4ZbidU6pQAsuDuxGJHOq1DZRgu4MLwVnb1vSc=;
-  b=nZ4f2sDTG15jrz1DGLOnhQHXv3GhUXrvyz47ym57C/DAuKNt7wDDJ0Se
-   3mE8LSmvW3SiDyFth8uXdNANq09zBAuCoOgjLdJJUiKsfKG1NtMEqCquY
-   nYqHUtutoc5XrVutVvFOyshKO4JgjkA5XFWO3YSlFi2gAf67tsEltOHUN
-   duLUeSdv2TbTx6amjXiBl0UKruQtKhj18TsVACiZ+wQ5iMjaqrvnb2Aup
-   RliFsKqg11hMzvijo5XML9KuoVYmHkYKVcRBXohqEad+jVWjII1p/8t/m
-   Ps+PBQIzFVQS7Wv8C/+uKjqiJOQkPt6S/UVilueZMfqJkw6C2zYFbtszk
-   g==;
-In-Reply-To: <CAMuHMdUZCaPN2B6bvmja9rDm3qCc4mYYAOSEB2W0R0pws8peqw@mail.gmail.com>
+Return-path: <linux-alpha-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=KQCwIkwNzwt5T2z3wlATn5QZJXZyj8/g94B/Y2n7Ov8=;
+        b=RsztUVvqZtKDuLU8Lf83jCg2FonaZq3j7tha/V+O/QezKPXwlEvSEPOQX3hz9T78C3
+         3I6j6z1A/Cq6rSJmdFgt0oN6wG+e9xT+Ae9I57CN7NuNV7UAGESXGdpL/0qjMFr6J1AO
+         j5S+6qJRX5emBJ2bfvZ0aKKWa1x9S44BcdWCp78aC5PfePta2erze8nysaY1ttyVO7kx
+         fWJ7ZvaryKTY+6zAJ5UhVNSOJgi3zgc40qe+mrW1Ay0ECDOBytM0OUitt40J2PFHczlR
+         Z86EN3athSadQP2xV0dv7LzAY+7OnBLrfmhcH8PuFvJX/KIQYWgquzO8svWkc7MbNA5h
+         H1mQ==
+In-Reply-To: <20220613141947.1176100-1-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, alpha <linux-alpha@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Alexander Lobakin <alexandr.lobakin@intel.com>
+Cc: Tony Luck <tony.luck@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Borislav Petkov <bp@suse.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 13 Jun 2022 09:35:16 +0200
+On Mon, 13 Jun 2022 at 16:21, Alexander Lobakin
+<alexandr.lobakin@intel.com> wrote:
+>
+> From: Marco Elver <elver@google.com>
+> Date: Fri, 10 Jun 2022 18:32:36 +0200
+>
+> > On Fri, 10 Jun 2022 at 18:02, Luck, Tony <tony.luck@intel.com> wrote:
+> > >
+> > > > > +/**
+> > > > > + * generic_test_bit - Determine whether a bit is set
+> > > > > + * @nr: bit number to test
+> > > > > + * @addr: Address to start counting from
+> > > > > + */
+> > > >
+> > > > Shouldn't we add in this or in separate patch a big NOTE to explain that this
+> > > > is actually atomic and must be kept as a such?
+> > >
+> > > "atomic" isn't really the right word. The volatile access makes sure that the
+> > > compiler does the test at the point that the source code asked, and doesn't
+> > > move it before/after other operations.
+> >
+> > It's listed in Documentation/atomic_bitops.txt.
+>
+> Oh, so my memory was actually correct that I saw it in the docs
+> somewhere.
+> WDYT, should I mention this here in the code (block comment) as well
+> that it's atomic and must not lose `volatile` as Andy suggested or
+> it's sufficient to have it in the docs (+ it's not underscored)?
 
-> Hi Alexander,
-> 
-> On Fri, Jun 10, 2022 at 1:35 PM Alexander Lobakin
-> <alexandr.lobakin@intel.com> wrote:
-> > While I was working on converting some structure fields from a fixed
-> > type to a bitmap, I started observing code size increase not only in
-> > places where the code works with the converted structure fields, but
-> > also where the converted vars were on the stack. That said, the
-> > following code:
-> >
-> >         DECLARE_BITMAP(foo, BITS_PER_LONG) = { }; // -> unsigned long foo[1];
-> >         unsigned long bar = BIT(BAR_BIT);
-> >         unsigned long baz = 0;
-> >
-> >         __set_bit(FOO_BIT, foo);
-> >         baz |=3D BIT(BAZ_BIT);
-> >
-> >         BUILD_BUG_ON(!__builtin_constant_p(test_bit(FOO_BIT, foo));
-> >         BUILD_BUG_ON(!__builtin_constant_p(bar & BAR_BIT));
-> >         BUILD_BUG_ON(!__builtin_constant_p(baz & BAZ_BIT));
-> >
-> > triggers the first assertion on x86_64, which means that the
-> > compiler is unable to evaluate it to a compile-time initializer
-> > when the architecture-specific bitop is used even if it's obvious.
-> > I found that this is due to that many architecture-specific
-> > non-atomic bitop implementations use inline asm or other hacks which
-> > are faster or more robust when working with "real" variables (i.e.
-> > fields from the structures etc.), but the compilers have no clue how
-> > to optimize them out when called on compile-time constants.
-> >
-> > So, in order to let the compiler optimize out such cases, expand the
-> > test_bit() and __*_bit() definitions with a compile-time condition
-> > check, so that they will pick the generic C non-atomic bitop
-> > implementations when all of the arguments passed are compile-time
-> > constants, which means that the result will be a compile-time
-> > constant as well and the compiler will produce more efficient and
-> > simple code in 100% cases (no changes when there's at least one
-> > non-compile-time-constant argument).
-> > The condition itself:
-> >
-> > if (
-> > __builtin_constant_p(nr) &&     /* <- bit position is constant */
-> > __builtin_constant_p(!!addr) && /* <- compiler knows bitmap addr is
-> >                                       always either NULL or not */
-> > addr &&                         /* <- bitmap addr is not NULL */
-> > __builtin_constant_p(*addr)     /* <- compiler knows the value of
-> >                                       the target bitmap */
-> > )
-> >         /* then pick the generic C variant
-> > else
-> >         /* old code path, arch-specific
-> >
-> > I also tried __is_constexpr() as suggested by Andy, but it was
-> > always returning 0 ('not a constant') for the 2,3 and 4th
-> > conditions.
-> >
-> > The savings are architecture, compiler and compiler flags dependent,
-> > for example, on x86_64 -O2:
-> >
-> > GCC 12: add/remove: 78/29 grow/shrink: 332/525 up/down: 31325/-61560 (-30235)
-> > LLVM 13: add/remove: 79/76 grow/shrink: 184/537 up/down: 55076/-141892 (-86816)
-> > LLVM 14: add/remove: 10/3 grow/shrink: 93/138 up/down: 3705/-6992 (-3287)
-> >
-> > and ARM64 (courtesy of Mark[0]):
-> >
-> > GCC 11: add/remove: 92/29 grow/shrink: 933/2766 up/down: 39340/-82580 (-43240)
-> > LLVM 14: add/remove: 21/11 grow/shrink: 620/651 up/down: 12060/-15824 (-3764)
-> >
-> > And the following:
-> >
-> >         DECLARE_BITMAP(flags, __IP_TUNNEL_FLAG_NUM) = { };
-> >         __be16 flags;
-> >
-> >         __set_bit(IP_TUNNEL_CSUM_BIT, flags);
-> >
-> >         tun_flags = cpu_to_be16(*flags & U16_MAX);
-> >
-> >         if (test_bit(IP_TUNNEL_VTI_BIT, flags))
-> >                 tun_flags |= VTI_ISVTI;
-> >
-> >         BUILD_BUG_ON(!__builtin_constant_p(tun_flags));
-> >
-> > doesn't blow up anymore, so that we now can e.g. use fixed bitmaps
-> > in compile-time assertions etc.
-> >
-> > The series has been in intel-next for a while with no reported issues.
-> >
-> > From v1[1]:
-> > * change 'gen_' prefixes to '_generic' to disambiguate from
-> >   'generated' etc. (Mark);
-> > * define a separate 'const_' set to use in the optimization to keep
-> >   the generic test_bit() atomic-safe (Marco);
-> > * unify arch_{test,__*}_bit() as well and include them in the type
-> >   check;
-> > * add more relevant and up-to-date bloat-o-meter results, including
-> >   ARM64 (me, Mark);
-> > * pick a couple '*-by' tags (Mark, Yury).
-> 
-> Thanks for the update!
-> 
-> On m68k, using gcc version 9.4.0 (Ubuntu 9.4.0-1ubuntu1~20.04), this
-> blows up immediately with:
-
-Yeah I saw the kernel bot report already, sorry for that >_< Fixed
-in v3 already, will send in 1-2 days.
-
-> 
->   CC      kernel/bounds.s
-> In file included from include/linux/bits.h:22,
-
-[...]
-
->       | ^~~~~~~~~~~~~~~~
-> 
-> Gr{oetje,eeting}s,
-> 
->                         Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
-
-Thanks,
-Olek
+Perhaps a quick comment in the code (not kerneldoc above) will be
+sufficient, with reference to Documentation/atomic_bitops.txt.
