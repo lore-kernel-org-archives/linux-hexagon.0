@@ -1,59 +1,61 @@
-From: Marco Elver <elver@google.com>
-Subject: Re: [PATCH v2 2/6] bitops: always define asm-generic non-atomic bitops
-Date: Mon, 13 Jun 2022 16:33:17 +0200
-Message-ID: <CANpmjNM0noP8ieQztyEvijz+MG-cDxxmfwaX_QTpnyT5G33EGA@mail.gmail.com>
-References: <20220610113427.908751-1-alexandr.lobakin@intel.com>
- <20220610113427.908751-3-alexandr.lobakin@intel.com> <YqNMO0ioGzJ1IkoA@smile.fi.intel.com>
- <22042c14bc6a437d9c6b235fbfa32c8a@intel.com> <CANpmjNNZAeMQjzNyXLeKY4cp_m-xJBU1vs7PgT+7_sJwxtEEAg@mail.gmail.com>
- <20220613141947.1176100-1-alexandr.lobakin@intel.com>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
+Subject: Re: [PATCH v2 4/6] bitops: define const_*() versions of the non-atomics
+Date: Mon, 13 Jun 2022 16:30:34 +0200
+Message-ID: <20220613143034.1176680-1-alexandr.lobakin@intel.com>
+References: <20220610113427.908751-1-alexandr.lobakin@intel.com> <20220610113427.908751-5-alexandr.lobakin@intel.com> <YqNNjKRja7KelljA@smile.fi.intel.com>
 Mime-Version: 1.0
-Return-path: <linux-alpha-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KQCwIkwNzwt5T2z3wlATn5QZJXZyj8/g94B/Y2n7Ov8=;
-        b=RsztUVvqZtKDuLU8Lf83jCg2FonaZq3j7tha/V+O/QezKPXwlEvSEPOQX3hz9T78C3
-         3I6j6z1A/Cq6rSJmdFgt0oN6wG+e9xT+Ae9I57CN7NuNV7UAGESXGdpL/0qjMFr6J1AO
-         j5S+6qJRX5emBJ2bfvZ0aKKWa1x9S44BcdWCp78aC5PfePta2erze8nysaY1ttyVO7kx
-         fWJ7ZvaryKTY+6zAJ5UhVNSOJgi3zgc40qe+mrW1Ay0ECDOBytM0OUitt40J2PFHczlR
-         Z86EN3athSadQP2xV0dv7LzAY+7OnBLrfmhcH8PuFvJX/KIQYWgquzO8svWkc7MbNA5h
-         H1mQ==
-In-Reply-To: <20220613141947.1176100-1-alexandr.lobakin@intel.com>
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc: Tony Luck <tony.luck@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Borislav Petkov <bp@suse.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-ia64-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1655130745; x=1686666745;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Ujiwlsqt2KBvF1qvv4tJ1iHQFhwag7L0iIc7Ytjnd0s=;
+  b=lsUuFmEZ1hsnq4DkDDWYnAH+0vL3lI1K0PJ+FEMnm7NEjCvk/HkEeGJa
+   X9UWYbHa0Rxm5JHw9PA47BoHbCyxLOU5ZWlC9ivwPSEAt7zJnTSH/LLEe
+   ajIwmWbkbg2RA6DEyMFhal+zn7ehfpubB++WUWpvuCYtANGQgNDmDEZpw
+   OCHHoQrv5w3a2CaLCjwYSLKrwrn6HrcCnElNyyeNxveKwgJDLStApYXHX
+   rP9sxl9Cz3s0vxstU3NajnA3+eLtSYVkvkectRZRV9VRv5dIaFPbWX3Vy
+   DeI6eVNqHQJsrbk+lQeEc0KgZvAwkOOa97MiHNqMJ8B504IGrkVOn2WcG
+   A==;
+In-Reply-To: <YqNNjKRja7KelljA@smile.fi.intel.com>
+List-ID: <linux-hexagon.vger.kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-sh@vger.kernel.org, sp
 
-On Mon, 13 Jun 2022 at 16:21, Alexander Lobakin
-<alexandr.lobakin@intel.com> wrote:
->
-> From: Marco Elver <elver@google.com>
-> Date: Fri, 10 Jun 2022 18:32:36 +0200
->
-> > On Fri, 10 Jun 2022 at 18:02, Luck, Tony <tony.luck@intel.com> wrote:
-> > >
-> > > > > +/**
-> > > > > + * generic_test_bit - Determine whether a bit is set
-> > > > > + * @nr: bit number to test
-> > > > > + * @addr: Address to start counting from
-> > > > > + */
-> > > >
-> > > > Shouldn't we add in this or in separate patch a big NOTE to explain that this
-> > > > is actually atomic and must be kept as a such?
-> > >
-> > > "atomic" isn't really the right word. The volatile access makes sure that the
-> > > compiler does the test at the point that the source code asked, and doesn't
-> > > move it before/after other operations.
-> >
-> > It's listed in Documentation/atomic_bitops.txt.
->
-> Oh, so my memory was actually correct that I saw it in the docs
-> somewhere.
-> WDYT, should I mention this here in the code (block comment) as well
-> that it's atomic and must not lose `volatile` as Andy suggested or
-> it's sufficient to have it in the docs (+ it's not underscored)?
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Date: Fri, 10 Jun 2022 16:56:28 +0300
 
-Perhaps a quick comment in the code (not kerneldoc above) will be
-sufficient, with reference to Documentation/atomic_bitops.txt.
+> On Fri, Jun 10, 2022 at 01:34:25PM +0200, Alexander Lobakin wrote:
+> > Define const_*() variants of the non-atomic bitops to be used when
+> > the input arguments are compile-time constants, so that the compiler
+> > will be always to resolve those to compile-time constants as well.
+> > Those are mostly direct aliases for generic_*() with one exception
+> > for const_test_bit(): the original one is declared atomic-safe and
+> > thus doesn't discard the `volatile` qualifier, so in order to let
+> > optimize the code, define it separately disregarding the qualifier.
+> > Add them to the compile-time type checks as well just in case.
+> 
+> ...
+> 
+> >  /* Check that the bitops prototypes are sane */
+> >  #define __check_bitop_pr(name)						\
+> > -	static_assert(__same_type(arch_##name, generic_##name) &&	\
+> > +	static_assert(__same_type(const_##name, generic_##name) &&	\
+> > +		      __same_type(arch_##name, generic_##name) &&	\
+> >  		      __same_type(name, generic_##name))
+> 
+> Can't it be a one line change and actually keeping ordering at the same time?
+
+Sure. Wanted to sort them "semantically", but it doesn't really make
+any sense in here.
+
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko
+
+Thanks,
+Olek
