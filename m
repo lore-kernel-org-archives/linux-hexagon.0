@@ -1,58 +1,77 @@
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: [PATCH v2 2/6] bitops: always define asm-generic non-atomic
- bitops
-Date: Mon, 13 Jun 2022 21:29:46 +0000
-Message-ID: <5d65491caf6249c8b72c7a6ced95614c@AcuMS.aculab.com>
-References: <20220610113427.908751-1-alexandr.lobakin@intel.com>
- <20220610113427.908751-3-alexandr.lobakin@intel.com>
- <YqNMO0ioGzJ1IkoA@smile.fi.intel.com>
- <22042c14bc6a437d9c6b235fbfa32c8a@intel.com>
- <CANpmjNNZAeMQjzNyXLeKY4cp_m-xJBU1vs7PgT+7_sJwxtEEAg@mail.gmail.com>
- <20220613141947.1176100-1-alexandr.lobakin@intel.com>
- <c82877aa7cc244f2bf0f65dfb2b617e7@intel.com>
+From: Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH 00/36] cpuidle,rcu: Cleanup the mess
+Date: Tue, 14 Jun 2022 12:19:29 +0100
+Message-ID: <YqhuwQjmZyOVSiLI@FVFF77S0Q05N>
+References: <20220608142723.103523089@infradead.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Return-path: <sparclinux-owner@vger.kernel.org>
-In-Reply-To: <c82877aa7cc244f2bf0f65dfb2b617e7@intel.com>
-Content-Language: en-US
+Return-path: <linux-alpha-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20220608142723.103523089@infradead.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: "'Luck, Tony'" <tony.luck@intel.com>, "Lobakin, Alexandr" <alexandr.lobakin@intel.com>, Marco Elver <elver@google.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Borislav Petkov <bp@suse.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-m68k@lists.linux-m6
+Content-Transfer-Encoding: 7bit
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com, ao
 
-From: Luck, Tony
-> Sent: 13 June 2022 17:27
+On Wed, Jun 08, 2022 at 04:27:23PM +0200, Peter Zijlstra wrote:
+> Hi All! (omg so many)
+
+Hi Peter,
+
+Sorry for the delay; my plate has also been rather full recently. I'm beginning
+to page this in now.
+
+> These here few patches mostly clear out the utter mess that is cpuidle vs rcuidle.
 > 
-> >> It's listed in Documentation/atomic_bitops.txt.
-> >
-> > Oh, so my memory was actually correct that I saw it in the docs
-> > somewhere.
-> > WDYT, should I mention this here in the code (block comment) as well
-> > that it's atomic and must not lose `volatile` as Andy suggested or
-> > it's sufficient to have it in the docs (+ it's not underscored)?
+> At the end of the ride there's only 2 real RCU_NONIDLE() users left
 > 
-> I think a comment that the "volatile" is required to prevent re-ordering
-> is enough.
+>   arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
+>   drivers/perf/arm_pmu.c:                 RCU_NONIDLE(armpmu_start(event, PERF_EF_RELOAD));
+
+The latter of these is necessary because apparently PM notifiers are called
+with RCU not watching. Is that still the case today (or at the end of this
+series)? If so, that feels like fertile land for more issues (yaey...). If not,
+we should be able to drop this.
+
+I can go dig into that some more.
+
+>   kernel/cfi.c:   RCU_NONIDLE({
 > 
-> But maybe others are sufficiently clear on the meaning? I once wasted
-> time looking for the non-atomic __test_bit() version (to use in some code
-> that was already protected by a spin lock, so didn't need the overhead
-> of an "atomic" version) before realizing there wasn't a non-atomic one.
+> (the CFI one is likely dead in the kCFI rewrite) and there's only a hand full
+> of trace_.*_rcuidle() left:
+> 
+>   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
+>   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
+>   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, caller_addr);
+>   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
+>   kernel/trace/trace_preemptirq.c:                trace_preempt_enable_rcuidle(a0, a1);
+>   kernel/trace/trace_preemptirq.c:                trace_preempt_disable_rcuidle(a0, a1);
+> 
+> All of them are in 'deprecated' code that is unused for GENERIC_ENTRY.
 
-Does it make any sense for 'test bit' to be atomic?
+I think those are also unused on arm64 too?
 
-I'm not even sure is needs any ordering constraints either.
-The result is always stale - the value can be changed by
-another cpu at any time.
+If not, I can go attack that.
 
-The set/clear atomic bit-ops require a RMW bus cycle - which has
-to be locked (or similar) to avoid corruption.
+> I've touched a _lot_ of code that I can't test and likely broken some of it :/
+> In particular, the whole ARM cpuidle stuff was quite involved with OMAP being
+> the absolute 'winner'.
+> 
+> I'm hoping Mark can help me sort the remaining ARM64 bits as he moves that to
+> GENERIC_ENTRY.
 
-The atomic 'test and set' (etc) are RMW and return a valid state.
+Moving to GENERIC_ENTRY as a whole is going to take a tonne of work
+(refactoring both arm64 and the generic portion to be more amenable to each
+other), but we can certainly move closer to that for the bits that matter here.
 
-	David
+Maybe we want a STRICT_ENTRY option to get rid of all the deprecated stuff that
+we can select regardless of GENERIC_ENTRY to make that easier.
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+> I've also got a note that says ARM64 can probably do a WFE based
+> idle state and employ TIF_POLLING_NRFLAG to avoid some IPIs.
 
+Possibly; I'm not sure how much of a win that'll be given that by default we'll
+have a ~10KHz WFE wakeup from the timer, but we could take a peek.
+
+Thanks,
+Mark.
