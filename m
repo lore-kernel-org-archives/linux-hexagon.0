@@ -1,133 +1,110 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH 00/36] cpuidle,rcu: Cleanup the mess
-Date: Tue, 14 Jun 2022 18:33:00 +0100
-Message-ID: <YqjGTFEWSJGGOjNA@FVFF77S0Q05N>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 34.5/36] cpuidle,omap4: Push RCU-idle into
+ omap4_enter_lowpower()
+Date: Wed, 15 Jun 2022 00:12:06 +0200
+Message-ID: <YqkHto+zgAPs4kQI@worktop.programming.kicks-ass.net>
 References: <20220608142723.103523089@infradead.org>
- <YqhuwQjmZyOVSiLI@FVFF77S0Q05N>
- <Yqi+Nqz1J8wI5GcX@hirez.programming.kicks-ass.net>
+ <20220608144518.073801916@infradead.org>
+ <Yqcv6crSNKuSWoTu@atomide.com>
 Mime-Version: 1.0
 Return-path: <linux-acpi-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=ieYeEcrodnP9d8uMI6KazQ9YDccjAyjy/+PGF5Ov/Sc=; b=OliYmJSibamFQ0oRl2XkG2+oLG
+        eUVxb3PF2WQS3d9O+63gY5P/Th5g3W0k/p07zjSFtfSstgpe5sY3UKPuYKK8U3d61xav16z47xA5h
+        tkNVX1vBm9t+GM0XpJtkUArdAr+6C0D6QPwa3LyJL5W3wePUH4pa4u9UPo+aiZ0VxHDbCXoe4qfJ4
+        E8Y2M6s9A8SopwISJUuliIWAcL2CXospZ4jCBSi0ba1Zs/HL4wyLHhGRHBuILPFIW3paG1eAzYhHw
+        AXd8m8CPomKQfchnKb7uAGftq4wK1SsdTGzKQsjqacjeCk0RsPVRrEJUUy3okfnQk1gM5l81agP/h
+        arzWLEHQ==;
 Content-Disposition: inline
-In-Reply-To: <Yqi+Nqz1J8wI5GcX@hirez.programming.kicks-ass.net>
+In-Reply-To: <Yqcv6crSNKuSWoTu@atomide.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@hansenpartnership.com, deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com, ao
+To: Tony Lindgren <tony@atomide.com>
+Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@hansenpartnership.com, deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@l
 
-On Tue, Jun 14, 2022 at 06:58:30PM +0200, Peter Zijlstra wrote:
-> On Tue, Jun 14, 2022 at 12:19:29PM +0100, Mark Rutland wrote:
-> > On Wed, Jun 08, 2022 at 04:27:23PM +0200, Peter Zijlstra wrote:
-> > > Hi All! (omg so many)
-> > 
-> > Hi Peter,
-> > 
-> > Sorry for the delay; my plate has also been rather full recently. I'm beginning
-> > to page this in now.
+On Mon, Jun 13, 2022 at 03:39:05PM +0300, Tony Lindgren wrote:
+> OMAP4 uses full SoC suspend modes as idle states, as such it needs the
+> whole power-domain and clock-domain code from the idle path.
 > 
-> No worries; we all have too much to do ;-)
+> All that code is not suitable to run with RCU disabled, as such push
+> RCU-idle deeper still.
 > 
-> > > These here few patches mostly clear out the utter mess that is cpuidle vs rcuidle.
-> > > 
-> > > At the end of the ride there's only 2 real RCU_NONIDLE() users left
-> > > 
-> > >   arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
-> > >   drivers/perf/arm_pmu.c:                 RCU_NONIDLE(armpmu_start(event, PERF_EF_RELOAD));
-> > 
-> > The latter of these is necessary because apparently PM notifiers are called
-> > with RCU not watching. Is that still the case today (or at the end of this
-> > series)? If so, that feels like fertile land for more issues (yaey...). If not,
-> > we should be able to drop this.
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
+> ---
 > 
-> That should be fixed; fingers crossed :-)
+> Peter here's one more for your series, looks like this is needed to avoid
+> warnings similar to what you did for omap3.
 
-Cool; I'll try to give that a spin when I'm sat next to some relevant hardware. :)
+Thanks Tony!
 
-> > >   kernel/cfi.c:   RCU_NONIDLE({
-> > > 
-> > > (the CFI one is likely dead in the kCFI rewrite) and there's only a hand full
-> > > of trace_.*_rcuidle() left:
-> > > 
-> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
-> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
-> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, caller_addr);
-> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
-> > >   kernel/trace/trace_preemptirq.c:                trace_preempt_enable_rcuidle(a0, a1);
-> > >   kernel/trace/trace_preemptirq.c:                trace_preempt_disable_rcuidle(a0, a1);
-> > > 
-> > > All of them are in 'deprecated' code that is unused for GENERIC_ENTRY.
-> > I think those are also unused on arm64 too?
-> > 
-> > If not, I can go attack that.
-> 
-> My grep spots:
-> 
-> arch/arm64/kernel/entry-common.c:               trace_hardirqs_on();
-> arch/arm64/include/asm/daifflags.h:     trace_hardirqs_off();
-> arch/arm64/include/asm/daifflags.h:             trace_hardirqs_off();
+I've had a brief look at omap2_pm_idle() and do I understand it right
+that something like the below patch would reduce it to a simple 'WFI'?
 
-Ah; I hadn't realised those used trace_.*_rcuidle() behind the scenes.
+What do I do with the rest of that code, because I don't think this
+thing has a cpuidle driver to take over, effectively turning it into
+dead code.
 
-That affects local_irq_{enable,disable,restore}() too (which is what the
-daifflags.h bits are emulating), and also the generic entry code's
-irqentry_exit().
-
-So it feels to me like we should be fixing those more generally? e.g. say that
-with a new STRICT_ENTRY[_RCU], we can only call trace_hardirqs_{on,off}() with
-RCU watching, and alter the definition of those?
-
-> The _on thing should be replaced with something like:
-> 
-> 	trace_hardirqs_on_prepare();
-> 	lockdep_hardirqs_on_prepare();
-> 	instrumentation_end();
-> 	rcu_irq_exit();
-> 	lockdep_hardirqs_on(CALLER_ADDR0);
-> 
-> (as I think you know, since you have some of that already). And
-> something similar for the _off thing, but with _off_finish().
-
-Sure; I knew that was necessary for the outermost parts of entry (and I think
-that's all handled), I just hadn't realised that trace_hardirqs_{on,off} did
-the rcuidle thing in the middle.
-
-It'd be nice to not have to open-code the whole sequence everywhere for the
-portions which run after entry and are instrumentable, so (as above) I reckon
-we want to make trace_hardirqs_{on,off}() not do the rcuidle part
-unnecessarily (which IIUC is an end-goal anyway)?
-
-> > > I've touched a _lot_ of code that I can't test and likely broken some of it :/
-> > > In particular, the whole ARM cpuidle stuff was quite involved with OMAP being
-> > > the absolute 'winner'.
-> > > 
-> > > I'm hoping Mark can help me sort the remaining ARM64 bits as he moves that to
-> > > GENERIC_ENTRY.
-> > 
-> > Moving to GENERIC_ENTRY as a whole is going to take a tonne of work
-> > (refactoring both arm64 and the generic portion to be more amenable to each
-> > other), but we can certainly move closer to that for the bits that matter here.
-> 
-> I know ... been there etc.. :-)
-> 
-> > Maybe we want a STRICT_ENTRY option to get rid of all the deprecated stuff that
-> > we can select regardless of GENERIC_ENTRY to make that easier.
-> 
-> Possible yeah.
-> 
-> > > I've also got a note that says ARM64 can probably do a WFE based
-> > > idle state and employ TIF_POLLING_NRFLAG to avoid some IPIs.
-> > 
-> > Possibly; I'm not sure how much of a win that'll be given that by default we'll
-> > have a ~10KHz WFE wakeup from the timer, but we could take a peek.
-> 
-> Ohh.. I didn't know it woke up *that* often. I just know Will made use
-> of it in things like smp_cond_load_relaxed() which would be somewhat
-> similar to a very shallow idle state that looks at the TIF word.
-
-We'll get some saving, I'm just not sure where that falls on the curve of idle
-states. FWIW the wakeup *can* be disabled (and it'd be nice to when we have
-WFxT instructions which take a timeout), it jsut happens to be on by default
-for reasons.
-
-Thanks,
-Mark.
+--- a/arch/arm/mach-omap2/pm24xx.c
++++ b/arch/arm/mach-omap2/pm24xx.c
+@@ -126,10 +126,20 @@ static int omap2_allow_mpu_retention(voi
+ 	return 1;
+ }
+ 
+-static void omap2_enter_mpu_retention(void)
++static void omap2_do_wfi(void)
+ {
+ 	const int zero = 0;
+ 
++	/* WFI */
++	asm("mcr p15, 0, %0, c7, c0, 4" : : "r" (zero) : "memory", "cc");
++}
++
++#if 0
++/*
++ * possible cpuidle implementation between WFI and full_retention above
++ */
++static void omap2_enter_mpu_retention(void)
++{
+ 	/* The peripherals seem not to be able to wake up the MPU when
+ 	 * it is in retention mode. */
+ 	if (omap2_allow_mpu_retention()) {
+@@ -146,8 +157,7 @@ static void omap2_enter_mpu_retention(vo
+ 		pwrdm_set_next_pwrst(mpu_pwrdm, PWRDM_POWER_ON);
+ 	}
+ 
+-	/* WFI */
+-	asm("mcr p15, 0, %0, c7, c0, 4" : : "r" (zero) : "memory", "cc");
++	omap2_do_wfi();
+ 
+ 	pwrdm_set_next_pwrst(mpu_pwrdm, PWRDM_POWER_ON);
+ }
+@@ -161,6 +171,7 @@ static int omap2_can_sleep(void)
+ 
+ 	return 1;
+ }
++#endif
+ 
+ static void omap2_pm_idle(void)
+ {
+@@ -169,6 +180,7 @@ static void omap2_pm_idle(void)
+ 	if (omap_irq_pending())
+ 		return;
+ 
++#if 0
+ 	error = cpu_cluster_pm_enter();
+ 	if (error || !omap2_can_sleep()) {
+ 		omap2_enter_mpu_retention();
+@@ -179,6 +191,9 @@ static void omap2_pm_idle(void)
+ 
+ out_cpu_cluster_pm:
+ 	cpu_cluster_pm_exit();
++#else
++	omap2_do_wfi();
++#endif
+ }
+ 
+ static void __init prcm_setup_regs(void)
