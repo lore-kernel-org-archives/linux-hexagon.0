@@ -1,16 +1,15 @@
 From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH 15/36] cpuidle,cpu_pm: Remove RCU fiddling from
- cpu_pm_{enter,exit}()
-Date: Tue, 14 Jun 2022 17:13:16 +0100
-Message-ID: <YqiznJL7qB9uSQ9c@FVFF77S0Q05N>
+Subject: Re: [PATCH 16/36] rcu: Fix rcu_idle_exit()
+Date: Tue, 14 Jun 2022 17:14:57 +0100
+Message-ID: <Yqi0AVZmI5GyVpNa@FVFF77S0Q05N>
 References: <20220608142723.103523089@infradead.org>
- <20220608144516.871305980@infradead.org>
+ <20220608144516.935970247@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20220608144516.871305980@infradead.org>
+In-Reply-To: <20220608144516.935970247@infradead.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,65 +23,50 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org, linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, catalin.marinas@arm.com, xen-devel@lists.xenproject.org, mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, jiangshanlai@gmail.com, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, rth@twiddle.net, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, paul
 
-On Wed, Jun 08, 2022 at 04:27:38PM +0200, Peter Zijlstra wrote:
-> All callers should still have RCU enabled.
-
-IIUC with that true we should be able to drop the RCU_NONIDLE() from
-drivers/perf/arm_pmu.c, as we only needed that for an invocation via a pm
-notifier.
-
-I should be able to give that a spin on some hardware.
-
+On Wed, Jun 08, 2022 at 04:27:39PM +0200, Peter Zijlstra wrote:
+> Current rcu_idle_exit() is terminally broken because it uses
+> local_irq_{save,restore}(), which are traced which uses RCU.
+> 
+> However, now that all the callers are sure to have IRQs disabled, we
+> can remove these calls.
 > 
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  kernel/cpu_pm.c |    9 ---------
->  1 file changed, 9 deletions(-)
-> 
-> --- a/kernel/cpu_pm.c
-> +++ b/kernel/cpu_pm.c
-> @@ -30,16 +30,9 @@ static int cpu_pm_notify(enum cpu_pm_eve
->  {
->  	int ret;
->  
-> -	/*
-> -	 * This introduces a RCU read critical section, which could be
-> -	 * disfunctional in cpu idle. Copy RCU_NONIDLE code to let RCU know
-> -	 * this.
-> -	 */
-> -	rcu_irq_enter_irqson();
->  	rcu_read_lock();
->  	ret = raw_notifier_call_chain(&cpu_pm_notifier.chain, event, NULL);
->  	rcu_read_unlock();
-> -	rcu_irq_exit_irqson();
+> Acked-by: Paul E. McKenney <paulmck@kernel.org>
 
-To make this easier to debug, is it worth adding an assertion that RCU is
-watching here? e.g.
+Acked-by: Mark Rutland <mark.rutland@arm.com>
 
-	RCU_LOCKDEP_WARN(!rcu_is_watching(),
-			 "cpu_pm_notify() used illegally from EQS");
-
->  
->  	return notifier_to_errno(ret);
->  }
-> @@ -49,11 +42,9 @@ static int cpu_pm_notify_robust(enum cpu
->  	unsigned long flags;
->  	int ret;
->  
-> -	rcu_irq_enter_irqson();
->  	raw_spin_lock_irqsave(&cpu_pm_notifier.lock, flags);
->  	ret = raw_notifier_call_chain_robust(&cpu_pm_notifier.chain, event_up, event_down, NULL);
->  	raw_spin_unlock_irqrestore(&cpu_pm_notifier.lock, flags);
-> -	rcu_irq_exit_irqson();
-
-
-... and likewise here?
-
-Thanks,
 Mark.
 
->  
->  	return notifier_to_errno(ret);
+> ---
+>  kernel/rcu/tree.c |    9 +++------
+>  1 file changed, 3 insertions(+), 6 deletions(-)
+> 
+> --- a/kernel/rcu/tree.c
+> +++ b/kernel/rcu/tree.c
+> @@ -659,7 +659,7 @@ static noinstr void rcu_eqs_enter(bool u
+>   * If you add or remove a call to rcu_idle_enter(), be sure to test with
+>   * CONFIG_RCU_EQS_DEBUG=y.
+>   */
+> -void rcu_idle_enter(void)
+> +void noinstr rcu_idle_enter(void)
+>  {
+>  	lockdep_assert_irqs_disabled();
+>  	rcu_eqs_enter(false);
+> @@ -896,13 +896,10 @@ static void noinstr rcu_eqs_exit(bool us
+>   * If you add or remove a call to rcu_idle_exit(), be sure to test with
+>   * CONFIG_RCU_EQS_DEBUG=y.
+>   */
+> -void rcu_idle_exit(void)
+> +void noinstr rcu_idle_exit(void)
+>  {
+> -	unsigned long flags;
+> -
+> -	local_irq_save(flags);
+> +	lockdep_assert_irqs_disabled();
+>  	rcu_eqs_exit(false);
+> -	local_irq_restore(flags);
 >  }
+>  EXPORT_SYMBOL_GPL(rcu_idle_exit);
+>  
 > 
 > 
