@@ -1,107 +1,67 @@
 From: Yury Norov <yury.norov@gmail.com>
-Subject: Re: [PATCH v2 4/6] bitops: define const_*() versions of the
- non-atomics
-Date: Tue, 14 Jun 2022 19:57:43 -0700
-Message-ID: <YqlKpwjQ4Hu+Lr8u@yury-laptop>
+Subject: Re: [PATCH v2 1/6] ia64, processor: fix -Wincompatible-pointer-types
+ in ia64_get_irr()
+Date: Tue, 14 Jun 2022 19:59:51 -0700
+Message-ID: <YqlLJ2IHAIn4kv8Z@yury-laptop>
 References: <20220610113427.908751-1-alexandr.lobakin@intel.com>
- <20220610113427.908751-5-alexandr.lobakin@intel.com>
+ <20220610113427.908751-2-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=ls3qnOc3Y8ik7fKx57iztJUjc3L1QowbApEutA1WMAM=;
-        b=D+5npGiiuE3tRYO8NhlD6qhHvcccG8Vxfnv6wfrSVuKzX7LyVC4KT9zql8SPiKUIxI
-         8FNDjNNBwMD/dn55TSvmtyrbYhBz+80Pg17k0lWHU6mKosqKTeGKv2N80Uy5nUKXpjLb
-         HqPsQ9rHG6pk693Wuq5M7P/HHFcaAqU3Mnw15XB9A7Cy4pqAs0912OYP7J1EQMKE9Pbz
-         Ko4FsA2HMLxcR+DQLSYuI1U13ZqSIcAblkDZ+u02usZBsfMDi3kb3Si39YITI3LczE0V
-         g2OuLpHyxbiURFKAfc13ksdi0gTez8MJ+lkA51ElWu50xSz4Q3cmIwWwjJxDMpukzg4p
-         qtWg==
+        bh=C3J+GQznuUXQiI93tyU1L6VthWT10VpFAq9aJ2OnWJU=;
+        b=VxJHgVuTjo2QD8B+BMaw/XmEu/z4sSdLVz7HNg6xmOpYjwn3pGdVQI7lQCwRks73/I
+         1KjHe0NB2gRsWl4+hPX4OhKVJyktyBMLnd2LT8juToOmEO5i3rvmtB+++fza7ToBxrQt
+         5NeeJ5cakoQNoZB12wMYgYTCIU19/FDw+LH9tWV9R5EIoFyFTsq55nWj2KBAIR3OI5H+
+         79r9rrjnDPyu+IV8GJFsAIqE0Y6pADHlW6V4fwV5Vqk202mKvPwPgl/GwMyZE34t3EmT
+         QBZP0ntWkjGNdPep+XEH5HuL1rvtQ2KtDtr4AaudCmLcNdAcis2BQv5b5fLr4f7hSY1U
+         NrGQ==
 Content-Disposition: inline
-In-Reply-To: <20220610113427.908751-5-alexandr.lobakin@intel.com>
+In-Reply-To: <20220610113427.908751-2-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Alexander Lobakin <alexandr.lobakin@intel.com>
 Cc: Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch
 
-On Fri, Jun 10, 2022 at 01:34:25PM +0200, Alexander Lobakin wrote:
-> Define const_*() variants of the non-atomic bitops to be used when
-> the input arguments are compile-time constants, so that the compiler
-> will be always to resolve those to compile-time constants as well.
-
-will be always able?
-
-> Those are mostly direct aliases for generic_*() with one exception
-> for const_test_bit(): the original one is declared atomic-safe and
-> thus doesn't discard the `volatile` qualifier, so in order to let
-> optimize the code, define it separately disregarding the qualifier.
-> Add them to the compile-time type checks as well just in case.
+On Fri, Jun 10, 2022 at 01:34:22PM +0200, Alexander Lobakin wrote:
+> test_bit(), as any other bitmap op, takes `unsigned long *` as a
+> second argument (pointer to the actual bitmap), as any bitmap
+> itself is an array of unsigned longs. However, the ia64_get_irr()
+> code passes a ref to `u64` as a second argument.
+> This works with the ia64 bitops implementation due to that they
+> have `void *` as the second argument and then cast it later on.
+> This works with the bitmap API itself due to that `unsigned long`
+> has the same size on ia64 as `u64` (`unsigned long long`), but
+> from the compiler PoV those two are different.
+> Define @irr as `unsigned long` to fix that. That implies no
+> functional changes. Has been hidden for 16 years!
 > 
-> Suggested-by: Marco Elver <elver@google.com>
+> Fixes: a58786917ce2 ("[IA64] avoid broken SAL_CACHE_FLUSH implementations")
+> Cc: stable@vger.kernel.org # 2.6.16+
+> Reported-by: kernel test robot <lkp@intel.com>
 > Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+
+Reviewed-by: Yury Norov <yury.norov@gmail.com>
+
 > ---
->  .../asm-generic/bitops/generic-non-atomic.h   | 31 +++++++++++++++++++
->  include/linux/bitops.h                        |  3 +-
->  2 files changed, 33 insertions(+), 1 deletion(-)
+>  arch/ia64/include/asm/processor.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/include/asm-generic/bitops/generic-non-atomic.h b/include/asm-generic/bitops/generic-non-atomic.h
-> index 3ce0fa0ab35f..9a77babfff35 100644
-> --- a/include/asm-generic/bitops/generic-non-atomic.h
-> +++ b/include/asm-generic/bitops/generic-non-atomic.h
-> @@ -121,4 +121,35 @@ generic_test_bit(unsigned long nr, const volatile unsigned long *addr)
->  	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
->  }
+> diff --git a/arch/ia64/include/asm/processor.h b/arch/ia64/include/asm/processor.h
+> index 7cbce290f4e5..757c2f6d8d4b 100644
+> --- a/arch/ia64/include/asm/processor.h
+> +++ b/arch/ia64/include/asm/processor.h
+> @@ -538,7 +538,7 @@ ia64_get_irr(unsigned int vector)
+>  {
+>  	unsigned int reg = vector / 64;
+>  	unsigned int bit = vector % 64;
+> -	u64 irr;
+> +	unsigned long irr;
 >  
-> +/*
-> + * const_*() definitions provide good compile-time optimizations when
-> + * the passed arguments can be resolved at compile time.
-> + */
-> +#define const___set_bit			generic___set_bit
-> +#define const___clear_bit		generic___clear_bit
-> +#define const___change_bit		generic___change_bit
-> +#define const___test_and_set_bit	generic___test_and_set_bit
-> +#define const___test_and_clear_bit	generic___test_and_clear_bit
-> +#define const___test_and_change_bit	generic___test_and_change_bit
-> +
-> +/**
-> + * const_test_bit - Determine whether a bit is set
-> + * @nr: bit number to test
-> + * @addr: Address to start counting from
-> + *
-> + * A version of generic_test_bit() which discards the `volatile` qualifier to
-> + * allow the compiler to optimize code harder. Non-atomic and to be used only
-> + * for testing compile-time constants, e.g. from the corresponding macro, or
-> + * when you really know what you are doing.
-
-Not sure I understand the last sentence... Can you please rephrase?
-
-> + */
-> +static __always_inline bool
-> +const_test_bit(unsigned long nr, const volatile unsigned long *addr)
-> +{
-> +	const unsigned long *p = (const unsigned long *)addr + BIT_WORD(nr);
-> +	unsigned long mask = BIT_MASK(nr);
-> +	unsigned long val = *p;
-> +
-> +	return !!(val & mask);
-> +}
-> +
->  #endif /* __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H */
-> diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-> index 87087454a288..51c22b8667b4 100644
-> --- a/include/linux/bitops.h
-> +++ b/include/linux/bitops.h
-> @@ -36,7 +36,8 @@ extern unsigned long __sw_hweight64(__u64 w);
->  
->  /* Check that the bitops prototypes are sane */
->  #define __check_bitop_pr(name)						\
-> -	static_assert(__same_type(arch_##name, generic_##name) &&	\
-> +	static_assert(__same_type(const_##name, generic_##name) &&	\
-> +		      __same_type(arch_##name, generic_##name) &&	\
->  		      __same_type(name, generic_##name))
->  
->  __check_bitop_pr(__set_bit);
+>  	switch (reg) {
+>  	case 0: irr = ia64_getreg(_IA64_REG_CR_IRR0); break;
 > -- 
 > 2.36.1
