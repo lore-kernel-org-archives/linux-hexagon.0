@@ -1,82 +1,63 @@
-From: Marco Elver <elver@google.com>
-Subject: Re: [PATCH v2 2/6] bitops: always define asm-generic non-atomic bitops
-Date: Wed, 15 Jun 2022 09:46:15 +0200
-Message-ID: <CANpmjNMd+r9Hq+vwWGoNhOg_W=x3Umo+i14TRvEMz6PhcHgXWQ@mail.gmail.com>
-References: <20220610113427.908751-1-alexandr.lobakin@intel.com>
- <20220610113427.908751-3-alexandr.lobakin@intel.com> <YqNMO0ioGzJ1IkoA@smile.fi.intel.com>
- <22042c14bc6a437d9c6b235fbfa32c8a@intel.com> <CANpmjNNZAeMQjzNyXLeKY4cp_m-xJBU1vs7PgT+7_sJwxtEEAg@mail.gmail.com>
- <20220613141947.1176100-1-alexandr.lobakin@intel.com> <CANpmjNM0noP8ieQztyEvijz+MG-cDxxmfwaX_QTpnyT5G33EGA@mail.gmail.com>
- <YqlITqttNYqT/xpN@yury-laptop>
+From: Petr Mladek <pmladek-IBi9RG/b67k@public.gmane.org>
+Subject: Re: [PATCH 0/5] kallsyms: make kallsym APIs more safe with scnprintf
+Date: Wed, 15 Jun 2022 10:01:57 +0200
+Message-ID: <YqmR9ZeiwMQLyKDu@alley>
+References: <CGME20220520083715epcas5p400b11adef4d540756c985feb20ba29bc@epcas5p4.samsung.com>
+ <20220520083701.2610975-1-maninder1.s@samsung.com>
+ <YonTOL4zC4CytVrn@infradead.org>
+ <202205231238.FAF6D28@keescook>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=6TunYOqloBF4qLChlgaS7iv3LW3vD06QMv7vYl8gqBE=;
-        b=i2CcqUtrsIDkjaoSSAE5LJhiUeUlJuVADv1ngNNW36lXa09SoQcpveMkDEKuHpN1nK
-         OSTwc5GQA1cqqaDU8xoKdGf4VNibWkBZs9lkprQc81915FZ28b+H0OiKrwIrp8m9ecHh
-         OiQMFa6k9NgB2vpeqWO5iSFhzJOjrI3JaCBFzs55F40LdKMNz+QMAItb9zjeLNzsMn82
-         i9IFvhjQDrz11c26V+4BzMXa+YIGzcEq276G5oduvKPOYUdPT3NvAs3AAmiF2gLaCs6C
-         uNxnPmdvvksW8dsvscU7IRW0MAWz7UOtkH/7pQAMI8UW5cdoHzte4JFOFBr4G+NekyNW
-         bpDQ==
-In-Reply-To: <YqlITqttNYqT/xpN@yury-laptop>
+Return-path: <linux-modules-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1655280119; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=DaM9M2rnjrvdQGQ7RvZB3kRvN0KL8OK3uY7jsfFlhwM=;
+        b=qRtiw/EwzIsZzY7D7oh0BeOfU6iIQ38xDbUtfQXTtdaPPWK3B2vJeEb6IIHEt7MxZ3zKcC
+        dfyx4Mc4tIb/eF0FliF28q8hNk+hU2TEYFUekYuM8cDMqgo0Awx7lmNgOzPGeK/9Q2qhBN
+        CjKBFgcYgu+XVY7XBl81AW22w0F/oCg=
+Content-Disposition: inline
+In-Reply-To: <202205231238.FAF6D28@keescook>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Yury Norov <yury.norov@gmail.com>
-Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Tony Luck <tony.luck@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Borislav Petkov <bp@suse.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vg>
+To: Kees Cook <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Christoph Hellwig <hch-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Maninder Singh <maninder1.s-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, bcain-jfJNa2p1gH1BDgjK7y7TUQ@public.gmane.org, mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org, hca-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org, gor-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org, agordeev-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org, borntraeger-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org, svens-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org, satishkh-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org, sebaddel-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org, kartilak-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org, jejb-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org, martin.petersen-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org, mcgrof-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jason.wessel-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org, daniel.thompson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, naveen.n.rao-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org, anil.s.keshavamurthy-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, mhiramat-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, mingo-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, longman-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, boqun.feng-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rostedt-nx8X9YLhiw1AfugRpC6u6w@public.gmane.org, senozhatsky-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-qQsb+v5E8BnlAoU/VqSP6n9LOBIZ5rWg@public.gmane.org
 
-On Wed, 15 Jun 2022 at 04:47, Yury Norov <yury.norov@gmail.com> wrote:
->
-> On Mon, Jun 13, 2022 at 04:33:17PM +0200, Marco Elver wrote:
-> > On Mon, 13 Jun 2022 at 16:21, Alexander Lobakin
-> > <alexandr.lobakin@intel.com> wrote:
-> > >
-> > > From: Marco Elver <elver@google.com>
-> > > Date: Fri, 10 Jun 2022 18:32:36 +0200
-> > >
-> > > > On Fri, 10 Jun 2022 at 18:02, Luck, Tony <tony.luck@intel.com> wrote:
-> > > > >
-> > > > > > > +/**
-> > > > > > > + * generic_test_bit - Determine whether a bit is set
-> > > > > > > + * @nr: bit number to test
-> > > > > > > + * @addr: Address to start counting from
-> > > > > > > + */
-> > > > > >
-> > > > > > Shouldn't we add in this or in separate patch a big NOTE to explain that this
-> > > > > > is actually atomic and must be kept as a such?
-> > > > >
-> > > > > "atomic" isn't really the right word. The volatile access makes sure that the
-> > > > > compiler does the test at the point that the source code asked, and doesn't
-> > > > > move it before/after other operations.
-> > > >
-> > > > It's listed in Documentation/atomic_bitops.txt.
-> > >
-> > > Oh, so my memory was actually correct that I saw it in the docs
-> > > somewhere.
-> > > WDYT, should I mention this here in the code (block comment) as well
-> > > that it's atomic and must not lose `volatile` as Andy suggested or
-> > > it's sufficient to have it in the docs (+ it's not underscored)?
-> >
-> > Perhaps a quick comment in the code (not kerneldoc above) will be
-> > sufficient, with reference to Documentation/atomic_bitops.txt.
->
-> If it may help, we can do:
->
-> /*
->  * Bit testing is a naturally atomic operation because bit is
->  * a minimal quantum of information.
->  */
-> #define __test_bit test_bit
+On Mon 2022-05-23 12:39:12, Kees Cook wrote:
+> On Sat, May 21, 2022 at 11:07:52PM -0700, Christoph Hellwig wrote:
+> > On Fri, May 20, 2022 at 02:06:56PM +0530, Maninder Singh wrote:
+> > > kallsyms functionality depends on KSYM_NAME_LEN directly.
+> > > but if user passed array length lesser than it, sprintf
+> > > can cause issues of buffer overflow attack.
+> > > 
+> > > So changing *sprint* and *lookup* APIs in this patch set
+> > > to have buffer size as an argument and replacing sprintf with
+> > > scnprintf.
+> > 
+> > This is still a pretty horrible API.  Passing something like
+> > a struct seq_buf seems like the much better API here.  Also with
+> > the amount of arguments and by reference passing it might be worth
+> > to pass them as a structure while you're at it.
+> 
+> Yeah, I agree. It really seems like seq_buf would be nicer.
 
-That's redundant and we'll end up with a random mix of both.
+There is a new patchset that is trying to use this kind of buffer
+in vsprintf.
 
-What'd be more interesting is having a __test_bit without the volatile
-that allows compilers to optimize things more. But I think that also
-becomes mostly redundant with the optimizations that this series seeks
-out to do.
+It introduces another buffer struct because vsprintf() needs a bit
+different semantic than the one used in seq_buf. But it actually
+replaces seq_buf() in the end. I am not sure if this is the right
+approach.
 
-The distinction is ever so subtle, and clever compilers *will* break
-concurrent code in ways that are rather hard to imagine:
-https://lwn.net/Articles/793253/
+Anyway, the initial API is very simple, see
+https://lore.kernel.org/r/20220604193042.1674951-2-kent.overstreet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+
+And it makes the internal vsprintf() API more sane, see
+https://lore.kernel.org/r/20220604193042.1674951-4-kent.overstreet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+
+It would eventually solve also concerns about the kallsysms API.
+Any comments on the new printbuf API are much appreaciated.
+
+Best Regards,
+Petr
