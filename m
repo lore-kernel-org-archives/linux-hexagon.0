@@ -1,115 +1,131 @@
-From: Yury Norov <yury.norov@gmail.com>
-Subject: Re: [PATCH v2 6/6] bitops: let optimize out non-atomic bitops on
- compile-time constants
-Date: Tue, 14 Jun 2022 20:26:54 -0700
-Message-ID: <YqlRfoB5+VBIw8gJ@yury-laptop>
-References: <20220610113427.908751-1-alexandr.lobakin@intel.com>
- <20220610113427.908751-7-alexandr.lobakin@intel.com>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH 34.5/36] cpuidle,omap4: Push RCU-idle into
+ omap4_enter_lowpower()
+Date: Wed, 15 Jun 2022 08:35:38 +0300
+Message-ID: <YqlvqhdlFsNvUBeG@atomide.com>
+References: <20220608142723.103523089@infradead.org>
+ <20220608144518.073801916@infradead.org>
+ <Yqcv6crSNKuSWoTu@atomide.com>
+ <YqkHto+zgAPs4kQI@worktop.programming.kicks-ass.net>
 Mime-Version: 1.0
-Return-path: <linux-ia64-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Q2BMd5PQI/AN3W5kxMglFR7hp5GiYxPCuJsRFhG3zU0=;
-        b=NrbTIj9uosp/fBmWwEhojKx49KKtr/6VlileB+SXfC0XY9lv7WwMdRcn1I5aVe3RGK
-         gAQ0iuYC5bbbg4b/hH0sxr/MGzujxQVNhV95YeupbmAHDJbTdhJ32sR/jqLzx0agtx8U
-         aewJifOXqdx8EMaDoN0W3fDFSltOtXmH51jePLoIPjx2+65IO15qNBGRLnT2GtU9Frsf
-         2t/SGUNsUbqEdHPREitJ/RGJ2Nr4o8hnTBn9EeloM1gR65GNF2ZaTLq1aBGWtKVIJtjL
-         NPuDrE90hwtb5AM8LI6bV9w7PjIPnDYbOTddZk24Hm6V7v/v4bgH0LybLN6nQXLXqdJ9
-         tH4g==
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20220610113427.908751-7-alexandr.lobakin@intel.com>
+In-Reply-To: <YqkHto+zgAPs4kQI-IIpfhp3q70z/8w/KjCw3T+5/BudmfyzbbVWyRVo5IupeoWH0uzbU5w@public.gmane.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch
+To: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Cc: rth-hL46jP5Bxq7R7s880joybQ@public.gmane.org, ink-biIs/Y0ymYJMZLIVYojuPNP0rXTJTi09@public.gmane.org, mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, vgupta-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, ulli.kroll-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-imx-3arQi8VN3Tc@public.gmane.org, khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, guoren-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, bcain-jfJNa2p1gH1BDgjK7y7TUQ@public.gmane.org, chenhuacai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, kernel-f95k8chpbVdBDLzU/O5InQ@public.gmane.org, geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org, sammy-4OGMY2YDKIVeoWH0uzbU5w@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, tsbogend-I1c7kopa9pxLokYuJOExCg@public.gmane.org, dinguyen-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org, stefan.kristiansson-MbMCFXIvDHJFcC0YU169RA@public.gmane.org, shorne-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, James.Bottomley-JuX6DAaQMKPCXq6kfMZ53/egYHeGw8Jk@public.gmane.org, deller-Mmb7MZpHnFY@public.gmane.org, mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org, paul.walmsley-SpMDHPYPyPbQT0dZR+AlfA@public.gmane.org, palmer-96lFi9zoCfxBDgjK7y7TUQ@public.gmane.org, aou-aFE07iDfcCIb0cFwG/AQJIdd74u8MsAO@public.gmane.org, hca@l
 
-Hi Alexander,
+Hi,
 
-On Fri, Jun 10, 2022 at 01:34:27PM +0200, Alexander Lobakin wrote:
-> Currently, many architecture-specific non-atomic bitop
-> implementations use inline asm or other hacks which are faster or
-> more robust when working with "real" variables (i.e. fields from
-> the structures etc.), but the compilers have no clue how to optimize
-> them out when called on compile-time constants. That said, the
-> following code:
-> 
-> 	DECLARE_BITMAP(foo, BITS_PER_LONG) = { }; // -> unsigned long foo[1];
-> 	unsigned long bar = BIT(BAR_BIT);
-> 	unsigned long baz = 0;
-> 
-> 	__set_bit(FOO_BIT, foo);
-> 	baz |= BIT(BAZ_BIT);
-> 
-> 	BUILD_BUG_ON(!__builtin_constant_p(test_bit(FOO_BIT, foo));
-> 	BUILD_BUG_ON(!__builtin_constant_p(bar & BAR_BIT));
-> 	BUILD_BUG_ON(!__builtin_constant_p(baz & BAZ_BIT));
+Adding Aaro Koskinen and Peter Vasil for pm24xx for n800 and n810 related
+idle.
 
-Can you put this snippet into lib/test_bitops.c?
+* Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org> [220614 22:07]:
+> On Mon, Jun 13, 2022 at 03:39:05PM +0300, Tony Lindgren wrote:
+> > OMAP4 uses full SoC suspend modes as idle states, as such it needs the
+> > whole power-domain and clock-domain code from the idle path.
+> > 
+> > All that code is not suitable to run with RCU disabled, as such push
+> > RCU-idle deeper still.
+> > 
+> > Signed-off-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+> > ---
+> > 
+> > Peter here's one more for your series, looks like this is needed to avoid
+> > warnings similar to what you did for omap3.
+> 
+> Thanks Tony!
+> 
+> I've had a brief look at omap2_pm_idle() and do I understand it right
+> that something like the below patch would reduce it to a simple 'WFI'?
 
-Thanks,
-Yury
+Yes that should do for omap2_do_wfi().
 
-> triggers the first assertion on x86_64, which means that the
-> compiler is unable to evaluate it to a compile-time initializer
-> when the architecture-specific bitop is used even if it's obvious.
-> In order to let the compiler optimize out such cases, expand the
-> bitop() macro to use the "constant" C non-atomic bitop
-> implementations when all of the arguments passed are compile-time
-> constants, which means that the result will be a compile-time
-> constant as well, so that it produces more efficient and simple
-> code in 100% cases, comparing to the architecture-specific
-> counterparts.
-> 
-> The savings are architecture, compiler and compiler flags dependent,
-> for example, on x86_64 -O2:
-> 
-> GCC 12: add/remove: 78/29 grow/shrink: 332/525 up/down: 31325/-61560 (-30235)
-> LLVM 13: add/remove: 79/76 grow/shrink: 184/537 up/down: 55076/-141892 (-86816)
-> LLVM 14: add/remove: 10/3 grow/shrink: 93/138 up/down: 3705/-6992 (-3287)
-> 
-> and ARM64 (courtesy of Mark):
-> 
-> GCC 11: add/remove: 92/29 grow/shrink: 933/2766 up/down: 39340/-82580 (-43240)
-> LLVM 14: add/remove: 21/11 grow/shrink: 620/651 up/down: 12060/-15824 (-3764)
-> 
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-> ---
->  include/linux/bitops.h | 18 +++++++++++++++++-
->  1 file changed, 17 insertions(+), 1 deletion(-)
-> 
-> diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-> index 753f98e0dcf5..364bdc3606b4 100644
-> --- a/include/linux/bitops.h
-> +++ b/include/linux/bitops.h
-> @@ -33,8 +33,24 @@ extern unsigned long __sw_hweight64(__u64 w);
+> What do I do with the rest of that code, because I don't think this
+> thing has a cpuidle driver to take over, effectively turning it into
+> dead code.
+
+As we are establishing a policy where deeper idle states must be
+handled by cpuidle, and for most part that has been the case for at least
+10 years, I'd just drop the unused functions with an explanation in the
+patch why we're doing it. Or the functions could be tagged with
+__maybe_unused if folks prefer that.
+
+In the pm24xx case we are not really causing a regression for users as
+there are still pending patches to make n800 and n810 truly usable with
+the mainline kernel. At least the PMIC and LCD related patches need some
+work [0]. The deeper idle states can be added back later using cpuidle
+as needed so we have a clear path.
+
+Aaro & Peter V, do you have any better suggestions here as this will
+mostly affect you guys currently?
+
+Regards,
+
+Tony
+
+[0] https://lore.kernel.org/linux-omap/20211224214512.1583430-1-peter.vasil-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org/
+
+
+> --- a/arch/arm/mach-omap2/pm24xx.c
+> +++ b/arch/arm/mach-omap2/pm24xx.c
+> @@ -126,10 +126,20 @@ static int omap2_allow_mpu_retention(voi
+>  	return 1;
+>  }
 >  
->  #include <asm-generic/bitops/generic-non-atomic.h>
+> -static void omap2_enter_mpu_retention(void)
+> +static void omap2_do_wfi(void)
+>  {
+>  	const int zero = 0;
 >  
+> +	/* WFI */
+> +	asm("mcr p15, 0, %0, c7, c0, 4" : : "r" (zero) : "memory", "cc");
+> +}
+> +
+> +#if 0
 > +/*
-> + * Many architecture-specific non-atomic bitops contain inline asm code and due
-> + * to that the compiler can't optimize them to compile-time expressions or
-> + * constants. In contrary, gen_*() helpers are defined in pure C and compilers
-> + * optimize them just well.
-> + * Therefore, to make `unsigned long foo = 0; __set_bit(BAR, &foo)` effectively
-> + * equal to `unsigned long foo = BIT(BAR)`, pick the generic C alternative when
-> + * the arguments can be resolved at compile time. That expression itself is a
-> + * constant and doesn't bring any functional changes to the rest of cases.
-> + * The casts to `uintptr_t` are needed to mitigate `-Waddress` warnings when
-> + * passing a bitmap from .bss or .data (-> `!!addr` is always true).
+> + * possible cpuidle implementation between WFI and full_retention above
 > + */
->  #define bitop(op, nr, addr)						\
-> -	op(nr, addr)
-> +	((__builtin_constant_p(nr) &&					\
-> +	  __builtin_constant_p((uintptr_t)(addr) != (uintptr_t)NULL) &&	\
-> +	  (uintptr_t)(addr) != (uintptr_t)NULL &&			\
-> +	  __builtin_constant_p(*(const unsigned long *)(addr))) ?	\
-> +	 const##op(nr, addr) : op(nr, addr))
+> +static void omap2_enter_mpu_retention(void)
+> +{
+>  	/* The peripherals seem not to be able to wake up the MPU when
+>  	 * it is in retention mode. */
+>  	if (omap2_allow_mpu_retention()) {
+> @@ -146,8 +157,7 @@ static void omap2_enter_mpu_retention(vo
+>  		pwrdm_set_next_pwrst(mpu_pwrdm, PWRDM_POWER_ON);
+>  	}
 >  
->  #define __set_bit(nr, addr)		bitop(___set_bit, nr, addr)
->  #define __clear_bit(nr, addr)		bitop(___clear_bit, nr, addr)
-> -- 
-> 2.36.1
+> -	/* WFI */
+> -	asm("mcr p15, 0, %0, c7, c0, 4" : : "r" (zero) : "memory", "cc");
+> +	omap2_do_wfi();
+>  
+>  	pwrdm_set_next_pwrst(mpu_pwrdm, PWRDM_POWER_ON);
+>  }
+> @@ -161,6 +171,7 @@ static int omap2_can_sleep(void)
+>  
+>  	return 1;
+>  }
+> +#endif
+>  
+>  static void omap2_pm_idle(void)
+>  {
+> @@ -169,6 +180,7 @@ static void omap2_pm_idle(void)
+>  	if (omap_irq_pending())
+>  		return;
+>  
+> +#if 0
+>  	error = cpu_cluster_pm_enter();
+>  	if (error || !omap2_can_sleep()) {
+>  		omap2_enter_mpu_retention();
+> @@ -179,6 +191,9 @@ static void omap2_pm_idle(void)
+>  
+>  out_cpu_cluster_pm:
+>  	cpu_cluster_pm_exit();
+> +#else
+> +	omap2_do_wfi();
+> +#endif
+>  }
+>  
+>  static void __init prcm_setup_regs(void)
