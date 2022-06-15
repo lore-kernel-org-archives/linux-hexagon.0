@@ -1,120 +1,123 @@
 From: Alexander Lobakin <alexandr.lobakin@intel.com>
-Subject: Re: [PATCH v2 4/6] bitops: define const_*() versions of the non-atomics
-Date: Wed, 15 Jun 2022 15:55:06 +0200
-Message-ID: <20220615135506.1264880-1-alexandr.lobakin@intel.com>
-References: <20220610113427.908751-1-alexandr.lobakin@intel.com> <20220610113427.908751-5-alexandr.lobakin@intel.com> <YqlKpwjQ4Hu+Lr8u@yury-laptop>
+Subject: Re: [PATCH v2 6/6] bitops: let optimize out non-atomic bitops on compile-time constants
+Date: Wed, 15 Jun 2022 16:00:30 +0200
+Message-ID: <20220615140030.1265068-1-alexandr.lobakin@intel.com>
+References: <20220610113427.908751-1-alexandr.lobakin@intel.com> <20220610113427.908751-7-alexandr.lobakin@intel.com> <YqlRfoB5+VBIw8gJ@yury-laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-m68k-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1655301419; x=1686837419;
+  t=1655301764; x=1686837764;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=l3Dz9pCGYsKL9M71ANGJFS/yhgtgmIg63N13O2SpgOE=;
-  b=ZIWSrq97lWkxdwWPN3eRZs8ibstsomDnaF3tgvvIEHOvnq1xblOCBrCp
-   yk5n80X3PULcZ7WzqL9rQzrdP+t/gG5jhMkIXhb0DZYLlqw0KtqoHxg1g
-   M9+RGxjdrYrjV+cVsvtVrcEqv1QXat75qk2orzn/iCY3T1iEr0nunDk0P
-   a98fp6N4xWTpZGaqosb7MECLSJG/66B71mhSQ7frw9gvmpIZjyyEqYV72
-   YGNPTGgLlZXqAQvELv5WIGBhbPgh+WSERTM2vkRx/N/dFcQEtrsAdoubK
-   +NledGY7xj20xztT7FGKKbcsybIsXEL10tpCYoX681H2ZWtK8GB+Y4Tlu
+  bh=wB8IdGjwWR4VpCGztcdlKcCnZSDfsh9h9lU6StlhX6Q=;
+  b=njhk0eETAY8TQd5C9oLIIhlM2Hdrshc02LDrFFc/7POKC+ssOIMN3Dtq
+   eHX9Rio5q5TsytbqpGHVVgMTpG+qYXNlAA8kWOh2Ty0DBNXsKLG51Bkm6
+   h7Cb6e9eMmRTrOcelo9qQd0qRwnuGkLoVufGBDvwnqRK2T/6SGuRimIrK
+   AhGJNmMtNsrtHsxj/NF1dhYPwNcl+KQGOxPs2ymC6ZD3RAZUqZqZ7gTc6
+   OX37OM5+GXEqCstu4szaVBVlP0iDKsCO1LKRZ7tImH/w9weGpkiAsbdDf
+   7pPRAE+7FXUguRRywamz7ZM7gI4D5e90ehMOCGuSo7nAvCL9LrbP2i+zh
    g==;
-In-Reply-To: <YqlKpwjQ4Hu+Lr8u@yury-laptop>
+In-Reply-To: <YqlRfoB5+VBIw8gJ@yury-laptop>
 List-ID: <linux-hexagon.vger.kernel.org>
 To: Yury Norov <yury.norov@gmail.com>
 Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-sh@vger.ke
 
 From: Yury Norov <yury.norov@gmail.com>
-Date: Tue, 14 Jun 2022 19:57:43 -0700
+Date: Tue, 14 Jun 2022 20:26:54 -0700
 
-> On Fri, Jun 10, 2022 at 01:34:25PM +0200, Alexander Lobakin wrote:
-> > Define const_*() variants of the non-atomic bitops to be used when
-> > the input arguments are compile-time constants, so that the compiler
-> > will be always to resolve those to compile-time constants as well.
+> Hi Alexander,
 > 
-> will be always able?
-
-Right, ooops.
-
-> 
-> > Those are mostly direct aliases for generic_*() with one exception
-> > for const_test_bit(): the original one is declared atomic-safe and
-> > thus doesn't discard the `volatile` qualifier, so in order to let
-> > optimize the code, define it separately disregarding the qualifier.
-> > Add them to the compile-time type checks as well just in case.
+> On Fri, Jun 10, 2022 at 01:34:27PM +0200, Alexander Lobakin wrote:
+> > Currently, many architecture-specific non-atomic bitop
+> > implementations use inline asm or other hacks which are faster or
+> > more robust when working with "real" variables (i.e. fields from
+> > the structures etc.), but the compilers have no clue how to optimize
+> > them out when called on compile-time constants. That said, the
+> > following code:
 > > 
-> > Suggested-by: Marco Elver <elver@google.com>
+> > 	DECLARE_BITMAP(foo, BITS_PER_LONG) = { }; // -> unsigned long foo[1];
+> > 	unsigned long bar = BIT(BAR_BIT);
+> > 	unsigned long baz = 0;
+> > 
+> > 	__set_bit(FOO_BIT, foo);
+> > 	baz |= BIT(BAZ_BIT);
+> > 
+> > 	BUILD_BUG_ON(!__builtin_constant_p(test_bit(FOO_BIT, foo));
+> > 	BUILD_BUG_ON(!__builtin_constant_p(bar & BAR_BIT));
+> > 	BUILD_BUG_ON(!__builtin_constant_p(baz & BAZ_BIT));
+> 
+> Can you put this snippet into lib/test_bitops.c?
+
+Great idea, sure!
+
+> 
+> Thanks,
+> Yury
+> 
+> > triggers the first assertion on x86_64, which means that the
+> > compiler is unable to evaluate it to a compile-time initializer
+> > when the architecture-specific bitop is used even if it's obvious.
+> > In order to let the compiler optimize out such cases, expand the
+> > bitop() macro to use the "constant" C non-atomic bitop
+> > implementations when all of the arguments passed are compile-time
+> > constants, which means that the result will be a compile-time
+> > constant as well, so that it produces more efficient and simple
+> > code in 100% cases, comparing to the architecture-specific
+> > counterparts.
+> > 
+> > The savings are architecture, compiler and compiler flags dependent,
+> > for example, on x86_64 -O2:
+> > 
+> > GCC 12: add/remove: 78/29 grow/shrink: 332/525 up/down: 31325/-61560 (-30235)
+> > LLVM 13: add/remove: 79/76 grow/shrink: 184/537 up/down: 55076/-141892 (-86816)
+> > LLVM 14: add/remove: 10/3 grow/shrink: 93/138 up/down: 3705/-6992 (-3287)
+> > 
+> > and ARM64 (courtesy of Mark):
+> > 
+> > GCC 11: add/remove: 92/29 grow/shrink: 933/2766 up/down: 39340/-82580 (-43240)
+> > LLVM 14: add/remove: 21/11 grow/shrink: 620/651 up/down: 12060/-15824 (-3764)
+> > 
+> > Cc: Mark Rutland <mark.rutland@arm.com>
 > > Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
 > > ---
-> >  .../asm-generic/bitops/generic-non-atomic.h   | 31 +++++++++++++++++++
-> >  include/linux/bitops.h                        |  3 +-
-> >  2 files changed, 33 insertions(+), 1 deletion(-)
+> >  include/linux/bitops.h | 18 +++++++++++++++++-
+> >  1 file changed, 17 insertions(+), 1 deletion(-)
 > > 
-> > diff --git a/include/asm-generic/bitops/generic-non-atomic.h b/include/asm-generic/bitops/generic-non-atomic.h
-> > index 3ce0fa0ab35f..9a77babfff35 100644
-> > --- a/include/asm-generic/bitops/generic-non-atomic.h
-> > +++ b/include/asm-generic/bitops/generic-non-atomic.h
-> > @@ -121,4 +121,35 @@ generic_test_bit(unsigned long nr, const volatile unsigned long *addr)
-> >  	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
-> >  }
-> >  
-> > +/*
-> > + * const_*() definitions provide good compile-time optimizations when
-> > + * the passed arguments can be resolved at compile time.
-> > + */
-> > +#define const___set_bit			generic___set_bit
-> > +#define const___clear_bit		generic___clear_bit
-> > +#define const___change_bit		generic___change_bit
-> > +#define const___test_and_set_bit	generic___test_and_set_bit
-> > +#define const___test_and_clear_bit	generic___test_and_clear_bit
-> > +#define const___test_and_change_bit	generic___test_and_change_bit
-> > +
-> > +/**
-> > + * const_test_bit - Determine whether a bit is set
-> > + * @nr: bit number to test
-> > + * @addr: Address to start counting from
-> > + *
-> > + * A version of generic_test_bit() which discards the `volatile` qualifier to
-> > + * allow the compiler to optimize code harder. Non-atomic and to be used only
-> > + * for testing compile-time constants, e.g. from the corresponding macro, or
-> > + * when you really know what you are doing.
-> 
-> Not sure I understand the last sentence... Can you please rephrase?
-
-I basically want to tell that there potentinally might be cases for
-using those outside of the actual macros from 6/6. But it might be
-redundant at all to mention this.
-
-> 
-> > + */
-> > +static __always_inline bool
-> > +const_test_bit(unsigned long nr, const volatile unsigned long *addr)
-> > +{
-> > +	const unsigned long *p = (const unsigned long *)addr + BIT_WORD(nr);
-> > +	unsigned long mask = BIT_MASK(nr);
-> > +	unsigned long val = *p;
-> > +
-> > +	return !!(val & mask);
-> > +}
-> > +
-> >  #endif /* __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H */
 > > diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-> > index 87087454a288..51c22b8667b4 100644
+> > index 753f98e0dcf5..364bdc3606b4 100644
 > > --- a/include/linux/bitops.h
 > > +++ b/include/linux/bitops.h
-> > @@ -36,7 +36,8 @@ extern unsigned long __sw_hweight64(__u64 w);
+> > @@ -33,8 +33,24 @@ extern unsigned long __sw_hweight64(__u64 w);
 > >  
-> >  /* Check that the bitops prototypes are sane */
-> >  #define __check_bitop_pr(name)						\
-> > -	static_assert(__same_type(arch_##name, generic_##name) &&	\
-> > +	static_assert(__same_type(const_##name, generic_##name) &&	\
-> > +		      __same_type(arch_##name, generic_##name) &&	\
-> >  		      __same_type(name, generic_##name))
+> >  #include <asm-generic/bitops/generic-non-atomic.h>
 > >  
-> >  __check_bitop_pr(__set_bit);
+> > +/*
+> > + * Many architecture-specific non-atomic bitops contain inline asm code and due
+> > + * to that the compiler can't optimize them to compile-time expressions or
+> > + * constants. In contrary, gen_*() helpers are defined in pure C and compilers
+> > + * optimize them just well.
+> > + * Therefore, to make `unsigned long foo = 0; __set_bit(BAR, &foo)` effectively
+> > + * equal to `unsigned long foo = BIT(BAR)`, pick the generic C alternative when
+> > + * the arguments can be resolved at compile time. That expression itself is a
+> > + * constant and doesn't bring any functional changes to the rest of cases.
+> > + * The casts to `uintptr_t` are needed to mitigate `-Waddress` warnings when
+> > + * passing a bitmap from .bss or .data (-> `!!addr` is always true).
+> > + */
+> >  #define bitop(op, nr, addr)						\
+> > -	op(nr, addr)
+> > +	((__builtin_constant_p(nr) &&					\
+> > +	  __builtin_constant_p((uintptr_t)(addr) != (uintptr_t)NULL) &&	\
+> > +	  (uintptr_t)(addr) != (uintptr_t)NULL &&			\
+> > +	  __builtin_constant_p(*(const unsigned long *)(addr))) ?	\
+> > +	 const##op(nr, addr) : op(nr, addr))
+> >  
+> >  #define __set_bit(nr, addr)		bitop(___set_bit, nr, addr)
+> >  #define __clear_bit(nr, addr)		bitop(___clear_bit, nr, addr)
 > > -- 
-> > 2.36.1
+> 2.36.1
 
 Thanks,
 Olek
