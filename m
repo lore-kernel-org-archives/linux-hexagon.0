@@ -1,67 +1,115 @@
 From: Yury Norov <yury.norov@gmail.com>
-Subject: Re: [PATCH v2 1/6] ia64, processor: fix -Wincompatible-pointer-types
- in ia64_get_irr()
-Date: Tue, 14 Jun 2022 19:59:51 -0700
-Message-ID: <YqlLJ2IHAIn4kv8Z@yury-laptop>
+Subject: Re: [PATCH v2 6/6] bitops: let optimize out non-atomic bitops on
+ compile-time constants
+Date: Tue, 14 Jun 2022 20:26:54 -0700
+Message-ID: <YqlRfoB5+VBIw8gJ@yury-laptop>
 References: <20220610113427.908751-1-alexandr.lobakin@intel.com>
- <20220610113427.908751-2-alexandr.lobakin@intel.com>
+ <20220610113427.908751-7-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-ia64-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=C3J+GQznuUXQiI93tyU1L6VthWT10VpFAq9aJ2OnWJU=;
-        b=VxJHgVuTjo2QD8B+BMaw/XmEu/z4sSdLVz7HNg6xmOpYjwn3pGdVQI7lQCwRks73/I
-         1KjHe0NB2gRsWl4+hPX4OhKVJyktyBMLnd2LT8juToOmEO5i3rvmtB+++fza7ToBxrQt
-         5NeeJ5cakoQNoZB12wMYgYTCIU19/FDw+LH9tWV9R5EIoFyFTsq55nWj2KBAIR3OI5H+
-         79r9rrjnDPyu+IV8GJFsAIqE0Y6pADHlW6V4fwV5Vqk202mKvPwPgl/GwMyZE34t3EmT
-         QBZP0ntWkjGNdPep+XEH5HuL1rvtQ2KtDtr4AaudCmLcNdAcis2BQv5b5fLr4f7hSY1U
-         NrGQ==
+        bh=Q2BMd5PQI/AN3W5kxMglFR7hp5GiYxPCuJsRFhG3zU0=;
+        b=NrbTIj9uosp/fBmWwEhojKx49KKtr/6VlileB+SXfC0XY9lv7WwMdRcn1I5aVe3RGK
+         gAQ0iuYC5bbbg4b/hH0sxr/MGzujxQVNhV95YeupbmAHDJbTdhJ32sR/jqLzx0agtx8U
+         aewJifOXqdx8EMaDoN0W3fDFSltOtXmH51jePLoIPjx2+65IO15qNBGRLnT2GtU9Frsf
+         2t/SGUNsUbqEdHPREitJ/RGJ2Nr4o8hnTBn9EeloM1gR65GNF2ZaTLq1aBGWtKVIJtjL
+         NPuDrE90hwtb5AM8LI6bV9w7PjIPnDYbOTddZk24Hm6V7v/v4bgH0LybLN6nQXLXqdJ9
+         tH4g==
 Content-Disposition: inline
-In-Reply-To: <20220610113427.908751-2-alexandr.lobakin@intel.com>
+In-Reply-To: <20220610113427.908751-7-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Alexander Lobakin <alexandr.lobakin@intel.com>
 Cc: Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch
 
-On Fri, Jun 10, 2022 at 01:34:22PM +0200, Alexander Lobakin wrote:
-> test_bit(), as any other bitmap op, takes `unsigned long *` as a
-> second argument (pointer to the actual bitmap), as any bitmap
-> itself is an array of unsigned longs. However, the ia64_get_irr()
-> code passes a ref to `u64` as a second argument.
-> This works with the ia64 bitops implementation due to that they
-> have `void *` as the second argument and then cast it later on.
-> This works with the bitmap API itself due to that `unsigned long`
-> has the same size on ia64 as `u64` (`unsigned long long`), but
-> from the compiler PoV those two are different.
-> Define @irr as `unsigned long` to fix that. That implies no
-> functional changes. Has been hidden for 16 years!
+Hi Alexander,
+
+On Fri, Jun 10, 2022 at 01:34:27PM +0200, Alexander Lobakin wrote:
+> Currently, many architecture-specific non-atomic bitop
+> implementations use inline asm or other hacks which are faster or
+> more robust when working with "real" variables (i.e. fields from
+> the structures etc.), but the compilers have no clue how to optimize
+> them out when called on compile-time constants. That said, the
+> following code:
 > 
-> Fixes: a58786917ce2 ("[IA64] avoid broken SAL_CACHE_FLUSH implementations")
-> Cc: stable@vger.kernel.org # 2.6.16+
-> Reported-by: kernel test robot <lkp@intel.com>
+> 	DECLARE_BITMAP(foo, BITS_PER_LONG) = { }; // -> unsigned long foo[1];
+> 	unsigned long bar = BIT(BAR_BIT);
+> 	unsigned long baz = 0;
+> 
+> 	__set_bit(FOO_BIT, foo);
+> 	baz |= BIT(BAZ_BIT);
+> 
+> 	BUILD_BUG_ON(!__builtin_constant_p(test_bit(FOO_BIT, foo));
+> 	BUILD_BUG_ON(!__builtin_constant_p(bar & BAR_BIT));
+> 	BUILD_BUG_ON(!__builtin_constant_p(baz & BAZ_BIT));
+
+Can you put this snippet into lib/test_bitops.c?
+
+Thanks,
+Yury
+
+> triggers the first assertion on x86_64, which means that the
+> compiler is unable to evaluate it to a compile-time initializer
+> when the architecture-specific bitop is used even if it's obvious.
+> In order to let the compiler optimize out such cases, expand the
+> bitop() macro to use the "constant" C non-atomic bitop
+> implementations when all of the arguments passed are compile-time
+> constants, which means that the result will be a compile-time
+> constant as well, so that it produces more efficient and simple
+> code in 100% cases, comparing to the architecture-specific
+> counterparts.
+> 
+> The savings are architecture, compiler and compiler flags dependent,
+> for example, on x86_64 -O2:
+> 
+> GCC 12: add/remove: 78/29 grow/shrink: 332/525 up/down: 31325/-61560 (-30235)
+> LLVM 13: add/remove: 79/76 grow/shrink: 184/537 up/down: 55076/-141892 (-86816)
+> LLVM 14: add/remove: 10/3 grow/shrink: 93/138 up/down: 3705/-6992 (-3287)
+> 
+> and ARM64 (courtesy of Mark):
+> 
+> GCC 11: add/remove: 92/29 grow/shrink: 933/2766 up/down: 39340/-82580 (-43240)
+> LLVM 14: add/remove: 21/11 grow/shrink: 620/651 up/down: 12060/-15824 (-3764)
+> 
+> Cc: Mark Rutland <mark.rutland@arm.com>
 > Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-
-Reviewed-by: Yury Norov <yury.norov@gmail.com>
-
 > ---
->  arch/ia64/include/asm/processor.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  include/linux/bitops.h | 18 +++++++++++++++++-
+>  1 file changed, 17 insertions(+), 1 deletion(-)
 > 
-> diff --git a/arch/ia64/include/asm/processor.h b/arch/ia64/include/asm/processor.h
-> index 7cbce290f4e5..757c2f6d8d4b 100644
-> --- a/arch/ia64/include/asm/processor.h
-> +++ b/arch/ia64/include/asm/processor.h
-> @@ -538,7 +538,7 @@ ia64_get_irr(unsigned int vector)
->  {
->  	unsigned int reg = vector / 64;
->  	unsigned int bit = vector % 64;
-> -	u64 irr;
-> +	unsigned long irr;
+> diff --git a/include/linux/bitops.h b/include/linux/bitops.h
+> index 753f98e0dcf5..364bdc3606b4 100644
+> --- a/include/linux/bitops.h
+> +++ b/include/linux/bitops.h
+> @@ -33,8 +33,24 @@ extern unsigned long __sw_hweight64(__u64 w);
 >  
->  	switch (reg) {
->  	case 0: irr = ia64_getreg(_IA64_REG_CR_IRR0); break;
+>  #include <asm-generic/bitops/generic-non-atomic.h>
+>  
+> +/*
+> + * Many architecture-specific non-atomic bitops contain inline asm code and due
+> + * to that the compiler can't optimize them to compile-time expressions or
+> + * constants. In contrary, gen_*() helpers are defined in pure C and compilers
+> + * optimize them just well.
+> + * Therefore, to make `unsigned long foo = 0; __set_bit(BAR, &foo)` effectively
+> + * equal to `unsigned long foo = BIT(BAR)`, pick the generic C alternative when
+> + * the arguments can be resolved at compile time. That expression itself is a
+> + * constant and doesn't bring any functional changes to the rest of cases.
+> + * The casts to `uintptr_t` are needed to mitigate `-Waddress` warnings when
+> + * passing a bitmap from .bss or .data (-> `!!addr` is always true).
+> + */
+>  #define bitop(op, nr, addr)						\
+> -	op(nr, addr)
+> +	((__builtin_constant_p(nr) &&					\
+> +	  __builtin_constant_p((uintptr_t)(addr) != (uintptr_t)NULL) &&	\
+> +	  (uintptr_t)(addr) != (uintptr_t)NULL &&			\
+> +	  __builtin_constant_p(*(const unsigned long *)(addr))) ?	\
+> +	 const##op(nr, addr) : op(nr, addr))
+>  
+>  #define __set_bit(nr, addr)		bitop(___set_bit, nr, addr)
+>  #define __clear_bit(nr, addr)		bitop(___clear_bit, nr, addr)
 > -- 
 > 2.36.1
