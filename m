@@ -1,74 +1,107 @@
 From: Yury Norov <yury.norov@gmail.com>
-Subject: Re: [PATCH v2 2/6] bitops: always define asm-generic non-atomic
- bitops
-Date: Tue, 14 Jun 2022 19:47:42 -0700
-Message-ID: <YqlITqttNYqT/xpN@yury-laptop>
+Subject: Re: [PATCH v2 4/6] bitops: define const_*() versions of the
+ non-atomics
+Date: Tue, 14 Jun 2022 19:57:43 -0700
+Message-ID: <YqlKpwjQ4Hu+Lr8u@yury-laptop>
 References: <20220610113427.908751-1-alexandr.lobakin@intel.com>
- <20220610113427.908751-3-alexandr.lobakin@intel.com>
- <YqNMO0ioGzJ1IkoA@smile.fi.intel.com>
- <22042c14bc6a437d9c6b235fbfa32c8a@intel.com>
- <CANpmjNNZAeMQjzNyXLeKY4cp_m-xJBU1vs7PgT+7_sJwxtEEAg@mail.gmail.com>
- <20220613141947.1176100-1-alexandr.lobakin@intel.com>
- <CANpmjNM0noP8ieQztyEvijz+MG-cDxxmfwaX_QTpnyT5G33EGA@mail.gmail.com>
+ <20220610113427.908751-5-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-ia64-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=NX493qPAQUrj6ioWF1jnmkJZEbKs1Z+Hiz8Q7SOMdJc=;
-        b=CQVSPpZxgQLRrldrZt26nPVIEXM4/7qMFk8dKvjGgw1iaCmkhmgf1FIsFOFPyzgx3h
-         l2NsM46f9Tx+tDhapROO0VMF+f+h40YS5jDFP9l34So1j75zs3sLOKDE9NgOvg22zaHn
-         peDbKBfc+40NOpLm/mO2mNmi35eK3vL6W2o6IelRysxNBAIQcBAD5CrwS04wLzffuxAh
-         iAHKel08mQgQSIKMxN23DwfIU13+AODm07ZdW3ZRh5dnOR/yImnaPEOqnLbm5KL7idlW
-         ujWAV+QC7WAS7fvST9mMbnasGN30MJj5SoLVyExKJOUuJQPRd4dr7KJ/ycf9G2jhyTny
-         5Dzw==
+        bh=ls3qnOc3Y8ik7fKx57iztJUjc3L1QowbApEutA1WMAM=;
+        b=D+5npGiiuE3tRYO8NhlD6qhHvcccG8Vxfnv6wfrSVuKzX7LyVC4KT9zql8SPiKUIxI
+         8FNDjNNBwMD/dn55TSvmtyrbYhBz+80Pg17k0lWHU6mKosqKTeGKv2N80Uy5nUKXpjLb
+         HqPsQ9rHG6pk693Wuq5M7P/HHFcaAqU3Mnw15XB9A7Cy4pqAs0912OYP7J1EQMKE9Pbz
+         Ko4FsA2HMLxcR+DQLSYuI1U13ZqSIcAblkDZ+u02usZBsfMDi3kb3Si39YITI3LczE0V
+         g2OuLpHyxbiURFKAfc13ksdi0gTez8MJ+lkA51ElWu50xSz4Q3cmIwWwjJxDMpukzg4p
+         qtWg==
 Content-Disposition: inline
-In-Reply-To: <CANpmjNM0noP8ieQztyEvijz+MG-cDxxmfwaX_QTpnyT5G33EGA@mail.gmail.com>
+In-Reply-To: <20220610113427.908751-5-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Marco Elver <elver@google.com>
-Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Tony Luck <tony.luck@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Borislav Petkov <bp@suse.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vg>
+To: Alexander Lobakin <alexandr.lobakin@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch
 
-On Mon, Jun 13, 2022 at 04:33:17PM +0200, Marco Elver wrote:
-> On Mon, 13 Jun 2022 at 16:21, Alexander Lobakin
-> <alexandr.lobakin@intel.com> wrote:
-> >
-> > From: Marco Elver <elver@google.com>
-> > Date: Fri, 10 Jun 2022 18:32:36 +0200
-> >
-> > > On Fri, 10 Jun 2022 at 18:02, Luck, Tony <tony.luck@intel.com> wrote:
-> > > >
-> > > > > > +/**
-> > > > > > + * generic_test_bit - Determine whether a bit is set
-> > > > > > + * @nr: bit number to test
-> > > > > > + * @addr: Address to start counting from
-> > > > > > + */
-> > > > >
-> > > > > Shouldn't we add in this or in separate patch a big NOTE to explain that this
-> > > > > is actually atomic and must be kept as a such?
-> > > >
-> > > > "atomic" isn't really the right word. The volatile access makes sure that the
-> > > > compiler does the test at the point that the source code asked, and doesn't
-> > > > move it before/after other operations.
-> > >
-> > > It's listed in Documentation/atomic_bitops.txt.
-> >
-> > Oh, so my memory was actually correct that I saw it in the docs
-> > somewhere.
-> > WDYT, should I mention this here in the code (block comment) as well
-> > that it's atomic and must not lose `volatile` as Andy suggested or
-> > it's sufficient to have it in the docs (+ it's not underscored)?
+On Fri, Jun 10, 2022 at 01:34:25PM +0200, Alexander Lobakin wrote:
+> Define const_*() variants of the non-atomic bitops to be used when
+> the input arguments are compile-time constants, so that the compiler
+> will be always to resolve those to compile-time constants as well.
+
+will be always able?
+
+> Those are mostly direct aliases for generic_*() with one exception
+> for const_test_bit(): the original one is declared atomic-safe and
+> thus doesn't discard the `volatile` qualifier, so in order to let
+> optimize the code, define it separately disregarding the qualifier.
+> Add them to the compile-time type checks as well just in case.
 > 
-> Perhaps a quick comment in the code (not kerneldoc above) will be
-> sufficient, with reference to Documentation/atomic_bitops.txt.
+> Suggested-by: Marco Elver <elver@google.com>
+> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+> ---
+>  .../asm-generic/bitops/generic-non-atomic.h   | 31 +++++++++++++++++++
+>  include/linux/bitops.h                        |  3 +-
+>  2 files changed, 33 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/asm-generic/bitops/generic-non-atomic.h b/include/asm-generic/bitops/generic-non-atomic.h
+> index 3ce0fa0ab35f..9a77babfff35 100644
+> --- a/include/asm-generic/bitops/generic-non-atomic.h
+> +++ b/include/asm-generic/bitops/generic-non-atomic.h
+> @@ -121,4 +121,35 @@ generic_test_bit(unsigned long nr, const volatile unsigned long *addr)
+>  	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
+>  }
+>  
+> +/*
+> + * const_*() definitions provide good compile-time optimizations when
+> + * the passed arguments can be resolved at compile time.
+> + */
+> +#define const___set_bit			generic___set_bit
+> +#define const___clear_bit		generic___clear_bit
+> +#define const___change_bit		generic___change_bit
+> +#define const___test_and_set_bit	generic___test_and_set_bit
+> +#define const___test_and_clear_bit	generic___test_and_clear_bit
+> +#define const___test_and_change_bit	generic___test_and_change_bit
+> +
+> +/**
+> + * const_test_bit - Determine whether a bit is set
+> + * @nr: bit number to test
+> + * @addr: Address to start counting from
+> + *
+> + * A version of generic_test_bit() which discards the `volatile` qualifier to
+> + * allow the compiler to optimize code harder. Non-atomic and to be used only
+> + * for testing compile-time constants, e.g. from the corresponding macro, or
+> + * when you really know what you are doing.
 
-If it may help, we can do:
+Not sure I understand the last sentence... Can you please rephrase?
 
-/*
- * Bit testing is a naturally atomic operation because bit is 
- * a minimal quantum of information.
- */
-#define __test_bit test_bit
-
+> + */
+> +static __always_inline bool
+> +const_test_bit(unsigned long nr, const volatile unsigned long *addr)
+> +{
+> +	const unsigned long *p = (const unsigned long *)addr + BIT_WORD(nr);
+> +	unsigned long mask = BIT_MASK(nr);
+> +	unsigned long val = *p;
+> +
+> +	return !!(val & mask);
+> +}
+> +
+>  #endif /* __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H */
+> diff --git a/include/linux/bitops.h b/include/linux/bitops.h
+> index 87087454a288..51c22b8667b4 100644
+> --- a/include/linux/bitops.h
+> +++ b/include/linux/bitops.h
+> @@ -36,7 +36,8 @@ extern unsigned long __sw_hweight64(__u64 w);
+>  
+>  /* Check that the bitops prototypes are sane */
+>  #define __check_bitop_pr(name)						\
+> -	static_assert(__same_type(arch_##name, generic_##name) &&	\
+> +	static_assert(__same_type(const_##name, generic_##name) &&	\
+> +		      __same_type(arch_##name, generic_##name) &&	\
+>  		      __same_type(name, generic_##name))
+>  
+>  __check_bitop_pr(__set_bit);
+> -- 
+> 2.36.1
