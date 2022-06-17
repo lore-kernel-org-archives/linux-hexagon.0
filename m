@@ -1,23 +1,23 @@
 From: Alexander Lobakin <alexandr.lobakin@intel.com>
-Subject: [PATCH v3 6/7] bitops: let optimize out non-atomic bitops on compile-time constants
-Date: Fri, 17 Jun 2022 16:40:30 +0200
-Message-ID: <20220617144031.2549432-7-alexandr.lobakin@intel.com>
+Subject: [PATCH v3 2/7] bitops: always define asm-generic non-atomic bitops
+Date: Fri, 17 Jun 2022 16:40:26 +0200
+Message-ID: <20220617144031.2549432-3-alexandr.lobakin@intel.com>
 References: <20220617144031.2549432-1-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-alpha-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1655476854; x=1687012854;
+  t=1655484529; x=1687020529;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=cKDaIk+tyuEQhyGKnxAqlVtiqCqt8rLzZ/7eP9mJcAA=;
-  b=LBxnQ+AASnMGic5zS3LVDe5hl7z66d31vJTr6PQqVGN54XgfKGg68x9L
-   jJoBdLNIaTOHTtTEdQ7iLG5bH2GOXLA07CM8apQGw8yBvcvy7tonP10kB
-   66/FB/o5ducfK9zGQoR3nxczbkOBLDlRkOoHt46IFwjUNO2IDy8xFU6Hm
-   XwrUDTLB5kD4MxFjD00+qklK+l6FWPtrpqLCfDzopPIH6Ru3TD/AjrbUT
-   ii56pX3+0i8LmIBeD7NA9+Sy3Gq1Qun2EERwlYt6K5Zj0tZV5/MS6er/D
-   eMC0H45EVSQWVd9e7rdUGJEfLWweHZwpfxnRHVBqX4a7CCszJu2RBCE6H
+  bh=wJSSTsEhcXLPMDAasBi6uzQwKMN7+ppPtUiWr05Tkac=;
+  b=jmzu7yRKvAb0WbN4heoy3aWrc9Wt+7XQQjyk1Am9COMA96sqtUp++/6I
+   piTyKCpHMOSeMM+A1a87RJgt8kNNs+rNZgESYRKwH0FAHcFEQXQrCh1rk
+   cGwSoSH/23im9TkguVbg2CoE1VcjAV66DF2RYJv/cCWsP7JGTkc1rKVAB
+   zdggh42UcW5hnbs3NbIzIhOBLUPZr1g7P4cFZ+x91UNz7tzjaBT5Y8YBl
+   Em2EB7awQsILGsRUN3GnJWjS/Wxbzzak2utGAsgNu8F2ggbF8jFDziEJi
+   0vtnEkYP8deovNMmmq28hRy2Qd5EmOpFoadyk9q7q9WGwe92LozLnMGW+
    Q==;
 In-Reply-To: <20220617144031.2549432-1-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
@@ -25,83 +25,294 @@ Content-Type: text/plain; charset="us-ascii"
 To: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>
 Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64
 
-Currently, many architecture-specific non-atomic bitop
-implementations use inline asm or other hacks which are faster or
-more robust when working with "real" variables (i.e. fields from
-the structures etc.), but the compilers have no clue how to optimize
-them out when called on compile-time constants. That said, the
-following code:
+Move generic non-atomic bitops from the asm-generic header which
+gets included only when there are no architecture-specific
+alternatives, to a separate independent file to make them always
+available.
+Almost no actual code changes, only one comment added to
+generic_test_bit() saying that it's an atomic operation itself
+and thus `volatile` must always stay there with no cast-aways.
 
-	DECLARE_BITMAP(foo, BITS_PER_LONG) = { }; // -> unsigned long foo[1];
-	unsigned long bar = BIT(BAR_BIT);
-	unsigned long baz = 0;
-
-	__set_bit(FOO_BIT, foo);
-	baz |= BIT(BAZ_BIT);
-
-	BUILD_BUG_ON(!__builtin_constant_p(test_bit(FOO_BIT, foo));
-	BUILD_BUG_ON(!__builtin_constant_p(bar & BAR_BIT));
-	BUILD_BUG_ON(!__builtin_constant_p(baz & BAZ_BIT));
-
-triggers the first assertion on x86_64, which means that the
-compiler is unable to evaluate it to a compile-time initializer
-when the architecture-specific bitop is used even if it's obvious.
-In order to let the compiler optimize out such cases, expand the
-bitop() macro to use the "constant" C non-atomic bitop
-implementations when all of the arguments passed are compile-time
-constants, which means that the result will be a compile-time
-constant as well, so that it produces more efficient and simple
-code in 100% cases, comparing to the architecture-specific
-counterparts.
-
-The savings are architecture, compiler and compiler flags dependent,
-for example, on x86_64 -O2:
-
-GCC 12: add/remove: 78/29 grow/shrink: 332/525 up/down: 31325/-61560 (-30235)
-LLVM 13: add/remove: 79/76 grow/shrink: 184/537 up/down: 55076/-141892 (-86816)
-LLVM 14: add/remove: 10/3 grow/shrink: 93/138 up/down: 3705/-6992 (-3287)
-
-and ARM64 (courtesy of Mark):
-
-GCC 11: add/remove: 92/29 grow/shrink: 933/2766 up/down: 39340/-82580 (-43240)
-LLVM 14: add/remove: 21/11 grow/shrink: 620/651 up/down: 12060/-15824 (-3764)
-
-Cc: Mark Rutland <mark.rutland@arm.com>
+Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com> # comment
+Suggested-by: Marco Elver <elver@google.com> # reference to kernel-doc
 Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- include/linux/bitops.h | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ .../asm-generic/bitops/generic-non-atomic.h   | 130 ++++++++++++++++++
+ include/asm-generic/bitops/non-atomic.h       | 110 ++-------------
+ 2 files changed, 138 insertions(+), 102 deletions(-)
+ create mode 100644 include/asm-generic/bitops/generic-non-atomic.h
 
-diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-index 3c3afbae1533..26a43360c4ae 100644
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -33,8 +33,24 @@ extern unsigned long __sw_hweight64(__u64 w);
- 
- #include <asm-generic/bitops/generic-non-atomic.h>
- 
+diff --git a/include/asm-generic/bitops/generic-non-atomic.h b/include/asm-generic/bitops/generic-non-atomic.h
+new file mode 100644
+index 000000000000..7226488810e5
+--- /dev/null
++++ b/include/asm-generic/bitops/generic-non-atomic.h
+@@ -0,0 +1,130 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#ifndef __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H
++#define __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H
++
++#include <linux/bits.h>
++
++#ifndef _LINUX_BITOPS_H
++#error only <linux/bitops.h> can be included directly
++#endif
++
 +/*
-+ * Many architecture-specific non-atomic bitops contain inline asm code and due
-+ * to that the compiler can't optimize them to compile-time expressions or
-+ * constants. In contrary, gen_*() helpers are defined in pure C and compilers
-+ * optimize them just well.
-+ * Therefore, to make `unsigned long foo = 0; __set_bit(BAR, &foo)` effectively
-+ * equal to `unsigned long foo = BIT(BAR)`, pick the generic C alternative when
-+ * the arguments can be resolved at compile time. That expression itself is a
-+ * constant and doesn't bring any functional changes to the rest of cases.
-+ * The casts to `uintptr_t` are needed to mitigate `-Waddress` warnings when
-+ * passing a bitmap from .bss or .data (-> `!!addr` is always true).
++ * Generic definitions for bit operations, should not be used in regular code
++ * directly.
 + */
- #define bitop(op, nr, addr)						\
--	op(nr, addr)
-+	((__builtin_constant_p(nr) &&					\
-+	  __builtin_constant_p((uintptr_t)(addr) != (uintptr_t)NULL) &&	\
-+	  (uintptr_t)(addr) != (uintptr_t)NULL &&			\
-+	  __builtin_constant_p(*(const unsigned long *)(addr))) ?	\
-+	 const##op(nr, addr) : op(nr, addr))
++
++/**
++ * generic___set_bit - Set a bit in memory
++ * @nr: the bit to set
++ * @addr: the address to start counting from
++ *
++ * Unlike set_bit(), this function is non-atomic and may be reordered.
++ * If it's called on the same region of memory simultaneously, the effect
++ * may be that only one operation succeeds.
++ */
++static __always_inline void
++generic___set_bit(unsigned int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BIT_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++
++	*p  |= mask;
++}
++
++static __always_inline void
++generic___clear_bit(unsigned int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BIT_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++
++	*p &= ~mask;
++}
++
++/**
++ * generic___change_bit - Toggle a bit in memory
++ * @nr: the bit to change
++ * @addr: the address to start counting from
++ *
++ * Unlike change_bit(), this function is non-atomic and may be reordered.
++ * If it's called on the same region of memory simultaneously, the effect
++ * may be that only one operation succeeds.
++ */
++static __always_inline
++void generic___change_bit(unsigned int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BIT_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++
++	*p ^= mask;
++}
++
++/**
++ * generic___test_and_set_bit - Set a bit and return its old value
++ * @nr: Bit to set
++ * @addr: Address to count from
++ *
++ * This operation is non-atomic and can be reordered.
++ * If two examples of this operation race, one can appear to succeed
++ * but actually fail.  You must protect multiple accesses with a lock.
++ */
++static __always_inline int
++generic___test_and_set_bit(unsigned int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BIT_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	unsigned long old = *p;
++
++	*p = old | mask;
++	return (old & mask) != 0;
++}
++
++/**
++ * generic___test_and_clear_bit - Clear a bit and return its old value
++ * @nr: Bit to clear
++ * @addr: Address to count from
++ *
++ * This operation is non-atomic and can be reordered.
++ * If two examples of this operation race, one can appear to succeed
++ * but actually fail.  You must protect multiple accesses with a lock.
++ */
++static __always_inline int
++generic___test_and_clear_bit(unsigned int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BIT_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	unsigned long old = *p;
++
++	*p = old & ~mask;
++	return (old & mask) != 0;
++}
++
++/* WARNING: non atomic and it can be reordered! */
++static __always_inline int
++generic___test_and_change_bit(unsigned int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BIT_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	unsigned long old = *p;
++
++	*p = old ^ mask;
++	return (old & mask) != 0;
++}
++
++/**
++ * generic_test_bit - Determine whether a bit is set
++ * @nr: bit number to test
++ * @addr: Address to start counting from
++ */
++static __always_inline int
++generic_test_bit(unsigned int nr, const volatile unsigned long *addr)
++{
++	/*
++	 * Unlike the bitops with the '__' prefix above, this one *is* atomic,
++	 * so `volatile` must always stay here with no cast-aways. See
++	 * `Documentation/atomic_bitops.txt` for the details.
++	 */
++	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
++}
++
++#endif /* __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H */
+diff --git a/include/asm-generic/bitops/non-atomic.h b/include/asm-generic/bitops/non-atomic.h
+index 078cc68be2f1..23d3abc1e10d 100644
+--- a/include/asm-generic/bitops/non-atomic.h
++++ b/include/asm-generic/bitops/non-atomic.h
+@@ -2,121 +2,27 @@
+ #ifndef _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
+ #define _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
  
- #define __set_bit(nr, addr)		bitop(___set_bit, nr, addr)
- #define __clear_bit(nr, addr)		bitop(___clear_bit, nr, addr)
+-#include <asm/types.h>
++#include <asm-generic/bitops/generic-non-atomic.h>
+ 
+-/**
+- * arch___set_bit - Set a bit in memory
+- * @nr: the bit to set
+- * @addr: the address to start counting from
+- *
+- * Unlike set_bit(), this function is non-atomic and may be reordered.
+- * If it's called on the same region of memory simultaneously, the effect
+- * may be that only one operation succeeds.
+- */
+-static __always_inline void
+-arch___set_bit(unsigned int nr, volatile unsigned long *addr)
+-{
+-	unsigned long mask = BIT_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+-
+-	*p  |= mask;
+-}
++#define arch___set_bit generic___set_bit
+ #define __set_bit arch___set_bit
+ 
+-static __always_inline void
+-arch___clear_bit(unsigned int nr, volatile unsigned long *addr)
+-{
+-	unsigned long mask = BIT_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+-
+-	*p &= ~mask;
+-}
++#define arch___clear_bit generic___clear_bit
+ #define __clear_bit arch___clear_bit
+ 
+-/**
+- * arch___change_bit - Toggle a bit in memory
+- * @nr: the bit to change
+- * @addr: the address to start counting from
+- *
+- * Unlike change_bit(), this function is non-atomic and may be reordered.
+- * If it's called on the same region of memory simultaneously, the effect
+- * may be that only one operation succeeds.
+- */
+-static __always_inline
+-void arch___change_bit(unsigned int nr, volatile unsigned long *addr)
+-{
+-	unsigned long mask = BIT_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+-
+-	*p ^= mask;
+-}
++#define arch___change_bit generic___change_bit
+ #define __change_bit arch___change_bit
+ 
+-/**
+- * arch___test_and_set_bit - Set a bit and return its old value
+- * @nr: Bit to set
+- * @addr: Address to count from
+- *
+- * This operation is non-atomic and can be reordered.
+- * If two examples of this operation race, one can appear to succeed
+- * but actually fail.  You must protect multiple accesses with a lock.
+- */
+-static __always_inline int
+-arch___test_and_set_bit(unsigned int nr, volatile unsigned long *addr)
+-{
+-	unsigned long mask = BIT_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+-	unsigned long old = *p;
+-
+-	*p = old | mask;
+-	return (old & mask) != 0;
+-}
++#define arch___test_and_set_bit generic___test_and_set_bit
+ #define __test_and_set_bit arch___test_and_set_bit
+ 
+-/**
+- * arch___test_and_clear_bit - Clear a bit and return its old value
+- * @nr: Bit to clear
+- * @addr: Address to count from
+- *
+- * This operation is non-atomic and can be reordered.
+- * If two examples of this operation race, one can appear to succeed
+- * but actually fail.  You must protect multiple accesses with a lock.
+- */
+-static __always_inline int
+-arch___test_and_clear_bit(unsigned int nr, volatile unsigned long *addr)
+-{
+-	unsigned long mask = BIT_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+-	unsigned long old = *p;
+-
+-	*p = old & ~mask;
+-	return (old & mask) != 0;
+-}
++#define arch___test_and_clear_bit generic___test_and_clear_bit
+ #define __test_and_clear_bit arch___test_and_clear_bit
+ 
+-/* WARNING: non atomic and it can be reordered! */
+-static __always_inline int
+-arch___test_and_change_bit(unsigned int nr, volatile unsigned long *addr)
+-{
+-	unsigned long mask = BIT_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+-	unsigned long old = *p;
+-
+-	*p = old ^ mask;
+-	return (old & mask) != 0;
+-}
++#define arch___test_and_change_bit generic___test_and_change_bit
+ #define __test_and_change_bit arch___test_and_change_bit
+ 
+-/**
+- * arch_test_bit - Determine whether a bit is set
+- * @nr: bit number to test
+- * @addr: Address to start counting from
+- */
+-static __always_inline int
+-arch_test_bit(unsigned int nr, const volatile unsigned long *addr)
+-{
+-	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
+-}
++#define arch_test_bit generic_test_bit
+ #define test_bit arch_test_bit
+ 
+ #endif /* _ASM_GENERIC_BITOPS_NON_ATOMIC_H_ */
 -- 
 2.36.1
 
