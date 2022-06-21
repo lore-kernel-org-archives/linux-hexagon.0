@@ -1,26 +1,45 @@
-From: Mark Rutland <mark.rutland@arm.com>
+From: Yury Norov <yury.norov@gmail.com>
 Subject: Re: [PATCH v3 0/7] bitops: let optimize out non-atomic bitops on
  compile-time constants
-Date: Tue, 21 Jun 2022 07:03:44 +0100
-Message-ID: <YrFfQOSrqpX/qjhd@FVFF77S0Q05N>
+Date: Tue, 21 Jun 2022 10:39:44 -0700
+Message-ID: <YrICYCW0fCb0Rh8/@yury-laptop>
 References: <20220617144031.2549432-1-alexandr.lobakin@intel.com>
  <YrCB/rz3RM6TCjij@FVFF77S0Q05N>
  <20220620150855.2630784-1-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
 Return-path: <linux-m68k-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=mm0iD6HT9Mx8CXXEjxAdU1TvUV4Ez2s5c81pc2wmXwg=;
+        b=Cpkt5sgP0fqAe+Y1iRtsx8qe+2jJ5InANoetmpK6UNu1KPb9jca4X2hLmzTTN1WqPF
+         AU0N56w++P4mZB3mMlojr8wWM6bXtyDQsj/chEau1PJEWu/RbPlbW8FkMaEMDcuPhG5r
+         NO9U1XfR4Ff0tZM0w5zbEK3DXlzrhHV7B8JwF4bM67grhmMuaBqYmjgCMyeRoaWlti7C
+         oSeeejFFPjPSIRjK9+1Rgrl2zWynXbFQRm7FQYkAlfB/wIgHuMlRiuxIjmRIwu5lXPCE
+         0Z5+P7a9Rw480gqVmvlY0WIZSXBMO/pcQ7u54RbQuXhy+qhX+mUtGNe0SZOZMRjQfaGC
+         hf8Q==
 Content-Disposition: inline
 In-Reply-To: <20220620150855.2630784-1-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68
+Cc: Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m
 
 On Mon, Jun 20, 2022 at 05:08:55PM +0200, Alexander Lobakin wrote:
 > From: Mark Rutland <mark.rutland@arm.com>
 > Date: Mon, 20 Jun 2022 15:19:42 +0100
 > 
 > > On Fri, Jun 17, 2022 at 04:40:24PM +0200, Alexander Lobakin wrote:
+> > > So, in order to let the compiler optimize out such cases, expand the
+> > > test_bit() and __*_bit() definitions with a compile-time condition
+> > > check, so that they will pick the generic C non-atomic bitop
+> > > implementations when all of the arguments passed are compile-time
+> > > constants, which means that the result will be a compile-time
+> > > constant as well and the compiler will produce more efficient and
+> > > simple code in 100% cases (no changes when there's at least one
+> > > non-compile-time-constant argument).
 > > 
 > > > The savings are architecture, compiler and compiler flags dependent,
 > > > for example, on x86_64 -O2:
@@ -59,27 +78,57 @@ On Mon, Jun 20, 2022 at 05:08:55PM +0200, Alexander Lobakin wrote:
 > `volatile` from gen[eric]_test_bit(), so there was an impact for
 > non-constant cases as well.
 > +5 Kb sounds bad tho. Do you have CONFIG_TEST_BITMAP enabled, does
-> it work? 
-
-I didn't have it enabled, but I tried that just nw with GCC 12.1.0 and it
-builds cleanly, and test_bitmap_const_eval() gets optimized away entirely. If i
-remove the `static` from that, GCC generates:
-
-| <test_bitmap_const_eval>:
-|     paciasp
-|     autiasp
-|     ret
-
-... which is a trivial stub.
-
-> Probably the same reason as for m68k, more constant
+> it work? Probably the same reason as for m68k, more constant
 > optimization -> more aggressive inlining or inlining rebalance ->
 > larger code. OTOH I've no idea why sometimes compiler decides to
 > uninline really tiny functions where due to this patch series some
 > bitops have been converted to constants, like it goes on m68k.
+> 
+> > 
+> > Overall that's mostly hidden in the Image size, due to 64K alignment and
+> > padding requirements:
+> > 
+> >   Toolchain      Before      After       Difference
+> > 
+> >   GCC 8.5.0      36178432    36178432    0
+> >   GCC 9.3.0      36112896    36112896    0
+> >   GCC 10.3.0     36442624    36377088    -65536
+> >   GCC 11.1.0     36311552    36377088    +65536
+> >   GCC 11.3.0     36311552    36311552    0
+> >   GCC 12.1.0     36377088    36377088    0
+> > 
+> >   LLVM 12.0.1    31418880    31418880    0
+> >   LLVM 13.0.1    31418880    31418880    0
+> >   LLVM 14.0.0    31218176    31218176    0
+> > 
+> > ... so aside from the blip around GCC 10.3.0 and 11.1.0, there's not a massive
+> > change overall (due to 64KiB alignment restrictions for portions of the kernel
+> > Image).
 
-Hmm.... it'd be interesting to take a look at a few architectures and see what
-the common case is.
+I gave it a try on v5.19-rc3 for arm64 with my default GCC 11.2, and it's:
+add/remove: 89/33 grow/shrink: 1629/966 up/down: 51456/-46064 (5392)
+
+Which is not great in terms of layout size. But I don't think we should
+focus too much on those numbers. The goal of the series is not to shrink
+the image; the true goal is to provide more information to the compiler
+in a hope that it will make a better decision regarding optimizations.
+
+Looking at results provided by Mark, both GCC and LLVM have a tendency
+to inline and use other techniques that increase the image more
+aggressively in newer releases, comparing to old ones. From this
+perspective, unless we find some terribly wrong behavior, I'm OK with
++5K for the Image, because I trust my compiler and believe it spent
+those 5K wisely.
+
+For the reasons said above, I think we shouldn't disable const
+bitops for -Os build.
+
+I think this series has total positive impact because it adds a lot
+of information for compiler with just a few lines of code.
+
+If no objections, I think it's good to try it in -next. Alexander,
+would you like me to fix gen/generic typo in comment and take it in
+bitmap-for-next, or you'd prefer to send v4?
 
 Thanks,
-Mark.
+Yury
