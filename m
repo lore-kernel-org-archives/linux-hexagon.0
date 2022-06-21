@@ -1,101 +1,109 @@
 From: Alexander Lobakin <alexandr.lobakin@intel.com>
-Subject: [PATCH v4 4/8] bitops: define const_*() versions of the non-atomics
-Date: Tue, 21 Jun 2022 21:15:49 +0200
-Message-ID: <20220621191553.69455-5-alexandr.lobakin@intel.com>
+Subject: [PATCH v4 8/8] lib: test_bitmap: add compile-time optimization/evaluations assertions
+Date: Tue, 21 Jun 2022 21:15:53 +0200
+Message-ID: <20220621191553.69455-9-alexandr.lobakin@intel.com>
 References: <20220621191553.69455-1-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1655838982; x=1687374982;
+  t=1655838987; x=1687374987;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=s360D3xYaquXVMD9j2K4GnltsFnSLS9FIRReSmtxs5o=;
-  b=Yfmy/W3avVymQ2zGydH3/dboFD/b5++8D6rnhZH/2+iCSMh0HbvuAr3M
-   b5v9BYFkwbgZx8VozTkmrIkMYtYDhhikvyVYnY6Nx+7JkjIsUFZ4Yz5Ug
-   xWilrYiWJpym6C1SFLl0IjkD7WMS/zDnS4MGkwK0NxiEowJpZDQFwy9E5
-   zch2m6vwwX+JyUMucpNT6vc6yBZtL1N5focrpUKBMaYyOyj0lKjqO2g5G
-   p3TjLeZTichccoWE9p+Nv63CJd4vupd7X0QpbaHHU6B918VarDW4MLXzZ
-   9EexV3Iptir1mMJvKr+iAS6uUJy1PkNLeWciLmNG1mYOqdFAys3YYQy6T
-   A==;
+  bh=YBBT3g4AuHURoy+25BrMz0CCKzpPjscESAN6DotPoig=;
+  b=HoSjBoDXhwJZc5j7XlOvqwXLc7aCn7aa17aI57+itYRgj6C2ud2vNx1L
+   AWb8gPzNcZ4ncOrQQj9c+YflhppzK64Eo6vvLwGWki2jqpqr8bvVlnG37
+   WwULNkqZ5Vi5ASZ7r3Iywqyd6xwpvZtPm53yAJQufqZeHWxkB4YVMHEGL
+   Gf3VcM4gxKA9CyvxP4AVX39Yjqv+AOBzBEf52ZwWdvH2Uli0BR1kqaGH/
+   R/Oa5gM3a3VrLzr65tpGQ4ERjZLNSg9L4b0my+2C8DVLYqnMeownK/LSh
+   Lrw9cPV3D6dOHPMa05fxNPSSd2PcbjRNMmkttKZtqS4j+U8bHFag7JJBV
+   g==;
 In-Reply-To: <20220621191553.69455-1-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>
 Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64
 
-Define const_*() variants of the non-atomic bitops to be used when
-the input arguments are compile-time constants, so that the compiler
-will be always able to resolve those to compile-time constants as
-well. Those are mostly direct aliases for generic_*() with one
-exception for const_test_bit(): the original one is declared
-atomic-safe and thus doesn't discard the `volatile` qualifier, so
-in order to let optimize code, define it separately disregarding
-the qualifier.
-Add them to the compile-time type checks as well just in case.
+Add a function to the bitmap test suite, which will ensure that
+compilers are able to evaluate operations performed by the
+bitops/bitmap helpers to compile-time constants when all of the
+arguments are compile-time constants as well, or trigger a build
+bug otherwise. This should work on all architectures and all the
+optimization levels supported by Kbuild.
+The function doesn't perform any runtime tests and gets optimized
+out to nothing after passing the build assertions.
 
-Suggested-by: Marco Elver <elver@google.com>
+Suggested-by: Yury Norov <yury.norov@gmail.com>
 Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Marco Elver <elver@google.com>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- .../asm-generic/bitops/generic-non-atomic.h   | 31 +++++++++++++++++++
- include/linux/bitops.h                        |  1 +
- 2 files changed, 32 insertions(+)
+ lib/test_bitmap.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
 
-diff --git a/include/asm-generic/bitops/generic-non-atomic.h b/include/asm-generic/bitops/generic-non-atomic.h
-index b85b8a2ac239..3d5ebd24652b 100644
---- a/include/asm-generic/bitops/generic-non-atomic.h
-+++ b/include/asm-generic/bitops/generic-non-atomic.h
-@@ -127,4 +127,35 @@ generic_test_bit(unsigned long nr, const volatile unsigned long *addr)
- 	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
+diff --git a/lib/test_bitmap.c b/lib/test_bitmap.c
+index d5923a640457..3a7b09b82794 100644
+--- a/lib/test_bitmap.c
++++ b/lib/test_bitmap.c
+@@ -869,6 +869,50 @@ static void __init test_bitmap_print_buf(void)
+ 	}
  }
  
-+/*
-+ * const_*() definitions provide good compile-time optimizations when
-+ * the passed arguments can be resolved at compile time.
-+ */
-+#define const___set_bit			generic___set_bit
-+#define const___clear_bit		generic___clear_bit
-+#define const___change_bit		generic___change_bit
-+#define const___test_and_set_bit	generic___test_and_set_bit
-+#define const___test_and_clear_bit	generic___test_and_clear_bit
-+#define const___test_and_change_bit	generic___test_and_change_bit
-+
-+/**
-+ * const_test_bit - Determine whether a bit is set
-+ * @nr: bit number to test
-+ * @addr: Address to start counting from
-+ *
-+ * A version of generic_test_bit() which discards the `volatile` qualifier to
-+ * allow a compiler to optimize code harder. Non-atomic and to be called only
-+ * for testing compile-time constants, e.g. by the corresponding macros, not
-+ * directly from "regular" code.
-+ */
-+static __always_inline bool
-+const_test_bit(unsigned long nr, const volatile unsigned long *addr)
++static void __init test_bitmap_const_eval(void)
 +{
-+	const unsigned long *p = (const unsigned long *)addr + BIT_WORD(nr);
-+	unsigned long mask = BIT_MASK(nr);
-+	unsigned long val = *p;
++	DECLARE_BITMAP(bitmap, BITS_PER_LONG);
++	unsigned long initvar = BIT(2);
++	unsigned long bitopvar = 0;
++	unsigned long var = 0;
++	int res;
 +
-+	return !!(val & mask);
++	/*
++	 * Compilers must be able to optimize all of those to compile-time
++	 * constants on any supported optimization level (-O2, -Os) and any
++	 * architecture. Otherwise, trigger a build bug.
++	 * The whole function gets optimized out then, there's nothing to do
++	 * in runtime.
++	 */
++
++	/* Equals to `unsigned long bitmap[1] = { BIT(5), }` */
++	bitmap_clear(bitmap, 0, BITS_PER_LONG);
++	if (!test_bit(7, bitmap))
++		bitmap_set(bitmap, 5, 1);
++
++	/* Equals to `unsigned long bitopvar = BIT(20)` */
++	__change_bit(31, &bitopvar);
++	bitmap_shift_right(&bitopvar, &bitopvar, 11, BITS_PER_LONG);
++
++	/* Equals to `unsigned long var = BIT(25)` */
++	var |= BIT(25);
++	if (var & BIT(0))
++		var ^= GENMASK(9, 6);
++
++	/* __const_hweight<32|64>(BIT(5)) == 1 */
++	res = bitmap_weight(bitmap, 20);
++	BUILD_BUG_ON(!__builtin_constant_p(res));
++
++	/* !(BIT(31) & BIT(18)) == 1 */
++	res = !test_bit(18, &bitopvar);
++	BUILD_BUG_ON(!__builtin_constant_p(res));
++
++	/* BIT(2) & GENMASK(14, 8) == 0 */
++	BUILD_BUG_ON(!__builtin_constant_p(initvar & GENMASK(14, 8)));
++	/* ~BIT(25) */
++	BUILD_BUG_ON(!__builtin_constant_p(~var));
 +}
 +
- #endif /* __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H */
-diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-index 87087454a288..d393297287d5 100644
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -37,6 +37,7 @@ extern unsigned long __sw_hweight64(__u64 w);
- /* Check that the bitops prototypes are sane */
- #define __check_bitop_pr(name)						\
- 	static_assert(__same_type(arch_##name, generic_##name) &&	\
-+		      __same_type(const_##name, generic_##name) &&	\
- 		      __same_type(name, generic_##name))
+ static void __init selftest(void)
+ {
+ 	test_zero_clear();
+@@ -884,6 +928,7 @@ static void __init selftest(void)
+ 	test_for_each_set_clump8();
+ 	test_bitmap_cut();
+ 	test_bitmap_print_buf();
++	test_bitmap_const_eval();
+ }
  
- __check_bitop_pr(__set_bit);
+ KSTM_MODULE_LOADERS(test_bitmap);
 -- 
 2.36.1
 
