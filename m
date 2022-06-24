@@ -1,96 +1,104 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH V4 26/26] mm/mmap: Drop ARCH_HAS_VM_GET_PAGE_PROT
-Date: Fri, 24 Jun 2022 05:29:38 +0000
-Message-ID: <fa9cf9bb-841d-69d8-c243-ab339a891cc7@csgroup.eu>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH V4 07/26] mm/mmap: Build protect protection_map[] with
+ ARCH_HAS_VM_GET_PAGE_PROT
+Date: Fri, 24 Jun 2022 11:06:44 +0530
+Message-ID: <e536bd05-dbfd-466b-582e-8a220421a8dc@arm.com>
 References: <20220624044339.1533882-1-anshuman.khandual@arm.com>
- <20220624044339.1533882-27-anshuman.khandual@arm.com>
+ <20220624044339.1533882-8-anshuman.khandual@arm.com>
+ <10aca763-2313-84bf-9200-6a6037fd748c@csgroup.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Content-ID:In-Reply-To:
-	References:Message-ID:Date:Subject:CC:To:From:Reply-To:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=z4ccMVPW400Q3uxMd++Flrx3VZrfMUNAJK7f3MUG5i4=; b=g7IqSDZ33MB1to
-	hCFIbrKn3NrRK1eSXFDG1U6AKG6mpQQkxVeWFQnnY/FbviE6PiJyrDEsgWW/Kq6S5JaDwfuRN8q7O
-	tSfDchDRI999NqaO+dBVhsx/PtoC3PujL3RfvZLiOBnavYM4SVSLqbw7G1loch2Vc/17h91HLqY51
-	V8KX22Ln5L54G0WQtUeo/FCkmezj3XxpLHhx3z0xpldyfUb2DucLfp0zi5q8JcyCtcshADegM9MwS
-	TfYOEi9goGJBFHrUMyIZrDSJ5XCynbZU3fUaTYG09uXnRv9MuO8ASd2P0tFYbNvCqvocsHOMWS3De
-	tpRad9dsJomAIYHfEJZA==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=U0yeQydWwEHqDA6Wugq5yAN59wGGgcFZRk/WlnzLy7g=;
- b=H/BTggDAJK2gpoHXhlTbpZsFvn+GSPDB5Srbciue5l9KG7sAjy3bluN+qP19ZcMupNyh65ytuUBHjpsW+bKM5ZCT1j/7z+ex1npQYLYlMBUt9ELUTYH5AqLK0A4Y5SjeKlQF01/3IStu0nZjGLhxA0UW0jlvQ5ddnLZiBicbTddssUIIQWp0FLYOrNk+U4ewrmKnoOS2eJIk2HiDiNIRHQxWIRk085Hxul4W3oaGsGzwo+Iiwvq9JSUJpiwddXolPhCn2IgumCuGTPURjAPOWT9CyswGSZMPBHIxK9eu3L39Sv0tZPcm7dKjw2WwtOw/k9EcsBpomfSBZVEDhUMczw==
-In-Reply-To: <20220624044339.1533882-27-anshuman.khandual@arm.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-parisc-owner@vger.kernel.org>
 Content-Language: en-US
-Content-ID: <1F9BD59831BEE94EA7E2E1A3F9CA3971@FRAP264.PROD.OUTLOOK.COM>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Anshuman Khandual <anshuman.khandual@arm.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>
-Cc: "hch@infradead.org" <hch@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, linux-m68k@lis
+In-Reply-To: <10aca763-2313-84bf-9200-6a6037fd748c@csgroup.eu>
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+To: Christophe Leroy <christophe.leroy@csgroup.eu>, "linux-mm@kvack.org" <linux-mm@kvack.org>
+Cc: "hch@infradead.org" <hch@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vg>
 
-DQoNCkxlIDI0LzA2LzIwMjIgw6AgMDY6NDMsIEFuc2h1bWFuIEtoYW5kdWFsIGEgw6ljcml0wqA6
-DQo+IE5vdyBhbGwgdGhlIHBsYXRmb3JtcyBlbmFibGUgQVJDSF9IQVNfR0VUX1BBR0VfUFJPVC4g
-VGhleSBkZWZpbmUgYW5kIGV4cG9ydA0KPiBvd24gdm1fZ2V0X3BhZ2VfcHJvdCgpIHdoZXRoZXIg
-Y3VzdG9tIG9yIHN0YW5kYXJkIERFQ0xBUkVfVk1fR0VUX1BBR0VfUFJPVC4NCj4gSGVuY2UgdGhl
-cmUgaXMgbm8gbmVlZCBmb3IgZGVmYXVsdCBnZW5lcmljIGZhbGxiYWNrIGZvciB2bV9nZXRfcGFn
-ZV9wcm90KCkuDQo+IEp1c3QgZHJvcCB0aGlzIGZhbGxiYWNrIGFuZCBhbHNvIEFSQ0hfSEFTX0dF
-VF9QQUdFX1BST1QgbWVjaGFuaXNtLg0KPiANCj4gQ2M6IEFuZHJldyBNb3J0b24gPGFrcG1AbGlu
-dXgtZm91bmRhdGlvbi5vcmc+DQo+IENjOiBsaW51eC1tbUBrdmFjay5vcmcNCj4gQ2M6IGxpbnV4
-LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4gU2lnbmVkLW9mZi1ieTogQW5zaHVtYW4gS2hhbmR1
-YWwgPGFuc2h1bWFuLmtoYW5kdWFsQGFybS5jb20+DQo+IC0tLQ0KPiAgIGFyY2gvYWxwaGEvS2Nv
-bmZpZyAgICAgIHwgIDEgLQ0KPiAgIGFyY2gvYXJjL0tjb25maWcgICAgICAgIHwgIDEgLQ0KPiAg
-IGFyY2gvYXJtL0tjb25maWcgICAgICAgIHwgIDEgLQ0KPiAgIGFyY2gvYXJtNjQvS2NvbmZpZyAg
-ICAgIHwgIDEgLQ0KPiAgIGFyY2gvY3NreS9LY29uZmlnICAgICAgIHwgIDEgLQ0KPiAgIGFyY2gv
-aGV4YWdvbi9LY29uZmlnICAgIHwgIDEgLQ0KPiAgIGFyY2gvaWE2NC9LY29uZmlnICAgICAgIHwg
-IDEgLQ0KPiAgIGFyY2gvbG9vbmdhcmNoL0tjb25maWcgIHwgIDEgLQ0KPiAgIGFyY2gvbTY4ay9L
-Y29uZmlnICAgICAgIHwgIDEgLQ0KPiAgIGFyY2gvbWljcm9ibGF6ZS9LY29uZmlnIHwgIDEgLQ0K
-PiAgIGFyY2gvbWlwcy9LY29uZmlnICAgICAgIHwgIDEgLQ0KPiAgIGFyY2gvbmlvczIvS2NvbmZp
-ZyAgICAgIHwgIDEgLQ0KPiAgIGFyY2gvb3BlbnJpc2MvS2NvbmZpZyAgIHwgIDEgLQ0KPiAgIGFy
-Y2gvcGFyaXNjL0tjb25maWcgICAgIHwgIDEgLQ0KPiAgIGFyY2gvcG93ZXJwYy9LY29uZmlnICAg
-IHwgIDEgLQ0KPiAgIGFyY2gvcmlzY3YvS2NvbmZpZyAgICAgIHwgIDEgLQ0KPiAgIGFyY2gvczM5
-MC9LY29uZmlnICAgICAgIHwgIDEgLQ0KPiAgIGFyY2gvc2gvS2NvbmZpZyAgICAgICAgIHwgIDEg
-LQ0KPiAgIGFyY2gvc3BhcmMvS2NvbmZpZyAgICAgIHwgIDEgLQ0KPiAgIGFyY2gvdW0vS2NvbmZp
-ZyAgICAgICAgIHwgIDEgLQ0KPiAgIGFyY2gveDg2L0tjb25maWcgICAgICAgIHwgIDEgLQ0KPiAg
-IGFyY2gveHRlbnNhL0tjb25maWcgICAgIHwgIDEgLQ0KPiAgIGluY2x1ZGUvbGludXgvbW0uaCAg
-ICAgIHwgIDMgLS0tDQo+ICAgbW0vS2NvbmZpZyAgICAgICAgICAgICAgfCAgMyAtLS0NCj4gICBt
-bS9tbWFwLmMgICAgICAgICAgICAgICB8IDIyIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4gICAy
-NSBmaWxlcyBjaGFuZ2VkLCA1MCBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9tbS9t
-bWFwLmMgYi9tbS9tbWFwLmMNCj4gaW5kZXggNDNkYjNiZDQ5MDcxLi4zNTU3ZmU4M2QxMjQgMTAw
-NjQ0DQo+IC0tLSBhL21tL21tYXAuYw0KPiArKysgYi9tbS9tbWFwLmMNCj4gQEAgLTEwMSwyOCAr
-MTAxLDYgQEAgc3RhdGljIHZvaWQgdW5tYXBfcmVnaW9uKHN0cnVjdCBtbV9zdHJ1Y3QgKm1tLA0K
-PiAgICAqCQkJCQkJCQl3OiAobm8pIG5vDQo+ICAgICoJCQkJCQkJCXg6ICh5ZXMpIHllcw0KPiAg
-ICAqLw0KDQpUaGUgYWJvdmUgY29tbWVudCBpcyBub3Qgb3JwaGFuZWQuIEkgdGhpbmsgaXQgc2hv
-dWxkIGdvIGluIGxpbnV4L21tLmgNCg0KPiAtI2lmbmRlZiBDT05GSUdfQVJDSF9IQVNfVk1fR0VU
-X1BBR0VfUFJPVA0KPiAtcGdwcm90X3QgcHJvdGVjdGlvbl9tYXBbMTZdIF9fcm9fYWZ0ZXJfaW5p
-dCA9IHsNCj4gLQlbVk1fTk9ORV0JCQkJCT0gX19QMDAwLA0KPiAtCVtWTV9SRUFEXQkJCQkJPSBf
-X1AwMDEsDQo+IC0JW1ZNX1dSSVRFXQkJCQkJPSBfX1AwMTAsDQo+IC0JW1ZNX1dSSVRFIHwgVk1f
-UkVBRF0JCQkJPSBfX1AwMTEsDQo+IC0JW1ZNX0VYRUNdCQkJCQk9IF9fUDEwMCwNCj4gLQlbVk1f
-RVhFQyB8IFZNX1JFQURdCQkJCT0gX19QMTAxLA0KPiAtCVtWTV9FWEVDIHwgVk1fV1JJVEVdCQkJ
-CT0gX19QMTEwLA0KPiAtCVtWTV9FWEVDIHwgVk1fV1JJVEUgfCBWTV9SRUFEXQkJCT0gX19QMTEx
-LA0KPiAtCVtWTV9TSEFSRURdCQkJCQk9IF9fUzAwMCwNCj4gLQlbVk1fU0hBUkVEIHwgVk1fUkVB
-RF0JCQkJPSBfX1MwMDEsDQo+IC0JW1ZNX1NIQVJFRCB8IFZNX1dSSVRFXQkJCQk9IF9fUzAxMCwN
-Cj4gLQlbVk1fU0hBUkVEIHwgVk1fV1JJVEUgfCBWTV9SRUFEXQkJPSBfX1MwMTEsDQo+IC0JW1ZN
-X1NIQVJFRCB8IFZNX0VYRUNdCQkJCT0gX19TMTAwLA0KPiAtCVtWTV9TSEFSRUQgfCBWTV9FWEVD
-IHwgVk1fUkVBRF0JCQk9IF9fUzEwMSwNCj4gLQlbVk1fU0hBUkVEIHwgVk1fRVhFQyB8IFZNX1dS
-SVRFXQkJPSBfX1MxMTAsDQo+IC0JW1ZNX1NIQVJFRCB8IFZNX0VYRUMgfCBWTV9XUklURSB8IFZN
-X1JFQURdCT0gX19TMTExDQo+IC19Ow0KPiAtREVDTEFSRV9WTV9HRVRfUEFHRV9QUk9UDQo+IC0j
-ZW5kaWYJLyogQ09ORklHX0FSQ0hfSEFTX1ZNX0dFVF9QQUdFX1BST1QgKi8NCj4gLQ0KPiAgIHN0
-YXRpYyBwZ3Byb3RfdCB2bV9wZ3Byb3RfbW9kaWZ5KHBncHJvdF90IG9sZHByb3QsIHVuc2lnbmVk
-IGxvbmcgdm1fZmxhZ3MpDQo+ICAgew0KPiAgIAlyZXR1cm4gcGdwcm90X21vZGlmeShvbGRwcm90
-LCB2bV9nZXRfcGFnZV9wcm90KHZtX2ZsYWdzKSk7Cl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fCmxpbnV4LXJpc2N2IG1haWxpbmcgbGlzdApsaW51eC1yaXNj
-dkBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4v
-bGlzdGluZm8vbGludXgtcmlzY3YK
+
+
+On 6/24/22 10:52, Christophe Leroy wrote:
+> 
+> 
+> Le 24/06/2022 à 06:43, Anshuman Khandual a écrit :
+>> protection_map[] has already been moved inside those platforms which enable
+> 
+> Usually "already" means before your series.
+> 
+> Your series is the one that moves protection_map[] so I would have just 
+> said "Now that protection_map[] has been moved inside those platforms 
+> which enable ...."
+
+Got it, will update the commit message.
+
+> 
+>> ARCH_HAS_VM_GET_PAGE_PROT. Hence generic protection_map[] array now can be
+>> protected with CONFIG_ARCH_HAS_VM_GET_PAGE_PROT intead of __P000.
+>>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: linux-mm@kvack.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>>   include/linux/mm.h | 2 +-
+>>   mm/mmap.c          | 5 +----
+>>   2 files changed, 2 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/include/linux/mm.h b/include/linux/mm.h
+>> index 237828c2bae2..70d900f6df43 100644
+>> --- a/include/linux/mm.h
+>> +++ b/include/linux/mm.h
+>> @@ -424,7 +424,7 @@ extern unsigned int kobjsize(const void *objp);
+>>    * mapping from the currently active vm_flags protection bits (the
+>>    * low four bits) to a page protection mask..
+>>    */
+>> -#ifdef __P000
+>> +#ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT
+>>   extern pgprot_t protection_map[16];
+> 
+> Is this declaration still needed ? I have the feeling that 
+> protection_map[] is only used in mm/mmap.c now.
+
+At this point generic protection_map[] array is still being used via
+this declaration on many (!ARCH_HAS_VM_GET_PAGE_PROT) platforms such
+as mips, m68k, arm etc.
+
+> 
+>>   #endif
+>>   
+>> diff --git a/mm/mmap.c b/mm/mmap.c
+>> index 55c30aee3999..43db3bd49071 100644
+>> --- a/mm/mmap.c
+>> +++ b/mm/mmap.c
+>> @@ -101,7 +101,7 @@ static void unmap_region(struct mm_struct *mm,
+>>    *								w: (no) no
+>>    *								x: (yes) yes
+>>    */
+>> -#ifdef __P000
+>> +#ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT
+>>   pgprot_t protection_map[16] __ro_after_init = {
+> 
+> Should this be static, as it seems to now be used only in this file ?
+
+This is being used in some platforms as mentioned before.
+
+> And it could also be 'const' instead of __ro_after_init.
+
+Then should be able to be a 'const' wrt  mips, m68k, arm platforms.
+But should this even be changed, if this is going to be dropped off
+eventually ?
+
+> 
+>>   	[VM_NONE]					= __P000,
+>>   	[VM_READ]					= __P001,
+>> @@ -120,9 +120,6 @@ pgprot_t protection_map[16] __ro_after_init = {
+>>   	[VM_SHARED | VM_EXEC | VM_WRITE]		= __S110,
+>>   	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= __S111
+>>   };
+>> -#endif
+>> -
+>> -#ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT
+>>   DECLARE_VM_GET_PAGE_PROT
+>>   #endif	/* CONFIG_ARCH_HAS_VM_GET_PAGE_PROT */
+>>   
