@@ -1,47 +1,64 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH V4 00/26] mm/mmap: Drop __SXXX/__PXXX macros from across
- platforms
-Date: Thu, 23 Jun 2022 22:21:44 -0700
-Message-ID: <YrVJ6GaSzD/4kD6M@infradead.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: Re: [PATCH V4 07/26] mm/mmap: Build protect protection_map[] with
+ ARCH_HAS_VM_GET_PAGE_PROT
+Date: Fri, 24 Jun 2022 05:22:39 +0000
+Message-ID: <10aca763-2313-84bf-9200-6a6037fd748c@csgroup.eu>
 References: <20220624044339.1533882-1-anshuman.khandual@arm.com>
- <YrVHvv0spuMsC1In@infradead.org>
- <33bdac1e-207a-192b-bf43-818abfa49fe1@arm.com>
+ <20220624044339.1533882-8-anshuman.khandual@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=XKGzX6yE/I0P1qBeyrVkY5BnT7ywpbw4nd39m0yxTVs=; b=qJTUdComYPWwc4
-	8G47FdET9PSELRkBPyLA6ApFmAcmKEbRNHHK2W86rMj4j7yF0rF9s91Cfh/m2+iQvMrVgqQty6Gru
-	ltaYuOl/+a2tg7PZP9jwcLPBgaJVWswEToka37/Foqc4muhPXyYAbh+zemRkDyx/PgoGj5nuepWgC
-	WfVohcqHQYJd1hIM/g+c3iZvUYaKg7fxcu7O84C7BTIvWqU4Cn5PLJ2Fqb92O7STLVqTuhplPtjoK
-	z+c0hRyAilHLvZgtIL899dhYDDbx9TSSz1D+M33+poPFRQzpGWeA4MLsn6I1rB8eLFwMf404QWFAs
-	8kBeoMMa8jda4n6oITPg==;
-Content-Disposition: inline
-In-Reply-To: <33bdac1e-207a-192b-bf43-818abfa49fe1@arm.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-mm@kvack.org, christophe.leroy@csgroup.eu, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-alpha-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=W8CMthjKq6gjxJxXVOUckSCfx5NCEdDoyuA3JcvBRmo=;
+ b=ltM60Dp5vORb3pNhxyG0si+y5N/w7O3aH/b4IAv8/+FBkPJ01aZifjnmpSCKwjDsDel0j/xxiTtTrEpSu/IrmC3StBy35XUQxnfHoi1BfRtTvzsdLJqNSlYE6mfH3hB5jp2e8ZrpqwfU4xHlbDagTlpRlL8jTET2yDs9xy/7XZOvhDfxngwMXG9biJnXHsth8jz0D1fPSlEYNxKhcRQIRoj+70OhyLuJTsnWC+9xxNP8mL4oZHJuPAaWXBJhmmf2GaabJtNPiszJefJqw50ExYE/vqyEIMkXATgPhrLC4K4y6kkXPMFj20WgoGJe9CJYrH+aOL277M4hdjEyWfQl1w==
+In-Reply-To: <20220624044339.1533882-8-anshuman.khandual@arm.com>
+Content-Language: en-US
+Content-ID: <6B8A216CE4B01D4CBB97BDEBCC820B57@FRAP264.PROD.OUTLOOK.COM>
+List-ID: <linux-hexagon.vger.kernel.org>
+To: Anshuman Khandual <anshuman.khandual@arm.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>
+Cc: "hch@infradead.org" <hch@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vg>
 
-On Fri, Jun 24, 2022 at 10:50:33AM +0530, Anshuman Khandual wrote:
-> > On most architectures this should be const now, only very few ever
-> > modify it.
-> 
-> Will make it a 'static const pgprot_t protection_map[16] __ro_after_init'
-> on platforms that do not change the protection_map[] even during boot.
-
-No need for __ro_after_init when it is already declarated const.
+DQoNCkxlIDI0LzA2LzIwMjIgw6AgMDY6NDMsIEFuc2h1bWFuIEtoYW5kdWFsIGEgw6ljcml0wqA6
+DQo+IHByb3RlY3Rpb25fbWFwW10gaGFzIGFscmVhZHkgYmVlbiBtb3ZlZCBpbnNpZGUgdGhvc2Ug
+cGxhdGZvcm1zIHdoaWNoIGVuYWJsZQ0KDQpVc3VhbGx5ICJhbHJlYWR5IiBtZWFucyBiZWZvcmUg
+eW91ciBzZXJpZXMuDQoNCllvdXIgc2VyaWVzIGlzIHRoZSBvbmUgdGhhdCBtb3ZlcyBwcm90ZWN0
+aW9uX21hcFtdIHNvIEkgd291bGQgaGF2ZSBqdXN0IA0Kc2FpZCAiTm93IHRoYXQgcHJvdGVjdGlv
+bl9tYXBbXSBoYXMgYmVlbiBtb3ZlZCBpbnNpZGUgdGhvc2UgcGxhdGZvcm1zIA0Kd2hpY2ggZW5h
+YmxlIC4uLi4iDQoNCj4gQVJDSF9IQVNfVk1fR0VUX1BBR0VfUFJPVC4gSGVuY2UgZ2VuZXJpYyBw
+cm90ZWN0aW9uX21hcFtdIGFycmF5IG5vdyBjYW4gYmUNCj4gcHJvdGVjdGVkIHdpdGggQ09ORklH
+X0FSQ0hfSEFTX1ZNX0dFVF9QQUdFX1BST1QgaW50ZWFkIG9mIF9fUDAwMC4NCj4gDQo+IENjOiBB
+bmRyZXcgTW9ydG9uIDxha3BtQGxpbnV4LWZvdW5kYXRpb24ub3JnPg0KPiBDYzogbGludXgtbW1A
+a3ZhY2sub3JnDQo+IENjOiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+IFNpZ25lZC1v
+ZmYtYnk6IEFuc2h1bWFuIEtoYW5kdWFsIDxhbnNodW1hbi5raGFuZHVhbEBhcm0uY29tPg0KPiAt
+LS0NCj4gICBpbmNsdWRlL2xpbnV4L21tLmggfCAyICstDQo+ICAgbW0vbW1hcC5jICAgICAgICAg
+IHwgNSArLS0tLQ0KPiAgIDIgZmlsZXMgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCA1IGRlbGV0
+aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvbW0uaCBiL2luY2x1ZGUv
+bGludXgvbW0uaA0KPiBpbmRleCAyMzc4MjhjMmJhZTIuLjcwZDkwMGY2ZGY0MyAxMDA2NDQNCj4g
+LS0tIGEvaW5jbHVkZS9saW51eC9tbS5oDQo+ICsrKyBiL2luY2x1ZGUvbGludXgvbW0uaA0KPiBA
+QCAtNDI0LDcgKzQyNCw3IEBAIGV4dGVybiB1bnNpZ25lZCBpbnQga29ianNpemUoY29uc3Qgdm9p
+ZCAqb2JqcCk7DQo+ICAgICogbWFwcGluZyBmcm9tIHRoZSBjdXJyZW50bHkgYWN0aXZlIHZtX2Zs
+YWdzIHByb3RlY3Rpb24gYml0cyAodGhlDQo+ICAgICogbG93IGZvdXIgYml0cykgdG8gYSBwYWdl
+IHByb3RlY3Rpb24gbWFzay4uDQo+ICAgICovDQo+IC0jaWZkZWYgX19QMDAwDQo+ICsjaWZuZGVm
+IENPTkZJR19BUkNIX0hBU19WTV9HRVRfUEFHRV9QUk9UDQo+ICAgZXh0ZXJuIHBncHJvdF90IHBy
+b3RlY3Rpb25fbWFwWzE2XTsNCg0KSXMgdGhpcyBkZWNsYXJhdGlvbiBzdGlsbCBuZWVkZWQgPyBJ
+IGhhdmUgdGhlIGZlZWxpbmcgdGhhdCANCnByb3RlY3Rpb25fbWFwW10gaXMgb25seSB1c2VkIGlu
+IG1tL21tYXAuYyBub3cuDQoNCj4gICAjZW5kaWYNCj4gICANCj4gZGlmZiAtLWdpdCBhL21tL21t
+YXAuYyBiL21tL21tYXAuYw0KPiBpbmRleCA1NWMzMGFlZTM5OTkuLjQzZGIzYmQ0OTA3MSAxMDA2
+NDQNCj4gLS0tIGEvbW0vbW1hcC5jDQo+ICsrKyBiL21tL21tYXAuYw0KPiBAQCAtMTAxLDcgKzEw
+MSw3IEBAIHN0YXRpYyB2b2lkIHVubWFwX3JlZ2lvbihzdHJ1Y3QgbW1fc3RydWN0ICptbSwNCj4g
+ICAgKgkJCQkJCQkJdzogKG5vKSBubw0KPiAgICAqCQkJCQkJCQl4OiAoeWVzKSB5ZXMNCj4gICAg
+Ki8NCj4gLSNpZmRlZiBfX1AwMDANCj4gKyNpZm5kZWYgQ09ORklHX0FSQ0hfSEFTX1ZNX0dFVF9Q
+QUdFX1BST1QNCj4gICBwZ3Byb3RfdCBwcm90ZWN0aW9uX21hcFsxNl0gX19yb19hZnRlcl9pbml0
+ID0gew0KDQpTaG91bGQgdGhpcyBiZSBzdGF0aWMsIGFzIGl0IHNlZW1zIHRvIG5vdyBiZSB1c2Vk
+IG9ubHkgaW4gdGhpcyBmaWxlID8NCkFuZCBpdCBjb3VsZCBhbHNvIGJlICdjb25zdCcgaW5zdGVh
+ZCBvZiBfX3JvX2FmdGVyX2luaXQuDQoNCj4gICAJW1ZNX05PTkVdCQkJCQk9IF9fUDAwMCwNCj4g
+ICAJW1ZNX1JFQURdCQkJCQk9IF9fUDAwMSwNCj4gQEAgLTEyMCw5ICsxMjAsNiBAQCBwZ3Byb3Rf
+dCBwcm90ZWN0aW9uX21hcFsxNl0gX19yb19hZnRlcl9pbml0ID0gew0KPiAgIAlbVk1fU0hBUkVE
+IHwgVk1fRVhFQyB8IFZNX1dSSVRFXQkJPSBfX1MxMTAsDQo+ICAgCVtWTV9TSEFSRUQgfCBWTV9F
+WEVDIHwgVk1fV1JJVEUgfCBWTV9SRUFEXQk9IF9fUzExMQ0KPiAgIH07DQo+IC0jZW5kaWYNCj4g
+LQ0KPiAtI2lmbmRlZiBDT05GSUdfQVJDSF9IQVNfVk1fR0VUX1BBR0VfUFJPVA0KPiAgIERFQ0xB
+UkVfVk1fR0VUX1BBR0VfUFJPVA0KPiAgICNlbmRpZgkvKiBDT05GSUdfQVJDSF9IQVNfVk1fR0VU
+X1BBR0VfUFJPVCAqLw0KPiAgIA==
