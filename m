@@ -1,27 +1,49 @@
-From: Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH V4 05/26] arm64/mm: Move protection_map[] inside the
- platform
-Date: Fri, 24 Jun 2022 13:24:32 +0100
-Message-ID: <YrWtALCwqrL6mU3T@arm.com>
-References: <20220624044339.1533882-1-anshuman.khandual@arm.com>
- <20220624044339.1533882-6-anshuman.khandual@arm.com>
+From: Borislav Petkov <bp@suse.de>
+Subject: Re: [PATCH v5 0/9] bitops: let optimize out non-atomic bitops on
+ compile-time constants
+Date: Fri, 24 Jun 2022 14:51:15 +0200
+Message-ID: <YrWzQ6GleophO75b@zn.tnic>
+References: <20220624121313.2382500-1-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-m68k-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1656075079; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/ufyLq98aM5sPCb/A9DZ82OxnbOu+snINKekaV1aDRU=;
+        b=z/SG5u8nE+UvZJM1KMXfsdsJS4gFo9gKNUD1jqnZCEfQktOpJL+HUho2xWseFYUUxljXxm
+        4Vbo35uQa3H7cCMHdFOtFc7bAQUGtQsQgAEW5RP+6bwSdbrCaZOzz/8N0BYLpyE6Dp73T/
+        bEaYS6aVjoMfSGXUcWCoGG+0KRxQxvM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1656075079;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/ufyLq98aM5sPCb/A9DZ82OxnbOu+snINKekaV1aDRU=;
+        b=cITdCFre6nFiuMrbQP1LlPRDxLJEO+oY2+mpe4FddCjNeDzFUXzaMlRw1mDzLIdh6rfNdW
+        DQtygG0C3l0HHwAw==
 Content-Disposition: inline
-In-Reply-To: <20220624044339.1533882-6-anshuman.khandual@arm.com>
+In-Reply-To: <20220624121313.2382500-1-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: linux-mm@kvack.org, hch@infradead.org, christophe.leroy@csgroup.eu, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Will Deacon <will@kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+To: Alexander Lobakin <alexandr.lobakin@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Tony Luck <tony.luck@intel.com>, Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>
 
-On Fri, Jun 24, 2022 at 10:13:18AM +0530, Anshuman Khandual wrote:
-> This moves protection_map[] inside the platform and makes it a static.
-> 
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+On Fri, Jun 24, 2022 at 02:13:04PM +0200, Alexander Lobakin wrote:
+> While I was working on converting some structure fields from a fixed
 
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Can you please send your patchset once a week instead of spamming people
+with it every three days?
+
+Thank you.
+
+--=20
+Regards/Gruss,
+    Boris.
+
+SUSE Software Solutions Germany GmbH
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Martje Boudien Moerman
+(HRB 36809, AG N=C3=BCrnberg)
