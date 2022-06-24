@@ -1,84 +1,108 @@
 From: Alexander Lobakin <alexandr.lobakin@intel.com>
-Subject: [PATCH v5 7/9] net/ice: fix initializing the bitmap in the switch code
-Date: Fri, 24 Jun 2022 14:13:11 +0200
-Message-ID: <20220624121313.2382500-8-alexandr.lobakin@intel.com>
+Subject: [PATCH v5 6/9] bitops: let optimize out non-atomic bitops on compile-time constants
+Date: Fri, 24 Jun 2022 14:13:10 +0200
+Message-ID: <20220624121313.2382500-7-alexandr.lobakin@intel.com>
 References: <20220624121313.2382500-1-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-alpha-owner@vger.kernel.org>
+Return-path: <linux-m68k-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1656072815; x=1687608815;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=A1zzpdfJLbGPP5uEwMaw/RHBA/HUWtG2WXRsHiWWAyc=;
-  b=iM0G0IgcsTuIu4t/KJnpoKyc4/6oXNyrPZ1JrXtQbJo5MyAdsUNkVlU6
-   SUKiarlqOKWnGYke2QgDXsUmN3m+0OBmYMIDv6hAJKhAqfMQT17SO9FXv
-   71hOzslsE7UZS57eGI6wbtf3hfSBX5aDWj4tdE/Pi+dMfg7Xdn8OiJsSB
-   dVAM1687BsiG8oT5OsH5uKIwPSUU6u4zMkE0wBqSdGJ5sz28RkK+bCYG3
-   g4n2n+y6RGM4bPeA8HcvJqnfmXcWnw7r8YiUCq/ruC2ZwKjs9yDWhT4uv
-   XjQQ63YveR7kcuBiPA7hZ9W5D3TsKSDO1kPFqYXJEudwS0RhUDb491eIc
-   Q==;
+  bh=d4n4bpeLU/xxyAn3xewKoNW5SgouPORmr+EyOlcGZbU=;
+  b=exMGD4TiHfLl8DRrZrGPvSZIXWNL6AISapB6qBKsYcWO2VlW1fFaRbtf
+   7BsUj9Hoto8YHAQUrqju4+Gsx50YsOLBJYG+nLWvk4VUQmYgw5igQvtFr
+   iCkxUXQiwJV3vexnJFukTfoM2/iHdxysk3jLD7w56a78+c4FxmZLdPSlZ
+   9jDcCFJh3YwUAYBJRzMEVNYM+0QfA5/33q746n8Nbd32rFseaKwlDki9W
+   uTWiNyAiQIyhpkjNdSTfFWvqoe2NvwxWeLnNmv5Wt+xgbznAQc+9w/z4X
+   y/PwdNLMPGGpDW8LVJl41VQrGlImJxFcyTKNOI018jWgoDORG6mS1XVHS
+   A==;
 In-Reply-To: <20220624121313.2382500-1-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>
 Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <>
 
-Kbuild spotted the following bug during the testing of one of
-the optimizations:
+Currently, many architecture-specific non-atomic bitop
+implementations use inline asm or other hacks which are faster or
+more robust when working with "real" variables (i.e. fields from
+the structures etc.), but the compilers have no clue how to optimize
+them out when called on compile-time constants. That said, the
+following code:
 
-In file included from include/linux/cpumask.h:12,
-[...]
-                from drivers/net/ethernet/intel/ice/ice_switch.c:4:
-drivers/net/ethernet/intel/ice/ice_switch.c: In function 'ice_find_free_recp_res_idx.constprop':
-include/linux/bitmap.h:447:22: warning: 'possible_idx[0]' is used uninitialized [-Wuninitialized]
-  447 |                 *map |= GENMASK(start + nbits - 1, start);
-      |                      ^~
-In file included from drivers/net/ethernet/intel/ice/ice.h:7,
-                 from drivers/net/ethernet/intel/ice/ice_lib.h:7,
-                 from drivers/net/ethernet/intel/ice/ice_switch.c:4:
-drivers/net/ethernet/intel/ice/ice_switch.c:4929:24: note: 'possible_idx[0]' was declared here
- 4929 |         DECLARE_BITMAP(possible_idx, ICE_MAX_FV_WORDS);
-      |                        ^~~~~~~~~~~~
-include/linux/types.h:11:23: note: in definition of macro 'DECLARE_BITMAP'
-   11 |         unsigned long name[BITS_TO_LONGS(bits)]
-      |                       ^~~~
+	DECLARE_BITMAP(foo, BITS_PER_LONG) = { }; // -> unsigned long foo[1];
+	unsigned long bar = BIT(BAR_BIT);
+	unsigned long baz = 0;
 
-%ICE_MAX_FV_WORDS is 48, so bitmap_set() here was initializing only
-48 bits, leaving a junk in the rest 16.
-It was previously hidden due to that filling 48 bits makes
-bitmap_set() call external __bitmap_set(), but after making it use
-plain bit arithmetics on small bitmaps, compilers started seeing
-the issue. It was still working because those 16 weren't used
-anywhere anyhow.
-bitmap_{clear,set}() are not really intended to initialize bitmaps,
-rather to modify already initialized ones, as they don't do anything
-past the passed number of bits. The correct function to do this in
-that particular case is bitmap_fill(), so use it here. It will do
-`*possible_idx = ~0UL` instead of `*possible_idx |= GENMASK(47, 0)`,
-not leaving anything in an undefined state.
+	__set_bit(FOO_BIT, foo);
+	baz |= BIT(BAZ_BIT);
 
-Fixes: fd2a6b71e300 ("ice: create advanced switch recipe")
-Reported-by: kernel test robot <lkp@intel.com>
+	BUILD_BUG_ON(!__builtin_constant_p(test_bit(FOO_BIT, foo));
+	BUILD_BUG_ON(!__builtin_constant_p(bar & BAR_BIT));
+	BUILD_BUG_ON(!__builtin_constant_p(baz & BAZ_BIT));
+
+triggers the first assertion on x86_64, which means that the
+compiler is unable to evaluate it to a compile-time initializer
+when the architecture-specific bitop is used even if it's obvious.
+In order to let the compiler optimize out such cases, expand the
+bitop() macro to use the "constant" C non-atomic bitop
+implementations when all of the arguments passed are compile-time
+constants, which means that the result will be a compile-time
+constant as well, so that it produces more efficient and simple
+code in 100% cases, comparing to the architecture-specific
+counterparts.
+
+The savings are architecture, compiler and compiler flags dependent,
+for example, on x86_64 -O2:
+
+GCC 12: add/remove: 78/29 grow/shrink: 332/525 up/down: 31325/-61560 (-30235)
+LLVM 13: add/remove: 79/76 grow/shrink: 184/537 up/down: 55076/-141892 (-86816)
+LLVM 14: add/remove: 10/3 grow/shrink: 93/138 up/down: 3705/-6992 (-3287)
+
+and ARM64 (courtesy of Mark):
+
+GCC 11: add/remove: 92/29 grow/shrink: 933/2766 up/down: 39340/-82580 (-43240)
+LLVM 14: add/remove: 21/11 grow/shrink: 620/651 up/down: 12060/-15824 (-3764)
+
+Cc: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Reviewed-by: Marco Elver <elver@google.com>
 ---
- drivers/net/ethernet/intel/ice/ice_switch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/bitops.h | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_switch.c b/drivers/net/ethernet/intel/ice/ice_switch.c
-index 8d8f3eec79ee..9b2872e89151 100644
---- a/drivers/net/ethernet/intel/ice/ice_switch.c
-+++ b/drivers/net/ethernet/intel/ice/ice_switch.c
-@@ -4934,7 +4934,7 @@ ice_find_free_recp_res_idx(struct ice_hw *hw, const unsigned long *profiles,
- 	bitmap_zero(recipes, ICE_MAX_NUM_RECIPES);
- 	bitmap_zero(used_idx, ICE_MAX_FV_WORDS);
+diff --git a/include/linux/bitops.h b/include/linux/bitops.h
+index 3c3afbae1533..cf9bf65039f2 100644
+--- a/include/linux/bitops.h
++++ b/include/linux/bitops.h
+@@ -33,8 +33,24 @@ extern unsigned long __sw_hweight64(__u64 w);
  
--	bitmap_set(possible_idx, 0, ICE_MAX_FV_WORDS);
-+	bitmap_fill(possible_idx, ICE_MAX_FV_WORDS);
+ #include <asm-generic/bitops/generic-non-atomic.h>
  
- 	/* For each profile we are going to associate the recipe with, add the
- 	 * recipes that are associated with that profile. This will give us
++/*
++ * Many architecture-specific non-atomic bitops contain inline asm code and due
++ * to that the compiler can't optimize them to compile-time expressions or
++ * constants. In contrary, generic_*() helpers are defined in pure C and
++ * compilers optimize them just well.
++ * Therefore, to make `unsigned long foo = 0; __set_bit(BAR, &foo)` effectively
++ * equal to `unsigned long foo = BIT(BAR)`, pick the generic C alternative when
++ * the arguments can be resolved at compile time. That expression itself is a
++ * constant and doesn't bring any functional changes to the rest of cases.
++ * The casts to `uintptr_t` are needed to mitigate `-Waddress` warnings when
++ * passing a bitmap from .bss or .data (-> `!!addr` is always true).
++ */
+ #define bitop(op, nr, addr)						\
+-	op(nr, addr)
++	((__builtin_constant_p(nr) &&					\
++	  __builtin_constant_p((uintptr_t)(addr) != (uintptr_t)NULL) &&	\
++	  (uintptr_t)(addr) != (uintptr_t)NULL &&			\
++	  __builtin_constant_p(*(const unsigned long *)(addr))) ?	\
++	 const##op(nr, addr) : op(nr, addr))
+ 
+ #define __set_bit(nr, addr)		bitop(___set_bit, nr, addr)
+ #define __clear_bit(nr, addr)		bitop(___clear_bit, nr, addr)
 -- 
 2.36.1
 
