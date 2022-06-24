@@ -1,107 +1,100 @@
 From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V4 16/26] riscv/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date: Fri, 24 Jun 2022 10:13:29 +0530
-Message-ID: <20220624044339.1533882-17-anshuman.khandual@arm.com>
+Subject: [PATCH V4 15/26] nios2/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Date: Fri, 24 Jun 2022 10:13:28 +0530
+Message-ID: <20220624044339.1533882-16-anshuman.khandual@arm.com>
 References: <20220624044339.1533882-1-anshuman.khandual@arm.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-m68k-owner@vger.kernel.org>
+Return-path: <linux-alpha-owner@vger.kernel.org>
 In-Reply-To: <20220624044339.1533882-1-anshuman.khandual@arm.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-mm@kvack.org
-Cc: hch@infradead.org, christophe.leroy@csgroup.eu, Anshuman Khandual <anshuman.khandual@arm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>
+Cc: hch@infradead.org, christophe.leroy@csgroup.eu, Anshuman Khandual <anshuman.khandual@arm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>
 
 This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
 vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
 up a private and static protection_map[] array. Subsequently all __SXXX and
 __PXXX macros can be dropped which are no longer needed.
 
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: linux-riscv@lists.infradead.org
+Cc: Dinh Nguyen <dinguyen@kernel.org>
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/riscv/Kconfig               |  1 +
- arch/riscv/include/asm/pgtable.h | 20 --------------------
- arch/riscv/mm/init.c             | 20 ++++++++++++++++++++
- 3 files changed, 21 insertions(+), 20 deletions(-)
+ arch/nios2/Kconfig               |  1 +
+ arch/nios2/include/asm/pgtable.h | 16 ----------------
+ arch/nios2/mm/init.c             | 20 ++++++++++++++++++++
+ 3 files changed, 21 insertions(+), 16 deletions(-)
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 32ffef9f6e5b..583389d4e43a 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -32,6 +32,7 @@ config RISCV
- 	select ARCH_HAS_STRICT_MODULE_RWX if MMU && !XIP_KERNEL
- 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
+diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
+index 4167f1eb4cd8..e0459dffd218 100644
+--- a/arch/nios2/Kconfig
++++ b/arch/nios2/Kconfig
+@@ -6,6 +6,7 @@ config NIOS2
+ 	select ARCH_HAS_SYNC_DMA_FOR_CPU
+ 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+ 	select ARCH_HAS_DMA_SET_UNCACHED
 +	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_OPTIONAL_KERNEL_RWX if ARCH_HAS_STRICT_KERNEL_RWX
- 	select ARCH_OPTIONAL_KERNEL_RWX_DEFAULT
- 	select ARCH_STACKWALK
-diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 1d1be9d9419c..23e643db6575 100644
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -186,26 +186,6 @@ extern struct pt_alloc_ops pt_ops __initdata;
+ 	select ARCH_NO_SWAP
+ 	select COMMON_CLK
+ 	select TIMER_OF
+diff --git a/arch/nios2/include/asm/pgtable.h b/arch/nios2/include/asm/pgtable.h
+index 262d0609268c..470516d4555e 100644
+--- a/arch/nios2/include/asm/pgtable.h
++++ b/arch/nios2/include/asm/pgtable.h
+@@ -40,24 +40,8 @@ struct mm_struct;
+  */
  
- extern pgd_t swapper_pg_dir[];
+ /* Remove W bit on private pages for COW support */
+-#define __P000	MKP(0, 0, 0)
+-#define __P001	MKP(0, 0, 1)
+-#define __P010	MKP(0, 0, 0)	/* COW */
+-#define __P011	MKP(0, 0, 1)	/* COW */
+-#define __P100	MKP(1, 0, 0)
+-#define __P101	MKP(1, 0, 1)
+-#define __P110	MKP(1, 0, 0)	/* COW */
+-#define __P111	MKP(1, 0, 1)	/* COW */
  
--/* MAP_PRIVATE permissions: xwr (copy-on-write) */
--#define __P000	PAGE_NONE
--#define __P001	PAGE_READ
--#define __P010	PAGE_COPY
--#define __P011	PAGE_COPY
--#define __P100	PAGE_EXEC
--#define __P101	PAGE_READ_EXEC
--#define __P110	PAGE_COPY_EXEC
--#define __P111	PAGE_COPY_READ_EXEC
--
--/* MAP_SHARED permissions: xwr */
--#define __S000	PAGE_NONE
--#define __S001	PAGE_READ
--#define __S010	PAGE_SHARED
--#define __S011	PAGE_SHARED
--#define __S100	PAGE_EXEC
--#define __S101	PAGE_READ_EXEC
--#define __S110	PAGE_SHARED_EXEC
--#define __S111	PAGE_SHARED_EXEC
--
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- static inline int pmd_present(pmd_t pmd)
+ /* Shared pages can have exact HW mapping */
+-#define __S000	MKP(0, 0, 0)
+-#define __S001	MKP(0, 0, 1)
+-#define __S010	MKP(0, 1, 0)
+-#define __S011	MKP(0, 1, 1)
+-#define __S100	MKP(1, 0, 0)
+-#define __S101	MKP(1, 0, 1)
+-#define __S110	MKP(1, 1, 0)
+-#define __S111	MKP(1, 1, 1)
+ 
+ /* Used all over the kernel */
+ #define PAGE_KERNEL __pgprot(_PAGE_PRESENT | _PAGE_CACHED | _PAGE_READ | \
+diff --git a/arch/nios2/mm/init.c b/arch/nios2/mm/init.c
+index 613fcaa5988a..9a3dd4c80d70 100644
+--- a/arch/nios2/mm/init.c
++++ b/arch/nios2/mm/init.c
+@@ -124,3 +124,23 @@ const char *arch_vma_name(struct vm_area_struct *vma)
  {
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index d466ec670e1f..f976580500b1 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -288,6 +288,26 @@ static pmd_t __maybe_unused early_dtb_pmd[PTRS_PER_PMD] __initdata __aligned(PAG
- #define early_pg_dir           ((pgd_t *)XIP_FIXUP(early_pg_dir))
- #endif /* CONFIG_XIP_KERNEL */
- 
+ 	return (vma->vm_start == KUSER_BASE) ? "[kuser]" : NULL;
+ }
++
 +static pgprot_t protection_map[16] __ro_after_init = {
-+	[VM_NONE]					= PAGE_NONE,
-+	[VM_READ]					= PAGE_READ,
-+	[VM_WRITE]					= PAGE_COPY,
-+	[VM_WRITE | VM_READ]				= PAGE_COPY,
-+	[VM_EXEC]					= PAGE_EXEC,
-+	[VM_EXEC | VM_READ]				= PAGE_READ_EXEC,
-+	[VM_EXEC | VM_WRITE]				= PAGE_COPY_EXEC,
-+	[VM_EXEC | VM_WRITE | VM_READ]			= PAGE_COPY_READ_EXEC,
-+	[VM_SHARED]					= PAGE_NONE,
-+	[VM_SHARED | VM_READ]				= PAGE_READ,
-+	[VM_SHARED | VM_WRITE]				= PAGE_SHARED,
-+	[VM_SHARED | VM_WRITE | VM_READ]		= PAGE_SHARED,
-+	[VM_SHARED | VM_EXEC]				= PAGE_EXEC,
-+	[VM_SHARED | VM_EXEC | VM_READ]			= PAGE_READ_EXEC,
-+	[VM_SHARED | VM_EXEC | VM_WRITE]		= PAGE_SHARED_EXEC,
-+	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= PAGE_SHARED_EXEC
++	[VM_NONE]					= MKP(0, 0, 0),
++	[VM_READ]					= MKP(0, 0, 1),
++	[VM_WRITE]					= MKP(0, 0, 0),
++	[VM_WRITE | VM_READ]				= MKP(0, 0, 1),
++	[VM_EXEC]					= MKP(1, 0, 0),
++	[VM_EXEC | VM_READ]				= MKP(1, 0, 1),
++	[VM_EXEC | VM_WRITE]				= MKP(1, 0, 0),
++	[VM_EXEC | VM_WRITE | VM_READ]			= MKP(1, 0, 1),
++	[VM_SHARED]					= MKP(0, 0, 0),
++	[VM_SHARED | VM_READ]				= MKP(0, 0, 1),
++	[VM_SHARED | VM_WRITE]				= MKP(0, 1, 0),
++	[VM_SHARED | VM_WRITE | VM_READ]		= MKP(0, 1, 1),
++	[VM_SHARED | VM_EXEC]				= MKP(1, 0, 0),
++	[VM_SHARED | VM_EXEC | VM_READ]			= MKP(1, 0, 1),
++	[VM_SHARED | VM_EXEC | VM_WRITE]		= MKP(1, 1, 0),
++	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= MKP(1, 1, 1)
 +};
 +DECLARE_VM_GET_PAGE_PROT
-+
- void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t prot)
- {
- 	unsigned long addr = __fix_to_virt(idx);
 -- 
 2.25.1
 
