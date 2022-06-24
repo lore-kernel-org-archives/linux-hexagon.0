@@ -1,64 +1,135 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH V4 07/26] mm/mmap: Build protect protection_map[] with
- ARCH_HAS_VM_GET_PAGE_PROT
-Date: Fri, 24 Jun 2022 05:22:39 +0000
-Message-ID: <10aca763-2313-84bf-9200-6a6037fd748c@csgroup.eu>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH V4 03/26] powerpc/mm: Move protection_map[] inside the
+ platform
+Date: Fri, 24 Jun 2022 10:53:05 +0530
+Message-ID: <4e8b3213-2ca8-0bff-6ea9-3b03d1d1ad27@arm.com>
 References: <20220624044339.1533882-1-anshuman.khandual@arm.com>
- <20220624044339.1533882-8-anshuman.khandual@arm.com>
+ <20220624044339.1533882-4-anshuman.khandual@arm.com>
+ <bce16cfe-45e1-6417-2a01-6a3ff6b67077@csgroup.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-alpha-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=W8CMthjKq6gjxJxXVOUckSCfx5NCEdDoyuA3JcvBRmo=;
- b=ltM60Dp5vORb3pNhxyG0si+y5N/w7O3aH/b4IAv8/+FBkPJ01aZifjnmpSCKwjDsDel0j/xxiTtTrEpSu/IrmC3StBy35XUQxnfHoi1BfRtTvzsdLJqNSlYE6mfH3hB5jp2e8ZrpqwfU4xHlbDagTlpRlL8jTET2yDs9xy/7XZOvhDfxngwMXG9biJnXHsth8jz0D1fPSlEYNxKhcRQIRoj+70OhyLuJTsnWC+9xxNP8mL4oZHJuPAaWXBJhmmf2GaabJtNPiszJefJqw50ExYE/vqyEIMkXATgPhrLC4K4y6kkXPMFj20WgoGJe9CJYrH+aOL277M4hdjEyWfQl1w==
-In-Reply-To: <20220624044339.1533882-8-anshuman.khandual@arm.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 Content-Language: en-US
-Content-ID: <6B8A216CE4B01D4CBB97BDEBCC820B57@FRAP264.PROD.OUTLOOK.COM>
+In-Reply-To: <bce16cfe-45e1-6417-2a01-6a3ff6b67077@csgroup.eu>
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Anshuman Khandual <anshuman.khandual@arm.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>
+Content-Type: text/plain; charset="utf-8"
+To: Christophe Leroy <christophe.leroy@csgroup.eu>, "linux-mm@kvack.org" <linux-mm@kvack.org>
 Cc: "hch@infradead.org" <hch@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vg>
 
-DQoNCkxlIDI0LzA2LzIwMjIgw6AgMDY6NDMsIEFuc2h1bWFuIEtoYW5kdWFsIGEgw6ljcml0wqA6
-DQo+IHByb3RlY3Rpb25fbWFwW10gaGFzIGFscmVhZHkgYmVlbiBtb3ZlZCBpbnNpZGUgdGhvc2Ug
-cGxhdGZvcm1zIHdoaWNoIGVuYWJsZQ0KDQpVc3VhbGx5ICJhbHJlYWR5IiBtZWFucyBiZWZvcmUg
-eW91ciBzZXJpZXMuDQoNCllvdXIgc2VyaWVzIGlzIHRoZSBvbmUgdGhhdCBtb3ZlcyBwcm90ZWN0
-aW9uX21hcFtdIHNvIEkgd291bGQgaGF2ZSBqdXN0IA0Kc2FpZCAiTm93IHRoYXQgcHJvdGVjdGlv
-bl9tYXBbXSBoYXMgYmVlbiBtb3ZlZCBpbnNpZGUgdGhvc2UgcGxhdGZvcm1zIA0Kd2hpY2ggZW5h
-YmxlIC4uLi4iDQoNCj4gQVJDSF9IQVNfVk1fR0VUX1BBR0VfUFJPVC4gSGVuY2UgZ2VuZXJpYyBw
-cm90ZWN0aW9uX21hcFtdIGFycmF5IG5vdyBjYW4gYmUNCj4gcHJvdGVjdGVkIHdpdGggQ09ORklH
-X0FSQ0hfSEFTX1ZNX0dFVF9QQUdFX1BST1QgaW50ZWFkIG9mIF9fUDAwMC4NCj4gDQo+IENjOiBB
-bmRyZXcgTW9ydG9uIDxha3BtQGxpbnV4LWZvdW5kYXRpb24ub3JnPg0KPiBDYzogbGludXgtbW1A
-a3ZhY2sub3JnDQo+IENjOiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+IFNpZ25lZC1v
-ZmYtYnk6IEFuc2h1bWFuIEtoYW5kdWFsIDxhbnNodW1hbi5raGFuZHVhbEBhcm0uY29tPg0KPiAt
-LS0NCj4gICBpbmNsdWRlL2xpbnV4L21tLmggfCAyICstDQo+ICAgbW0vbW1hcC5jICAgICAgICAg
-IHwgNSArLS0tLQ0KPiAgIDIgZmlsZXMgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCA1IGRlbGV0
-aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvbW0uaCBiL2luY2x1ZGUv
-bGludXgvbW0uaA0KPiBpbmRleCAyMzc4MjhjMmJhZTIuLjcwZDkwMGY2ZGY0MyAxMDA2NDQNCj4g
-LS0tIGEvaW5jbHVkZS9saW51eC9tbS5oDQo+ICsrKyBiL2luY2x1ZGUvbGludXgvbW0uaA0KPiBA
-QCAtNDI0LDcgKzQyNCw3IEBAIGV4dGVybiB1bnNpZ25lZCBpbnQga29ianNpemUoY29uc3Qgdm9p
-ZCAqb2JqcCk7DQo+ICAgICogbWFwcGluZyBmcm9tIHRoZSBjdXJyZW50bHkgYWN0aXZlIHZtX2Zs
-YWdzIHByb3RlY3Rpb24gYml0cyAodGhlDQo+ICAgICogbG93IGZvdXIgYml0cykgdG8gYSBwYWdl
-IHByb3RlY3Rpb24gbWFzay4uDQo+ICAgICovDQo+IC0jaWZkZWYgX19QMDAwDQo+ICsjaWZuZGVm
-IENPTkZJR19BUkNIX0hBU19WTV9HRVRfUEFHRV9QUk9UDQo+ICAgZXh0ZXJuIHBncHJvdF90IHBy
-b3RlY3Rpb25fbWFwWzE2XTsNCg0KSXMgdGhpcyBkZWNsYXJhdGlvbiBzdGlsbCBuZWVkZWQgPyBJ
-IGhhdmUgdGhlIGZlZWxpbmcgdGhhdCANCnByb3RlY3Rpb25fbWFwW10gaXMgb25seSB1c2VkIGlu
-IG1tL21tYXAuYyBub3cuDQoNCj4gICAjZW5kaWYNCj4gICANCj4gZGlmZiAtLWdpdCBhL21tL21t
-YXAuYyBiL21tL21tYXAuYw0KPiBpbmRleCA1NWMzMGFlZTM5OTkuLjQzZGIzYmQ0OTA3MSAxMDA2
-NDQNCj4gLS0tIGEvbW0vbW1hcC5jDQo+ICsrKyBiL21tL21tYXAuYw0KPiBAQCAtMTAxLDcgKzEw
-MSw3IEBAIHN0YXRpYyB2b2lkIHVubWFwX3JlZ2lvbihzdHJ1Y3QgbW1fc3RydWN0ICptbSwNCj4g
-ICAgKgkJCQkJCQkJdzogKG5vKSBubw0KPiAgICAqCQkJCQkJCQl4OiAoeWVzKSB5ZXMNCj4gICAg
-Ki8NCj4gLSNpZmRlZiBfX1AwMDANCj4gKyNpZm5kZWYgQ09ORklHX0FSQ0hfSEFTX1ZNX0dFVF9Q
-QUdFX1BST1QNCj4gICBwZ3Byb3RfdCBwcm90ZWN0aW9uX21hcFsxNl0gX19yb19hZnRlcl9pbml0
-ID0gew0KDQpTaG91bGQgdGhpcyBiZSBzdGF0aWMsIGFzIGl0IHNlZW1zIHRvIG5vdyBiZSB1c2Vk
-IG9ubHkgaW4gdGhpcyBmaWxlID8NCkFuZCBpdCBjb3VsZCBhbHNvIGJlICdjb25zdCcgaW5zdGVh
-ZCBvZiBfX3JvX2FmdGVyX2luaXQuDQoNCj4gICAJW1ZNX05PTkVdCQkJCQk9IF9fUDAwMCwNCj4g
-ICAJW1ZNX1JFQURdCQkJCQk9IF9fUDAwMSwNCj4gQEAgLTEyMCw5ICsxMjAsNiBAQCBwZ3Byb3Rf
-dCBwcm90ZWN0aW9uX21hcFsxNl0gX19yb19hZnRlcl9pbml0ID0gew0KPiAgIAlbVk1fU0hBUkVE
-IHwgVk1fRVhFQyB8IFZNX1dSSVRFXQkJPSBfX1MxMTAsDQo+ICAgCVtWTV9TSEFSRUQgfCBWTV9F
-WEVDIHwgVk1fV1JJVEUgfCBWTV9SRUFEXQk9IF9fUzExMQ0KPiAgIH07DQo+IC0jZW5kaWYNCj4g
-LQ0KPiAtI2lmbmRlZiBDT05GSUdfQVJDSF9IQVNfVk1fR0VUX1BBR0VfUFJPVA0KPiAgIERFQ0xB
-UkVfVk1fR0VUX1BBR0VfUFJPVA0KPiAgICNlbmRpZgkvKiBDT05GSUdfQVJDSF9IQVNfVk1fR0VU
-X1BBR0VfUFJPVCAqLw0KPiAgIA==
+
+
+On 6/24/22 10:48, Christophe Leroy wrote:
+> 
+> 
+> Le 24/06/2022 à 06:43, Anshuman Khandual a écrit :
+>> This moves protection_map[] inside the platform and while here, also enable
+>> ARCH_HAS_VM_GET_PAGE_PROT on 32 bit platforms via DECLARE_VM_GET_PAGE_PROT.
+> 
+> Not only 32 bit platforms, also nohash 64 (aka book3e/64)
+
+Sure, will update the commit message.
+
+> 
+>>
+>> Cc: Michael Ellerman <mpe@ellerman.id.au>
+>> Cc: Paul Mackerras <paulus@samba.org>
+>> Cc: Nicholas Piggin <npiggin@gmail.com>
+>> Cc: linuxppc-dev@lists.ozlabs.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>>   arch/powerpc/Kconfig               |  2 +-
+>>   arch/powerpc/include/asm/pgtable.h | 20 +-------------------
+>>   arch/powerpc/mm/pgtable.c          | 24 ++++++++++++++++++++++++
+>>   3 files changed, 26 insertions(+), 20 deletions(-)
+>>
+>> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+>> index c2ce2e60c8f0..1035d172c7dd 100644
+>> --- a/arch/powerpc/Kconfig
+>> +++ b/arch/powerpc/Kconfig
+>> @@ -140,7 +140,7 @@ config PPC
+>>   	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
+>>   	select ARCH_HAS_UACCESS_FLUSHCACHE
+>>   	select ARCH_HAS_UBSAN_SANITIZE_ALL
+>> -	select ARCH_HAS_VM_GET_PAGE_PROT	if PPC_BOOK3S_64
+>> +	select ARCH_HAS_VM_GET_PAGE_PROT
+>>   	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+>>   	select ARCH_KEEP_MEMBLOCK
+>>   	select ARCH_MIGHT_HAVE_PC_PARPORT
+>> diff --git a/arch/powerpc/include/asm/pgtable.h b/arch/powerpc/include/asm/pgtable.h
+>> index d564d0ecd4cd..bf98db844579 100644
+>> --- a/arch/powerpc/include/asm/pgtable.h
+>> +++ b/arch/powerpc/include/asm/pgtable.h
+>> @@ -20,25 +20,6 @@ struct mm_struct;
+>>   #include <asm/nohash/pgtable.h>
+>>   #endif /* !CONFIG_PPC_BOOK3S */
+>>   
+>> -/* Note due to the way vm flags are laid out, the bits are XWR */
+>> -#define __P000	PAGE_NONE
+>> -#define __P001	PAGE_READONLY
+>> -#define __P010	PAGE_COPY
+>> -#define __P011	PAGE_COPY
+>> -#define __P100	PAGE_READONLY_X
+>> -#define __P101	PAGE_READONLY_X
+>> -#define __P110	PAGE_COPY_X
+>> -#define __P111	PAGE_COPY_X
+>> -
+>> -#define __S000	PAGE_NONE
+>> -#define __S001	PAGE_READONLY
+>> -#define __S010	PAGE_SHARED
+>> -#define __S011	PAGE_SHARED
+>> -#define __S100	PAGE_READONLY_X
+>> -#define __S101	PAGE_READONLY_X
+>> -#define __S110	PAGE_SHARED_X
+>> -#define __S111	PAGE_SHARED_X
+>> -
+>>   #ifndef __ASSEMBLY__
+>>   
+>>   #ifndef MAX_PTRS_PER_PGD
+>> @@ -79,6 +60,7 @@ extern void paging_init(void);
+>>   void poking_init(void);
+>>   
+>>   extern unsigned long ioremap_bot;
+>> +extern pgprot_t protection_map[16] __ro_after_init;
+>>   
+>>   /*
+>>    * kern_addr_valid is intended to indicate whether an address is a valid
+>> diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
+>> index e6166b71d36d..618f30d35b17 100644
+>> --- a/arch/powerpc/mm/pgtable.c
+>> +++ b/arch/powerpc/mm/pgtable.c
+>> @@ -472,3 +472,27 @@ pte_t *__find_linux_pte(pgd_t *pgdir, unsigned long ea,
+>>   	return ret_pte;
+>>   }
+>>   EXPORT_SYMBOL_GPL(__find_linux_pte);
+>> +
+>> +/* Note due to the way vm flags are laid out, the bits are XWR */
+>> +pgprot_t protection_map[16] __ro_after_init = {
+> 
+> I can't see any place where protection_map[] gets modified. This could 
+> be made const.
+
+Sure, will make it a const as in case for many other platforms as well.
+
+> 
+>> +	[VM_NONE]					= PAGE_NONE,
+>> +	[VM_READ]					= PAGE_READONLY,
+>> +	[VM_WRITE]					= PAGE_COPY,
+>> +	[VM_WRITE | VM_READ]				= PAGE_COPY,
+>> +	[VM_EXEC]					= PAGE_READONLY_X,
+>> +	[VM_EXEC | VM_READ]				= PAGE_READONLY_X,
+>> +	[VM_EXEC | VM_WRITE]				= PAGE_COPY_X,
+>> +	[VM_EXEC | VM_WRITE | VM_READ]			= PAGE_COPY_X,
+>> +	[VM_SHARED]					= PAGE_NONE,
+>> +	[VM_SHARED | VM_READ]				= PAGE_READONLY,
+>> +	[VM_SHARED | VM_WRITE]				= PAGE_SHARED,
+>> +	[VM_SHARED | VM_WRITE | VM_READ]		= PAGE_SHARED,
+>> +	[VM_SHARED | VM_EXEC]				= PAGE_READONLY_X,
+>> +	[VM_SHARED | VM_EXEC | VM_READ]			= PAGE_READONLY_X,
+>> +	[VM_SHARED | VM_EXEC | VM_WRITE]		= PAGE_SHARED_X,
+>> +	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= PAGE_SHARED_X
+>> +};
+>> +
+>> +#ifndef CONFIG_PPC_BOOK3S_64
+>> +DECLARE_VM_GET_PAGE_PROT
+>> +#endif
