@@ -1,113 +1,99 @@
 From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V4 19/26] ia64/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date: Fri, 24 Jun 2022 10:13:32 +0530
-Message-ID: <20220624044339.1533882-20-anshuman.khandual@arm.com>
+Subject: [PATCH V4 22/26] arc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Date: Fri, 24 Jun 2022 10:13:35 +0530
+Message-ID: <20220624044339.1533882-23-anshuman.khandual@arm.com>
 References: <20220624044339.1533882-1-anshuman.khandual@arm.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-alpha-owner@vger.kernel.org>
 In-Reply-To: <20220624044339.1533882-1-anshuman.khandual@arm.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-mm@kvack.org
-Cc: hch@infradead.org, christophe.leroy@csgroup.eu, Anshuman Khandual <anshuman.khandual@arm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: hch@infradead.org, christophe.leroy@csgroup.eu, Anshuman Khandual <anshuman.khandual@arm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet Gupta <vgupta@kernel.org>
 
 This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
 vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
 up a private and static protection_map[] array. Subsequently all __SXXX and
 __PXXX macros can be dropped which are no longer needed.
 
-Cc: linux-ia64@vger.kernel.org
+Cc: Vineet Gupta <vgupta@kernel.org>
+Cc: linux-snps-arc@lists.infradead.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/ia64/Kconfig               |  1 +
- arch/ia64/include/asm/pgtable.h | 18 ------------------
- arch/ia64/mm/init.c             | 28 +++++++++++++++++++++++++++-
- 3 files changed, 28 insertions(+), 19 deletions(-)
+ arch/arc/Kconfig                          |  1 +
+ arch/arc/include/asm/pgtable-bits-arcv2.h | 18 ------------------
+ arch/arc/mm/mmap.c                        | 20 ++++++++++++++++++++
+ 3 files changed, 21 insertions(+), 18 deletions(-)
 
-diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
-index cb93769a9f2a..0510a5737711 100644
---- a/arch/ia64/Kconfig
-+++ b/arch/ia64/Kconfig
-@@ -12,6 +12,7 @@ config IA64
- 	select ARCH_HAS_DMA_MARK_CLEAN
- 	select ARCH_HAS_STRNCPY_FROM_USER
- 	select ARCH_HAS_STRNLEN_USER
+diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
+index 9e3653253ef2..8be56a5d8a9b 100644
+--- a/arch/arc/Kconfig
++++ b/arch/arc/Kconfig
+@@ -13,6 +13,7 @@ config ARC
+ 	select ARCH_HAS_SETUP_DMA_OPS
+ 	select ARCH_HAS_SYNC_DMA_FOR_CPU
+ 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
 +	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_MIGHT_HAVE_PC_SERIO
- 	select ACPI
-diff --git a/arch/ia64/include/asm/pgtable.h b/arch/ia64/include/asm/pgtable.h
-index 7aa8f2330fb1..6925e28ae61d 100644
---- a/arch/ia64/include/asm/pgtable.h
-+++ b/arch/ia64/include/asm/pgtable.h
-@@ -161,24 +161,6 @@
-  * attempts to write to the page.
+ 	select ARCH_SUPPORTS_ATOMIC_RMW if ARC_HAS_LLSC
+ 	select ARCH_32BIT_OFF_T
+ 	select BUILDTIME_TABLE_SORT
+diff --git a/arch/arc/include/asm/pgtable-bits-arcv2.h b/arch/arc/include/asm/pgtable-bits-arcv2.h
+index 183d23bc1e00..b23be557403e 100644
+--- a/arch/arc/include/asm/pgtable-bits-arcv2.h
++++ b/arch/arc/include/asm/pgtable-bits-arcv2.h
+@@ -72,24 +72,6 @@
+  *     This is to enable COW mechanism
   */
  	/* xwr */
--#define __P000	PAGE_NONE
--#define __P001	PAGE_READONLY
--#define __P010	PAGE_READONLY	/* write to priv pg -> copy & make writable */
--#define __P011	PAGE_READONLY	/* ditto */
--#define __P100	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_X_RX)
--#define __P101	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RX)
--#define __P110	PAGE_COPY_EXEC
--#define __P111	PAGE_COPY_EXEC
+-#define __P000  PAGE_U_NONE
+-#define __P001  PAGE_U_R
+-#define __P010  PAGE_U_R	/* Pvt-W => !W */
+-#define __P011  PAGE_U_R	/* Pvt-W => !W */
+-#define __P100  PAGE_U_X_R	/* X => R */
+-#define __P101  PAGE_U_X_R
+-#define __P110  PAGE_U_X_R	/* Pvt-W => !W and X => R */
+-#define __P111  PAGE_U_X_R	/* Pvt-W => !W */
 -
--#define __S000	PAGE_NONE
--#define __S001	PAGE_READONLY
--#define __S010	PAGE_SHARED	/* we don't have (and don't need) write-only */
--#define __S011	PAGE_SHARED
--#define __S100	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_X_RX)
--#define __S101	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RX)
--#define __S110	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RWX)
--#define __S111	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RWX)
+-#define __S000  PAGE_U_NONE
+-#define __S001  PAGE_U_R
+-#define __S010  PAGE_U_W_R	/* W => R */
+-#define __S011  PAGE_U_W_R
+-#define __S100  PAGE_U_X_R	/* X => R */
+-#define __S101  PAGE_U_X_R
+-#define __S110  PAGE_U_X_W_R	/* X => R */
+-#define __S111  PAGE_U_X_W_R
 -
- #define pgd_ERROR(e)	printk("%s:%d: bad pgd %016lx.\n", __FILE__, __LINE__, pgd_val(e))
- #if CONFIG_PGTABLE_LEVELS == 4
- #define pud_ERROR(e)	printk("%s:%d: bad pud %016lx.\n", __FILE__, __LINE__, pud_val(e))
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index 855d949d81df..9c91df243d62 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -273,7 +273,7 @@ static int __init gate_vma_init(void)
- 	gate_vma.vm_start = FIXADDR_USER_START;
- 	gate_vma.vm_end = FIXADDR_USER_END;
- 	gate_vma.vm_flags = VM_READ | VM_MAYREAD | VM_EXEC | VM_MAYEXEC;
--	gate_vma.vm_page_prot = __P101;
-+	gate_vma.vm_page_prot = __pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_RX);
+ #ifndef __ASSEMBLY__
  
- 	return 0;
+ #define pte_write(pte)		(pte_val(pte) & _PAGE_WRITE)
+diff --git a/arch/arc/mm/mmap.c b/arch/arc/mm/mmap.c
+index 722d26b94307..7dd50b66f266 100644
+--- a/arch/arc/mm/mmap.c
++++ b/arch/arc/mm/mmap.c
+@@ -74,3 +74,23 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+ 	info.align_offset = pgoff << PAGE_SHIFT;
+ 	return vm_unmapped_area(&info);
  }
-@@ -490,3 +490,29 @@ void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
- 	__remove_pages(start_pfn, nr_pages, altmap);
- }
- #endif
 +
 +static pgprot_t protection_map[16] __ro_after_init = {
-+	[VM_NONE]					= PAGE_NONE,
-+	[VM_READ]					= PAGE_READONLY,
-+	[VM_WRITE]					= PAGE_READONLY,
-+	[VM_WRITE | VM_READ]				= PAGE_READONLY,
-+	[VM_EXEC]					= __pgprot(__ACCESS_BITS | _PAGE_PL_3 |
-+								   _PAGE_AR_X_RX),
-+	[VM_EXEC | VM_READ]				= __pgprot(__ACCESS_BITS | _PAGE_PL_3 |
-+								   _PAGE_AR_RX),
-+	[VM_EXEC | VM_WRITE]				= PAGE_COPY_EXEC,
-+	[VM_EXEC | VM_WRITE | VM_READ]			= PAGE_COPY_EXEC,
-+	[VM_SHARED]					= PAGE_NONE,
-+	[VM_SHARED | VM_READ]				= PAGE_READONLY,
-+	[VM_SHARED | VM_WRITE]				= PAGE_SHARED,
-+	[VM_SHARED | VM_WRITE | VM_READ]		= PAGE_SHARED,
-+	[VM_SHARED | VM_EXEC]				= __pgprot(__ACCESS_BITS | _PAGE_PL_3 |
-+								   _PAGE_AR_X_RX),
-+	[VM_SHARED | VM_EXEC | VM_READ]			= __pgprot(__ACCESS_BITS | _PAGE_PL_3 |
-+								   _PAGE_AR_RX),
-+	[VM_SHARED | VM_EXEC | VM_WRITE]		= __pgprot(__ACCESS_BITS | _PAGE_PL_3 |
-+								   _PAGE_AR_RWX),
-+	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= __pgprot(__ACCESS_BITS | _PAGE_PL_3 |
-+								   _PAGE_AR_RWX)
++	[VM_NONE]					= PAGE_U_NONE,
++	[VM_READ]					= PAGE_U_R,
++	[VM_WRITE]					= PAGE_U_R,
++	[VM_WRITE | VM_READ]				= PAGE_U_R,
++	[VM_EXEC]					= PAGE_U_X_R,
++	[VM_EXEC | VM_READ]				= PAGE_U_X_R,
++	[VM_EXEC | VM_WRITE]				= PAGE_U_X_R,
++	[VM_EXEC | VM_WRITE | VM_READ]			= PAGE_U_X_R,
++	[VM_SHARED]					= PAGE_U_NONE,
++	[VM_SHARED | VM_READ]				= PAGE_U_R,
++	[VM_SHARED | VM_WRITE]				= PAGE_U_W_R,
++	[VM_SHARED | VM_WRITE | VM_READ]		= PAGE_U_W_R,
++	[VM_SHARED | VM_EXEC]				= PAGE_U_X_R,
++	[VM_SHARED | VM_EXEC | VM_READ]			= PAGE_U_X_R,
++	[VM_SHARED | VM_EXEC | VM_WRITE]		= PAGE_U_X_W_R,
++	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= PAGE_U_X_W_R
 +};
 +DECLARE_VM_GET_PAGE_PROT
 -- 
