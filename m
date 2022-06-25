@@ -1,49 +1,147 @@
-From: Borislav Petkov <bp@suse.de>
-Subject: Re: [PATCH v5 0/9] bitops: let optimize out non-atomic bitops on
- compile-time constants
-Date: Fri, 24 Jun 2022 14:51:15 +0200
-Message-ID: <YrWzQ6GleophO75b@zn.tnic>
-References: <20220624121313.2382500-1-alexandr.lobakin@intel.com>
+From: Guo Ren <guoren@kernel.org>
+Subject: Re: [PATCH V4 17/26] csky/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Date: Sat, 25 Jun 2022 11:07:24 +0800
+Message-ID: <CAJF2gTQXpYggbN8vbv+XVkORDEBbUAJJaJsbN2ZtSbjGfem1Tg@mail.gmail.com>
+References: <20220624044339.1533882-1-anshuman.khandual@arm.com> <20220624044339.1533882-18-anshuman.khandual@arm.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-m68k-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1656075079; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/ufyLq98aM5sPCb/A9DZ82OxnbOu+snINKekaV1aDRU=;
-        b=z/SG5u8nE+UvZJM1KMXfsdsJS4gFo9gKNUD1jqnZCEfQktOpJL+HUho2xWseFYUUxljXxm
-        4Vbo35uQa3H7cCMHdFOtFc7bAQUGtQsQgAEW5RP+6bwSdbrCaZOzz/8N0BYLpyE6Dp73T/
-        bEaYS6aVjoMfSGXUcWCoGG+0KRxQxvM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1656075079;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/ufyLq98aM5sPCb/A9DZ82OxnbOu+snINKekaV1aDRU=;
-        b=cITdCFre6nFiuMrbQP1LlPRDxLJEO+oY2+mpe4FddCjNeDzFUXzaMlRw1mDzLIdh6rfNdW
-        DQtygG0C3l0HHwAw==
-Content-Disposition: inline
-In-Reply-To: <20220624121313.2382500-1-alexandr.lobakin@intel.com>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="iso-8859-1"
-To: Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Tony Luck <tony.luck@intel.com>, Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:Cc:To:Subject:Message-ID:Date:From:
+	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=k7Y/PzWmVyiY5Zl169iLGEr8K5V+s37GIUtSweCqiVo=; b=L/5S8xhRu7pKgg
+	PqAsEg2k4gjMdqMlY8J7bVkfiCp349t3FGwFPWqOxREkqrL+ya7bNyVygBo17boR90j3PhBQQ67Eo
+	HB0JDiAfH+AZJTqqrydZXxYUoD28BCOgOdyYn8O1hFM9TngfyyQzXZW8nPtn4pJyl2LG+Fv5GWW9X
+	SVaC5tM/bOpZE9aeleqvWfJpS2e4M+dy0lImybkyv6BPl+dxOgWCx0baqKTUDlExSHZtBhGIBJ+1e
+	c17rTxKlnyU5TrgcVZj6uvq//6/04Ny+NG7jKbls449p4/cS6RmS7r1yvn9rBzBHIF70fOrYKYpYU
+	LVc3uVTGJm38gUlMBDkw==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1656126456;
+	bh=oXHgCaP4HoPf+EWVcl07MPhIxJZH52Q6LkxiX0QDRik=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=FU+dZqhPCI7WaKDA+AjLnOS95m8QPJ0z8ReiNhcC2P4NI+ZrmxNZzDJ5YJTkaoQPc
+	 SatgzVUTcSgwyHrsucOh+GM4g3/1+h+GgSSKqGqW1IBs4BT6j/vgsdecXBdHRGrd/2
+	 AqxR5wuq64YrbhfjN2MwpcKf3vhLfmFGvSGSPpQJKPSvpHYebZMLXmOJS28s2TD7Ve
+	 tSI/XbxbVWusqsHNpvvUVuXqKWV5X3nWDwd3AKdS2EZyyoyoyyVia9ScMoTkLyaHef
+	 IZZEeQ2fgwO8fwjgwOcJcINmgNazhx1HiRXE5XjDpGoZob6l6d4Fa9hcpl/FGH0gH1
+	 y2/GNgWsUtZKQ==
+In-Reply-To: <20220624044339.1533882-18-anshuman.khandual@arm.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Linux-MM <linux-mm@kvack.org>, Christoph Hellwig <hch@infradead.org>, Christophe Leroy <christophe.leroy@csgroup.eu>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, sparclinux <sparclinux@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Openrisc <openrisc@lists.librecores.org>, "open list:TENSILICA XTENSA PORT (xtensa)" <linux-xtensa@linux-xtensa.org>, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, Parisc List <linux-parisc@vger.kernel.org>, linux-alpha@vger.kernel.org, linux-riscv <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-ia64@vger.kernel.org, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-um@lists.infradead.org, li
 
-On Fri, Jun 24, 2022 at 02:13:04PM +0200, Alexander Lobakin wrote:
-> While I was working on converting some structure fields from a fixed
+For csky part.
 
-Can you please send your patchset once a week instead of spamming people
-with it every three days?
+Acked-by: Guo Ren <guoren@kernel.org>
 
-Thank you.
 
---=20
-Regards/Gruss,
-    Boris.
+On Fri, Jun 24, 2022 at 12:48 PM Anshuman Khandual
+<anshuman.khandual@arm.com> wrote:
+>
+> This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
+> vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
+> up a private and static protection_map[] array. Subsequently all __SXXX and
+> __PXXX macros can be dropped which are no longer needed.
+>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: linux-csky@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> ---
+>  arch/csky/Kconfig               |  1 +
+>  arch/csky/include/asm/pgtable.h | 18 ------------------
+>  arch/csky/mm/init.c             | 20 ++++++++++++++++++++
+>  3 files changed, 21 insertions(+), 18 deletions(-)
+>
+> diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
+> index 21d72b078eef..588b8a9c68ed 100644
+> --- a/arch/csky/Kconfig
+> +++ b/arch/csky/Kconfig
+> @@ -6,6 +6,7 @@ config CSKY
+>         select ARCH_HAS_GCOV_PROFILE_ALL
+>         select ARCH_HAS_SYNC_DMA_FOR_CPU
+>         select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+> +       select ARCH_HAS_VM_GET_PAGE_PROT
+>         select ARCH_USE_BUILTIN_BSWAP
+>         select ARCH_USE_QUEUED_RWLOCKS
+>         select ARCH_WANT_FRAME_POINTERS if !CPU_CK610 && $(cc-option,-mbacktrace)
+> diff --git a/arch/csky/include/asm/pgtable.h b/arch/csky/include/asm/pgtable.h
+> index bbe245117777..229a5f4ad7fc 100644
+> --- a/arch/csky/include/asm/pgtable.h
+> +++ b/arch/csky/include/asm/pgtable.h
+> @@ -77,24 +77,6 @@
+>  #define MAX_SWAPFILES_CHECK() \
+>                 BUILD_BUG_ON(MAX_SWAPFILES_SHIFT != 5)
+>
+> -#define __P000 PAGE_NONE
+> -#define __P001 PAGE_READ
+> -#define __P010 PAGE_READ
+> -#define __P011 PAGE_READ
+> -#define __P100 PAGE_READ
+> -#define __P101 PAGE_READ
+> -#define __P110 PAGE_READ
+> -#define __P111 PAGE_READ
+> -
+> -#define __S000 PAGE_NONE
+> -#define __S001 PAGE_READ
+> -#define __S010 PAGE_WRITE
+> -#define __S011 PAGE_WRITE
+> -#define __S100 PAGE_READ
+> -#define __S101 PAGE_READ
+> -#define __S110 PAGE_WRITE
+> -#define __S111 PAGE_WRITE
+> -
+>  extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+>  #define ZERO_PAGE(vaddr)       (virt_to_page(empty_zero_page))
+>
+> diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
+> index bf2004aa811a..1bf7b2a748fd 100644
+> --- a/arch/csky/mm/init.c
+> +++ b/arch/csky/mm/init.c
+> @@ -197,3 +197,23 @@ void __init fixaddr_init(void)
+>         vaddr = __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
+>         fixrange_init(vaddr, vaddr + PMD_SIZE, swapper_pg_dir);
+>  }
+> +
+> +static pgprot_t protection_map[16] __ro_after_init = {
+> +       [VM_NONE]                                       = PAGE_NONE,
+> +       [VM_READ]                                       = PAGE_READ,
+> +       [VM_WRITE]                                      = PAGE_READ,
+> +       [VM_WRITE | VM_READ]                            = PAGE_READ,
+> +       [VM_EXEC]                                       = PAGE_READ,
+> +       [VM_EXEC | VM_READ]                             = PAGE_READ,
+> +       [VM_EXEC | VM_WRITE]                            = PAGE_READ,
+> +       [VM_EXEC | VM_WRITE | VM_READ]                  = PAGE_READ,
+> +       [VM_SHARED]                                     = PAGE_NONE,
+> +       [VM_SHARED | VM_READ]                           = PAGE_READ,
+> +       [VM_SHARED | VM_WRITE]                          = PAGE_WRITE,
+> +       [VM_SHARED | VM_WRITE | VM_READ]                = PAGE_WRITE,
+> +       [VM_SHARED | VM_EXEC]                           = PAGE_READ,
+> +       [VM_SHARED | VM_EXEC | VM_READ]                 = PAGE_READ,
+> +       [VM_SHARED | VM_EXEC | VM_WRITE]                = PAGE_WRITE,
+> +       [VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]      = PAGE_WRITE
+> +};
+> +DECLARE_VM_GET_PAGE_PROT
+> --
+> 2.25.1
+>
 
-SUSE Software Solutions Germany GmbH
-GF: Ivo Totev, Andrew Myers, Andrew McDonald, Martje Boudien Moerman
-(HRB 36809, AG N=C3=BCrnberg)
+
+--
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
