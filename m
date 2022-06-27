@@ -1,101 +1,100 @@
 From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V5 11/26] xtensa/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date: Mon, 27 Jun 2022 10:28:18 +0530
-Message-ID: <20220627045833.1590055-12-anshuman.khandual@arm.com>
+Subject: [PATCH V5 14/26] alpha/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Date: Mon, 27 Jun 2022 10:28:21 +0530
+Message-ID: <20220627045833.1590055-15-anshuman.khandual@arm.com>
 References: <20220627045833.1590055-1-anshuman.khandual@arm.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-alpha-owner@vger.kernel.org>
 In-Reply-To: <20220627045833.1590055-1-anshuman.khandual@arm.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-mm@kvack.org
-Cc: hch@infradead.org, christophe.leroy@csgroup.eu, Anshuman Khandual <anshuman.khandual@arm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Zankel <chris@zankel.net>, Guo Ren <guoren@kernel.org>
+Cc: hch@infradead.org, christophe.leroy@csgroup.eu, Anshuman Khandual <anshuman.khandual@arm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>
 
 This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
 vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
 up a private and static protection_map[] array. Subsequently all __SXXX and
 __PXXX macros can be dropped which are no longer needed.
 
-Cc: Chris Zankel <chris@zankel.net>
-Cc: Guo Ren <guoren@kernel.org>
-Cc: linux-xtensa@linux-xtensa.org
-Cc: linux-csky@vger.kernel.org
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: linux-alpha@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/xtensa/Kconfig               |  1 +
- arch/xtensa/include/asm/pgtable.h | 18 ------------------
- arch/xtensa/mm/init.c             | 20 ++++++++++++++++++++
- 3 files changed, 21 insertions(+), 18 deletions(-)
+ arch/alpha/Kconfig               |  1 +
+ arch/alpha/include/asm/pgtable.h | 17 -----------------
+ arch/alpha/mm/init.c             | 22 ++++++++++++++++++++++
+ 3 files changed, 23 insertions(+), 17 deletions(-)
 
-diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
-index 0b0f0172cced..4c0d83520ff1 100644
---- a/arch/xtensa/Kconfig
-+++ b/arch/xtensa/Kconfig
-@@ -11,6 +11,7 @@ config XTENSA
- 	select ARCH_HAS_DMA_SET_UNCACHED if MMU
- 	select ARCH_HAS_STRNCPY_FROM_USER if !KASAN
- 	select ARCH_HAS_STRNLEN_USER
+diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+index 7d0d26b5b3f5..db1c8b329461 100644
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -2,6 +2,7 @@
+ config ALPHA
+ 	bool
+ 	default y
 +	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_USE_MEMTEST
- 	select ARCH_USE_QUEUED_RWLOCKS
- 	select ARCH_USE_QUEUED_SPINLOCKS
-diff --git a/arch/xtensa/include/asm/pgtable.h b/arch/xtensa/include/asm/pgtable.h
-index 0a91376131c5..e0d5531ae00d 100644
---- a/arch/xtensa/include/asm/pgtable.h
-+++ b/arch/xtensa/include/asm/pgtable.h
-@@ -200,24 +200,6 @@
-  * What follows is the closest we can get by reasonable means..
-  * See linux/mm/mmap.c for protection_map[] array that uses these definitions.
+ 	select ARCH_32BIT_USTAT_F_TINODE
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
+diff --git a/arch/alpha/include/asm/pgtable.h b/arch/alpha/include/asm/pgtable.h
+index 170451fde043..3ea9661c09ff 100644
+--- a/arch/alpha/include/asm/pgtable.h
++++ b/arch/alpha/include/asm/pgtable.h
+@@ -116,23 +116,6 @@ struct vm_area_struct;
+  * arch/alpha/mm/fault.c)
   */
--#define __P000	PAGE_NONE		/* private --- */
--#define __P001	PAGE_READONLY		/* private --r */
--#define __P010	PAGE_COPY		/* private -w- */
--#define __P011	PAGE_COPY		/* private -wr */
--#define __P100	PAGE_READONLY_EXEC	/* private x-- */
--#define __P101	PAGE_READONLY_EXEC	/* private x-r */
--#define __P110	PAGE_COPY_EXEC		/* private xw- */
--#define __P111	PAGE_COPY_EXEC		/* private xwr */
+ 	/* xwr */
+-#define __P000	_PAGE_P(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR)
+-#define __P001	_PAGE_P(_PAGE_FOE | _PAGE_FOW)
+-#define __P010	_PAGE_P(_PAGE_FOE)
+-#define __P011	_PAGE_P(_PAGE_FOE)
+-#define __P100	_PAGE_P(_PAGE_FOW | _PAGE_FOR)
+-#define __P101	_PAGE_P(_PAGE_FOW)
+-#define __P110	_PAGE_P(0)
+-#define __P111	_PAGE_P(0)
 -
--#define __S000	PAGE_NONE		/* shared  --- */
--#define __S001	PAGE_READONLY		/* shared  --r */
--#define __S010	PAGE_SHARED		/* shared  -w- */
--#define __S011	PAGE_SHARED		/* shared  -wr */
--#define __S100	PAGE_READONLY_EXEC	/* shared  x-- */
--#define __S101	PAGE_READONLY_EXEC	/* shared  x-r */
--#define __S110	PAGE_SHARED_EXEC	/* shared  xw- */
--#define __S111	PAGE_SHARED_EXEC	/* shared  xwr */
--
- #ifndef __ASSEMBLY__
+-#define __S000	_PAGE_S(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR)
+-#define __S001	_PAGE_S(_PAGE_FOE | _PAGE_FOW)
+-#define __S010	_PAGE_S(_PAGE_FOE)
+-#define __S011	_PAGE_S(_PAGE_FOE)
+-#define __S100	_PAGE_S(_PAGE_FOW | _PAGE_FOR)
+-#define __S101	_PAGE_S(_PAGE_FOW)
+-#define __S110	_PAGE_S(0)
+-#define __S111	_PAGE_S(0)
  
- #define pte_ERROR(e) \
-diff --git a/arch/xtensa/mm/init.c b/arch/xtensa/mm/init.c
-index 6a32b2cf2718..fb830ec8183c 100644
---- a/arch/xtensa/mm/init.c
-+++ b/arch/xtensa/mm/init.c
-@@ -216,3 +216,23 @@ static int __init parse_memmap_opt(char *str)
- 	return 0;
+ /*
+  * pgprot_noncached() is only for infiniband pci support, and a real
+diff --git a/arch/alpha/mm/init.c b/arch/alpha/mm/init.c
+index 7511723b7669..a155180d7a83 100644
+--- a/arch/alpha/mm/init.c
++++ b/arch/alpha/mm/init.c
+@@ -280,3 +280,25 @@ mem_init(void)
+ 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+ 	memblock_free_all();
  }
- early_param("memmap", parse_memmap_opt);
 +
 +static const pgprot_t protection_map[16] = {
-+	[VM_NONE]					= PAGE_NONE,
-+	[VM_READ]					= PAGE_READONLY,
-+	[VM_WRITE]					= PAGE_COPY,
-+	[VM_WRITE | VM_READ]				= PAGE_COPY,
-+	[VM_EXEC]					= PAGE_READONLY_EXEC,
-+	[VM_EXEC | VM_READ]				= PAGE_READONLY_EXEC,
-+	[VM_EXEC | VM_WRITE]				= PAGE_COPY_EXEC,
-+	[VM_EXEC | VM_WRITE | VM_READ]			= PAGE_COPY_EXEC,
-+	[VM_SHARED]					= PAGE_NONE,
-+	[VM_SHARED | VM_READ]				= PAGE_READONLY,
-+	[VM_SHARED | VM_WRITE]				= PAGE_SHARED,
-+	[VM_SHARED | VM_WRITE | VM_READ]		= PAGE_SHARED,
-+	[VM_SHARED | VM_EXEC]				= PAGE_READONLY_EXEC,
-+	[VM_SHARED | VM_EXEC | VM_READ]			= PAGE_READONLY_EXEC,
-+	[VM_SHARED | VM_EXEC | VM_WRITE]		= PAGE_SHARED_EXEC,
-+	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= PAGE_SHARED_EXEC
++	[VM_NONE]					= _PAGE_P(_PAGE_FOE | _PAGE_FOW |
++								  _PAGE_FOR),
++	[VM_READ]					= _PAGE_P(_PAGE_FOE | _PAGE_FOW),
++	[VM_WRITE]					= _PAGE_P(_PAGE_FOE),
++	[VM_WRITE | VM_READ]				= _PAGE_P(_PAGE_FOE),
++	[VM_EXEC]					= _PAGE_P(_PAGE_FOW | _PAGE_FOR),
++	[VM_EXEC | VM_READ]				= _PAGE_P(_PAGE_FOW),
++	[VM_EXEC | VM_WRITE]				= _PAGE_P(0),
++	[VM_EXEC | VM_WRITE | VM_READ]			= _PAGE_P(0),
++	[VM_SHARED]					= _PAGE_S(_PAGE_FOE | _PAGE_FOW |
++								  _PAGE_FOR),
++	[VM_SHARED | VM_READ]				= _PAGE_S(_PAGE_FOE | _PAGE_FOW),
++	[VM_SHARED | VM_WRITE]				= _PAGE_S(_PAGE_FOE),
++	[VM_SHARED | VM_WRITE | VM_READ]		= _PAGE_S(_PAGE_FOE),
++	[VM_SHARED | VM_EXEC]				= _PAGE_S(_PAGE_FOW | _PAGE_FOR),
++	[VM_SHARED | VM_EXEC | VM_READ]			= _PAGE_S(_PAGE_FOW),
++	[VM_SHARED | VM_EXEC | VM_WRITE]		= _PAGE_S(0),
++	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= _PAGE_S(0)
 +};
 +DECLARE_VM_GET_PAGE_PROT
 -- 
