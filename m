@@ -1,131 +1,100 @@
 From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V6 12/26] hexagon/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date: Thu, 30 Jun 2022 10:46:16 +0530
-Message-ID: <20220630051630.1718927-13-anshuman.khandual@arm.com>
+Subject: [PATCH V6 14/26] alpha/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Date: Thu, 30 Jun 2022 10:46:18 +0530
+Message-ID: <20220630051630.1718927-15-anshuman.khandual@arm.com>
 References: <20220630051630.1718927-1-anshuman.khandual@arm.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-alpha-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 In-Reply-To: <20220630051630.1718927-1-anshuman.khandual@arm.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-mm@kvack.org, akpm@linux-foundation.org
-Cc: hch@infradead.org, christophe.leroy@csgroup.eu, Anshuman Khandual <anshuman.khandual@arm.com>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Brian Cain <bcain@codeaurora.org>, Brian Cain <bcain@quicinc.com>
+Cc: hch@infradead.org, christophe.leroy@csgroup.eu, Anshuman Khandual <anshuman.khandual@arm.com>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>
 
 This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
 vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
 up a private and static protection_map[] array. Subsequently all __SXXX and
 __PXXX macros can be dropped which are no longer needed.
 
-Cc: Brian Cain <bcain@codeaurora.org>
-Cc: linux-hexagon@vger.kernel.org
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: linux-alpha@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Acked-by: Brian Cain <bcain@quicinc.com>
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/hexagon/Kconfig               |  1 +
- arch/hexagon/include/asm/pgtable.h | 27 -------------------
- arch/hexagon/mm/init.c             | 42 ++++++++++++++++++++++++++++++
- 3 files changed, 43 insertions(+), 27 deletions(-)
+ arch/alpha/Kconfig               |  1 +
+ arch/alpha/include/asm/pgtable.h | 17 -----------------
+ arch/alpha/mm/init.c             | 22 ++++++++++++++++++++++
+ 3 files changed, 23 insertions(+), 17 deletions(-)
 
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index 54eadf265178..bc4ceecd0588 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -6,6 +6,7 @@ config HEXAGON
- 	def_bool y
- 	select ARCH_32BIT_OFF_T
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+index 7d0d26b5b3f5..db1c8b329461 100644
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -2,6 +2,7 @@
+ config ALPHA
+ 	bool
+ 	default y
 +	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_NO_PREEMPT
- 	select DMA_GLOBAL_POOL
- 	# Other pending projects/to-do items.
-diff --git a/arch/hexagon/include/asm/pgtable.h b/arch/hexagon/include/asm/pgtable.h
-index 0610724d6a28..f7048c18b6f9 100644
---- a/arch/hexagon/include/asm/pgtable.h
-+++ b/arch/hexagon/include/asm/pgtable.h
-@@ -126,33 +126,6 @@ extern unsigned long _dflt_cache_att;
+ 	select ARCH_32BIT_USTAT_F_TINODE
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
+diff --git a/arch/alpha/include/asm/pgtable.h b/arch/alpha/include/asm/pgtable.h
+index 170451fde043..3ea9661c09ff 100644
+--- a/arch/alpha/include/asm/pgtable.h
++++ b/arch/alpha/include/asm/pgtable.h
+@@ -116,23 +116,6 @@ struct vm_area_struct;
+  * arch/alpha/mm/fault.c)
   */
- #define CACHEDEF	(CACHE_DEFAULT << 6)
- 
--/* Private (copy-on-write) page protections. */
--#define __P000 __pgprot(_PAGE_PRESENT | _PAGE_USER | CACHEDEF)
--#define __P001 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | CACHEDEF)
--#define __P010 __P000	/* Write-only copy-on-write */
--#define __P011 __P001	/* Read/Write copy-on-write */
--#define __P100 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_EXECUTE | CACHEDEF)
--#define __P101 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_EXECUTE | \
--			_PAGE_READ | CACHEDEF)
--#define __P110 __P100	/* Write/execute copy-on-write */
--#define __P111 __P101	/* Read/Write/Execute, copy-on-write */
+ 	/* xwr */
+-#define __P000	_PAGE_P(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR)
+-#define __P001	_PAGE_P(_PAGE_FOE | _PAGE_FOW)
+-#define __P010	_PAGE_P(_PAGE_FOE)
+-#define __P011	_PAGE_P(_PAGE_FOE)
+-#define __P100	_PAGE_P(_PAGE_FOW | _PAGE_FOR)
+-#define __P101	_PAGE_P(_PAGE_FOW)
+-#define __P110	_PAGE_P(0)
+-#define __P111	_PAGE_P(0)
 -
--/* Shared page protections. */
--#define __S000 __P000
--#define __S001 __P001
--#define __S010 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_WRITE | CACHEDEF)
--#define __S011 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | \
--			_PAGE_WRITE | CACHEDEF)
--#define __S100 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_EXECUTE | CACHEDEF)
--#define __S101 __P101
--#define __S110 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
--			_PAGE_EXECUTE | _PAGE_WRITE | CACHEDEF)
--#define __S111 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | \
--			_PAGE_EXECUTE | _PAGE_WRITE | CACHEDEF)
--
- extern pgd_t swapper_pg_dir[PTRS_PER_PGD];  /* located in head.S */
+-#define __S000	_PAGE_S(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR)
+-#define __S001	_PAGE_S(_PAGE_FOE | _PAGE_FOW)
+-#define __S010	_PAGE_S(_PAGE_FOE)
+-#define __S011	_PAGE_S(_PAGE_FOE)
+-#define __S100	_PAGE_S(_PAGE_FOW | _PAGE_FOR)
+-#define __S101	_PAGE_S(_PAGE_FOW)
+-#define __S110	_PAGE_S(0)
+-#define __S111	_PAGE_S(0)
  
- /*  HUGETLB not working currently  */
-diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
-index 3167a3b5c97b..146115c9de61 100644
---- a/arch/hexagon/mm/init.c
-+++ b/arch/hexagon/mm/init.c
-@@ -234,3 +234,45 @@ void __init setup_arch_memory(void)
- 	 *  which is called by start_kernel() later on in the process
- 	 */
+ /*
+  * pgprot_noncached() is only for infiniband pci support, and a real
+diff --git a/arch/alpha/mm/init.c b/arch/alpha/mm/init.c
+index 7511723b7669..a155180d7a83 100644
+--- a/arch/alpha/mm/init.c
++++ b/arch/alpha/mm/init.c
+@@ -280,3 +280,25 @@ mem_init(void)
+ 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+ 	memblock_free_all();
  }
 +
 +static const pgprot_t protection_map[16] = {
-+	[VM_NONE]					= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   CACHEDEF),
-+	[VM_READ]					= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_READ | CACHEDEF),
-+	[VM_WRITE]					= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   CACHEDEF),
-+	[VM_WRITE | VM_READ]				= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_READ | CACHEDEF),
-+	[VM_EXEC]					= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_EXECUTE | CACHEDEF),
-+	[VM_EXEC | VM_READ]				= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_EXECUTE | _PAGE_READ |
-+								   CACHEDEF),
-+	[VM_EXEC | VM_WRITE]				= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_EXECUTE | CACHEDEF),
-+	[VM_EXEC | VM_WRITE | VM_READ]			= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_EXECUTE | _PAGE_READ |
-+								   CACHEDEF),
-+	[VM_SHARED]                                     = __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   CACHEDEF),
-+	[VM_SHARED | VM_READ]				= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_READ | CACHEDEF),
-+	[VM_SHARED | VM_WRITE]				= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_WRITE | CACHEDEF),
-+	[VM_SHARED | VM_WRITE | VM_READ]		= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_READ | _PAGE_WRITE |
-+								   CACHEDEF),
-+	[VM_SHARED | VM_EXEC]				= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_EXECUTE | CACHEDEF),
-+	[VM_SHARED | VM_EXEC | VM_READ]			= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_EXECUTE | _PAGE_READ |
-+								   CACHEDEF),
-+	[VM_SHARED | VM_EXEC | VM_WRITE]		= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_EXECUTE | _PAGE_WRITE |
-+								   CACHEDEF),
-+	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= __pgprot(_PAGE_PRESENT | _PAGE_USER |
-+								   _PAGE_READ | _PAGE_EXECUTE |
-+								   _PAGE_WRITE | CACHEDEF)
++	[VM_NONE]					= _PAGE_P(_PAGE_FOE | _PAGE_FOW |
++								  _PAGE_FOR),
++	[VM_READ]					= _PAGE_P(_PAGE_FOE | _PAGE_FOW),
++	[VM_WRITE]					= _PAGE_P(_PAGE_FOE),
++	[VM_WRITE | VM_READ]				= _PAGE_P(_PAGE_FOE),
++	[VM_EXEC]					= _PAGE_P(_PAGE_FOW | _PAGE_FOR),
++	[VM_EXEC | VM_READ]				= _PAGE_P(_PAGE_FOW),
++	[VM_EXEC | VM_WRITE]				= _PAGE_P(0),
++	[VM_EXEC | VM_WRITE | VM_READ]			= _PAGE_P(0),
++	[VM_SHARED]					= _PAGE_S(_PAGE_FOE | _PAGE_FOW |
++								  _PAGE_FOR),
++	[VM_SHARED | VM_READ]				= _PAGE_S(_PAGE_FOE | _PAGE_FOW),
++	[VM_SHARED | VM_WRITE]				= _PAGE_S(_PAGE_FOE),
++	[VM_SHARED | VM_WRITE | VM_READ]		= _PAGE_S(_PAGE_FOE),
++	[VM_SHARED | VM_EXEC]				= _PAGE_S(_PAGE_FOW | _PAGE_FOR),
++	[VM_SHARED | VM_EXEC | VM_READ]			= _PAGE_S(_PAGE_FOW),
++	[VM_SHARED | VM_EXEC | VM_WRITE]		= _PAGE_S(0),
++	[VM_SHARED | VM_EXEC | VM_WRITE | VM_READ]	= _PAGE_S(0)
 +};
 +DECLARE_VM_GET_PAGE_PROT
 -- 
