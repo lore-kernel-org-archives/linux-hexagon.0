@@ -1,48 +1,62 @@
-From: "Rafael J. Wysocki" <rafael-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 03/36] cpuidle/poll: Ensure IRQ state is invariant
-Date: Wed, 6 Jul 2022 15:51:09 +0200
-Message-ID: <CAJZ5v0jO9+jRSm3d58K15JaO3=kgM2Ueo7W+Smi3WCBPR_VM5Q@mail.gmail.com>
-References: <20220608142723.103523089@infradead.org> <20220608144516.109792837@infradead.org>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH 05/36] cpuidle: Move IRQ state validation
+Date: Wed, 6 Jul 2022 15:54:32 +0200
+Message-ID: <CAJZ5v0g0fCNxsc1mg9aL+ieQ1uMVS+RWqesHKoZ_zeL7cx655A@mail.gmail.com>
+References: <20220608142723.103523089@infradead.org> <20220608144516.235041924@infradead.org>
 Mime-Version: 1.0
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20220608144516.109792837-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20220608144516.235041924@infradead.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Cc: rth-hL46jP5Bxq7R7s880joybQ@public.gmane.org, ink-biIs/Y0ymYJMZLIVYojuPNP0rXTJTi09@public.gmane.org, mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, vgupta-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Russell King - ARM Linux <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, ulli.kroll-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, dl-linux-imx <linux-imx-3arQi8VN3Tc@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Catalin Marinas <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Guo Ren <guoren-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, bcain-jfJNa2p1gH1BDgjK7y7TUQ@public.gmane.org, Huacai Chen <chenhuacai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, kernel-f95k8chpbVdBDLzU/O5InQ@public.gmane.org, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, sammy-4OGMY2YDKIVeoWH0uzbU5w@public.gmane.org, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Thomas Bogendoerfer <tsbogend-I1c7kopa9pz3fQ9qLvQP4Q@public.gmane.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, Russell King - ARM Linux <linux@armlinux.org.uk>, ulli.kroll@googlemail.com, Linus Walleij <linus.walleij@linaro.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Sascha Hauer <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, bcain@quicinc.com, Huacai Chen <chenhuacai@kernel.org>, kernel@xen0n.name, Geert Uytterhoeven <geert@linux-m68k.org>, sammy@sammy.net, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.fra>
 
-On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org> wrote:
+On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
 >
-> cpuidle_state::enter() methods should be IRQ invariant
+> Make cpuidle_enter_state() consistent with the s2idle variant and
+> verify ->enter() always returns with interrupts disabled.
 >
-> Signed-off-by: Peter Zijlstra (Intel) <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 > ---
->  drivers/cpuidle/poll_state.c |    4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  drivers/cpuidle/cpuidle.c |   10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 >
-> --- a/drivers/cpuidle/poll_state.c
-> +++ b/drivers/cpuidle/poll_state.c
-> @@ -17,7 +17,7 @@ static int __cpuidle poll_idle(struct cp
->
->         dev->poll_time_limit = false;
->
-> -       local_irq_enable();
-> +       raw_local_irq_enable();
->         if (!current_set_polling_and_test()) {
->                 unsigned int loop_count = 0;
->                 u64 limit;
-> @@ -36,6 +36,8 @@ static int __cpuidle poll_idle(struct cp
->                         }
->                 }
->         }
-> +       raw_local_irq_disable();
+> --- a/drivers/cpuidle/cpuidle.c
+> +++ b/drivers/cpuidle/cpuidle.c
+> @@ -234,7 +234,11 @@ int cpuidle_enter_state(struct cpuidle_d
+>         stop_critical_timings();
+>         if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+>                 rcu_idle_enter();
 > +
->         current_clr_polling();
+>         entered_state = target_state->enter(dev, drv, index);
+> +       if (WARN_ONCE(!irqs_disabled(), "%ps leaked IRQ state", target_state->enter))
+
+I'm not sure if dumping a call trace here is really useful and
+WARN_ON() often gets converted to panic().
+
+I would print an error message with pr_warn_once().
+
+Otherwise LGTM.
+
+> +               raw_local_irq_disable();
+> +
+>         if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+>                 rcu_idle_exit();
+>         start_critical_timings();
+> @@ -246,12 +250,8 @@ int cpuidle_enter_state(struct cpuidle_d
+>         /* The cpu is no longer idle or about to enter idle. */
+>         sched_idle_set_state(NULL);
 >
->         return index;
+> -       if (broadcast) {
+> -               if (WARN_ON_ONCE(!irqs_disabled()))
+> -                       local_irq_disable();
+> -
+> +       if (broadcast)
+>                 tick_broadcast_exit();
+> -       }
+>
+>         if (!cpuidle_state_is_coupled(drv, index))
+>                 local_irq_enable();
 >
 >
