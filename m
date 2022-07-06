@@ -1,93 +1,65 @@
 From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH 17/36] acpi_idle: Remove tracing
-Date: Wed, 6 Jul 2022 15:59:21 +0200
-Message-ID: <CAJZ5v0jSfvUoReFHjA5A+brExnnEKidak-GnjTbY0CKoaWpGVQ@mail.gmail.com>
-References: <20220608142723.103523089@infradead.org> <20220608144516.998681585@infradead.org>
+Subject: Re: [PATCH 18/36] cpuidle: Annotate poll_idle()
+Date: Wed, 6 Jul 2022 16:00:28 +0200
+Message-ID: <CAJZ5v0iBAt7xyBzrFwgVSOk7dLx017X_naLZAjnDuwi=oUmREg@mail.gmail.com>
+References: <20220608142723.103523089@infradead.org>
+ <20220608144517.061583457@infradead.org>
 Mime-Version: 1.0
-Return-path: <linux-alpha-owner@vger.kernel.org>
-In-Reply-To: <20220608144516.998681585@infradead.org>
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0E1064171E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CE598408BA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B3B0C40B33
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B522240119
+In-Reply-To: <20220608144517.061583457@infradead.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Peter Zijlstra <peterz@infradead.org>
-Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, Russell King - ARM Linux <linux@armlinux.org.uk>, ulli.kroll@googlemail.com, Linus Walleij <linus.walleij@linaro.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Sascha Hauer <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, bcain@quicinc.com, Huacai Chen <chenhuacai@kernel.org>, kernel@xen0n.name, Geert Uytterhoeven <geert@linux-m68k.org>, sammy@sammy.net, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.fra>
+Cc: Juri Lelli <juri.lelli@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Segall <bsegall@google.com>, Guo Ren <guoren@kernel.org>, Pavel Machek <pavel@ucw.cz>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-arch <linux-arch@vger.kernel.org>, Vincent Guittot <vincent.guittot@linaro.org>, Michael Ellerman <mpe@ellerman.id.au>, Huacai Chen <chenhuacai@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Andy Gross <agross@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, dl-linux-imx <linux-imx@nxp.com>, Catalin Marinas <catalin.marinas@arm.com>, xen-devel@lists.xenproject.org, mattst88@gmail.com, Michael Turquette <mturquette@baylibre.com>, sammy@sammy.net, Petr Mladek <pmladek@suse.com>, Linux PM <linux-pm@vger.kernel.org>, Lai Jiangshan <jiangs>
 
-On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
+On Wed, Jun 8, 2022 at 4:46 PM Peter Zijlstra <peterz@infradead.org> wrote:
 >
-> All the idle routines are called with RCU disabled, as such there must
-> not be any tracing inside.
+> The __cpuidle functions will become a noinstr class, as such they need
+> explicit annotations.
 >
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
-This actually does some additional code duplication cleanup which
-would be good to mention in the changelog.  Or even move to a separate
-patch for that matter.
-
-Otherwise LGTM.
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
 > ---
->  drivers/acpi/processor_idle.c |   24 +++++++++++++-----------
->  1 file changed, 13 insertions(+), 11 deletions(-)
+>  drivers/cpuidle/poll_state.c |    6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 >
-> --- a/drivers/acpi/processor_idle.c
-> +++ b/drivers/acpi/processor_idle.c
-> @@ -108,8 +108,8 @@ static const struct dmi_system_id proces
->  static void __cpuidle acpi_safe_halt(void)
+> --- a/drivers/cpuidle/poll_state.c
+> +++ b/drivers/cpuidle/poll_state.c
+> @@ -13,7 +13,10 @@
+>  static int __cpuidle poll_idle(struct cpuidle_device *dev,
+>                                struct cpuidle_driver *drv, int index)
 >  {
->         if (!tif_need_resched()) {
-> -               safe_halt();
-> -               local_irq_disable();
-> +               raw_safe_halt();
-> +               raw_local_irq_disable();
->         }
->  }
->
-> @@ -524,16 +524,21 @@ static int acpi_idle_bm_check(void)
->         return bm_status;
->  }
->
-> -static void wait_for_freeze(void)
-> +static __cpuidle void io_idle(unsigned long addr)
->  {
-> +       /* IO port based C-state */
-> +       inb(addr);
+> -       u64 time_start = local_clock();
+> +       u64 time_start;
 > +
->  #ifdef CONFIG_X86
->         /* No delay is needed if we are in guest */
->         if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
->                 return;
->  #endif
-> -       /* Dummy wait op - must do something useless after P_LVL2 read
-> -          because chipsets cannot guarantee that STPCLK# signal
-> -          gets asserted in time to freeze execution properly. */
-> +       /*
-> +        * Dummy wait op - must do something useless after P_LVL2 read
-> +        * because chipsets cannot guarantee that STPCLK# signal
-> +        * gets asserted in time to freeze execution properly.
-> +        */
->         inl(acpi_gbl_FADT.xpm_timer_block.address);
+> +       instrumentation_begin();
+> +       time_start = local_clock();
+>
+>         dev->poll_time_limit = false;
+>
+> @@ -39,6 +42,7 @@ static int __cpuidle poll_idle(struct cp
+>         raw_local_irq_disable();
+>
+>         current_clr_polling();
+> +       instrumentation_end();
+>
+>         return index;
 >  }
->
-> @@ -553,9 +558,7 @@ static void __cpuidle acpi_idle_do_entry
->         } else if (cx->entry_method == ACPI_CSTATE_HALT) {
->                 acpi_safe_halt();
->         } else {
-> -               /* IO port based C-state */
-> -               inb(cx->address);
-> -               wait_for_freeze();
-> +               io_idle(cx->address);
->         }
->
->         perf_lopwr_cb(false);
-> @@ -577,8 +580,7 @@ static int acpi_idle_play_dead(struct cp
->                 if (cx->entry_method == ACPI_CSTATE_HALT)
->                         safe_halt();
->                 else if (cx->entry_method == ACPI_CSTATE_SYSTEMIO) {
-> -                       inb(cx->address);
-> -                       wait_for_freeze();
-> +                       io_idle(cx->address);
->                 } else
->                         return -ENODEV;
->
 >
 >
