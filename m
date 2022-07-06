@@ -1,32 +1,54 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH V6 26/26] mm/mmap: Drop ARCH_HAS_VM_GET_PAGE_PROT
-Date: Wed, 6 Jul 2022 12:04:23 +0200
-Message-ID: <CAMuHMdVJiS6vm2td-PBH3zpsNZJeeoudS4+yu4JG08sOi+XFdA@mail.gmail.com>
-References: <20220630051630.1718927-1-anshuman.khandual@arm.com> <20220630051630.1718927-27-anshuman.khandual@arm.com>
+Subject: Re: [PATCH v3 3/7] bitops: unify non-atomic bitops prototypes across architectures
+Date: Wed, 6 Jul 2022 12:07:33 +0200
+Message-ID: <CAMuHMdWqxqg7JubLK=KOX-V8JjoMbEKRPON+WhST=GKcjn8Y+w@mail.gmail.com>
+References: <20220617144031.2549432-1-alexandr.lobakin@intel.com> <20220617144031.2549432-4-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20220630051630.1718927-27-anshuman.khandual@arm.com>
+Return-path: <linux-m68k-owner@vger.kernel.org>
+In-Reply-To: <20220617144031.2549432-4-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-csky@vger.kernel.org, sparclinux <sparclinux@vger.kernel.org>, linux-riscv <linux-riscv@lists.infradead.org>, Christoph Hellwig <hch@lst.de>, linux-s390 <linux-s390@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Christophe Leroy <christophe.leroy@csgroup.eu>, Christoph Hellwig <hch@infradead.org>, arcml <linux-snps-arc@lists.infradead.org>, "open list:TENSILICA XTENSA PORT (xtensa)" <linux-xtensa@linux-xtensa.org>, linux-um <linux-um@l>
+To: Alexander Lobakin <alexandr.lobakin@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, alpha <linux-alpha@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>
 
-On Thu, Jun 30, 2022 at 7:20 AM Anshuman Khandual
-<anshuman.khandual@arm.com> wrote:
-> Now all the platforms enable ARCH_HAS_GET_PAGE_PROT. They define and export
-> own vm_get_page_prot() whether custom or standard DECLARE_VM_GET_PAGE_PROT.
-> Hence there is no need for default generic fallback for vm_get_page_prot().
-> Just drop this fallback and also ARCH_HAS_GET_PAGE_PROT mechanism.
+On Fri, Jun 17, 2022 at 7:09 PM Alexander Lobakin
+<alexandr.lobakin@intel.com> wrote:
+> Currently, there is a mess with the prototypes of the non-atomic
+> bitops across the different architectures:
 >
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: linux-mm@kvack.org
-> Cc: linux-kernel@vger.kernel.org
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> ret     bool, int, unsigned long
+> nr      int, long, unsigned int, unsigned long
+> addr    volatile unsigned long *, volatile void *
+>
+> Thankfully, it doesn't provoke any bugs, but can sometimes make
+> the compiler angry when it's not handy at all.
+> Adjust all the prototypes to the following standard:
+>
+> ret     bool                            retval can be only 0 or 1
+> nr      unsigned long                   native; signed makes no sense
+> addr    volatile unsigned long *        bitmaps are arrays of ulongs
+>
+> Next, some architectures don't define 'arch_' versions as they don't
+> support instrumentation, others do. To make sure there is always the
+> same set of callables present and to ease any potential future
+> changes, make them all follow the rule:
+>  * architecture-specific files define only 'arch_' versions;
+>  * non-prefixed versions can be defined only in asm-generic files;
+> and place the non-prefixed definitions into a new file in
+> asm-generic to be included by non-instrumented architectures.
+>
+> Finally, add some static assertions in order to prevent people from
+> making a mess in this room again.
+> I also used the %__always_inline attribute consistently, so that
+> they always get resolved to the actual operations.
+>
+> Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+> Acked-by: Mark Rutland <mark.rutland@arm.com>
+> Reviewed-by: Yury Norov <yury.norov@gmail.com>
 
->  arch/m68k/Kconfig       |  1 -
+>  arch/m68k/include/asm/bitops.h                | 49 +++++++++++++------
 
 Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
@@ -34,10 +56,3 @@ Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Gr{oetje,eeting}s,
 
                         Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
