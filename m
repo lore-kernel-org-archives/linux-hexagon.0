@@ -1,100 +1,43 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH V6 21/26] m68k/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date: Wed, 6 Jul 2022 12:03:37 +0200
-Message-ID: <CAMuHMdX_Ji7dCzzCc3xw5ic6J=0PaPkyzXKpOgUFjjEkR+yJOw@mail.gmail.com>
-References: <20220630051630.1718927-1-anshuman.khandual@arm.com> <20220630051630.1718927-22-anshuman.khandual@arm.com>
+Subject: Re: [PATCH V6 26/26] mm/mmap: Drop ARCH_HAS_VM_GET_PAGE_PROT
+Date: Wed, 6 Jul 2022 12:04:23 +0200
+Message-ID: <CAMuHMdVJiS6vm2td-PBH3zpsNZJeeoudS4+yu4JG08sOi+XFdA@mail.gmail.com>
+References: <20220630051630.1718927-1-anshuman.khandual@arm.com> <20220630051630.1718927-27-anshuman.khandual@arm.com>
 Mime-Version: 1.0
-Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <20220630051630.1718927-22-anshuman.khandual@arm.com>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20220630051630.1718927-27-anshuman.khandual@arm.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-csky@vger.kernel.org, sparclinux <sparclinux@vger.kernel.org>, linux-riscv <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Christophe Leroy <christophe.leroy@csgroup.eu>, Christoph Hellwig <hch@infradead.org>, arcml <linux-snps-arc@lists.infradead.org>, "open list:TENSILICA XTENSA PORT (xtensa)" <linux-xtensa@linux-xtensa.org>, linux-um <linux-um@lists.infradead.org>, linux-m68k
+Cc: Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-csky@vger.kernel.org, sparclinux <sparclinux@vger.kernel.org>, linux-riscv <linux-riscv@lists.infradead.org>, Christoph Hellwig <hch@lst.de>, linux-s390 <linux-s390@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Christophe Leroy <christophe.leroy@csgroup.eu>, Christoph Hellwig <hch@infradead.org>, arcml <linux-snps-arc@lists.infradead.org>, "open list:TENSILICA XTENSA PORT (xtensa)" <linux-xtensa@linux-xtensa.org>, linux-um <linux-um@l>
 
-Hi Anshuman,
-
-On Thu, Jun 30, 2022 at 7:19 AM Anshuman Khandual
+On Thu, Jun 30, 2022 at 7:20 AM Anshuman Khandual
 <anshuman.khandual@arm.com> wrote:
-> This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
-> vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
-> up a private and static protection_map[] array. Subsequently all __SXXX and
-> __PXXX macros can be dropped which are no longer needed.
+> Now all the platforms enable ARCH_HAS_GET_PAGE_PROT. They define and export
+> own vm_get_page_prot() whether custom or standard DECLARE_VM_GET_PAGE_PROT.
+> Hence there is no need for default generic fallback for vm_get_page_prot().
+> Just drop this fallback and also ARCH_HAS_GET_PAGE_PROT mechanism.
 >
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: linux-m68k@lists.linux-m68k.org
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: linux-mm@kvack.org
 > Cc: linux-kernel@vger.kernel.org
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 > Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 
-Thanks for your patch!
+>  arch/m68k/Kconfig       |  1 -
 
-> --- a/arch/m68k/include/asm/mcf_pgtable.h
-> +++ b/arch/m68k/include/asm/mcf_pgtable.h
-> @@ -91,60 +91,6 @@
->   * for use. In general, the bit positions are xwr, and P-items are
->   * private, the S-items are shared.
->   */
-
-The comment above should be removed, too.
-
-> -#define __P000         PAGE_NONE
-> -#define __P001         __pgprot(CF_PAGE_VALID \
-> -                                | CF_PAGE_ACCESSED \
-> -                                | CF_PAGE_READABLE)
-
-> --- a/arch/m68k/include/asm/motorola_pgtable.h
-> +++ b/arch/m68k/include/asm/motorola_pgtable.h
-> @@ -83,28 +83,6 @@ extern unsigned long mm_cachebits;
->  #define PAGE_COPY_C    __pgprot(_PAGE_PRESENT | _PAGE_RONLY | _PAGE_ACCESSED)
->  #define PAGE_READONLY_C        __pgprot(_PAGE_PRESENT | _PAGE_RONLY | _PAGE_ACCESSED)
-
-You might move the *_C definitions above into arch/m68k/mm/motorola.c
-as well, as they are only used in the latter.
-
->
-> -/*
-> - * The m68k can't do page protection for execute, and considers that the same are read.
-> - * Also, write permissions imply read permissions. This is the closest we can get..
-> - */
-> -#define __P000 PAGE_NONE_C
-> -#define __P001 PAGE_READONLY_C
-> -#define __P010 PAGE_COPY_C
-> -#define __P011 PAGE_COPY_C
-> -#define __P100 PAGE_READONLY_C
-> -#define __P101 PAGE_READONLY_C
-> -#define __P110 PAGE_COPY_C
-> -#define __P111 PAGE_COPY_C
-> -
-> -#define __S000 PAGE_NONE_C
-> -#define __S001 PAGE_READONLY_C
-> -#define __S010 PAGE_SHARED_C
-> -#define __S011 PAGE_SHARED_C
-> -#define __S100 PAGE_READONLY_C
-> -#define __S101 PAGE_READONLY_C
-> -#define __S110 PAGE_SHARED_C
-> -#define __S111 PAGE_SHARED_C
-> -
->  #define pmd_pgtable(pmd) ((pgtable_t)pmd_page_vaddr(pmd))
->
->  /*
-> diff --git a/arch/m68k/include/asm/sun3_pgtable.h b/arch/m68k/include/asm/sun3_pgtable.h
-> index 5e4e753f0d24..9d919491765b 100644
-> --- a/arch/m68k/include/asm/sun3_pgtable.h
-> +++ b/arch/m68k/include/asm/sun3_pgtable.h
-> @@ -71,23 +71,6 @@
->   * protection settings, valid (implying read and execute) and writeable. These
->   * are as close as we can get...
->   */
-
-The comment above should be removed, too.
-
-> -#define __P000 PAGE_NONE
-> -#define __P001 PAGE_READONLY
-
-With the above fixed:
 Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
 Gr{oetje,eeting}s,
 
                         Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
