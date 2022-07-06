@@ -1,47 +1,65 @@
-From: Yury Norov <yury.norov@gmail.com>
-Subject: Re: [PATCH v5 0/9] bitops: let optimize out non-atomic bitops on
- compile-time constants
-Date: Thu, 30 Jun 2022 19:58:11 -0700
-Message-ID: <Yr5iw9Ruj+LdlB+R@yury-laptop>
-References: <20220624121313.2382500-1-alexandr.lobakin@intel.com>
- <20220630165611.1551808-1-alexandr.lobakin@intel.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH V6 00/26] mm/mmap: Drop __SXXX/__PXXX macros from across
+ platforms
+Date: Wed, 6 Jul 2022 11:27:59 +0530
+Message-ID: <8a6ccbae-7d7c-6e08-cc28-eeb649f86112@arm.com>
+References: <20220630051630.1718927-1-anshuman.khandual@arm.com>
 Mime-Version: 1.0
-Return-path: <linux-arch-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=lOvmRX5TfFX/UtEGzQDHuFSxkP0i5beuEIqtb7CEA/w=;
-        b=WelpAaI3njYPrQSfHDzi8D3Dc8rtvD01QTHIWuSTBpUCspUSZA5CiPOn1FmsBxK2d1
-         n+NvrQ429oVmXtDqyobXXKenmqQR1H4B2ygsgygEyJJsgDS7yFbtnMTx/Yat7tla7IGb
-         f81YC5UvSkGSiC8iaxaum9eibqhYQJgbGxT2mCiuwPfUJl9ROYkck29M4SFGJ5LzsLJP
-         VMJvj4NIDqtL/H8VtZGuM3kOpVqOTkedC07tTTX3LXleA88NKqFOJjONifGSPFrF1T5M
-         MZBE+oi0zJaomy+MpwcjtkMzDFGUMj1gM3gdD0ksFZaravUlIe1wlA6yFdxpI1+5Wu8A
-         05kw==
-Content-Disposition: inline
-In-Reply-To: <20220630165611.1551808-1-alexandr.lobakin@intel.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Content-Language: en-US
+In-Reply-To: <20220630051630.1718927-1-anshuman.khandual@arm.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>
+To: linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: hch@infradead.org, christophe.leroy@csgroup.eu, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jun 30, 2022 at 06:56:11PM +0200, Alexander Lobakin wrote:
-> From: Alexander Lobakin <alexandr.lobakin@intel.com>
-> Date: Fri, 24 Jun 2022 14:13:04 +0200
-> 
-> > While I was working on converting some structure fields from a fixed
-> > type to a bitmap, I started observing code size increase not only in
-> > places where the code works with the converted structure fields, but
-> > also where the converted vars were on the stack. That said, the
-> > following code:
-> 
-> Hey,
-> 
-> Seems like everything is fine this time. I got some reports, but
-> those aren't caused by any of the changes from the series.
-> Maybe we can take it to -next and see how it goes?
 
-Applied on github.com:/norov/linux.git branch bitmap-for-next
 
-Thanks!
+On 6/30/22 10:46, Anshuman Khandual wrote:
+> __SXXX/__PXXX macros is an unnecessary abstraction layer in creating the
+> generic protection_map[] array which is used for vm_get_page_prot(). This
+> abstraction layer can be avoided, if the platforms just define the array
+> protection_map[] for all possible vm_flags access permission combinations
+> and also export vm_get_page_prot() implementation.
+> 
+> This series drops __SXXX/__PXXX macros from across platforms in the tree.
+> First it build protects generic protection_map[] array with '#ifdef __P000'
+> and moves it inside platforms which enable ARCH_HAS_VM_GET_PAGE_PROT. Later
+> this build protects same array with '#ifdef ARCH_HAS_VM_GET_PAGE_PROT' and
+> moves inside remaining platforms while enabling ARCH_HAS_VM_GET_PAGE_PROT.
+> This adds a new macro DECLARE_VM_GET_PAGE_PROT defining the current generic
+> vm_get_page_prot(), in order for it to be reused on platforms that do not
+> require custom implementation. Finally, ARCH_HAS_VM_GET_PAGE_PROT can just
+> be dropped, as all platforms now define and export vm_get_page_prot(), via
+> looking up a private and static protection_map[] array. protection_map[]
+> data type has been changed as 'static const' on all platforms that do not
+> change it during boot.
+> 
+> This series applies on v5.19-rc4 and has been build tested for multiple
+> platforms. While here it has dropped off all previous tags from folks after
+> the current restructuring. Series common CC list has been expanded to cover
+> all impacted platforms for wider reach.
+> 
+> - Anshuman
+> 
+> Changes in V6:
+> 
+> - Converted protection_map[] array as 'static const' on sparc32 platform
+> - Rebased on v5.19-rc4
+> - Collected tags
+
+There are two linux-next based build fixes for this series (listed below), when
+vm_get_page_prot() gets redefined with !CONFIG_MMU. Platform vm_get_page_prot()
+is required only with CONFIG_MMU enabled, otherwise there is a generic fallback
+stub in include/linux/mm.h
+
+https://lore.kernel.org/all/20220705221411.3381797-1-jcmvbkbc@gmail.com/	[xtensa]
+https://lore.kernel.org/all/20220706054002.1936820-1-anshuman.khandual@arm.com/ [sh]
+
+It does not seem CONFIG_MMU can be disabled on other platforms thus exposing a build
+failure. But just to be on the safer side, should all vm_get_page_prot() be wrapped
+around with #ifdef CONFIG_MMU ? In that case will resend the series with above build
+fixes folded back in as well. Please do suggest. Thank you.
+
+- Anshuman
