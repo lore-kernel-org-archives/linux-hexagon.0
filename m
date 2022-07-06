@@ -1,122 +1,48 @@
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: Re: [PATCH V6 21/26] m68k/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date: Wed, 6 Jul 2022 16:45:27 +0530
-Message-ID: <ea0f8db8-831b-dcb4-b8c7-ab651f1e1713@arm.com>
-References: <20220630051630.1718927-1-anshuman.khandual@arm.com>
- <20220630051630.1718927-22-anshuman.khandual@arm.com>
- <CAMuHMdX_Ji7dCzzCc3xw5ic6J=0PaPkyzXKpOgUFjjEkR+yJOw@mail.gmail.com>
+From: "Rafael J. Wysocki" <rafael-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 03/36] cpuidle/poll: Ensure IRQ state is invariant
+Date: Wed, 6 Jul 2022 15:51:09 +0200
+Message-ID: <CAJZ5v0jO9+jRSm3d58K15JaO3=kgM2Ueo7W+Smi3WCBPR_VM5Q@mail.gmail.com>
+References: <20220608142723.103523089@infradead.org> <20220608144516.109792837@infradead.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-alpha-owner@vger.kernel.org>
-Content-Language: en-US
-In-Reply-To: <CAMuHMdX_Ji7dCzzCc3xw5ic6J=0PaPkyzXKpOgUFjjEkR+yJOw@mail.gmail.com>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20220608144516.109792837-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-csky@vger.kernel.org, sparclinux <sparclinux@vger.kernel.org>, linux-riscv <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Christophe Leroy <christophe.leroy@csgroup.eu>, Christoph Hellwig <hch@infradead.org>, arcml <linux-snps-arc@lists.infradead.org>, "open list:TENSILICA XTENSA PORT (xtensa)" <linux-xtensa@linux-xtensa.org>, linux-um <linux-um@lists.infradead.org>, linux-m68k <l>
+Content-Transfer-Encoding: 7bit
+To: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Cc: rth-hL46jP5Bxq7R7s880joybQ@public.gmane.org, ink-biIs/Y0ymYJMZLIVYojuPNP0rXTJTi09@public.gmane.org, mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, vgupta-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Russell King - ARM Linux <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, ulli.kroll-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, dl-linux-imx <linux-imx-3arQi8VN3Tc@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Catalin Marinas <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Guo Ren <guoren-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, bcain-jfJNa2p1gH1BDgjK7y7TUQ@public.gmane.org, Huacai Chen <chenhuacai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, kernel-f95k8chpbVdBDLzU/O5InQ@public.gmane.org, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, sammy-4OGMY2YDKIVeoWH0uzbU5w@public.gmane.org, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Thomas Bogendoerfer <tsbogend-I1c7kopa9pz3fQ9qLvQP4Q@public.gmane.org>
 
+On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org> wrote:
+>
+> cpuidle_state::enter() methods should be IRQ invariant
+>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
 
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-On 7/6/22 15:33, Geert Uytterhoeven wrote:
-> Hi Anshuman,
-> 
-> On Thu, Jun 30, 2022 at 7:19 AM Anshuman Khandual
-> <anshuman.khandual@arm.com> wrote:
->> This enables ARCH_HAS_VM_GET_PAGE_PROT on the platform and exports standard
->> vm_get_page_prot() implementation via DECLARE_VM_GET_PAGE_PROT, which looks
->> up a private and static protection_map[] array. Subsequently all __SXXX and
->> __PXXX macros can be dropped which are no longer needed.
->>
->> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
->> Cc: linux-m68k@lists.linux-m68k.org
->> Cc: linux-kernel@vger.kernel.org
->> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> 
-> Thanks for your patch!
-> 
->> --- a/arch/m68k/include/asm/mcf_pgtable.h
->> +++ b/arch/m68k/include/asm/mcf_pgtable.h
->> @@ -91,60 +91,6 @@
->>   * for use. In general, the bit positions are xwr, and P-items are
->>   * private, the S-items are shared.
->>   */
-> 
-> The comment above should be removed, too.
-
-Sure, will do.
-
-> 
->> -#define __P000         PAGE_NONE
->> -#define __P001         __pgprot(CF_PAGE_VALID \
->> -                                | CF_PAGE_ACCESSED \
->> -                                | CF_PAGE_READABLE)
-> 
->> --- a/arch/m68k/include/asm/motorola_pgtable.h
->> +++ b/arch/m68k/include/asm/motorola_pgtable.h
->> @@ -83,28 +83,6 @@ extern unsigned long mm_cachebits;
->>  #define PAGE_COPY_C    __pgprot(_PAGE_PRESENT | _PAGE_RONLY | _PAGE_ACCESSED)
->>  #define PAGE_READONLY_C        __pgprot(_PAGE_PRESENT | _PAGE_RONLY | _PAGE_ACCESSED)
-> 
-> You might move the *_C definitions above into arch/m68k/mm/motorola.c
-> as well, as they are only used in the latter.
-
-Okay, will do.
-
-> 
->>
->> -/*
->> - * The m68k can't do page protection for execute, and considers that the same are read.
->> - * Also, write permissions imply read permissions. This is the closest we can get..
->> - */
->> -#define __P000 PAGE_NONE_C
->> -#define __P001 PAGE_READONLY_C
->> -#define __P010 PAGE_COPY_C
->> -#define __P011 PAGE_COPY_C
->> -#define __P100 PAGE_READONLY_C
->> -#define __P101 PAGE_READONLY_C
->> -#define __P110 PAGE_COPY_C
->> -#define __P111 PAGE_COPY_C
->> -
->> -#define __S000 PAGE_NONE_C
->> -#define __S001 PAGE_READONLY_C
->> -#define __S010 PAGE_SHARED_C
->> -#define __S011 PAGE_SHARED_C
->> -#define __S100 PAGE_READONLY_C
->> -#define __S101 PAGE_READONLY_C
->> -#define __S110 PAGE_SHARED_C
->> -#define __S111 PAGE_SHARED_C
->> -
->>  #define pmd_pgtable(pmd) ((pgtable_t)pmd_page_vaddr(pmd))
->>
->>  /*
->> diff --git a/arch/m68k/include/asm/sun3_pgtable.h b/arch/m68k/include/asm/sun3_pgtable.h
->> index 5e4e753f0d24..9d919491765b 100644
->> --- a/arch/m68k/include/asm/sun3_pgtable.h
->> +++ b/arch/m68k/include/asm/sun3_pgtable.h
->> @@ -71,23 +71,6 @@
->>   * protection settings, valid (implying read and execute) and writeable. These
->>   * are as close as we can get...
->>   */
-> 
-> The comment above should be removed, too.
-
-Sure, will do.
-
-> 
->> -#define __P000 PAGE_NONE
->> -#define __P001 PAGE_READONLY
-> 
-> With the above fixed:
-> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>> 
-> Gr{oetje,eeting}s,
-> 
->                         Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
-> 
+> ---
+>  drivers/cpuidle/poll_state.c |    4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> --- a/drivers/cpuidle/poll_state.c
+> +++ b/drivers/cpuidle/poll_state.c
+> @@ -17,7 +17,7 @@ static int __cpuidle poll_idle(struct cp
+>
+>         dev->poll_time_limit = false;
+>
+> -       local_irq_enable();
+> +       raw_local_irq_enable();
+>         if (!current_set_polling_and_test()) {
+>                 unsigned int loop_count = 0;
+>                 u64 limit;
+> @@ -36,6 +36,8 @@ static int __cpuidle poll_idle(struct cp
+>                         }
+>                 }
+>         }
+> +       raw_local_irq_disable();
+> +
+>         current_clr_polling();
+>
+>         return index;
+>
+>
