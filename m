@@ -1,107 +1,220 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [bitops]  0e862838f2:
- BUG:KASAN:wild-memory-access_in_dmar_parse_one_rhsa
-Date: Fri, 8 Jul 2022 15:17:40 +0300
-Message-ID: <YsggZNUQcsKIU9xU@smile.fi.intel.com>
-References: <YsbpTNmDaam8pl+f@xsang-OptiPlex-9020>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: [PATCH V7 00/26] mm/mmap: Drop __SXXX/__PXXX macros from across platforms
+Date: Mon, 11 Jul 2022 12:35:34 +0530
+Message-ID: <20220711070600.2378316-1-anshuman.khandual@arm.com>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-ia64-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657282670; x=1688818670;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=8S0rzRQA2BUxiTwGUL7gX6AOqoRLNeIl8BEePutlzuI=;
-  b=ODeL5SrFBXGxeSYbl7RRA68oK129r8BlzMKquZy6d0jhYp4S95DxjAui
-   EfTXFQrpHg+8F01NMa9njxQabSURQXqcQUlkq418kcAbKX22rHojwXB8x
-   aJ67L1HDaLC4nRpsLkrx7LC5WSx28k1zKOHyHhoubNIL9KfrBpqwRnP5+
-   hkl1vGploog5lBzPha8lwrs9K5dye9GWhXtZnDeE3i/YAHXGaH7pVBnnV
-   CoVjAOrDG2W+VrW33AIQPFl57BNEwoX3YpeOMBUqm3xLEBc447xVBPwqW
-   yvijkBAaRsBfNMhuUsL6SWXo/lvKlJmew0gAczT6zLthRzB5/Z6tQqEQA
-   Q==;
-Content-Disposition: inline
-In-Reply-To: <YsbpTNmDaam8pl+f@xsang-OptiPlex-9020>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: kernel test robot <oliver.sang@intel.com>
-Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Yury Norov <yury.norov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, LKML <linux-kernel@vger.kernel.org>, Linux Memory Management List <linux-mm@kvack.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arch@vger.kernel.org, lkp@lists.01.org, lkp@intel.com
+To: linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: hch@infradead.org, christophe.leroy@csgroup.eu, Anshuman Khandual <anshuman.khandual@arm.com>, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, openrisc@lists.librecores.org, linux-xtensa@linux-xtensa.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-um@lists.infradead.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jul 07, 2022 at 10:10:20PM +0800, kernel test robot wrote:
-> 
-> (please be noted we reported
-> "[bitops]  001bea109d: BUG:KASAN:wild-memory-access_in_dmar_parse_one_rhsa"
-> on
-> https://lore.kernel.org/all/YrnGLtDXAveqXGok@xsang-OptiPlex-9020/
-> now we noticed this commit has already been merged into linux-next/master,
-> and the issue is still existing. report again FYI)
-> 
-> Greeting,
-> 
-> FYI, we noticed the following commit (built with gcc-11):
-> 
-> commit: 0e862838f290147ea9c16db852d8d494b552d38d ("bitops: unify non-atomic bitops prototypes across architectures")
-> https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git master
-> 
-> in testcase: xfstests
-> version: xfstests-x86_64-c1144bf-1_20220627
-> with following parameters:
-> 
-> 	disk: 2pmem
-> 	fs: ext4
-> 	test: ext4-dax
-> 	ucode: 0x700001c
-> 
-> test-description: xfstests is a regression test suite for xfs and other files ystems.
-> test-url: git://git.kernel.org/pub/scm/fs/xfs/xfstests-dev.git
-> 
-> 
-> on test machine: 16 threads 1 sockets Intel(R) Xeon(R) CPU D-1541 @ 2.10GHz with 48G memory
-> 
-> caused below changes (please refer to attached dmesg/kmsg for entire log/backtrace):
-> 
-> 
-> 
-> If you fix the issue, kindly add following tag
-> Reported-by: kernel test robot <oliver.sang@intel.com>
-> 
-> 
-> [ 4.668325][ T0] BUG: KASAN: wild-memory-access in dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497) 
-> [    4.676149][    T0] Read of size 8 at addr 1fffffff85115558 by task swapper/0/0
-> [    4.683454][    T0]
-> [    4.685638][    T0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.19.0-rc3-00004-g0e862838f290 #1
-> [    4.694331][    T0] Hardware name: Supermicro SYS-5018D-FN4T/X10SDV-8C-TLN4F, BIOS 1.1 03/02/2016
-> [    4.703196][    T0] Call Trace:
-> [    4.706334][    T0]  <TASK>
-> [ 4.709133][ T0] ? dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497) 
-> [ 4.714272][ T0] dump_stack_lvl (lib/dump_stack.c:107 (discriminator 1)) 
-> [ 4.718632][ T0] kasan_report (mm/kasan/report.c:162 mm/kasan/report.c:493) 
-> [ 4.722903][ T0] ? dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497) 
-> [ 4.728042][ T0] kasan_check_range (mm/kasan/generic.c:190) 
-> [ 4.732750][ T0] dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497) 
-> [ 4.737715][ T0] dmar_walk_remapping_entries (drivers/iommu/intel/dmar.c:609) 
-> [ 4.743375][ T0] parse_dmar_table (drivers/iommu/intel/dmar.c:671) 
-> [ 4.748079][ T0] ? dmar_table_detect (drivers/iommu/intel/dmar.c:633) 
-> [ 4.752872][ T0] ? dmar_free_dev_scope (drivers/iommu/intel/dmar.c:408) 
-> [ 4.758010][ T0] ? init_dmars (drivers/iommu/intel/iommu.c:3359) 
-> [ 4.762370][ T0] ? iommu_resume (drivers/iommu/intel/iommu.c:3419) 
-> [ 4.766903][ T0] ? dmar_walk_dsm_resource+0x300/0x300 
-> [ 4.772909][ T0] ? dmar_acpi_insert_dev_scope (drivers/iommu/intel/dmar.c:466) 
-> [ 4.778655][ T0] ? dmar_check_one_atsr (drivers/iommu/intel/iommu.c:3521) 
-> [ 4.783795][ T0] dmar_table_init (drivers/iommu/intel/dmar.c:846) 
-> [ 4.788239][ T0] intel_prepare_irq_remapping (drivers/iommu/intel/irq_remapping.c:742) 
-> [ 4.793811][ T0] irq_remapping_prepare (drivers/iommu/irq_remapping.c:102) 
-> [ 4.798778][ T0] enable_IR_x2apic (arch/x86/kernel/apic/apic.c:1928) 
-> [ 4.803395][ T0] default_setup_apic_routing (arch/x86/kernel/apic/probe_64.c:25 (discriminator 1)) 
-> [ 4.808883][ T0] apic_intr_mode_init (arch/x86/kernel/apic/apic.c:1446) 
-> [ 4.813761][ T0] x86_late_time_init (arch/x86/kernel/time.c:101) 
-> [ 4.818467][ T0] start_kernel (init/main.c:1101) 
-> [ 4.822827][ T0] secondary_startup_64_no_verify (arch/x86/kernel/head_64.S:358) 
+__SXXX/__PXXX macros is an unnecessary abstraction layer in creating the
+generic protection_map[] array which is used for vm_get_page_prot(). This
+abstraction layer can be avoided, if the platforms just define the array
+protection_map[] for all possible vm_flags access permission combinations
+and also export vm_get_page_prot() implementation.
 
-Seems like related to nodemask APIs.
+This series drops __SXXX/__PXXX macros from across platforms in the tree.
+First it build protects generic protection_map[] array with '#ifdef __P000'
+and moves it inside platforms which enable ARCH_HAS_VM_GET_PAGE_PROT. Later
+this build protects same array with '#ifdef ARCH_HAS_VM_GET_PAGE_PROT' and
+moves inside remaining platforms while enabling ARCH_HAS_VM_GET_PAGE_PROT.
+This adds a new macro DECLARE_VM_GET_PAGE_PROT defining the current generic
+vm_get_page_prot(), in order for it to be reused on platforms that do not
+require custom implementation. Finally, ARCH_HAS_VM_GET_PAGE_PROT can just
+be dropped, as all platforms now define and export vm_get_page_prot(), via
+looking up a private and static protection_map[] array. protection_map[]
+data type has been changed as 'static const' on all platforms that do not
+change it during boot.
+
+This series applies on v5.19-rc6 and has been build tested for multiple
+platforms. While here it has dropped off all previous tags from folks after
+the current restructuring. Series common CC list has been expanded to cover
+all impacted platforms for wider reach.
+
+- Anshuman
+
+Changes in V7:
+
+- Dropped comments from arch/m68k/include/asm/mcf_pgtable.h per Geert
+- Dropped comments from arch/m68k/include/asm/sun3_pgtable.h per Geert
+- Moved the *_C definitions above into arch/m68k/mm/motorola.c per Geert
+- Folded in following build failure fix patches on linux-next
+
+https://lore.kernel.org/all/20220705221411.3381797-1-jcmvbkbc@gmail.com/
+https://lore.kernel.org/all/20220706054002.1936820-1-anshuman.khandual@arm.com/
+https://lore.kernel.org/all/20220708230646.CA9B7C341C0@smtp.kernel.org/	
+
+- Collected tags from Geert
+- Rebased on v5.19-rc6
+
+Changes in V6:
+
+https://lore.kernel.org/all/20220630051630.1718927-1-anshuman.khandual@arm.com/
+
+- Converted protection_map[] array as 'static const' on sparc32 platform
+- Rebased on v5.19-rc4
+- Collected tags
+
+Changes in V5:
+
+https://lore.kernel.org/all/20220627045833.1590055-1-anshuman.khandual@arm.com/
+
+- Converted most platfomr protection_map[] array as 'static const'
+- Moved DECLARE_VM_GET_PAGE_PROT inside <include/linux/pgtable.h>
+- Moved generic protection_map[] comment near DECLARE_VM_GET_PAGE_PROT
+- Updated some commit messages
+
+Changes in V4:
+
+https://lore.kernel.org/all/20220624044339.1533882-1-anshuman.khandual@arm.com/
+
+- Both protection_map[] and vm_get_page_prot() moves inside all platforms
+- Split patches to create modular changes for individual platforms
+- Add macro DECLARE_VM_GET_PAGE_PROT defining generic vm_get_page_prot()
+- Drop ARCH_HAS_VM_GET_PAGE_PROT
+
+Changes in V3:
+
+https://lore.kernel.org/all/20220616040924.1022607-1-anshuman.khandual@arm.com/
+
+- Fix build issues on powerpc and riscv
+
+Changes in V2:
+
+https://lore.kernel.org/all/20220613053354.553579-1-anshuman.khandual@arm.com/
+
+- Add 'const' identifier to protection_map[] on powerpc
+- Dropped #ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT check from sparc 32
+- Dropped protection_map[] init from sparc 64
+- Dropped all new platform changes subscribing ARCH_HAS_VM_GET_PAGE_PROT
+- Added a second patch which moves generic protection_map[] array into
+  all remaining platforms (!ARCH_HAS_VM_GET_PAGE_PROT)
+
+Changes in V1:
+
+https://lore.kernel.org/all/20220603101411.488970-1-anshuman.khandual@arm.com/
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: sparclinux@vger.kernel.org
+Cc: x86@kernel.org
+Cc: openrisc@lists.librecores.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-um@lists.infradead.org
+Cc: linux-sh@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org
+
+
+Anshuman Khandual (26):
+  mm/mmap: Build protect protection_map[] with __P000
+  mm/mmap: Define DECLARE_VM_GET_PAGE_PROT
+  powerpc/mm: Move protection_map[] inside the platform
+  sparc/mm: Move protection_map[] inside the platform
+  arm64/mm: Move protection_map[] inside the platform
+  x86/mm: Move protection_map[] inside the platform
+  mm/mmap: Build protect protection_map[] with ARCH_HAS_VM_GET_PAGE_PROT
+  microblaze/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  loongarch/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  openrisc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  xtensa/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  hexagon/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  parisc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  alpha/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  nios2/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  riscv/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  csky/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  s390/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  ia64/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  mips/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  m68k/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  arc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  arm/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  um/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  sh/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+  mm/mmap: Drop ARCH_HAS_VM_GET_PAGE_PROT
+
+ arch/alpha/include/asm/pgtable.h          | 17 -------
+ arch/alpha/mm/init.c                      | 22 +++++++++
+ arch/arc/include/asm/pgtable-bits-arcv2.h | 18 -------
+ arch/arc/mm/mmap.c                        | 20 ++++++++
+ arch/arm/include/asm/pgtable.h            | 17 -------
+ arch/arm/lib/uaccess_with_memcpy.c        |  2 +-
+ arch/arm/mm/mmu.c                         | 20 ++++++++
+ arch/arm64/Kconfig                        |  1 -
+ arch/arm64/include/asm/pgtable-prot.h     | 18 -------
+ arch/arm64/mm/mmap.c                      | 21 ++++++++
+ arch/csky/include/asm/pgtable.h           | 18 -------
+ arch/csky/mm/init.c                       | 20 ++++++++
+ arch/hexagon/include/asm/pgtable.h        | 27 -----------
+ arch/hexagon/mm/init.c                    | 42 ++++++++++++++++
+ arch/ia64/include/asm/pgtable.h           | 18 -------
+ arch/ia64/mm/init.c                       | 28 ++++++++++-
+ arch/loongarch/include/asm/pgtable-bits.h | 19 --------
+ arch/loongarch/mm/cache.c                 | 46 ++++++++++++++++++
+ arch/m68k/include/asm/mcf_pgtable.h       | 59 -----------------------
+ arch/m68k/include/asm/motorola_pgtable.h  | 29 -----------
+ arch/m68k/include/asm/sun3_pgtable.h      | 23 ---------
+ arch/m68k/mm/mcfmmu.c                     | 55 +++++++++++++++++++++
+ arch/m68k/mm/motorola.c                   | 29 +++++++++++
+ arch/m68k/mm/sun3mmu.c                    | 20 ++++++++
+ arch/microblaze/include/asm/pgtable.h     | 17 -------
+ arch/microblaze/mm/init.c                 | 20 ++++++++
+ arch/mips/include/asm/pgtable.h           | 22 ---------
+ arch/mips/mm/cache.c                      |  3 ++
+ arch/nios2/include/asm/pgtable.h          | 16 ------
+ arch/nios2/mm/init.c                      | 20 ++++++++
+ arch/openrisc/include/asm/pgtable.h       | 18 -------
+ arch/openrisc/mm/init.c                   | 20 ++++++++
+ arch/parisc/include/asm/pgtable.h         | 18 -------
+ arch/parisc/mm/init.c                     | 20 ++++++++
+ arch/powerpc/Kconfig                      |  1 -
+ arch/powerpc/include/asm/pgtable.h        | 20 +-------
+ arch/powerpc/mm/pgtable.c                 | 24 +++++++++
+ arch/riscv/include/asm/pgtable.h          | 20 --------
+ arch/riscv/mm/init.c                      | 20 ++++++++
+ arch/s390/include/asm/pgtable.h           | 17 -------
+ arch/s390/mm/mmap.c                       | 20 ++++++++
+ arch/sh/include/asm/pgtable.h             | 17 -------
+ arch/sh/mm/mmap.c                         | 20 ++++++++
+ arch/sparc/Kconfig                        |  1 -
+ arch/sparc/include/asm/pgtable_32.h       | 19 --------
+ arch/sparc/include/asm/pgtable_64.h       | 19 --------
+ arch/sparc/mm/init_32.c                   | 20 ++++++++
+ arch/sparc/mm/init_64.c                   |  3 ++
+ arch/um/include/asm/pgtable.h             | 17 -------
+ arch/um/kernel/mem.c                      | 20 ++++++++
+ arch/x86/Kconfig                          |  1 -
+ arch/x86/include/asm/mem_encrypt.h        |  2 +
+ arch/x86/include/asm/pgtable_types.h      | 19 --------
+ arch/x86/mm/mem_encrypt_amd.c             |  6 +--
+ arch/x86/mm/pgprot.c                      | 28 +++++++++++
+ arch/x86/um/mem_32.c                      |  2 +-
+ arch/xtensa/include/asm/pgtable.h         | 18 -------
+ arch/xtensa/mm/init.c                     | 22 +++++++++
+ include/linux/mm.h                        |  1 -
+ include/linux/pgtable.h                   | 28 +++++++++++
+ mm/Kconfig                                |  3 --
+ mm/mmap.c                                 | 47 ------------------
+ 62 files changed, 617 insertions(+), 581 deletions(-)
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.25.1
 
