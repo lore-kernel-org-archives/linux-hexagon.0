@@ -1,177 +1,116 @@
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
-Subject: Re: [bitops] 0e862838f2: BUG:KASAN:wild-memory-access_in_dmar_parse_one_rhsa
-Date: Tue, 12 Jul 2022 16:31:23 +0200
-Message-ID: <20220712143123.38008-1-alexandr.lobakin@intel.com>
-References: <YsbpTNmDaam8pl+f@xsang-OptiPlex-9020> <YsggZNUQcsKIU9xU@smile.fi.intel.com> <20220711161341.21605-1-alexandr.lobakin@intel.com> <CAAH8bW_fypvDtWEFX32iFSagyAS2Mi+yG+bafTeTynYynBdDWA@mail.gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v5 6/9] bitops: let optimize out non-atomic bitops on
+ compile-time constants
+Date: Thu, 14 Jul 2022 17:04:02 -0700
+Message-ID: <20220715000402.GA512558@roeck-us.net>
+References: <20220624121313.2382500-1-alexandr.lobakin@intel.com>
+ <20220624121313.2382500-7-alexandr.lobakin@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-ia64-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1657636372; x=1689172372;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=a+ceZCUGe/ap+hQFrd92HyoZ9QEte3GdAy+AwFGYt2M=;
-  b=NKmg6Sn4AIuXJJHK7Zq1dmT+jJw/yjQRByv0HosDnRhkk3At1WtsQpkp
-   xkpU5edK7PgmyS8oJgV/0jWChLbH+WQympXVXT9sTfQE8mfbpO1Z4RKsg
-   /VH3lIzXKm/gxeYRkKxCYAFck8yIC+KZeUnkvK78S5YZtgDnZnIqnpXW5
-   m+XStk3ql+p78uyhUJ494P6EGeNynDy720oUUa4PSNwu9HKo4E3bwgbtP
-   tWFANX0ijpzWs42lDtMeAZkjN46vnH3Lw2Vp8eyo2iTW1FL3OkL6fHDR8
-   5yV5YrVbBk+6m4cagTXmkzEudNrRKbUFux75UfWfYpPY9SR1nx0Iz7L8d
-   A==;
-In-Reply-To: <CAAH8bW_fypvDtWEFX32iFSagyAS2Mi+yG+bafTeTynYynBdDWA@mail.gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=y3ZTJgJrieoT1UdgTTqiqvukDGVLKLFMuIKTE7lODpM=;
+        b=RQV4iwKe2wUPu88mMk1f6hs8+uQ1Ya6IG4iamvqBQZ0RnnatLUT16HB70JAQQsh2Rm
+         s/ZRjb/ADi4YjYlOZNf4rRyEHJGwGJHwKIiG/DxJhiQvwFZFqo1yvOApgxPwBWTwkE5k
+         n05fGFUuDSx5fRERuGNvyQqCRS4HEDE+CyUN+1lrE9LEmUj9d8Mvc4I81WAP7TNQhbiq
+         9c+IqL2ykCq4gi9+rg+u/ZGtfmAwtRJNjCNwkj3iJLGUh8+Gjpmg4oeH3i+A1pwKbEKY
+         E4dM1e/kl76zFL3umoiwRY/WGlN/y8IBrZ8AJfo6C4EuqIoxLlHZoCugbJerixMfjj8z
+         2LYw==
+Sender: Guenter Roeck <groeck7@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20220624121313.2382500-7-alexandr.lobakin@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Yury Norov <yury.norov@gmail.com>
-Cc: Alexander Lobakin <alexandr.lobakin@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, kernel test robot <oliver.sang@intel.com>, Mark Rutland <mark.rutland@arm.com>, LKML <linux-kernel@vger.kernel.org>, Linux Memory Management List <linux-mm@kvack.org>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arch@vger.kernel.org, lkp@lists.01.org, lkp@intel.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Alexander Lobakin <alexandr.lobakin@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nathan Chancellor <nathan@kernel.org>, Nick
 
-From: Yury Norov <yury.norov@gmail.com>
-Date: Mon, 11 Jul 2022 11:24:42 -0700
-
-> On Mon, Jul 11, 2022 at 9:15 AM Alexander Lobakin
-> <alexandr.lobakin@intel.com> wrote:
-> >
-> > From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Date: Fri, 8 Jul 2022 15:17:40 +0300
-> >
-> >> On Thu, Jul 07, 2022 at 10:10:20PM +0800, kernel test robot wrote:
-> >>>
-> >>> (please be noted we reported
-> >>> "[bitops]  001bea109d: BUG:KASAN:wild-memory-access_in_dmar_parse_one_rhsa"
-> >>> on
-> >>> https://lore.kernel.org/all/YrnGLtDXAveqXGok@xsang-OptiPlex-9020/
-> >>> now we noticed this commit has already been merged into linux-next/master,
-> >>> and the issue is still existing. report again FYI)
-> >>>
-> >>> Greeting,
-> >>>
-> >>> FYI, we noticed the following commit (built with gcc-11):
-> >>>
-> >>> commit: 0e862838f290147ea9c16db852d8d494b552d38d ("bitops: unify non-atomic bitops prototypes across architectures")
-> >>> https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git master
-> >>>
-> >>> in testcase: xfstests
-> >>> version: xfstests-x86_64-c1144bf-1_20220627
-> >>> with following parameters:
-> >>>
-> >>>     disk: 2pmem
-> >>>     fs: ext4
-> >>>     test: ext4-dax
-> >>>     ucode: 0x700001c
-> >>>
-> >>> test-description: xfstests is a regression test suite for xfs and other files ystems.
-> >>> test-url: git://git.kernel.org/pub/scm/fs/xfs/xfstests-dev.git
-> >>>
-> >>>
-> >>> on test machine: 16 threads 1 sockets Intel(R) Xeon(R) CPU D-1541 @ 2.10GHz with 48G memory
-> >>>
-> >>> caused below changes (please refer to attached dmesg/kmsg for entire log/backtrace):
-> >>>
-> >>>
-> >>>
-> >>> If you fix the issue, kindly add following tag
-> >>> Reported-by: kernel test robot <oliver.sang@intel.com>
-> >>>
-> >>>
-> >>> [ 4.668325][ T0] BUG: KASAN: wild-memory-access in dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-> >>> [    4.676149][    T0] Read of size 8 at addr 1fffffff85115558 by task swapper/0/0
-> >>> [    4.683454][    T0]
-> >>> [    4.685638][    T0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.19.0-rc3-00004-g0e862838f290 #1
-> >>> [    4.694331][    T0] Hardware name: Supermicro SYS-5018D-FN4T/X10SDV-8C-TLN4F, BIOS 1.1 03/02/2016
-> >>> [    4.703196][    T0] Call Trace:
-> >>> [    4.706334][    T0]  <TASK>
-> >>> [ 4.709133][ T0] ? dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-> >>> [ 4.714272][ T0] dump_stack_lvl (lib/dump_stack.c:107 (discriminator 1))
-> >>> [ 4.718632][ T0] kasan_report (mm/kasan/report.c:162 mm/kasan/report.c:493)
-> >>> [ 4.722903][ T0] ? dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-> >>> [ 4.728042][ T0] kasan_check_range (mm/kasan/generic.c:190)
-> >>> [ 4.732750][ T0] dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-> >>> [ 4.737715][ T0] dmar_walk_remapping_entries (drivers/iommu/intel/dmar.c:609)
-> >>> [ 4.743375][ T0] parse_dmar_table (drivers/iommu/intel/dmar.c:671)
-> >>> [ 4.748079][ T0] ? dmar_table_detect (drivers/iommu/intel/dmar.c:633)
-> >>> [ 4.752872][ T0] ? dmar_free_dev_scope (drivers/iommu/intel/dmar.c:408)
-> >>> [ 4.758010][ T0] ? init_dmars (drivers/iommu/intel/iommu.c:3359)
-> >>> [ 4.762370][ T0] ? iommu_resume (drivers/iommu/intel/iommu.c:3419)
-> >>> [ 4.766903][ T0] ? dmar_walk_dsm_resource+0x300/0x300
-> >>> [ 4.772909][ T0] ? dmar_acpi_insert_dev_scope (drivers/iommu/intel/dmar.c:466)
-> >>> [ 4.778655][ T0] ? dmar_check_one_atsr (drivers/iommu/intel/iommu.c:3521)
-> >>> [ 4.783795][ T0] dmar_table_init (drivers/iommu/intel/dmar.c:846)
-> >>> [ 4.788239][ T0] intel_prepare_irq_remapping (drivers/iommu/intel/irq_remapping.c:742)
-> >>> [ 4.793811][ T0] irq_remapping_prepare (drivers/iommu/irq_remapping.c:102)
-> >>> [ 4.798778][ T0] enable_IR_x2apic (arch/x86/kernel/apic/apic.c:1928)
-> >>> [ 4.803395][ T0] default_setup_apic_routing (arch/x86/kernel/apic/probe_64.c:25 (discriminator 1))
-> >>> [ 4.808883][ T0] apic_intr_mode_init (arch/x86/kernel/apic/apic.c:1446)
-> >>> [ 4.813761][ T0] x86_late_time_init (arch/x86/kernel/time.c:101)
-> >>> [ 4.818467][ T0] start_kernel (init/main.c:1101)
-> >>> [ 4.822827][ T0] secondary_startup_64_no_verify (arch/x86/kernel/head_64.S:358)
-> >>
-> >> Seems like related to nodemask APIs.
-> >
-> > It points to arch_test_bit() (node_online() -> test_bit()),
-> > converted from a macro to a function, more precisely, to
-> > variable_test_bit(), which I didn't touch.
-> >
-> > ...oh ok I got it!
-> >
-> > pxm_to_node() can return %NUMA_NO_NODE which equals to -1. The
-> > mentioned commit converts the macro to the function which now takes
-> > `unsigned long` as @nr (bit number). So I guess it gets converted to
-> > %ULONG_MAX - 1.
-> >
-> > Now the question is: what should a bitop do if we have negative bit
-> > number? Because there are 2 solutions:
-> >
-> > 1. (I prefer it) A caller must check that bitop arguments are valid.
-> >    UB for negative (== too big) bit numbers.
-> >    dmar_parse_one_rhsa() must be fixed so that it will check return
-> >    value of pxm_to_node():
-> >
-> >                         int node = pxm_to_node(rhsa->proximity_domain);
-> >
-> > -                       if (!node_online(node))
-> > +                       if (node != NUMA_NO_NODE && !node_online(node))
+On Fri, Jun 24, 2022 at 02:13:10PM +0200, Alexander Lobakin wrote:
+> Currently, many architecture-specific non-atomic bitop
+> implementations use inline asm or other hacks which are faster or
+> more robust when working with "real" variables (i.e. fields from
+> the structures etc.), but the compilers have no clue how to optimize
+> them out when called on compile-time constants. That said, the
+> following code:
 > 
-> Would it make sense to check it inside node_online()?
-
-Probably as a more global improvement. I believe it's used very
-often on hotpath, where it's known it can't be < 0, so for now
-I'd pick the check inside this function.
-
+> 	DECLARE_BITMAP(foo, BITS_PER_LONG) = { }; // -> unsigned long foo[1];
+> 	unsigned long bar = BIT(BAR_BIT);
+> 	unsigned long baz = 0;
 > 
-> >                                 node = NUMA_NO_NODE;
-> >
-> > 2. My code is broken, I shouldn't change `long` to `unsigned long`
-> >    or should change it for {constant,variable}_test_bit() as well
-> >    or do something else and let it behave as it was previously
-> >    (it wasn't crashing probably due to a good luck or...).
+> 	__set_bit(FOO_BIT, foo);
+> 	baz |= BIT(BAZ_BIT);
 > 
-> This is definitely a NUMA problem. Bitmap has 2 kernel-wide users:
-> cpumasks and numa nodes. Both use negative indexes for their
-> reasons, which is dangerous, as we can see from here, because
-> bitmaps don't support them and don't handle it properly...
+> 	BUILD_BUG_ON(!__builtin_constant_p(test_bit(FOO_BIT, foo));
+> 	BUILD_BUG_ON(!__builtin_constant_p(bar & BAR_BIT));
+> 	BUILD_BUG_ON(!__builtin_constant_p(baz & BAZ_BIT));
 > 
-> Can you please send a fix dmar_parse_one_rhsa() as you suggested,
-> so that I'll add the fix before the beginning of next merge window?
-
-Sure, sending in a couple hours. I guess it would be nice to get
-Acked-by from a maintainer of that subsys (if it won't take too
-long).
-
+> triggers the first assertion on x86_64, which means that the
+> compiler is unable to evaluate it to a compile-time initializer
+> when the architecture-specific bitop is used even if it's obvious.
+> In order to let the compiler optimize out such cases, expand the
+> bitop() macro to use the "constant" C non-atomic bitop
+> implementations when all of the arguments passed are compile-time
+> constants, which means that the result will be a compile-time
+> constant as well, so that it produces more efficient and simple
+> code in 100% cases, comparing to the architecture-specific
+> counterparts.
 > 
-> Regarding a general path, this is what I'm thinking on (for a while):
->  - #define NUMA_NO_NODE MAX_NUMNODES;
->  - stronger typechecking, like you did in your series;
->  - introduce CONFIG_DEBUG_BITMAP  to catch bad arguments
->    on-the-fly;
+> The savings are architecture, compiler and compiler flags dependent,
+> for example, on x86_64 -O2:
 > 
-> I'm working on DEBUG_BITMAP, hopefully submit it for next merge
-> cycle.
-
-I like the idea!
-
+> GCC 12: add/remove: 78/29 grow/shrink: 332/525 up/down: 31325/-61560 (-30235)
+> LLVM 13: add/remove: 79/76 grow/shrink: 184/537 up/down: 55076/-141892 (-86816)
+> LLVM 14: add/remove: 10/3 grow/shrink: 93/138 up/down: 3705/-6992 (-3287)
 > 
-> Thanks,
-> Yury
+> and ARM64 (courtesy of Mark):
+> 
+> GCC 11: add/remove: 92/29 grow/shrink: 933/2766 up/down: 39340/-82580 (-43240)
+> LLVM 14: add/remove: 21/11 grow/shrink: 620/651 up/down: 12060/-15824 (-3764)
+> 
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+> Reviewed-by: Marco Elver <elver@google.com>
 
-Thanks,
-Olek
+Building i386:allyesconfig ... failed
+--------------
+Error log:
+arch/x86/platform/olpc/olpc-xo1-sci.c: In function 'send_ebook_state':
+arch/x86/platform/olpc/olpc-xo1-sci.c:83:63: error: logical not is only applied to the left hand side of comparison
+
+Bisect log attached.
+
+Guenter
+
+---
+# bad: [4662b7adea50bb62e993a67f611f3be625d3df0d] Add linux-next specific files for 20220713
+# good: [32346491ddf24599decca06190ebca03ff9de7f8] Linux 5.19-rc6
+git bisect start 'HEAD' 'v5.19-rc6'
+# good: [8b7e002d8bc6e17c94092d25e7261db4e6e5f2cc] Merge branch 'drm-next' of git://git.freedesktop.org/git/drm/drm.git
+git bisect good 8b7e002d8bc6e17c94092d25e7261db4e6e5f2cc
+# good: [07f6d21d6e33c1e28e24ae84e9d26e4e7d4853f5] Merge branch 'next' of git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git
+git bisect good 07f6d21d6e33c1e28e24ae84e9d26e4e7d4853f5
+# good: [5ff085e5d4f6700e03635d5e700f52163a6dc2a7] Merge branch 'staging-next' of git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+git bisect good 5ff085e5d4f6700e03635d5e700f52163a6dc2a7
+# good: [eb9e3fdbdd8b61ef0f4bee23259fe6ab69e463ab] Merge branch 'master' of git://git.kernel.org/pub/scm/linux/kernel/git/crng/random.git
+git bisect good eb9e3fdbdd8b61ef0f4bee23259fe6ab69e463ab
+# good: [9f2183cd961e5ddb7954eafb6bb01a495c6a9c7b] hexagon/mm: enable ARCH_HAS_VM_GET_PAGE_PROT
+git bisect good 9f2183cd961e5ddb7954eafb6bb01a495c6a9c7b
+# bad: [e878aa5faf9ac8c0b5d0c3f293389c194c250fff] Merge branch 'mm-nonmm-stable' of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+git bisect bad e878aa5faf9ac8c0b5d0c3f293389c194c250fff
+# good: [cf95d50205f62c4f5f538676def847292cf39fa9] fs: don't call ->writepage from __mpage_writepage
+git bisect good cf95d50205f62c4f5f538676def847292cf39fa9
+# good: [5103cbfd92d3587713476f94f9485b96e02f0146] Merge branch 'for-next/execve' of git://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git
+git bisect good 5103cbfd92d3587713476f94f9485b96e02f0146
+# good: [ee56c3e8eec166f4e4a2ca842b7804d14f3a0208] Merge branch 'master' into mm-nonmm-stable
+git bisect good ee56c3e8eec166f4e4a2ca842b7804d14f3a0208
+# bad: [dc34d5036692c614eef23c1130ee42a201c316bf] lib: test_bitmap: add compile-time optimization/evaluations assertions
+git bisect bad dc34d5036692c614eef23c1130ee42a201c316bf
+# good: [bb7379bfa680bd48b468e856475778db2ad866c1] bitops: define const_*() versions of the non-atomics
+git bisect good bb7379bfa680bd48b468e856475778db2ad866c1
+# bad: [b03fc1173c0c2bb8fad61902a862985cecdc4b1b] bitops: let optimize out non-atomic bitops on compile-time constants
+git bisect bad b03fc1173c0c2bb8fad61902a862985cecdc4b1b
+# good: [e69eb9c460f128b71c6b995d75a05244e4b6cc3e] bitops: wrap non-atomic bitops with a transparent macro
+git bisect good e69eb9c460f128b71c6b995d75a05244e4b6cc3e
+# first bad commit: [b03fc1173c0c2bb8fad61902a862985cecdc4b1b] bitops: let optimize out non-atomic bitops on compile-time constants
