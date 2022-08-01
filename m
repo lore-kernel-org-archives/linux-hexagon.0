@@ -1,57 +1,122 @@
-From: Michel Lespinasse <michel@lespinasse.org>
-Subject: Re: [PATCH 04/36] cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE
-Date: Sat, 30 Jul 2022 16:45:29 -0700
-Message-ID: <20220730234529.GC1587@lespinasse.org>
-References: <20220608142723.103523089@infradead.org>
- <20220608144516.172460444@infradead.org>
- <20220725194306.GA14746@lespinasse.org>
- <20220728172053.GA3607379@paulmck-ThinkPad-P17-Gen-1>
- <20220729102458.GA1695@lespinasse.org>
- <CAJZ5v0gyPtX=ksCibo2ZN_BztCqUn9KRtRu+gsJ5KetB_1MwEQ@mail.gmail.com>
- <20220730094800.GB1587@lespinasse.org>
- <CAJZ5v0hXVjsWab=qYZfXBTqcjkpWV0CFT9_oQBKQ28rFG3_VLw@mail.gmail.com>
+From: Baoquan He <bhe@redhat.com>
+Subject: [PATCH 05/11] hexagon: mm: Convert to GENERIC_IOREMAP
+Date: Mon,  1 Aug 2022 22:40:23 +0800
+Message-ID: <20220801144029.57829-6-bhe@redhat.com>
+References: <20220801144029.57829-1-bhe@redhat.com>
 Mime-Version: 1.0
-Return-path: <linux-m68k-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed;
- d=lespinasse.org; i=@lespinasse.org; q=dns/txt; s=srv-79-ed;
- t=1659224730; h=date : from : to : cc : subject : message-id :
- references : mime-version : content-type : in-reply-to : from;
- bh=nAVqtDkPyoGTnjQOsobKhENqaeU5rNiWFfP8mKVev5k=;
- b=HFFhCK7R4iKO9dp7xadnNvlJ3TFgnIFCD+mWF8YiQOWKhEk/dwPTWNRYWGC9XfN1WRDf2
- g306xaRkvMw+dqoAw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lespinasse.org;
- i=@lespinasse.org; q=dns/txt; s=srv-79-rsa; t=1659224730; h=date :
- from : to : cc : subject : message-id : references : mime-version :
- content-type : in-reply-to : from;
- bh=nAVqtDkPyoGTnjQOsobKhENqaeU5rNiWFfP8mKVev5k=;
- b=xEm4vrS+nhrfg16KlTSOz6xKHVgl2anxivbQOaQ8iyITrSIXx3k7S+7DNm3/9PE3/hP5/
- weBfs5WCmns8PrJOUh5+LyucC170rSw2K/NgNrAjDpputAJGflo+dG36LsXYxD+GZSSZKbP
- Pj/N5DYITgz/J3aBedmEOjvEEcNa6ityOyI32KA+gNj6htWosOb+QOsIsRx/2q9SXnXOMQE
- CoO7nRU+J2kcBx1HiMTnfjr/eN+QixQZGT0tRp8own4vN9hl237pUBRGLyuycFtncUUh4v4
- MsO6ge1ke2qwlIabxdvLZxjhahuiQC5BaBfCoCYkudJkUo4tS5HM55MrUsVw==
-Content-Disposition: inline
-In-Reply-To: <CAJZ5v0hXVjsWab=qYZfXBTqcjkpWV0CFT9_oQBKQ28rFG3_VLw@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1659364870;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=CaolBDp29uFoy9EJOCmc+prflA1CqUFRD61xKQq994g=;
+        b=UZqOOTYVYP/yqN4Szf8cG9CuzsgSCOAB4E+RwNQh7ID2nCQ/3eSDM6GAvfrFSX8kVaoDdm
+        yr4rzp/D+maD8O7iHkfOo7fVPgWedFdTgT3yOzAw1WIvf/+NPACM74ZE8AKEGtjup24kLC
+        4g+8lpsoIta7QSO2Rj2q631DOn+UvoI=
+In-Reply-To: <20220801144029.57829-1-bhe@redhat.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Michel Lespinasse <michel@lespinasse.org>, "Paul E. McKenney" <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, vgupta@kernel.org, Russell King - ARM Linux <linux@armlinux.org.uk>, ulli.kroll@googlemail.com, Linus Walleij <linus.walleij@linaro.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Sascha Hauer <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, bcain@quicinc.com, Huaca
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, hch@infradead.org, wangkefeng.wang@huawei.com, linux-arm-kernel@lists.infradead.org, Baoquan He <bhe@redhat.com>, Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org
 
-On Sat, Jul 30, 2022 at 09:52:34PM +0200, Rafael J. Wysocki wrote:
-> On Sat, Jul 30, 2022 at 11:48 AM Michel Lespinasse
-> <michel@lespinasse.org> wrote:
-> > I'm not sure if that was the patch you meant to send though, as it
-> > seems it's only adding a tracepoint so shouldn't make any difference
-> > if I'm not actually using the tracepoint ?
-> 
-> You are right, it looks like I pasted a link to a different patch by
-> mistake.  Sorry about that.
-> 
-> I meant this one:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git/commit/?h=pm&id=d295ad34f236c3518634fb6403d4c0160456e470
-> 
-> which will appear in the final 5.19.
+With it, the old ioremap() and iounmap() can be perfectly removed
+since they are duplicated with the standard functions.
 
-Thanks. I can confirm that this patch fixes the boot time debug
-warnings for me. And I see that linus already merged it, nice!
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Cc: Brian Cain <bcain@quicinc.com>
+Cc: linux-hexagon@vger.kernel.org
+---
+ arch/hexagon/Kconfig          |  1 +
+ arch/hexagon/include/asm/io.h |  9 +++++--
+ arch/hexagon/mm/ioremap.c     | 44 -----------------------------------
+ 3 files changed, 8 insertions(+), 46 deletions(-)
+ delete mode 100644 arch/hexagon/mm/ioremap.c
+
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index 54eadf265178..17afffde1a7f 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -25,6 +25,7 @@ config HEXAGON
+ 	select NEED_SG_DMA_LENGTH
+ 	select NO_IOPORT_MAP
+ 	select GENERIC_IOMAP
++	select GENERIC_IOREMAP
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select STACKTRACE_SUPPORT
+ 	select GENERIC_CLOCKEVENTS_BROADCAST
+diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
+index c33241425a5c..e2d3091ec9d6 100644
+--- a/arch/hexagon/include/asm/io.h
++++ b/arch/hexagon/include/asm/io.h
+@@ -170,8 +170,13 @@ static inline void writel(u32 data, volatile void __iomem *addr)
+ #define writew_relaxed __raw_writew
+ #define writel_relaxed __raw_writel
+ 
+-void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
+-#define ioremap_uc(X, Y) ioremap((X), (Y))
++/*
++ * I/O memory mapping functions.
++ */
++#define _PAGE_IOREMAP (_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
++		       (__HEXAGON_C_DEV << 6))
++
++#define ioremap_uc(addr, size) ioremap((addr), (size))
+ 
+ 
+ #define __raw_writel writel
+diff --git a/arch/hexagon/mm/ioremap.c b/arch/hexagon/mm/ioremap.c
+deleted file mode 100644
+index 255c5b1ee1a7..000000000000
+--- a/arch/hexagon/mm/ioremap.c
++++ /dev/null
+@@ -1,44 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * I/O remap functions for Hexagon
+- *
+- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+- */
+-
+-#include <linux/io.h>
+-#include <linux/vmalloc.h>
+-#include <linux/mm.h>
+-
+-void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
+-{
+-	unsigned long last_addr, addr;
+-	unsigned long offset = phys_addr & ~PAGE_MASK;
+-	struct vm_struct *area;
+-
+-	pgprot_t prot = __pgprot(_PAGE_PRESENT|_PAGE_READ|_PAGE_WRITE
+-					|(__HEXAGON_C_DEV << 6));
+-
+-	last_addr = phys_addr + size - 1;
+-
+-	/*  Wrapping not allowed  */
+-	if (!size || (last_addr < phys_addr))
+-		return NULL;
+-
+-	/*  Rounds up to next page size, including whole-page offset */
+-	size = PAGE_ALIGN(offset + size);
+-
+-	area = get_vm_area(size, VM_IOREMAP);
+-	addr = (unsigned long)area->addr;
+-
+-	if (ioremap_page_range(addr, addr+size, phys_addr, prot)) {
+-		vunmap((void *)addr);
+-		return NULL;
+-	}
+-
+-	return (void __iomem *) (offset + addr);
+-}
+-
+-void iounmap(const volatile void __iomem *addr)
+-{
+-	vunmap((void *) ((unsigned long) addr & PAGE_MASK));
+-}
+-- 
+2.34.1
+
