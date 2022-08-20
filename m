@@ -1,37 +1,36 @@
 From: Brian Cain <bcain@quicinc.com>
-Subject: RE: [PATCH v2 05/11] hexagon: mm: Convert to GENERIC_IOREMAP
-Date: Sat, 20 Aug 2022 01:23:41 +0000
-Message-ID: <SN6PR02MB4205F782AC9A36E5CC5EBB0CB86F9@SN6PR02MB4205.namprd02.prod.outlook.com>
-References: <20220820003125.353570-1-bhe@redhat.com>
- <20220820003125.353570-6-bhe@redhat.com>
+Subject: RE: [PATCH] kernel: exit: cleanup release_thread()
+Date: Sat, 20 Aug 2022 17:42:15 +0000
+Message-ID: <BN7PR02MB4194B2148C8F9183AD6504B3B86F9@BN7PR02MB4194.namprd02.prod.outlook.com>
+References: <20220819014406.32266-1-wangkefeng.wang@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : subject
+ : date : message-id : references : in-reply-to : content-type :
  content-transfer-encoding : mime-version; s=qcppdkim1;
- bh=28zxGg6Ec1jP/EGHMi+1N7+b7cVLBdqKokb5G0Vo6qc=;
- b=MbeYkUOLVKttQeCos32djRdjz9nF2G4vzrtx6kOQEbV8Kq1V7rRPwL4zu+bYLMbarwn1
- jynE/2N89yPfluIGR0tnji9Pgbvn6TUWpq5Gv+ak2SB0ChcfMxuuYQ9m9tYXJgbLNbeC
- 6yaOjFNpuBV9KO5r44ZVuzuzdzK8866gGCmOMC+EIrACDOyLHQmN6zQtKFHTM/WRkVbs
- 2g22sWg+ZV75RgDp8Y2heZoHh8dq/DA3bVEJ8vOUSxmuMEKTtZRrS3BGsYktOC7bWWF1
- Uj5Qzi1aDr8aOWGcFzIgsM0wp3XFEDIxoY3HGJ9QPFHdBSayAe35ZWMz9nZ55ydUGQMC pg== 
-In-Reply-To: <20220820003125.353570-6-bhe@redhat.com>
+ bh=l8KECb0a5P+N6A2RzAwTF9GB+WOdmqpC3DwXKrkL2YA=;
+ b=O7CoJ0VNu1C3eXtWEuNvCh52VBzIBrHipn8sB/NADs4pG4PAirxtCPj3oefR0me6hck6
+ 7H64WxYsRSBNxwomecxwtYiVnC9YWJnAJ5sZf1RR/taYOpqwgQmYKY0QmOID2HcZI1+P
+ 0iSvRgpz6BhIE4khWfhdLJ3lajA4o9lLgKdsQ4fjDAxQAb5oQUJ28kPB/l+uvgcDC49H
+ LFI+lx6yw5jfs6yyOmFzJZ6bvtYaMIvwF1LuHkS8hCQ1J9HbGNAAQMfXr+B3G/g8qETv
+ fKz7oW0XyCGR27zHlFTpcybXaZAzSOp0J1VmnYTXoEgpK0O6cZCE7tBjYIo4H0+BdNns 7w== 
+In-Reply-To: <20220819014406.32266-1-wangkefeng.wang@huawei.com>
 Content-Language: en-US
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Baoquan He <bhe@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, "wangkefeng.wang@huawei.com" <wangkefeng.wang@huawei.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
+To: Kefeng Wang <wangkefeng.wang@huawei.com>, Richard Henderson <richard.henderson@linaro.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E . J . Bottomley" <James.Bottomley@HansenPartnership>
+
+
 
 > -----Original Message-----
-> From: Baoquan He <bhe@redhat.com>
+> From: Kefeng Wang <wangkefeng.wang@huawei.com>
 ...
-> With it, the old ioremap() and iounmap() can be perfectly removed
-> since they are duplicated with the standard functions.
+> Only x86 has own release_thread(), introduce a new weak
+> release_thread() function to clean empty definitions in
+> other ARCHs.
 >=20
-> Signed-off-by: Baoquan He <bhe@redhat.com>
-> Cc: Brian Cain <bcain@quicinc.com>
-> Cc: linux-hexagon@vger.kernel.org
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 > ---
 
 Acked-by: Brian Cain <bcain@quicinc.com>
