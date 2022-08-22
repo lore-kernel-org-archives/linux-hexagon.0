@@ -1,68 +1,84 @@
-From: Stafford Horne <shorne@gmail.com>
-Subject: Re: [PATCH] kernel: exit: cleanup release_thread()
-Date: Sun, 21 Aug 2022 17:42:51 +0000
-Message-ID: <YwJum2c1I8JhY0B8@oscomms1>
-References: <20220819014406.32266-1-wangkefeng.wang@huawei.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: Re: [PATCH v2 05/11] hexagon: mm: Convert to GENERIC_IOREMAP
+Date: Mon, 22 Aug 2022 06:38:49 +0000
+Message-ID: <f7642f34-80a8-3215-b441-b7432f6a22b1@csgroup.eu>
+References: <20220820003125.353570-1-bhe@redhat.com>
+ <20220820003125.353570-6-bhe@redhat.com>
 Mime-Version: 1.0
-Return-path: <linux-m68k-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc;
-        bh=7Nrg8mvlqxFEJfzKh/tw2+dBWE8D/s98GD2ZnmZvMl4=;
-        b=F0ptjTbxLv2NJaVf2gvBlBshDMfCokLJPPMsIV35UHBlxVECPPma43FPvPitouEYuo
-         8dgtnhsmPRFBvIO948wmtVOueVdGaHu/6efegZ+eBz+dquE2oOi9XMsurik6HL7oB6MX
-         jV8pUVxH3f1RrwF0NH6pncq2tH6AwoMHlp65ZDTNCyiT6v1mar/Hou3sFmBJRov6RKag
-         O1el0UDp9u/+GhEvUUZhnnL+z+SJXn9IfDfG4Dlp/Iuz3gqoHz6wEPHD+abHkg+f2q3v
-         w/lO0XWXR94cHio73ZqXyXjLv1uGE7J2Xgag56CksB4nH92y765Uk+pyJbn+nJIZ5N3k
-         uDSQ==
-Content-Disposition: inline
-In-Reply-To: <20220819014406.32266-1-wangkefeng.wang@huawei.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=EjA9leuYksvAEMLie7qinMpnOegQl0jGh2C8hjE61uA=;
+ b=IdKfeG1JAPbKey/DZMVBZfx3C4l+cdFShlTgVimtXMqpdPVSOMwLOGFAL8+K7MUnOGIjnhZEt65hqvEA/RWiraKPppbOB3dXHBjJa0W3BvnsXltKZixom5RksOjbOyH3FY9Vw4qv6W+PgttIJJAIYfelmaBMuoz4T2MTvfej3ldZ9cqXCGv70RAsmqkDjCqMVSsGNlKH9ud1FomkkN4d7Ierju21zl9VqF4hX/8sFPq0HwZe17DlYv2K3mak5vBdi7ha3SLz7hz29UrI0RoiN/b16sU5vST8YMh6S89tiP8BSiun1zhO8efCDak+AqpNToz+31luPyOD93swJ5sc1w==
+In-Reply-To: <20220820003125.353570-6-bhe@redhat.com>
+Content-Language: en-US
+Content-ID: <47573E762CAD4D408958B1638406FB81@FRAP264.PROD.OUTLOOK.COM>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Richard Henderson <richard.henderson@linaro.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>
+To: Baoquan He <bhe@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, "wangkefeng.wang@huawei.com" <wangkefeng.wang@huawei.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Brian Cain <bcain@quicinc.com>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
 
-On Fri, Aug 19, 2022 at 09:44:06AM +0800, Kefeng Wang wrote:
-> Only x86 has own release_thread(), introduce a new weak
-> release_thread() function to clean empty definitions in
-> other ARCHs.
-> 
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> ---
-
->  arch/openrisc/include/asm/processor.h   | 1 -
->  arch/openrisc/kernel/process.c          | 4 ----
-
-> diff --git a/arch/openrisc/include/asm/processor.h b/arch/openrisc/include/asm/processor.h
-> index aa1699c18add..ed9efb430afa 100644
-> --- a/arch/openrisc/include/asm/processor.h
-> +++ b/arch/openrisc/include/asm/processor.h
-> @@ -72,7 +72,6 @@ struct thread_struct {
->  
->  
->  void start_thread(struct pt_regs *regs, unsigned long nip, unsigned long sp);
-> -void release_thread(struct task_struct *);
->  unsigned long __get_wchan(struct task_struct *p);
->  
->  #define cpu_relax()     barrier()
-> diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-> index 52dc983ddeba..f94b5ec06786 100644
-> --- a/arch/openrisc/kernel/process.c
-> +++ b/arch/openrisc/kernel/process.c
-> @@ -125,10 +125,6 @@ void show_regs(struct pt_regs *regs)
->  	show_registers(regs);
->  }
->  
-> -void release_thread(struct task_struct *dead_task)
-> -{
-> -}
-> -
->  /*
->   * Copy the thread-specific (arch specific) info from the current
->   * process to the new one p
-
-For OpenRISC bits.
-
-Acked-by: Stafford Horne <shorne@gmail.com>
+DQoNCkxlIDIwLzA4LzIwMjIgw6AgMDI6MzEsIEJhb3F1YW4gSGUgYSDDqWNyaXTCoDoNCj4gV2l0
+aCBpdCwgdGhlIG9sZCBpb3JlbWFwKCkgYW5kIGlvdW5tYXAoKSBjYW4gYmUgcGVyZmVjdGx5IHJl
+bW92ZWQNCj4gc2luY2UgdGhleSBhcmUgZHVwbGljYXRlZCB3aXRoIHRoZSBzdGFuZGFyZCBmdW5j
+dGlvbnMuDQoNCkkgc2VlIG5vdGhpbmcgcmVsYXRlZCB0byB0aGUgcHJlcGFyYXRpb24gcGF0Y2hl
+cy4gQ291bGQgdGhpcyBoYXZlIGJlZW4gDQpjb252ZXJ0ZWQgd2l0aG91dCBhbGwgcHJldmlvdXMg
+cGF0Y2hlcyA/IEluIHRoYXQgY2FzZSBJIHRoaW5rIHRoaXMgb25lIA0Kc2hvdWxkIGdvIGluIHRo
+ZSBiZWdpbmluZyBvZiB0aGUgc2VyaWVzLCBpdCB3b3VsZCBoZWxwIHNlZSB3aGljaCANCmFyY2hp
+dGVjdGVjdHVyZSByZWFsbHkgbmVlZHMgdGhlIGNoYW5nZXMgdG8gdGhlIGdlbmVyaWMgcGFydHMu
+DQoNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEJhb3F1YW4gSGUgPGJoZUByZWRoYXQuY29tPg0KPiBD
+YzogQnJpYW4gQ2FpbiA8YmNhaW5AcXVpY2luYy5jb20+DQo+IENjOiBsaW51eC1oZXhhZ29uQHZn
+ZXIua2VybmVsLm9yZw0KPiAtLS0NCj4gICBhcmNoL2hleGFnb24vS2NvbmZpZyAgICAgICAgICB8
+ICAxICsNCj4gICBhcmNoL2hleGFnb24vaW5jbHVkZS9hc20vaW8uaCB8ICA5ICsrKysrLS0NCj4g
+ICBhcmNoL2hleGFnb24vbW0vaW9yZW1hcC5jICAgICB8IDQ0IC0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tDQo+ICAgMyBmaWxlcyBjaGFuZ2VkLCA4IGluc2VydGlvbnMoKyksIDQ2
+IGRlbGV0aW9ucygtKQ0KPiAgIGRlbGV0ZSBtb2RlIDEwMDY0NCBhcmNoL2hleGFnb24vbW0vaW9y
+ZW1hcC5jDQo+IA0KPiBkaWZmIC0tZ2l0IGEvYXJjaC9oZXhhZ29uL0tjb25maWcgYi9hcmNoL2hl
+eGFnb24vS2NvbmZpZw0KPiBpbmRleCA1NGVhZGYyNjUxNzguLjE3YWZmZmRlMWE3ZiAxMDA2NDQN
+Cj4gLS0tIGEvYXJjaC9oZXhhZ29uL0tjb25maWcNCj4gKysrIGIvYXJjaC9oZXhhZ29uL0tjb25m
+aWcNCj4gQEAgLTI1LDYgKzI1LDcgQEAgY29uZmlnIEhFWEFHT04NCj4gICAJc2VsZWN0IE5FRURf
+U0dfRE1BX0xFTkdUSA0KPiAgIAlzZWxlY3QgTk9fSU9QT1JUX01BUA0KPiAgIAlzZWxlY3QgR0VO
+RVJJQ19JT01BUA0KPiArCXNlbGVjdCBHRU5FUklDX0lPUkVNQVANCj4gICAJc2VsZWN0IEdFTkVS
+SUNfU01QX0lETEVfVEhSRUFEDQo+ICAgCXNlbGVjdCBTVEFDS1RSQUNFX1NVUFBPUlQNCj4gICAJ
+c2VsZWN0IEdFTkVSSUNfQ0xPQ0tFVkVOVFNfQlJPQURDQVNUDQo+IGRpZmYgLS1naXQgYS9hcmNo
+L2hleGFnb24vaW5jbHVkZS9hc20vaW8uaCBiL2FyY2gvaGV4YWdvbi9pbmNsdWRlL2FzbS9pby5o
+DQo+IGluZGV4IGMzMzI0MTQyNWE1Yy4uZTJkMzA5MWVjOWQ2IDEwMDY0NA0KPiAtLS0gYS9hcmNo
+L2hleGFnb24vaW5jbHVkZS9hc20vaW8uaA0KPiArKysgYi9hcmNoL2hleGFnb24vaW5jbHVkZS9h
+c20vaW8uaA0KPiBAQCAtMTcwLDggKzE3MCwxMyBAQCBzdGF0aWMgaW5saW5lIHZvaWQgd3JpdGVs
+KHUzMiBkYXRhLCB2b2xhdGlsZSB2b2lkIF9faW9tZW0gKmFkZHIpDQo+ICAgI2RlZmluZSB3cml0
+ZXdfcmVsYXhlZCBfX3Jhd193cml0ZXcNCj4gICAjZGVmaW5lIHdyaXRlbF9yZWxheGVkIF9fcmF3
+X3dyaXRlbA0KPiAgIA0KPiAtdm9pZCBfX2lvbWVtICppb3JlbWFwKHVuc2lnbmVkIGxvbmcgcGh5
+c19hZGRyLCB1bnNpZ25lZCBsb25nIHNpemUpOw0KPiAtI2RlZmluZSBpb3JlbWFwX3VjKFgsIFkp
+IGlvcmVtYXAoKFgpLCAoWSkpDQo+ICsvKg0KPiArICogSS9PIG1lbW9yeSBtYXBwaW5nIGZ1bmN0
+aW9ucy4NCj4gKyAqLw0KPiArI2RlZmluZSBfUEFHRV9JT1JFTUFQIChfUEFHRV9QUkVTRU5UIHwg
+X1BBR0VfUkVBRCB8IF9QQUdFX1dSSVRFIHwgXA0KPiArCQkgICAgICAgKF9fSEVYQUdPTl9DX0RF
+ViA8PCA2KSkNCj4gKw0KPiArI2RlZmluZSBpb3JlbWFwX3VjKGFkZHIsIHNpemUpIGlvcmVtYXAo
+KGFkZHIpLCAoc2l6ZSkpDQo+ICAgDQo+ICAgDQo+ICAgI2RlZmluZSBfX3Jhd193cml0ZWwgd3Jp
+dGVsDQo+IGRpZmYgLS1naXQgYS9hcmNoL2hleGFnb24vbW0vaW9yZW1hcC5jIGIvYXJjaC9oZXhh
+Z29uL21tL2lvcmVtYXAuYw0KPiBkZWxldGVkIGZpbGUgbW9kZSAxMDA2NDQNCj4gaW5kZXggMjU1
+YzViMWVlMWE3Li4wMDAwMDAwMDAwMDANCj4gLS0tIGEvYXJjaC9oZXhhZ29uL21tL2lvcmVtYXAu
+Yw0KPiArKysgL2Rldi9udWxsDQo+IEBAIC0xLDQ0ICswLDAgQEANCj4gLS8vIFNQRFgtTGljZW5z
+ZS1JZGVudGlmaWVyOiBHUEwtMi4wLW9ubHkNCj4gLS8qDQo+IC0gKiBJL08gcmVtYXAgZnVuY3Rp
+b25zIGZvciBIZXhhZ29uDQo+IC0gKg0KPiAtICogQ29weXJpZ2h0IChjKSAyMDEwLTIwMTEsIFRo
+ZSBMaW51eCBGb3VuZGF0aW9uLiBBbGwgcmlnaHRzIHJlc2VydmVkLg0KPiAtICovDQo+IC0NCj4g
+LSNpbmNsdWRlIDxsaW51eC9pby5oPg0KPiAtI2luY2x1ZGUgPGxpbnV4L3ZtYWxsb2MuaD4NCj4g
+LSNpbmNsdWRlIDxsaW51eC9tbS5oPg0KPiAtDQo+IC12b2lkIF9faW9tZW0gKmlvcmVtYXAodW5z
+aWduZWQgbG9uZyBwaHlzX2FkZHIsIHVuc2lnbmVkIGxvbmcgc2l6ZSkNCj4gLXsNCj4gLQl1bnNp
+Z25lZCBsb25nIGxhc3RfYWRkciwgYWRkcjsNCj4gLQl1bnNpZ25lZCBsb25nIG9mZnNldCA9IHBo
+eXNfYWRkciAmIH5QQUdFX01BU0s7DQo+IC0Jc3RydWN0IHZtX3N0cnVjdCAqYXJlYTsNCj4gLQ0K
+PiAtCXBncHJvdF90IHByb3QgPSBfX3BncHJvdChfUEFHRV9QUkVTRU5UfF9QQUdFX1JFQUR8X1BB
+R0VfV1JJVEUNCj4gLQkJCQkJfChfX0hFWEFHT05fQ19ERVYgPDwgNikpOw0KPiAtDQo+IC0JbGFz
+dF9hZGRyID0gcGh5c19hZGRyICsgc2l6ZSAtIDE7DQo+IC0NCj4gLQkvKiAgV3JhcHBpbmcgbm90
+IGFsbG93ZWQgICovDQo+IC0JaWYgKCFzaXplIHx8IChsYXN0X2FkZHIgPCBwaHlzX2FkZHIpKQ0K
+PiAtCQlyZXR1cm4gTlVMTDsNCj4gLQ0KPiAtCS8qICBSb3VuZHMgdXAgdG8gbmV4dCBwYWdlIHNp
+emUsIGluY2x1ZGluZyB3aG9sZS1wYWdlIG9mZnNldCAqLw0KPiAtCXNpemUgPSBQQUdFX0FMSUdO
+KG9mZnNldCArIHNpemUpOw0KPiAtDQo+IC0JYXJlYSA9IGdldF92bV9hcmVhKHNpemUsIFZNX0lP
+UkVNQVApOw0KPiAtCWFkZHIgPSAodW5zaWduZWQgbG9uZylhcmVhLT5hZGRyOw0KPiAtDQo+IC0J
+aWYgKGlvcmVtYXBfcGFnZV9yYW5nZShhZGRyLCBhZGRyK3NpemUsIHBoeXNfYWRkciwgcHJvdCkp
+IHsNCj4gLQkJdnVubWFwKCh2b2lkICopYWRkcik7DQo+IC0JCXJldHVybiBOVUxMOw0KPiAtCX0N
+Cj4gLQ0KPiAtCXJldHVybiAodm9pZCBfX2lvbWVtICopIChvZmZzZXQgKyBhZGRyKTsNCj4gLX0N
+Cj4gLQ0KPiAtdm9pZCBpb3VubWFwKGNvbnN0IHZvbGF0aWxlIHZvaWQgX19pb21lbSAqYWRkcikN
+Cj4gLXsNCj4gLQl2dW5tYXAoKHZvaWQgKikgKCh1bnNpZ25lZCBsb25nKSBhZGRyICYgUEFHRV9N
+QVNLKSk7DQo+IC19
