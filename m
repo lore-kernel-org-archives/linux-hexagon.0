@@ -1,84 +1,61 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH v2 05/11] hexagon: mm: Convert to GENERIC_IOREMAP
-Date: Mon, 22 Aug 2022 06:38:49 +0000
-Message-ID: <f7642f34-80a8-3215-b441-b7432f6a22b1@csgroup.eu>
-References: <20220820003125.353570-1-bhe@redhat.com>
- <20220820003125.353570-6-bhe@redhat.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH] regmap/hexagon: Properly fix the generic IO helpers
+Date: Mon, 22 Aug 2022 17:05:28 +0100
+Message-ID: <166118432866.209062.6307998506272128787.b4-ty@kernel.org>
+References: <20220818121227.151016-1-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=EjA9leuYksvAEMLie7qinMpnOegQl0jGh2C8hjE61uA=;
- b=IdKfeG1JAPbKey/DZMVBZfx3C4l+cdFShlTgVimtXMqpdPVSOMwLOGFAL8+K7MUnOGIjnhZEt65hqvEA/RWiraKPppbOB3dXHBjJa0W3BvnsXltKZixom5RksOjbOyH3FY9Vw4qv6W+PgttIJJAIYfelmaBMuoz4T2MTvfej3ldZ9cqXCGv70RAsmqkDjCqMVSsGNlKH9ud1FomkkN4d7Ierju21zl9VqF4hX/8sFPq0HwZe17DlYv2K3mak5vBdi7ha3SLz7hz29UrI0RoiN/b16sU5vST8YMh6S89tiP8BSiun1zhO8efCDak+AqpNToz+31luPyOD93swJ5sc1w==
-In-Reply-To: <20220820003125.353570-6-bhe@redhat.com>
-Content-Language: en-US
-Content-ID: <47573E762CAD4D408958B1638406FB81@FRAP264.PROD.OUTLOOK.COM>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1661184330;
+        bh=d3sUkYp6dks0UkiVe4t0K0fOPEi7K0LdjCO3EOU4CHU=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=PKaA0zHIXDboIrSbFj2n2Snj2sRRFvvZl5ts3UbD0yRBW5JmZVehRhl3HXUwnpK9o
+         RAQSGvE4kXpO1JFJnJFcxlILkSPJK4S9vowAaKKiMGFq37BKFgmZWBeeXkXVEIq9Ij
+         Rjn6ISoCm/Dwm83lcVU5SQFDukbSwcNySHpcRUmmFn2uv13XQz9umWVleoqmvNTbfm
+         rVjMv2A8Mzg7EhXCN1bqtOqkqIImzxJePK7OmSBy6X67fegVnKLI1gxEINP4/aEHMa
+         0qvEjLjC6+en6GWDytUQKHxghNuNkx4njeueghQ1sPcthh15xZ2o6hQlV+Nvem69IY
+         KHgWGHm5DYxdg==
+In-Reply-To: <20220818121227.151016-1-linus.walleij@linaro.org>
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Baoquan He <bhe@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, "wangkefeng.wang@huawei.com" <wangkefeng.wang@huawei.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Brian Cain <bcain@quicinc.com>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Brian Cain <bcain@quicinc.com>
 
-DQoNCkxlIDIwLzA4LzIwMjIgw6AgMDI6MzEsIEJhb3F1YW4gSGUgYSDDqWNyaXTCoDoNCj4gV2l0
-aCBpdCwgdGhlIG9sZCBpb3JlbWFwKCkgYW5kIGlvdW5tYXAoKSBjYW4gYmUgcGVyZmVjdGx5IHJl
-bW92ZWQNCj4gc2luY2UgdGhleSBhcmUgZHVwbGljYXRlZCB3aXRoIHRoZSBzdGFuZGFyZCBmdW5j
-dGlvbnMuDQoNCkkgc2VlIG5vdGhpbmcgcmVsYXRlZCB0byB0aGUgcHJlcGFyYXRpb24gcGF0Y2hl
-cy4gQ291bGQgdGhpcyBoYXZlIGJlZW4gDQpjb252ZXJ0ZWQgd2l0aG91dCBhbGwgcHJldmlvdXMg
-cGF0Y2hlcyA/IEluIHRoYXQgY2FzZSBJIHRoaW5rIHRoaXMgb25lIA0Kc2hvdWxkIGdvIGluIHRo
-ZSBiZWdpbmluZyBvZiB0aGUgc2VyaWVzLCBpdCB3b3VsZCBoZWxwIHNlZSB3aGljaCANCmFyY2hp
-dGVjdGVjdHVyZSByZWFsbHkgbmVlZHMgdGhlIGNoYW5nZXMgdG8gdGhlIGdlbmVyaWMgcGFydHMu
-DQoNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEJhb3F1YW4gSGUgPGJoZUByZWRoYXQuY29tPg0KPiBD
-YzogQnJpYW4gQ2FpbiA8YmNhaW5AcXVpY2luYy5jb20+DQo+IENjOiBsaW51eC1oZXhhZ29uQHZn
-ZXIua2VybmVsLm9yZw0KPiAtLS0NCj4gICBhcmNoL2hleGFnb24vS2NvbmZpZyAgICAgICAgICB8
-ICAxICsNCj4gICBhcmNoL2hleGFnb24vaW5jbHVkZS9hc20vaW8uaCB8ICA5ICsrKysrLS0NCj4g
-ICBhcmNoL2hleGFnb24vbW0vaW9yZW1hcC5jICAgICB8IDQ0IC0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tDQo+ICAgMyBmaWxlcyBjaGFuZ2VkLCA4IGluc2VydGlvbnMoKyksIDQ2
-IGRlbGV0aW9ucygtKQ0KPiAgIGRlbGV0ZSBtb2RlIDEwMDY0NCBhcmNoL2hleGFnb24vbW0vaW9y
-ZW1hcC5jDQo+IA0KPiBkaWZmIC0tZ2l0IGEvYXJjaC9oZXhhZ29uL0tjb25maWcgYi9hcmNoL2hl
-eGFnb24vS2NvbmZpZw0KPiBpbmRleCA1NGVhZGYyNjUxNzguLjE3YWZmZmRlMWE3ZiAxMDA2NDQN
-Cj4gLS0tIGEvYXJjaC9oZXhhZ29uL0tjb25maWcNCj4gKysrIGIvYXJjaC9oZXhhZ29uL0tjb25m
-aWcNCj4gQEAgLTI1LDYgKzI1LDcgQEAgY29uZmlnIEhFWEFHT04NCj4gICAJc2VsZWN0IE5FRURf
-U0dfRE1BX0xFTkdUSA0KPiAgIAlzZWxlY3QgTk9fSU9QT1JUX01BUA0KPiAgIAlzZWxlY3QgR0VO
-RVJJQ19JT01BUA0KPiArCXNlbGVjdCBHRU5FUklDX0lPUkVNQVANCj4gICAJc2VsZWN0IEdFTkVS
-SUNfU01QX0lETEVfVEhSRUFEDQo+ICAgCXNlbGVjdCBTVEFDS1RSQUNFX1NVUFBPUlQNCj4gICAJ
-c2VsZWN0IEdFTkVSSUNfQ0xPQ0tFVkVOVFNfQlJPQURDQVNUDQo+IGRpZmYgLS1naXQgYS9hcmNo
-L2hleGFnb24vaW5jbHVkZS9hc20vaW8uaCBiL2FyY2gvaGV4YWdvbi9pbmNsdWRlL2FzbS9pby5o
-DQo+IGluZGV4IGMzMzI0MTQyNWE1Yy4uZTJkMzA5MWVjOWQ2IDEwMDY0NA0KPiAtLS0gYS9hcmNo
-L2hleGFnb24vaW5jbHVkZS9hc20vaW8uaA0KPiArKysgYi9hcmNoL2hleGFnb24vaW5jbHVkZS9h
-c20vaW8uaA0KPiBAQCAtMTcwLDggKzE3MCwxMyBAQCBzdGF0aWMgaW5saW5lIHZvaWQgd3JpdGVs
-KHUzMiBkYXRhLCB2b2xhdGlsZSB2b2lkIF9faW9tZW0gKmFkZHIpDQo+ICAgI2RlZmluZSB3cml0
-ZXdfcmVsYXhlZCBfX3Jhd193cml0ZXcNCj4gICAjZGVmaW5lIHdyaXRlbF9yZWxheGVkIF9fcmF3
-X3dyaXRlbA0KPiAgIA0KPiAtdm9pZCBfX2lvbWVtICppb3JlbWFwKHVuc2lnbmVkIGxvbmcgcGh5
-c19hZGRyLCB1bnNpZ25lZCBsb25nIHNpemUpOw0KPiAtI2RlZmluZSBpb3JlbWFwX3VjKFgsIFkp
-IGlvcmVtYXAoKFgpLCAoWSkpDQo+ICsvKg0KPiArICogSS9PIG1lbW9yeSBtYXBwaW5nIGZ1bmN0
-aW9ucy4NCj4gKyAqLw0KPiArI2RlZmluZSBfUEFHRV9JT1JFTUFQIChfUEFHRV9QUkVTRU5UIHwg
-X1BBR0VfUkVBRCB8IF9QQUdFX1dSSVRFIHwgXA0KPiArCQkgICAgICAgKF9fSEVYQUdPTl9DX0RF
-ViA8PCA2KSkNCj4gKw0KPiArI2RlZmluZSBpb3JlbWFwX3VjKGFkZHIsIHNpemUpIGlvcmVtYXAo
-KGFkZHIpLCAoc2l6ZSkpDQo+ICAgDQo+ICAgDQo+ICAgI2RlZmluZSBfX3Jhd193cml0ZWwgd3Jp
-dGVsDQo+IGRpZmYgLS1naXQgYS9hcmNoL2hleGFnb24vbW0vaW9yZW1hcC5jIGIvYXJjaC9oZXhh
-Z29uL21tL2lvcmVtYXAuYw0KPiBkZWxldGVkIGZpbGUgbW9kZSAxMDA2NDQNCj4gaW5kZXggMjU1
-YzViMWVlMWE3Li4wMDAwMDAwMDAwMDANCj4gLS0tIGEvYXJjaC9oZXhhZ29uL21tL2lvcmVtYXAu
-Yw0KPiArKysgL2Rldi9udWxsDQo+IEBAIC0xLDQ0ICswLDAgQEANCj4gLS8vIFNQRFgtTGljZW5z
-ZS1JZGVudGlmaWVyOiBHUEwtMi4wLW9ubHkNCj4gLS8qDQo+IC0gKiBJL08gcmVtYXAgZnVuY3Rp
-b25zIGZvciBIZXhhZ29uDQo+IC0gKg0KPiAtICogQ29weXJpZ2h0IChjKSAyMDEwLTIwMTEsIFRo
-ZSBMaW51eCBGb3VuZGF0aW9uLiBBbGwgcmlnaHRzIHJlc2VydmVkLg0KPiAtICovDQo+IC0NCj4g
-LSNpbmNsdWRlIDxsaW51eC9pby5oPg0KPiAtI2luY2x1ZGUgPGxpbnV4L3ZtYWxsb2MuaD4NCj4g
-LSNpbmNsdWRlIDxsaW51eC9tbS5oPg0KPiAtDQo+IC12b2lkIF9faW9tZW0gKmlvcmVtYXAodW5z
-aWduZWQgbG9uZyBwaHlzX2FkZHIsIHVuc2lnbmVkIGxvbmcgc2l6ZSkNCj4gLXsNCj4gLQl1bnNp
-Z25lZCBsb25nIGxhc3RfYWRkciwgYWRkcjsNCj4gLQl1bnNpZ25lZCBsb25nIG9mZnNldCA9IHBo
-eXNfYWRkciAmIH5QQUdFX01BU0s7DQo+IC0Jc3RydWN0IHZtX3N0cnVjdCAqYXJlYTsNCj4gLQ0K
-PiAtCXBncHJvdF90IHByb3QgPSBfX3BncHJvdChfUEFHRV9QUkVTRU5UfF9QQUdFX1JFQUR8X1BB
-R0VfV1JJVEUNCj4gLQkJCQkJfChfX0hFWEFHT05fQ19ERVYgPDwgNikpOw0KPiAtDQo+IC0JbGFz
-dF9hZGRyID0gcGh5c19hZGRyICsgc2l6ZSAtIDE7DQo+IC0NCj4gLQkvKiAgV3JhcHBpbmcgbm90
-IGFsbG93ZWQgICovDQo+IC0JaWYgKCFzaXplIHx8IChsYXN0X2FkZHIgPCBwaHlzX2FkZHIpKQ0K
-PiAtCQlyZXR1cm4gTlVMTDsNCj4gLQ0KPiAtCS8qICBSb3VuZHMgdXAgdG8gbmV4dCBwYWdlIHNp
-emUsIGluY2x1ZGluZyB3aG9sZS1wYWdlIG9mZnNldCAqLw0KPiAtCXNpemUgPSBQQUdFX0FMSUdO
-KG9mZnNldCArIHNpemUpOw0KPiAtDQo+IC0JYXJlYSA9IGdldF92bV9hcmVhKHNpemUsIFZNX0lP
-UkVNQVApOw0KPiAtCWFkZHIgPSAodW5zaWduZWQgbG9uZylhcmVhLT5hZGRyOw0KPiAtDQo+IC0J
-aWYgKGlvcmVtYXBfcGFnZV9yYW5nZShhZGRyLCBhZGRyK3NpemUsIHBoeXNfYWRkciwgcHJvdCkp
-IHsNCj4gLQkJdnVubWFwKCh2b2lkICopYWRkcik7DQo+IC0JCXJldHVybiBOVUxMOw0KPiAtCX0N
-Cj4gLQ0KPiAtCXJldHVybiAodm9pZCBfX2lvbWVtICopIChvZmZzZXQgKyBhZGRyKTsNCj4gLX0N
-Cj4gLQ0KPiAtdm9pZCBpb3VubWFwKGNvbnN0IHZvbGF0aWxlIHZvaWQgX19pb21lbSAqYWRkcikN
-Cj4gLXsNCj4gLQl2dW5tYXAoKHZvaWQgKikgKCh1bnNpZ25lZCBsb25nKSBhZGRyICYgUEFHRV9N
-QVNLKSk7DQo+IC19
+On Thu, 18 Aug 2022 14:12:27 +0200, Linus Walleij wrote:
+> I was too naive in just including <asm-generic/io.h> into
+> hexagon: one has to specify defines for every call that uses
+> a (static) inline or this will not work.
+> 
+> Fix it up by providing proper defines for all shorthands that
+> hexagon provides.
+> 
+> [...]
+
+Applied to
+
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git for-next
+
+Thanks!
+
+[1/1] regmap/hexagon: Properly fix the generic IO helpers
+      commit: f8f60615379c1b36d9220f3886fb9b229e95d8cd
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
