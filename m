@@ -1,148 +1,184 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 2/2 v5] regmap: mmio: Support accelerared noinc operations
-Date: Wed, 31 Aug 2022 16:07:28 +0200
-Message-ID: <CACRpkdbn_v7g4=2+jGwxTr2z4ZLcFFfRF4F0oohn0VOf4uJ1SQ@mail.gmail.com>
-References: <20220816204832.265837-1-linus.walleij@linaro.org>
- <20220816204832.265837-2-linus.walleij@linaro.org> <Yw48R+EBmmZYl9x+@smile.fi.intel.com>
+From: Nathan Chancellor <nathan@kernel.org>
+Subject: Re: [masahiroy-kbuild:kbuild 18/19] ld.lld: error:
+ vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0xd4): relocation
+ R_HEX_B22_PCREL out of range: 2313184 is not in [-2097152, 2097151];
+ references __vmnewmap
+Date: Fri, 2 Sep 2022 08:08:03 -0700
+Message-ID: <YxIcU9LW3OLHjAnm@dev-arch.thelio-3990X>
+References: <202209020450.jH1ovepP-lkp@intel.com>
+ <YxEoo8M++9tyaLOO@thelio-3990X>
+ <CAK7LNAS9BtiQ8oSX+oOZ8Wewaed+p7Kj8kaObpVddBuR308Nww@mail.gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-alpha-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=SSE1HwMVcYk2UrtKirDe64NX+1tKMWo/CAq8zQgdjxY=;
-        b=gVt3VwChWCb8oP15iESWk4rihn+xtdYj1oXd5L8WISu2a1tF4jK3rEuTB7v9ySbeog
-         HgcdJ1f+K8DTlgJ45wz9Yo1+MlalUv+zlqhEy5mgfpIA6bMQqaPk2nRdWvCEbni6lIwt
-         nzN58amEGfpMhHYEiXwoP3RRtQilGWuNomP+6GnHaKnuU0iQLCWZoHrkM8X9M1DYXRke
-         /br92uXTzcm9iBSqpq68jxDQEuKBoyZYWx1crpHuRjl8j2TLqNE2MbVn3YJ+n4++T2O1
-         u4lRk4oN4pbjkDr/IyR2KbhhPxgEhDtKDnWX50xV8asGD2qN7rEel/E9C529YsVbIxN7
-         /RmA==
-In-Reply-To: <Yw48R+EBmmZYl9x+@smile.fi.intel.com>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1662131285;
+        bh=xO8wxI5N3x/3nL9IXG1D9c8+CTbJsEtvXnnMKHgpngI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OSHfQDZ4IVdwsFFGcyaN6sp7emXn9AYu/ulI/2q++SAvlmWN/WhNqA2XikoBsFIxL
+         z02PVQL1E3F0NqiiwGkdVDidzgGcYeEpKA4oBVp7p47RN+qLv1GdcXbnIzqGtfJZcD
+         wxO4sL4J2hLqW/UwVqHiJJoiP/YaAlWVscM06YfpqIXhQ8h6MKF9XWlRObYJX9MdOf
+         6ccB5YMWZkG/IETFR26iPkE3/MztuFWl/csrHaCxGEVV7mnEVMRC8qiiRWjrMukDNp
+         yR1sai+zQjYClu4ct2bhbm55A4f/XsOIF8a1F159V+l3oKFKz91FljzrP4bF+WGQDU
+         h+nP+2rNPtGow==
+Content-Disposition: inline
+In-Reply-To: <CAK7LNAS9BtiQ8oSX+oOZ8Wewaed+p7Kj8kaObpVddBuR308Nww@mail.gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Andy Shevchenko <andriy.shevchenko@intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-alpha <linux-alpha@vger.kernel.org>
-Cc: Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org
+To: Masahiro Yamada <masahiroy@kernel.org>, Brian Cain <bcain@quicinc.com>
+Cc: kernel test robot <lkp@intel.com>, kbuild-all@lists.01.org, clang-built-linux <llvm@lists.linux.dev>, linux-hexagon@vger.kernel.org
 
-On Tue, Aug 30, 2022 at 6:39 PM Andy Shevchenko
-<andriy.shevchenko@intel.com> wrote:
-> On Tue, Aug 16, 2022 at 10:48:32PM +0200, Linus Walleij wrote:
-> > Use the newly added callback for accelerated noinc MMIO
-> > to provide writesb, writesw, writesl, writesq, readsb, readsw,
-> > readsl and readsq.
+On Fri, Sep 02, 2022 at 09:36:33AM +0900, Masahiro Yamada wrote:
+> On Fri, Sep 2, 2022 at 6:48 AM Nathan Chancellor <nathan@kernel.org> wrote:
 > >
-> > A special quirk is needed to deal with big endian regmaps: there
-> > are no accelerated operations defined for big endian, so fall
-> > back to calling the big endian operations itereatively for this
-> > case.
+> > + Masahiro
 > >
-> > The Hexagon architecture turns out to have an incomplete
-> > <asm/io.h>: writesb() is not implemented. Fix this by doing
-> > what other architectures do: include <asm-generic/io.h> into
-> > the <asm/io.h> file.
->
-> Wonderful!
->
-> So, I have seen a recent blow up by kernel bot due to Alpha issues on these
-> accessors.
+> > On Fri, Sep 02, 2022 at 04:41:09AM +0800, kernel test robot wrote:
+> > > CC: linux-kbuild@vger.kernel.org
+> > > TO: Masahiro Yamada <masahiroy@kernel.org>
+> > >
+> > > Hi Masahiro,
+> > >
+> > > First bad commit (maybe != root cause):
+> > >
+> > > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild.git kbuild
+> > > head:   67c0e0cf21cd5065fba45a6a00dd252ae4b9417a
+> > > commit: 0b1de512cba77e11bdf0305264c56ab61b23b3e1 [18/19] kbuild: use obj-y instead extra-y for objects placed at the head
+> > > config: hexagon-randconfig-r041-20220831 (https://download.01.org/0day-ci/archive/20220902/202209020450.jH1ovepP-lkp@intel.com/config)
+> > > compiler: clang version 16.0.0 (https://github.com/llvm/llvm-project c55b41d5199d2394dd6cdb8f52180d8b81d809d4)
+> > > reproduce (this is a W=1 build):
+> > >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+> > >         chmod +x ~/bin/make.cross
+> > >         # https://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild.git/commit/?id=0b1de512cba77e11bdf0305264c56ab61b23b3e1
+> > >         git remote add masahiroy-kbuild https://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild.git
+> > >         git fetch --no-tags masahiroy-kbuild kbuild
+> > >         git checkout 0b1de512cba77e11bdf0305264c56ab61b23b3e1
+> > >         # save the config file
+> > >         mkdir build_dir && cp config build_dir/.config
+> > >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=hexagon SHELL=/bin/bash
+> > >
+> > > If you fix the issue, kindly add following tag where applicable
+> > > Reported-by: kernel test robot <lkp@intel.com>
+> > >
+> > > All errors (new ones prefixed by >>):
+> > >
+> > > >> ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0xd4): relocation R_HEX_B22_PCREL out of range: 2313184 is not in [-2097152, 2097151]; references __vmnewmap
+> > >    >>> defined in vmlinux.a(arch/hexagon/kernel/vm_ops.o)
+> > > --
+> > > >> ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0x12c): relocation R_HEX_B22_PCREL out of range: 2313056 is not in [-2097152, 2097151]; references __vmsetvec
+> > >    >>> defined in vmlinux.a(arch/hexagon/kernel/vm_ops.o)
+> > > --
+> > > >> ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0x160): relocation R_HEX_B22_PCREL out of range: 2326848 is not in [-2097152, 2097151]; references memset
+> > >    >>> defined in vmlinux.a(arch/hexagon/lib/memset.o)
+> > >
+> > > --
+> > > 0-DAY CI Kernel Test Service
+> > > https://01.org/lkp
+> > >
+> 
+> 
+> Thanks for the forwarding.
+> 
+> This is not a regression.
+> 
+> The hexagon was already broken.
+> 
+> It is just that it was deemed to be a new breakage
+> due to slightly different error messages.
 
-There is a patch for that:
-https://lore.kernel.org/linux-arch/20220818092059.103884-1-linus.walleij@linaro.org/
+Thanks a lot for checking! Something for the Hexagon folks to look at
+then.
 
-Alpha maintainance is not very active.
+The original report is at
 
-The problem is that some (fringe) architectures do not fulfil the contract
-to provide full accessors. I can fix them all, I am fixing powerpc right now,
-but the breakage is just random compile tests, they don't really use
-regmap-mmio, we're just enabling regmap-mmio to compile on archs
-that don't ever use it, so it's not urgent.
+https://lore.kernel.org/202209020450.jH1ovepP-lkp@intel.com/
 
-> > +     if (!IS_ERR(ctx->clk)) {
-> > +             ret = clk_enable(ctx->clk);
-> > +             if (ret < 0)
-> > +                     return ret;
-> > +     }
->
-> It's a new place of the duplicating check, can we have a helper for that?
->
-> ...
->
-> > +     /*
-> > +      * There are no native, assembly-optimized write single register
-> > +      * operations for big endian, so fall back to emulation if this
-> > +      * is needed. (Single bytes are fine, they are not affected by
-> > +      * endianness.)
-> > +      */
->
-> Wouldn't be faster to memdup() / swap / use corresponding IO accessor?
+with the original config file.
 
-Hm I would like a real BE target to test on and profile that.
-If someone has a target I can make a patch.
+Cheers,
+Nathan
 
-> > +     /*
-> > +      * There are no native, assembly-optimized write single register
-> > +      * operations for big endian, so fall back to emulation if this
-> > +      * is needed. (Single bytes are fine, they are not affected by
-> > +      * endianness.)
-> > +      */
-> > +     if (ctx->big_endian && (ctx->val_bytes > 1)) {
-> > +             switch (ctx->val_bytes) {
-> > +             case 2:
-> > +             {
-> > +                     u16 *valp = (u16 *)val;
-> > +                     for (i = 0; i < val_count; i++)
-> > +                             valp[i] = swab16(valp[i]);
-> > +                     break;
-> > +             }
-> > +             case 4:
-> > +             {
-> > +                     u32 *valp = (u32 *)val;
-> > +                     for (i = 0; i < val_count; i++)
-> > +                             valp[i] = swab32(valp[i]);
-> > +                     break;
-> > +             }
-> > +#ifdef CONFIG_64BIT
-> > +             case 8:
-> > +             {
-> > +                     u64 *valp = (u64 *)val;
-> > +                     for (i = 0; i < val_count; i++)
-> > +                             valp[i] = swab64(valp[i]);
-> > +                     break;
-> > +             }
-> > +#endif
-> > +             default:
-> > +                     ret = -EINVAL;
-> > +                     break;
-> > +             }
-> > +     }
->
-> So, two questions here:
->
-> 1) can we use helpers from include/linux/byteorder/generic.h, such as
->    cpu_to_be32_array()/be32_to_cpu_array()?
->
-> 2) have you considered using memcpy_toio() / memcpy_fromio() and why
->    it's not okay to use them?
-
-I got scared of all of these accessors because of
-commit 7e7ba58c94127efa97c249e38cc2d1c0ed78b58f
-"regmap: mmio: Fix MMIO accessors to avoid talking to IO port"
-so I don't know if I dare to trust them. Therefore I opted for the
-simplest thing that I could write that fulfils the requirement.
-
-Again, if someone has a BE target to test on, I can write a patch!
-
-> > +out_clk:
-> > +     if (!IS_ERR(ctx->clk))
-> > +             clk_disable(ctx->clk);
-> > +
-> > +     return ret;
-> > +
-> > +     return 0;
->
-> Seems like misrebase? I believe this has to be fixed.
-
-Ooops I fix. Also the double newline.
-
-Yours,
-Linus Walleij
+> Compare the before/after.
+> 
+> 
+> 
+> 
+> [Before]
+> 
+> 
+>   LD      .tmp_vmlinux.kallsyms1
+> ld.lld: error: arch/hexagon/kernel/head.o:(.init.text+0xd4):
+> relocation R_HEX_B22_PCREL out of range: 2313200 is not in [-2097152,
+> 2097151]; references __vmnewmap
+> >>> defined in ./built-in.a(arch/hexagon/kernel/vm_ops.o)
+> 
+> ld.lld: error: arch/hexagon/kernel/head.o:(.init.text+0x120):
+> relocation R_HEX_B22_PCREL out of range: 2313124 is not in [-2097152,
+> 2097151]; references __vmnewmap
+> >>> defined in ./built-in.a(arch/hexagon/kernel/vm_ops.o)
+> 
+> ld.lld: error: arch/hexagon/kernel/head.o:(.init.text+0x12c):
+> relocation R_HEX_B22_PCREL out of range: 2313072 is not in [-2097152,
+> 2097151]; references __vmsetvec
+> >>> defined in ./built-in.a(arch/hexagon/kernel/vm_ops.o)
+> 
+> ld.lld: error: arch/hexagon/kernel/head.o:(.init.text+0x160):
+> relocation R_HEX_B22_PCREL out of range: 2326848 is not in [-2097152,
+> 2097151]; references memset
+> >>> defined in ./built-in.a(arch/hexagon/lib/memset.o)
+> make: *** [Makefile:1170: vmlinux] Error 1
+> make: Target '__all' not remade because of errors.
+> 
+> 
+> 
+> 
+> [After]
+> 
+>   LD      .tmp_vmlinux.kallsyms1
+> ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0xd4):
+> relocation R_HEX_B22_PCREL out of range: 2313200 is not in [-2097152,
+> 2097151]; references __vmnewmap
+> >>> defined in vmlinux.a(arch/hexagon/kernel/vm_ops.o)
+> 
+> ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0x120):
+> relocation R_HEX_B22_PCREL out of range: 2313124 is not in [-2097152,
+> 2097151]; references __vmnewmap
+> >>> defined in vmlinux.a(arch/hexagon/kernel/vm_ops.o)
+> 
+> ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0x12c):
+> relocation R_HEX_B22_PCREL out of range: 2313072 is not in [-2097152,
+> 2097151]; references __vmsetvec
+> >>> defined in vmlinux.a(arch/hexagon/kernel/vm_ops.o)
+> 
+> ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0x160):
+> relocation R_HEX_B22_PCREL out of range: 2326848 is not in [-2097152,
+> 2097151]; references memset
+> >>> defined in vmlinux.a(arch/hexagon/lib/memset.o)
+> make: *** [Makefile:1180: vmlinux] Error 1
+> make: Target '__all' not remade because of errors.
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> --
+> Best Regards
+> Masahiro Yamada
