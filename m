@@ -1,27 +1,26 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v2 18/44] cpuidle,
- intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE *again*
-Date: Mon, 19 Sep 2022 11:59:57 +0200
-Message-ID: <20220919101521.543128460@infradead.org>
+Subject: [PATCH v2 41/44] intel_idle: Add force_irq_on module param
+Date: Mon, 19 Sep 2022 12:00:20 +0200
+Message-ID: <20220919101523.110221113@infradead.org>
 References: <20220919095939.761690562@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A2C1E6FBA6
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EAA2C6FB7A
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2C527416ED
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 59537416FD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 34FDF41707
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6596D41725
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8D1FA84262
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C7B5684068
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=DdEsMVUZF4If17doP56YIzy8DGEaYRA+HGcY5bau4R0=; b=ffPA43DaWXeDYiTFZClhauINRG
- z19ZJjXssAtxfxlr1fPti4t6DT2wiH5H5okV4mosIrd7GgaAlF0oC1lqVqmVBftJAA2vQfkPcKfUB
- /U0vTN34R4a+hHK83IQXeWvWCqPzz0nnTgQXXHdkzX9BwVsJH4tOHGf0mHnfP5CWPuYM278I5ENHD
- WehTtuDKTueI72NRvdFd1F1VLL8jZu66MtULr4TFip3m9C+lCpQvpdh0UZepmdn4+5v/s8V1gFfja
- AgtzRJ3HHWQbfFESfeToxLhqhuejqmj7MmjOzZwdMUMyEXl+kBGtul38srQpHF4LuFHeP66Lijddw
- WsNauTzQ==;
+ bh=RR6lW9yNo9DZO38N/e4p2MZQ6Q7RTpDFv4YAvZRPRqw=; b=dhBNASMjq9JKam0WFAPScBiUEC
+ 31XDK+h8qwhTq5EYT0SjwEcio54RYo3YXNJzL9qp8vVRkHyfJsQdQcJ5Pti5d6ymG6v5YR3rrgpSe
+ 4XQcuWxDsJ1q6ovVgaQ+SzZulVoRGlSkSN5mw4EvYN4P6fE8HKs2maYkCA13mRDRuD64OLEBGUXNF
+ /Qgic1QrUIq2i79qFoP0kCFY/irIFSIMyGshswJWaLZxBi5W3PBUL9nwY5VACRXQbvXsyeiTIa0ch
+ J7yjXG2VyjwvJ2v3SrZKjK45QEL7p9TWkv0I41FozhTFdQrt5gfJGZDLrunBCNqm7Jycvz/5X9SYw
+ ljUFiqLQ==;
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,40 +34,34 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: peterz@infradead.org
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org, Andrew Morton <a>
 
-  vmlinux.o: warning: objtool: intel_idle_irq+0x10c: call to trace_hardirqs_off() leaves .noinstr.text section
+For testing purposes.
 
-As per commit 32d4fd5751ea ("cpuidle,intel_idle: Fix
-CPUIDLE_FLAG_IRQ_ENABLE"):
-
-  "must not have tracing in idle functions"
-
-Clearly people can't read and tinker along until splat dissapears.
-This straight up reverts commit d295ad34f236 ("intel_idle: Fix false
-positive RCU splats due to incorrect hardirqs state").
-
-It doesn't re-introduce the problem because preceding patches fixed it
-properly.
-
-Fixes: d295ad34f236 ("intel_idle: Fix false positive RCU splats due to incorrect hardirqs state")
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/idle/intel_idle.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/idle/intel_idle.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 --- a/drivers/idle/intel_idle.c
 +++ b/drivers/idle/intel_idle.c
-@@ -168,13 +168,7 @@ static __cpuidle int intel_idle_irq(stru
- 
- 	raw_local_irq_enable();
- 	ret = __intel_idle(dev, drv, index);
--
--	/*
--	 * The lockdep hardirqs state may be changed to 'on' with timer
--	 * tick interrupt followed by __do_softirq(). Use local_irq_disable()
--	 * to keep the hardirqs state correct.
--	 */
--	local_irq_disable();
-+	raw_local_irq_disable();
- 
- 	return ret;
+@@ -1787,6 +1787,9 @@ static bool __init intel_idle_verify_cst
+ 	return true;
  }
+ 
++static bool force_irq_on __read_mostly;
++module_param(force_irq_on, bool, 0444);
++
+ static void __init intel_idle_init_cstates_icpu(struct cpuidle_driver *drv)
+ {
+ 	int cstate;
+@@ -1838,8 +1841,10 @@ static void __init intel_idle_init_cstat
+ 		/* Structure copy. */
+ 		drv->states[drv->state_count] = cpuidle_state_table[cstate];
+ 
+-		if (cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IRQ_ENABLE)
++		if ((cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IRQ_ENABLE) || force_irq_on) {
++			printk("intel_idle: forced intel_idle_irq for state %d\n", cstate);
+ 			drv->states[drv->state_count].enter = intel_idle_irq;
++		}
+ 
+ 		if (cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS) &&
+ 		    cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IBRS) {
