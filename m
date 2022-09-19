@@ -1,233 +1,139 @@
-From: Brian Cain <bcain@quicinc.com>
-Subject: RE: [masahiroy-kbuild:kbuild 18/19] ld.lld: error:
- vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0xd4): relocation
- R_HEX_B22_PCREL out of range: 2313184 is not in [-2097152, 2097151];
- references __vmnewmap
-Date: Mon, 5 Sep 2022 17:04:12 +0000
-Message-ID: <SN6PR02MB4205AEC82D37030BE689CE02B87F9@SN6PR02MB4205.namprd02.prod.outlook.com>
-References: <202209020450.jH1ovepP-lkp@intel.com>
- <YxEoo8M++9tyaLOO@thelio-3990X>
- <CAK7LNAS9BtiQ8oSX+oOZ8Wewaed+p7Kj8kaObpVddBuR308Nww@mail.gmail.com>
- <YxIcU9LW3OLHjAnm@dev-arch.thelio-3990X>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH v2 11/44] cpuidle,omap4: Push RCU-idle into driver
+Date: Mon, 19 Sep 2022 11:59:50 +0200
+Message-ID: <20220919101521.072508494@infradead.org>
+References: <20220919095939.761690562@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=qcppdkim1;
- bh=jAZ8hEouHUmpEOd9jJyhOEBbcm5aqh1HFxKxfOCiwUo=;
- b=f7ZyJa/ZiRm/fnpIS9USG10XyJH+ryrCl74C6P9S3U4cJsSEF9FrpHEigB6JIg77OMO9
- vToWzFv2uL3IF+fLNJIs2dJkjYQvKY5H0IZG4rxnSVr86WyeKYcv3FaLEY5URcD+Coj4
- WSuWX3rm/4NYbZxCk6ly/7cfqhpmHFnRly1c1o0p6mjfW9dfn5mdk183g2RmrkIRMRpM
- 4Dx9ZdTeS60q4E22b8XMsUFJxawDb0CmNg5hyL5x4H+Q6yG6OP2kxpngQcvFifBfmBwp
- pZU0PBpGEZ82dtfSgCIifOCmpjXMV8tEhIe7OOqPT87TAhxVVG7+uo5Jxvi0xPCvwX1V kA== 
-In-Reply-To: <YxIcU9LW3OLHjAnm@dev-arch.thelio-3990X>
-Content-Language: en-US
+Return-path: <linux-clk-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
+        Content-ID:Content-Description:In-Reply-To;
+        bh=WVCZz4VCnGePSihfWXfUVWek2uxL69eYF/NrdeQus6U=; b=ivBskP0aWQgi9l0mKK9jTzFXqc
+        ZaruQT1GQRrgEFzxRyDZun0oUQSETW6STOVGluWDi3qyaP4sssJsMWlDUZ3GA9Pz0X87ahb90byEQ
+        bhOXfPvW2zvD6yBkUDxk8BE+7zJhSnLWDPFkAW6QGLcPYNbWGozjqGe7xhepdJzb53dFBO7ECLGwt
+        QO1KrbQvccpeuYnZb9ZuwYEgH2WsFobCaskTraK3wrmMGpyKyUxInAVIxF2jY4xcbgzeGmq/omTnx
+        ORL3apzPH+JFJPdVDrr6iVZccffw6jLJlq1Lm1Hgq/35itx04lz+am6dEV+G+6PLGd2kSPpHIcEpd
+        Ptxwcg6w==;
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Nathan Chancellor <nathan@kernel.org>, Masahiro Yamada <masahiroy@kernel.org>, Sid Manning <sidneym@quicinc.com>
-Cc: kernel test robot <lkp@intel.com>, "kbuild-all@lists.01.org" <kbuild-all@lists.01.org>, clang-built-linux <llvm@lists.linux.dev>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: peterz@infradead.org
+Cc: richard.henderson@linaro.org, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu, paul.walmsley@sifive.com, palmer@dabbel
+
+Doing RCU-idle outside the driver, only to then temporarily enable it
+again, some *four* times, before going idle is daft.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/cpuidle44xx.c |   29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
+
+--- a/arch/arm/mach-omap2/cpuidle44xx.c
++++ b/arch/arm/mach-omap2/cpuidle44xx.c
+@@ -105,7 +105,9 @@ static int omap_enter_idle_smp(struct cp
+ 	}
+ 	raw_spin_unlock_irqrestore(&mpu_lock, flag);
+ 
++	ct_idle_enter();
+ 	omap4_enter_lowpower(dev->cpu, cx->cpu_state);
++	ct_idle_exit();
+ 
+ 	raw_spin_lock_irqsave(&mpu_lock, flag);
+ 	if (cx->mpu_state_vote == num_online_cpus())
+@@ -151,10 +153,10 @@ static int omap_enter_idle_coupled(struc
+ 				 (cx->mpu_logic_state == PWRDM_POWER_OFF);
+ 
+ 	/* Enter broadcast mode for periodic timers */
+-	RCU_NONIDLE(tick_broadcast_enable());
++	tick_broadcast_enable();
+ 
+ 	/* Enter broadcast mode for one-shot timers */
+-	RCU_NONIDLE(tick_broadcast_enter());
++	tick_broadcast_enter();
+ 
+ 	/*
+ 	 * Call idle CPU PM enter notifier chain so that
+@@ -166,7 +168,7 @@ static int omap_enter_idle_coupled(struc
+ 
+ 	if (dev->cpu == 0) {
+ 		pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
+-		RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
++		omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
+ 
+ 		/*
+ 		 * Call idle CPU cluster PM enter notifier chain
+@@ -178,14 +180,16 @@ static int omap_enter_idle_coupled(struc
+ 				index = 0;
+ 				cx = state_ptr + index;
+ 				pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
+-				RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
++				omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
+ 				mpuss_can_lose_context = 0;
+ 			}
+ 		}
+ 	}
+ 
++	ct_idle_enter();
+ 	omap4_enter_lowpower(dev->cpu, cx->cpu_state);
+ 	cpu_done[dev->cpu] = true;
++	ct_idle_exit();
+ 
+ 	/* Wakeup CPU1 only if it is not offlined */
+ 	if (dev->cpu == 0 && cpumask_test_cpu(1, cpu_online_mask)) {
+@@ -194,9 +198,9 @@ static int omap_enter_idle_coupled(struc
+ 		    mpuss_can_lose_context)
+ 			gic_dist_disable();
+ 
+-		RCU_NONIDLE(clkdm_deny_idle(cpu_clkdm[1]));
+-		RCU_NONIDLE(omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON));
+-		RCU_NONIDLE(clkdm_allow_idle(cpu_clkdm[1]));
++		clkdm_deny_idle(cpu_clkdm[1]);
++		omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON);
++		clkdm_allow_idle(cpu_clkdm[1]);
+ 
+ 		if (IS_PM44XX_ERRATUM(PM_OMAP4_ROM_SMP_BOOT_ERRATUM_GICD) &&
+ 		    mpuss_can_lose_context) {
+@@ -222,7 +226,7 @@ static int omap_enter_idle_coupled(struc
+ 	cpu_pm_exit();
+ 
+ cpu_pm_out:
+-	RCU_NONIDLE(tick_broadcast_exit());
++	tick_broadcast_exit();
+ 
+ fail:
+ 	cpuidle_coupled_parallel_barrier(dev, &abort_barrier);
+@@ -247,7 +251,8 @@ static struct cpuidle_driver omap4_idle_
+ 			/* C2 - CPU0 OFF + CPU1 OFF + MPU CSWR */
+ 			.exit_latency = 328 + 440,
+ 			.target_residency = 960,
+-			.flags = CPUIDLE_FLAG_COUPLED,
++			.flags = CPUIDLE_FLAG_COUPLED |
++				 CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter = omap_enter_idle_coupled,
+ 			.name = "C2",
+ 			.desc = "CPUx OFF, MPUSS CSWR",
+@@ -256,7 +261,8 @@ static struct cpuidle_driver omap4_idle_
+ 			/* C3 - CPU0 OFF + CPU1 OFF + MPU OSWR */
+ 			.exit_latency = 460 + 518,
+ 			.target_residency = 1100,
+-			.flags = CPUIDLE_FLAG_COUPLED,
++			.flags = CPUIDLE_FLAG_COUPLED |
++				 CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter = omap_enter_idle_coupled,
+ 			.name = "C3",
+ 			.desc = "CPUx OFF, MPUSS OSWR",
+@@ -282,7 +288,8 @@ static struct cpuidle_driver omap5_idle_
+ 			/* C2 - CPU0 RET + CPU1 RET + MPU CSWR */
+ 			.exit_latency = 48 + 60,
+ 			.target_residency = 100,
+-			.flags = CPUIDLE_FLAG_TIMER_STOP,
++			.flags = CPUIDLE_FLAG_TIMER_STOP |
++				 CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter = omap_enter_idle_smp,
+ 			.name = "C2",
+ 			.desc = "CPUx CSWR, MPUSS CSWR",
 
 
-
-> -----Original Message-----
-> From: Nathan Chancellor <nathan@kernel.org>
-> Sent: Friday, September 2, 2022 10:08 AM
-> To: Masahiro Yamada <masahiroy@kernel.org>; Brian Cain
-> <bcain@quicinc.com>
-> Cc: kernel test robot <lkp@intel.com>; kbuild-all@lists.01.org; clang-bui=
-lt-linux
-> <llvm@lists.linux.dev>; linux-hexagon@vger.kernel.org
-> Subject: Re: [masahiroy-kbuild:kbuild 18/19] ld.lld: error:
-> vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0xd4): relocation
-> R_HEX_B22_PCREL out of range: 2313184 is not in [-2097152, 2097151];
-> references __vmnewmap
->=20
-> WARNING: This email originated from outside of Qualcomm. Please be wary o=
-f
-> any links or attachments, and do not enable macros.
->=20
-> On Fri, Sep 02, 2022 at 09:36:33AM +0900, Masahiro Yamada wrote:
-> > On Fri, Sep 2, 2022 at 6:48 AM Nathan Chancellor <nathan@kernel.org>
-> wrote:
-> > >
-> > > + Masahiro
-> > >
-> > > On Fri, Sep 02, 2022 at 04:41:09AM +0800, kernel test robot wrote:
-> > > > CC: linux-kbuild@vger.kernel.org
-> > > > TO: Masahiro Yamada <masahiroy@kernel.org>
-> > > >
-> > > > Hi Masahiro,
-> > > >
-> > > > First bad commit (maybe !=3D root cause):
-> > > >
-> > > > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/l=
-inux-
-> kbuild.git kbuild
-> > > > head:   67c0e0cf21cd5065fba45a6a00dd252ae4b9417a
-> > > > commit: 0b1de512cba77e11bdf0305264c56ab61b23b3e1 [18/19] kbuild:
-> use obj-y instead extra-y for objects placed at the head
-> > > > config: hexagon-randconfig-r041-20220831
-> (https://download.01.org/0day-
-> ci/archive/20220902/202209020450.jH1ovepP-lkp@intel.com/config)
-> > > > compiler: clang version 16.0.0 (https://github.com/llvm/llvm-projec=
-t
-> c55b41d5199d2394dd6cdb8f52180d8b81d809d4)
-> > > > reproduce (this is a W=3D1 build):
-> > > >         wget https://raw.githubusercontent.com/intel/lkp-
-> tests/master/sbin/make.cross -O ~/bin/make.cross
-> > > >         chmod +x ~/bin/make.cross
-> > > >         # https://git.kernel.org/pub/scm/linux/kernel/git/masahiroy=
-/linux-
-> kbuild.git/commit/?id=3D0b1de512cba77e11bdf0305264c56ab61b23b3e1
-> > > >         git remote add masahiroy-kbuild
-> https://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild.gi=
-t
-> > > >         git fetch --no-tags masahiroy-kbuild kbuild
-> > > >         git checkout 0b1de512cba77e11bdf0305264c56ab61b23b3e1
-> > > >         # save the config file
-> > > >         mkdir build_dir && cp config build_dir/.config
-> > > >         COMPILER_INSTALL_PATH=3D$HOME/0day COMPILER=3Dclang
-> make.cross W=3D1 O=3Dbuild_dir ARCH=3Dhexagon SHELL=3D/bin/bash
-> > > >
-> > > > If you fix the issue, kindly add following tag where applicable
-> > > > Reported-by: kernel test robot <lkp@intel.com>
-> > > >
-> > > > All errors (new ones prefixed by >>):
-> > > >
-> > > > >> ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text=
-+0xd4):
-> relocation R_HEX_B22_PCREL out of range: 2313184 is not in [-2097152,
-> 2097151]; references __vmnewmap
-> > > >    >>> defined in vmlinux.a(arch/hexagon/kernel/vm_ops.o)
-> > > > --
-> > > > >> ld.lld: error:
-> vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0x12c): relocation
-> R_HEX_B22_PCREL out of range: 2313056 is not in [-2097152, 2097151];
-> references __vmsetvec
-> > > >    >>> defined in vmlinux.a(arch/hexagon/kernel/vm_ops.o)
-> > > > --
-> > > > >> ld.lld: error:
-> vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0x160): relocation
-> R_HEX_B22_PCREL out of range: 2326848 is not in [-2097152, 2097151];
-> references memset
-> > > >    >>> defined in vmlinux.a(arch/hexagon/lib/memset.o)
-> > > >
-> > > > --
-> > > > 0-DAY CI Kernel Test Service
-> > > > https://01.org/lkp
-> > > >
-> >
-> >
-> > Thanks for the forwarding.
-> >
-> > This is not a regression.
-> >
-> > The hexagon was already broken.
-> >
-> > It is just that it was deemed to be a new breakage
-> > due to slightly different error messages.
->=20
-> Thanks a lot for checking! Something for the Hexagon folks to look at
-> then.
-
-Thanks Yamada-san and Nathan.  We are investigating this and will report ba=
-ck.
-
->=20
-> The original report is at
->=20
-> https://lore.kernel.org/202209020450.jH1ovepP-lkp@intel.com/
->=20
-> with the original config file.
->=20
-> Cheers,
-> Nathan
->=20
-> > Compare the before/after.
-> >
-> >
-> >
-> >
-> > [Before]
-> >
-> >
-> >   LD      .tmp_vmlinux.kallsyms1
-> > ld.lld: error: arch/hexagon/kernel/head.o:(.init.text+0xd4):
-> > relocation R_HEX_B22_PCREL out of range: 2313200 is not in [-2097152,
-> > 2097151]; references __vmnewmap
-> > >>> defined in ./built-in.a(arch/hexagon/kernel/vm_ops.o)
-> >
-> > ld.lld: error: arch/hexagon/kernel/head.o:(.init.text+0x120):
-> > relocation R_HEX_B22_PCREL out of range: 2313124 is not in [-2097152,
-> > 2097151]; references __vmnewmap
-> > >>> defined in ./built-in.a(arch/hexagon/kernel/vm_ops.o)
-> >
-> > ld.lld: error: arch/hexagon/kernel/head.o:(.init.text+0x12c):
-> > relocation R_HEX_B22_PCREL out of range: 2313072 is not in [-2097152,
-> > 2097151]; references __vmsetvec
-> > >>> defined in ./built-in.a(arch/hexagon/kernel/vm_ops.o)
-> >
-> > ld.lld: error: arch/hexagon/kernel/head.o:(.init.text+0x160):
-> > relocation R_HEX_B22_PCREL out of range: 2326848 is not in [-2097152,
-> > 2097151]; references memset
-> > >>> defined in ./built-in.a(arch/hexagon/lib/memset.o)
-> > make: *** [Makefile:1170: vmlinux] Error 1
-> > make: Target '__all' not remade because of errors.
-> >
-> >
-> >
-> >
-> > [After]
-> >
-> >   LD      .tmp_vmlinux.kallsyms1
-> > ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0xd4):
-> > relocation R_HEX_B22_PCREL out of range: 2313200 is not in [-2097152,
-> > 2097151]; references __vmnewmap
-> > >>> defined in vmlinux.a(arch/hexagon/kernel/vm_ops.o)
-> >
-> > ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0x120)=
-:
-> > relocation R_HEX_B22_PCREL out of range: 2313124 is not in [-2097152,
-> > 2097151]; references __vmnewmap
-> > >>> defined in vmlinux.a(arch/hexagon/kernel/vm_ops.o)
-> >
-> > ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0x12c)=
-:
-> > relocation R_HEX_B22_PCREL out of range: 2313072 is not in [-2097152,
-> > 2097151]; references __vmsetvec
-> > >>> defined in vmlinux.a(arch/hexagon/kernel/vm_ops.o)
-> >
-> > ld.lld: error: vmlinux.a(arch/hexagon/kernel/head.o):(.init.text+0x160)=
-:
-> > relocation R_HEX_B22_PCREL out of range: 2326848 is not in [-2097152,
-> > 2097151]; references memset
-> > >>> defined in vmlinux.a(arch/hexagon/lib/memset.o)
-> > make: *** [Makefile:1180: vmlinux] Error 1
-> > make: Target '__all' not remade because of errors.
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> >
-> > --
-> > Best Regards
-> > Masahiro Yamada
