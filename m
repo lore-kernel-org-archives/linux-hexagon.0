@@ -1,26 +1,26 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v2 07/44] cpuidle,psci: Push RCU-idle into driver
-Date: Mon, 19 Sep 2022 11:59:46 +0200
-Message-ID: <20220919101520.802976773@infradead.org>
+Subject: [PATCH v2 29/44] cpuidle,tdx: Make tdx noinstr clean
+Date: Mon, 19 Sep 2022 12:00:08 +0200
+Message-ID: <20220919101522.291054325@infradead.org>
 References: <20220919095939.761690562@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E7C2D40B72
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 45C17400C4
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E579060BAF
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 177E360B9B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4ACD06FB8D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7ECA060BE0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7CE2740B7B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1B305416DC
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=nefRY1zld6SB6gly/BgzrvcXEKwr/pOkUZl11QGpgL8=; b=A9Y5adyud1/mM3xreS5eUrJvnd
- FvUqFIv3nlupLbTdeI33lEpY/zFLIe19vxpCf8VQNlb07A5YwXLCUo0YY6Nuqzs/xjWg+Sj2Wqxqx
- RAKsZxGa5p4Dkxg5ntJ8XtfvkMD+8w17RzWJpVa5IW9NqPm9m4txBnQGDoVesEU79pfxKNmKTjAHM
- QmPWfVUPI0jr1ypsV5iZbItClD0P2Di/q7Z5RllXZy5ZJH2hOmD80dPHf6vt8aFDpFVRstMV7z9qd
- FPTHr06kvgBzpugI2hUMZPsElk/ZqCI0u/yXhF3TnRjADu3s+L6sywGDm998dkamTun6T/pertQtI
- 8lYuUinw==;
+ bh=5J6w0/E9GHUuxcPhak3+lKL/wLFktsWBVlnujWsvOEE=; b=ocGTItbnHMCSlaYiyMpchOEOtx
+ veHzmEQdt1SePnsivQdcNeIJIOJZndJ7oHl64ZVy4viIjqO5KfL7b2Wf5bz98R8lyCJd2nm9U3tjz
+ /9zwY2YzIzcGpJXNLPKlakxz0YTThM6NGt6sYMHo9YdgO/p77zXJwy4mzj8pJoWIiP3Mbe7DI6Jbt
+ 2AMc2nOm8r1Lr/VZ+Ls7ftZ6POJ0PEiFVy9OSbCKzFB2aKH4z9eBrdwrOthgJzOSji5xIKlx+miPC
+ kBrvhjwCHv1vWywPAOk0NStNCu/l3FpOGhyXrqsfN8NmBRF3aeNbEK1vsmnay3e97r1v8JSs2JEc6
+ a9exIuTw==;
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,51 +34,57 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: peterz@infradead.org
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org, Andrew Morton <a>
 
-Doing RCU-idle outside the driver, only to then temporarily enable it
-again, at least twice, before going idle is daft.
+vmlinux.o: warning: objtool: __halt+0x2c: call to hcall_func.constprop.0() leaves .noinstr.text section
+vmlinux.o: warning: objtool: __halt+0x3f: call to __tdx_hypercall() leaves .noinstr.text section
+vmlinux.o: warning: objtool: __tdx_hypercall+0x66: call to __tdx_hypercall_failed() leaves .noinstr.text section
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/cpuidle/cpuidle-psci.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/x86/boot/compressed/vmlinux.lds.S |    1 +
+ arch/x86/coco/tdx/tdcall.S             |    2 ++
+ arch/x86/coco/tdx/tdx.c                |    5 +++--
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/cpuidle/cpuidle-psci.c
-+++ b/drivers/cpuidle/cpuidle-psci.c
-@@ -69,12 +69,12 @@ static int __psci_enter_domain_idle_stat
- 		return -1;
+--- a/arch/x86/boot/compressed/vmlinux.lds.S
++++ b/arch/x86/boot/compressed/vmlinux.lds.S
+@@ -34,6 +34,7 @@ SECTIONS
+ 		_text = .; 	/* Text */
+ 		*(.text)
+ 		*(.text.*)
++		*(.noinstr.text)
+ 		_etext = . ;
+ 	}
+ 	.rodata : {
+--- a/arch/x86/coco/tdx/tdcall.S
++++ b/arch/x86/coco/tdx/tdcall.S
+@@ -31,6 +31,8 @@
+ 					  TDX_R12 | TDX_R13 | \
+ 					  TDX_R14 | TDX_R15 )
  
- 	/* Do runtime PM to manage a hierarchical CPU toplogy. */
--	ct_irq_enter_irqson();
- 	if (s2idle)
- 		dev_pm_genpd_suspend(pd_dev);
- 	else
- 		pm_runtime_put_sync_suspend(pd_dev);
--	ct_irq_exit_irqson();
++.section .noinstr.text, "ax"
 +
-+	ct_idle_enter();
+ /*
+  * __tdx_module_call()  - Used by TDX guests to request services from
+  * the TDX module (does not include VMM services) using TDCALL instruction.
+--- a/arch/x86/coco/tdx/tdx.c
++++ b/arch/x86/coco/tdx/tdx.c
+@@ -53,8 +53,9 @@ static inline u64 _tdx_hypercall(u64 fn,
+ }
  
- 	state = psci_get_domain_state();
- 	if (!state)
-@@ -82,12 +82,12 @@ static int __psci_enter_domain_idle_stat
+ /* Called from __tdx_hypercall() for unrecoverable failure */
+-void __tdx_hypercall_failed(void)
++noinstr void __tdx_hypercall_failed(void)
+ {
++	instrumentation_begin();
+ 	panic("TDVMCALL failed. TDX module bug?");
+ }
  
- 	ret = psci_cpu_suspend_enter(state) ? -1 : idx;
- 
--	ct_irq_enter_irqson();
-+	ct_idle_exit();
-+
- 	if (s2idle)
- 		dev_pm_genpd_resume(pd_dev);
- 	else
- 		pm_runtime_get_sync(pd_dev);
--	ct_irq_exit_irqson();
- 
- 	cpu_pm_exit();
- 
-@@ -240,6 +240,7 @@ static int psci_dt_cpu_init_topology(str
- 	 * of a shared state for the domain, assumes the domain states are all
- 	 * deeper states.
- 	 */
-+	drv->states[state_count - 1].flags |= CPUIDLE_FLAG_RCU_IDLE;
- 	drv->states[state_count - 1].enter = psci_enter_domain_idle_state;
- 	drv->states[state_count - 1].enter_s2idle = psci_enter_s2idle_domain_idle_state;
- 	psci_cpuidle_use_cpuhp = true;
+@@ -64,7 +65,7 @@ void __tdx_hypercall_failed(void)
+  * Reusing the KVM EXIT_REASON macros makes it easier to connect the host and
+  * guest sides of these calls.
+  */
+-static u64 hcall_func(u64 exit_reason)
++static __always_inline u64 hcall_func(u64 exit_reason)
+ {
+ 	return exit_reason;
+ }
