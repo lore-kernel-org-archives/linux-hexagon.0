@@ -1,71 +1,52 @@
-From: Frederic Weisbecker <frederic@kernel.org>
-Subject: Re: [PATCH v2 08/44] cpuidle,imx6: Push RCU-idle into driver
-Date: Mon, 19 Sep 2022 17:17:34 +0200
-Message-ID: <20220919151734.GB62211@lothringen>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v2 09/44] cpuidle,omap3: Push RCU-idle into driver
+Date: Mon, 19 Sep 2022 17:19:05 +0200
+Message-ID: <YyiIaeQY8STLK0d0@hirez.programming.kicks-ass.net>
 References: <20220919095939.761690562@infradead.org>
- <20220919101520.869531945@infradead.org>
- <20220919144941.GA62211@lothringen>
- <YyiEqDSJVOZrQYg8@hirez.programming.kicks-ass.net>
+ <20220919101520.936337959@infradead.org>
+ <20220919143142.GA61009@lothringen>
 Mime-Version: 1.0
-Return-path: <linux-m68k-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663600657;
-        bh=SGRWSsWxhYnFNcVdXVanCp7r8VhObbFain7vrJ2pf9o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fxVxz+v2ZKRYGR2RcB+jwqcdhOAyWFuA63mrtcEpyRTpMkbyS6WHs4N4WpL6wD55y
-         MEw4vseCOHKlzHluXBoBp/tNbhBozucjByJQwggqB8cSL766iSR/fB5p7HP2XX3V5a
-         W432aviHiF1CtVbY9+02lVZyqI6r7f0Y+oEmkgLbQeCLJ6mZ8QHUtL9Cb1Rt7pnsGN
-         oU9BgJeognmYR5a7tpyKmtArG/qTrOVW6g6oNhiIq3bF6GOaiMj1jdkgNeNp7u/R+2
-         PWnZiOvApDwvdE77MAQCyvfpVSOU+ZSH1CmsYL840fIy4Yva2osOuqdAr10RKbdLw3
-         uLMmSqj+LM5sA==
-Content-Disposition: inline
-In-Reply-To: <YyiEqDSJVOZrQYg8@hirez.programming.kicks-ass.net>
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: richard.henderson@linaro.org, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@hansenpartnership.com, deller@gmx.de, mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu, paul.walmsley@sifive.com, palmer@dabbel
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6974A60B6E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B698C60A68
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CCBC540BA8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 08EAB40B56
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=jX68leu2S48Jr9/Ow8JXapSFFP60f/i61NXz6aPsf+I=; b=XPfGWCYBJlDbJ5lJcPaNDE6xyf
+ Oko/uZ8RNini73nyposkKJ862RPOu3iJTh8zG5Pep4a2VS0ERxBpWJvvYT8T14rg88H9wegspg5bu
+ 9yb2vdL1erAt0tTaRycHKMCoHV1yhzX6AKI/cj+ny97aRfzpr5jWq/LiOBfEwvZYLisXl+Yo5byp9
+ Uk9NM6k+rmDmbbvvXH1mJtohRq1/Mc/o3s0t/ScSKJIDftdo6lQTij50ttW7F88bRo1TeESDSO6Qa
+ lgAptah2KzLlw6pLcJo2JiZ0q/deK2kHiqFB9rLjmKuXizDSL1Hi2Yh+pFPur3R2mMtDZOGx295rw
+ A79DBNeg==;
+Content-Disposition: inline
+In-Reply-To: <20220919143142.GA61009@lothringen>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Frederic Weisbecker <frederic@kernel.org>
+Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org, Andrew Morton <a>
 
-On Mon, Sep 19, 2022 at 05:03:04PM +0200, Peter Zijlstra wrote:
-> On Mon, Sep 19, 2022 at 04:49:41PM +0200, Frederic Weisbecker wrote:
-> > On Mon, Sep 19, 2022 at 11:59:47AM +0200, Peter Zijlstra wrote:
-> > > Doing RCU-idle outside the driver, only to then temporarily enable it
-> > > again, at least twice, before going idle is daft.
-> > > 
-> > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > > ---
-> > >  arch/arm/mach-imx/cpuidle-imx6sx.c |    5 ++++-
-> > >  1 file changed, 4 insertions(+), 1 deletion(-)
-> > > 
-> > > --- a/arch/arm/mach-imx/cpuidle-imx6sx.c
-> > > +++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
-> > > @@ -47,7 +47,9 @@ static int imx6sx_enter_wait(struct cpui
-> > >  		cpu_pm_enter();
-> > >  		cpu_cluster_pm_enter();
-> > >  
-> > > +		ct_idle_enter();
-> > >  		cpu_suspend(0, imx6sx_idle_finish);
-> > > +		ct_idle_exit();
-> > >  
-> > >  		cpu_cluster_pm_exit();
-> > >  		cpu_pm_exit();
-> > > @@ -87,7 +89,8 @@ static struct cpuidle_driver imx6sx_cpui
-> > >  			 */
-> > >  			.exit_latency = 300,
-> > >  			.target_residency = 500,
-> > > -			.flags = CPUIDLE_FLAG_TIMER_STOP,
-> > > +			.flags = CPUIDLE_FLAG_TIMER_STOP |
-> > > +				 CPUIDLE_FLAG_RCU_IDLE,
-> > >  			.enter = imx6sx_enter_wait,
-> > 
-> > There is a second one below that also uses imx6sx_enter_wait.
+On Mon, Sep 19, 2022 at 04:31:42PM +0200, Frederic Weisbecker wrote:
+> On Mon, Sep 19, 2022 at 11:59:48AM +0200, Peter Zijlstra wrote:
+> > Doing RCU-idle outside the driver, only to then teporarily enable it
+> > again before going idle is daft.
 > 
-> Oh, above you mean; but only @index==2 gets us into the whole PM crud.
-> @index==1 is fine afaict.
+> That doesn't tell where those calls are.
 
-Ah ok, got it, hence why you didn't touch cpu_do_idle()...
-May need to comment that somewhere...
+cpu_pm_enter/exit and the power domain stuff, possibly also the clock
+domain stuff. It's all over :/
 
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-
-Thanks!
+I suppose I can add a blub and copy/paste it around the various patches
+if you want.
