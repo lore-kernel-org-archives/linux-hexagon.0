@@ -1,95 +1,136 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH v2 33/44] ftrace: WARN on rcuidle
-Date: Tue, 4 Oct 2022 18:19:33 +0100
-Message-ID: <YzxrJYjKxy/vUc5n@FVFF77S0Q05N.cambridge.arm.com>
-References: <20220919095939.761690562@infradead.org>
- <20220919101522.573936213@infradead.org>
+From: Valentin Schneider <vschneid@redhat.com>
+Subject: [RFC PATCH 0/5] Generic IPI sending tracepoint
+Date: Fri,  7 Oct 2022 16:41:40 +0100
+Message-ID: <20221007154145.1877054-1-vschneid@redhat.com>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-parisc-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1665157364;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=1lKCnBjxRPjgpNNPlEylbLIMLTQ3r/0aTk3SgXwAPQE=;
+        b=N7sQrgdSZPwOY3ZJUgISKw+SC3hBO/RHz6umRRQW4ie1INCaUWCjb3vy0v5wah0psYYkvz
+        fQtvgtdRDTaigxwjQkRn1uZP3hrluP3fb7iiWMY8rSIeMGz5G5YT/6Bd6GNXLwQ+gPIakr
+        kCmn7vL2fab3I6qWl+AKt1arkPoLJRk=
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A2EB6606B0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 28D6E60674
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3259840887
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D85B84077D
-Content-Disposition: inline
-In-Reply-To: <20220919101522.573936213@infradead.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org, Andrew Morton <a>
+To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org
+Cc: "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Russell King <linux@armlinux.org.uk>, Nicholas Piggin <npiggin@gmail.com>, Guo Ren <guoren@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-On Mon, Sep 19, 2022 at 12:00:12PM +0200, Peter Zijlstra wrote:
-> CONFIG_GENERIC_ENTRY disallows any and all tracing when RCU isn't
-> enabled.
-> 
-> XXX if s390 (the only other GENERIC_ENTRY user as of this writing)
-> isn't comfortable with this, we could switch to
-> HAVE_NOINSTR_VALIDATION which is x86_64 only atm.
-> 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  include/linux/tracepoint.h |   13 ++++++++++++-
->  kernel/trace/trace.c       |    3 +++
->  2 files changed, 15 insertions(+), 1 deletion(-)
-> 
-> --- a/include/linux/tracepoint.h
-> +++ b/include/linux/tracepoint.h
-> @@ -178,6 +178,16 @@ static inline struct tracepoint *tracepo
->  #endif /* CONFIG_HAVE_STATIC_CALL */
->  
->  /*
-> + * CONFIG_GENERIC_ENTRY archs are expected to have sanitized entry and idle
-> + * code that disallow any/all tracing/instrumentation when RCU isn't watching.
-> + */
-> +#ifdef CONFIG_GENERIC_ENTRY
-> +#define RCUIDLE_COND(rcuidle)	(rcuidle)
-> +#else
-> +#define RCUIDLE_COND(rcuidle)	(rcuidle && in_nmi())
-> +#endif
+Background
+==========
 
-Could we make this depend on ARCH_WANTS_NO_INSTR instead?
+Detecting IPI *reception* is relatively easy, e.g. using
+trace_irq_handler_{entry,exit} or even just function-trace
+flush_smp_call_function_queue() for SMP calls.  
 
-That'll allow arm64 to check this even though we're not using the generic entry
-code (and there's lots of work necessary to make that possible...).
+Figuring out their *origin*, is trickier as there is no generic tracepoint tied
+to e.g. smp_call_function():
 
-Thanks,
-Mark.
+o AFAIA x86 has no tracepoint tied to sending IPIs, only receiving them
+  (cf. trace_call_function{_single}_entry()).
+o arm/arm64 do have trace_ipi_raise(), which gives us the target cpus but also a
+  mostly useless string (smp_calls will all be "Function call interrupts").
+o Other architectures don't seem to have any IPI-sending related tracepoint.  
 
-> +
-> +/*
->   * it_func[0] is never NULL because there is at least one element in the array
->   * when the array itself is non NULL.
->   */
-> @@ -189,7 +199,8 @@ static inline struct tracepoint *tracepo
->  			return;						\
->  									\
->  		/* srcu can't be used from NMI */			\
-> -		WARN_ON_ONCE(rcuidle && in_nmi());			\
-> +		if (WARN_ON_ONCE(RCUIDLE_COND(rcuidle)))		\
-> +			return;						\
->  									\
->  		/* keep srcu and sched-rcu usage consistent */		\
->  		preempt_disable_notrace();				\
-> --- a/kernel/trace/trace.c
-> +++ b/kernel/trace/trace.c
-> @@ -3104,6 +3104,9 @@ void __trace_stack(struct trace_array *t
->  		return;
->  	}
->  
-> +	if (WARN_ON_ONCE(IS_ENABLED(CONFIG_GENERIC_ENTRY)))
-> +		return;
-> +
->  	/*
->  	 * When an NMI triggers, RCU is enabled via ct_nmi_enter(),
->  	 * but if the above rcu_is_watching() failed, then the NMI
-> 
-> 
+I believe one reason those tracepoints used by arm/arm64 ended up as they were
+is because these archs used to handle IPIs differently from regular interrupts
+(the IRQ driver would directly invoke an IPI-handling routine), which meant they 
+never showed up in trace_irq_handler_{entry, exit}. The trace_ipi_{entry,exit}
+tracepoints gave a way to trace IPI reception but those have become redundant as
+of: 
+
+      56afcd3dbd19 ("ARM: Allow IPIs to be handled as normal interrupts")
+      d3afc7f12987 ("arm64: Allow IPIs to be handled as normal interrupts")
+
+which gave IPIs a "proper" handler function used through
+generic_handle_domain_irq(), which makes them show up via
+trace_irq_handler_{entry, exit}.
+
+Changing stuff up
+=================
+
+Per the above, it would make sense to reshuffle trace_ipi_raise() and move it
+into generic code. This also came up during Daniel's talk on Osnoise at the CPU
+isolation MC of LPC 2022 [1]. 
+
+Now, to be useful, such a tracepoint needs to export:
+o targeted CPU(s)
+o calling context
+
+The only way to get the calling context with trace_ipi_raise() is to trigger a
+stack dump, e.g. $(trace-cmd -e ipi* -T echo 42).
+
+As for the targeted CPUs, the existing tracepoint does export them, albeit in
+cpumask form, which is quite inconvenient from a tooling perspective. For
+instance, as far as I'm aware, it's not possible to do event filtering on a
+cpumask via trace-cmd.
+
+Because of the above points, this is introducing a new tracepoint.
+
+Patches
+=======
+
+This results in having trace events for:
+
+o smp_call_function*()
+o smp_send_reschedule()
+o irq_work_queue*()
+
+This is incomplete, just looking at arm64 there's more IPI types that aren't covered:
+
+  IPI_CPU_STOP,
+  IPI_CPU_CRASH_STOP,
+  IPI_TIMER,
+  IPI_WAKEUP,
+
+... But it feels like a good starting point.
+
+Another thing worth mentioning is that depending on the callsite, the _RET_IP_
+fed to the tracepoint is not always useful - generic_exec_single() doesn't tell
+you much about the actual callback being sent via IPI, so there might be value
+in exploding the single tracepoint into at least one variant for smp_calls.
+
+Links
+=====
+
+[1]: https://youtu.be/5gT57y4OzBM?t=14234
+
+Valentin Schneider (5):
+  trace: Add trace_ipi_send_{cpu, cpumask}
+  sched, smp: Trace send_call_function_single_ipi()
+  smp: Add a multi-CPU variant to send_call_function_single_ipi()
+  irq_work: Trace calls to arch_irq_work_raise()
+  treewide: Rename and trace arch-definitions of smp_send_reschedule()
+
+ arch/alpha/kernel/smp.c          |  2 +-
+ arch/arc/kernel/smp.c            |  2 +-
+ arch/arm/kernel/smp.c            |  5 +----
+ arch/arm64/kernel/smp.c          |  3 +--
+ arch/csky/kernel/smp.c           |  2 +-
+ arch/hexagon/kernel/smp.c        |  2 +-
+ arch/ia64/kernel/smp.c           |  4 ++--
+ arch/loongarch/include/asm/smp.h |  2 +-
+ arch/mips/include/asm/smp.h      |  2 +-
+ arch/openrisc/kernel/smp.c       |  2 +-
+ arch/parisc/kernel/smp.c         |  4 ++--
+ arch/powerpc/kernel/smp.c        |  4 ++--
+ arch/riscv/kernel/smp.c          |  4 ++--
+ arch/s390/kernel/smp.c           |  2 +-
+ arch/sh/kernel/smp.c             |  2 +-
+ arch/sparc/kernel/smp_32.c       |  2 +-
+ arch/sparc/kernel/smp_64.c       |  2 +-
+ arch/x86/include/asm/smp.h       |  2 +-
+ arch/xtensa/kernel/smp.c         |  2 +-
+ include/linux/smp.h              |  1 +
+ include/trace/events/ipi.h       | 27 +++++++++++++++++++++++++++
+ kernel/irq_work.c                | 12 +++++++++++-
+ kernel/sched/core.c              |  7 +++++--
+ kernel/smp.c                     | 18 +++++++++++++++++-
+ 24 files changed, 84 insertions(+), 31 deletions(-)
+
+--
+2.31.1
+
