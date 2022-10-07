@@ -1,110 +1,61 @@
 From: Valentin Schneider <vschneid@redhat.com>
-Subject: [RFC PATCH 2/5] sched, smp: Trace send_call_function_single_ipi()
-Date: Fri,  7 Oct 2022 16:45:30 +0100
-Message-ID: <20221007154533.1878285-2-vschneid@redhat.com>
+Subject: [RFC PATCH 3/5] smp: Add a multi-CPU variant to send_call_function_single_ipi()
+Date: Fri,  7 Oct 2022 16:45:31 +0100
+Message-ID: <20221007154533.1878285-3-vschneid@redhat.com>
 References: <20221007154145.1877054-1-vschneid@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-alpha-owner@vger.kernel.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665157558;
+        s=mimecast20190719; t=1665157565;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=jAXnJ0u7W03NIJPSLVmnFtjZEFHwdySA+neP8cndke0=;
-        b=BlpE/KWA6vSfSEadFZCe4+saQXyb3DEbN7jph/d7hlBvFyupWKVQWV0rdbNHE1z3q2yim4
-        vmSLGkN6wmcBiSYQV5dGO9ljuzL5WjbTXHGKrF4lIYf7LIFe/TNSG9DwtF9DXHUlugjfU+
-        8HO5rOIWljFre+956VBcqzT7fDquboU=
+        bh=O4Pqcbma7I8CmezCzayfM2Dc1cTkJUS9uBKY5V7UMK0=;
+        b=R6ivKPGV1WTUPftIQ6GlVAUdzCKgQYR9SPf9kGVdAxCGR3xkl5KbAOX2ggSG0qiYX4Vgel
+        aZb8X8lgZltAT1DLITy3H+GBWxuuhkA/2iPZQBQRrfU2pv3FW+GcgSe+VYm3oQBBSa9DAc
+        2Sos5slU8mT7LTPJ6D29W6Zmqc8IjcI=
 In-Reply-To: <20221007154145.1877054-1-vschneid@redhat.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org
 Cc: "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Russell King <linux@armlinux.org.uk>, Nicholas Piggin <npiggin@gmail.com>, Guo Ren <guoren@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-send_call_function_single_ipi() is the thing that sends IPIs at the bottom
-of smp_call_function*() via either generic_exec_single() or
-smp_call_function_many_cond(). Give it an IPI-related tracepoint.
-
-Note that this ends up tracing any IPI sent via __smp_call_single_queue(),
-which covers __ttwu_queue_wakelist() and irq_work_queue_on() "for free".
+This simply wraps around the arch function and prepends it with a
+tracepoint, bringing parity with send_call_function_single_ipi().
 
 Signed-off-by: Valentin Schneider <vschneid@redhat.com>
 ---
- arch/arm/kernel/smp.c   | 3 ---
- arch/arm64/kernel/smp.c | 1 -
- kernel/sched/core.c     | 7 +++++--
- kernel/smp.c            | 4 ++++
- 4 files changed, 9 insertions(+), 6 deletions(-)
+ kernel/smp.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
-index 978db2d96b44..3b280d55c1c4 100644
---- a/arch/arm/kernel/smp.c
-+++ b/arch/arm/kernel/smp.c
-@@ -48,9 +48,6 @@
- #include <asm/mach/arch.h>
- #include <asm/mpu.h>
- 
--#define CREATE_TRACE_POINTS
--#include <trace/events/ipi.h>
--
- /*
-  * as from 2.5, kernels no longer have an init_tasks structure
-  * so we need some other way of telling a new secondary core
-diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-index ffc5d76cf695..937d2623e06b 100644
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -51,7 +51,6 @@
- #include <asm/ptrace.h>
- #include <asm/virt.h>
- 
--#define CREATE_TRACE_POINTS
- #include <trace/events/ipi.h>
- 
- DEFINE_PER_CPU_READ_MOSTLY(int, cpu_number);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 60fdc0faf1c9..14e5e137172f 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -81,6 +81,7 @@
- #include <linux/sched/rseq_api.h>
- #include <trace/events/sched.h>
- #undef CREATE_TRACE_POINTS
-+#include <trace/events/ipi.h>
- 
- #include "sched.h"
- #include "stats.h"
-@@ -3753,10 +3754,12 @@ void send_call_function_single_ipi(int cpu)
- {
- 	struct rq *rq = cpu_rq(cpu);
- 
--	if (!set_nr_if_polling(rq->idle))
-+	if (!set_nr_if_polling(rq->idle)) {
-+		trace_ipi_send_cpu(_RET_IP_, cpu);
- 		arch_send_call_function_single_ipi(cpu);
--	else
-+	} else {
- 		trace_sched_wake_idle_without_ipi(cpu);
-+	}
- }
- 
- /*
 diff --git a/kernel/smp.c b/kernel/smp.c
-index e8cdc025a046..7a7a22d69972 100644
+index 7a7a22d69972..387735180aed 100644
 --- a/kernel/smp.c
 +++ b/kernel/smp.c
-@@ -26,6 +26,10 @@
- #include <linux/sched/debug.h>
- #include <linux/jump_label.h>
+@@ -160,6 +160,12 @@ void __init call_function_init(void)
+ 	smpcfd_prepare_cpu(smp_processor_id());
+ }
  
-+#define CREATE_TRACE_POINTS
-+#include <trace/events/ipi.h>
-+#undef CREATE_TRACE_POINTS
++static inline void send_call_function_ipi_mask(const struct cpumask *mask)
++{
++	trace_ipi_send_cpumask(_RET_IP_, mask);
++	arch_send_call_function_ipi_mask(mask);
++}
 +
- #include "smpboot.h"
- #include "sched/smp.h"
+ #ifdef CONFIG_CSD_LOCK_WAIT_DEBUG
  
+ static DEFINE_STATIC_KEY_FALSE(csdlock_debug_enabled);
+@@ -970,7 +976,7 @@ static void smp_call_function_many_cond(const struct cpumask *mask,
+ 		if (nr_cpus == 1)
+ 			send_call_function_single_ipi(last_cpu);
+ 		else if (likely(nr_cpus > 1))
+-			arch_send_call_function_ipi_mask(cfd->cpumask_ipi);
++			send_call_function_ipi_mask(cfd->cpumask_ipi);
+ 
+ 		cfd_seq_store(this_cpu_ptr(&cfd_seq_local)->pinged, this_cpu, CFD_SEQ_NOCPU, CFD_SEQ_PINGED);
+ 	}
 -- 
 2.31.1
 
