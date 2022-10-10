@@ -1,92 +1,96 @@
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Baoquan He <bhe@redhat.com>
 Subject: Re: [PATCH v3 01/11] hexagon: mm: Convert to GENERIC_IOREMAP
-Date: Sun, 9 Oct 2022 16:39:43 +0000
-Message-ID: <83f292b8-0639-56b2-6dac-0475c34f623c@csgroup.eu>
+Date: Mon, 10 Oct 2022 08:17:02 +0800
+Message-ID: <Y0NkfggJTI1q/Yvy@MiWiFi-R3L-srv>
 References: <20221009103114.149036-1-bhe@redhat.com>
  <20221009103114.149036-2-bhe@redhat.com>
+ <83f292b8-0639-56b2-6dac-0475c34f623c@csgroup.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dvhxTMZBAdayG5c/St+nuZ3XxsafeL9UJDeMyU8TGwE=;
- b=XnFc/gjjxeUmzrxJEWFieTzwFqFIw5oJNoWpIyN0ECofjx4ceCAPzKWUmEuGXZ3EHvcpDa1qPhTGcKusnno+9P7HU03MlqQ9Qvd2nV5lazb/b3yX/xbnJHYrUBhRXUYKhsfWQwnVzC1WJc0dO9k2VLOjIlBpxQFnmwdF/E8Nm23prh0dg7lf/9tDUhilJnlRtuuT5DqJvIE6yc0Rf3UmrIXN7ZB2YotBtMvwVx9Ge3RUG+Vm3AcS0xMhCvAi2807uWMWTaIdmJqOoxW+/lybDvH6R5lF47qkd5o2sZzYUbzfIK+zPeBGTEhRobTohb1OH/20kAEiIH1sNqiIge4vRg==
-In-Reply-To: <20221009103114.149036-2-bhe@redhat.com>
-Content-Language: en-US
-Content-ID: <C88727DFED983B43AC405240C8B7CBBB@FRAP264.PROD.OUTLOOK.COM>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1665362538;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=VDShjrzwK1jKnCnAs96UVbaV43RvPyzhTgdsrfXV+I8=;
+        b=I22ABh3APGFcbDIJU8poyJ54tCLaX6DIh7KLj+nULmZwQMWuMQ6SQQHHn1A7Z3+tATG2zI
+        wTi9Yvp/dactxKX7Z+sjjnjr5EQtA22jEhoBxvVA0/KceK2RYqCci3Xi/dTG317+0e4woS
+        Ilusxu7jcHHzmNVwC9J0HqzcQOSSbXE=
+Content-Disposition: inline
+In-Reply-To: <83f292b8-0639-56b2-6dac-0475c34f623c@csgroup.eu>
 List-ID: <linux-hexagon.vger.kernel.org>
-To: Baoquan He <bhe@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, "wangkefeng.wang@huawei.com" <wangkefeng.wang@huawei.com>, "schnelle@linux.ibm.com" <schnelle@linux.ibm.com>, "David.Laight@ACULAB.COM" <David.Laight@ACULAB.COM>, "shorne@gmail.com" <shorne@gmail.com>, Brian Cain <bcain@quicinc.com>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+To: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, "wangkefeng.wang@huawei.com" <wangkefeng.wang@huawei.com>, "schnelle@linux.ibm.com" <schnelle@linux.ibm.com>, "David.Laight@ACULAB.COM" <David.Laight@aculab.com>, "shorne@gmail.com" <shorne@gmail.com>, Brian Cain <bcain@quicinc.com>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
 
-DQoNCkxlIDA5LzEwLzIwMjIgw6AgMTI6MzEsIEJhb3F1YW4gSGUgYSDDqWNyaXTCoDoNCj4gQnkg
-dGFraW5nIEdFTkVSSUNfSU9SRU1BUCBtZXRob2QsIHRoZSBnZW5lcmljIGlvcmVtYXBfcHJvdCgp
-IGFuZA0KPiBpb3VubWFwKCkgYXJlIHZpc2libGUgYW5kIGF2YWlsYWJsZSB0byBhcmNoLiBBcmNo
-IG9ubHkgbmVlZHMgdG8NCj4gcHJvdmlkZSBpbXBsZW1lbnRhdGlvbiBvZiBhcmNoX2lvcmVtYXAo
-KSBvciBhcmNoX2lvdW5tYXAoKSBpZiB0aGVyZSdzDQo+IGFyY2ggc3BlY2lmaWMgaGFuZGxpbmcg
-bmVlZGVkIGluIGl0cyBpb3JlbWFwKCkgb3IgaW91bm1hcCgpLiBUaGlzDQo+IGNoYW5nZSB3aWxs
-IHNpbXBsaWZ5IGltcGxlbWVudGF0aW9uIGJ5IHJlbW92aW5nIGR1cGxpY2F0ZWQgY29kZXMgd2l0
-aA0KPiBnZW5lcmljIGlvcmVtYXAoKSBhbmQgaW91bm1hcCgpLCBhbmQgaGFzIHRoZSBlcXVpdmFs
-ZW50IGZ1bmN0aW9hbGl0eS4NCj4gDQo+IEZvciBoZXhhZ29uLCB0aGUgY3VycmVudCBpb3JlbWFw
-KCkgYW5kIGlvdW5tYXAoKSBhcmUgdGhlIHNhbWUgYXMNCj4gZ2VuZXJpYyB2ZXJzaW9uLiBBZnRl
-ciB0YWtpbmcgR0VORVJJQ19JT1JFTUFQIHdheSwgdGhlIG9sZCBpb3JlbWFwKCkNCj4gYW5kIGlv
-dW5tYXAoKSBjYW4gYmUgY29tcGxldGVseSByZW1vdmVkLg0KPiANCj4gU2lnbmVkLW9mZi1ieTog
-QmFvcXVhbiBIZSA8YmhlQHJlZGhhdC5jb20+DQo+IENjOiBCcmlhbiBDYWluIDxiY2FpbkBxdWlj
-aW5jLmNvbT4NCj4gQ2M6IE1hcmsgQnJvd24gPGJyb29uaWVAa2VybmVsLm9yZz4NCj4gQ2M6IExp
-bnVzIFdhbGxlaWogPGxpbnVzLndhbGxlaWpAbGluYXJvLm9yZz4NCj4gQ2M6IGxpbnV4LWhleGFn
-b25Admdlci5rZXJuZWwub3JnDQo+IC0tLQ0KPiB2Mi0+djM6DQo+ICAgIFJld3JpdGUgcGF0Y2gg
-bG9nLg0KPiAgICBQdXQgaXQgYXQgdGhlIGJlZ2lubmluZyBvZiBwYXRjaHNldCBzaW5jZSBpdCBk
-b2Vzbid0IGludHJvZHVjZSBuZXcNCj4gICAgYXJjaF9pb3JlbWFwKCkvYXJjaF9pb3VubWFwKCku
-DQo+IA0KPiAgIGFyY2gvaGV4YWdvbi9LY29uZmlnICAgICAgICAgIHwgIDEgKw0KPiAgIGFyY2gv
-aGV4YWdvbi9pbmNsdWRlL2FzbS9pby5oIHwgIDkgKysrKystLQ0KPiAgIGFyY2gvaGV4YWdvbi9t
-bS9pb3JlbWFwLmMgICAgIHwgNDQgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0N
-Cj4gICAzIGZpbGVzIGNoYW5nZWQsIDggaW5zZXJ0aW9ucygrKSwgNDYgZGVsZXRpb25zKC0pDQo+
-ICAgZGVsZXRlIG1vZGUgMTAwNjQ0IGFyY2gvaGV4YWdvbi9tbS9pb3JlbWFwLmMNCj4gDQo+IGRp
-ZmYgLS1naXQgYS9hcmNoL2hleGFnb24vS2NvbmZpZyBiL2FyY2gvaGV4YWdvbi9LY29uZmlnDQo+
-IGluZGV4IDU0ZWFkZjI2NTE3OC4uMTdhZmZmZGUxYTdmIDEwMDY0NA0KPiAtLS0gYS9hcmNoL2hl
-eGFnb24vS2NvbmZpZw0KPiArKysgYi9hcmNoL2hleGFnb24vS2NvbmZpZw0KPiBAQCAtMjUsNiAr
-MjUsNyBAQCBjb25maWcgSEVYQUdPTg0KPiAgIAlzZWxlY3QgTkVFRF9TR19ETUFfTEVOR1RIDQo+
-ICAgCXNlbGVjdCBOT19JT1BPUlRfTUFQDQo+ICAgCXNlbGVjdCBHRU5FUklDX0lPTUFQDQo+ICsJ
-c2VsZWN0IEdFTkVSSUNfSU9SRU1BUA0KPiAgIAlzZWxlY3QgR0VORVJJQ19TTVBfSURMRV9USFJF
-QUQNCj4gICAJc2VsZWN0IFNUQUNLVFJBQ0VfU1VQUE9SVA0KPiAgIAlzZWxlY3QgR0VORVJJQ19D
-TE9DS0VWRU5UU19CUk9BRENBU1QNCj4gZGlmZiAtLWdpdCBhL2FyY2gvaGV4YWdvbi9pbmNsdWRl
-L2FzbS9pby5oIGIvYXJjaC9oZXhhZ29uL2luY2x1ZGUvYXNtL2lvLmgNCj4gaW5kZXggNDZhMDk5
-ZGU4NWI3Li5kY2Q5Y2JiZjU5MzQgMTAwNjQ0DQo+IC0tLSBhL2FyY2gvaGV4YWdvbi9pbmNsdWRl
-L2FzbS9pby5oDQo+ICsrKyBiL2FyY2gvaGV4YWdvbi9pbmNsdWRlL2FzbS9pby5oDQo+IEBAIC0x
-NzAsOCArMTcwLDEzIEBAIHN0YXRpYyBpbmxpbmUgdm9pZCB3cml0ZWwodTMyIGRhdGEsIHZvbGF0
-aWxlIHZvaWQgX19pb21lbSAqYWRkcikNCj4gICAjZGVmaW5lIHdyaXRld19yZWxheGVkIF9fcmF3
-X3dyaXRldw0KPiAgICNkZWZpbmUgd3JpdGVsX3JlbGF4ZWQgX19yYXdfd3JpdGVsDQo+ICAgDQo+
-IC12b2lkIF9faW9tZW0gKmlvcmVtYXAodW5zaWduZWQgbG9uZyBwaHlzX2FkZHIsIHVuc2lnbmVk
-IGxvbmcgc2l6ZSk7DQo+IC0jZGVmaW5lIGlvcmVtYXBfdWMoWCwgWSkgaW9yZW1hcCgoWCksIChZ
-KSkNCj4gKy8qDQo+ICsgKiBJL08gbWVtb3J5IG1hcHBpbmcgZnVuY3Rpb25zLg0KPiArICovDQo+
-ICsjZGVmaW5lIF9QQUdFX0lPUkVNQVAgKF9QQUdFX1BSRVNFTlQgfCBfUEFHRV9SRUFEIHwgX1BB
-R0VfV1JJVEUgfCBcDQo+ICsJCSAgICAgICAoX19IRVhBR09OX0NfREVWIDw8IDYpKQ0KPiArDQo+
-ICsjZGVmaW5lIGlvcmVtYXBfdWMoYWRkciwgc2l6ZSkgaW9yZW1hcCgoYWRkciksIChzaXplKSkN
-Cg0KV2h5IGRvIHlvdSBuZWVkIHRvIGNoYW5nZSB0aGlzIG1hY3JvID8NCg0KPiAgIA0KPiAgIA0K
-PiAgICNkZWZpbmUgX19yYXdfd3JpdGVsIHdyaXRlbA0KPiBkaWZmIC0tZ2l0IGEvYXJjaC9oZXhh
-Z29uL21tL2lvcmVtYXAuYyBiL2FyY2gvaGV4YWdvbi9tbS9pb3JlbWFwLmMNCj4gZGVsZXRlZCBm
-aWxlIG1vZGUgMTAwNjQ0DQo+IGluZGV4IDI1NWM1YjFlZTFhNy4uMDAwMDAwMDAwMDAwDQo+IC0t
-LSBhL2FyY2gvaGV4YWdvbi9tbS9pb3JlbWFwLmMNCj4gKysrIC9kZXYvbnVsbA0KPiBAQCAtMSw0
-NCArMCwwIEBADQo+IC0vLyBTUERYLUxpY2Vuc2UtSWRlbnRpZmllcjogR1BMLTIuMC1vbmx5DQo+
-IC0vKg0KPiAtICogSS9PIHJlbWFwIGZ1bmN0aW9ucyBmb3IgSGV4YWdvbg0KPiAtICoNCj4gLSAq
-IENvcHlyaWdodCAoYykgMjAxMC0yMDExLCBUaGUgTGludXggRm91bmRhdGlvbi4gQWxsIHJpZ2h0
-cyByZXNlcnZlZC4NCj4gLSAqLw0KPiAtDQo+IC0jaW5jbHVkZSA8bGludXgvaW8uaD4NCj4gLSNp
-bmNsdWRlIDxsaW51eC92bWFsbG9jLmg+DQo+IC0jaW5jbHVkZSA8bGludXgvbW0uaD4NCj4gLQ0K
-PiAtdm9pZCBfX2lvbWVtICppb3JlbWFwKHVuc2lnbmVkIGxvbmcgcGh5c19hZGRyLCB1bnNpZ25l
-ZCBsb25nIHNpemUpDQo+IC17DQo+IC0JdW5zaWduZWQgbG9uZyBsYXN0X2FkZHIsIGFkZHI7DQo+
-IC0JdW5zaWduZWQgbG9uZyBvZmZzZXQgPSBwaHlzX2FkZHIgJiB+UEFHRV9NQVNLOw0KPiAtCXN0
-cnVjdCB2bV9zdHJ1Y3QgKmFyZWE7DQo+IC0NCj4gLQlwZ3Byb3RfdCBwcm90ID0gX19wZ3Byb3Qo
-X1BBR0VfUFJFU0VOVHxfUEFHRV9SRUFEfF9QQUdFX1dSSVRFDQo+IC0JCQkJCXwoX19IRVhBR09O
-X0NfREVWIDw8IDYpKTsNCj4gLQ0KPiAtCWxhc3RfYWRkciA9IHBoeXNfYWRkciArIHNpemUgLSAx
-Ow0KPiAtDQo+IC0JLyogIFdyYXBwaW5nIG5vdCBhbGxvd2VkICAqLw0KPiAtCWlmICghc2l6ZSB8
-fCAobGFzdF9hZGRyIDwgcGh5c19hZGRyKSkNCj4gLQkJcmV0dXJuIE5VTEw7DQo+IC0NCj4gLQkv
-KiAgUm91bmRzIHVwIHRvIG5leHQgcGFnZSBzaXplLCBpbmNsdWRpbmcgd2hvbGUtcGFnZSBvZmZz
-ZXQgKi8NCj4gLQlzaXplID0gUEFHRV9BTElHTihvZmZzZXQgKyBzaXplKTsNCj4gLQ0KPiAtCWFy
-ZWEgPSBnZXRfdm1fYXJlYShzaXplLCBWTV9JT1JFTUFQKTsNCj4gLQlhZGRyID0gKHVuc2lnbmVk
-IGxvbmcpYXJlYS0+YWRkcjsNCj4gLQ0KPiAtCWlmIChpb3JlbWFwX3BhZ2VfcmFuZ2UoYWRkciwg
-YWRkcitzaXplLCBwaHlzX2FkZHIsIHByb3QpKSB7DQo+IC0JCXZ1bm1hcCgodm9pZCAqKWFkZHIp
-Ow0KPiAtCQlyZXR1cm4gTlVMTDsNCj4gLQl9DQo+IC0NCj4gLQlyZXR1cm4gKHZvaWQgX19pb21l
-bSAqKSAob2Zmc2V0ICsgYWRkcik7DQo+IC19DQo+IC0NCj4gLXZvaWQgaW91bm1hcChjb25zdCB2
-b2xhdGlsZSB2b2lkIF9faW9tZW0gKmFkZHIpDQo+IC17DQo+IC0JdnVubWFwKCh2b2lkICopICgo
-dW5zaWduZWQgbG9uZykgYWRkciAmIFBBR0VfTUFTSykpOw0KPiAtfQ==
+On 10/09/22 at 04:39pm, Christophe Leroy wrote:
+>=20
+>=20
+> Le 09/10/2022 =E0 12:31, Baoquan He a =E9crit=A0:
+> > By taking GENERIC_IOREMAP method, the generic ioremap_prot() and
+> > iounmap() are visible and available to arch. Arch only needs to
+> > provide implementation of arch_ioremap() or arch_iounmap() if there's
+> > arch specific handling needed in its ioremap() or iounmap(). This
+> > change will simplify implementation by removing duplicated codes with
+> > generic ioremap() and iounmap(), and has the equivalent functioality.
+> >=20
+> > For hexagon, the current ioremap() and iounmap() are the same as
+> > generic version. After taking GENERIC_IOREMAP way, the old ioremap()
+> > and iounmap() can be completely removed.
+> >=20
+> > Signed-off-by: Baoquan He <bhe@redhat.com>
+> > Cc: Brian Cain <bcain@quicinc.com>
+> > Cc: Mark Brown <broonie@kernel.org>
+> > Cc: Linus Walleij <linus.walleij@linaro.org>
+> > Cc: linux-hexagon@vger.kernel.org
+> > ---
+> > v2->v3:
+> >    Rewrite patch log.
+> >    Put it at the beginning of patchset since it doesn't introduce new
+> >    arch_ioremap()/arch_iounmap().
+> >=20
+> >   arch/hexagon/Kconfig          |  1 +
+> >   arch/hexagon/include/asm/io.h |  9 +++++--
+> >   arch/hexagon/mm/ioremap.c     | 44 -----------------------------------
+> >   3 files changed, 8 insertions(+), 46 deletions(-)
+> >   delete mode 100644 arch/hexagon/mm/ioremap.c
+> >=20
+> > diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+> > index 54eadf265178..17afffde1a7f 100644
+> > --- a/arch/hexagon/Kconfig
+> > +++ b/arch/hexagon/Kconfig
+> > @@ -25,6 +25,7 @@ config HEXAGON
+> >   	select NEED_SG_DMA_LENGTH
+> >   	select NO_IOPORT_MAP
+> >   	select GENERIC_IOMAP
+> > +	select GENERIC_IOREMAP
+> >   	select GENERIC_SMP_IDLE_THREAD
+> >   	select STACKTRACE_SUPPORT
+> >   	select GENERIC_CLOCKEVENTS_BROADCAST
+> > diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/i=
+o.h
+> > index 46a099de85b7..dcd9cbbf5934 100644
+> > --- a/arch/hexagon/include/asm/io.h
+> > +++ b/arch/hexagon/include/asm/io.h
+> > @@ -170,8 +170,13 @@ static inline void writel(u32 data, volatile void =
+__iomem *addr)
+> >   #define writew_relaxed __raw_writew
+> >   #define writel_relaxed __raw_writel
+> >  =20
+> > -void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
+> > -#define ioremap_uc(X, Y) ioremap((X), (Y))
+> > +/*
+> > + * I/O memory mapping functions.
+> > + */
+> > +#define _PAGE_IOREMAP (_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
+> > +		       (__HEXAGON_C_DEV << 6))
+> > +
+> > +#define ioremap_uc(addr, size) ioremap((addr), (size))
+>=20
+> Why do you need to change this macro ?
+
+I don't like the X, Y since they look meaningless. I can change back if
+you like the old one. Thanks for checking.
+
