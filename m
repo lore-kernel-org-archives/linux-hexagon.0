@@ -1,96 +1,72 @@
-From: Baoquan He <bhe@redhat.com>
-Subject: Re: [PATCH v3 01/11] hexagon: mm: Convert to GENERIC_IOREMAP
-Date: Mon, 10 Oct 2022 08:17:02 +0800
-Message-ID: <Y0NkfggJTI1q/Yvy@MiWiFi-R3L-srv>
-References: <20221009103114.149036-1-bhe@redhat.com>
- <20221009103114.149036-2-bhe@redhat.com>
- <83f292b8-0639-56b2-6dac-0475c34f623c@csgroup.eu>
+From: Valentin Schneider <vschneid@redhat.com>
+Subject: Re: [RFC PATCH 4/5] irq_work: Trace calls to arch_irq_work_raise()
+Date: Tue, 11 Oct 2022 16:02:06 +0100
+Message-ID: <xhsmhlepmflox.mognet@vschneid.remote.csb>
+References: <20221007154145.1877054-1-vschneid@redhat.com>
+ <20221007154533.1878285-4-vschneid@redhat.com>
+ <20221008153442.159b2f2d@rorschach.local.home>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665362538;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=VDShjrzwK1jKnCnAs96UVbaV43RvPyzhTgdsrfXV+I8=;
-        b=I22ABh3APGFcbDIJU8poyJ54tCLaX6DIh7KLj+nULmZwQMWuMQ6SQQHHn1A7Z3+tATG2zI
-        wTi9Yvp/dactxKX7Z+sjjnjr5EQtA22jEhoBxvVA0/KceK2RYqCci3Xi/dTG317+0e4woS
-        Ilusxu7jcHHzmNVwC9J0HqzcQOSSbXE=
-Content-Disposition: inline
-In-Reply-To: <83f292b8-0639-56b2-6dac-0475c34f623c@csgroup.eu>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="iso-8859-1"
-To: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, "wangkefeng.wang@huawei.com" <wangkefeng.wang@huawei.com>, "schnelle@linux.ibm.com" <schnelle@linux.ibm.com>, "David.Laight@ACULAB.COM" <David.Laight@aculab.com>, "shorne@gmail.com" <shorne@gmail.com>, Brian Cain <bcain@quicinc.com>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>
+	s=mimecast20190719; t=1665500532;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ti1NCFCTzr5YPwBHvg45c+mfaiUwrR60uA7ep6lLZuA=;
+	b=JBzjSpq+jRqqpD9oYTBWlNLyM7uj0Urqg1VYVfaKhguV+x0JV9H69UIQjThagjQkTspvj+
+	95m9ek4KYWV6VxONycqhZwrWFkAs6UL4xLNqkNoEGcF4+3CEx/403GzBu7Ugoi9RyK0j/f
+	MefmfEkLDgQZFp0D8u7h5+IxmbIEtVI=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1665500533;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ti1NCFCTzr5YPwBHvg45c+mfaiUwrR60uA7ep6lLZuA=;
+	b=bFlEr+6Kou7c1Uq+2pDZ9tDyqBmC6hB5Yz69cCDmjCiwJ0RYANSd+q7eqqXzIxNZlKmCsJ
+	HK86uUjGeeiHsSK1V+RpVwq/virSvYwS4LVGk7CpdIk8VDl90w3NrN1PoMDqyymSkyYH6c
+	x7t6hK8WAEMHQictmEFy0bW7/NiJmGY=
+In-Reply-To: <20221008153442.159b2f2d@rorschach.local.home>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev" <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Dave Hansen <dave.hansen@linux.intel.com>, linux-mips@vger.kernel.org, Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>, linux-hexagon@vger.kernel.org, x86@kernel.org, Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org, "Paul E. McKenney" <paulmck@kernel.org>, Frederic Weisbecker <frederic@kernel.org>, Nicholas Piggin <npiggin@gmai>, l.com, , openrisc@lists.librecores.org, Borislav Petkov <bp@alien8.de>, loongarch@lists.linux.dev
 
-On 10/09/22 at 04:39pm, Christophe Leroy wrote:
->=20
->=20
-> Le 09/10/2022 =E0 12:31, Baoquan He a =E9crit=A0:
-> > By taking GENERIC_IOREMAP method, the generic ioremap_prot() and
-> > iounmap() are visible and available to arch. Arch only needs to
-> > provide implementation of arch_ioremap() or arch_iounmap() if there's
-> > arch specific handling needed in its ioremap() or iounmap(). This
-> > change will simplify implementation by removing duplicated codes with
-> > generic ioremap() and iounmap(), and has the equivalent functioality.
-> >=20
-> > For hexagon, the current ioremap() and iounmap() are the same as
-> > generic version. After taking GENERIC_IOREMAP way, the old ioremap()
-> > and iounmap() can be completely removed.
-> >=20
-> > Signed-off-by: Baoquan He <bhe@redhat.com>
-> > Cc: Brian Cain <bcain@quicinc.com>
-> > Cc: Mark Brown <broonie@kernel.org>
-> > Cc: Linus Walleij <linus.walleij@linaro.org>
-> > Cc: linux-hexagon@vger.kernel.org
-> > ---
-> > v2->v3:
-> >    Rewrite patch log.
-> >    Put it at the beginning of patchset since it doesn't introduce new
-> >    arch_ioremap()/arch_iounmap().
-> >=20
-> >   arch/hexagon/Kconfig          |  1 +
-> >   arch/hexagon/include/asm/io.h |  9 +++++--
-> >   arch/hexagon/mm/ioremap.c     | 44 -----------------------------------
-> >   3 files changed, 8 insertions(+), 46 deletions(-)
-> >   delete mode 100644 arch/hexagon/mm/ioremap.c
-> >=20
-> > diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-> > index 54eadf265178..17afffde1a7f 100644
-> > --- a/arch/hexagon/Kconfig
-> > +++ b/arch/hexagon/Kconfig
-> > @@ -25,6 +25,7 @@ config HEXAGON
-> >   	select NEED_SG_DMA_LENGTH
-> >   	select NO_IOPORT_MAP
-> >   	select GENERIC_IOMAP
-> > +	select GENERIC_IOREMAP
-> >   	select GENERIC_SMP_IDLE_THREAD
-> >   	select STACKTRACE_SUPPORT
-> >   	select GENERIC_CLOCKEVENTS_BROADCAST
-> > diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/i=
-o.h
-> > index 46a099de85b7..dcd9cbbf5934 100644
-> > --- a/arch/hexagon/include/asm/io.h
-> > +++ b/arch/hexagon/include/asm/io.h
-> > @@ -170,8 +170,13 @@ static inline void writel(u32 data, volatile void =
-__iomem *addr)
-> >   #define writew_relaxed __raw_writew
-> >   #define writel_relaxed __raw_writel
-> >  =20
-> > -void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
-> > -#define ioremap_uc(X, Y) ioremap((X), (Y))
-> > +/*
-> > + * I/O memory mapping functions.
-> > + */
-> > +#define _PAGE_IOREMAP (_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
-> > +		       (__HEXAGON_C_DEV << 6))
-> > +
-> > +#define ioremap_uc(addr, size) ioremap((addr), (size))
->=20
-> Why do you need to change this macro ?
+On 08/10/22 15:34, Steven Rostedt wrote:
+> On Fri,  7 Oct 2022 16:45:32 +0100
+> Valentin Schneider <vschneid@redhat.com> wrote:
+>>  }
+>>  
+>> +static inline void irq_work_raise(void)
+>> +{
+>> +	if (arch_irq_work_has_interrupt())
+>> +		trace_ipi_send_cpu(_RET_IP_, smp_processor_id());
+>
+> To save on the branch, let's make the above:
+>
+> 	if (trace_ipi_send_cpu_enabled() && arch_irq_work_has_interrupt())
+>
+> As the "trace_*_enabled()" is a static branch that will make it a nop
+> when the tracepoint is not enabled.
+>
 
-I don't like the X, Y since they look meaningless. I can change back if
-you like the old one. Thanks for checking.
+Makes sense, thanks for the suggestion.
+
+> -- Steve
+>
+>
+>> +
+>> +	arch_irq_work_raise();
+>> +}
+>> +
+>>  /* Enqueue on current CPU, work must already be claimed and preempt disabled */
 
