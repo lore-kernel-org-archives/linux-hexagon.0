@@ -1,393 +1,226 @@
 From: Valentin Schneider <vschneid@redhat.com>
-Subject: [RFC PATCH v2 6/8] treewide: Trace IPIs sent via smp_send_reschedule()
-Date: Wed,  2 Nov 2022 18:33:34 +0000
-Message-ID: <20221102183336.3120536-5-vschneid@redhat.com>
+Subject: [RFC PATCH v2 8/8] sched, smp: Trace smp callback causing an IPI
+Date: Wed,  2 Nov 2022 18:33:36 +0000
+Message-ID: <20221102183336.3120536-7-vschneid@redhat.com>
 References: <20221102182949.3119584-1-vschneid@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-ia64-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667414072;
+        s=mimecast20190719; t=1667414083;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=D+DUkFwzVDWBAoIlFP88fJ/ZyZos6qnRzZwRuH+/Nwc=;
-        b=UM0kYzN5hu4gJrz1EO27DPydtkvsgjcYA1IAUn9TMKgRTffxVj3nGXvIydJX0XqRlPd/j6
-        QYJ1mlAbiLNdT3thmlgrV7CH9l2UALuD+TxCV4gt4Mcnt0THuSCeSDcb7IYrlnp8nvBi4S
-        BITY9KUQIVJ5dtucduzNUXXGWqNBQIE=
+        bh=7XyLq04ta6QuCycJK0DkWOlQEFxqI5/2Oi7Ln2qoW2w=;
+        b=KkW86cZ5PWeDuzVuGa5ENDA9dXOZFVuFSuVuo2JGeyhJPyHOVEQL9vKi99vSyqLS24DmDK
+        ZwCbrXuuw2FmWyXJqmvAA+IwppBkR9oakwOpACUTC98lW3a6DKYtX4q+lnKtwMVskNKn7i
+        5RdwUdcvZVd/Rwg91dtL6Po4bzxoc+o=
 In-Reply-To: <20221102182949.3119584-1-vschneid@redhat.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; x-default="true"
+Content-Type: text/plain; charset="us-ascii"
 To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org
-Cc: Guo Ren <guoren@kernel.org>, "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Russell King <linux@armlinux.org.uk>, Nicholas Piggin <npiggin@gmail.com>, "David S. Miller" <davem@davemloft.net>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Russell King <linux@armlinux.org.uk>, Nicholas Piggin <npiggin@gmail.com>, Guo Ren <guoren@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-To be able to trace invocations of smp_send_reschedule(), rename the
-arch-specific definitions of it to arch_smp_send_reschedule() and wrap it
-into an smp_send_reschedule() that contains a tracepoint.
+The newly-introduced ipi_send_cpumask tracepoint has a "callback" parameter
+which so far has only been fed with NULL.
+
+While CSD_TYPE_SYNC/ASYNC and CSD_TYPE_IRQ_WORK share a similar backing
+struct layout (meaning their callback func can be accessed without caring
+about the actual CSD type), CSD_TYPE_TTWU doesn't even have a function
+attached to its struct. This means we need to check the type of a CSD
+before eventually dereferencing its associated callback.
+
+This isn't as trivial as it sounds: the CSD type is stored in
+__call_single_node.u_flags, which get cleared right before the callback is
+executed via csd_unlock(). This implies checking the CSD type before it is
+enqueued on the call_single_queue, as the target CPU's queue can be flushed
+before we get to sending an IPI.
+
+Furthermore, send_call_function_single_ipi() only has a CPU parameter, and
+would need to have an additional argument to trickle down the invoked
+function. This is somewhat silly, as the extra argument will always be
+pushed down to the function even when nothing is being traced, which is
+unnecessary overhead.
+
+Two options present themselves:
+a) Create copies of send_call_function_{single_ipi, ipi_mask}() that take
+   an extra argument used for tracing, so that codepaths remain unchanged
+   when tracing isn't in effect (a sort of manual -fipa-sra).
+
+b) Stash the CSD func in somewhere as a side effect that
+   the portion of send_call_function_{single_ipi, ipi_mask}() under the
+   tracepoint's static key can fetch.
+
+a) creates redundant code, and b) is quite fragile due to requiring extra
+care for "reentrant" functions (async SMP calls).
+
+This implements a).
 
 Signed-off-by: Valentin Schneider <vschneid@redhat.com>
-[csky bits]
-Acked-by: Guo Ren <guoren@kernel.org>
 ---
- arch/alpha/kernel/smp.c          | 2 +-
- arch/arc/kernel/smp.c            | 2 +-
- arch/arm/kernel/smp.c            | 2 +-
- arch/arm64/kernel/smp.c          | 2 +-
- arch/csky/kernel/smp.c           | 2 +-
- arch/hexagon/kernel/smp.c        | 2 +-
- arch/ia64/kernel/smp.c           | 4 ++--
- arch/loongarch/include/asm/smp.h | 2 +-
- arch/mips/include/asm/smp.h      | 2 +-
- arch/openrisc/kernel/smp.c       | 2 +-
- arch/parisc/kernel/smp.c         | 4 ++--
- arch/powerpc/kernel/smp.c        | 4 ++--
- arch/powerpc/kvm/book3s_hv.c     | 1 +
- arch/riscv/kernel/smp.c          | 4 ++--
- arch/s390/kernel/smp.c           | 2 +-
- arch/sh/kernel/smp.c             | 2 +-
- arch/sparc/kernel/smp_32.c       | 2 +-
- arch/sparc/kernel/smp_64.c       | 2 +-
- arch/x86/include/asm/smp.h       | 2 +-
- arch/x86/kvm/svm/svm.c           | 1 +
- arch/x86/kvm/x86.c               | 1 +
- arch/xtensa/kernel/smp.c         | 2 +-
- include/linux/smp.h              | 2 +-
- kernel/smp.c                     | 8 ++++++++
- 24 files changed, 35 insertions(+), 24 deletions(-)
+ kernel/irq_work.c   |  2 ++
+ kernel/sched/core.c | 35 ++++++++++++++++++++++++-----------
+ kernel/sched/smp.h  |  1 +
+ kernel/smp.c        | 42 ++++++++++++++++++++++++++++++++++++++----
+ 4 files changed, 65 insertions(+), 15 deletions(-)
 
-diff --git a/arch/alpha/kernel/smp.c b/arch/alpha/kernel/smp.c
-index f4e20f75438f8..38637eb9eebd5 100644
---- a/arch/alpha/kernel/smp.c
-+++ b/arch/alpha/kernel/smp.c
-@@ -562,7 +562,7 @@ handle_ipi(struct pt_regs *regs)
+diff --git a/kernel/irq_work.c b/kernel/irq_work.c
+index aec38c294ce68..fcfa75c4a5daf 100644
+--- a/kernel/irq_work.c
++++ b/kernel/irq_work.c
+@@ -24,6 +24,8 @@
+ 
+ #include <trace/events/ipi.h>
+ 
++#include "sched/smp.h"
++
+ static DEFINE_PER_CPU(struct llist_head, raised_list);
+ static DEFINE_PER_CPU(struct llist_head, lazy_list);
+ static DEFINE_PER_CPU(struct task_struct *, irq_workd);
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 02181f8072b5f..41196ca67e913 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -3743,17 +3743,30 @@ void sched_ttwu_pending(void *arg)
+ 	rq_unlock_irqrestore(rq, &rf);
  }
  
- void
--smp_send_reschedule(int cpu)
-+arch_smp_send_reschedule(int cpu)
- {
- #ifdef DEBUG_IPI_MSG
- 	if (cpu == hard_smp_processor_id())
-diff --git a/arch/arc/kernel/smp.c b/arch/arc/kernel/smp.c
-index ad93fe6e4b77d..409cfa4675b40 100644
---- a/arch/arc/kernel/smp.c
-+++ b/arch/arc/kernel/smp.c
-@@ -292,7 +292,7 @@ static void ipi_send_msg(const struct cpumask *callmap, enum ipi_msg_type msg)
- 		ipi_send_msg_one(cpu, msg);
- }
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	ipi_send_msg_one(cpu, IPI_RESCHEDULE);
- }
-diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
-index 3b280d55c1c40..f216ac890b6f9 100644
---- a/arch/arm/kernel/smp.c
-+++ b/arch/arm/kernel/smp.c
-@@ -745,7 +745,7 @@ void __init set_smp_ipi_range(int ipi_base, int n)
- 	ipi_setup(smp_processor_id());
- }
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	smp_cross_call(cpumask_of(cpu), IPI_RESCHEDULE);
- }
-diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-index 937d2623e06ba..8d108edc4a89f 100644
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -976,7 +976,7 @@ void __init set_smp_ipi_range(int ipi_base, int n)
- 	ipi_setup(smp_processor_id());
- }
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	smp_cross_call(cpumask_of(cpu), IPI_RESCHEDULE);
- }
-diff --git a/arch/csky/kernel/smp.c b/arch/csky/kernel/smp.c
-index 4b605aa2e1d65..fd7f81be16dd6 100644
---- a/arch/csky/kernel/smp.c
-+++ b/arch/csky/kernel/smp.c
-@@ -140,7 +140,7 @@ void smp_send_stop(void)
- 	on_each_cpu(ipi_stop, NULL, 1);
- }
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	send_ipi_message(cpumask_of(cpu), IPI_RESCHEDULE);
- }
-diff --git a/arch/hexagon/kernel/smp.c b/arch/hexagon/kernel/smp.c
-index 4ba93e59370c4..4e8bee25b8c68 100644
---- a/arch/hexagon/kernel/smp.c
-+++ b/arch/hexagon/kernel/smp.c
-@@ -217,7 +217,7 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
- 	}
- }
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	send_ipi(cpumask_of(cpu), IPI_RESCHEDULE);
- }
-diff --git a/arch/ia64/kernel/smp.c b/arch/ia64/kernel/smp.c
-index e2cc59db86bc2..ea4f009a232b4 100644
---- a/arch/ia64/kernel/smp.c
-+++ b/arch/ia64/kernel/smp.c
-@@ -220,11 +220,11 @@ kdump_smp_send_init(void)
-  * Called with preemption disabled.
-  */
- void
--smp_send_reschedule (int cpu)
-+arch_smp_send_reschedule (int cpu)
- {
- 	ia64_send_ipi(cpu, IA64_IPI_RESCHEDULE, IA64_IPI_DM_INT, 0);
- }
--EXPORT_SYMBOL_GPL(smp_send_reschedule);
-+EXPORT_SYMBOL_GPL(arch_smp_send_reschedule);
- 
- /*
-  * Called with preemption disabled.
-diff --git a/arch/loongarch/include/asm/smp.h b/arch/loongarch/include/asm/smp.h
-index 71189b28bfb27..3fcca134dfb1b 100644
---- a/arch/loongarch/include/asm/smp.h
-+++ b/arch/loongarch/include/asm/smp.h
-@@ -83,7 +83,7 @@ extern void show_ipi_list(struct seq_file *p, int prec);
-  * it goes straight through and wastes no time serializing
-  * anything. Worst case is that we lose a reschedule ...
-  */
--static inline void smp_send_reschedule(int cpu)
-+static inline void arch_smp_send_reschedule(int cpu)
- {
- 	loongson3_send_ipi_single(cpu, SMP_RESCHEDULE);
- }
-diff --git a/arch/mips/include/asm/smp.h b/arch/mips/include/asm/smp.h
-index 5d9ff61004ca7..9806e79895d99 100644
---- a/arch/mips/include/asm/smp.h
-+++ b/arch/mips/include/asm/smp.h
-@@ -66,7 +66,7 @@ extern void calculate_cpu_foreign_map(void);
-  * it goes straight through and wastes no time serializing
-  * anything. Worst case is that we lose a reschedule ...
-  */
--static inline void smp_send_reschedule(int cpu)
-+static inline void arch_smp_send_reschedule(int cpu)
- {
- 	extern const struct plat_smp_ops *mp_ops;	/* private */
- 
-diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
-index e1419095a6f0a..0a7a059e2dff4 100644
---- a/arch/openrisc/kernel/smp.c
-+++ b/arch/openrisc/kernel/smp.c
-@@ -173,7 +173,7 @@ void handle_IPI(unsigned int ipi_msg)
- 	}
- }
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	smp_cross_call(cpumask_of(cpu), IPI_RESCHEDULE);
- }
-diff --git a/arch/parisc/kernel/smp.c b/arch/parisc/kernel/smp.c
-index 7dbd92cafae38..b7fc859fa87db 100644
---- a/arch/parisc/kernel/smp.c
-+++ b/arch/parisc/kernel/smp.c
-@@ -246,8 +246,8 @@ void kgdb_roundup_cpus(void)
- inline void 
- smp_send_stop(void)	{ send_IPI_allbutself(IPI_CPU_STOP); }
- 
--void 
--smp_send_reschedule(int cpu) { send_IPI_single(cpu, IPI_RESCHEDULE); }
-+void
-+arch_smp_send_reschedule(int cpu) { send_IPI_single(cpu, IPI_RESCHEDULE); }
- 
- void
- smp_send_all_nop(void)
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 0da6e59161cd4..2f85a757ee792 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -364,12 +364,12 @@ static inline void do_message_pass(int cpu, int msg)
- #endif
- }
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	if (likely(smp_ops))
- 		do_message_pass(cpu, PPC_MSG_RESCHEDULE);
- }
--EXPORT_SYMBOL_GPL(smp_send_reschedule);
-+EXPORT_SYMBOL_GPL(arch_smp_send_reschedule);
- 
- void arch_send_call_function_single_ipi(int cpu)
- {
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 6ba68dd6190bd..686c80b17627e 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -43,6 +43,7 @@
- #include <linux/compiler.h>
- #include <linux/of.h>
- #include <linux/irqdomain.h>
-+#include <linux/smp.h>
- 
- #include <asm/ftrace.h>
- #include <asm/reg.h>
-diff --git a/arch/riscv/kernel/smp.c b/arch/riscv/kernel/smp.c
-index 760a64518c585..213602e89a8b2 100644
---- a/arch/riscv/kernel/smp.c
-+++ b/arch/riscv/kernel/smp.c
-@@ -235,8 +235,8 @@ void smp_send_stop(void)
- 			   cpumask_pr_args(cpu_online_mask));
- }
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	send_ipi_single(cpu, IPI_RESCHEDULE);
- }
--EXPORT_SYMBOL_GPL(smp_send_reschedule);
-+EXPORT_SYMBOL_GPL(arch_smp_send_reschedule);
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 0031325ce4bc9..6c4da1e26e568 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -553,7 +553,7 @@ void arch_send_call_function_single_ipi(int cpu)
-  * it goes straight through and wastes no time serializing
-  * anything. Worst case is that we lose a reschedule ...
-  */
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	pcpu_ec_call(pcpu_devices + cpu, ec_schedule);
- }
-diff --git a/arch/sh/kernel/smp.c b/arch/sh/kernel/smp.c
-index 65924d9ec2459..5cf35a774dc70 100644
---- a/arch/sh/kernel/smp.c
-+++ b/arch/sh/kernel/smp.c
-@@ -256,7 +256,7 @@ void __init smp_cpus_done(unsigned int max_cpus)
- 	       (bogosum / (5000/HZ)) % 100);
- }
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	mp_ops->send_ipi(cpu, SMP_MSG_RESCHEDULE);
- }
-diff --git a/arch/sparc/kernel/smp_32.c b/arch/sparc/kernel/smp_32.c
-index ad8094d955eba..87eaa7719fa27 100644
---- a/arch/sparc/kernel/smp_32.c
-+++ b/arch/sparc/kernel/smp_32.c
-@@ -120,7 +120,7 @@ void cpu_panic(void)
- 
- struct linux_prom_registers smp_penguin_ctable = { 0 };
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	/*
- 	 * CPU model dependent way of implementing IPI generation targeting
-diff --git a/arch/sparc/kernel/smp_64.c b/arch/sparc/kernel/smp_64.c
-index a55295d1b9244..e5964d1d8b37d 100644
---- a/arch/sparc/kernel/smp_64.c
-+++ b/arch/sparc/kernel/smp_64.c
-@@ -1430,7 +1430,7 @@ static unsigned long send_cpu_poke(int cpu)
- 	return hv_err;
- }
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	if (cpu == smp_processor_id()) {
- 		WARN_ON_ONCE(preemptible());
-diff --git a/arch/x86/include/asm/smp.h b/arch/x86/include/asm/smp.h
-index a73bced40e241..5ff5815149bd3 100644
---- a/arch/x86/include/asm/smp.h
-+++ b/arch/x86/include/asm/smp.h
-@@ -99,7 +99,7 @@ static inline void play_dead(void)
- 	smp_ops.play_dead();
- }
- 
--static inline void smp_send_reschedule(int cpu)
-+static inline void arch_smp_send_reschedule(int cpu)
- {
- 	smp_ops.smp_send_reschedule(cpu);
- }
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 58f0077d93579..b972c6f8c1791 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -26,6 +26,7 @@
- #include <linux/swap.h>
- #include <linux/rwsem.h>
- #include <linux/cc_platform.h>
-+#include <linux/smp.h>
- 
- #include <asm/apic.h>
- #include <asm/perf_event.h>
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 521b433f978c7..3fbc3fea3e754 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -58,6 +58,7 @@
- #include <linux/mem_encrypt.h>
- #include <linux/entry-kvm.h>
- #include <linux/suspend.h>
-+#include <linux/smp.h>
- 
- #include <trace/events/kvm.h>
- 
-diff --git a/arch/xtensa/kernel/smp.c b/arch/xtensa/kernel/smp.c
-index 4dc109dd6214e..d95907b8e4d38 100644
---- a/arch/xtensa/kernel/smp.c
-+++ b/arch/xtensa/kernel/smp.c
-@@ -389,7 +389,7 @@ void arch_send_call_function_single_ipi(int cpu)
- 	send_ipi_message(cpumask_of(cpu), IPI_CALL_FUNC);
- }
- 
--void smp_send_reschedule(int cpu)
-+void arch_smp_send_reschedule(int cpu)
- {
- 	send_ipi_message(cpumask_of(cpu), IPI_RESCHEDULE);
- }
-diff --git a/include/linux/smp.h b/include/linux/smp.h
-index a80ab58ae3f1d..2f9dc1b7a7fb6 100644
---- a/include/linux/smp.h
-+++ b/include/linux/smp.h
-@@ -125,9 +125,9 @@ extern void smp_send_stop(void);
- /*
-  * sends a 'reschedule' event to another CPU:
-  */
-+extern void arch_smp_send_reschedule(int cpu);
- extern void smp_send_reschedule(int cpu);
- 
+-void send_call_function_single_ipi(int cpu)
+-{
+-	struct rq *rq = cpu_rq(cpu);
 -
+-	if (!set_nr_if_polling(rq->idle)) {
+-		trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, NULL);
+-		arch_send_call_function_single_ipi(cpu);
+-	} else {
+-		trace_sched_wake_idle_without_ipi(cpu);
+-	}
+-}
++/*
++ * We want a variant that traces the function causing the IPI to be sent, but
++ * we don't want the extra argument to cause unnecessary overhead when tracing
++ * isn't happening.
++ */
++#define GEN_CFSI(suffix, IPI_EXP, ...)						\
++void send_call_function_single_ipi##suffix(__VA_ARGS__)				\
++{										\
++	struct rq *rq = cpu_rq(cpu);						\
++										\
++	if (!set_nr_if_polling(rq->idle)) {					\
++		IPI_EXP;							\
++		arch_send_call_function_single_ipi(cpu);			\
++	} else {								\
++		trace_sched_wake_idle_without_ipi(cpu);				\
++	}									\
++}
++
++GEN_CFSI(/* nop */,
++	 /* nop */,
++	 int cpu)
++GEN_CFSI(_trace,
++	 trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, func),
++	 int cpu, smp_call_func_t func)
+ 
  /*
-  * Prepare machine for booting other CPUs.
-  */
+  * Queue a task on the target CPUs wake_list and wake the CPU via IPI if
+diff --git a/kernel/sched/smp.h b/kernel/sched/smp.h
+index 2eb23dd0f2856..8075ad5e84181 100644
+--- a/kernel/sched/smp.h
++++ b/kernel/sched/smp.h
+@@ -7,6 +7,7 @@
+ extern void sched_ttwu_pending(void *arg);
+ 
+ extern void send_call_function_single_ipi(int cpu);
++extern void send_call_function_single_ipi_trace(int cpu, smp_call_func_t func);
+ 
+ #ifdef CONFIG_SMP
+ extern void flush_smp_call_function_queue(void);
 diff --git a/kernel/smp.c b/kernel/smp.c
-index c4d561cf50d45..44fa4b9b1f46b 100644
+index b96579fe08f09..3b8e6456ac7e7 100644
 --- a/kernel/smp.c
 +++ b/kernel/smp.c
-@@ -167,6 +167,14 @@ send_call_function_ipi_mask(const struct cpumask *mask)
+@@ -161,12 +161,18 @@ void __init call_function_init(void)
+ }
+ 
+ static inline void
+-send_call_function_ipi_mask(const struct cpumask *mask)
++send_call_function_ipi_mask_trace(const struct cpumask *mask, smp_call_func_t func)
+ {
+ 	trace_ipi_send_cpumask(mask, _RET_IP_, func);
  	arch_send_call_function_ipi_mask(mask);
  }
  
-+void smp_send_reschedule(int cpu)
++static inline void
++send_call_function_ipi_mask(const struct cpumask *mask)
 +{
-+	/* XXX scheduler_ipi is inline :/ */
-+	trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, NULL);
-+	arch_smp_send_reschedule(cpu);
++	arch_send_call_function_ipi_mask(mask);
 +}
-+EXPORT_SYMBOL_GPL(smp_send_reschedule);
 +
- #ifdef CONFIG_CSD_LOCK_WAIT_DEBUG
+ void smp_send_reschedule(int cpu)
+ {
+ 	/* XXX scheduler_ipi is inline :/ */
+@@ -438,12 +444,16 @@ static void __smp_call_single_queue_debug(int cpu, struct llist_node *node)
+ 	struct cfd_seq_local *seq = this_cpu_ptr(&cfd_seq_local);
+ 	struct call_function_data *cfd = this_cpu_ptr(&cfd_data);
+ 	struct cfd_percpu *pcpu = per_cpu_ptr(cfd->pcpu, cpu);
++	struct __call_single_data *csd;
++
++	csd = container_of(node, call_single_data_t, node.llist);
++	WARN_ON_ONCE(!(CSD_TYPE(csd) & (CSD_TYPE_SYNC | CSD_TYPE_ASYNC)));
  
- static DEFINE_STATIC_KEY_FALSE(csdlock_debug_enabled);
+ 	cfd_seq_store(pcpu->seq_queue, this_cpu, cpu, CFD_SEQ_QUEUE);
+ 	if (llist_add(node, &per_cpu(call_single_queue, cpu))) {
+ 		cfd_seq_store(pcpu->seq_ipi, this_cpu, cpu, CFD_SEQ_IPI);
+ 		cfd_seq_store(seq->ping, this_cpu, cpu, CFD_SEQ_PING);
+-		send_call_function_single_ipi(cpu);
++		send_call_function_single_ipi_trace(cpu, csd->func);
+ 		cfd_seq_store(seq->pinged, this_cpu, cpu, CFD_SEQ_PINGED);
+ 	} else {
+ 		cfd_seq_store(pcpu->seq_noipi, this_cpu, cpu, CFD_SEQ_NOIPI);
+@@ -501,6 +511,26 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
+ 		}
+ 	}
+ #endif
++	/*
++	 * We have to check the type of the CSD before queueing it, because
++	 * once queued it can have its flags cleared by
++	 *   flush_smp_call_function_queue()
++	 * even if we haven't sent the smp_call IPI yet (e.g. the stopper
++	 * executes migration_cpu_stop() on the remote CPU).
++	 */
++	if (trace_ipi_send_cpumask_enabled()) {
++		call_single_data_t *csd;
++		smp_call_func_t func;
++
++		csd = container_of(node, call_single_data_t, node.llist);
++		func = CSD_TYPE(csd) == CSD_TYPE_TTWU ?
++			sched_ttwu_pending : csd->func;
++
++		/* See below comment on ordering requirements */
++		if (llist_add(node, &per_cpu(call_single_queue, cpu)))
++			send_call_function_single_ipi_trace(cpu, func);
++		return;
++	}
+ 
+ 	/*
+ 	 * The list addition should be visible to the target CPU when it pops
+@@ -984,9 +1014,13 @@ static void smp_call_function_many_cond(const struct cpumask *mask,
+ 		 * provided mask.
+ 		 */
+ 		if (nr_cpus == 1)
+-			send_call_function_single_ipi(last_cpu);
++			trace_ipi_send_cpumask_enabled() ?
++				send_call_function_single_ipi_trace(last_cpu, func) :
++				send_call_function_single_ipi(last_cpu);
+ 		else if (likely(nr_cpus > 1))
+-			send_call_function_ipi_mask(cfd->cpumask_ipi);
++			trace_ipi_send_cpumask_enabled() ?
++				send_call_function_ipi_mask_trace(mask, func) :
++				send_call_function_ipi_mask(mask);
+ 
+ 		cfd_seq_store(this_cpu_ptr(&cfd_seq_local)->pinged, this_cpu, CFD_SEQ_NOCPU, CFD_SEQ_PINGED);
+ 	}
 -- 
 2.31.1
 
