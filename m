@@ -1,7 +1,7 @@
 From: Valentin Schneider <vschneid@redhat.com>
-Subject: [RFC PATCH v2 3/8] sched, smp: Trace IPIs sent via send_call_function_single_ipi()
-Date: Wed,  2 Nov 2022 18:33:31 +0000
-Message-ID: <20221102183336.3120536-2-vschneid@redhat.com>
+Subject: [RFC PATCH v2 4/8] smp: Trace IPIs sent via arch_send_call_function_ipi_mask()
+Date: Wed,  2 Nov 2022 18:33:32 +0000
+Message-ID: <20221102183336.3120536-3-vschneid@redhat.com>
 References: <20221102182949.3119584-1-vschneid@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,22 +13,22 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
 	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=v/i9rQYpmJ5FSOj1wmq8bg3eS0L8daif/hDk66l/Qhc=; b=VMaLs+oZQFKosi
-	KJ+2I8iFZtoF483ZX9J9lLOJrf1ImAPeDvNrNtFKSf8OIJR9s/4Z4LBzJ4ZmGNuiV1iCgGHvLQRQh
-	D+/sVXbpWX7LUpgqsQVzi+OZpshqJzW33qhHrCbLHnRHb4Cskh0egyTwwXOjp5kk+MvFqNH/9fJcF
-	szWMG21ut8LdE24sPDLQXjn/l3KtvHrgKZVtGCp0U7ud24menrFXqE6yXrmfJ4AW6etBvfc+iy+Qt
-	I9PMcdHnpgP8o6VRYQqquDGqTZ2mhlvOx9q3D/b82+ojo4L6crxolAGKWtthBCOVEc216e6Fx5LFC
-	F8JkAAf+4ZHDSa0OiVxQ==;
+	List-Owner; bh=thh5wrXD4dp9LdcRKeXdH+zsPeWShMgUYlxkr6m9N+c=; b=eNc7+ERW+qER1y
+	fpQAV1xEdNMRP+Rlnpj4AwYRRs3px413D5x8tQ5mm1K0WdT4GCgvKtZLkkpTIeRS5tdLdvV7W71VI
+	7nJVvnVHYCq9O5iqjEYQ58XwPu6roruXDI1hM+ZT4OUl1qTAxaDLnwaIjH9Jh2mKVwODsdjQuEiIk
+	dzYOkBW157d1FN76xRaSrP7Vnjm2Sr0BVE+9VjWrabuF6rt76DfbFvOxhseSWzvBLEWywaLj66+G9
+	Fca5r3xOcU9VXyxdml1BNTdmsz1dxI8xcy+14GY6bNvwZttgzJEnxTqh5M5023dy+XkDBnj20SKhx
+	n4I0wG8mJ1Rwd0vt/o7Q==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1667414055;
+	s=mimecast20190719; t=1667414062;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Q2c/WKPv2c4lGzoV4BgFlQ86HvvMif9SoXjhbRICEmY=;
-	b=a7j7HeZR5ea8s2kxsiy85+de6vVzqHCY2W2aQ31MPHUUoaCM7otv3QQfYUveu5Y+zSC1LK
-	i+NRhusf+e6vn14RDaTWOyzk9zRd2JN0hQ159BFTx2dAkfZKzhcrqqMMFHW4ZFFdSIDsCl
-	kqKM9N7X+s4EhB4FRUoS1RYu1M35ePU=
+	bh=QqLWPThYSO+7/uH6VGCIiG2p0FrpcxY/esl5LuglSyI=;
+	b=UaqOzmF3XjoLl4fg9Cex0D2JZhb4Hn4fs/xuSkfevBtbljclmc82i5hLfUwGo4vvNTut3A
+	iWqg1vS5Hw7hN7FelKt6q2MtNHS4UVvAj8kccLsIzL80JsEQvUdfSo0GlxoqaAUUbjMiRu
+	2go1IVhZ8b4mzdEp4XHbnPGlcHfvYRA=
 In-Reply-To: <20221102182949.3119584-1-vschneid@redhat.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
@@ -43,88 +43,40 @@ Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.o
 To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org
 Cc: "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Marc Zyngier <maz@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Russell King <linux@armlinux.org.uk>, Nicholas Piggin <npiggin@gmail.com>, Guo Ren <guoren@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-send_call_function_single_ipi() is the thing that sends IPIs at the bottom
-of smp_call_function*() via either generic_exec_single() or
-smp_call_function_many_cond(). Give it an IPI-related tracepoint.
-
-Note that this ends up tracing any IPI sent via __smp_call_single_queue(),
-which covers __ttwu_queue_wakelist() and irq_work_queue_on() "for free".
+This simply wraps around the arch function and prepends it with a
+tracepoint, similar to send_call_function_single_ipi().
 
 Signed-off-by: Valentin Schneider <vschneid@redhat.com>
 ---
- arch/arm/kernel/smp.c   | 3 ---
- arch/arm64/kernel/smp.c | 1 -
- kernel/sched/core.c     | 7 +++++--
- kernel/smp.c            | 4 ++++
- 4 files changed, 9 insertions(+), 6 deletions(-)
+ kernel/smp.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
-index 978db2d96b446..3b280d55c1c40 100644
---- a/arch/arm/kernel/smp.c
-+++ b/arch/arm/kernel/smp.c
-@@ -48,9 +48,6 @@
- #include <asm/mach/arch.h>
- #include <asm/mpu.h>
- 
--#define CREATE_TRACE_POINTS
--#include <trace/events/ipi.h>
--
- /*
-  * as from 2.5, kernels no longer have an init_tasks structure
-  * so we need some other way of telling a new secondary core
-diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-index ffc5d76cf6955..937d2623e06ba 100644
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -51,7 +51,6 @@
- #include <asm/ptrace.h>
- #include <asm/virt.h>
- 
--#define CREATE_TRACE_POINTS
- #include <trace/events/ipi.h>
- 
- DEFINE_PER_CPU_READ_MOSTLY(int, cpu_number);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index cb2aa2b54c7a4..02181f8072b5f 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -81,6 +81,7 @@
- #include <linux/sched/rseq_api.h>
- #include <trace/events/sched.h>
- #undef CREATE_TRACE_POINTS
-+#include <trace/events/ipi.h>
- 
- #include "sched.h"
- #include "stats.h"
-@@ -3746,10 +3747,12 @@ void send_call_function_single_ipi(int cpu)
- {
- 	struct rq *rq = cpu_rq(cpu);
- 
--	if (!set_nr_if_polling(rq->idle))
-+	if (!set_nr_if_polling(rq->idle)) {
-+		trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, NULL);
- 		arch_send_call_function_single_ipi(cpu);
--	else
-+	} else {
- 		trace_sched_wake_idle_without_ipi(cpu);
-+	}
- }
- 
- /*
 diff --git a/kernel/smp.c b/kernel/smp.c
-index 06a413987a14a..e2ca1e2f31274 100644
+index e2ca1e2f31274..c4d561cf50d45 100644
 --- a/kernel/smp.c
 +++ b/kernel/smp.c
-@@ -26,6 +26,10 @@
- #include <linux/sched/debug.h>
- #include <linux/jump_label.h>
+@@ -160,6 +160,13 @@ void __init call_function_init(void)
+ 	smpcfd_prepare_cpu(smp_processor_id());
+ }
  
-+#define CREATE_TRACE_POINTS
-+#include <trace/events/ipi.h>
-+#undef CREATE_TRACE_POINTS
++static inline void
++send_call_function_ipi_mask(const struct cpumask *mask)
++{
++	trace_ipi_send_cpumask(mask, _RET_IP_, func);
++	arch_send_call_function_ipi_mask(mask);
++}
 +
- #include "smpboot.h"
- #include "sched/smp.h"
+ #ifdef CONFIG_CSD_LOCK_WAIT_DEBUG
  
+ static DEFINE_STATIC_KEY_FALSE(csdlock_debug_enabled);
+@@ -970,7 +977,7 @@ static void smp_call_function_many_cond(const struct cpumask *mask,
+ 		if (nr_cpus == 1)
+ 			send_call_function_single_ipi(last_cpu);
+ 		else if (likely(nr_cpus > 1))
+-			arch_send_call_function_ipi_mask(cfd->cpumask_ipi);
++			send_call_function_ipi_mask(cfd->cpumask_ipi);
+ 
+ 		cfd_seq_store(this_cpu_ptr(&cfd_seq_local)->pinged, this_cpu, CFD_SEQ_NOCPU, CFD_SEQ_PINGED);
+ 	}
 -- 
 2.31.1
