@@ -1,152 +1,109 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH mm-unstable RFC 04/26] arm/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Date: Tue,  6 Dec 2022 15:47:08 +0100
-Message-ID: <20221206144730.163732-5-david@redhat.com>
+Subject: [PATCH mm-unstable RFC 03/26] arc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+Date: Tue,  6 Dec 2022 15:47:07 +0100
+Message-ID: <20221206144730.163732-4-david@redhat.com>
 References: <20221206144730.163732-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+Return-path: <linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
 	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
 	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
 	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=jnEPROpwSDCUTcE1Vikjosuz5bsrJvMxWfhnc9uozjM=; b=lrWrOej/BSd8TU
-	CGBfejCRDFwTOjgTqgFkCjFw5eHJIUJqXKXI+kYExYxa1u90zRX+tk5Z9pJ3CUTNZR97n6DEGOwgs
-	MCJ1oGzOm6q9ZzKH5rXPtgBTv8lH332F6In7TSCwZilFWflj/TFILZyt0/8j6uh3w8XVdOQK7c4H5
-	yKNrsCGZcRJy4N1x1hNJ4TRR0BzI7lvZuL822vZ9wZtEuhK6/ceO+rMPxJBscVuvbwvKy7Y7UexiF
-	PCVDbumv4Bo6heq85XDw0EiZ4mTiZn50uKXzS80ZBZhgRvES00l1/zFDWQjDdvIrp2z4iunaUScCG
-	mlZM594DIBNCHbgvEK/Q==;
+	List-Owner; bh=3IXksf3aWd7Y8qhjl59kIGXDJbhG2WtCUV7wEHxwooU=; b=Bw9HDKU+pktvWr
+	jPOySFrylfofT+nyDjrQ93OicE41u1N0UubycM+SWIfEsYmFGOU+xkKW+9e0CNJ3e89frjCyXEVBZ
+	yKudMM7SP573TAimxKXrtMJ8QnOeHcwM6nHU+7Dhrt9Ofp/WjFfMwrby0QN/XWJ7hSjfjdklBS7Tt
+	x+JRPwLwW9NCfR91iV7zTLInmyFag8+EDHhdGV/j1Vhqu+V8wvzCZREhDAbUWfzUGwjoUioICQt43
+	HoMJmRKqCWDpnsRKgPGWPlHe9gTFtVeOJl+GpSpg1rf00DCOzObkOPyIL/qYMrmSWaBbl4Vn1HM0W
+	zpS11cJzaob4OwGEw92g==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1670338116;
+	s=mimecast20190719; t=1670338109;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=9x4aBtPIfkHf52VlSKEEJKfkOCdXsL5eD/veqXMcHbM=;
-	b=dBau0g4N2d43Rx9MaN289NKDSqyT+OCijEbbek4uiwhTKcq2Pt/J/rICdGbGKLvxGCl5zL
-	6mNQJjgPj/MkwDS3BzNm0Ayjk1GmaQhQc6UIhSqQL+nsSqHjhNp0PpA2B4vSqoyenry+FD
-	5pi5feDEFLyWxPFDleENm0YdcObs8Rk=
+	bh=zuOxPbGlhif4GnxsJcPIMTzkLFnTwbdex8tx3HF/6jU=;
+	b=jPVjT/Eh3DkfOROs7Vh8cCMSDgTKz9L0dzLYZE3pnaGnn+ybZHFgRmlI49AsNbDeVMi3yd
+	UBnOSJoNwwjdztZFDA4NyuwTXRaYrJMrUFHVwHHXySf/kIbCCBDu+6L+19xI9D/Or5eQVM
+	gUM/2vHcS7ZjRYJ7fR7nX947/itW9QY=
 In-Reply-To: <20221206144730.163732-1-david@redhat.com>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-um>,
+ <mailto:linux-um-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-um/>
+List-Post: <mailto:linux-um@lists.infradead.org>
+List-Help: <mailto:linux-um-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-um>,
+ <mailto:linux-um-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-um" <linux-um-bounces@lists.infradead.org>
+Errors-To: linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>, John Hubbard <jhubbard@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>, Mike Rapoport <rppt@linux.ibm.com>, Yang Shi <shy828301@gmail.com>, Vlastimil Babka <vbabka@suse.cz>, Nadav Amit <namit@vmware.com>, Andrea Arcangeli <aarcange@redhat.com>, Peter Xu <peterx@redhat.com>, linux-mm@kvack.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
 
-Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit from the
-offset. This reduces the maximum swap space per file to 64 GiB (was 128
-GiB).
+Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by using bit 5, which is yet
+unused. The only important parts seems to be to not use _PAGE_PRESENT
+(bit 9).
 
-While at it drop the PTE_TYPE_FAULT from __swp_entry_to_pte() which is
-defined to be 0 and is rather confusing because we should be dealing
-with "Linux PTEs" not "hardware PTEs". Also, properly mask the type in
-__swp_entry().
-
-Cc: Russell King <linux@armlinux.org.uk>
+Cc: Vineet Gupta <vgupta@kernel.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/arm/include/asm/pgtable-2level.h |  3 +++
- arch/arm/include/asm/pgtable-3level.h |  3 +++
- arch/arm/include/asm/pgtable.h        | 35 +++++++++++++++++++++------
- 3 files changed, 34 insertions(+), 7 deletions(-)
+ arch/arc/include/asm/pgtable-bits-arcv2.h | 27 ++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/include/asm/pgtable-2level.h b/arch/arm/include/asm/pgtable-2level.h
-index 92abd4cd8ca2..ce543cd9380c 100644
---- a/arch/arm/include/asm/pgtable-2level.h
-+++ b/arch/arm/include/asm/pgtable-2level.h
-@@ -126,6 +126,9 @@
- #define L_PTE_SHARED		(_AT(pteval_t, 1) << 10)	/* shared(v6), coherent(xsc3) */
- #define L_PTE_NONE		(_AT(pteval_t, 1) << 11)
+diff --git a/arch/arc/include/asm/pgtable-bits-arcv2.h b/arch/arc/include/asm/pgtable-bits-arcv2.h
+index 515e82db519f..611f412713b9 100644
+--- a/arch/arc/include/asm/pgtable-bits-arcv2.h
++++ b/arch/arc/include/asm/pgtable-bits-arcv2.h
+@@ -26,6 +26,9 @@
+ #define _PAGE_GLOBAL		(1 << 8)  /* ASID agnostic (H) */
+ #define _PAGE_PRESENT		(1 << 9)  /* PTE/TLB Valid (H) */
  
-+/* We borrow bit 7 to store the exclusive marker in swap PTEs. */
-+#define L_PTE_SWP_EXCLUSIVE	L_PTE_RDONLY
++/* We borrow bit 5 to store the exclusive marker in swap PTEs. */
++#define _PAGE_SWP_EXCLUSIVE	_PAGE_DIRTY
 +
- /*
-  * These are the memory types, defined to be compatible with
-  * pre-ARMv6 CPUs cacheable and bufferable bits: n/a,n/a,C,B
-diff --git a/arch/arm/include/asm/pgtable-3level.h b/arch/arm/include/asm/pgtable-3level.h
-index eabe72ff7381..106049791500 100644
---- a/arch/arm/include/asm/pgtable-3level.h
-+++ b/arch/arm/include/asm/pgtable-3level.h
-@@ -76,6 +76,9 @@
- #define L_PTE_NONE		(_AT(pteval_t, 1) << 57)	/* PROT_NONE */
- #define L_PTE_RDONLY		(_AT(pteval_t, 1) << 58)	/* READ ONLY */
+ #ifdef CONFIG_ARC_MMU_V4
+ #define _PAGE_HW_SZ		(1 << 10)  /* Normal/super (H) */
+ #else
+@@ -106,9 +109,18 @@ static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
+ void update_mmu_cache(struct vm_area_struct *vma, unsigned long address,
+ 		      pte_t *ptep);
  
-+/* We borrow bit 7 to store the exclusive marker in swap PTEs. */
-+#define L_PTE_SWP_EXCLUSIVE	(_AT(pteval_t, 1) << 7)
-+
- #define L_PMD_SECT_VALID	(_AT(pmdval_t, 1) << 0)
- #define L_PMD_SECT_DIRTY	(_AT(pmdval_t, 1) << 55)
- #define L_PMD_SECT_NONE		(_AT(pmdval_t, 1) << 57)
-diff --git a/arch/arm/include/asm/pgtable.h b/arch/arm/include/asm/pgtable.h
-index 00954ab1a039..5e0446a9c667 100644
---- a/arch/arm/include/asm/pgtable.h
-+++ b/arch/arm/include/asm/pgtable.h
-@@ -269,27 +269,48 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
- }
- 
- /*
-- * Encode and decode a swap entry.  Swap entries are stored in the Linux
-- * page tables as follows:
+-/* Encode swap {type,off} tuple into PTE
+- * We reserve 13 bits for 5-bit @type, keeping bits 12-5 zero, ensuring that
+- * PAGE_PRESENT is zero in a PTE holding swap "identifier"
++/*
 + * Encode/decode swap entries and swap PTEs. Swap PTEs are all PTEs that
 + * are !pte_none() && !pte_present().
 + *
 + * Format of swap PTEs:
-  *
-  *   3 3 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1
-  *   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
-- *   <--------------- offset ------------------------> < type -> 0 0
-+ *   <------------------- offset ------------------> E < type -> 0 0
++ *
++ *   3 3 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1
++ *   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++ *   <-------------- offset -------------> <--- zero --> E < type ->
 + *
 + *   E is the exclusive marker that is not stored in swap entries.
-  *
-- * This gives us up to 31 swap files and 128GB per swap file.  Note that
-+ * This gives us up to 31 swap files and 64GB per swap file.  Note that
-  * the offset field is always non-zero.
++ *   The zero'ed bits include _PAGE_PRESENT.
   */
- #define __SWP_TYPE_SHIFT	2
- #define __SWP_TYPE_BITS		5
- #define __SWP_TYPE_MASK		((1 << __SWP_TYPE_BITS) - 1)
--#define __SWP_OFFSET_SHIFT	(__SWP_TYPE_BITS + __SWP_TYPE_SHIFT)
-+#define __SWP_OFFSET_SHIFT	(__SWP_TYPE_BITS + __SWP_TYPE_SHIFT + 1)
+ #define __swp_entry(type, off)		((swp_entry_t) \
+ 					{ ((type) & 0x1f) | ((off) << 13) })
+@@ -120,6 +132,15 @@ void update_mmu_cache(struct vm_area_struct *vma, unsigned long address,
+ #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
+ #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
  
- #define __swp_type(x)		(((x).val >> __SWP_TYPE_SHIFT) & __SWP_TYPE_MASK)
- #define __swp_offset(x)		((x).val >> __SWP_OFFSET_SHIFT)
--#define __swp_entry(type,offset) ((swp_entry_t) { ((type) << __SWP_TYPE_SHIFT) | ((offset) << __SWP_OFFSET_SHIFT) })
-+#define __swp_entry(type,offset) ((swp_entry_t) { (((type) & __SWP_TYPE_BITS) << __SWP_TYPE_SHIFT) | \
-+						 ((offset) << __SWP_OFFSET_SHIFT) })
- 
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
--#define __swp_entry_to_pte(swp)	__pte((swp).val | PTE_TYPE_FAULT)
-+#define __swp_entry_to_pte(swp)	__pte((swp).val)
-+
 +#define __HAVE_ARCH_PTE_SWP_EXCLUSIVE
 +static inline int pte_swp_exclusive(pte_t pte)
 +{
-+	return pte_isset(pte, L_PTE_SWP_EXCLUSIVE);
++	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
 +}
 +
-+static inline pte_t pte_swp_mkexclusive(pte_t pte)
-+{
-+	return set_pte_bit(pte, __pgprot(L_PTE_SWP_EXCLUSIVE));
-+}
++PTE_BIT_FUNC(swp_mkexclusive, |= (_PAGE_SWP_EXCLUSIVE));
++PTE_BIT_FUNC(swp_clear_exclusive, &= ~(_PAGE_SWP_EXCLUSIVE));
 +
-+static inline pte_t pte_swp_clear_exclusive(pte_t pte)
-+{
-+	return clear_pte_bit(pte, __pgprot(L_PTE_SWP_EXCLUSIVE));
-+}
- 
- /*
-  * It is an error for the kernel to have more swap files than we can
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ #include <asm/hugepage.h>
+ #endif
 -- 
 2.38.1
