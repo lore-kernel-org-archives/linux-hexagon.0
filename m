@@ -1,24 +1,24 @@
 From: Andrzej Hajda <andrzej.hajda@intel.com>
-Subject: [PATCH 10/19] arch/openrisc: rename internal name
- __xchg to __arch_xchg
-Date: Thu, 22 Dec 2022 12:46:26 +0100
-Message-ID: <20221222114635.1251934-11-andrzej.hajda@intel.com>
+Subject: [PATCH 11/19] arch/parisc: rename internal name __xchg
+ to __arch_xchg
+Date: Thu, 22 Dec 2022 12:46:27 +0100
+Message-ID: <20221222114635.1251934-12-andrzej.hajda@intel.com>
 References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1671709705; x=1703245705;
+ t=1671709711; x=1703245711;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=TghWz/7dE4JZXKAzYoxxWMMVMnrM6ngZWB0OqEIPnYA=;
- b=DuS2QF5sxVpKkjNlWCyR7OIq0b8qko3KfIbfPwiuuIQ1cv0fViHHa19K
- UeZzEUtmgo7VRpZwdLwQUqmc73s8N8tmPvQbEooY6rXfZsx0n9rovmXL2
- nW3PiygcASjytf4LBEeVngKmb/I2c5cRAxrpzVDdcmgiEsfsVWUzEGQyS
- GcqhW8cq+5rfaaxV0DVCgXiS41E4y8nW/1sep2KPhQSMESioFxjWeq6nd
- B6bt4IxLNp7yxswBJ0zMt0PjI0wRFWuEzbBHPBM5Nnuqn20tHr5SevsmK
- xYfSQ53PXnaUouhFmEvaqt/kib9i2UB6E2mZLOge3kDpz2kic2Y7TueV1 w==;
+ bh=ShuBR0Z5S7GcOYzeMdcvtC9TNipnvNb2IL9/zmSpmSE=;
+ b=PYGsCY2GO6JtbO2ykcyYwRQarTNmzIM1sCfvaLg66v4m0uYLObV65Qrd
+ h0yQWOrnFykgdRB5dFiRIPz3gQX8AhfDj/EKQzKzeTZcQvpsgWdLuYtQ9
+ A/quGqvV8LBu+qpA6ukyKQZ3Y6PGH7ewbKg2GGZUo/iq7KQWNuYqyic9i
+ 0lOSaFsuE8G6AlbQYcmL7DmH512zSFydvRfOG8XL56ve+vQE6s8Yqc54O
+ VQAvWOOzccGYqj62d+JnZfm0uMu6BTgbd8twYBdMCEIsTchBeNLLnoXq0
+ s2kImY4FJshkB51R33UwEPnVX4EDLE+ewhGmCMI7oEsliUNh87rbQlVL/ g==;
 In-Reply-To: <20221222114635.1251934-1-andrzej.hajda@intel.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
@@ -38,31 +38,31 @@ __xchg will be used for non-atomic xchg macro.
 
 Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
 ---
- arch/openrisc/include/asm/cmpxchg.h | 4 ++--
+ arch/parisc/include/asm/cmpxchg.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/openrisc/include/asm/cmpxchg.h b/arch/openrisc/include/asm/cmpxchg.h
-index 79fd16162ccb6d..5725e22e10683b 100644
---- a/arch/openrisc/include/asm/cmpxchg.h
-+++ b/arch/openrisc/include/asm/cmpxchg.h
-@@ -147,7 +147,7 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
- extern unsigned long __xchg_called_with_bad_pointer(void)
- 	__compiletime_error("Bad argument size for xchg");
+diff --git a/arch/parisc/include/asm/cmpxchg.h b/arch/parisc/include/asm/cmpxchg.h
+index 5f274be105671e..c1d776bb16b4ed 100644
+--- a/arch/parisc/include/asm/cmpxchg.h
++++ b/arch/parisc/include/asm/cmpxchg.h
+@@ -22,7 +22,7 @@ extern unsigned long __xchg64(unsigned long, volatile unsigned long *);
  
--static inline unsigned long __xchg(volatile void *ptr, unsigned long with,
-+static inline unsigned long __arch_xchg(volatile void *ptr, unsigned long with,
- 		int size)
+ /* optimizer better get rid of switch since size is a constant */
+ static inline unsigned long
+-__xchg(unsigned long x, volatile void *ptr, int size)
++__arch_xchg(unsigned long x, volatile void *ptr, int size)
  {
  	switch (size) {
-@@ -163,7 +163,7 @@ static inline unsigned long __xchg(volatile void *ptr, unsigned long with,
+ #ifdef CONFIG_64BIT
+@@ -49,7 +49,7 @@ __xchg(unsigned long x, volatile void *ptr, int size)
+ 	__typeof__(*(ptr)) __ret;					\
+ 	__typeof__(*(ptr)) _x_ = (x);					\
+ 	__ret = (__typeof__(*(ptr)))					\
+-		__xchg((unsigned long)_x_, (ptr), sizeof(*(ptr)));	\
++		__arch_xchg((unsigned long)_x_, (ptr), sizeof(*(ptr)));	\
+ 	__ret;								\
+ })
  
- #define arch_xchg(ptr, with) 						\
- 	({								\
--		(__typeof__(*(ptr))) __xchg((ptr),			\
-+		(__typeof__(*(ptr))) __arch_xchg((ptr),			\
- 					    (unsigned long)(with),	\
- 					    sizeof(*(ptr)));		\
- 	})
 -- 
 2.34.1
 
