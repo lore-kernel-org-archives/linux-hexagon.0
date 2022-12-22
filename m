@@ -1,24 +1,24 @@
 From: Andrzej Hajda <andrzej.hajda@intel.com>
-Subject: [PATCH 02/19] arch/arc: rename internal name __xchg to
+Subject: [PATCH 03/19] arch/arm: rename internal name __xchg to
  __arch_xchg
-Date: Thu, 22 Dec 2022 12:46:18 +0100
-Message-ID: <20221222114635.1251934-3-andrzej.hajda@intel.com>
+Date: Thu, 22 Dec 2022 12:46:19 +0100
+Message-ID: <20221222114635.1251934-4-andrzej.hajda@intel.com>
 References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1671709670; x=1703245670;
+ t=1671709671; x=1703245671;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=/UDTi8Vls0g/+nnPnB+HCzMyNgpTxrVUoGQF5kbhC34=;
- b=RM+cLECTApjcbeEPy2Y02ig+ua3YBZn6pmQwfduf8vnVuJhSa7Rw5gWl
- Dxr2yQqdFoCiDeY1aA59pW3O2Y56zXrY7jkA2ZeYh5mToatywOfvEymnt
- vc9kg+YXFxLOYcijmF8uA7sLRblHvA81hWEyHNMevNv6u2pOFd87IVk/e
- VUSQ/H5JclvDzIRxJxcsg/wOjppY9lk9gJBiBKM64Bw7dBJYNVngkMmEY
- iKYA3ojpjAFvWTv+Rc4MKE/FDk+6dR7rEfbKWHKaYmM8AsS5BGW6uUv6J
- DgEbbJcsS6MsK7vfOJoM0MOO9eYI+vmWZpVoUxN2jPi7GkcqfHe3TJ2SJ g==;
+ bh=IbMw6br59U86nejRLG71yUeJj71gbGKIdiufP6FjbTQ=;
+ b=aLWccCOW9SHtJiDayX5jnQV5aNBAYKK9vK2Hbt7FnrhWKstscKAr6A+i
+ /ZHysfr1ITOrdjbD+AQ7FCtq9XKQXG0bWhMZ0Cvhr9zP8GLuC59MT2zgK
+ DLRg6izg4EZJR+YUoxHiv8ifKrLgeHKqCG67hHoTA33rJvnD5GL05K4DA
+ PbE8UsDfw2wqfxNuQAwRbgWOY4y+iq1SWbmOczGuUfmwi1Ct24u/lmlFr
+ ORQkyFMAtkggkFS8LomGD2myNMqTKgKLIiRbeMdtqWFbxGyA0e6sy2lAY
+ M9JpcxV5QfJ7PfvTr+YEfPEt7Tu9mpbZk+x3293Gb54Gx/YjfQbn0dySP A==;
 In-Reply-To: <20221222114635.1251934-1-andrzej.hajda@intel.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
@@ -38,31 +38,31 @@ __xchg will be used for non-atomic xchg macro.
 
 Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
 ---
- arch/arc/include/asm/cmpxchg.h | 4 ++--
+ arch/arm/include/asm/cmpxchg.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arc/include/asm/cmpxchg.h b/arch/arc/include/asm/cmpxchg.h
-index c5b544a5fe8106..e138fde067dea5 100644
---- a/arch/arc/include/asm/cmpxchg.h
-+++ b/arch/arc/include/asm/cmpxchg.h
-@@ -85,7 +85,7 @@
-  */
- #ifdef CONFIG_ARC_HAS_LLSC
+diff --git a/arch/arm/include/asm/cmpxchg.h b/arch/arm/include/asm/cmpxchg.h
+index 4dfe538dfc689b..6953fc05a97886 100644
+--- a/arch/arm/include/asm/cmpxchg.h
++++ b/arch/arm/include/asm/cmpxchg.h
+@@ -25,7 +25,7 @@
+ #define swp_is_buggy
+ #endif
  
--#define __xchg(ptr, val)						\
-+#define __arch_xchg(ptr, val)						\
- ({									\
- 	__asm__ __volatile__(						\
- 	"	ex  %0, [%1]	\n"	/* set new value */	        \
-@@ -102,7 +102,7 @@
- 									\
- 	switch(sizeof(*(_p_))) {					\
- 	case 4:								\
--		_val_ = __xchg(_p_, _val_);				\
-+		_val_ = __arch_xchg(_p_, _val_);			\
- 		break;							\
- 	default:							\
- 		BUILD_BUG();						\
+-static inline unsigned long __xchg(unsigned long x, volatile void *ptr, int size)
++static inline unsigned long __arch_xchg(unsigned long x, volatile void *ptr, int size)
+ {
+ 	extern void __bad_xchg(volatile void *, int);
+ 	unsigned long ret;
+@@ -115,7 +115,7 @@ static inline unsigned long __xchg(unsigned long x, volatile void *ptr, int size
+ }
+ 
+ #define arch_xchg_relaxed(ptr, x) ({					\
+-	(__typeof__(*(ptr)))__xchg((unsigned long)(x), (ptr),		\
++	(__typeof__(*(ptr)))__arch_xchg((unsigned long)(x), (ptr),		\
+ 				   sizeof(*(ptr)));			\
+ })
+ 
 -- 
 2.34.1
 
