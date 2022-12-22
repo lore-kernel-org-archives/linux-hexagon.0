@@ -1,24 +1,24 @@
 From: Andrzej Hajda <andrzej.hajda@intel.com>
-Subject: [PATCH 08/19] arch/m68k: rename internal name __xchg to
- __arch_xchg
-Date: Thu, 22 Dec 2022 12:46:24 +0100
-Message-ID: <20221222114635.1251934-9-andrzej.hajda@intel.com>
+Subject: [PATCH 10/19] arch/openrisc: rename internal name
+ __xchg to __arch_xchg
+Date: Thu, 22 Dec 2022 12:46:26 +0100
+Message-ID: <20221222114635.1251934-11-andrzej.hajda@intel.com>
 References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1671709693; x=1703245693;
+ t=1671709705; x=1703245705;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=o4h93ABh3+zAq8TlgfcDXo1RyDlG18z2IRLWJiiWgBI=;
- b=ToJ6Z3ALVY0fBMX7SiR/G3HF6QHQopuWz+PUR+HJUFunYtJwUUA7v5q7
- cOolppLXPi/YeN8nl8f1sPhZHKof27dpkoQP/8acCqWGLpO5a+ibUdvea
- VJVYyegrMeL5esDoGuXUQppQ8M/2DHp4mwXdUV5UXTKMY8z3OzKU9HLcF
- NlERuLtbFHniEm93iHEBfArw1E7kGMTYdbpwGwq5d9sEPiocjSerOFWZQ
- 2N97AbEx/vv1xNuHGRI/AFNzij4kHzjtMiER/K2hTPjQasi9AQF2lbpc3
- qv0o4K55QOgTP1LPbEvXTqjT7qpDPcLpeCYIIVjUWs+YbVGVz43d/2IcM Q==;
+ bh=TghWz/7dE4JZXKAzYoxxWMMVMnrM6ngZWB0OqEIPnYA=;
+ b=DuS2QF5sxVpKkjNlWCyR7OIq0b8qko3KfIbfPwiuuIQ1cv0fViHHa19K
+ UeZzEUtmgo7VRpZwdLwQUqmc73s8N8tmPvQbEooY6rXfZsx0n9rovmXL2
+ nW3PiygcASjytf4LBEeVngKmb/I2c5cRAxrpzVDdcmgiEsfsVWUzEGQyS
+ GcqhW8cq+5rfaaxV0DVCgXiS41E4y8nW/1sep2KPhQSMESioFxjWeq6nd
+ B6bt4IxLNp7yxswBJ0zMt0PjI0wRFWuEzbBHPBM5Nnuqn20tHr5SevsmK
+ xYfSQ53PXnaUouhFmEvaqt/kib9i2UB6E2mZLOge3kDpz2kic2Y7TueV1 w==;
 In-Reply-To: <20221222114635.1251934-1-andrzej.hajda@intel.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
@@ -38,40 +38,31 @@ __xchg will be used for non-atomic xchg macro.
 
 Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
 ---
- arch/m68k/include/asm/cmpxchg.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/openrisc/include/asm/cmpxchg.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/m68k/include/asm/cmpxchg.h b/arch/m68k/include/asm/cmpxchg.h
-index 6cf464cdab067e..d7f3de9c5d6f79 100644
---- a/arch/m68k/include/asm/cmpxchg.h
-+++ b/arch/m68k/include/asm/cmpxchg.h
-@@ -9,7 +9,7 @@
- extern unsigned long __invalid_xchg_size(unsigned long, volatile void *, int);
+diff --git a/arch/openrisc/include/asm/cmpxchg.h b/arch/openrisc/include/asm/cmpxchg.h
+index 79fd16162ccb6d..5725e22e10683b 100644
+--- a/arch/openrisc/include/asm/cmpxchg.h
++++ b/arch/openrisc/include/asm/cmpxchg.h
+@@ -147,7 +147,7 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+ extern unsigned long __xchg_called_with_bad_pointer(void)
+ 	__compiletime_error("Bad argument size for xchg");
  
- #ifndef CONFIG_RMW_INSNS
--static inline unsigned long __xchg(unsigned long x, volatile void * ptr, int size)
-+static inline unsigned long __arch_xchg(unsigned long x, volatile void * ptr, int size)
- {
- 	unsigned long flags, tmp;
- 
-@@ -40,7 +40,7 @@ static inline unsigned long __xchg(unsigned long x, volatile void * ptr, int siz
- 	return x;
- }
- #else
--static inline unsigned long __xchg(unsigned long x, volatile void * ptr, int size)
-+static inline unsigned long __arch_xchg(unsigned long x, volatile void * ptr, int size)
+-static inline unsigned long __xchg(volatile void *ptr, unsigned long with,
++static inline unsigned long __arch_xchg(volatile void *ptr, unsigned long with,
+ 		int size)
  {
  	switch (size) {
- 	case 1:
-@@ -75,7 +75,7 @@ static inline unsigned long __xchg(unsigned long x, volatile void * ptr, int siz
- }
- #endif
+@@ -163,7 +163,7 @@ static inline unsigned long __xchg(volatile void *ptr, unsigned long with,
  
--#define arch_xchg(ptr,x) ({(__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr)));})
-+#define arch_xchg(ptr,x) ({(__typeof__(*(ptr)))__arch_xchg((unsigned long)(x),(ptr),sizeof(*(ptr)));})
- 
- #include <asm-generic/cmpxchg-local.h>
- 
+ #define arch_xchg(ptr, with) 						\
+ 	({								\
+-		(__typeof__(*(ptr))) __xchg((ptr),			\
++		(__typeof__(*(ptr))) __arch_xchg((ptr),			\
+ 					    (unsigned long)(with),	\
+ 					    sizeof(*(ptr)));		\
+ 	})
 -- 
 2.34.1
 
