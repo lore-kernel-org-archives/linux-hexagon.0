@@ -1,24 +1,24 @@
 From: Andrzej Hajda <andrzej.hajda@intel.com>
-Subject: [PATCH 03/19] arch/arm: rename internal name __xchg to
- __arch_xchg
-Date: Thu, 22 Dec 2022 12:46:19 +0100
-Message-ID: <20221222114635.1251934-4-andrzej.hajda@intel.com>
+Subject: [PATCH 05/19] arch/hexagon: rename internal name __xchg
+ to __arch_xchg
+Date: Thu, 22 Dec 2022 12:46:21 +0100
+Message-ID: <20221222114635.1251934-6-andrzej.hajda@intel.com>
 References: <20221222114635.1251934-1-andrzej.hajda@intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1671709671; x=1703245671;
+ t=1671709675; x=1703245675;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=IbMw6br59U86nejRLG71yUeJj71gbGKIdiufP6FjbTQ=;
- b=aLWccCOW9SHtJiDayX5jnQV5aNBAYKK9vK2Hbt7FnrhWKstscKAr6A+i
- /ZHysfr1ITOrdjbD+AQ7FCtq9XKQXG0bWhMZ0Cvhr9zP8GLuC59MT2zgK
- DLRg6izg4EZJR+YUoxHiv8ifKrLgeHKqCG67hHoTA33rJvnD5GL05K4DA
- PbE8UsDfw2wqfxNuQAwRbgWOY4y+iq1SWbmOczGuUfmwi1Ct24u/lmlFr
- ORQkyFMAtkggkFS8LomGD2myNMqTKgKLIiRbeMdtqWFbxGyA0e6sy2lAY
- M9JpcxV5QfJ7PfvTr+YEfPEt7Tu9mpbZk+x3293Gb54Gx/YjfQbn0dySP A==;
+ bh=Ny1bXKB2lDS7ORqsLpbz2Aii9/RWYD0L24Yi6PLk6aE=;
+ b=mL5mmHGPzxXtiEbuGu4JfDwqQHiBT8sjfdAQbtFnrhOF5lSjD/uU4ntc
+ njP/60KtF9G4YDcMileACtoFRFNN2S1MOdp7D7yCZCCIDyw6pyQ9nMQCl
+ b44QojejGjDKtzpMHZcMiqa0Laat7WceBH+IReaFFEuLEp2cANV+PZs/d
+ PrCUoRxDN9ZBNTnbn1Edq5lexr7dpt6isxJGBQ8z7FZCVTrJ1+/7AlRxG
+ GISlQdmCiQ6KJqSA2qlQI1pbpL1rKlAO+M1tFS+prPALNLsiFoK7JnSG3
+ 8+zylmeS5+t4gv0N8sRNr4Jh3aAGCHN3URl5RI/K3jTPBl1fZi2oRiQ5B w==;
 In-Reply-To: <20221222114635.1251934-1-andrzej.hajda@intel.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
@@ -38,31 +38,40 @@ __xchg will be used for non-atomic xchg macro.
 
 Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
 ---
- arch/arm/include/asm/cmpxchg.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/hexagon/include/asm/cmpxchg.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/include/asm/cmpxchg.h b/arch/arm/include/asm/cmpxchg.h
-index 4dfe538dfc689b..6953fc05a97886 100644
---- a/arch/arm/include/asm/cmpxchg.h
-+++ b/arch/arm/include/asm/cmpxchg.h
-@@ -25,7 +25,7 @@
- #define swp_is_buggy
- #endif
+diff --git a/arch/hexagon/include/asm/cmpxchg.h b/arch/hexagon/include/asm/cmpxchg.h
+index cdb705e1496af8..92dc5e5f836f3b 100644
+--- a/arch/hexagon/include/asm/cmpxchg.h
++++ b/arch/hexagon/include/asm/cmpxchg.h
+@@ -9,7 +9,7 @@
+ #define _ASM_CMPXCHG_H
  
--static inline unsigned long __xchg(unsigned long x, volatile void *ptr, int size)
-+static inline unsigned long __arch_xchg(unsigned long x, volatile void *ptr, int size)
+ /*
+- * __xchg - atomically exchange a register and a memory location
++ * __arch_xchg - atomically exchange a register and a memory location
+  * @x: value to swap
+  * @ptr: pointer to memory
+  * @size:  size of the value
+@@ -19,7 +19,7 @@
+  * Note:  there was an errata for V2 about .new's and memw_locked.
+  *
+  */
+-static inline unsigned long __xchg(unsigned long x, volatile void *ptr,
++static inline unsigned long __arch_xchg(unsigned long x, volatile void *ptr,
+ 				   int size)
  {
- 	extern void __bad_xchg(volatile void *, int);
- 	unsigned long ret;
-@@ -115,7 +115,7 @@ static inline unsigned long __xchg(unsigned long x, volatile void *ptr, int size
- }
+ 	unsigned long retval;
+@@ -42,7 +42,7 @@ static inline unsigned long __xchg(unsigned long x, volatile void *ptr,
+  * Atomically swap the contents of a register with memory.  Should be atomic
+  * between multiple CPU's and within interrupts on the same CPU.
+  */
+-#define arch_xchg(ptr, v) ((__typeof__(*(ptr)))__xchg((unsigned long)(v), (ptr), \
++#define arch_xchg(ptr, v) ((__typeof__(*(ptr)))__arch_xchg((unsigned long)(v), (ptr), \
+ 	sizeof(*(ptr))))
  
- #define arch_xchg_relaxed(ptr, x) ({					\
--	(__typeof__(*(ptr)))__xchg((unsigned long)(x), (ptr),		\
-+	(__typeof__(*(ptr)))__arch_xchg((unsigned long)(x), (ptr),		\
- 				   sizeof(*(ptr)));			\
- })
- 
+ /*
 -- 
 2.34.1
 
