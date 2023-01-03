@@ -1,67 +1,61 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 30/63] hexagon: add support for TIF_NOTIFY_SIGNAL
-Date: Tue,  3 Jan 2023 09:14:00 +0100
-Message-ID: <20230103081310.386730622@linuxfoundation.org>
-References: <20230103081308.548338576@linuxfoundation.org>
+From: Heiko Carstens <hca@linux.ibm.com>
+Subject: Re: [PATCH v3] arch: rename all internal names __xchg to __arch_xchg
+Date: Tue, 3 Jan 2023 11:02:09 +0100
+Message-ID: <Y7P9IcR7/jgYWMcq@osiris>
+References: <202212300642.6pdgegGO-lkp@intel.com>
+ <20221230141552.128508-1-andrzej.hajda@intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672733747;
-        bh=lVkhJSuC3IowY6x05isk2+fmIZYOlISTPGIA+JFIPO0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SUMF+1uI4I/GMUYDhyB+Hngtoe3vxWxcab3114NIWjO1ReXzkoFNOziz6A29kmpbt
-         e3hX0n4IJ5qJX0uPKL5jRcX8tDDXMGF6cwMzX75k2oQZ/PmQZ9+wJWYro17iJ7lW3c
-         RxLSVxDwJRlLKRnRELdrZfCYjTVxl0Dv0GpZ2Bzw=
-In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
+Return-path: <linux-m68k-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=dMHVtFosqWThDyY5SftMoOPjqDlLusCntZAFShOz2mY=;
+ b=KQ8gHflm592WlbRAgwdQmZyTRlHDWh9M3ZAPFV+EMcsIOXJ461PiMpCp5cUVt9BL1e6j
+ zqllDR5Fb/gxAm41jRkoRbn7AyAsUGSUMf7knMuu/spo09IOUdLrV2GM4nc+OlkQbkE7
+ IJzG4uvffHGaWIteJBPi+B7FHAqQUQN3AtsThHUAZCqJQIQDHXbgZuAeeqSo9WeDmPJj
+ eEQnkInKW+xzSa/aKKaqEDcmxJK5+xsGNpjiHiXPohV0tqVjzNS2xI1QFRZv2I9KIldN
+ wQ9mkHaOJ5pKdofCP9qAqPj5s8umAAK+tXrV9dZ+20maLxpkr4T38HkHLw9ablzK3SFk /w== 
+Content-Disposition: inline
+In-Reply-To: <20221230141552.128508-1-andrzej.hajda@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: stable@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, patches@lists.linux.dev, linux-hexagon@vger.kernel.org, Brian Cain <bcain@codeaurora.org>, Jens Axboe <axboe@kernel.dk>
+Content-Transfer-Encoding: 7bit
+To: Andrzej Hajda <andrzej.hajda@intel.com>
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Arnd Bergmann <arnd@arndb.de>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Peter Zijlstra <peterz@infradead.o>
 
-From: Jens Axboe <axboe@kernel.dk>
+On Fri, Dec 30, 2022 at 03:15:52PM +0100, Andrzej Hajda wrote:
+> __xchg will be used for non-atomic xchg macro.
+> 
+> Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+> v2: squashed all arch patches into one
+> v3: fixed alpha/xchg_local, thx to lkp@intel.com
+> ---
+...
+>  arch/s390/include/asm/cmpxchg.h      | 4 ++--
+> diff --git a/arch/s390/include/asm/cmpxchg.h b/arch/s390/include/asm/cmpxchg.h
+> index 84c3f0d576c5b1..efc16f4aac8643 100644
+> --- a/arch/s390/include/asm/cmpxchg.h
+> +++ b/arch/s390/include/asm/cmpxchg.h
+> @@ -14,7 +14,7 @@
+>  
+>  void __xchg_called_with_bad_pointer(void);
+>  
+> -static __always_inline unsigned long __xchg(unsigned long x,
+> +static __always_inline unsigned long __arch_xchg(unsigned long x,
+>  					    unsigned long address, int size)
 
-[ Upstream commit aeec8193578a71d0aee21218351849d38121ce90 ]
+Please adjust the alignment of the second line.
 
-Wire up TIF_NOTIFY_SIGNAL handling for hexagon.
+> @@ -77,7 +77,7 @@ static __always_inline unsigned long __xchg(unsigned long x,
+>  	__typeof__(*(ptr)) __ret;					\
+>  									\
+>  	__ret = (__typeof__(*(ptr)))					\
+> -		__xchg((unsigned long)(x), (unsigned long)(ptr),	\
+> +		__arch_xchg((unsigned long)(x), (unsigned long)(ptr),	\
+>  		       sizeof(*(ptr)));					\
 
-Cc: linux-hexagon@vger.kernel.org
-Acked-by: Brian Cain <bcain@codeaurora.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/hexagon/include/asm/thread_info.h |    2 ++
- arch/hexagon/kernel/process.c          |    2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+Same here.
 
---- a/arch/hexagon/include/asm/thread_info.h
-+++ b/arch/hexagon/include/asm/thread_info.h
-@@ -95,6 +95,7 @@ register struct thread_info *__current_t
- #define TIF_NEED_RESCHED        3       /* rescheduling necessary */
- #define TIF_SINGLESTEP          4       /* restore ss @ return to usr mode */
- #define TIF_RESTORE_SIGMASK     6       /* restore sig mask in do_signal() */
-+#define TIF_NOTIFY_SIGNAL	7       /* signal notifications exist */
- /* true if poll_idle() is polling TIF_NEED_RESCHED */
- #define TIF_MEMDIE              17      /* OOM killer killed process */
- 
-@@ -103,6 +104,7 @@ register struct thread_info *__current_t
- #define _TIF_SIGPENDING         (1 << TIF_SIGPENDING)
- #define _TIF_NEED_RESCHED       (1 << TIF_NEED_RESCHED)
- #define _TIF_SINGLESTEP         (1 << TIF_SINGLESTEP)
-+#define _TIF_NOTIFY_SIGNAL	(1 << TIF_NOTIFY_SIGNAL)
- 
- /* work to do on interrupt/exception return - All but TIF_SYSCALL_TRACE */
- #define _TIF_WORK_MASK          (0x0000FFFF & ~_TIF_SYSCALL_TRACE)
---- a/arch/hexagon/kernel/process.c
-+++ b/arch/hexagon/kernel/process.c
-@@ -174,7 +174,7 @@ int do_work_pending(struct pt_regs *regs
- 		return 1;
- 	}
- 
--	if (thread_info_flags & _TIF_SIGPENDING) {
-+	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL)) {
- 		do_signal(regs);
- 		return 1;
- 	}
-
-
+The same is true for a couple of other architectures - not sure if
+they care however.
