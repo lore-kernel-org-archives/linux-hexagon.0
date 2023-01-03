@@ -1,55 +1,67 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v5 2/9] bitops: always define asm-generic non-atomic
- bitops
-Date: Mon, 2 Jan 2023 19:24:30 +0200
-Message-ID: <Y7MTTtlDCottjQi1@smile.fi.intel.com>
-References: <20220624121313.2382500-1-alexandr.lobakin@intel.com>
- <20220624121313.2382500-3-alexandr.lobakin@intel.com>
- <Y7MC5/wxgGZz/met@boxer>
- <20230102163059.3556962-1-alexandr.lobakin@intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 5.10 30/63] hexagon: add support for TIF_NOTIFY_SIGNAL
+Date: Tue,  3 Jan 2023 09:14:00 +0100
+Message-ID: <20230103081310.386730622@linuxfoundation.org>
+References: <20230103081308.548338576@linuxfoundation.org>
 Mime-Version: 1.0
-Return-path: <linux-sh-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1672680284; x=1704216284;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=6MsclmYEbFQLTFumk27drrI0fnEhnwF05BH3vrcK1XM=;
-  b=Zuu0P2qceyuck5L3YA/oO/w+5y5QRYkCcYNfbk5pwlE0gZtMBOg5xHrt
-   QpH6M8QfT8h7GK7VhQuJU/5iL46+7D559BMoCuC3QPZFigBHJthVOBTE9
-   Z3MHa3i1VWacAEcl4GSibn5uH4PfDBDtVdYHqtuQ2o1dnu4BYRQtj5cOe
-   yGVlbf9rC60Tup8plc0P5VSLrR4ge9fo/yEPozIXsYJdDFCXnjSHYcsI1
-   QQjN8WqJkAkDBvzV4KxqUSh/cLwdtoIGUYfU3Aenw47d5VIijriMzy/8s
-   g+UyORqtyvyX2bLY6PtKYhp8+XvDM45ZwD83yN1QvWFlRwTjNLWo1Jm33
-   A==;
-Content-Disposition: inline
-In-Reply-To: <20230102163059.3556962-1-alexandr.lobakin@intel.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1672733747;
+        bh=lVkhJSuC3IowY6x05isk2+fmIZYOlISTPGIA+JFIPO0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SUMF+1uI4I/GMUYDhyB+Hngtoe3vxWxcab3114NIWjO1ReXzkoFNOziz6A29kmpbt
+         e3hX0n4IJ5qJX0uPKL5jRcX8tDDXMGF6cwMzX75k2oQZ/PmQZ9+wJWYro17iJ7lW3c
+         RxLSVxDwJRlLKRnRELdrZfCYjTVxl0Dv0GpZ2Bzw=
+In-Reply-To: <20230103081308.548338576@linuxfoundation.org>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc: Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Arnd Bergmann <arnd@arndb.de>, Yury Norov <yury.norov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matt Turner <mattst88@gmail.com>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Kees Cook <keescook@chromium.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Marco Elver <elver@google.com>, Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, Tom Rix <>
+To: stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, patches@lists.linux.dev, linux-hexagon@vger.kernel.org, Brian Cain <bcain@codeaurora.org>, Jens Axboe <axboe@kernel.dk>
 
-On Mon, Jan 02, 2023 at 05:30:59PM +0100, Alexander Lobakin wrote:
-> From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-> Date: Mon, 2 Jan 2023 17:14:31 +0100
-> > On Fri, Jun 24, 2022 at 02:13:06PM +0200, Alexander Lobakin wrote:
+From: Jens Axboe <axboe@kernel.dk>
 
-> > this patch gives me a headache when trying to run sparse against a module.
+[ Upstream commit aeec8193578a71d0aee21218351849d38121ce90 ]
 
-No, it's not related to this patch.
+Wire up TIF_NOTIFY_SIGNAL handling for hexagon.
 
-> > Olek please help :D
-> 
-> It was fixed shortly after the build bots turned on on the original
-> series with [0]. Hovewer, no release tag's been made after the fix.
-> There's also a short discussion regarding packaging Sparse 0.6.4 for
-> Debian with that fix cherry-picked[1], not sure if it led anywhere.
+Cc: linux-hexagon@vger.kernel.org
+Acked-by: Brian Cain <bcain@codeaurora.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/hexagon/include/asm/thread_info.h |    2 ++
+ arch/hexagon/kernel/process.c          |    2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-Debian already fixed that for a few weeks at least.
-
--- 
-With Best Regards,
-Andy Shevchenko
+--- a/arch/hexagon/include/asm/thread_info.h
++++ b/arch/hexagon/include/asm/thread_info.h
+@@ -95,6 +95,7 @@ register struct thread_info *__current_t
+ #define TIF_NEED_RESCHED        3       /* rescheduling necessary */
+ #define TIF_SINGLESTEP          4       /* restore ss @ return to usr mode */
+ #define TIF_RESTORE_SIGMASK     6       /* restore sig mask in do_signal() */
++#define TIF_NOTIFY_SIGNAL	7       /* signal notifications exist */
+ /* true if poll_idle() is polling TIF_NEED_RESCHED */
+ #define TIF_MEMDIE              17      /* OOM killer killed process */
+ 
+@@ -103,6 +104,7 @@ register struct thread_info *__current_t
+ #define _TIF_SIGPENDING         (1 << TIF_SIGPENDING)
+ #define _TIF_NEED_RESCHED       (1 << TIF_NEED_RESCHED)
+ #define _TIF_SINGLESTEP         (1 << TIF_SINGLESTEP)
++#define _TIF_NOTIFY_SIGNAL	(1 << TIF_NOTIFY_SIGNAL)
+ 
+ /* work to do on interrupt/exception return - All but TIF_SYSCALL_TRACE */
+ #define _TIF_WORK_MASK          (0x0000FFFF & ~_TIF_SYSCALL_TRACE)
+--- a/arch/hexagon/kernel/process.c
++++ b/arch/hexagon/kernel/process.c
+@@ -174,7 +174,7 @@ int do_work_pending(struct pt_regs *regs
+ 		return 1;
+ 	}
+ 
+-	if (thread_info_flags & _TIF_SIGPENDING) {
++	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL)) {
+ 		do_signal(regs);
+ 		return 1;
+ 	}
 
 
