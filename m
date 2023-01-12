@@ -1,26 +1,26 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v3 30/51] cpuidle,xenpv: Make more PARAVIRT_XXL noinstr clean
-Date: Thu, 12 Jan 2023 20:43:44 +0100
-Message-ID: <20230112195541.171918174@infradead.org>
+Subject: [PATCH v3 34/51] trace: WARN on rcuidle
+Date: Thu, 12 Jan 2023 20:43:48 +0100
+Message-ID: <20230112195541.416110581@infradead.org>
 References: <20230112194314.845371875@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 48D5541870
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 73165417CF
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7C7A760E48
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 821BE60E71
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CEACA416CE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 284CD41522
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C41AB4119C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 506C541181
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+ d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=el0CIt1mM51BvZPcHKbhuF9lp1fNYUjgpLSAPy3Ccmg=; b=tvBa36On1tgPpOho7ahgpRDeA7
- VD3Q9HQ4f3Ej4oPbH9YxtMDqs5HyC7lkDZn5vZGB8d3WSo7Z1P9FBFIVms0pz6CgWqRMwrRb15Bsd
- lcLK8h29qqcDlNe6qJc92nfUkYJF7ntrSRabmmAT0/kBKe4lowjWasVtTUzitfMJgum2PFTCW7aib
- lFuw51y9ho3hcp236ghfxyTUTs/4QMwB9E3vY+71ARt47IMDlRnGyVA8rTrEzFDXZ7wxABkQRw7/I
- LNpFhK1ipzOKKwI7x97Ns9z0W+cf/xTT0i7yl5EA14WEDj8/hFqG3cHumvt8KUylgEvg9o+NcZc6z
- iBVAM65A==;
+ bh=BAfnvD9cLrzo61xSnZTsQNCRnrvqWps/XpXHA7FoM0k=; b=H7KH+Z08RTaT/3t06vLCizvkOG
+ Nl80fuaYr06fmNux1Mx9qtYbuwqPX3UIm8aftX5Z28NOSi2Mj7BunBpu5fAFoNnbe42np6v2RdXQ3
+ SsfqtFqcG9qi0lyDVOoDELfYVw4hTQlnjw9EXtt56vdDtyaKEp2Xa2RVM+DXP4oJW61oMArRyeeJ0
+ ilQmOrnOonRkmnKqBoOTtnaRQcwrM4jm6DFFkWE7NCRk2QdP8h1Fs9cERrbXc91ROvdPufdHKZpV7
+ QvcZXHXDtmJlQQByg/agmBAC+3sVjR/N/VTls/IF9+ePAkX1RGUky+6xWZXvuRPrOisPJZlzBILYP
+ znwmGuiA==;
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,142 +34,59 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: peterz@infradead.org
 Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org, nsekhar@ti.com, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org, linux-samsung-soc@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.
 
-vmlinux.o: warning: objtool: acpi_idle_enter_s2idle+0xde: call to wbinvd() leaves .noinstr.text section
-vmlinux.o: warning: objtool: default_idle+0x4: call to arch_safe_halt() leaves .noinstr.text section
-vmlinux.o: warning: objtool: xen_safe_halt+0xa: call to HYPERVISOR_sched_op.constprop.0() leaves .noinstr.text section
+ARCH_WANTS_NO_INSTR (a superset of CONFIG_GENERIC_ENTRY) disallows any
+and all tracing when RCU isn't enabled.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-Reviewed-by: Juergen Gross <jgross@suse.com>
 Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Acked-by: Frederic Weisbecker <frederic@kernel.org>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- arch/x86/include/asm/paravirt.h      |    6 ++++--
- arch/x86/include/asm/special_insns.h |    4 ++--
- arch/x86/include/asm/xen/hypercall.h |    2 +-
- arch/x86/kernel/paravirt.c           |   14 ++++++++++++--
- arch/x86/xen/enlighten_pv.c          |    2 +-
- arch/x86/xen/irq.c                   |    2 +-
- 6 files changed, 21 insertions(+), 9 deletions(-)
+ include/linux/tracepoint.h |   15 +++++++++++++--
+ kernel/trace/trace.c       |    3 +++
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -168,7 +168,7 @@ static inline void __write_cr4(unsigned
- 	PVOP_VCALL1(cpu.write_cr4, x);
- }
+--- a/include/linux/tracepoint.h
++++ b/include/linux/tracepoint.h
+@@ -178,6 +178,17 @@ static inline struct tracepoint *tracepo
+ #endif /* CONFIG_HAVE_STATIC_CALL */
  
--static inline void arch_safe_halt(void)
-+static __always_inline void arch_safe_halt(void)
- {
- 	PVOP_VCALL0(irq.safe_halt);
- }
-@@ -178,7 +178,9 @@ static inline void halt(void)
- 	PVOP_VCALL0(irq.halt);
- }
- 
--static inline void wbinvd(void)
-+extern noinstr void pv_native_wbinvd(void);
+ /*
++ * ARCH_WANTS_NO_INSTR archs are expected to have sanitized entry and idle
++ * code that disallow any/all tracing/instrumentation when RCU isn't watching.
++ */
++#ifdef CONFIG_ARCH_WANTS_NO_INSTR
++#define RCUIDLE_COND(rcuidle)	(rcuidle)
++#else
++/* srcu can't be used from NMI */
++#define RCUIDLE_COND(rcuidle)	(rcuidle && in_nmi())
++#endif
 +
-+static __always_inline void wbinvd(void)
- {
- 	PVOP_ALT_VCALL0(cpu.wbinvd, "wbinvd", ALT_NOT(X86_FEATURE_XENPV));
- }
---- a/arch/x86/include/asm/special_insns.h
-+++ b/arch/x86/include/asm/special_insns.h
-@@ -115,7 +115,7 @@ static inline void wrpkru(u32 pkru)
- }
- #endif
++/*
+  * it_func[0] is never NULL because there is at least one element in the array
+  * when the array itself is non NULL.
+  */
+@@ -188,8 +199,8 @@ static inline struct tracepoint *tracepo
+ 		if (!(cond))						\
+ 			return;						\
+ 									\
+-		/* srcu can't be used from NMI */			\
+-		WARN_ON_ONCE(rcuidle && in_nmi());			\
++		if (WARN_ON_ONCE(RCUIDLE_COND(rcuidle)))		\
++			return;						\
+ 									\
+ 		/* keep srcu and sched-rcu usage consistent */		\
+ 		preempt_disable_notrace();				\
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -3119,6 +3119,9 @@ void __trace_stack(struct trace_array *t
+ 		return;
+ 	}
  
--static inline void native_wbinvd(void)
-+static __always_inline void native_wbinvd(void)
- {
- 	asm volatile("wbinvd": : :"memory");
- }
-@@ -179,7 +179,7 @@ static inline void __write_cr4(unsigned
- 	native_write_cr4(x);
- }
- 
--static inline void wbinvd(void)
-+static __always_inline void wbinvd(void)
- {
- 	native_wbinvd();
- }
---- a/arch/x86/include/asm/xen/hypercall.h
-+++ b/arch/x86/include/asm/xen/hypercall.h
-@@ -382,7 +382,7 @@ MULTI_stack_switch(struct multicall_entr
- }
- #endif
- 
--static inline int
-+static __always_inline int
- HYPERVISOR_sched_op(int cmd, void *arg)
- {
- 	return _hypercall2(int, sched_op, cmd, arg);
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -233,6 +233,11 @@ static noinstr void pv_native_set_debugr
- 	native_set_debugreg(regno, val);
- }
- 
-+noinstr void pv_native_wbinvd(void)
-+{
-+	native_wbinvd();
-+}
++	if (WARN_ON_ONCE(IS_ENABLED(CONFIG_GENERIC_ENTRY)))
++		return;
 +
- static noinstr void pv_native_irq_enable(void)
- {
- 	native_irq_enable();
-@@ -242,6 +247,11 @@ static noinstr void pv_native_irq_disabl
- {
- 	native_irq_disable();
- }
-+
-+static noinstr void pv_native_safe_halt(void)
-+{
-+	native_safe_halt();
-+}
- #endif
- 
- enum paravirt_lazy_mode paravirt_get_lazy_mode(void)
-@@ -273,7 +283,7 @@ struct paravirt_patch_template pv_ops =
- 	.cpu.read_cr0		= native_read_cr0,
- 	.cpu.write_cr0		= native_write_cr0,
- 	.cpu.write_cr4		= native_write_cr4,
--	.cpu.wbinvd		= native_wbinvd,
-+	.cpu.wbinvd		= pv_native_wbinvd,
- 	.cpu.read_msr		= native_read_msr,
- 	.cpu.write_msr		= native_write_msr,
- 	.cpu.read_msr_safe	= native_read_msr_safe,
-@@ -307,7 +317,7 @@ struct paravirt_patch_template pv_ops =
- 	.irq.save_fl		= __PV_IS_CALLEE_SAVE(native_save_fl),
- 	.irq.irq_disable	= __PV_IS_CALLEE_SAVE(pv_native_irq_disable),
- 	.irq.irq_enable		= __PV_IS_CALLEE_SAVE(pv_native_irq_enable),
--	.irq.safe_halt		= native_safe_halt,
-+	.irq.safe_halt		= pv_native_safe_halt,
- 	.irq.halt		= native_halt,
- #endif /* CONFIG_PARAVIRT_XXL */
- 
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1019,7 +1019,7 @@ static const typeof(pv_ops) xen_cpu_ops
- 
- 		.write_cr4 = xen_write_cr4,
- 
--		.wbinvd = native_wbinvd,
-+		.wbinvd = pv_native_wbinvd,
- 
- 		.read_msr = xen_read_msr,
- 		.write_msr = xen_write_msr,
---- a/arch/x86/xen/irq.c
-+++ b/arch/x86/xen/irq.c
-@@ -24,7 +24,7 @@ noinstr void xen_force_evtchn_callback(v
- 	(void)HYPERVISOR_xen_version(0, NULL);
- }
- 
--static void xen_safe_halt(void)
-+static noinstr void xen_safe_halt(void)
- {
- 	/* Blocking includes an implicit local_irq_enable(). */
- 	if (HYPERVISOR_sched_op(SCHEDOP_block, NULL) != 0)
+ 	/*
+ 	 * When an NMI triggers, RCU is enabled via ct_nmi_enter(),
+ 	 * but if the above rcu_is_watching() failed, then the NMI
