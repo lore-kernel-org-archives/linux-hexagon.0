@@ -1,86 +1,85 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v3 15/51] acpi_idle: Remove tracing
-Date: Thu, 12 Jan 2023 20:43:29 +0100
-Message-ID: <20230112195540.251666856@infradead.org>
+Subject: [PATCH v3 23/51] arm,smp: Remove trace_.*_rcuidle() usage
+Date: Thu, 12 Jan 2023 20:43:37 +0100
+Message-ID: <20230112195540.743432118@infradead.org>
 References: <20230112194314.845371875@infradead.org>
 Mime-Version: 1.0
-Return-path: <linux-m68k-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
-        Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
-        Content-ID:Content-Description:In-Reply-To;
-        bh=N/LoJ6QokuvkgqrdUyeUyAC9uk5r3NGpRlHTjN0UEk8=; b=T8OnHc73dEliAoWK/xch6i2J7U
-        UMPcH7C3wey9SZCz29M3TnVGeV/W9jC6hfvxLiKRMqnquFKPM6nid5EbmG5dczPvuD2DZ3rsJb8bh
-        1B5YEftBb1n98ERVSHO05+IatfdS4u87KvvQGiPoj8rifuEdsA4srZC4wIENwPRAVZsXaUzY4luW4
-        Zenh892eKzf2pgbhojQV6wJdtmIWgpRiTZY36OvBCfqI5tc8YiwERNFtaxcfar59LGMt3V5FwEWxd
-        1IYeXc/xNHpxnwh58Sqsesvu7xJ/zUZBM+XUWlSRPervhZPQ3w6Fk9QTn2mJpsRI+pQDUPSrD9z7J
-        4u6HFEyw==;
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2914481FD1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 628EE81FAC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 17C6F41151
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E8661405F3
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+ Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
+ Content-ID:Content-Description:In-Reply-To;
+ bh=Hsr5V6aaf/kVSU2t73jNDRAWfLY8tgaZMY/8xmM8jWo=; b=gQ7Q9SfcfOCGLlvaFWMPSlQDV4
+ uKjocE/2Y34Nr3Jz761/H3K8ref7D/RHB23EoGkYYy1xOk3Feint61cmEzrTeJs9pKFsRiW2qqfOc
+ a15g0aXUVDz0ZDo2MzRyxqBDaXdm6wfbxfKkhacFzf0dnqhRTBbnGYC0Ol79TQuuLMUcvUsmgrQsq
+ Yw8OLwDnAiMOrgLy6Ivt5nddQwxIy8BHKaVFy+WqtLrCrntFsEUj0zjrnvFhZolV0YjTu4WNDYy9/
+ lDKMy9PbKPpnqJnECPubZ+WdVv92KEL7klGQq9pXFCJdS/Q4cXnTA6nMiHYLM5YqQGCUzlZ7euq5h
+ XbhFNewA==;
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: peterz@infradead.org
-Cc: richard.henderson@linaro.org, ink@jurassic.park.msu.ru, mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk, nsekhar@ti.com, brgl@bgdev.pl, ulli.kroll@googlemail.com, linus.walleij@linaro.org, shawnguo@kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com, khilman@kernel.org, krzysztof.kozlowski@linaro.org, alim.akhtar@samsung.com, catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, mpe@ellerman.id.au
+Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org, nsekhar@ti.com, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org, linux-samsung-soc@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.
 
-All the idle routines are called with RCU disabled, as such there must
-not be any tracing inside.
+None of these functions should ever be ran with RCU disabled anymore.
 
-While there; clean-up the io-port idle thing.
+Specifically, do_handle_IPI() is only called from handle_IPI() which
+explicitly does irq_enter()/irq_exit() which ensures RCU is watching.
+
+The problem with smp_cross_call() was, per commit 7c64cc0531fa ("arm: Use
+_rcuidle for smp_cross_call() tracepoints"), that
+cpuidle_enter_state_coupled() already had RCU disabled, but that's
+long been fixed by commit 1098582a0f6c ("sched,idle,rcu: Push rcu_idle
+deeper into the idle path").
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Acked-by: Frederic Weisbecker <frederic@kernel.org>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- drivers/acpi/processor_idle.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/arm/kernel/smp.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -109,8 +109,8 @@ static const struct dmi_system_id proces
- static void __cpuidle acpi_safe_halt(void)
- {
- 	if (!tif_need_resched()) {
--		safe_halt();
--		local_irq_disable();
-+		raw_safe_halt();
-+		raw_local_irq_disable();
- 	}
- }
+--- a/arch/arm/kernel/smp.c
++++ b/arch/arm/kernel/smp.c
+@@ -639,7 +639,7 @@ static void do_handle_IPI(int ipinr)
+ 	unsigned int cpu = smp_processor_id();
  
-@@ -525,8 +525,11 @@ static int acpi_idle_bm_check(void)
- 	return bm_status;
- }
+ 	if ((unsigned)ipinr < NR_IPI)
+-		trace_ipi_entry_rcuidle(ipi_types[ipinr]);
++		trace_ipi_entry(ipi_types[ipinr]);
  
--static void wait_for_freeze(void)
-+static __cpuidle void io_idle(unsigned long addr)
- {
-+	/* IO port based C-state */
-+	inb(addr);
-+
- #ifdef	CONFIG_X86
- 	/* No delay is needed if we are in guest */
- 	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-@@ -571,9 +574,7 @@ static void __cpuidle acpi_idle_do_entry
- 	} else if (cx->entry_method == ACPI_CSTATE_HALT) {
- 		acpi_safe_halt();
- 	} else {
--		/* IO port based C-state */
--		inb(cx->address);
--		wait_for_freeze();
-+		io_idle(cx->address);
+ 	switch (ipinr) {
+ 	case IPI_WAKEUP:
+@@ -686,7 +686,7 @@ static void do_handle_IPI(int ipinr)
  	}
  
- 	perf_lopwr_cb(false);
-@@ -595,8 +596,7 @@ static int acpi_idle_play_dead(struct cp
- 		if (cx->entry_method == ACPI_CSTATE_HALT)
- 			safe_halt();
- 		else if (cx->entry_method == ACPI_CSTATE_SYSTEMIO) {
--			inb(cx->address);
--			wait_for_freeze();
-+			io_idle(cx->address);
- 		} else
- 			return -ENODEV;
+ 	if ((unsigned)ipinr < NR_IPI)
+-		trace_ipi_exit_rcuidle(ipi_types[ipinr]);
++		trace_ipi_exit(ipi_types[ipinr]);
+ }
  
-
-
+ /* Legacy version, should go away once all irqchips have been converted */
+@@ -709,7 +709,7 @@ static irqreturn_t ipi_handler(int irq,
+ 
+ static void smp_cross_call(const struct cpumask *target, unsigned int ipinr)
+ {
+-	trace_ipi_raise_rcuidle(target, ipi_types[ipinr]);
++	trace_ipi_raise(target, ipi_types[ipinr]);
+ 	__ipi_send_mask(ipi_desc[ipinr], target);
+ }
