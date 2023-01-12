@@ -1,26 +1,26 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v3 25/51] printk: Remove trace_.*_rcuidle() usage
-Date: Thu, 12 Jan 2023 20:43:39 +0100
-Message-ID: <20230112195540.865735001@infradead.org>
+Subject: [PATCH v3 09/51] cpuidle,omap3: Push RCU-idle into driver
+Date: Thu, 12 Jan 2023 20:43:23 +0100
+Message-ID: <20230112195539.883561913@infradead.org>
 References: <20230112194314.845371875@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7013041199
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C3006414EA
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 32606417B3
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0BE8541799
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C44EA414EC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DE6BA414E4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D85EB60E96
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CF09360E00
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=mHHfLn3ZXDs7+W84iYI4l64Hgzvzv2j66VWrzu7dGbw=; b=kYTEx0rzU1SllruehA0y8yHATb
- IJE4wnYq/dRbQHRcZnpN0OXGHrGk0U7J3N0VBj+JSbpdQwQu+8TKRK5iCmxygpxvyweDkZe5UIvKY
- MwOlwaQnkBOYRnYTKRZAqS1YnWNOV444ewGH4wdgTge715r6fQsvhW/ij5f47Qprmcr4wA7JNnstB
- e/bXihOVRgcSCgn0rMMHufr9/fNUf4QdhZFePtfdiRCc6x7c+0SOJjOnT1sc/ENafw33wlDFA9nsH
- 0IaR/32BenV0BuTP4t5UZWueg7KT2qaj1MvjhfzmYn2Z4T4bkLiG8Dkn01Xo2lHx6f+yFLnWfJon6
- ooD7L92g==;
+ bh=RrpmTujnodPvC1LE/jXScgO4ZKUrxiQVlZ4+SEf4m04=; b=Y8LFyBFl3JbIwtnCWjFL/hhR5y
+ twnVLexiBK1ooMbeDatb6RWwBocZW13sf5pirkWAWAH1nsW2rgd7ecx2Gc/qOdtvY6YZxKvumRcTm
+ amulB5kgeQbRdQF87cEBBGyv4iJlugiK9kXbD+c92ulURa+BZ+6IgO0Q1qr4EELRq9g05K3UaslzX
+ AWK5oxOOelmKqL4CSrymA461jkib6Q12hrzk8J/XFrR76pcWqThQ8X70scSBkUeWz1SP2e4AHdemR
+ 4sJ92NwETWbqsv5J5iWtGkWZGwcWClLra0VFFumQGPO8rMb8BpC/UsbZk6Ohp1wUq3mHnYc2/nqyR
+ 7VPa7mnA==;
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,31 +34,142 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: peterz@infradead.org
 Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org, nsekhar@ti.com, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com, linux-arch@vger.kernel.org, linux-samsung-soc@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com, linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de, linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.
 
-The problem, per commit fc98c3c8c9dc ("printk: use rcuidle console
-tracepoint"), was printk usage from the cpuidle path where RCU was
-already disabled.
+Doing RCU-idle outside the driver, only to then teporarily enable it
+again before going idle is daft.
 
-Per the patches earlier in this series, this is no longer the case.
+Notably the cpu_pm_*() calls implicitly re-enable RCU for a bit.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Acked-by: Petr Mladek <pmladek@suse.com>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
 Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- kernel/printk/printk.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-omap2/cpuidle34xx.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -2238,7 +2238,7 @@ static u16 printk_sprint(char *text, u16
- 		}
+--- a/arch/arm/mach-omap2/cpuidle34xx.c
++++ b/arch/arm/mach-omap2/cpuidle34xx.c
+@@ -133,7 +133,9 @@ static int omap3_enter_idle(struct cpuid
  	}
  
--	trace_console_rcuidle(text, text_len);
-+	trace_console(text, text_len);
+ 	/* Execute ARM wfi */
++	ct_idle_enter();
+ 	omap_sram_idle();
++	ct_idle_exit();
  
- 	return text_len;
- }
+ 	/*
+ 	 * Call idle CPU PM enter notifier chain to restore
+@@ -265,6 +267,7 @@ static struct cpuidle_driver omap3_idle_
+ 	.owner            = THIS_MODULE,
+ 	.states = {
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 2 + 2,
+ 			.target_residency = 5,
+@@ -272,6 +275,7 @@ static struct cpuidle_driver omap3_idle_
+ 			.desc		  = "MPU ON + CORE ON",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 10 + 10,
+ 			.target_residency = 30,
+@@ -279,6 +283,7 @@ static struct cpuidle_driver omap3_idle_
+ 			.desc		  = "MPU ON + CORE ON",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 50 + 50,
+ 			.target_residency = 300,
+@@ -286,6 +291,7 @@ static struct cpuidle_driver omap3_idle_
+ 			.desc		  = "MPU RET + CORE ON",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 1500 + 1800,
+ 			.target_residency = 4000,
+@@ -293,6 +299,7 @@ static struct cpuidle_driver omap3_idle_
+ 			.desc		  = "MPU OFF + CORE ON",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 2500 + 7500,
+ 			.target_residency = 12000,
+@@ -300,6 +307,7 @@ static struct cpuidle_driver omap3_idle_
+ 			.desc		  = "MPU RET + CORE RET",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 3000 + 8500,
+ 			.target_residency = 15000,
+@@ -307,6 +315,7 @@ static struct cpuidle_driver omap3_idle_
+ 			.desc		  = "MPU OFF + CORE RET",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 10000 + 30000,
+ 			.target_residency = 30000,
+@@ -328,6 +337,7 @@ static struct cpuidle_driver omap3430_id
+ 	.owner            = THIS_MODULE,
+ 	.states = {
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 110 + 162,
+ 			.target_residency = 5,
+@@ -335,6 +345,7 @@ static struct cpuidle_driver omap3430_id
+ 			.desc		  = "MPU ON + CORE ON",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 106 + 180,
+ 			.target_residency = 309,
+@@ -342,6 +353,7 @@ static struct cpuidle_driver omap3430_id
+ 			.desc		  = "MPU ON + CORE ON",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 107 + 410,
+ 			.target_residency = 46057,
+@@ -349,6 +361,7 @@ static struct cpuidle_driver omap3430_id
+ 			.desc		  = "MPU RET + CORE ON",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 121 + 3374,
+ 			.target_residency = 46057,
+@@ -356,6 +369,7 @@ static struct cpuidle_driver omap3430_id
+ 			.desc		  = "MPU OFF + CORE ON",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 855 + 1146,
+ 			.target_residency = 46057,
+@@ -363,6 +377,7 @@ static struct cpuidle_driver omap3430_id
+ 			.desc		  = "MPU RET + CORE RET",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 7580 + 4134,
+ 			.target_residency = 484329,
+@@ -370,6 +385,7 @@ static struct cpuidle_driver omap3430_id
+ 			.desc		  = "MPU OFF + CORE RET",
+ 		},
+ 		{
++			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
+ 			.enter		  = omap3_enter_idle_bm,
+ 			.exit_latency	  = 7505 + 15274,
+ 			.target_residency = 484329,
