@@ -1,80 +1,84 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH mm-unstable v1 15/26] openrisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Date: Fri, 13 Jan 2023 18:10:15 +0100
-Message-ID: <20230113171026.582290-16-david@redhat.com>
+Subject: [PATCH mm-unstable v1 16/26] parisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+Date: Fri, 13 Jan 2023 18:10:16 +0100
+Message-ID: <20230113171026.582290-17-david@redhat.com>
 References: <20230113171026.582290-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-mips-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1673629955;
+        s=mimecast20190719; t=1673629965;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Yg5//Yy7TNKL4+cSLuxDja5DgwYoaRFdwhUA2l2XqT4=;
-        b=ES3/J6ALLCtICPbWQrvAaaIGJragz5N/34ligGplzqt5SnAf8d0pxTfRWLP0fonOuQr+wr
-        VJOCZzqop2QIsasLOWZyu8bgCLRLrY7+aiAxsR+d4gN3bHmfl/im7MWqBh6GnUyY9XVSiX
-        QFtJvjc4Yj4A6galdaJ+1cDKeJaq8ls=
+        bh=Nb3/Kg+q8w8ft77T7rabV7x4+F6BGLijJ0EWAhVZvAg=;
+        b=PvWbSgSj1Pb/HzwrpJl313SFmEop6NUCj5Me3BEFdCqKaX/ekAx8yId8pHyUFMnpBvTKys
+        GAURXpT6Qlm4f/qw5vbrliXw9tQ+fT+knDi3Yo6Nwy5KZO7CzY1ta0hulurXzf4rkjXGkG
+        dnqf3PaXXGRaH4MHOiV/LGEjlrw0cnU=
 In-Reply-To: <20230113171026.582290-1-david@redhat.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>, John Hubbard <jhubbard@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>, Mike Rapoport <rppt@linux.ibm.com>, Yang Shi <shy828301@gmail.com>, Vlastimil Babka <vbabka@suse.cz>, Nadav Amit <namit@vmware.com>, Andrea Arcangeli <aarcange@redhat.com>, Peter Xu <peterx@redhat.com>, linux-mm@kvack.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux
 
-Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit
-from the type. Generic MM currently only uses 5 bits for the type
-(MAX_SWAPFILES_SHIFT), so the stolen bit is effectively unused.
+Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by using the yet-unused
+_PAGE_ACCESSED location in the swap PTE. Looking at pte_present()
+and pte_none() checks, there seems to be no actual reason why we cannot
+use it: we only have to make sure we're not using _PAGE_PRESENT.
 
-While at it, mask the type in __swp_entry().
+Reusing this bit avoids having to steal one bit from the swap offset.
 
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/openrisc/include/asm/pgtable.h | 41 +++++++++++++++++++++++++----
- 1 file changed, 36 insertions(+), 5 deletions(-)
+ arch/parisc/include/asm/pgtable.h | 41 ++++++++++++++++++++++++++++---
+ 1 file changed, 38 insertions(+), 3 deletions(-)
 
-diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
-index 6477c17b3062..903b32d662ab 100644
---- a/arch/openrisc/include/asm/pgtable.h
-+++ b/arch/openrisc/include/asm/pgtable.h
-@@ -154,6 +154,9 @@ extern void paging_init(void);
- #define _KERNPG_TABLE \
- 	(_PAGE_BASE | _PAGE_SRE | _PAGE_SWE | _PAGE_ACCESSED | _PAGE_DIRTY)
+diff --git a/arch/parisc/include/asm/pgtable.h b/arch/parisc/include/asm/pgtable.h
+index ea357430aafe..3033bb88df34 100644
+--- a/arch/parisc/include/asm/pgtable.h
++++ b/arch/parisc/include/asm/pgtable.h
+@@ -218,6 +218,9 @@ extern void __update_cache(pte_t pte);
+ #define _PAGE_KERNEL_RWX	(_PAGE_KERNEL_EXEC | _PAGE_WRITE)
+ #define _PAGE_KERNEL		(_PAGE_KERNEL_RO | _PAGE_WRITE)
  
-+/* We borrow bit 11 to store the exclusive marker in swap PTEs. */
-+#define _PAGE_SWP_EXCLUSIVE	_PAGE_U_SHARED
++/* We borrow bit 23 to store the exclusive marker in swap PTEs. */
++#define _PAGE_SWP_EXCLUSIVE	_PAGE_ACCESSED
 +
- #define PAGE_NONE       __pgprot(_PAGE_ALL)
- #define PAGE_READONLY   __pgprot(_PAGE_ALL | _PAGE_URE | _PAGE_SRE)
- #define PAGE_READONLY_X __pgprot(_PAGE_ALL | _PAGE_URE | _PAGE_SRE | _PAGE_EXEC)
-@@ -385,16 +388,44 @@ static inline void update_mmu_cache(struct vm_area_struct *vma,
+ /* The pgd/pmd contains a ptr (in phys addr space); since all pgds/pmds
+  * are page-aligned, we don't care about the PAGE_OFFSET bits, except
+  * for a few meta-information bits, so we shift the address to be
+@@ -394,17 +397,49 @@ extern void paging_init (void);
  
- /* __PHX__ FIXME, SWAP, this probably doesn't work */
+ #define update_mmu_cache(vms,addr,ptep) __update_cache(*ptep)
  
--/* Encode and de-code a swap entry (must be !pte_none(e) && !pte_present(e)) */
--/* Since the PAGE_PRESENT bit is bit 4, we can use the bits above */
+-/* Encode and de-code a swap entry */
 -
--#define __swp_type(x)			(((x).val >> 5) & 0x7f)
 +/*
 + * Encode/decode swap entries and swap PTEs. Swap PTEs are all PTEs that
 + * are !pte_none() && !pte_present().
 + *
-+ * Format of swap PTEs:
++ * Format of swap PTEs (32bit):
 + *
-+ *   3 3 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1
-+ *   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
-+ *   <-------------- offset ---------------> E <- type --> 0 0 0 0 0
++ *                         1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
++ *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++ *   <---------------- offset -----------------> P E <ofs> < type ->
 + *
 + *   E is the exclusive marker that is not stored in swap entries.
-+ *   The zero'ed bits include _PAGE_PRESENT.
++ *   _PAGE_PRESENT (P) must be 0.
++ *
++ *   For the 64bit version, the offset is extended by 32bit.
 + */
-+#define __swp_type(x)			(((x).val >> 5) & 0x3f)
- #define __swp_offset(x)			((x).val >> 12)
- #define __swp_entry(type, offset) \
--	((swp_entry_t) { ((type) << 5) | ((offset) << 12) })
-+	((swp_entry_t) { (((type) & 0x3f) << 5) | ((offset) << 12) })
+ #define __swp_type(x)                     ((x).val & 0x1f)
+ #define __swp_offset(x)                   ( (((x).val >> 6) &  0x7) | \
+ 					  (((x).val >> 8) & ~0x7) )
+-#define __swp_entry(type, offset)         ((swp_entry_t) { (type) | \
++#define __swp_entry(type, offset)         ((swp_entry_t) { \
++					    ((type) & 0x1f) | \
+ 					    ((offset &  0x7) << 6) | \
+ 					    ((offset & ~0x7) << 8) })
  #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
  #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
  
@@ -96,9 +100,9 @@ index 6477c17b3062..903b32d662ab 100644
 +	return pte;
 +}
 +
- typedef pte_t *pte_addr_t;
- 
- #endif /* __ASSEMBLY__ */
+ static inline int ptep_test_and_clear_young(struct vm_area_struct *vma, unsigned long addr, pte_t *ptep)
+ {
+ 	pte_t pte;
 -- 
 2.39.0
 
