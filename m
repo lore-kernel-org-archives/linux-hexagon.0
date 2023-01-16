@@ -1,105 +1,47 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH mm-unstable v1 01/26] mm/debug_vm_pgtable: more
- pte_swp_exclusive() sanity checks
-Date: Sat, 14 Jan 2023 17:09:35 +0100
-Message-ID: <6aaad548-cf48-77fa-9d6c-db83d724b2eb@redhat.com>
-References: <20230113171026.582290-1-david@redhat.com>
- <20230113171026.582290-2-david@redhat.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v4] arch: rename all internal names __xchg to __arch_xchg
+Date: Mon, 16 Jan 2023 11:00:33 +0100
+Message-ID: <CAMuHMdUhPjya8zWMxEN8U8pjf4M2u_+HOfxQ2NP1XOcX9EpAKg@mail.gmail.com>
+References: <Y7P9IcR7/jgYWMcq@osiris> <20230105095426.2163354-1-andrzej.hajda@intel.com>
 Mime-Version: 1.0
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+In-Reply-To: <20230105095426.2163354-1-andrzej.hajda@intel.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev" <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1673712585;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Q3R4pvBr6dG+A0u3o+nBNguX6qX9S+oXSEacD+sP77s=;
-        b=WEHe9K+xAy6oigFcSDK+FWRPiXdaPr+oBmYe6CQlwXTNxpU+i2IXzcvWpQF+umNYd7No1b
-        iLs7TRio9nK5/U1C+mHafht+qs8s20Zr51bBiOZhYOUe4we1HXEYkijnVdliwSz3KK5RCT
-        pw+KMvz7kO35YQsgZ02vLWHd/lDvkLM=
-Content-Language: en-US
-In-Reply-To: <20230113171026.582290-2-david@redhat.com>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>, John Hubbard <jhubbard@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>, Mike Rapoport <rppt@linux.ibm.com>, Yang Shi <shy828301@gmail.com>, Vlastimil Babka <vbabka@suse.cz>, Nadav Amit <namit@vmware.com>, Andrea Arcangeli <aarcange@redhat.com>, Peter Xu <peterx@redhat.com>, linux-mm@kvack.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux
+To: Andrzej Hajda <andrzej.hajda@intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-snps-arc@lists.infradead.org, Boqun Feng <boqun.feng@gmail.com>, linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>, intel-gfx@lists.freedesktop.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, loongarch@lists.linux.dev, Rodrigo Vivi <rodrigo.vivi@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, li nux-alpha@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.or
 
-On 13.01.23 18:10, David Hildenbrand wrote:
-> We want to implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all architectures.
-> Let's extend our sanity checks, especially testing that our PTE bit
-> does not affect:
-> * is_swap_pte() -> pte_present() and pte_none()
-> * the swap entry + type
-> * pte_swp_soft_dirty()
-> 
-> Especially, the pfn_pte() is dodgy when the swap PTE layout differs
-> heavily from ordinary PTEs. Let's properly construct a swap PTE from
-> swap type+offset.
-> 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+On Thu, Jan 5, 2023 at 10:54 AM Andrzej Hajda <andrzej.hajda@intel.com> wrote:
+> __xchg will be used for non-atomic xchg macro.
+>
+> Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 > ---
+> v2: squashed all arch patches into one
+> v3: fixed alpha/xchg_local, thx to lkp@intel.com
+> v4: adjusted indentation (Heiko)
 
-The following fixup for !CONFIG_SWAP on top, which makes it compile for me and
-passes when booting on x86_64 with CONFIG_DEBUG_VM_PGTABLE:
+>  arch/m68k/include/asm/cmpxchg.h      |  6 +++---
 
-...
-[    0.347112] Loaded X.509 cert 'Build time autogenerated kernel key: ee6afc0578f6475656fec8a4f9d02832'
-[    0.350112] debug_vm_pgtable: [debug_vm_pgtable         ]: Validating architecture page table helpers
-[    0.351217] page_owner is disabled
-...
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> [m68k]
 
+Gr{oetje,eeting}s,
 
- From 6a6162e8af62a4b3f7b9d823fdfae86de3f34a9d Mon Sep 17 00:00:00 2001
-From: David Hildenbrand <david@redhat.com>
-Date: Sat, 14 Jan 2023 16:47:12 +0100
-Subject: [PATCH] fixup: mm/debug_vm_pgtable: more pte_swp_exclusive() sanity
-  checks
+                        Geert
 
-generic_max_swapfile_size() is only available with CONFIG_SWAP -- which
-makes sense, because without SWAP there are no swap files. Let's
-simply probe manually which bits we can obtain after storing them in a
-PTE, and properly call it "max swap offset", which is more generic for
-a swap entry.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
-  mm/debug_vm_pgtable.c | 8 +++++---
-  1 file changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-index 3da0cc380c35..af59cc7bd307 100644
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -810,15 +810,17 @@ static void __init pmd_swap_soft_dirty_tests(struct pgtable_debug_args *args) {
-  
-  static void __init pte_swap_exclusive_tests(struct pgtable_debug_args *args)
-  {
--	unsigned long max_swapfile_size = generic_max_swapfile_size();
-+	unsigned long max_swap_offset;
-  	swp_entry_t entry, entry2;
-  	pte_t pte;
-  
-  	pr_debug("Validating PTE swap exclusive\n");
-  
-+	/* See generic_max_swapfile_size(): probe the maximum offset */
-+	max_swap_offset = swp_offset(pte_to_swp_entry(swp_entry_to_pte(swp_entry(0, ~0UL))));
-+
-  	/* Create a swp entry with all possible bits set */
--	entry = swp_entry((1 << MAX_SWAPFILES_SHIFT) - 1,
--			  max_swapfile_size - 1);
-+	entry = swp_entry((1 << MAX_SWAPFILES_SHIFT) - 1, max_swap_offset);
-  
-  	pte = swp_entry_to_pte(entry);
-  	WARN_ON(pte_swp_exclusive(pte));
--- 
-2.39.0
-
-
-
--- 
-Thanks,
-
-David / dhildenb
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
