@@ -1,7 +1,7 @@
 From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH 1/3] m68k: use asm-generic/memory_model.h for both MMU and !MMU
-Date: Wed, 25 Jan 2023 21:07:55 +0200
-Message-ID: <20230125190757.22555-2-rppt@kernel.org>
+Subject: [PATCH 2/3] mips: drop definition of pfn_valid() for DISCONTIGMEM
+Date: Wed, 25 Jan 2023 21:07:56 +0200
+Message-ID: <20230125190757.22555-3-rppt@kernel.org>
 References: <20230125190757.22555-1-rppt@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,22 +13,22 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
 	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=LzQuxrzZr3sTHDNg7Eqg4kQc40aBvoSa7F1N97zuXVk=; b=sA3GN+CgP0aJN/
-	n4zQsoWD7k2pATjeHVltcGDBcg7DwEBQe1xnsgzn0NH6HMh5rIa4ImDlvNXWXqga20q31ni4I1e2d
-	Olf8GiIDKrJHen/vZBok4GfuWF4gK4MCAQFO8mQ7XqD+6XIgsEOG3Z4BeYg4inycSUMqVH/uXK7u6
-	XwO3GzXokkn2cUjQlFzXCmubTGrwH8qcuMNAu1I2QFlhPaSIbyKg3z0JJ24jr9cYhvC8uqFBxuVRv
-	00ThhhHy2pzbaJx5u2HYwEmKB/BkhLCCLx83gwiPI5pIR9RPwL46VSmyoHOXcRNAn2qglgCTE3/S7
-	TNvxmrJlr6vgbPodhHxA==;
+	List-Owner; bh=Nc9KURSSHbg8Q+mRJzQEufbH2bm0X4tTjBplT1Uyvrc=; b=Lg6tp7Th8z7bO+
+	7PKfduuK9m9pmUslnsZ0/ku/68rQbTYxGqkermNbQkXp3fm9Y0O+Ll+fN2jHYy+c7nDqj8fGkuZS6
+	bZ6qYLpdTHk7LAcPhBokdYJ2J3yLMEaqhXg0UGNiS7UWY6P43C+whOpUsxlK4gZbyr1JttS6HPWxA
+	MbW49HFGTPA+f3lDVzmMHSP0Cerc7XLUKwN4HgLWn/MZOOsfofzGnKxEyVBEQyDWiIeOy6hy8B+hY
+	9yOSDhhkm0G9dTePU17zQja0+WSf4R4TzcfCQHeofIEFvhUNerx8h4wz6j31zU4lglu6PH94MkvpS
+	U8mzs5ce3OUxhZpHz2dw==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1674673710;
-	bh=e5RD+ChFYW/EecHl5ap2SmlVrekFipkC772OqZMuVGA=;
+	s=k20201202; t=1674673721;
+	bh=TNKTwe+UR0ceH94DVHkVlPLs1JCpp400iKAUs+FXrEU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=VayjFvjTXPvWyL/99q0Q7Vo5BJQIU/QWsdqT9U6kg3Xi9+KratRvjQIvNgQZNC3ej
-	 6x/V1dpkk1wIjhfkSpo4tsDE6LKiO+Z94AT9MrMhVBrrQvC4crABv3iZAhx0hPAdnc
-	 G/Kplj04nGqfPkVb2pBjO0GqI2SeHuT5hhqCing4uoX5Nyi2JGI89yALKqEotm5cXW
-	 IVAcb4mE1j1I4sF505IYGjEOjQNXyPndc4ldxqG2bG//O/g+ApLa4k300Bdp2RDaS6
-	 +A5XNi3/uTO24fyw3WkB8WmX8CDXexEGrS2YKYpiYOPBhNL3AuJAnu+PeWPrPw3UmH
-	 WPqMRKYef77Yg==
+	b=n3jdBK0rt95oJXQpHyDSd2FKY40hm9U8H2r8cDgoJuDx7YDiY7e//KIo42MnYQDFl
+	 yQmL7WKzB7s4oFY8V5/tKLgfG8mwnId3oI9LYhFcsnOt4yGJDZUdVzE2htJsGKqtsZ
+	 GO6h8IdJNcv2de5AIgZKhZ4ECBZ+hzs/Tuz45qdKLCt5fmgVLmxMBeCy5EwvVg2waU
+	 DDQbULZEonzqn4s3vaAdzVkwi4v8hp/Zo+nZA+yqBMSFvm72KBgBGmtfLGQSnwTPHK
+	 97B7v6Sd79PnhkzX5BjiFX1uoLwgXashF9p/sPPGZHQtMupT6tRcnOuB4caGN44DCv
+	 bqdV5sLP3jU5A==
 In-Reply-To: <20230125190757.22555-1-rppt@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
@@ -45,61 +45,41 @@ Cc: Arnd Bergmann <arnd@arndb.de>, Brian Cain <bcain@quicinc.com>, "David S. Mil
 
 From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 
-The MMU variant uses generic definitions of page_to_pfn() and
-pfn_to_page(), but !MMU defines them in include/asm/page_no.h for no
-good reason.
+There is stale definition of pfn_valid() for DISCONTINGMEM memory model
+guarded !FLATMEM && !SPARSEMEM && NUMA ifdefery.
 
-Include asm-generic/memory_model.h in the common include/asm/page.h and
-drop redundant definitions.
+Remove everything but definition of pfn_valid() for FLATMEM.
 
 Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
 ---
- arch/m68k/include/asm/page.h    | 6 +-----
- arch/m68k/include/asm/page_mm.h | 1 -
- arch/m68k/include/asm/page_no.h | 2 --
- 3 files changed, 1 insertion(+), 8 deletions(-)
+ arch/mips/include/asm/page.h | 15 ---------------
+ 1 file changed, 15 deletions(-)
 
-diff --git a/arch/m68k/include/asm/page.h b/arch/m68k/include/asm/page.h
-index 2f1c54e4725d..a5993ad83ed8 100644
---- a/arch/m68k/include/asm/page.h
-+++ b/arch/m68k/include/asm/page.h
-@@ -62,11 +62,7 @@ extern unsigned long _ramend;
- #include <asm/page_no.h>
+diff --git a/arch/mips/include/asm/page.h b/arch/mips/include/asm/page.h
+index 96bc798c1ec1..9286f11ff6ad 100644
+--- a/arch/mips/include/asm/page.h
++++ b/arch/mips/include/asm/page.h
+@@ -235,21 +235,6 @@ static inline int pfn_valid(unsigned long pfn)
+ 	return pfn >= pfn_offset && pfn < max_mapnr;
+ }
+ 
+-#elif defined(CONFIG_SPARSEMEM)
+-
+-/* pfn_valid is defined in linux/mmzone.h */
+-
+-#elif defined(CONFIG_NUMA)
+-
+-#define pfn_valid(pfn)							\
+-({									\
+-	unsigned long __pfn = (pfn);					\
+-	int __n = pfn_to_nid(__pfn);					\
+-	((__n >= 0) ? (__pfn < NODE_DATA(__n)->node_start_pfn +		\
+-			       NODE_DATA(__n)->node_spanned_pages)	\
+-		    : 0);						\
+-})
+-
  #endif
  
--#ifndef CONFIG_MMU
--#define __phys_to_pfn(paddr)	((unsigned long)((paddr) >> PAGE_SHIFT))
--#define __pfn_to_phys(pfn)	PFN_PHYS(pfn)
--#endif
--
- #include <asm-generic/getorder.h>
-+#include <asm-generic/memory_model.h>
- 
- #endif /* _M68K_PAGE_H */
-diff --git a/arch/m68k/include/asm/page_mm.h b/arch/m68k/include/asm/page_mm.h
-index a5b459bcb7d8..3903db2e8da7 100644
---- a/arch/m68k/include/asm/page_mm.h
-+++ b/arch/m68k/include/asm/page_mm.h
-@@ -134,7 +134,6 @@ extern int m68k_virt_to_node_shift;
- })
- 
- #define ARCH_PFN_OFFSET (m68k_memory[0].addr >> PAGE_SHIFT)
--#include <asm-generic/memory_model.h>
- 
- #define virt_addr_valid(kaddr)	((unsigned long)(kaddr) >= PAGE_OFFSET && (unsigned long)(kaddr) < (unsigned long)high_memory)
- #define pfn_valid(pfn)		virt_addr_valid(pfn_to_virt(pfn))
-diff --git a/arch/m68k/include/asm/page_no.h b/arch/m68k/include/asm/page_no.h
-index c9d0d84158a4..0a8ccef777fd 100644
---- a/arch/m68k/include/asm/page_no.h
-+++ b/arch/m68k/include/asm/page_no.h
-@@ -26,8 +26,6 @@ extern unsigned long memory_end;
- #define virt_to_page(addr)	(mem_map + (((unsigned long)(addr)-PAGE_OFFSET) >> PAGE_SHIFT))
- #define page_to_virt(page)	__va(((((page) - mem_map) << PAGE_SHIFT) + PAGE_OFFSET))
- 
--#define pfn_to_page(pfn)	virt_to_page(pfn_to_virt(pfn))
--#define page_to_pfn(page)	virt_to_pfn(page_to_virt(page))
- #define pfn_valid(pfn)	        ((pfn) < max_mapnr)
- 
- #define	virt_addr_valid(kaddr)	(((unsigned long)(kaddr) >= PAGE_OFFSET) && \
+ #define virt_to_pfn(kaddr)   	PFN_DOWN(virt_to_phys((void *)(kaddr)))
 -- 
 2.35.1
