@@ -1,96 +1,79 @@
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [RFC][PATCHSET] VM_FAULT_RETRY fixes
-Date: Tue, 31 Jan 2023 21:49:27 +0000
-Message-ID: <Y9mM5wiEhepjJcN0@ZenIV>
-References: <Y9lz6yk113LmC9SI@ZenIV>
- <CAHk-=whf73Vm2U3jyTva95ihZzefQbThZZxqZuKAF-Xjwq=G4Q@mail.gmail.com>
- <Y9mD1qp/6zm+jOME@ZenIV>
- <CAHk-=wjiwFzEGd_60H3nbgVB=R_8KTcfUJmXy=hSXCvLrXQRFA@mail.gmail.com>
+Date: Tue, 31 Jan 2023 16:00:22 -0800
+Message-ID: <CAHk-=wjNwwnBckTo8HLSdsd1ndoAR=5RBoZhdOyzhsnDAYWL9g@mail.gmail.com>
+References: <Y9lz6yk113LmC9SI@ZenIV> <CAHk-=whf73Vm2U3jyTva95ihZzefQbThZZxqZuKAF-Xjwq=G4Q@mail.gmail.com>
+ <Y9mD1qp/6zm+jOME@ZenIV> <CAHk-=wjiwFzEGd_60H3nbgVB=R_8KTcfUJmXy=hSXCvLrXQRFA@mail.gmail.com>
+ <Y9mM5wiEhepjJcN0@ZenIV>
 Mime-Version: 1.0
-Return-path: <linux-alpha-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=JJ44pVL3mpUwlUxxk25RF88dX6Vi82gssdvbi+j7w98=; b=L4fmKwMl034+kqBEbRIOil/Yzh
-        hebphUxkSNBGPEKW8g2u5c7rAgqQSyyL13EJ+82NtRrNyTAhJvd+2dstA9BL7A1SQQIzJ9BejthDC
-        mqlgtru3NuMP/KoLrfN0k0J5jRH+PdM2lcPU8uz/PZMFIj9F70MnMs6PGAjArLgKtPLwiKRooRb6k
-        +TgRc0rgODdYO8q9/UPV7OHaNeiLl087a/TS7Z6P1YXJT6EbnikFdEJU12GDbE8H0Ka6TrH/jUxyT
-        4iM7PQjXxJEAqoDKDAqsBulJEQRFXxqbtquBcyq1qPjb9aeKshaeeQQ17otlNuZ0SkHU49148N9sG
-        Mi7bsbKA==;
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wjiwFzEGd_60H3nbgVB=R_8KTcfUJmXy=hSXCvLrXQRFA@mail.gmail.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Linus Torvalds <torvalds@linux-foundation.org>
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:Cc:To:Subject:Message-ID:Date:From:
+	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=4i0VKAJFTD937bmNl8prdm4Gewxh5We25+Pi4qIcBBc=; b=khF2J52i3Wdz0Z
+	pG2MInromMxDIKiGPQcOj1jaaz4d1Koj079XZXwEeBMypLOOqfNNTL/nk4HLI4DY3SHJD6fBWLsXy
+	2VrT1oMsRTLUsu3TjBuO+ju9l5qUQbu+bGH2/wFwx+s82z11cWSQXS6FxUQbIFFj/tIS6rAeboQJa
+	xIPzNl78iX2KvT7c+5xCADuWeJnBeD+qB3l4Xiuoggy/qU79wTASCKv4UDcY3AwZoIkNvtVBIdWVa
+	aZEfzTCgb1BaYtAB4hp2P4vkB2GKbaYA1PTFkh04CRxPoHFpN01m6xPP4Fb/jm9m2OMAe6c5S9pyW
+	/4ADq19B63fuJnxeJwEQ==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=lRCOdD9CD/IiFJ43pipYPy+q1tidOpGH1rcqkIGuMSQ=;
+        b=fL59Ab7RHJP0bfIYtovRgam/bmLVqgi/HuOZuRtvXpi8XPCKPsz19TVQkwQ/4pcElK
+         nbpNee2j9nRk73RFGNcIlDQDDv7dgJ9GC8xvsYkG1wEa43drPEZkLrJIAfsAF0ElYFBV
+         ZenNmi1Qr0FBP87JP4qtwax7RH2E68mH3aIp0=
+In-Reply-To: <Y9mM5wiEhepjJcN0@ZenIV>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: Al Viro <viro@zeniv.linux.org.uk>
 Cc: Peter Xu <peterx@redhat.com>, linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org
 
-On Tue, Jan 31, 2023 at 01:19:59PM -0800, Linus Torvalds wrote:
-> On Tue, Jan 31, 2023 at 1:10 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
-> >
-> > Umm...  What about the semantics of get_user() of unmapped address?
-> > Some architectures do quiet EFAULT; some (including alpha) hit
-> > the sucker with SIGBUS, no matter what.
-> 
-> I think we should strive to just make this all common.
-> 
-> The reason alpha is different is almost certainly not intentional, but
-> a combination of "pure accident" and "nobody actually cares".
-> 
-> > Are we free to modify that behaviour, or is that part of arch-specific
-> > ABI?
-> 
-> I'd just unify this all, probably with a preference for existing
-> semantics on x86 (because of "biggest and most varied user base").
-> 
-> That whole "send SIGBUS even for kernel faults" is certainly bogus and
-> against the usual rules. And I may well be to blame for it (I have
-> this memory of disliking how EFAULT as a return code didn't actually
-> return the faulting address). And realistically, it's also just not
-> something that any normal application will ever hit.  Giving invalid
-> addresses to system calls is basically always a bug, although there
-> are always special software that do all the crazy corner cases (ie
-> things like emulators tend to do odd things).
-> 
-> I doubt such special software exists on Linux/alpha, though.
-> 
-> So I wouldn't worry about those kinds of oddities overmuch.
-> 
-> *If* somebody then finds a load that cares, we can always fix it
-> later, and I'll go "mea culpa, I didn't think it would matter, and I
-> was wrong".
+On Tue, Jan 31, 2023 at 1:49 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
+>
+> Everything else seems to be going with EFAULT.
 
-FWIW, from digging through the current tree:
+So I think fo kernel faults it's always basically up to the exception
+handler, and sending a signal regardless of that is just wrong.
 
-alpha, openrisc, sparc and xtensa send SIGBUS.
-m68k: not sure, do_page_fault() callers there are delicate.
-mips: really interesting -
-        /* Kernel mode? Handle exceptions or die */
-        if (!user_mode(regs))
-                goto no_context;
+Of course, an exception handler might choose to send a signal, but it
+just shouldn't be the do_page_fault() handler that does it.
 
-        /*
-         * Send a sigbus, regardless of whether we were in kernel
-         * or user mode.
-... which is obviously a rudiment of SIGBUS variant, but nowadays
-it's EFAULT.
+For user faults, I think the rule ends up being that "if there's no
+mapping, or if there is a protection fault, then we should do
+SIGSEGV".
 
-Everything else seems to be going with EFAULT.
+If there's an actual mapping in place, and the mapping has the right
+permissions for the access, but fails for some *other* reason, then we
+send SIGBUS.
 
-PS: mips used to be SIGBUS, until this
-commit 1d50e5e7a6e0325b1a652c4be296a71dc54a6e96
-Author: Andrew Morton <akpm@osdl.org>
-Date:   Fri Feb 20 01:33:18 2004 -0800
+So a shared mmap past the end of the file (but within the area that
+was used for mmap) would SIGBUS, while a write to a read-only mapping
+would SIGSEGV.
 
-    [PATCH] MIPS mega-patch
-    
-    From: Ralf Baechle <ralf@linux-mips.org>
-    
-    Below following 125547 lines of patches, all to arch/mips and
-    include/asm-mips.  I'm going to send the remaining stuff of which the one
-    or other bit may need to be discussed in smaller bits.
+Things like unaligned accesses also might SIGBUS rather than SIGSEGV.
 
-IOW, details are buried somewhere in historical mips tree, assuming
-it survives...
+And I'm not surprised that there are exceptions to the rule, because
+almost nothing really cares. In most situations, it's a fatal error.
+And even when catching them, the end result is generally the same
+(either "print out helpful message and die", or "longjump to some safe
+code").
+
+So most of the time it's probably not going to matter all that much
+which signal gets sent in practice.
+
+            Linus
