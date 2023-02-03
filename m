@@ -1,34 +1,34 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 2/4] m68k: use asm-generic/memory_model.h for both MMU
- and !MMU
-Date: Fri, 3 Feb 2023 15:31:10 +0100
-Message-ID: <862cb71f-0775-916d-b0c9-5247f772d637@redhat.com>
+Subject: Re: [PATCH v2 3/4] mips: drop definition of pfn_valid() for
+ DISCONTIGMEM
+Date: Fri, 3 Feb 2023 15:31:32 +0100
+Message-ID: <1d13abeb-ea4b-6314-2fd2-1b86b8f4d6c5@redhat.com>
 References: <20230129124235.209895-1-rppt@kernel.org>
- <20230129124235.209895-3-rppt@kernel.org>
+ <20230129124235.209895-4-rppt@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1675434677;
+	s=mimecast20190719; t=1675434697;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=bBuUxRqwVpT90qSSvu23sLwWbKqZ02KC/SRu5tcTWNA=;
-	b=HmrNQHKrlHkEXCpoxDcMZp7g/sMs3K+G4bVM9ILl0aZLjmuYpkeXh0a3CKcYFVFL6wX76/
-	S7QYF7/mqagVvRBqwWjCTrfwjOgoIs55l+wS4OQrnxUBNBFjW202VIXVuo80Co0umdeLJR
-	f10/Thvc8+iGpjAN/Jx7MbZUeDOJs8E=
+	bh=/decAsXzWzOr1Fn5getBDCGr7TKXQO+f4q0N0MxWErI=;
+	b=A2t109/yTXLOQ7tcfcBaBddd5w1h6mW4obqM9xZpsk3Fd0BvOmYoaCX+eWZTACR2DBxVuy
+	h5agvau6d5Em5bsbT2t3iqSNJmfy6uxTGWYdlt9hUiHPzzYUIqHBL6Yg8roAqxoTfpeooF
+	1e9s/f9jpVKdbUh5paPBhSIYtL+LbtA=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1675434677;
+	s=mimecast20190719; t=1675434697;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=bBuUxRqwVpT90qSSvu23sLwWbKqZ02KC/SRu5tcTWNA=;
-	b=HmrNQHKrlHkEXCpoxDcMZp7g/sMs3K+G4bVM9ILl0aZLjmuYpkeXh0a3CKcYFVFL6wX76/
-	S7QYF7/mqagVvRBqwWjCTrfwjOgoIs55l+wS4OQrnxUBNBFjW202VIXVuo80Co0umdeLJR
-	f10/Thvc8+iGpjAN/Jx7MbZUeDOJs8E=
-In-Reply-To: <20230129124235.209895-3-rppt@kernel.org>
+	bh=/decAsXzWzOr1Fn5getBDCGr7TKXQO+f4q0N0MxWErI=;
+	b=A2t109/yTXLOQ7tcfcBaBddd5w1h6mW4obqM9xZpsk3Fd0BvOmYoaCX+eWZTACR2DBxVuy
+	h5agvau6d5Em5bsbT2t3iqSNJmfy6uxTGWYdlt9hUiHPzzYUIqHBL6Yg8roAqxoTfpeooF
+	1e9s/f9jpVKdbUh5paPBhSIYtL+LbtA=
+In-Reply-To: <20230129124235.209895-4-rppt@kernel.org>
 Content-Language: en-US
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -47,17 +47,12 @@ Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.ker
 On 29.01.23 13:42, Mike Rapoport wrote:
 > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 > 
-> The MMU variant uses generic definitions of page_to_pfn() and
-> pfn_to_page(), but !MMU defines them in include/asm/page_no.h for no
-> good reason.
+> There is stale definition of pfn_valid() for DISCONTINGMEM memory model
+> guarded !FLATMEM && !SPARSEMEM && NUMA ifdefery.
 > 
-> Include asm-generic/memory_model.h in the common include/asm/page.h and
-> drop redundant definitions.
+> Remove everything but definition of pfn_valid() for FLATMEM.
 > 
 > Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
-> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> ---
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
 
