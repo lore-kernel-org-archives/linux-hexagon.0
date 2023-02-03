@@ -1,34 +1,34 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 3/4] mips: drop definition of pfn_valid() for
- DISCONTIGMEM
-Date: Fri, 3 Feb 2023 15:31:32 +0100
-Message-ID: <1d13abeb-ea4b-6314-2fd2-1b86b8f4d6c5@redhat.com>
+Subject: Re: [PATCH v2 4/4] mm, arch: add generic implementation of
+ pfn_valid() for FLATMEM
+Date: Fri, 3 Feb 2023 15:33:45 +0100
+Message-ID: <de9cb029-b36e-efe9-9d0e-46a382e889b5@redhat.com>
 References: <20230129124235.209895-1-rppt@kernel.org>
- <20230129124235.209895-4-rppt@kernel.org>
+ <20230129124235.209895-5-rppt@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1675434697;
+	s=mimecast20190719; t=1675434830;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/decAsXzWzOr1Fn5getBDCGr7TKXQO+f4q0N0MxWErI=;
-	b=A2t109/yTXLOQ7tcfcBaBddd5w1h6mW4obqM9xZpsk3Fd0BvOmYoaCX+eWZTACR2DBxVuy
-	h5agvau6d5Em5bsbT2t3iqSNJmfy6uxTGWYdlt9hUiHPzzYUIqHBL6Yg8roAqxoTfpeooF
-	1e9s/f9jpVKdbUh5paPBhSIYtL+LbtA=
+	bh=QVQjsvvXC5vAa55XgbnpLQZ7ycccPtxDGUTVFYgFp7U=;
+	b=HFLzrleHVmbB/yMXmxu+7UXbc48chEGIyxGClGiXHVdXXZpxDw4AHy5naVJ/T1pZtlW98p
+	YQ7FZ5XL3lZ2dlqmTi+pGIFXWxOl6Q3vuFnAFgY9Gqz0Sk/DWlkqhaYdqjZpeq27WK6sjn
+	IMBSkvveM5MWX163BNj/Rm1LtkRTbSo=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1675434697;
+	s=mimecast20190719; t=1675434831;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/decAsXzWzOr1Fn5getBDCGr7TKXQO+f4q0N0MxWErI=;
-	b=A2t109/yTXLOQ7tcfcBaBddd5w1h6mW4obqM9xZpsk3Fd0BvOmYoaCX+eWZTACR2DBxVuy
-	h5agvau6d5Em5bsbT2t3iqSNJmfy6uxTGWYdlt9hUiHPzzYUIqHBL6Yg8roAqxoTfpeooF
-	1e9s/f9jpVKdbUh5paPBhSIYtL+LbtA=
-In-Reply-To: <20230129124235.209895-4-rppt@kernel.org>
+	bh=QVQjsvvXC5vAa55XgbnpLQZ7ycccPtxDGUTVFYgFp7U=;
+	b=YkMFWPGdOtwCaWTz3sSvnVhVAlrfBii+eUr9heNgK0zcWZ5uFBEjdbf5rSCms0FYPl7Lr/
+	bO0fnCEfCIHkDejKwepgZcmt3RpDroIX3KxaJm84hRwwiwlG15yQ5klR/qCKr4tHLiKOFb
+	huKGEOL7l9phcOkJbxz9I9IKwPCKr+Q=
+In-Reply-To: <20230129124235.209895-5-rppt@kernel.org>
 Content-Language: en-US
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
@@ -47,12 +47,20 @@ Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.ker
 On 29.01.23 13:42, Mike Rapoport wrote:
 > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 > 
-> There is stale definition of pfn_valid() for DISCONTINGMEM memory model
-> guarded !FLATMEM && !SPARSEMEM && NUMA ifdefery.
+> Every architecture that supports FLATMEM memory model defines its own
+> version of pfn_valid() that essentially compares a pfn to max_mapnr.
 > 
-> Remove everything but definition of pfn_valid() for FLATMEM.
+> Use mips/powerpc version implemented as static inline as a generic
+> implementation of pfn_valid() and drop its per-architecture definitions.
 > 
 > Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> Acked-by: Guo Ren <guoren@kernel.org>		# csky
+> Acked-by: Huacai Chen <chenhuacai@loongson.cn>	# LoongArch
+> Acked-by: Stafford Horne <shorne@gmail.com>	# OpenRISC
+> ---
+
+LGTM with the fixup
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
 
