@@ -1,70 +1,42 @@
-From: Helge Deller <deller@gmx.de>
-Subject: Re: [PATCH 08/10] parisc: fix livelock in uaccess
-Date: Mon, 6 Feb 2023 17:58:02 +0100
-Message-ID: <84b1c2e4-c096-ed19-9701-472b54a4890c@gmx.de>
-References: <Y9lz6yk113LmC9SI@ZenIV> <Y9l0w4M91DwYLO3N@ZenIV>
+From: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
+Subject: Re: [PATCH 09/10] riscv: fix livelock in uaccess
+Date: Mon, 06 Feb 2023 21:06:31 +0100
+Message-ID: <87h6vyimns.fsf@all.your.base.are.belong.to.us>
+References: <Y9lz6yk113LmC9SI@ZenIV> <Y9l02DvS6CYThTEG@ZenIV>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
-        t=1675702686; bh=oduEQSmX5w2TdFT5GxpWGp4vTr2PGe2Au2vMj0xJ5So=;
-        h=X-UI-Sender-Class:Date:To:Cc:References:From:Subject:In-Reply-To;
-        b=jGVdQH2lc02h1rgNqJc0l4Y80CfKI9LK6xHbRC2J/br744OD+MGmPrVF37cufr2hQ
-         yJTzjoueguDhAo2B1csqRngqA7zMIEytzGx96gsLLzcFNy08WUUaauSYVIZSSwT0ei
-         ulAPZQchwSxLJ/mmyJJ+mpKFFWIv2BxukpLPr6FAPI1LWZRtoUyP7edsMzlmeYjyC8
-         BAfhNgR8H3ENTDvsmLyMghQpQxNtBKb+jLGEikuIcuk3XCjgt2HVAM94Wd9LrGytCx
-         6woeiUzl20u8HfPpBliKla8sJt4T5fpDs9/9C/ypYfCrGsEmIeEQe3acQYL4Kw+grs
-         4HcLxDeOZiPug==
-Content-Language: en-US
-In-Reply-To: <Y9l0w4M91DwYLO3N@ZenIV>
+Return-path: <linux-parisc-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1675713994;
+        bh=3Yg7D05MkzSc67p0IllIeOFYuHpgtoWHEDyGg89cEn4=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=TrFanAIL/NQxsb91JvfkKgGGInV2GbJv83xXwVospLmonVoYF0qugCWhOe08RPwaX
+         KSz2R1yQLjbocys0qpEKTIJcvGgasxF/iufKfZWM+KLnESrINJ3xvu3fY01VN9IBBd
+         A14tJwz1NoSgpuJDM1gKfn9n4bZjtVGyWg1FSCcjcagioOTF4tpLoxfVEQ3ZgZwQ/X
+         1DTz425W+yIiGefj9MW9+XxaZDTOhpCSDxfOWIbHdEj1cNpx4bg45I7e94f2NXzAcH
+         p/5XOjHti0H5HYdlYMgGbFgyQK/fMQnqBl9p3+VIiziorpSavNm5enxgwyrcpj7Rpb
+         iz3O+/RqhOzlA==
+In-Reply-To: <Y9l02DvS6CYThTEG@ZenIV>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
+Content-Type: text/plain; charset="utf-8"
 To: Al Viro <viro@zeniv.linux.org.uk>, linux-arch@vger.kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Mark Rutland <mark.rutland@arm.com>
 
-Hi Al,
+Al Viro <viro@zeniv.linux.org.uk> writes:
 
-On 1/31/23 21:06, Al Viro wrote:
-> parisc equivalent of 26178ec11ef3 "x86: mm: consolidate VM_FAULT_RETRY h=
-andling"
-> If e.g. get_user() triggers a page fault and a fatal signal is caught, w=
-e might
-> end up with handle_mm_fault() returning VM_FAULT_RETRY and not doing any=
-thing
-> to page tables.  In such case we must *not* return to the faulting insn =
--
-> that would repeat the entire thing without making any progress; what we =
-need
+> riscv equivalent of 26178ec11ef3 "x86: mm: consolidate VM_FAULT_RETRY han=
+dling"
+> If e.g. get_user() triggers a page fault and a fatal signal is caught, we=
+ might
+> end up with handle_mm_fault() returning VM_FAULT_RETRY and not doing anyt=
+hing
+> to page tables.  In such case we must *not* return to the faulting insn -
+> that would repeat the entire thing without making any progress; what we n=
+eed
 > instead is to treat that as failed (user) memory access.
 >
 > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-> ---
->   arch/parisc/mm/fault.c | 5 ++++-
->   1 file changed, 4 insertions(+), 1 deletion(-)
->
-> diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
-> index 869204e97ec9..bb30ff6a3e19 100644
-> --- a/arch/parisc/mm/fault.c
-> +++ b/arch/parisc/mm/fault.c
-> @@ -308,8 +308,11 @@ void do_page_fault(struct pt_regs *regs, unsigned l=
-ong code,
->
->   	fault =3D handle_mm_fault(vma, address, flags, regs);
->
-> -	if (fault_signal_pending(fault, regs))
-> +	if (fault_signal_pending(fault, regs)) {
-> +		if (!user_mode(regs))
-> +			goto no_context;
->   		return;
-> +	}
 
-The testcase in
-   https://lore.kernel.org/lkml/20170822102527.GA14671@leverpostej/
-   https://lore.kernel.org/linux-arch/20210121123140.GD48431@C02TD0UTHF1T.=
-local/
-does hang with and without above patch on parisc.
-It does not consume CPU in that state and can be killed with ^C.
+Reproduced with Mark's userland program -- thanks!
 
-Any idea?
-
-Helge
+Tested-by: Bj=C3=B6rn T=C3=B6pel <bjorn@kernel.org>
