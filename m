@@ -1,35 +1,54 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 04/10] m68k: fix livelock in uaccess
-Date: Sun, 5 Feb 2023 12:41:18 -0800
-Message-ID: <CAHk-=wh8+LsDDd8AFMwaYHAA+eLT8O2ziEJfpoeo_H6MCg2NKg@mail.gmail.com>
-References: <Y9lz6yk113LmC9SI@ZenIV> <Y9l0aBPUEpf1bci9@ZenIV>
- <92a4aa45-0a7c-a389-798a-2f3e3cfa516f@linux-m68k.org> <Y+AUEJpWYdUzW0OD@ZenIV>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [RFC][PATCHSET] VM_FAULT_RETRY fixes
+Date: Mon, 6 Feb 2023 13:08:09 +0100
+Message-ID: <CAMuHMdWtU=2Uq2QDu+eiBLve=uwJ4byU_1K2dKuUTH8wDUHoaw@mail.gmail.com>
+References: <Y9lz6yk113LmC9SI@ZenIV> <Y9pD+TMP+/SyfeJm@FVFF77S0Q05N>
 Mime-Version: 1.0
-Return-path: <linux-parisc-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=nA/a76A+HUu/p3q1j/ksBjPXLniSmCFkRwLsRUtoauc=;
-        b=RAXg4fKD/6SPLwBhZz74xHccwCI6WZIYpGpGHWQ9ObJeCvGoohTSAtwCqfiD+ZaDQ1
-         aIRLI8OL+avYEEBlM4uINCdq7A3GKoZhraxTCpB9pYCimwQ4kIElEWhkml7G/7PEKTT6
-         Vy21ly1st4HkkM+1bI4kXV+bK57J6A6HvWAas=
-In-Reply-To: <Y+AUEJpWYdUzW0OD@ZenIV>
+Return-path: <linux-alpha-owner@vger.kernel.org>
+In-Reply-To: <Y9pD+TMP+/SyfeJm@FVFF77S0Q05N>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Finn Thain <fthain@linux-m68k.org>, linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>, linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
 
-On Sun, Feb 5, 2023 at 12:39 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
+Hi Mark,
+
+On Wed, Feb 1, 2023 at 11:52 AM Mark Rutland <mark.rutland@arm.com> wrote:
+> On Tue, Jan 31, 2023 at 08:02:51PM +0000, Al Viro wrote:
+> > On x86 it had been noticed and fixed back in 2014, in 26178ec11ef3 "x86:
+> > mm: consolidate VM_FAULT_RETRY handling".  Some of the other architectures
+> > had it dealt with later - e.g. arm in 2017, the fix is 746a272e44141
+> > "ARM: 8692/1: mm: abort uaccess retries upon fatal signal"; xtensa -
+> > in 2021, the fix is 7b9acbb6aad4f "xtensa: fix uaccess-related livelock
+> > in do_page_fault", etc.
+> >
+> > However, it never had been done on a bunch of architectures - the
+> > current mainline still has that bug on alpha, hexagon, itanic, m68k,
+> > microblaze, nios2, openrisc, parisc, riscv and sparc (both sparc32 and
+> > sparc64).  Fixes are trivial, but I've no way to test them for most
+> > of those architectures.
 >
-> BTW, since these patches would be much easier to backport than any unification
-> work, I think the right thing to do would be to have further unification done on
-> top of them.
+> FWIW, when I fixed arm and arm64 back in 2017, I did report the issue here with
+> a test case (and again in 2021, with maintainers all explciitly Cc'd):
+>
+>   https://lore.kernel.org/lkml/20170822102527.GA14671@leverpostej/
+>   https://lore.kernel.org/linux-arch/20210121123140.GD48431@C02TD0UTHF1T.local/
+>
+> ... so if anyone has access to those architectures, that test might be useful
+> for verifying the fix.
 
-Ack. I'm not NAKing the patches, I was just hoping that we also have
-some way forward.
+Thanks a lot! This showed the problem on m68k, and confirmed Al's fix.
 
-So "fix the issues, then unify" sounds like the right thing to do to me.
+I'll give it a try on a few more systems later...
 
-               Linus
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
