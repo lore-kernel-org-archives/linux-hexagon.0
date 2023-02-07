@@ -1,129 +1,235 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH mm-unstable v1 04/26] arm/mm: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Date: Tue, 7 Feb 2023 00:32:12 +0000
-Message-ID: <Y+GcDFMNHw2cdDN1@sirena.org.uk>
-References: <20230113171026.582290-1-david@redhat.com>
- <20230113171026.582290-5-david@redhat.com>
+From: Finn Thain <fthain@linux-m68k.org>
+Subject: Re: [PATCH 04/10] m68k: fix livelock in uaccess
+Date: Tue, 7 Feb 2023 14:07:03 +1100 (AEDT)
+Message-ID: <fc3d0151-30a0-c029-3e43-68664d4d50e6@linux-m68k.org>
+References: <Y9lz6yk113LmC9SI@ZenIV> <Y9l0aBPUEpf1bci9@ZenIV> <92a4aa45-0a7c-a389-798a-2f3e3cfa516f@linux-m68k.org> <CAHk-=wirpn8qX5hCyeS0a4GCQH5p-2ACXgzJTj7zjZ5rGux_Bw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="NWKvUnutYufNxY+M"
-Return-path: <linux-alpha-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675729943;
-        bh=iZCN6sGc9yW2zYcxaQotSvnk+ZA53AaN/sDVv0yII50=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=r7OTSPs0ofYJfz2HfC9yS/lpbY7S0BFzpXiLK3x7Ke/Y6aWFhktLvs6Bvgj2Al5Wk
-         B6UkcQ+D4VR40u7HKhXzSQ4KgoVE+1waBFZlM5JqHCpnVJMmvdP6KTKtVHMcYXlvDW
-         HvMYz5Nv/QvWcqkqgdC8HtG5iSFLz+5CT0wM3dg+r8XfX8Uoay6JHXFHAsy/jvcyaE
-         Y+YyyHfN2C/hXNPxeqGA7nAR2Ackxd1K6CCBh1BVMg4QrPnhB6To8MjHdG4AQb2uIw
-         smNsNDMgzHTMzUtoipazT928V76wO/Qhc/hW1DhF+HtdqhyqNOakQKfsfeblr/+0mf
-         LLy3JzbNDtsBw==
-Content-Disposition: inline
-In-Reply-To: <20230113171026.582290-5-david@redhat.com>
-List-ID: <linux-hexagon.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>, John Hubbard <jhubbard@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>, Mike Rapoport <rppt@linux.ibm.com>, Yang Shi <shy828301@gmail.com>, Vlastimil Babka <vbabka@suse.cz>, Nadav Amit <namit@vmware.com>, Andrea Arcangeli <aarcange@redhat.com>, Peter Xu <peterx@redhat.com>, linux-mm@kvack.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxp
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:Message-ID:
+	In-Reply-To:Subject:cc:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=xVrMkuupy+3olJo7mMS5920+2naqAgLIHEhDUWqG2Qc=; b=ZFiOAaDgYv05L0
+	12jZrj250aVHMRXnls2syOrGIvpudEWZJJBBfOe35aI+7/hx6BiG9ttBdHLgDyISHhQC4Ep7x58Vh
+	tm2jdpLNssZHmNbdPYYf+zbukaRtzEtQPegHvuZ3N4LMrVMPJg4kMtmwIIXV4mSVvfeAlVPdFO/3w
+	erjJuxEKhynUX4TYZ+kRPvgVuSweR7I/qUg8/DZ/4UNLyq/yzcqtIi5x1Q71F0LRP9U3AvT2SUsxi
+	AoI+hcCT1ci0OkA4ykGzhtEqw39NKOVCd18q8/w8cBJbKY1gI2ywXwb72cHW/eO9doiHu+HSrc4ps
+	/+LNSCm7dTu+ouYJsVUw==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+	:feedback-id:from:from:in-reply-to:in-reply-to:message-id
+	:mime-version:references:reply-to:sender:subject:subject:to:to
+	:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm3; t=1675739132; x=1675825532; bh=uM1UO9XIp7afVPZ81JNU3mTA9pU3
+	uATOl+OKWoLABwo=; b=Zvtnw6gYgKCDuKEV2RFjFXJ5FBEXx07IhXfjRWlutWgR
+	kjoYsCYUtD8bMFQQMAAPJ2PIuVbxVk9d4k/iYLeW8dQCYuYY9zxLNpq7URI76DVN
+	rpNHp7s/osPWxMn3MWcB7ym0eYCbDN799o3/RKPPOCSzgmB3ToaFWW2UYofXExSR
+	ndLAbYsjuLgaDHe1HNYgdRDo2VTpGWOUggV0alEIU5VjiP5y2HASQQpVxnotAaeo
+	b5l8Viq7MpHXVTc+9ht6pxDiGKJyqsoCmj/Ua+t8X0zOn1jXnJYp+ylss0EAvm8Z
+	HFV+UrB2YeMZjWLZg5TiN/2P6Snn6Xu6d+I0ykKSrQ==
+In-Reply-To: <CAHk-=wirpn8qX5hCyeS0a4GCQH5p-2ACXgzJTj7zjZ5rGux_Bw@mail.gmail.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>, linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org
 
+On Sun, 5 Feb 2023, Linus Torvalds wrote:
 
---NWKvUnutYufNxY+M
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Sat, Feb 4, 2023 at 10:16 PM Finn Thain <fthain@linux-m68k.org> wrote:
+> >
+> > That could be a bug I was chasing back in 2021 but never found. The mmap
+> > stressors in stress-ng were triggering a crash on a Mac Quadras, though
+> > only rarely. Sometimes it would run all day without a failure.
+> >
+> > Last year when I started using GCC 12 to build the kernel, I saw the same
+> > workload fail again but the failure mode had become a silent hang/livelock
+> > instead of the oopses I got with GCC 6.
+> >
+> > When I press the NMI button after the livelock I always see
+> > do_page_fault() in the backtrace. So I've been testing your patch. I've
+> > been running the same stress-ng reproducer for about 12 hours now with no
+> > failures which looks promising.
+> >
+> > In case that stress-ng testing is of use:
+> > Tested-by: Finn Thain <fthain@linux-m68k.org>
+> 
+> Could you test the thing that Mark Rutland pointed to? He had an
+> actual test-case for this for the arm64 fixes some years ago.
+> 
+> See
+> 
+>    https://lore.kernel.org/all/Y9pD+TMP+%2FSyfeJm@FVFF77S0Q05N/
+> 
+> for his email with links to his old test-case?
+> 
 
-On Fri, Jan 13, 2023 at 06:10:04PM +0100, David Hildenbrand wrote:
-> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit from the
-> offset. This reduces the maximum swap space per file to 64 GiB (was 128
-> GiB).
->=20
-> While at it drop the PTE_TYPE_FAULT from __swp_entry_to_pte() which is
-> defined to be 0 and is rather confusing because we should be dealing
-> with "Linux PTEs" not "hardware PTEs". Also, properly mask the type in
-> __swp_entry().
+With qemu-system-m68k v7.2 runing Linux v6.1, killing Mark's program did 
+not trigger any failure.
 
-Today's -next (and at least back to Friday, older logs are unclear - I
-only noticed -next issues today) fails to NFS boot on an AT91SAM9G20-EK
-(an old ARMv5 platform) with multi_v5_defconfig, a bisect appears to
-point to this patch (20aae9eff5acd8f5 in today's -next) as the culprit.
+With my Quadra 650 running the same binaries, killing Mark's program 
+produces the BUG splat below. I can confirm that Al's patch fixes it.
 
-The failure happens at some point after starting userspace, the kernel
-starts spamming the console with messages in the form:
-
-    get_swap_device: Bad swap file entry 10120d20
-
-repeating the same entry number, though different numbers per boot.  The
-system is booting a Debian userspace and shouldn't have swap configured
-(I verfified that successful boots don't), though it only has 64M of RAM
-so there will be some memory pressure, especially during boot.  The
-exact point things fall over seems to vary a little.
-
-A sample failing job with the full log is here:
-
-    https://lava.sirena.org.uk/scheduler/job/262719
-
-Full bisect log:
-
-git bisect start
-# bad: [129af770823407ee115a56c69a04b440fd2fbe61] Add linux-next specific f=
-iles for 20230206
-git bisect bad 129af770823407ee115a56c69a04b440fd2fbe61
-# good: [4ec5183ec48656cec489c49f989c508b68b518e3] Linux 6.2-rc7
-git bisect good 53b3c6467004c627f42d96ef839b223a749bcdd9
-# good: [17b9d0b05d4fa79afb7bd00edb1b97397418a57a] Merge branch 'master' of=
- git://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git
-git bisect good 17b9d0b05d4fa79afb7bd00edb1b97397418a57a
-# good: [7044a4e1fab22f437d275b1cf85f5c925741276b] Merge branch 'for-next' =
-of git://git.kernel.org/pub/scm/linux/kernel/git/trace/linux-trace.git
-git bisect good 7044a4e1fab22f437d275b1cf85f5c925741276b
-# good: [bef6844b00f0c24543d60b79c558f353a43709f1] Merge branch 'staging-ne=
-xt' of git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-git bisect good bef6844b00f0c24543d60b79c558f353a43709f1
-# good: [f6737c53676f9db99daee069407daf203e75bc0f] Merge branch 'for-next' =
-of git://git.kernel.org/pub/scm/linux/kernel/git/rppt/memblock.git
-git bisect good f6737c53676f9db99daee069407daf203e75bc0f
-# bad: [05cda97ecb7046f4192a921741aae33b300dd628] mm: factor out a swap_wri=
-tepage_bdev helper
-git bisect bad 05cda97ecb7046f4192a921741aae33b300dd628
-# good: [ee0800c2f6a9e605947ce499d79fb7e2be16d6dd] mm: convert page_add_ano=
-n_rmap() to use a folio internally
-git bisect good ee0800c2f6a9e605947ce499d79fb7e2be16d6dd
-# bad: [590a2b5f0a9b740e415e0d52bd8a0f87fc15b87b] ceph: convert ceph_writep=
-ages_start() to use filemap_get_folios_tag()
-git bisect bad 590a2b5f0a9b740e415e0d52bd8a0f87fc15b87b
-# good: [92644f583d5124b60bc20a3dd21b0bc9142f020c] mm/khugepaged: introduce=
- release_pte_folio() to replace release_pte_page()
-git bisect good 92644f583d5124b60bc20a3dd21b0bc9142f020c
-# bad: [cca10df1029373cda5904887544ca6fcbbd2bac7] sh/mm: support __HAVE_ARC=
-H_PTE_SWP_EXCLUSIVE
-git bisect bad cca10df1029373cda5904887544ca6fcbbd2bac7
-# bad: [ad464ff2c0f91fcacc24167fc435aa45fe0b7d1b] m68k/mm: remove dummy __s=
-wp definitions for nommu
-git bisect bad ad464ff2c0f91fcacc24167fc435aa45fe0b7d1b
-# bad: [20aae9eff5acd8f50f72adca1176f9269a46b827] arm/mm: support __HAVE_AR=
-CH_PTE_SWP_EXCLUSIVE
-git bisect bad 20aae9eff5acd8f50f72adca1176f9269a46b827
-# good: [2321ba3e3733f513e46e29b9c70512ecddbf1085] mm/debug_vm_pgtable: mor=
-e pte_swp_exclusive() sanity checks
-git bisect good 2321ba3e3733f513e46e29b9c70512ecddbf1085
-# good: [4a446b3dd335d0bd14a5ca3e563688de3637be0c] arc/mm: support __HAVE_A=
-RCH_PTE_SWP_EXCLUSIVE
-git bisect good 4a446b3dd335d0bd14a5ca3e563688de3637be0c
-# first bad commit: [20aae9eff5acd8f50f72adca1176f9269a46b827] arm/mm: supp=
-ort __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-
---NWKvUnutYufNxY+M
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmPhnAwACgkQJNaLcl1U
-h9D7vgf/U3zBEYllgLPQkDLvGQVNlA4YlBJWjoZUOxdqvOZpwxsxFZ/aia+43O0B
-TMZThl9G4WF69YEjqEYV7m4FyfodFzxRw67Z/BCVTINhlSPp8SakUVz0PyMB6IzP
-CpyMhm1L4Qk4wu+FOVPxQ2pEdWlYa2RWWD3TUQUIw/kTwiBILlQAQocSsrKSHSya
-QoivSxIlvDbX1b3D2XPYaTnnQfHnGrcTXKHxR+r01jHeLvwrQ/Q8wEVSsB/lgItx
-bcLc4KvDG0yCWfPa30KHM30ccbZvLmWVw7D7WqT0ASjc2Rkvgi1G7q3QpOOZPWC+
-QjoJLvNMLQb/bbvVbDMElcjLaSuyQw==
-=EHrm
------END PGP SIGNATURE-----
-
---NWKvUnutYufNxY+M--
+[  199.060000] BUG: scheduling while atomic: test/48/0x0003e2e6
+[  199.060000] Modules linked in:
+[  199.060000] CPU: 0 PID: 48 Comm: test Tainted: G        W          6.1.0-mac #3
+[  199.060000] Stack from 00a6204c:
+[  199.060000]         00a6204c 004c1979 004c1979 00000000 00a6215e 00a6206c 00408d62 004c1979
+[  199.060000]         00a62074 0003ad4a 00a620a8 004099e2 00983480 00000000 00a6215e 00000000
+[  199.060000]         00000002 00983480 00a62000 0040970a 00a6209c 00a6209c 00a620c0 00a620c0
+[  199.060000]         00409b94 00000000 00bcf0c0 00a62198 00a357fc 00a6216c 00120e5c 00bcf0d0
+[  199.060000]         00000003 00000001 00000001 0123f039 00000000 00a357fc 00aead38 005870dc
+[  199.060000]         005870dc 00a31200 00000000 00000000 00000000 00010000 0000c000 00000000
+[  199.060000] Call Trace: [<00408d62>] dump_stack+0x10/0x16
+[  199.060000]  [<0003ad4a>] __schedule_bug+0x5e/0x70
+[  199.060000]  [<004099e2>] __schedule+0x2d8/0x446
+[  199.060000]  [<0040970a>] __schedule+0x0/0x446
+[  199.060000]  [<00409b94>] schedule+0x44/0x8e
+[  199.060000]  [<00120e5c>] handle_userfault+0x298/0x3de
+[  199.060000]  [<00010000>] zer_rp2+0x14/0x18
+[  199.060000]  [<0000c000>] cu_dmrs+0x0/0x16
+[  199.060000]  [<00001200>] kernel_pg_dir+0x200/0x1000
+[  199.060000]  [<00010000>] zer_rp2+0x14/0x18
+[  199.060000]  [<0000c000>] cu_dmrs+0x0/0x16
+[  199.060000]  [<00001200>] kernel_pg_dir+0x200/0x1000
+[  199.060000]  [<00010000>] zer_rp2+0x14/0x18
+[  199.060000]  [<0000c000>] cu_dmrs+0x0/0x16
+[  199.060000]  [<000ab0a0>] handle_mm_fault+0xa34/0xa56
+[  199.060000]  [<000c0000>] __alloc_pages_bulk+0x26/0x3f8
+[  199.060000]  [<00007056>] do_page_fault+0xd8/0x28a
+[  199.060000]  [<00006098>] buserr_c+0x1a6/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<000056fc>] do_040writeback1+0x0/0x1d8
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<000062cc>] buserr_c+0x3da/0x6b0
+[  199.060000]  [<00001000>] kernel_pg_dir+0x0/0x1000
+[  199.060000]  [<00002ac0>] buserr+0x20/0x28
+[  199.060000]  [<00001000>] kernel_pg_dir+0x0/0x1000
+[  199.060000]  [<00008001>] mac_irq_disable+0x3b/0x98
+[  199.060000]  [<00001000>] kernel_pg_dir+0x0/0x1000
+[  199.060000]  [<00008001>] mac_irq_disable+0x3b/0x98
+[  199.060000] 
