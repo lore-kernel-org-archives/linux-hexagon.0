@@ -1,42 +1,129 @@
-From: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
-Subject: Re: [PATCH 09/10] riscv: fix livelock in uaccess
-Date: Mon, 06 Feb 2023 21:06:31 +0100
-Message-ID: <87h6vyimns.fsf@all.your.base.are.belong.to.us>
-References: <Y9lz6yk113LmC9SI@ZenIV> <Y9l02DvS6CYThTEG@ZenIV>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH mm-unstable v1 04/26] arm/mm: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+Date: Tue, 7 Feb 2023 00:32:12 +0000
+Message-ID: <Y+GcDFMNHw2cdDN1@sirena.org.uk>
+References: <20230113171026.582290-1-david@redhat.com>
+ <20230113171026.582290-5-david@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-parisc-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="NWKvUnutYufNxY+M"
+Return-path: <linux-alpha-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675713994;
-        bh=3Yg7D05MkzSc67p0IllIeOFYuHpgtoWHEDyGg89cEn4=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=TrFanAIL/NQxsb91JvfkKgGGInV2GbJv83xXwVospLmonVoYF0qugCWhOe08RPwaX
-         KSz2R1yQLjbocys0qpEKTIJcvGgasxF/iufKfZWM+KLnESrINJ3xvu3fY01VN9IBBd
-         A14tJwz1NoSgpuJDM1gKfn9n4bZjtVGyWg1FSCcjcagioOTF4tpLoxfVEQ3ZgZwQ/X
-         1DTz425W+yIiGefj9MW9+XxaZDTOhpCSDxfOWIbHdEj1cNpx4bg45I7e94f2NXzAcH
-         p/5XOjHti0H5HYdlYMgGbFgyQK/fMQnqBl9p3+VIiziorpSavNm5enxgwyrcpj7Rpb
-         iz3O+/RqhOzlA==
-In-Reply-To: <Y9l02DvS6CYThTEG@ZenIV>
+        s=k20201202; t=1675729943;
+        bh=iZCN6sGc9yW2zYcxaQotSvnk+ZA53AaN/sDVv0yII50=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=r7OTSPs0ofYJfz2HfC9yS/lpbY7S0BFzpXiLK3x7Ke/Y6aWFhktLvs6Bvgj2Al5Wk
+         B6UkcQ+D4VR40u7HKhXzSQ4KgoVE+1waBFZlM5JqHCpnVJMmvdP6KTKtVHMcYXlvDW
+         HvMYz5Nv/QvWcqkqgdC8HtG5iSFLz+5CT0wM3dg+r8XfX8Uoay6JHXFHAsy/jvcyaE
+         Y+YyyHfN2C/hXNPxeqGA7nAR2Ackxd1K6CCBh1BVMg4QrPnhB6To8MjHdG4AQb2uIw
+         smNsNDMgzHTMzUtoipazT928V76wO/Qhc/hW1DhF+HtdqhyqNOakQKfsfeblr/+0mf
+         LLy3JzbNDtsBw==
+Content-Disposition: inline
+In-Reply-To: <20230113171026.582290-5-david@redhat.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="utf-8"
-To: Al Viro <viro@zeniv.linux.org.uk>, linux-arch@vger.kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Mark Rutland <mark.rutland@arm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>, John Hubbard <jhubbard@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>, Mike Rapoport <rppt@linux.ibm.com>, Yang Shi <shy828301@gmail.com>, Vlastimil Babka <vbabka@suse.cz>, Nadav Amit <namit@vmware.com>, Andrea Arcangeli <aarcange@redhat.com>, Peter Xu <peterx@redhat.com>, linux-mm@kvack.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxp
 
-Al Viro <viro@zeniv.linux.org.uk> writes:
 
-> riscv equivalent of 26178ec11ef3 "x86: mm: consolidate VM_FAULT_RETRY han=
-dling"
-> If e.g. get_user() triggers a page fault and a fatal signal is caught, we=
- might
-> end up with handle_mm_fault() returning VM_FAULT_RETRY and not doing anyt=
-hing
-> to page tables.  In such case we must *not* return to the faulting insn -
-> that would repeat the entire thing without making any progress; what we n=
-eed
-> instead is to treat that as failed (user) memory access.
->
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+--NWKvUnutYufNxY+M
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reproduced with Mark's userland program -- thanks!
+On Fri, Jan 13, 2023 at 06:10:04PM +0100, David Hildenbrand wrote:
+> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit from the
+> offset. This reduces the maximum swap space per file to 64 GiB (was 128
+> GiB).
+>=20
+> While at it drop the PTE_TYPE_FAULT from __swp_entry_to_pte() which is
+> defined to be 0 and is rather confusing because we should be dealing
+> with "Linux PTEs" not "hardware PTEs". Also, properly mask the type in
+> __swp_entry().
 
-Tested-by: Bj=C3=B6rn T=C3=B6pel <bjorn@kernel.org>
+Today's -next (and at least back to Friday, older logs are unclear - I
+only noticed -next issues today) fails to NFS boot on an AT91SAM9G20-EK
+(an old ARMv5 platform) with multi_v5_defconfig, a bisect appears to
+point to this patch (20aae9eff5acd8f5 in today's -next) as the culprit.
+
+The failure happens at some point after starting userspace, the kernel
+starts spamming the console with messages in the form:
+
+    get_swap_device: Bad swap file entry 10120d20
+
+repeating the same entry number, though different numbers per boot.  The
+system is booting a Debian userspace and shouldn't have swap configured
+(I verfified that successful boots don't), though it only has 64M of RAM
+so there will be some memory pressure, especially during boot.  The
+exact point things fall over seems to vary a little.
+
+A sample failing job with the full log is here:
+
+    https://lava.sirena.org.uk/scheduler/job/262719
+
+Full bisect log:
+
+git bisect start
+# bad: [129af770823407ee115a56c69a04b440fd2fbe61] Add linux-next specific f=
+iles for 20230206
+git bisect bad 129af770823407ee115a56c69a04b440fd2fbe61
+# good: [4ec5183ec48656cec489c49f989c508b68b518e3] Linux 6.2-rc7
+git bisect good 53b3c6467004c627f42d96ef839b223a749bcdd9
+# good: [17b9d0b05d4fa79afb7bd00edb1b97397418a57a] Merge branch 'master' of=
+ git://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git
+git bisect good 17b9d0b05d4fa79afb7bd00edb1b97397418a57a
+# good: [7044a4e1fab22f437d275b1cf85f5c925741276b] Merge branch 'for-next' =
+of git://git.kernel.org/pub/scm/linux/kernel/git/trace/linux-trace.git
+git bisect good 7044a4e1fab22f437d275b1cf85f5c925741276b
+# good: [bef6844b00f0c24543d60b79c558f353a43709f1] Merge branch 'staging-ne=
+xt' of git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+git bisect good bef6844b00f0c24543d60b79c558f353a43709f1
+# good: [f6737c53676f9db99daee069407daf203e75bc0f] Merge branch 'for-next' =
+of git://git.kernel.org/pub/scm/linux/kernel/git/rppt/memblock.git
+git bisect good f6737c53676f9db99daee069407daf203e75bc0f
+# bad: [05cda97ecb7046f4192a921741aae33b300dd628] mm: factor out a swap_wri=
+tepage_bdev helper
+git bisect bad 05cda97ecb7046f4192a921741aae33b300dd628
+# good: [ee0800c2f6a9e605947ce499d79fb7e2be16d6dd] mm: convert page_add_ano=
+n_rmap() to use a folio internally
+git bisect good ee0800c2f6a9e605947ce499d79fb7e2be16d6dd
+# bad: [590a2b5f0a9b740e415e0d52bd8a0f87fc15b87b] ceph: convert ceph_writep=
+ages_start() to use filemap_get_folios_tag()
+git bisect bad 590a2b5f0a9b740e415e0d52bd8a0f87fc15b87b
+# good: [92644f583d5124b60bc20a3dd21b0bc9142f020c] mm/khugepaged: introduce=
+ release_pte_folio() to replace release_pte_page()
+git bisect good 92644f583d5124b60bc20a3dd21b0bc9142f020c
+# bad: [cca10df1029373cda5904887544ca6fcbbd2bac7] sh/mm: support __HAVE_ARC=
+H_PTE_SWP_EXCLUSIVE
+git bisect bad cca10df1029373cda5904887544ca6fcbbd2bac7
+# bad: [ad464ff2c0f91fcacc24167fc435aa45fe0b7d1b] m68k/mm: remove dummy __s=
+wp definitions for nommu
+git bisect bad ad464ff2c0f91fcacc24167fc435aa45fe0b7d1b
+# bad: [20aae9eff5acd8f50f72adca1176f9269a46b827] arm/mm: support __HAVE_AR=
+CH_PTE_SWP_EXCLUSIVE
+git bisect bad 20aae9eff5acd8f50f72adca1176f9269a46b827
+# good: [2321ba3e3733f513e46e29b9c70512ecddbf1085] mm/debug_vm_pgtable: mor=
+e pte_swp_exclusive() sanity checks
+git bisect good 2321ba3e3733f513e46e29b9c70512ecddbf1085
+# good: [4a446b3dd335d0bd14a5ca3e563688de3637be0c] arc/mm: support __HAVE_A=
+RCH_PTE_SWP_EXCLUSIVE
+git bisect good 4a446b3dd335d0bd14a5ca3e563688de3637be0c
+# first bad commit: [20aae9eff5acd8f50f72adca1176f9269a46b827] arm/mm: supp=
+ort __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+
+--NWKvUnutYufNxY+M
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmPhnAwACgkQJNaLcl1U
+h9D7vgf/U3zBEYllgLPQkDLvGQVNlA4YlBJWjoZUOxdqvOZpwxsxFZ/aia+43O0B
+TMZThl9G4WF69YEjqEYV7m4FyfodFzxRw67Z/BCVTINhlSPp8SakUVz0PyMB6IzP
+CpyMhm1L4Qk4wu+FOVPxQ2pEdWlYa2RWWD3TUQUIw/kTwiBILlQAQocSsrKSHSya
+QoivSxIlvDbX1b3D2XPYaTnnQfHnGrcTXKHxR+r01jHeLvwrQ/Q8wEVSsB/lgItx
+bcLc4KvDG0yCWfPa30KHM30ccbZvLmWVw7D7WqT0ASjc2Rkvgi1G7q3QpOOZPWC+
+QjoJLvNMLQb/bbvVbDMElcjLaSuyQw==
+=EHrm
+-----END PGP SIGNATURE-----
+
+--NWKvUnutYufNxY+M--
