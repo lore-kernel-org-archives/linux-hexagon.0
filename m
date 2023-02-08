@@ -1,57 +1,39 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 09/10] riscv: fix livelock in uaccess
-Date: Tue, 7 Feb 2023 17:11:40 +0100
-Message-ID: <CAMuHMdVQusKr_W4dnQzVSWbav7vooCHbiyOQHbnraJCL16bsDQ@mail.gmail.com>
-References: <Y9lz6yk113LmC9SI@ZenIV> <Y9l02DvS6CYThTEG@ZenIV>
+From: Yang Li <yang.lee@linux.alibaba.com>
+Subject: [PATCH -next] hexagon: Fix warning comparing pointer to 0
+Date: Wed,  8 Feb 2023 09:11:05 +0800
+Message-ID: <20230208011105.80219-1-yang.lee@linux.alibaba.com>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:Cc:To:Subject:Message-ID:Date:From:
-	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=4Y0I/3Ei8612A1t5CDrqxn6F055QJ4kcsd2St3Gp7mg=; b=TaenCeQqY/o8LD
-	ESOQCiOsITAEY5nK4ta5nqiiWIhFilQ0twudlS+keQlhw3bi7CJAJpH6IEW7eoyTmKv5XvcJ+dDPm
-	ETSwEubv5+got9Wyc73evZ5nYXzVlt3ovl/xb9WGphYceigHuUAwiE3SBJ01oKuD3+B3CywDi4UWZ
-	kuJ6hkoC1fDZyznW0uPmtcu0i3B/ArobfP2yNKhNuJ5D2qN3bcONiS3MUTqD/E37mq4LnSclTe6Nr
-	InHcv2nqthXVfwmrkSKhn7v9tVcMtJJht29snC82QmD/HbYJ/AMzm5QLlel7V7I2qQvrKci3cdVe/
-	zPClLjx4XrRtuPiJyK/g==;
-In-Reply-To: <Y9l02DvS6CYThTEG@ZenIV>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+To: bcain@quicinc.com
+Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Yang Li <yang.lee@linux.alibaba.com>, Abaci Robot <abaci@linux.alibaba.com>
 
-On Tue, Jan 31, 2023 at 9:07 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
-> riscv equivalent of 26178ec11ef3 "x86: mm: consolidate VM_FAULT_RETRY handling"
-> If e.g. get_user() triggers a page fault and a fatal signal is caught, we might
-> end up with handle_mm_fault() returning VM_FAULT_RETRY and not doing anything
-> to page tables.  In such case we must *not* return to the faulting insn -
-> that would repeat the entire thing without making any progress; what we need
-> instead is to treat that as failed (user) memory access.
->
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+./arch/hexagon/kernel/traps.c:138:6-7: WARNING comparing pointer to 0
 
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Avoid pointer type value compared with 0 to make code clear.
 
-Gr{oetje,eeting}s,
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3978
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+---
+ arch/hexagon/kernel/traps.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-                        Geert
+diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
+index 6447763ce5a9..fdbbf78b4ce0 100644
+--- a/arch/hexagon/kernel/traps.c
++++ b/arch/hexagon/kernel/traps.c
+@@ -135,7 +135,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
+ 		}
+ 
+ 		/* Attempt to continue past exception. */
+-		if (0 == newfp) {
++		if (!newfp) {
+ 			struct pt_regs *regs = (struct pt_regs *) (((void *)fp)
+ 						+ 8);
+ 
+-- 
+2.20.1.7.g153144c
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
