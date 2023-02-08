@@ -1,39 +1,116 @@
-From: Yang Li <yang.lee@linux.alibaba.com>
-Subject: [PATCH -next] hexagon: Fix warning comparing pointer to 0
-Date: Wed,  8 Feb 2023 09:11:05 +0800
-Message-ID: <20230208011105.80219-1-yang.lee@linux.alibaba.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH mm-unstable v1 04/26] arm/mm: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+Date: Wed, 8 Feb 2023 15:12:06 +0100
+Message-ID: <39fd91e3-c93b-23c6-afc6-cbe473bb0ca9@redhat.com>
+References: <20230113171026.582290-1-david@redhat.com>
+ <20230113171026.582290-5-david@redhat.com> <Y+GcDFMNHw2cdDN1@sirena.org.uk>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: bcain@quicinc.com
-Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Yang Li <yang.lee@linux.alibaba.com>, Abaci Robot <abaci@linux.alibaba.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
+	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
+	List-Unsubscribe:List-Id:In-Reply-To:Subject:From:References:Cc:To:
+	MIME-Version:Date:Message-ID:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=xpvhuCRz7KXfBQnknLM/Aee73VYLgAoWw8KuyeYAd2c=; b=zM7/zNXorKRacl
+	daUqOFiz2j5UpwMrB9fXyPyhNVXbmEUDNNZFQbXGTM+eejwBtIZTU2ORiwukXCkEDuUMPyr6IfrvY
+	0zVLedl/ZJhnhkg2sY97OuGDEuiGFsVZtoAyFw75l+5pErwfgTc4yiHd0SIrwsaLz69DPKJ/gdfCP
+	G6yZLIJWvHRT4wWISMZ3ODon195Ft4LAfVFKQoGBaokVgGgR8FJ43ovqqwVIsNZTmcPPFNYS+prig
+	H2I+lQQ8imLU0TMp3kdBALNop1RNZDp/6Elmot77np3X4WGu1EQ3TWMWBS2xwNyfMNuDHT24tEEd2
+	HuOGOEPBAQc3hJGXV6vA==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1675865533;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=MVdXAMmBKMdGVdB031db9qoOwXwbq1WnNqDyKF+cm50=;
+	b=O/qlPQ7axEO3G5894PpwLpdPSc9yoY1hkqsVMsSJpfHb/iqj/19uxhzPrG4zJMCp6sCXd9
+	hbbr6arzZHrgvFbqxhAYUH2jeMs5VEARXrdU6u+Am2rsdWL6T2AW+KnuYIo6v3sCaG//lm
+	bJzzpx0NrXxqPewtgncyu+w0dOXmzfE=
+In-Reply-To: <Y+GcDFMNHw2cdDN1@sirena.org.uk>
+Content-Language: en-US
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: Mark Brown <broonie@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>, John Hubbard <jhubbard@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>, Mike Rapoport <rppt@linux.ibm.com>, Yang Shi <shy828301@gmail.com>, Vlastimil Babka <vbabka@suse.cz>, Nadav Amit <namit@vmware.com>, Andrea Arcangeli <aarcange@redhat.com>, Peter Xu <peterx@redhat.com>, linux-mm@kvack.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
 
-./arch/hexagon/kernel/traps.c:138:6-7: WARNING comparing pointer to 0
+On 07.02.23 01:32, Mark Brown wrote:
+> On Fri, Jan 13, 2023 at 06:10:04PM +0100, David Hildenbrand wrote:
+>> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit from the
+>> offset. This reduces the maximum swap space per file to 64 GiB (was 128
+>> GiB).
+>>
+>> While at it drop the PTE_TYPE_FAULT from __swp_entry_to_pte() which is
+>> defined to be 0 and is rather confusing because we should be dealing
+>> with "Linux PTEs" not "hardware PTEs". Also, properly mask the type in
+>> __swp_entry().
+> 
+> Today's -next (and at least back to Friday, older logs are unclear - I
+> only noticed -next issues today) fails to NFS boot on an AT91SAM9G20-EK
+> (an old ARMv5 platform) with multi_v5_defconfig, a bisect appears to
+> point to this patch (20aae9eff5acd8f5 in today's -next) as the culprit.
 
-Avoid pointer type value compared with 0 to make code clear.
+It's been in -next for quite a while, thanks for the report!
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3978
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+> 
+> The failure happens at some point after starting userspace, the kernel
+> starts spamming the console with messages in the form:
+> 
+>      get_swap_device: Bad swap file entry 10120d20
+> 
+
+_swap_info_get() tells us that the swp type seems to be bad.
+I assume we're dealing with a migration entry, if swap is disabled, and fail to
+detect is_migration_entry() correctly because the type is messed up.
+
+Could you give the following a test?
+
+
+ From 8c4bdbd9862f85782d5919d044c172b584063e83 Mon Sep 17 00:00:00 2001
+From: David Hildenbrand <david@redhat.com>
+Date: Wed, 8 Feb 2023 15:08:01 +0100
+Subject: [PATCH] arm/mm: Fix swp type masking in __swp_entry()
+
+We're masking with the number of type bits instead of the type mask, which
+is obviously wrong.
+
+Fixes: 20aae9eff5ac ("arm/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE")
+Reported-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/hexagon/kernel/traps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+  arch/arm/include/asm/pgtable.h | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
-index 6447763ce5a9..fdbbf78b4ce0 100644
---- a/arch/hexagon/kernel/traps.c
-+++ b/arch/hexagon/kernel/traps.c
-@@ -135,7 +135,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
- 		}
- 
- 		/* Attempt to continue past exception. */
--		if (0 == newfp) {
-+		if (!newfp) {
- 			struct pt_regs *regs = (struct pt_regs *) (((void *)fp)
- 						+ 8);
- 
+diff --git a/arch/arm/include/asm/pgtable.h b/arch/arm/include/asm/pgtable.h
+index 2e626e6da9a3..a58ccbb406ad 100644
+--- a/arch/arm/include/asm/pgtable.h
++++ b/arch/arm/include/asm/pgtable.h
+@@ -292,7 +292,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+  
+  #define __swp_type(x)		(((x).val >> __SWP_TYPE_SHIFT) & __SWP_TYPE_MASK)
+  #define __swp_offset(x)		((x).val >> __SWP_OFFSET_SHIFT)
+-#define __swp_entry(type, offset) ((swp_entry_t) { (((type) & __SWP_TYPE_BITS) << __SWP_TYPE_SHIFT) | \
++#define __swp_entry(type, offset) ((swp_entry_t) { (((type) & __SWP_TYPE_MASK) << __SWP_TYPE_SHIFT) | \
+  						   ((offset) << __SWP_OFFSET_SHIFT) })
+  
+  #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
 -- 
-2.20.1.7.g153144c
+2.39.1
 
+
+-- 
+Thanks,
+
+David / dhildenb
