@@ -1,97 +1,123 @@
-From: Brian Cain <bcain@quicinc.com>
-Subject: RE: [PATCH 02/10] hexagon: fix livelock in uaccess
-Date: Fri, 10 Feb 2023 02:59:41 +0000
-Message-ID: <SN6PR02MB4205D40B41246B41EA8FD069B8DE9@SN6PR02MB4205.namprd02.prod.outlook.com>
-References: <Y9lz6yk113LmC9SI@ZenIV> <Y9l0LyAA3zAGeT51@ZenIV>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH mm-unstable v1 17/26] powerpc/mm: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit book3s
+Date: Fri, 10 Feb 2023 16:08:07 +1100
+Message-ID: <87cz6iw1jc.fsf@mpe.ellerman.id.au>
+References: <20230113171026.582290-1-david@redhat.com>
+ <20230113171026.582290-18-david@redhat.com>
 Mime-Version: 1.0
+Return-path: <linux-m68k-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1676005696;
+        bh=gjOEhpmQ4QzYiJxNRSCplO6mzBIo8CgdHMudas4f4m4=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=VzBHDakF5oapgbqSwyCXW4NlOxuhWIXgHT5bnjksmwxnwzB2j77QlwtNy9auFKO5k
+         R5zuzvTLv5v6JR0g4zAQSDALbGO0+HtyCcaxIv+XCmtUOUNdsZXpr/60HJ8m0se9Ac
+         HCqPfRmHl1K9cRm2zGL0JLt1dLbvDoohuA4JmvWcFN0J1XTPyIZXfr0n3q8zPBgbwM
+         2KTETWI8PkOX6ZP5se3LmuOaFIoUbfwmRFq7s/gffXRM+ntl6Tsz8s7uIuoBncovYH
+         169scsrJUZSYlGwI60JQl2lk38JbvV/eRPo8tLjsBgWQeltv5kZiHwGm5Gqurl9z/4
+         hTaeq+aYRbc4A==
+In-Reply-To: <20230113171026.582290-18-david@redhat.com>
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:In-Reply-To:References:
-	Message-ID:Date:Subject:CC:To:From:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=UuS/bSHo2kkMDHPLWFzuJIyZBYgDcgGL07RnfaaOag0=; b=L1PC/rXneg7VT+
-	uGwGTDFQbauMm6JROTiLJ+pZ0ZfV+2lkjDJdGd38nLG1B1yf5ssK4XdJx5ZZd1e53aKxD0cTqlU8l
-	lixzPq6+JqXhbbDmUlYMISUQXP2mHjdW05OOl7DBKjAKuL2VouSnfe04avjQA4aPwDMJqyRoNhfcS
-	wmrchfRxSzDQdZ4OaR66AhQa+jq81s+fiSd5XZfQapTzAAg3CFnRX14sRQP4my5mOtUGPvyYpY1fX
-	lSL01kmOSz6m+GgFOYCEWkfozni7clmdprrOww+lpg4/gPXCAwVbhvPXLCF6i3wzvuDd+TXz3Wl6x
-	KJwJAgH/FVkBwHqrRBzg==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=qcppdkim1;
- bh=PMdaGYZpGF22orovjSVuT60NlPXcv4+kqFOvDDIYePQ=;
- b=Z3veALbf+68QAY33DqNSH1vBntSADetQYkI4LOy5hyViSWII3V+FRmaviz2WcgvdluI2
- I/B6E27Ci0t6LlvQC3K+fwfnn/rkFXkdtLQHad8xfgSUXx5Wi4b5ubG2Lm15RvRaJGTA
- o5kEg26md9V+QDg7M0HhyBLtDh09Ia1QB/R/hmlzSaxdvLjTM/Rcf9Uy947dgYgNyNtX
- cdxyUMN90NTBaTsUlsP/fYX0X4SVIjPaO8noazzJ282TZ046tt9XMZJ7Kb7L64wSWpFO
- n24kyVPZ3g1n6gcTPteEoIkQZeGykz/oyZyt4oprbIfkhqaJ9nV8pEUOQKn+Yfsb68xS dQ== 
-In-Reply-To: <Y9l0LyAA3zAGeT51@ZenIV>
-Content-Language: en-US
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Al Viro <viro@zeniv.linux.org.uk>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>
-Cc: "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>, John Hubbard <jhubbard@nvidia.com>, Jason Gunthorpe <jgg@nvidia.com>, Mike Rapoport <rppt@linux.ibm.com>, Yang Shi <shy828301@gmail.com>, Vlastimil Babka <vbabka@suse.cz>, Nadav Amit <namit@vmware.com>, Andrea Arcangeli <aarcange@redhat.com>, Peter Xu <peterx@redhat.com>, linux-mm@kvack.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux
 
-> -----Original Message-----
-> From: Al Viro <viro@ftp.linux.org.uk> On Behalf Of Al Viro
-> Sent: Tuesday, January 31, 2023 2:04 PM
-> To: linux-arch@vger.kernel.org
-> Cc: linux-alpha@vger.kernel.org; linux-ia64@vger.kernel.org; linux-
-> hexagon@vger.kernel.org; linux-m68k@lists.linux-m68k.org; Michal Simek
-> <monstr@monstr.eu>; Dinh Nguyen <dinguyen@kernel.org>;
-> openrisc@lists.librecores.org; linux-parisc@vger.kernel.org; linux-
-> riscv@lists.infradead.org; sparclinux@vger.kernel.org; Linus Torvalds
-> <torvalds@linux-foundation.org>
-> Subject: [PATCH 02/10] hexagon: fix livelock in uaccess
-> 
-> WARNING: This email originated from outside of Qualcomm. Please be wary of
-> any links or attachments, and do not enable macros.
-> 
-> hexagon equivalent of 26178ec11ef3 "x86: mm: consolidate
-> VM_FAULT_RETRY handling"
-> If e.g. get_user() triggers a page fault and a fatal signal is caught, we might
-> end up with handle_mm_fault() returning VM_FAULT_RETRY and not doing
-> anything
-> to page tables.  In such case we must *not* return to the faulting insn -
-> that would repeat the entire thing without making any progress; what we
-> need
-> instead is to treat that as failed (user) memory access.
-> 
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+David Hildenbrand <david@redhat.com> writes:
+> We already implemented support for 64bit book3s in commit bff9beaa2e80
+> ("powerpc/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE for book3s")
+>
+> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE also in 32bit by reusing yet
+> unused LSB 2 / MSB 29. There seems to be no real reason why that bit cannot
+> be used, and reusing it avoids having to steal one bit from the swap
+> offset.
+>
+> While at it, mask the type in __swp_entry().
+>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 > ---
->  arch/hexagon/mm/vm_fault.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/hexagon/mm/vm_fault.c b/arch/hexagon/mm/vm_fault.c
-> index f73c7cbfe326..4b578d02fd01 100644
-> --- a/arch/hexagon/mm/vm_fault.c
-> +++ b/arch/hexagon/mm/vm_fault.c
-> @@ -93,8 +93,11 @@ void do_page_fault(unsigned long address, long cause,
-> struct pt_regs *regs)
-> 
->         fault = handle_mm_fault(vma, address, flags, regs);
-> 
-> -       if (fault_signal_pending(fault, regs))
-> +       if (fault_signal_pending(fault, regs)) {
-> +               if (!user_mode(regs))
-> +                       goto no_context;
->                 return;
-> +       }
-> 
->         /* The fault is fully completed (including releasing mmap lock) */
->         if (fault & VM_FAULT_COMPLETED)
-> --
-> 2.30.2
+>  arch/powerpc/include/asm/book3s/32/pgtable.h | 38 +++++++++++++++++---
+>  1 file changed, 33 insertions(+), 5 deletions(-)
 
-Acked-by: Brian Cain <bcain@quicinc.com>
+I gave this a quick test on a ppc32 machine, everything seems fine.
+
+Your test_swp_exclusive.c passes, and an LTP run looks normal.
+
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+
+cheers
+
+> diff --git a/arch/powerpc/include/asm/book3s/32/pgtable.h b/arch/powerpc/include/asm/book3s/32/pgtable.h
+> index 75823f39e042..0ecb3a58f23f 100644
+> --- a/arch/powerpc/include/asm/book3s/32/pgtable.h
+> +++ b/arch/powerpc/include/asm/book3s/32/pgtable.h
+> @@ -42,6 +42,9 @@
+>  #define _PMD_PRESENT_MASK (PAGE_MASK)
+>  #define _PMD_BAD	(~PAGE_MASK)
+>  
+> +/* We borrow the _PAGE_USER bit to store the exclusive marker in swap PTEs. */
+> +#define _PAGE_SWP_EXCLUSIVE	_PAGE_USER
+> +
+>  /* And here we include common definitions */
+>  
+>  #define _PAGE_KERNEL_RO		0
+> @@ -363,17 +366,42 @@ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
+>  #define pmd_page(pmd)		pfn_to_page(pmd_pfn(pmd))
+>  
+>  /*
+> - * Encode and decode a swap entry.
+> - * Note that the bits we use in a PTE for representing a swap entry
+> - * must not include the _PAGE_PRESENT bit or the _PAGE_HASHPTE bit (if used).
+> - *   -- paulus
+> + * Encode/decode swap entries and swap PTEs. Swap PTEs are all PTEs that
+> + * are !pte_none() && !pte_present().
+> + *
+> + * Format of swap PTEs (32bit PTEs):
+> + *
+> + *                         1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
+> + *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+> + *   <----------------- offset --------------------> < type -> E H P
+> + *
+> + *   E is the exclusive marker that is not stored in swap entries.
+> + *   _PAGE_PRESENT (P) and __PAGE_HASHPTE (H) must be 0.
+> + *
+> + * For 64bit PTEs, the offset is extended by 32bit.
+>   */
+>  #define __swp_type(entry)		((entry).val & 0x1f)
+>  #define __swp_offset(entry)		((entry).val >> 5)
+> -#define __swp_entry(type, offset)	((swp_entry_t) { (type) | ((offset) << 5) })
+> +#define __swp_entry(type, offset)	((swp_entry_t) { ((type) & 0x1f) | ((offset) << 5) })
+>  #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) >> 3 })
+>  #define __swp_entry_to_pte(x)		((pte_t) { (x).val << 3 })
+>  
+> +#define __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+> +static inline int pte_swp_exclusive(pte_t pte)
+> +{
+> +	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
+> +}
+> +
+> +static inline pte_t pte_swp_mkexclusive(pte_t pte)
+> +{
+> +	return __pte(pte_val(pte) | _PAGE_SWP_EXCLUSIVE);
+> +}
+> +
+> +static inline pte_t pte_swp_clear_exclusive(pte_t pte)
+> +{
+> +	return __pte(pte_val(pte) & ~_PAGE_SWP_EXCLUSIVE);
+> +}
+> +
+>  /* Generic accessors to PTE bits */
+>  static inline int pte_write(pte_t pte)		{ return !!(pte_val(pte) & _PAGE_RW);}
+>  static inline int pte_read(pte_t pte)		{ return 1; }
+> -- 
+> 2.39.0
+>
+>
+> _______________________________________________
+> linux-riscv mailing list
+> linux-riscv@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-riscv
