@@ -1,67 +1,89 @@
-From: Valentin Schneider <vschneid@redhat.com>
-Subject: Re: [PATCH v4 0/7] Generic IPI sending tracepoint
-Date: Tue, 14 Feb 2023 14:10:43 +0000
-Message-ID: <xhsmhh6voqqvw.mognet@vschneid.remote.csb>
-References: <20230119143619.2733236-1-vschneid@redhat.com>
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 12/7] hexagon: Implement the new page table range API
+Date: Wed, 15 Feb 2023 00:04:45 +0000
+Message-ID: <20230215000446.1655635-4-willy@infradead.org>
+References: <20230211033948.891959-1-willy@infradead.org>
+ <20230215000446.1655635-1-willy@infradead.org>
 Mime-Version: 1.0
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1676383852;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7edBYp6qpX/SlmDw/QknJtcx6m2SrqGm1x4V+hfCBb4=;
-	b=hJ8l+sTbhqlxPfpgz9IPnE3v2+m+9DukW6d9XwAmJE9UafeMd71Gt5huOxcF45yLsJkJAP
-	+GopWafvY0VeWKh1H0Gj46lvsmypZFP1SJ0GraS9U5zcv5ADt1yxHGgWnKifBieyPj45cA
-	GvIpwdFIlJ41saefHctiC0nP9OTOKPc=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1676383852;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7edBYp6qpX/SlmDw/QknJtcx6m2SrqGm1x4V+hfCBb4=;
-	b=hJ8l+sTbhqlxPfpgz9IPnE3v2+m+9DukW6d9XwAmJE9UafeMd71Gt5huOxcF45yLsJkJAP
-	+GopWafvY0VeWKh1H0Gj46lvsmypZFP1SJ0GraS9U5zcv5ADt1yxHGgWnKifBieyPj45cA
-	GvIpwdFIlJ41saefHctiC0nP9OTOKPc=
-In-Reply-To: <20230119143619.2733236-1-vschneid@redhat.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
-Sender: "Linuxppc-dev" <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+        Content-Type:Content-ID:Content-Description;
+        bh=h2PRVkAtu8fd3a0bg//rUxs9QnW0skvYBe9Qcbzdifk=; b=DIExkwAi2tqpjSpQji7j9ZuyaX
+        Ii2DX9beCKO5Ej7eEZrmu/UZfKbavuYWZDTHRdYta5L8QefNsL1a+IYkNgojROgRIdWGhermVt0uB
+        VD/9aBb/kv6A2s8MKzfyTFd2TSqs1riYuIuKa/J1bZ2U+XQt5ajncQi65QWMsyFeR14P6w2rxxre+
+        VW9TGSzzeW0ve+xm4HaB6VpDKlHXXsYjZLwJM7AHQHDs7gOpk8eFe+I94/TuSt7UWuF2vNjvUM+JF
+        TSjby/ePER0UuBe8DcS8eVg7BVR2nMNeq5nFiywKuRvDevMKgU+IttbK33DI4zBgijNgZY5kayMAK
+        HdrwpRKA==;
+In-Reply-To: <20230215000446.1655635-1-willy@infradead.org>
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org
-Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, "Paul E. McKenney" <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Russell King <linux@armlinux.org.uk>, Steven Rostedt <rostedt@goodmis.org>, "David S. Miller" <davem@davemloft.net>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Nicholas Piggin <npiggin@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Guo Ren <guoren@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Daniel Bristot de Oliveira <bristot@redhat.com>, Frederic Weisbecker <frederic@kernel.org>
+To: linux-mm@kvack.org, Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org, linux-arch@vger.kernel.org
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
+Add set_ptes() and update_mmu_cache_range().
 
-Hey folks,
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+---
+ arch/hexagon/include/asm/cacheflush.h |  7 +++++--
+ arch/hexagon/include/asm/pgtable.h    | 16 ++++++++++++++--
+ 2 files changed, 19 insertions(+), 4 deletions(-)
 
-On 19/01/23 14:36, Valentin Schneider wrote:
-> Patches
-> =======
->
-> o Patches 1-5 spread out the tracepoint across relevant sites.
->   Patch 5 ends up sprinkling lots of #include <trace/events/ipi.h> which I'm not
->   the biggest fan of, but is the least horrible solution I've been able to come
->   up with so far.
->
-> o Patch 7 is trying to be smart about tracing the callback associated with the
->   IPI.
->
-> This results in having IPI trace events for:
->
-> o smp_call_function*()
-> o smp_send_reschedule()
-> o irq_work_queue*()
-> o standalone uses of __smp_call_single_queue()
->
-
-This still rebases cleanly on top of the latest tip/sched/core, any
-objections to parking it there?
+diff --git a/arch/hexagon/include/asm/cacheflush.h b/arch/hexagon/include/asm/cacheflush.h
+index 6eff0730e6ef..63ca314ede89 100644
+--- a/arch/hexagon/include/asm/cacheflush.h
++++ b/arch/hexagon/include/asm/cacheflush.h
+@@ -58,12 +58,15 @@ extern void flush_cache_all_hexagon(void);
+  * clean the cache when the PTE is set.
+  *
+  */
+-static inline void update_mmu_cache(struct vm_area_struct *vma,
+-					unsigned long address, pte_t *ptep)
++static inline void update_mmu_cache_range(struct vm_area_struct *vma,
++		unsigned long address, pte_t *ptep, unsigned int nr)
+ {
+ 	/*  generic_ptrace_pokedata doesn't wind up here, does it?  */
+ }
+ 
++#define update_mmu_cache(vma, addr, ptep) \
++	update_mmu_cache_range(vma, addr, ptep, 1)
++
+ void copy_to_user_page(struct vm_area_struct *vma, struct page *page,
+ 		       unsigned long vaddr, void *dst, void *src, int len);
+ #define copy_to_user_page copy_to_user_page
+diff --git a/arch/hexagon/include/asm/pgtable.h b/arch/hexagon/include/asm/pgtable.h
+index 59393613d086..f58f1d920769 100644
+--- a/arch/hexagon/include/asm/pgtable.h
++++ b/arch/hexagon/include/asm/pgtable.h
+@@ -346,12 +346,24 @@ static inline int pte_exec(pte_t pte)
+ #define set_pmd(pmdptr, pmdval) (*(pmdptr) = (pmdval))
+ 
+ /*
+- * set_pte_at - update page table and do whatever magic may be
++ * set_ptes - update page table and do whatever magic may be
+  * necessary to make the underlying hardware/firmware take note.
+  *
+  * VM may require a virtual instruction to alert the MMU.
+  */
+-#define set_pte_at(mm, addr, ptep, pte) set_pte(ptep, pte)
++static inline void set_ptes(struct mm_struct *mm, unsigned long addr,
++		pte_t *ptep, pte_t pte, unsigned int nr)
++{
++	for (;;) {
++		set_pte(ptep, pte);
++		if (--nr == 0)
++			break;
++		ptep++;
++		pte_val(pte) += PAGE_SIZE;
++	}
++}
++
++#define set_pte_at(mm, addr, ptep, pte) set_ptes(mm, addr, ptep, pte, 1)
+ 
+ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+ {
+-- 
+2.39.1
 
