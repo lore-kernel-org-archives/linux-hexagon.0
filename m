@@ -1,89 +1,71 @@
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: [PATCH 12/7] hexagon: Implement the new page table range API
-Date: Wed, 15 Feb 2023 00:04:45 +0000
-Message-ID: <20230215000446.1655635-4-willy@infradead.org>
-References: <20230211033948.891959-1-willy@infradead.org>
- <20230215000446.1655635-1-willy@infradead.org>
-Mime-Version: 1.0
+From: Palmer Dabbelt <palmer@dabbelt.com>
+Subject: Re: [PATCH 13/19] arch/riscv: rename internal name __xchg to __arch_xchg
+Date: Tue, 14 Feb 2023 21:22:24 -0800 (PST)
+Message-ID: <mhng-e75808d7-21de-4ef8-a606-b7c652a1f38e@palmer-ri-x1c9>
+References: <20221222114635.1251934-14-andrzej.hajda@intel.com>
+Mime-Version: 1.0 (MHng)
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=h2PRVkAtu8fd3a0bg//rUxs9QnW0skvYBe9Qcbzdifk=; b=DIExkwAi2tqpjSpQji7j9ZuyaX
-        Ii2DX9beCKO5Ej7eEZrmu/UZfKbavuYWZDTHRdYta5L8QefNsL1a+IYkNgojROgRIdWGhermVt0uB
-        VD/9aBb/kv6A2s8MKzfyTFd2TSqs1riYuIuKa/J1bZ2U+XQt5ajncQi65QWMsyFeR14P6w2rxxre+
-        VW9TGSzzeW0ve+xm4HaB6VpDKlHXXsYjZLwJM7AHQHDs7gOpk8eFe+I94/TuSt7UWuF2vNjvUM+JF
-        TSjby/ePER0UuBe8DcS8eVg7BVR2nMNeq5nFiywKuRvDevMKgU+IttbK33DI4zBgijNgZY5kayMAK
-        HdrwpRKA==;
-In-Reply-To: <20230215000446.1655635-1-willy@infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=dabbelt-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=tV+nl5/6nbPk/6HA5pQX/rHuTHF5S4E9f4KJMF/h5x0=;
+        b=fhWxOvSg47bnqh1vlUb0tg8U7zRfENd11uhGOf5Jsz/ZocWHFEI68pLXo5d9vBVXvT
+         wSDFNO3/CV6QVriW/uJf7uSjBsTIo2nfhwr90ljf0Mtrv3l+ZNz03APZ/NoeYJxIi8AS
+         eT1BnG6scYkTL0mRsKAhicVLLfSox5xFSJlK+m4CcZ2f/19AZeBmn0TeLDNpHHUJ+j//
+         pNGe52xRL7NHFqYuRqi8NBAMhHiUAqm3krXcV9gB6lQ+ZUL8htkaq+hcUOto2vJWmQ/P
+         1t61ly6hek8z31+cUX+0shb1PAvYlU/KvbO9KdB05jwbmNe1/Zq0XZpFJiImeu8sqMJC
+         uFRA==
+In-Reply-To: <20221222114635.1251934-14-andrzej.hajda@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: linux-mm@kvack.org, Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org, linux-arch@vger.kernel.org
-Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, andrzej.hajda@intel.com, Arnd Bergmann <arnd@arndb.de>, rodrigo.vivi@intel.com, akpm@linux-foundation.org, andriy.shevchenko@linux.intel.com, peterz@infradead.org, boqun.feng@gmail.com, mark.rutland@arm.com
 
-Add set_ptes() and update_mmu_cache_range().
+On Thu, 22 Dec 2022 03:46:29 PST (-0800), andrzej.hajda@intel.com wrote:
+> __xchg will be used for non-atomic xchg macro.
+>
+> Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
+> ---
+>  arch/riscv/include/asm/atomic.h  | 2 +-
+>  arch/riscv/include/asm/cmpxchg.h | 4 ++--
+>  2 files changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/arch/riscv/include/asm/atomic.h b/arch/riscv/include/asm/atomic.h
+> index 0dfe9d857a762b..bba472928b5393 100644
+> --- a/arch/riscv/include/asm/atomic.h
+> +++ b/arch/riscv/include/asm/atomic.h
+> @@ -261,7 +261,7 @@ c_t arch_atomic##prefix##_xchg_release(atomic##prefix##_t *v, c_t n)	\
+>  static __always_inline							\
+>  c_t arch_atomic##prefix##_xchg(atomic##prefix##_t *v, c_t n)		\
+>  {									\
+> -	return __xchg(&(v->counter), n, size);				\
+> +	return __arch_xchg(&(v->counter), n, size);			\
+>  }									\
+>  static __always_inline							\
+>  c_t arch_atomic##prefix##_cmpxchg_relaxed(atomic##prefix##_t *v,	\
+> diff --git a/arch/riscv/include/asm/cmpxchg.h b/arch/riscv/include/asm/cmpxchg.h
+> index 12debce235e52d..2f4726d3cfcc25 100644
+> --- a/arch/riscv/include/asm/cmpxchg.h
+> +++ b/arch/riscv/include/asm/cmpxchg.h
+> @@ -114,7 +114,7 @@
+>  					    _x_, sizeof(*(ptr)));	\
+>  })
+>
+> -#define __xchg(ptr, new, size)						\
+> +#define __arch_xchg(ptr, new, size)					\
+>  ({									\
+>  	__typeof__(ptr) __ptr = (ptr);					\
+>  	__typeof__(new) __new = (new);					\
+> @@ -143,7 +143,7 @@
+>  #define arch_xchg(ptr, x)						\
+>  ({									\
+>  	__typeof__(*(ptr)) _x_ = (x);					\
+> -	(__typeof__(*(ptr))) __xchg((ptr), _x_, sizeof(*(ptr)));	\
+> +	(__typeof__(*(ptr))) __arch_xchg((ptr), _x_, sizeof(*(ptr)));	\
+>  })
+>
+>  #define xchg32(ptr, x)							\
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
----
- arch/hexagon/include/asm/cacheflush.h |  7 +++++--
- arch/hexagon/include/asm/pgtable.h    | 16 ++++++++++++++--
- 2 files changed, 19 insertions(+), 4 deletions(-)
-
-diff --git a/arch/hexagon/include/asm/cacheflush.h b/arch/hexagon/include/asm/cacheflush.h
-index 6eff0730e6ef..63ca314ede89 100644
---- a/arch/hexagon/include/asm/cacheflush.h
-+++ b/arch/hexagon/include/asm/cacheflush.h
-@@ -58,12 +58,15 @@ extern void flush_cache_all_hexagon(void);
-  * clean the cache when the PTE is set.
-  *
-  */
--static inline void update_mmu_cache(struct vm_area_struct *vma,
--					unsigned long address, pte_t *ptep)
-+static inline void update_mmu_cache_range(struct vm_area_struct *vma,
-+		unsigned long address, pte_t *ptep, unsigned int nr)
- {
- 	/*  generic_ptrace_pokedata doesn't wind up here, does it?  */
- }
- 
-+#define update_mmu_cache(vma, addr, ptep) \
-+	update_mmu_cache_range(vma, addr, ptep, 1)
-+
- void copy_to_user_page(struct vm_area_struct *vma, struct page *page,
- 		       unsigned long vaddr, void *dst, void *src, int len);
- #define copy_to_user_page copy_to_user_page
-diff --git a/arch/hexagon/include/asm/pgtable.h b/arch/hexagon/include/asm/pgtable.h
-index 59393613d086..f58f1d920769 100644
---- a/arch/hexagon/include/asm/pgtable.h
-+++ b/arch/hexagon/include/asm/pgtable.h
-@@ -346,12 +346,24 @@ static inline int pte_exec(pte_t pte)
- #define set_pmd(pmdptr, pmdval) (*(pmdptr) = (pmdval))
- 
- /*
-- * set_pte_at - update page table and do whatever magic may be
-+ * set_ptes - update page table and do whatever magic may be
-  * necessary to make the underlying hardware/firmware take note.
-  *
-  * VM may require a virtual instruction to alert the MMU.
-  */
--#define set_pte_at(mm, addr, ptep, pte) set_pte(ptep, pte)
-+static inline void set_ptes(struct mm_struct *mm, unsigned long addr,
-+		pte_t *ptep, pte_t pte, unsigned int nr)
-+{
-+	for (;;) {
-+		set_pte(ptep, pte);
-+		if (--nr == 0)
-+			break;
-+		ptep++;
-+		pte_val(pte) += PAGE_SIZE;
-+	}
-+}
-+
-+#define set_pte_at(mm, addr, ptep, pte) set_ptes(mm, addr, ptep, pte, 1)
- 
- static inline unsigned long pmd_page_vaddr(pmd_t pmd)
- {
--- 
-2.39.1
-
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
