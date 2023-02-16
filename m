@@ -1,100 +1,128 @@
-From: Brian Cain <bcain@quicinc.com>
-Subject: RE: [PATCH 12/7] hexagon: Implement the new page table range API
-Date: Wed, 15 Feb 2023 16:22:56 +0000
-Message-ID: <SN6PR02MB4205EC14C2B3D85CCFFFF2C6B8A39@SN6PR02MB4205.namprd02.prod.outlook.com>
-References: <20230211033948.891959-1-willy@infradead.org>
- <20230215000446.1655635-1-willy@infradead.org>
- <20230215000446.1655635-4-willy@infradead.org>
+From: Baoquan He <bhe@redhat.com>
+Subject: [PATCH v4 01/16] hexagon: mm: Convert to GENERIC_IOREMAP
+Date: Thu, 16 Feb 2023 20:34:04 +0800
+Message-ID: <20230216123419.461016-2-bhe@redhat.com>
+References: <20230216123419.461016-1-bhe@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arch-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : subject
- : date : message-id : references : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=qcppdkim1;
- bh=nq4LfOIYnP6y4Mzr5hYSqCcQe/XMKu/f/2+ilkqPWCY=;
- b=OzMzwqYC+zjggbw3CU7ofbYDf1qfZ0hBRa1uB70UVEUizQMucHiwadR+MBXS0EvHI9uj
- ZavnW6+J6+iVBsu1YUIqUtaZ39rvtys8R0zYRPyJqPaZz2eVTrgJ1bNKt4Sz3s69T3Kx
- UtVDRqUwfe9nmNamNTBClb9Fh0gmAP5+yz//BVZNV6fGGVSIPZa1evawqw7kLMh1p3uy
- LSBnk+nGrgRT51/hUqXx5ozRmbtkb7g+P9ggxZoNOZ93nDcOZFUqEN3wiw1dn871p7Y0
- 1b+STNSSxMXzcpTiFecOOqdxKS8v4Swwha6C99FyYNM92aSM62DkwvYi1nj4AQaKmFq2 Mw== 
-In-Reply-To: <20230215000446.1655635-4-willy@infradead.org>
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676550885;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=v0nZZRtgRBEjd1TuZoUTX3TC1k0a64a2n3jlsJishp4=;
+        b=QyBOkhQ7VDc2RZaizK9tgFQZ2dEivWG7TFlHXkFCWt+sgsaa0TL4moF9/wPhEv8rSDbAND
+        kcyRyN1ZVX4u4pNyYAd+ZTqch7yyj7c5Nk59yfOHRyV8GsTY/fYsPhvtwVd8CjMSRzQqME
+        lemIuMgTVuj9PUJREoHE7idFEvO1Un4=
+In-Reply-To: <20230216123419.461016-1-bhe@redhat.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-To: "Matthew Wilcox (Oracle)" <willy@infradead.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, christophe.leroy@csgroup.eu, hch@infradead.org, agordeev@linux.ibm.com, wangkefeng.wang@huawei.com, schnelle@linux.ibm.com, David.Laight@ACULAB.COM, shorne@gmail.com, arnd@arndb.de, Baoquan He <bhe@redhat.com>, Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org
 
+By taking GENERIC_IOREMAP method, the generic ioremap_prot() and
+iounmap() are visible and available to arch. This change will
+simplify implementation by removing duplicated codes with generic
+ioremap_prot() and iounmap(), and has the equivalent functioality.
 
+For hexagon, the current ioremap() and iounmap() are the same as
+generic version. After taking GENERIC_IOREMAP way, the old ioremap()
+and iounmap() can be completely removed.
 
-> -----Original Message-----
-> From: Matthew Wilcox (Oracle) <willy@infradead.org>
-...
->=20
-> Add set_ptes() and update_mmu_cache_range().
->=20
-> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-> ---
->  arch/hexagon/include/asm/cacheflush.h |  7 +++++--
->  arch/hexagon/include/asm/pgtable.h    | 16 ++++++++++++++--
->  2 files changed, 19 insertions(+), 4 deletions(-)
->=20
-> diff --git a/arch/hexagon/include/asm/cacheflush.h
-> b/arch/hexagon/include/asm/cacheflush.h
-> index 6eff0730e6ef..63ca314ede89 100644
-> --- a/arch/hexagon/include/asm/cacheflush.h
-> +++ b/arch/hexagon/include/asm/cacheflush.h
-> @@ -58,12 +58,15 @@ extern void flush_cache_all_hexagon(void);
->   * clean the cache when the PTE is set.
->   *
->   */
-> -static inline void update_mmu_cache(struct vm_area_struct *vma,
-> -                                       unsigned long address, pte_t *pte=
-p)
-> +static inline void update_mmu_cache_range(struct vm_area_struct *vma,
-> +               unsigned long address, pte_t *ptep, unsigned int nr)
->  {
->         /*  generic_ptrace_pokedata doesn't wind up here, does it?  */
->  }
->=20
-> +#define update_mmu_cache(vma, addr, ptep) \
-> +       update_mmu_cache_range(vma, addr, ptep, 1)
-> +
->  void copy_to_user_page(struct vm_area_struct *vma, struct page *page,
->                        unsigned long vaddr, void *dst, void *src, int len=
-);
->  #define copy_to_user_page copy_to_user_page
-> diff --git a/arch/hexagon/include/asm/pgtable.h
-> b/arch/hexagon/include/asm/pgtable.h
-> index 59393613d086..f58f1d920769 100644
-> --- a/arch/hexagon/include/asm/pgtable.h
-> +++ b/arch/hexagon/include/asm/pgtable.h
-> @@ -346,12 +346,24 @@ static inline int pte_exec(pte_t pte)
->  #define set_pmd(pmdptr, pmdval) (*(pmdptr) =3D (pmdval))
->=20
->  /*
-> - * set_pte_at - update page table and do whatever magic may be
-> + * set_ptes - update page table and do whatever magic may be
->   * necessary to make the underlying hardware/firmware take note.
->   *
->   * VM may require a virtual instruction to alert the MMU.
->   */
-> -#define set_pte_at(mm, addr, ptep, pte) set_pte(ptep, pte)
-> +static inline void set_ptes(struct mm_struct *mm, unsigned long addr,
-> +               pte_t *ptep, pte_t pte, unsigned int nr)
-> +{
-> +       for (;;) {
-> +               set_pte(ptep, pte);
-> +               if (--nr =3D=3D 0)
-> +                       break;
-> +               ptep++;
-> +               pte_val(pte) +=3D PAGE_SIZE;
-> +       }
-> +}
-> +
-> +#define set_pte_at(mm, addr, ptep, pte) set_ptes(mm, addr, ptep, pte, 1)
->=20
->  static inline unsigned long pmd_page_vaddr(pmd_t pmd)
->  {
-> --
-> 2.39.1
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Cc: Brian Cain <bcain@quicinc.com>
+Cc: linux-hexagon@vger.kernel.org
+---
+ arch/hexagon/Kconfig          |  1 +
+ arch/hexagon/include/asm/io.h |  9 +++++--
+ arch/hexagon/mm/ioremap.c     | 44 -----------------------------------
+ 3 files changed, 8 insertions(+), 46 deletions(-)
+ delete mode 100644 arch/hexagon/mm/ioremap.c
 
-Acked-by: Brian Cain <bcain@quicinc.com>
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index 54eadf265178..17afffde1a7f 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -25,6 +25,7 @@ config HEXAGON
+ 	select NEED_SG_DMA_LENGTH
+ 	select NO_IOPORT_MAP
+ 	select GENERIC_IOMAP
++	select GENERIC_IOREMAP
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select STACKTRACE_SUPPORT
+ 	select GENERIC_CLOCKEVENTS_BROADCAST
+diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
+index 46a099de85b7..dcd9cbbf5934 100644
+--- a/arch/hexagon/include/asm/io.h
++++ b/arch/hexagon/include/asm/io.h
+@@ -170,8 +170,13 @@ static inline void writel(u32 data, volatile void __iomem *addr)
+ #define writew_relaxed __raw_writew
+ #define writel_relaxed __raw_writel
+ 
+-void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
+-#define ioremap_uc(X, Y) ioremap((X), (Y))
++/*
++ * I/O memory mapping functions.
++ */
++#define _PAGE_IOREMAP (_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
++		       (__HEXAGON_C_DEV << 6))
++
++#define ioremap_uc(addr, size) ioremap((addr), (size))
+ 
+ 
+ #define __raw_writel writel
+diff --git a/arch/hexagon/mm/ioremap.c b/arch/hexagon/mm/ioremap.c
+deleted file mode 100644
+index 255c5b1ee1a7..000000000000
+--- a/arch/hexagon/mm/ioremap.c
++++ /dev/null
+@@ -1,44 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * I/O remap functions for Hexagon
+- *
+- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+- */
+-
+-#include <linux/io.h>
+-#include <linux/vmalloc.h>
+-#include <linux/mm.h>
+-
+-void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
+-{
+-	unsigned long last_addr, addr;
+-	unsigned long offset = phys_addr & ~PAGE_MASK;
+-	struct vm_struct *area;
+-
+-	pgprot_t prot = __pgprot(_PAGE_PRESENT|_PAGE_READ|_PAGE_WRITE
+-					|(__HEXAGON_C_DEV << 6));
+-
+-	last_addr = phys_addr + size - 1;
+-
+-	/*  Wrapping not allowed  */
+-	if (!size || (last_addr < phys_addr))
+-		return NULL;
+-
+-	/*  Rounds up to next page size, including whole-page offset */
+-	size = PAGE_ALIGN(offset + size);
+-
+-	area = get_vm_area(size, VM_IOREMAP);
+-	addr = (unsigned long)area->addr;
+-
+-	if (ioremap_page_range(addr, addr+size, phys_addr, prot)) {
+-		vunmap((void *)addr);
+-		return NULL;
+-	}
+-
+-	return (void __iomem *) (offset + addr);
+-}
+-
+-void iounmap(const volatile void __iomem *addr)
+-{
+-	vunmap((void *) ((unsigned long) addr & PAGE_MASK));
+-}
+-- 
+2.34.1
+
