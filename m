@@ -1,19 +1,19 @@
 From: Kees Cook <keescook@chromium.org>
 Subject: Re: [PATCH v6 13/41] mm: Make pte_mkwrite() take a VMA
 Date: Sun, 19 Feb 2023 12:40:47 -0800
-Message-ID: <63f28950.170a0220.aef42.bc00@mx.google.com>
+Message-ID: <63f28950.170a0220.3759b.b525@mx.google.com>
 References: <20230218211433.26859-1-rick.p.edgecombe@intel.com>
  <20230218211433.26859-14-rick.p.edgecombe@intel.com>
 Mime-Version: 1.0
-Return-path: <sparclinux-owner@vger.kernel.org>
+Return-path: <linux-m68k-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=in-reply-to:content-disposition:mime-version:references:subject:cc
          :to:from:date:message-id:from:to:cc:subject:date:message-id:reply-to;
         bh=lqAwlutC29lMR1tf1e4XOcfdxhypv9zb0T2DcQuJ+3c=;
-        b=MjtbsH5bW1HXHGXLRbwOKZEzdSInx4XUaJn+/0d2SKM5dw34hiBNmQU6ohqNZQA+L2
-         I1GvKT2KInRCvvo+fSO/0GUShulfgU4qQvkio0wi+hAcl/UCahGdGyhq51MgW0auKO3G
-         CJxCVe/nwu6tGjmlmFI7U6pzHUn2OY1PSCX/Y=
+        b=XSbexFaS+Tm+Fh9bIb5+7TsH8cXc/OyRJvw9NZqY53ctg5O6XlonIQ+mSxQEFs9syE
+         lUVQj3khdSe3Fc3LpOxcyIdBOEkgeUJK3z40Fm415uv701QNzTtbevYXP5ioH+guMWrP
+         r7f7SjRms7JvKdWdxLsJL7avrtKIOQCRDQ1xE=
 Content-Disposition: inline
 In-Reply-To: <20230218211433.26859-14-rick.p.edgecombe@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
