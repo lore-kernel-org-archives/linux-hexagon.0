@@ -1,80 +1,150 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH v6 13/41] mm: Make pte_mkwrite() take a VMA
-Date: Mon, 20 Feb 2023 12:00:46 +1100
-Message-ID: <875ybxywu9.fsf@mpe.ellerman.id.au>
+Date: Mon, 20 Feb 2023 12:23:28 +0100
+Message-ID: <f50daeb7-7b41-0bed-73f0-b6358169521b@redhat.com>
 References: <20230218211433.26859-1-rick.p.edgecombe@intel.com>
  <20230218211433.26859-14-rick.p.edgecombe@intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-alpha-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1676854853;
-        bh=F/BA55hncJJcUXKiAlKImZaWKF9J7v8lLnKr9dq21p4=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=XslnKyUEjBPQ1U1pxlZfaOackH5Uc53v2LGKi4H/fZCzwS12mRxSKUo5Y0d1NKeZn
-         awyroz/jmv/ppUpYp1TDhtbm3Xr2UbxbQ7SLm7HpIZR367un5O+1m6RO8MFNGLc4tN
-         bOsgsJ/QSRuN9qLOaQNEAnGHLCgJYRh2AmA+hh1/q0GxiYmMbgWuXckkgvhyXESi3z
-         pkyDk+R2FxF/Bbq8WxwITYwB8LWISeRkdVED0wYKG14B7OppQx/VBH6ejWIfX4nrhf
-         +DPFJJxnIwj6xY4eD5/CyK6ZQt6qJeWIa8XOq0dKk/I3y+LAhnFdM5gYPtu4P26I4l
-         sm8Hu7By7kuYg==
+Content-Transfer-Encoding: base64
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
+	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
+	List-Unsubscribe:List-Id:In-Reply-To:From:References:Cc:To:Subject:
+	MIME-Version:Date:Message-ID:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=wVPgTbC2EIJWH6CC8i//fJKtN3RhNleo8+EShcz/aCE=; b=PJ5wDeWVLyTzFN
+	9D41KPUsUSpehgievo7oYLYJmkDrKseF0OBTFkuVtuwcZ9IyooqXgyLVLFy/LSlQNVovfPrB8XHb3
+	MfBe2jqsxI8Nl5oKeL3kltSZ4cGBpDi0hWaEzOfrMO2yrK1jOjyIcvw1t0KO+iTGZ1qQ7mR8XctgJ
+	4yCR5RhpSrHcCt09hagv+ejL/3vf24KS9ypcHpVb4HVm+zlIbjgHuBuPiaykf4gGfW2RPf5XS6YuS
+	xGRqNSSxqRXPIa0PvsZgCejWhRmgsx6G+Ebdx9q53gXrbbQREpv78Zr3d++ipxYmqIaObajTQ5jG7
+	nvkwirz/HQgdI/Gn+hBQ==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1676892216;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=JGvEUYyDyInAU1qTOkUUwH1+5Pn5/FfAg09zLJh1EcU=;
+	b=fARxYdZMW4tx7c2CoaN7hCdO4AvnULJFGKhKz9K3Mm1eAxfbhlOAHEX1iJ57tY31xrgqpS
+	GfBn477V8nrjWugDTHhFQ5aElUlTIx32OrYC1cO9cFMRtV6bBCNt2SyQJAjXPXB7ezbPH9
+	2Pv99MEU8WaktKeJoYmm5xrQKNg/rNY=
 In-Reply-To: <20230218211433.26859-14-rick.p.edgecombe@intel.com>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="windows-1252"
-To: x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-api@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Andy Lutomirski <luto@kernel.org>, Balbir Singh <bsingharora@gmail.com>, Borislav Petkov <bp@alien8.de>, Cyrill Gorcunov <gorcunov@gmail.com>, Dave Hansen <dave.hansen@linux.intel.com>, Eugene Syromiatnikov <esyr@redhat.com>, Florian Weimer <fweimer@redhat.com>, "H . J . Lu" <hjl.tools@gmail.com>, Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>, Kees Cook <keescook@chromium.org>, Mike Kravetz <mike.kravetz@oracle>
-Cc: rick.p.edgecombe@intel.com, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org
+Content-Language: en-US
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
+To: Rick Edgecombe <rick.p.edgecombe@intel.com>, x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-api@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Andy Lutomirski <luto@kernel.org>, Balbir Singh <bsingharora@gmail.com>, Borislav Petkov <bp@alien8.de>, Cyrill Gorcunov <gorcunov@gmail.com>, Dave Hansen <dave.hansen@linux.intel.com>, Eugene Syromiatnikov <esyr@redhat.com>, Florian Weimer <fweimer@redhat.com>, "H . J . Lu" <hjl.tools@gmail.com>, Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>, Kees Cook <keescook@chromium.org>, Mike Kravetz <mike.kravetz@oracle.com>, Nadav Amit <nadav.amit@gmail.com>, Oleg Nesterov <oleg@redhat.com>, Pavel Machek <pavel@ucw.cz>, Peter Zijlstra <pet>
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org
 
-Rick Edgecombe <rick.p.edgecombe@intel.com> writes:
-> The x86 Control-flow Enforcement Technology (CET) feature includes a new
-> type of memory called shadow stack. This shadow stack memory has some
-> unusual properties, which requires some core mm changes to function
-> properly.
-...
-> ---
-> Hi Non-x86 Arch=E2=80=99s,
->
-> x86 has a feature that allows for the creation of a special type of
-> writable memory (shadow stack) that is only writable in limited specific
-> ways. Previously, changes were proposed to core MM code to teach it to
-> decide when to create normally writable memory or the special shadow stack
-> writable memory, but David Hildenbrand suggested[0] to change
-> pXX_mkwrite() to take a VMA, so awareness of shadow stack memory can be
-> moved into x86 code.
->
-> Since pXX_mkwrite() is defined in every arch, it requires some tree-wide
-> changes. So that is why you are seeing some patches out of a big x86
-> series pop up in your arch mailing list. There is no functional change.
-> After this refactor, the shadow stack series goes on to use the arch
-> helpers to push shadow stack memory details inside arch/x86.
-...
-> ---
->  Documentation/mm/arch_pgtable_helpers.rst    |  9 ++++++---
->  arch/alpha/include/asm/pgtable.h             |  6 +++++-
->  arch/arc/include/asm/hugepage.h              |  2 +-
->  arch/arc/include/asm/pgtable-bits-arcv2.h    |  7 ++++++-
->  arch/arm/include/asm/pgtable-3level.h        |  7 ++++++-
->  arch/arm/include/asm/pgtable.h               |  2 +-
->  arch/arm64/include/asm/pgtable.h             |  4 ++--
->  arch/csky/include/asm/pgtable.h              |  2 +-
->  arch/hexagon/include/asm/pgtable.h           |  2 +-
->  arch/ia64/include/asm/pgtable.h              |  2 +-
->  arch/loongarch/include/asm/pgtable.h         |  4 ++--
->  arch/m68k/include/asm/mcf_pgtable.h          |  2 +-
->  arch/m68k/include/asm/motorola_pgtable.h     |  6 +++++-
->  arch/m68k/include/asm/sun3_pgtable.h         |  6 +++++-
->  arch/microblaze/include/asm/pgtable.h        |  2 +-
->  arch/mips/include/asm/pgtable.h              |  6 +++---
->  arch/nios2/include/asm/pgtable.h             |  2 +-
->  arch/openrisc/include/asm/pgtable.h          |  2 +-
->  arch/parisc/include/asm/pgtable.h            |  6 +++++-
->  arch/powerpc/include/asm/book3s/32/pgtable.h |  2 +-
->  arch/powerpc/include/asm/book3s/64/pgtable.h |  4 ++--
->  arch/powerpc/include/asm/nohash/32/pgtable.h |  2 +-
->  arch/powerpc/include/asm/nohash/32/pte-8xx.h |  2 +-
->  arch/powerpc/include/asm/nohash/64/pgtable.h |  2 +-
-
-Looks like you discovered the joys of ppc's at-least 5 different MMU
-implementations, sorry :)
-
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-
-cheers
+T24gMTguMDIuMjMgMjI6MTQsIFJpY2sgRWRnZWNvbWJlIHdyb3RlOgo+IFRoZSB4ODYgQ29udHJv
+bC1mbG93IEVuZm9yY2VtZW50IFRlY2hub2xvZ3kgKENFVCkgZmVhdHVyZSBpbmNsdWRlcyBhIG5l
+dwo+IHR5cGUgb2YgbWVtb3J5IGNhbGxlZCBzaGFkb3cgc3RhY2suIFRoaXMgc2hhZG93IHN0YWNr
+IG1lbW9yeSBoYXMgc29tZQo+IHVudXN1YWwgcHJvcGVydGllcywgd2hpY2ggcmVxdWlyZXMgc29t
+ZSBjb3JlIG1tIGNoYW5nZXMgdG8gZnVuY3Rpb24KPiBwcm9wZXJseS4KPiAKPiBPbmUgb2YgdGhl
+c2UgdW51c3VhbCBwcm9wZXJ0aWVzIGlzIHRoYXQgc2hhZG93IHN0YWNrIG1lbW9yeSBpcyB3cml0
+YWJsZSwKPiBidXQgb25seSBpbiBsaW1pdGVkIHdheXMuIFRoZXNlIGxpbWl0cyBhcmUgYXBwbGll
+ZCB2aWEgYSBzcGVjaWZpYyBQVEUKPiBiaXQgY29tYmluYXRpb24uIE5ldmVydGhlbGVzcywgdGhl
+IG1lbW9yeSBpcyB3cml0YWJsZSwgYW5kIGNvcmUgbW0gY29kZQo+IHdpbGwgbmVlZCB0byBhcHBs
+eSB0aGUgd3JpdGFibGUgcGVybWlzc2lvbnMgaW4gdGhlIHR5cGljYWwgcGF0aHMgdGhhdAo+IGNh
+bGwgcHRlX21rd3JpdGUoKS4KPiAKPiBJbiBhZGRpdGlvbiB0byBWTV9XUklURSwgdGhlIHNoYWRv
+dyBzdGFjayBWTUEncyB3aWxsIGhhdmUgYSBmbGFnIGRlbm90aW5nCj4gdGhhdCB0aGV5IGFyZSBz
+cGVjaWFsIHNoYWRvdyBzdGFjayBmbGF2b3Igb2Ygd3JpdGFibGUgbWVtb3J5LiBTbyBtYWtlCj4g
+cHRlX21rd3JpdGUoKSB0YWtlIGEgVk1BLCBzbyB0aGF0IHRoZSB4ODYgaW1wbGVtZW50YXRpb24g
+b2YgaXQgY2FuIGtub3cgdG8KPiBjcmVhdGUgcmVndWxhciB3cml0YWJsZSBtZW1vcnkgb3Igc2hh
+ZG93IHN0YWNrIG1lbW9yeS4KPiAKPiBBcHBseSB0aGUgc2FtZSBjaGFuZ2VzIGZvciBwbWRfbWt3
+cml0ZSgpIGFuZCBodWdlX3B0ZV9ta3dyaXRlKCkuCj4gCj4gTm8gZnVuY3Rpb25hbCBjaGFuZ2Uu
+Cj4gCj4gQ2M6IGxpbnV4LWRvY0B2Z2VyLmtlcm5lbC5vcmcKPiBDYzogbGludXgta2VybmVsQHZn
+ZXIua2VybmVsLm9yZwo+IENjOiBsaW51eC1hbHBoYUB2Z2VyLmtlcm5lbC5vcmcKPiBDYzogbGlu
+dXgtc25wcy1hcmNAbGlzdHMuaW5mcmFkZWFkLm9yZwo+IENjOiBsaW51eC1hcm0ta2VybmVsQGxp
+c3RzLmluZnJhZGVhZC5vcmcKPiBDYzogbGludXgtY3NreUB2Z2VyLmtlcm5lbC5vcmcKPiBDYzog
+bGludXgtaGV4YWdvbkB2Z2VyLmtlcm5lbC5vcmcKPiBDYzogbGludXgtaWE2NEB2Z2VyLmtlcm5l
+bC5vcmcKPiBDYzogbG9vbmdhcmNoQGxpc3RzLmxpbnV4LmRldgo+IENjOiBsaW51eC1tNjhrQGxp
+c3RzLmxpbnV4LW02OGsub3JnCj4gQ2M6IE1pY2hhbCBTaW1layA8bW9uc3RyQG1vbnN0ci5ldT4K
+PiBDYzogRGluaCBOZ3V5ZW4gPGRpbmd1eWVuQGtlcm5lbC5vcmc+Cj4gQ2M6IGxpbnV4LW1pcHNA
+dmdlci5rZXJuZWwub3JnCj4gQ2M6IG9wZW5yaXNjQGxpc3RzLmxpYnJlY29yZXMub3JnCj4gQ2M6
+IGxpbnV4LXBhcmlzY0B2Z2VyLmtlcm5lbC5vcmcKPiBDYzogbGludXhwcGMtZGV2QGxpc3RzLm96
+bGFicy5vcmcKPiBDYzogbGludXgtcmlzY3ZAbGlzdHMuaW5mcmFkZWFkLm9yZwo+IENjOiBsaW51
+eC1zMzkwQHZnZXIua2VybmVsLm9yZwo+IENjOiBsaW51eC1zaEB2Z2VyLmtlcm5lbC5vcmcKPiBD
+Yzogc3BhcmNsaW51eEB2Z2VyLmtlcm5lbC5vcmcKPiBDYzogbGludXgtdW1AbGlzdHMuaW5mcmFk
+ZWFkLm9yZwo+IENjOiB4ZW4tZGV2ZWxAbGlzdHMueGVucHJvamVjdC5vcmcKPiBDYzogbGludXgt
+YXJjaEB2Z2VyLmtlcm5lbC5vcmcKPiBDYzogbGludXgtbW1Aa3ZhY2sub3JnCj4gVGVzdGVkLWJ5
+OiBQZW5nZmVpIFh1IDxwZW5nZmVpLnh1QGludGVsLmNvbT4KPiBTdWdnZXN0ZWQtYnk6IERhdmlk
+IEhpbGRlbmJyYW5kIDxkYXZpZEByZWRoYXQuY29tPgo+IFNpZ25lZC1vZmYtYnk6IFJpY2sgRWRn
+ZWNvbWJlIDxyaWNrLnAuZWRnZWNvbWJlQGludGVsLmNvbT4KPiAKPiAtLS0KPiBIaSBOb24teDg2
+IEFyY2jigJlzLAo+IAo+IHg4NiBoYXMgYSBmZWF0dXJlIHRoYXQgYWxsb3dzIGZvciB0aGUgY3Jl
+YXRpb24gb2YgYSBzcGVjaWFsIHR5cGUgb2YKPiB3cml0YWJsZSBtZW1vcnkgKHNoYWRvdyBzdGFj
+aykgdGhhdCBpcyBvbmx5IHdyaXRhYmxlIGluIGxpbWl0ZWQgc3BlY2lmaWMKPiB3YXlzLiBQcmV2
+aW91c2x5LCBjaGFuZ2VzIHdlcmUgcHJvcG9zZWQgdG8gY29yZSBNTSBjb2RlIHRvIHRlYWNoIGl0
+IHRvCj4gZGVjaWRlIHdoZW4gdG8gY3JlYXRlIG5vcm1hbGx5IHdyaXRhYmxlIG1lbW9yeSBvciB0
+aGUgc3BlY2lhbCBzaGFkb3cgc3RhY2sKPiB3cml0YWJsZSBtZW1vcnksIGJ1dCBEYXZpZCBIaWxk
+ZW5icmFuZCBzdWdnZXN0ZWRbMF0gdG8gY2hhbmdlCj4gcFhYX21rd3JpdGUoKSB0byB0YWtlIGEg
+Vk1BLCBzbyBhd2FyZW5lc3Mgb2Ygc2hhZG93IHN0YWNrIG1lbW9yeSBjYW4gYmUKPiBtb3ZlZCBp
+bnRvIHg4NiBjb2RlLgo+IAo+IFNpbmNlIHBYWF9ta3dyaXRlKCkgaXMgZGVmaW5lZCBpbiBldmVy
+eSBhcmNoLCBpdCByZXF1aXJlcyBzb21lIHRyZWUtd2lkZQo+IGNoYW5nZXMuIFNvIHRoYXQgaXMg
+d2h5IHlvdSBhcmUgc2VlaW5nIHNvbWUgcGF0Y2hlcyBvdXQgb2YgYSBiaWcgeDg2Cj4gc2VyaWVz
+IHBvcCB1cCBpbiB5b3VyIGFyY2ggbWFpbGluZyBsaXN0LiBUaGVyZSBpcyBubyBmdW5jdGlvbmFs
+IGNoYW5nZS4KPiBBZnRlciB0aGlzIHJlZmFjdG9yLCB0aGUgc2hhZG93IHN0YWNrIHNlcmllcyBn
+b2VzIG9uIHRvIHVzZSB0aGUgYXJjaAo+IGhlbHBlcnMgdG8gcHVzaCBzaGFkb3cgc3RhY2sgbWVt
+b3J5IGRldGFpbHMgaW5zaWRlIGFyY2gveDg2Lgo+IAo+IFRlc3Rpbmcgd2FzIGp1c3QgMC1kYXkg
+YnVpbGQgdGVzdGluZy4KPiAKPiBIb3BlZnVsbHkgdGhhdCBpcyBlbm91Z2ggY29udGV4dC4gVGhh
+bmtzIQo+IAo+IFswXSBodHRwczovL2xvcmUua2VybmVsLm9yZy9sa21sLzBlMjlhMmQwLTA4ZDgt
+YmNkNi1mZjI2LTRiZWEwZTQwMzdiMEByZWRoYXQuY29tLyN0Cj4gCj4gdjY6Cj4gICAtIE5ldyBw
+YXRjaAo+IC0tLQo+ICAgRG9jdW1lbnRhdGlvbi9tbS9hcmNoX3BndGFibGVfaGVscGVycy5yc3Qg
+ICAgfCAgOSArKysrKystLS0KPiAgIGFyY2gvYWxwaGEvaW5jbHVkZS9hc20vcGd0YWJsZS5oICAg
+ICAgICAgICAgIHwgIDYgKysrKystCj4gICBhcmNoL2FyYy9pbmNsdWRlL2FzbS9odWdlcGFnZS5o
+ICAgICAgICAgICAgICB8ICAyICstCj4gICBhcmNoL2FyYy9pbmNsdWRlL2FzbS9wZ3RhYmxlLWJp
+dHMtYXJjdjIuaCAgICB8ICA3ICsrKysrKy0KPiAgIGFyY2gvYXJtL2luY2x1ZGUvYXNtL3BndGFi
+bGUtM2xldmVsLmggICAgICAgIHwgIDcgKysrKysrLQo+ICAgYXJjaC9hcm0vaW5jbHVkZS9hc20v
+cGd0YWJsZS5oICAgICAgICAgICAgICAgfCAgMiArLQo+ICAgYXJjaC9hcm02NC9pbmNsdWRlL2Fz
+bS9wZ3RhYmxlLmggICAgICAgICAgICAgfCAgNCArKy0tCj4gICBhcmNoL2Nza3kvaW5jbHVkZS9h
+c20vcGd0YWJsZS5oICAgICAgICAgICAgICB8ICAyICstCj4gICBhcmNoL2hleGFnb24vaW5jbHVk
+ZS9hc20vcGd0YWJsZS5oICAgICAgICAgICB8ICAyICstCj4gICBhcmNoL2lhNjQvaW5jbHVkZS9h
+c20vcGd0YWJsZS5oICAgICAgICAgICAgICB8ICAyICstCj4gICBhcmNoL2xvb25nYXJjaC9pbmNs
+dWRlL2FzbS9wZ3RhYmxlLmggICAgICAgICB8ICA0ICsrLS0KPiAgIGFyY2gvbTY4ay9pbmNsdWRl
+L2FzbS9tY2ZfcGd0YWJsZS5oICAgICAgICAgIHwgIDIgKy0KPiAgIGFyY2gvbTY4ay9pbmNsdWRl
+L2FzbS9tb3Rvcm9sYV9wZ3RhYmxlLmggICAgIHwgIDYgKysrKystCj4gICBhcmNoL202OGsvaW5j
+bHVkZS9hc20vc3VuM19wZ3RhYmxlLmggICAgICAgICB8ICA2ICsrKysrLQo+ICAgYXJjaC9taWNy
+b2JsYXplL2luY2x1ZGUvYXNtL3BndGFibGUuaCAgICAgICAgfCAgMiArLQo+ICAgYXJjaC9taXBz
+L2luY2x1ZGUvYXNtL3BndGFibGUuaCAgICAgICAgICAgICAgfCAgNiArKystLS0KPiAgIGFyY2gv
+bmlvczIvaW5jbHVkZS9hc20vcGd0YWJsZS5oICAgICAgICAgICAgIHwgIDIgKy0KPiAgIGFyY2gv
+b3BlbnJpc2MvaW5jbHVkZS9hc20vcGd0YWJsZS5oICAgICAgICAgIHwgIDIgKy0KPiAgIGFyY2gv
+cGFyaXNjL2luY2x1ZGUvYXNtL3BndGFibGUuaCAgICAgICAgICAgIHwgIDYgKysrKystCj4gICBh
+cmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vYm9vazNzLzMyL3BndGFibGUuaCB8ICAyICstCj4gICBh
+cmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vYm9vazNzLzY0L3BndGFibGUuaCB8ICA0ICsrLS0KPiAg
+IGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9ub2hhc2gvMzIvcGd0YWJsZS5oIHwgIDIgKy0KPiAg
+IGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9ub2hhc2gvMzIvcHRlLTh4eC5oIHwgIDIgKy0KPiAg
+IGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9ub2hhc2gvNjQvcGd0YWJsZS5oIHwgIDIgKy0KPiAg
+IGFyY2gvcmlzY3YvaW5jbHVkZS9hc20vcGd0YWJsZS5oICAgICAgICAgICAgIHwgIDYgKysrLS0t
+Cj4gICBhcmNoL3MzOTAvaW5jbHVkZS9hc20vaHVnZXRsYi5oICAgICAgICAgICAgICB8ICA0ICsr
+LS0KPiAgIGFyY2gvczM5MC9pbmNsdWRlL2FzbS9wZ3RhYmxlLmggICAgICAgICAgICAgIHwgIDQg
+KystLQo+ICAgYXJjaC9zaC9pbmNsdWRlL2FzbS9wZ3RhYmxlXzMyLmggICAgICAgICAgICAgfCAx
+MCArKysrKysrKy0tCj4gICBhcmNoL3NwYXJjL2luY2x1ZGUvYXNtL3BndGFibGVfMzIuaCAgICAg
+ICAgICB8ICAyICstCj4gICBhcmNoL3NwYXJjL2luY2x1ZGUvYXNtL3BndGFibGVfNjQuaCAgICAg
+ICAgICB8ICA2ICsrKy0tLQo+ICAgYXJjaC91bS9pbmNsdWRlL2FzbS9wZ3RhYmxlLmggICAgICAg
+ICAgICAgICAgfCAgMiArLQo+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGd0YWJsZS5oICAgICAg
+ICAgICAgICAgfCAgNiArKysrLS0KPiAgIGFyY2gveHRlbnNhL2luY2x1ZGUvYXNtL3BndGFibGUu
+aCAgICAgICAgICAgIHwgIDIgKy0KPiAgIGluY2x1ZGUvYXNtLWdlbmVyaWMvaHVnZXRsYi5oICAg
+ICAgICAgICAgICAgIHwgIDQgKystLQo+ICAgaW5jbHVkZS9saW51eC9tbS5oICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgfCAgMiArLQo+ICAgbW0vZGVidWdfdm1fcGd0YWJsZS5jICAgICAgICAg
+ICAgICAgICAgICAgICAgfCAxNiArKysrKysrKy0tLS0tLS0tCj4gICBtbS9odWdlX21lbW9yeS5j
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA2ICsrKy0tLQo+ICAgbW0vaHVnZXRsYi5j
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNCArKy0tCj4gICBtbS9tZW1vcnku
+YyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA0ICsrLS0KPiAgIG1tL21pZ3Jh
+dGVfZGV2aWNlLmMgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgIG1tL21wcm90
+ZWN0LmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgIG1tL3VzZXJm
+YXVsdGZkLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgIDQyIGZpbGVz
+IGNoYW5nZWQsIDEwNiBpbnNlcnRpb25zKCspLCA2OSBkZWxldGlvbnMoLSkKClRoYXQgbG9va3Mg
+cGFpbmZ1bCBidXQgSU1ITyB3b3J0aCBpdCA6KQoKQWNrZWQtYnk6IERhdmlkIEhpbGRlbmJyYW5k
+IDxkYXZpZEByZWRoYXQuY29tPgoKLS0gClRoYW5rcywKCkRhdmlkIC8gZGhpbGRlbmIKCgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1yaXNjdiBt
+YWlsaW5nIGxpc3QKbGludXgtcmlzY3ZAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMu
+aW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LXJpc2N2Cg==
