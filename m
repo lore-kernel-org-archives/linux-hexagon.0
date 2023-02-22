@@ -1,148 +1,63 @@
-From: Andrzej Hajda <andrzej.hajda@intel.com>
-Subject: Re: [Intel-gfx] [PATCH v5 0/7] Introduce __xchg, non-atomic xchg
-Date: Wed, 22 Feb 2023 11:36:17 +0100
-Message-ID: <50c1806b-f153-da48-ddf4-53923fa90334@intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v5 0/7] Introduce __xchg, non-atomic xchg
+Date: Wed, 22 Feb 2023 18:04:31 +0100
+Message-ID: <Y/ZLH5F8LA3H10aL@hirez.programming.kicks-ass.net>
 References: <20230118153529.57695-1-andrzej.hajda@intel.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-alpha-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1677062186; x=1708598186;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=ofUmRpvhNVTg3+A6hyPOFASnnH8za9ygTzj8N8YfXSk=;
-  b=Oa1y8iBaEkwy6fMvhe8oHhodd0xu0As0Cvn/STEHYeZTWBGyfJe7EiEm
-   6mSrg3MYKSIj57s2gHXQABHZjXgh0qtnz8ySVm6qQeJyCvOuGb4tmLl/i
-   ODkBGj8NRNmFmO/zJQkENaevWgOePr99Uw2LrDfsA71eM4ha127NIJGZp
-   bCHCoWB8AsMbRlZS/pSYtspvgmv35WrA4X9gEpfyLPG+CgCn4UpRcV5v1
-   qwKQeXDm3DQv4XTKuWY2dKn1nW505DyJPI+fQqri+uwh1CV8IXCxKtwVN
-   fmv6q43VzWYXBl2v2uMj/nIILB4fKAQtBRNyqRlFQDE8BcQ/YGRkTqXLC
-   A==;
-Content-Language: en-US
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=ViolIE2o7kDoAnHTLRQRRC7e9Cvort9zWK1nhqF77Mc=; b=taeutXQ9ASuXDS
+	IOB8MZsh9EC8AQpOCp0oqi1ICRHlveEFB30SG7OFtZU68f/apeuc2eV8cmnchwm0BjU/t0n/U5eYC
+	1/M4TEr8RF3M0XpHBmo3n8aV1LBUrSMh/pe/VadU1VrKxTmY43XYVVMpzZZS6KAiX6edvXb9SUceS
+	H6Z1wYoWwLSgMNdIof/IiLyCaQlibn48b0pw5B5Fhn1cFvXB0uKqk6HKwK0YTD7D6Z+9W+m265bIN
+	Xs9Ei1kEP3EPrXccRysitaUNS7+nkuEg/8W+wlMZClkL1QG3PLXTCELf9HBo01iVQxkmcr+gqc7NA
+	9M7NMazJK/HyJbWzf03Q==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=8seSikIduHdwWlxLKvtsNdKihKZpOnnG/byEzPIYqpo=; b=Y1ljMAsEbY1xeALhV24P6D+VB8
+	W1bdI7nU0WhWoHx4NgJjUs1eL4F579QHnU+VRNoxr0EmxLBTqZ3vOKnmHpwMB+Sofv3xiO5BeF6WD
+	1LD1NvVLmJ2+7rgSzEr2KFdkQGbvBYCsMTfz8sZqwESBDJCLccPcpvy9GuBpXxB4wGZyirHyFJlTf
+	gndmj7kqHoQ049GccgXjz/BpbKTlsy/A8I1wozGsWIJRtFjTTw2VRwpq8mSkA9UdnUdhM7yIf7jgi
+	NcbLaUrNNJrkpHmN4j4xvoM8KhBnKHeFAYPSNMidGw19ugtisIBpD9l0VLYU1g+Tbm+Yn6Ihuibqi
+	eg9uba3g==;
+Content-Disposition: inline
 In-Reply-To: <20230118153529.57695-1-andrzej.hajda@intel.com>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Cc: Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: Andrzej Hajda <andrzej.hajda@intel.com>
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Arnd Bergmann <arnd@arndb.de>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Boqun Feng <boqun.feng@gmail.com>, Mark Rutland <mark.rutland@arm.com>
 
-Hi,
+On Wed, Jan 18, 2023 at 04:35:22PM +0100, Andrzej Hajda wrote:
 
-Ping on the series.
-Arnd, Andrew is there anything more I can do to push the process forward?
-
-Regards
-Andrzej
-
-
-On 18.01.2023 16:35, Andrzej Hajda wrote:
-> Hi all,
-> 
-> The helper is tiny and there are advices we can live without it, so
-> I want to present few arguments why it would be good to have it:
-> 
-> 1. Code readability/simplification/number of lines:
->    - decreases number of lines,
->    - it often eliminates local variables,
->    - for real examples see patches 3+.
-> 
-> 2. Presence of similar helpers in other somehow related languages/libs:
-> 
-> a) Rust[1]: 'replace' from std::mem module, there is also 'take'
->      helper (__xchg(&x, 0)), which is the same as private helper in
->      i915 - fetch_and_zero, see latest patch.
-> b) C++ [2]: 'exchange' from utility header.
-> 
-> If the idea is OK there are still 2 questions to answer:
-> 
-> 1. Name of the helper, __xchg follows kernel conventions,
->      but for me Rust names are also OK.
-> 2. Where to put the helper:
-> a) as in this patchset include/linux/non-atomic/xchg.h,
->      proposed by Andy Shevchenko,
-> b) include/linux/utils.h ? any better name? Some kind
->      of container for simple helpers.
-> 
-> All __xchg conversions were performed using cocci script,
-> then manually adjusted if necessary.
-> 
-> There is lot of places it can be used in, I have just chosen
-> some of them. I can provide cocci script to detect others (not all),
-> if necessary.
-> 
-> Changes:
-> v2: squashed all __xchg -> __arch_xchg t one patch (Arnd)
-> v3: fixed alpha/xchg_local (lkp@intel.com)
-> v4: adjusted indentation (Heiko)
-> v5: added more __xchg conversions - patches 3-6, added tags
-> 
-> [1]: https://doc.rust-lang.org/std/mem/index.html
-> [2]: https://en.cppreference.com/w/cpp/header/utility
-> 
-> Regards
-> Andrzej
-> 
 > Andrzej Hajda (7):
->    arch: rename all internal names __xchg to __arch_xchg
->    linux/include: add non-atomic version of xchg
->    arch/*/uprobes: simplify arch_uretprobe_hijack_return_addr
->    llist: simplify __llist_del_all
->    io_uring: use __xchg if possible
->    qed: use __xchg if possible
->    drm/i915/gt: use __xchg instead of internal helper
-> 
->   arch/alpha/include/asm/cmpxchg.h              | 10 +++++-----
->   arch/arc/include/asm/cmpxchg.h                |  4 ++--
->   arch/arm/include/asm/cmpxchg.h                |  7 ++++---
->   arch/arm/probes/uprobes/core.c                |  8 ++------
->   arch/arm64/include/asm/cmpxchg.h              |  7 +++----
->   arch/arm64/kernel/probes/uprobes.c            |  9 ++-------
->   arch/csky/kernel/probes/uprobes.c             |  9 ++-------
->   arch/hexagon/include/asm/cmpxchg.h            | 10 +++++-----
->   arch/ia64/include/asm/cmpxchg.h               |  2 +-
->   arch/ia64/include/uapi/asm/cmpxchg.h          |  4 ++--
->   arch/loongarch/include/asm/cmpxchg.h          |  4 ++--
->   arch/m68k/include/asm/cmpxchg.h               |  6 +++---
->   arch/mips/include/asm/cmpxchg.h               |  4 ++--
->   arch/mips/kernel/uprobes.c                    | 10 ++--------
->   arch/openrisc/include/asm/cmpxchg.h           | 10 +++++-----
->   arch/parisc/include/asm/cmpxchg.h             |  4 ++--
->   arch/powerpc/include/asm/cmpxchg.h            |  4 ++--
->   arch/powerpc/kernel/uprobes.c                 | 10 ++--------
->   arch/riscv/include/asm/atomic.h               |  2 +-
->   arch/riscv/include/asm/cmpxchg.h              |  4 ++--
->   arch/riscv/kernel/probes/uprobes.c            |  9 ++-------
->   arch/s390/include/asm/cmpxchg.h               |  8 ++++----
->   arch/s390/kernel/uprobes.c                    |  7 ++-----
->   arch/sh/include/asm/cmpxchg.h                 |  4 ++--
->   arch/sparc/include/asm/cmpxchg_32.h           |  4 ++--
->   arch/sparc/include/asm/cmpxchg_64.h           |  6 +++---
->   arch/sparc/kernel/uprobes.c                   |  7 ++-----
->   arch/xtensa/include/asm/cmpxchg.h             |  4 ++--
->   drivers/gpu/drm/i915/gt/intel_engine_cs.c     |  2 +-
->   .../gpu/drm/i915/gt/intel_engine_heartbeat.c  |  4 ++--
->   .../drm/i915/gt/intel_execlists_submission.c  |  4 ++--
->   drivers/gpu/drm/i915/gt/intel_ggtt.c          |  4 ++--
->   drivers/gpu/drm/i915/gt/intel_gsc.c           |  2 +-
->   drivers/gpu/drm/i915/gt/intel_gt.c            |  4 ++--
->   drivers/gpu/drm/i915/gt/intel_gt_pm.c         |  2 +-
->   drivers/gpu/drm/i915/gt/intel_lrc.c           |  6 +++---
->   drivers/gpu/drm/i915/gt/intel_migrate.c       |  2 +-
->   drivers/gpu/drm/i915/gt/intel_rc6.c           |  2 +-
->   drivers/gpu/drm/i915/gt/intel_rps.c           |  2 +-
->   drivers/gpu/drm/i915/gt/selftest_context.c    |  2 +-
->   .../drm/i915/gt/selftest_ring_submission.c    |  2 +-
->   drivers/gpu/drm/i915/gt/selftest_timeline.c   |  2 +-
->   drivers/gpu/drm/i915/gt/uc/intel_gsc_uc.c     |  2 +-
->   drivers/gpu/drm/i915/gt/uc/intel_uc.c         |  2 +-
->   drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c      |  2 +-
->   drivers/gpu/drm/i915/i915_utils.h             |  1 +
->   include/linux/llist.h                         |  6 ++----
->   include/linux/non-atomic/xchg.h               | 19 +++++++++++++++++++
->   include/linux/qed/qed_chain.h                 | 19 +++++++------------
->   io_uring/io_uring.c                           |  7 ++-----
->   io_uring/slist.h                              |  6 ++----
->   51 files changed, 126 insertions(+), 155 deletions(-)
->   create mode 100644 include/linux/non-atomic/xchg.h
-> 
+>   arch: rename all internal names __xchg to __arch_xchg
+>   linux/include: add non-atomic version of xchg
+>   arch/*/uprobes: simplify arch_uretprobe_hijack_return_addr
+>   llist: simplify __llist_del_all
+>   io_uring: use __xchg if possible
+>   qed: use __xchg if possible
+>   drm/i915/gt: use __xchg instead of internal helper
 
+Nothing crazy in here I suppose, I somewhat wonder why you went through
+the trouble, but meh.
+
+You want me to take this through te locking tree (for the next cycle,
+not this one) where I normally take atomic things or does someone else
+want this?
