@@ -1,28 +1,28 @@
 From: Andi Shyti <andi.shyti@linux.intel.com>
-Subject: Re: [Intel-gfx] [PATCH v5 2/7] linux/include: add non-atomic version
- of xchg
-Date: Mon, 27 Feb 2023 10:53:57 +0100
-Message-ID: <Y/x9tclWV/lqBMzZ@ashyti-mobl2.lan>
+Subject: Re: [Intel-gfx] [PATCH v5 3/7] arch/*/uprobes: simplify
+ arch_uretprobe_hijack_return_addr
+Date: Mon, 27 Feb 2023 10:54:46 +0100
+Message-ID: <Y/x95g9aUmMdO7Hu@ashyti-mobl2.lan>
 References: <20230118153529.57695-1-andrzej.hajda@intel.com>
  <20230118154450.73842-1-andrzej.hajda@intel.com>
- <20230118154450.73842-2-andrzej.hajda@intel.com>
+ <20230118154450.73842-3-andrzej.hajda@intel.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-parisc-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1677491646; x=1709027646;
+  t=1677491699; x=1709027699;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=f/bLJaqaLfK7yUfdWWThO9xflQ5SoY/AGk04yxsIRKk=;
-  b=SmC9Ze87Nz1fqd05wVZ3FwXvaWJc5ukPggCTVPc8oIXf1QZP18j8Cbjp
-   nEgAgYkGXn0JnvikFhrdwfTdpU9BzzWWEARiHXO/IInQXWc/12YEvw20E
-   o0/uAnqthgKRBLD7x7kszTjXWcOVesmXBShkjgUwAb6TJYqa5krw/OK83
-   vIwMl9aETYHs+UDyEBKWeGVEbVcw02P7Ko616xDEUF/ExCPgwRqST1uhE
-   X/0ucodtVAP8gsvdx12rDKbGZTPH4lJJjdV8D0qQQap9zJEn5AWeXCYNL
-   3Y2r1VHUdGsn2R0glFWttIPsk59Wd7xt/Sz1ohB1Xp7BKGJy7/hQZjnmR
-   A==;
+  bh=rr6xwo2PCVOiBN2/EFJWwIunjAZhcH+OTt1joV7rt6Y=;
+  b=jWKd9bXais7/EgYjrU9s4vs9XIRDdDyepV71prZiHfAg8otmbpptD5EL
+   GTO969l0Ujvzkicc/nbrMRi419UTqtIbw1NWCEHDW3OvqBr9PXtvkryk1
+   V/H/H5SJ2Nsn40jnLEceHZIWZIEqiI79rlS9tCniom3BDI4WMnH7AzdRB
+   yQRVXBRXobfDjB5sRpHDSKbvm688u3RYs5pfqgKRKrbvQCizfh0pVz6I9
+   lLob/EbgwkKjd5fx0iff6ufy2eATntug6cR+itTiwt3wLljq82euwhHq/
+   fi0JE9Sm8fxVywbQondGoV3zuyr3UZHYKAvkRXiMO13A60imp6pxNlPzC
+   g==;
 Content-Disposition: inline
-In-Reply-To: <20230118154450.73842-2-andrzej.hajda@intel.com>
+In-Reply-To: <20230118154450.73842-3-andrzej.hajda@intel.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -31,14 +31,11 @@ Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@li
 
 Hi Andrzej,
 
-On Wed, Jan 18, 2023 at 04:44:45PM +0100, Andrzej Hajda wrote:
-> The pattern of setting variable with new value and returning old
-> one is very common in kernel. Usually atomicity of the operation
-> is not required, so xchg seems to be suboptimal and confusing in
-> such cases.
+On Wed, Jan 18, 2023 at 04:44:46PM +0100, Andrzej Hajda wrote:
+> In all architectures, except x86, arch_uretprobe_hijack_return_addr
+> is just __xchg.
 > 
 > Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
 
