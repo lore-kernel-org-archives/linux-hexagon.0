@@ -1,79 +1,101 @@
-From: Michael Schmitz <schmitzmic@gmail.com>
-Subject: Re: [PATCH 08/10] parisc: fix livelock in uaccess
-Date: Wed, 1 Mar 2023 08:18:59 +1300
-Message-ID: <f619e8ce-1fce-ace9-3685-e0b50646e8fb@gmail.com>
-References: <Y9lz6yk113LmC9SI@ZenIV> <Y9l0w4M91DwYLO3N@ZenIV>
- <20230228152236.GA4088022@roeck-us.net>
+From: patchwork-bot+linux-riscv@kernel.org
+Subject: Re: [PATCH mm-unstable v1 00/26] mm: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all architectures with swap PTEs
+Date: Tue, 28 Feb 2023 21:11:17 +0000
+Message-ID: <167761867725.10135.3611718470427113262.git-patchwork-notify@kernel.org>
+References: <20230113171026.582290-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1677611948;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=FpEVz7SmprPoPkB0vfE/PqJxuugSFBKj6AY2r5uLAhc=;
-        b=oWlcXRzyqWqEIYwyzrAbhH5dfbtnZIzo1YdAD6EbxrkG1UYmywauWswlbWUb9RyzJT
-         brrhvXg9BV/J80dlhPlO1Y21wLf6vRkFdXy7JICIvDrelyzHIZjZVwrR4yuaicL7f3Vk
-         2p3merJr6M4IafXoXz51BvBxgjw+2vFOvA7iQCX7+ipsnTqqyjWJ3THXEnrQ8p4gJgDk
-         xZ3DYrEnn6dh5SSFWIpnSPW533U6fF1NRXuZZhGMXkF858tTyzkALowN2hKgVfeUNsrR
-         5wS/6VMndefgSb0UUhYGxgiYLa81lYWrHHI0iDazPBKk+F/PHzqrgvgcgWVcBnyOqxfC
-         HgLQ==
-Content-Language: en-US
-In-Reply-To: <20230228152236.GA4088022@roeck-us.net>
+Return-path: <linux-m68k-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677618677;
+        bh=hQNwE+IEUbKQvI91yvljJosaVP7JCZ7+8bppV3cOFbg=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=EWCQE/HQjrWuM9JLi5n8h88COIVDC0Dwj8Ls7hxDeYr4SIALkO/qqCk/UGcAvWK5o
+         c02+sh/QcUi/6bE0ILdbEb/C+A8GV+CJaLo8WfaGxJWgLFvkSK7vL/E7uokCa4MOxg
+         ngdg3jXiJrkGUm98gEQXAgu/dxa50c+7WgMlmDgNw1PpnJ2oFrWoeU4ingGh4tZ7R7
+         NCLLPqaZ1Zn4rnovGjIPX8BlJ6CPAfDs1vwTGYqI9oMCtgbAk9Bh8oF1Q3q6KxteX4
+         j5u6Jm2tA55Z1q6NEJRkgLy4vCcaaRiYhIH8qBVhYl9/Ucn2GR4gvjnvRg/iSe5UV4
+         UdVCGz5UeLKDg==
+In-Reply-To: <20230113171026.582290-1-david@redhat.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-To: Guenter Roeck <linux@roeck-us.net>, Al Viro <viro@zeniv.linux.org.uk>
-Cc: linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+Content-Type: text/plain; charset="us-ascii"
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, hughd@google.com, jhubbard@nvidia.com, jgg@nvidia.com, rppt@linux.ibm.com, shy828301@gmail.com, vbabka@suse.cz, namit@vmware.com, aarcange@redhat.com, peterx@redhat.com, linux-mm@kvack.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-xtensa@l
 
-Guenter,
+Hello:
 
-On 1/03/23 04:22, Guenter Roeck wrote:
-> On Tue, Jan 31, 2023 at 08:06:27PM +0000, Al Viro wrote:
->> parisc equivalent of 26178ec11ef3 "x86: mm: consolidate VM_FAULT_RETRY handling"
->> If e.g. get_user() triggers a page fault and a fatal signal is caught, we might
->> end up with handle_mm_fault() returning VM_FAULT_RETRY and not doing anything
->> to page tables.  In such case we must *not* return to the faulting insn -
->> that would repeat the entire thing without making any progress; what we need
->> instead is to treat that as failed (user) memory access.
->>
->> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
->> ---
->>   arch/parisc/mm/fault.c | 5 ++++-
->>   1 file changed, 4 insertions(+), 1 deletion(-)
->>
->> diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
->> index 869204e97ec9..bb30ff6a3e19 100644
->> --- a/arch/parisc/mm/fault.c
->> +++ b/arch/parisc/mm/fault.c
->> @@ -308,8 +308,11 @@ void do_page_fault(struct pt_regs *regs, unsigned long code,
->>   
->>   	fault = handle_mm_fault(vma, address, flags, regs);
->>   
->> -	if (fault_signal_pending(fault, regs))
->> +	if (fault_signal_pending(fault, regs)) {
->> +		if (!user_mode(regs))
->> +			goto no_context;
-> 0-day rightfully complains that this leaves 'msg' uninitialized.
->
-> arch/parisc/mm/fault.c:427 do_page_fault() error: uninitialized symbol 'msg'
->
-> Guenter
+This series was applied to riscv/linux.git (for-next)
+by Andrew Morton <akpm@linux-foundation.org>:
 
-What happens if you initialize msg to "Page fault: no context" right at 
-the start of do_page_fault (and drop the assignment a few lines down as 
-that's now redundant)?
+On Fri, 13 Jan 2023 18:10:00 +0100 you wrote:
+> This is the follow-up on [1]:
+> 	[PATCH v2 0/8] mm: COW fixes part 3: reliable GUP R/W FOLL_GET of
+> 	anonymous pages
+> 
+> After we implemented __HAVE_ARCH_PTE_SWP_EXCLUSIVE on most prominent
+> enterprise architectures, implement __HAVE_ARCH_PTE_SWP_EXCLUSIVE on all
+> remaining architectures that support swap PTEs.
+> 
+> [...]
 
-(Wondering if the zero page access on parisc could cause a trip right 
-back into do_page_fault, ad infinitum...)
+Here is the summary with links:
+  - [mm-unstable,v1,01/26] mm/debug_vm_pgtable: more pte_swp_exclusive() sanity checks
+    (no matching commit)
+  - [mm-unstable,v1,02/26] alpha/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,03/26] arc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,04/26] arm/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,05/26] csky/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,06/26] hexagon/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,07/26] ia64/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,08/26] loongarch/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,09/26] m68k/mm: remove dummy __swp definitions for nommu
+    (no matching commit)
+  - [mm-unstable,v1,10/26] m68k/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,11/26] microblaze/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,12/26] mips/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,13/26] nios2/mm: refactor swap PTE layout
+    (no matching commit)
+  - [mm-unstable,v1,14/26] nios2/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,15/26] openrisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,16/26] parisc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,17/26] powerpc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit book3s
+    (no matching commit)
+  - [mm-unstable,v1,18/26] powerpc/nohash/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,19/26] riscv/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    https://git.kernel.org/riscv/c/51a1007d4113
+  - [mm-unstable,v1,20/26] sh/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,21/26] sparc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 32bit
+    (no matching commit)
+  - [mm-unstable,v1,22/26] sparc/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE on 64bit
+    (no matching commit)
+  - [mm-unstable,v1,23/26] um/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,24/26] x86/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE also on 32bit
+    (no matching commit)
+  - [mm-unstable,v1,25/26] xtensa/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
+  - [mm-unstable,v1,26/26] mm: remove __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+    (no matching commit)
 
-Cheers,
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-     Michael
 
-
->>   		return;
->> +	}
->>   
->>   	/* The fault is fully completed (including releasing mmap lock) */
->>   	if (fault & VM_FAULT_COMPLETED)
