@@ -1,78 +1,79 @@
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Michael Schmitz <schmitzmic@gmail.com>
 Subject: Re: [PATCH 08/10] parisc: fix livelock in uaccess
-Date: Tue, 28 Feb 2023 17:34:52 +0000
-Message-ID: <Y/47PMmpLDX5lPWx@ZenIV>
-References: <Y9lz6yk113LmC9SI@ZenIV>
- <Y9l0w4M91DwYLO3N@ZenIV>
- <84b1c2e4-c096-ed19-9701-472b54a4890c@gmx.de>
+Date: Wed, 1 Mar 2023 08:18:59 +1300
+Message-ID: <f619e8ce-1fce-ace9-3685-e0b50646e8fb@gmail.com>
+References: <Y9lz6yk113LmC9SI@ZenIV> <Y9l0w4M91DwYLO3N@ZenIV>
+ <20230228152236.GA4088022@roeck-us.net>
 Mime-Version: 1.0
-Return-path: <linux-parisc-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=bN8lETEGtH3eSCzqdqNXhuD99n9DHCrwwsYdF542otk=; b=tlM7n0Xf2FPdjnh6I1lRD/dMeA
-        /hXzqbpV8RRtbLC1sDVsgtMEN7cikGeK3Z5yneR36FFONPjOZYDhLmOP/tyJMoxJHxpZVcoVnVV0M
-        syx0lJ1Po6cnoqtkr5LVPcY5p0oj3P5gJV5Wm7cl3V/2lA269sPqGXI3qSuox0K2VHs51kQDHSTfm
-        lUncCtO7g0VDFwoVXw7wGG2YSp29ouOnhFFV0dGyHRGISsU+Gw86N7WhFw1pGsETFEz5N+P6P8lb6
-        0P3epZK72dBTYM3LK14Md4g++i+Xn8vyTQ2iKpNruxRo8PZF/qH7Ax8EFV0zWBStHnqUwCar2xFby
-        +gfd/aUQ==;
-Content-Disposition: inline
-In-Reply-To: <84b1c2e4-c096-ed19-9701-472b54a4890c@gmx.de>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1677611948;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=FpEVz7SmprPoPkB0vfE/PqJxuugSFBKj6AY2r5uLAhc=;
+        b=oWlcXRzyqWqEIYwyzrAbhH5dfbtnZIzo1YdAD6EbxrkG1UYmywauWswlbWUb9RyzJT
+         brrhvXg9BV/J80dlhPlO1Y21wLf6vRkFdXy7JICIvDrelyzHIZjZVwrR4yuaicL7f3Vk
+         2p3merJr6M4IafXoXz51BvBxgjw+2vFOvA7iQCX7+ipsnTqqyjWJ3THXEnrQ8p4gJgDk
+         xZ3DYrEnn6dh5SSFWIpnSPW533U6fF1NRXuZZhGMXkF858tTyzkALowN2hKgVfeUNsrR
+         5wS/6VMndefgSb0UUhYGxgiYLa81lYWrHHI0iDazPBKk+F/PHzqrgvgcgWVcBnyOqxfC
+         HgLQ==
+Content-Language: en-US
+In-Reply-To: <20230228152236.GA4088022@roeck-us.net>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Helge Deller <deller@gmx.de>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+To: Guenter Roeck <linux@roeck-us.net>, Al Viro <viro@zeniv.linux.org.uk>
 Cc: linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
 
-On Mon, Feb 06, 2023 at 05:58:02PM +0100, Helge Deller wrote:
-> Hi Al,
-> 
-> On 1/31/23 21:06, Al Viro wrote:
-> > parisc equivalent of 26178ec11ef3 "x86: mm: consolidate VM_FAULT_RETRY handling"
-> > If e.g. get_user() triggers a page fault and a fatal signal is caught, we might
-> > end up with handle_mm_fault() returning VM_FAULT_RETRY and not doing anything
-> > to page tables.  In such case we must *not* return to the faulting insn -
-> > that would repeat the entire thing without making any progress; what we need
-> > instead is to treat that as failed (user) memory access.
-> > 
-> > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-> > ---
-> >   arch/parisc/mm/fault.c | 5 ++++-
-> >   1 file changed, 4 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
-> > index 869204e97ec9..bb30ff6a3e19 100644
-> > --- a/arch/parisc/mm/fault.c
-> > +++ b/arch/parisc/mm/fault.c
-> > @@ -308,8 +308,11 @@ void do_page_fault(struct pt_regs *regs, unsigned long code,
-> > 
-> >   	fault = handle_mm_fault(vma, address, flags, regs);
-> > 
-> > -	if (fault_signal_pending(fault, regs))
-> > +	if (fault_signal_pending(fault, regs)) {
-> > +		if (!user_mode(regs))
-> > +			goto no_context;
-> >   		return;
-> > +	}
-> 
-> The testcase in
->   https://lore.kernel.org/lkml/20170822102527.GA14671@leverpostej/
->   https://lore.kernel.org/linux-arch/20210121123140.GD48431@C02TD0UTHF1T.local/
-> does hang with and without above patch on parisc.
-> It does not consume CPU in that state and can be killed with ^C.
-> 
-> Any idea?
+Guenter,
 
-	Still trying to resurrect the parisc box to test on it...
-FWIW, right now I've locally confirmed that mainline has the bug
-in question and that patch fixes it for alpha, sparc32 and sparc64;
-hexagon, m68k and riscv got acks from other folks; microblaze,
-nios2 and openrisc I can't test at all (no hardware, no qemu setup);
-same for parisc64.  Itanic and parisc32 I might be able to test,
-if I manage to resurrect the hardware.
+On 1/03/23 04:22, Guenter Roeck wrote:
+> On Tue, Jan 31, 2023 at 08:06:27PM +0000, Al Viro wrote:
+>> parisc equivalent of 26178ec11ef3 "x86: mm: consolidate VM_FAULT_RETRY handling"
+>> If e.g. get_user() triggers a page fault and a fatal signal is caught, we might
+>> end up with handle_mm_fault() returning VM_FAULT_RETRY and not doing anything
+>> to page tables.  In such case we must *not* return to the faulting insn -
+>> that would repeat the entire thing without making any progress; what we need
+>> instead is to treat that as failed (user) memory access.
+>>
+>> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+>> ---
+>>   arch/parisc/mm/fault.c | 5 ++++-
+>>   1 file changed, 4 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
+>> index 869204e97ec9..bb30ff6a3e19 100644
+>> --- a/arch/parisc/mm/fault.c
+>> +++ b/arch/parisc/mm/fault.c
+>> @@ -308,8 +308,11 @@ void do_page_fault(struct pt_regs *regs, unsigned long code,
+>>   
+>>   	fault = handle_mm_fault(vma, address, flags, regs);
+>>   
+>> -	if (fault_signal_pending(fault, regs))
+>> +	if (fault_signal_pending(fault, regs)) {
+>> +		if (!user_mode(regs))
+>> +			goto no_context;
+> 0-day rightfully complains that this leaves 'msg' uninitialized.
+>
+> arch/parisc/mm/fault.c:427 do_page_fault() error: uninitialized symbol 'msg'
+>
+> Guenter
 
-	Just to confirm: your "can be killed with ^C" had been on the
-mainline parisc kernel (with userfaultfd enable, of course, or it wouldn't
-hang up at all), right?  Was it 32bit or 64bit kernel?
+What happens if you initialize msg to "Page fault: no context" right at 
+the start of do_page_fault (and drop the assignment a few lines down as 
+that's now redundant)?
+
+(Wondering if the zero page access on parisc could cause a trip right 
+back into do_page_fault, ad infinitum...)
+
+Cheers,
+
+     Michael
+
+
+>>   		return;
+>> +	}
+>>   
+>>   	/* The fault is fully completed (including releasing mmap lock) */
+>>   	if (fault & VM_FAULT_COMPLETED)
