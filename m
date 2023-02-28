@@ -1,66 +1,122 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 08/10] parisc: fix livelock in uaccess
-Date: Tue, 28 Feb 2023 07:22:36 -0800
-Message-ID: <20230228152236.GA4088022@roeck-us.net>
-References: <Y9lz6yk113LmC9SI@ZenIV>
- <Y9l0w4M91DwYLO3N@ZenIV>
-Mime-Version: 1.0
-Return-path: <linux-ia64-owner@vger.kernel.org>
+From: Palmer Dabbelt <palmer@dabbelt.com>
+Subject: Re: [PATCH mm-unstable v1 19/26] riscv/mm: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+Date: Tue, 28 Feb 2023 07:50:36 -0800 (PST)
+Message-ID: <mhng-b8dc8a57-dde0-4995-bbb7-3948a95ba0b1@palmer-ri-x1c9a>
+References: <20230113171026.582290-20-david@redhat.com>
+Mime-Version: 1.0 (MHng)
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+        d=dabbelt-com.20210112.gappssmtp.com; s=20210112; t=1677599437;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=vrCu0geLOi4OVGkwEDjMoWqOD6knh9EFuIYJINwxG2Q=;
-        b=IGBBoowU11kDoWvFa5UzxduFuKkleISEIsB8g0SLdw3lG87SsG8+PsmkrCrm3TH2pt
-         LBN/n5AsWe0dZ2AIgADeF8KWpj+ycPcePDpjwLCg0T63e6K3XjzdEZXIUgV6TE7WUBN1
-         AK2CARlsdEe/OX1TbsU78oHzkcJn1RVW+c7oYGgocxiBXOe8c+dQkbo6AMBYWCYSeWRC
-         vhMfw47fslKk3wVgBClGFXE6FBNXcORvFJZL+8l11ZidzustABk5nGG0x2gpRfO9RxJD
-         PuL/N5Cl9Ya1t3fGA7nJ+DSi9olydAlsnnYP9GKF7V1L+IZjLHdL2hpD/GalkWFZw9V7
-         1jRg==
-Sender: Guenter Roeck <groeck7@gmail.com>
-Content-Disposition: inline
-In-Reply-To: <Y9l0w4M91DwYLO3N@ZenIV>
+        bh=UryJW0EuVY8u2sW6z9mCQGQjWTzi+ldNIkpQGB8+HtU=;
+        b=B87Sz4AD1+v0XwCsrRoMpTHOfPGa5C2kWXfopmI+Go4uM/GlteH88Prr3xnOjgOBpK
+         5TXEM23YJaNZ7g9EbVYCuK/JD08Tarh0thhlMnTFFyMOEygBOFNnHXUltVMCUsr+soSV
+         N7JymoT7+eTk9L3hW6gd0jRYqCQJylQ1Sv9bK+MVkRTzPo6kpx2lySfN5ZcoLvOslGRO
+         KPapypwptYDfTKoui/kxjkto9aXQEXnB0zNI2xnF9K9K1w6AMTAlsuNOBVAzoDOh6S9m
+         XMeLlvUu7AtZRerpGExszQw24rKkktWNdf98ePl6noAkKeRplxZuYNOqKiII4Yi6n3n8
+         TCXA==
+In-Reply-To: <20230113171026.582290-20-david@redhat.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: david@redhat.com
+Cc: linux-kernel@vger.kernel.org, akpm@linux-foundation.org, hughd@google.com, jhubbard@nvidia.com, jgg@nvidia.com, rppt@linux.ibm.com, shy828301@gmail.com, vbabka@suse.cz, namit@vmware.com, aarcange@redhat.com, peterx@redhat.com, linux-mm@kvack.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-xtensa@l
 
-On Tue, Jan 31, 2023 at 08:06:27PM +0000, Al Viro wrote:
-> parisc equivalent of 26178ec11ef3 "x86: mm: consolidate VM_FAULT_RETRY handling"
-> If e.g. get_user() triggers a page fault and a fatal signal is caught, we might
-> end up with handle_mm_fault() returning VM_FAULT_RETRY and not doing anything
-> to page tables.  In such case we must *not* return to the faulting insn -
-> that would repeat the entire thing without making any progress; what we need
-> instead is to treat that as failed (user) memory access.
-> 
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+On Fri, 13 Jan 2023 09:10:19 PST (-0800), david@redhat.com wrote:
+> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit
+> from the offset. This reduces the maximum swap space per file: on 32bit
+> to 16 GiB (was 32 GiB).
+
+Seems fine to me, I doubt anyone wants a huge pile of swap on rv32.
+
+>
+> Note that this bit does not conflict with swap PMDs and could also be used
+> in swap PMD context later.
+>
+> While at it, mask the type in __swp_entry().
+>
+> Cc: Paul Walmsley <paul.walmsley@sifive.com>
+> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+> Cc: Albert Ou <aou@eecs.berkeley.edu>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 > ---
->  arch/parisc/mm/fault.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
-> index 869204e97ec9..bb30ff6a3e19 100644
-> --- a/arch/parisc/mm/fault.c
-> +++ b/arch/parisc/mm/fault.c
-> @@ -308,8 +308,11 @@ void do_page_fault(struct pt_regs *regs, unsigned long code,
->  
->  	fault = handle_mm_fault(vma, address, flags, regs);
->  
-> -	if (fault_signal_pending(fault, regs))
-> +	if (fault_signal_pending(fault, regs)) {
-> +		if (!user_mode(regs))
-> +			goto no_context;
+>  arch/riscv/include/asm/pgtable-bits.h |  3 +++
+>  arch/riscv/include/asm/pgtable.h      | 29 ++++++++++++++++++++++-----
+>  2 files changed, 27 insertions(+), 5 deletions(-)
+>
+> diff --git a/arch/riscv/include/asm/pgtable-bits.h b/arch/riscv/include/asm/pgtable-bits.h
+> index b9e13a8fe2b7..f896708e8331 100644
+> --- a/arch/riscv/include/asm/pgtable-bits.h
+> +++ b/arch/riscv/include/asm/pgtable-bits.h
+> @@ -27,6 +27,9 @@
+>   */
+>  #define _PAGE_PROT_NONE _PAGE_GLOBAL
+>
+> +/* Used for swap PTEs only. */
+> +#define _PAGE_SWP_EXCLUSIVE _PAGE_ACCESSED
+> +
+>  #define _PAGE_PFN_SHIFT 10
+>
+>  /*
+> diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+> index 4eba9a98d0e3..03a4728db039 100644
+> --- a/arch/riscv/include/asm/pgtable.h
+> +++ b/arch/riscv/include/asm/pgtable.h
+> @@ -724,16 +724,18 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
+>  #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+>
+>  /*
+> - * Encode and decode a swap entry
+> + * Encode/decode swap entries and swap PTEs. Swap PTEs are all PTEs that
+> + * are !pte_none() && !pte_present().
+>   *
+>   * Format of swap PTE:
+>   *	bit            0:	_PAGE_PRESENT (zero)
+>   *	bit       1 to 3:       _PAGE_LEAF (zero)
+>   *	bit            5:	_PAGE_PROT_NONE (zero)
+> - *	bits      6 to 10:	swap type
+> - *	bits 10 to XLEN-1:	swap offset
+> + *	bit            6:	exclusive marker
+> + *	bits      7 to 11:	swap type
+> + *	bits 11 to XLEN-1:	swap offset
+>   */
+> -#define __SWP_TYPE_SHIFT	6
+> +#define __SWP_TYPE_SHIFT	7
+>  #define __SWP_TYPE_BITS		5
+>  #define __SWP_TYPE_MASK		((1UL << __SWP_TYPE_BITS) - 1)
+>  #define __SWP_OFFSET_SHIFT	(__SWP_TYPE_BITS + __SWP_TYPE_SHIFT)
+> @@ -744,11 +746,28 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
+>  #define __swp_type(x)	(((x).val >> __SWP_TYPE_SHIFT) & __SWP_TYPE_MASK)
+>  #define __swp_offset(x)	((x).val >> __SWP_OFFSET_SHIFT)
+>  #define __swp_entry(type, offset) ((swp_entry_t) \
+> -	{ ((type) << __SWP_TYPE_SHIFT) | ((offset) << __SWP_OFFSET_SHIFT) })
+> +	{ (((type) & __SWP_TYPE_MASK) << __SWP_TYPE_SHIFT) | \
+> +	  ((offset) << __SWP_OFFSET_SHIFT) })
+>
+>  #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
+>  #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
+>
+> +#define __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+> +static inline int pte_swp_exclusive(pte_t pte)
+> +{
+> +	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
+> +}
+> +
+> +static inline pte_t pte_swp_mkexclusive(pte_t pte)
+> +{
+> +	return __pte(pte_val(pte) | _PAGE_SWP_EXCLUSIVE);
+> +}
+> +
+> +static inline pte_t pte_swp_clear_exclusive(pte_t pte)
+> +{
+> +	return __pte(pte_val(pte) & ~_PAGE_SWP_EXCLUSIVE);
+> +}
+> +
+>  #ifdef CONFIG_ARCH_ENABLE_THP_MIGRATION
+>  #define __pmd_to_swp_entry(pmd) ((swp_entry_t) { pmd_val(pmd) })
+>  #define __swp_entry_to_pmd(swp) __pmd((swp).val)
 
-0-day rightfully complains that this leaves 'msg' uninitialized.
-
-arch/parisc/mm/fault.c:427 do_page_fault() error: uninitialized symbol 'msg'
-
-Guenter
-
->  		return;
-> +	}
->  
->  	/* The fault is fully completed (including releasing mmap lock) */
->  	if (fault & VM_FAULT_COMPLETED)
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
