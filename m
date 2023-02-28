@@ -1,62 +1,78 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH mm-unstable v1 19/26] riscv/mm: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Date: Tue, 28 Feb 2023 16:56:30 +0100
-Message-ID: <bd656b2c-9a20-dea9-dcef-9cc965bccc9e@redhat.com>
-References: <mhng-b8dc8a57-dde0-4995-bbb7-3948a95ba0b1@palmer-ri-x1c9a>
+From: Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH 08/10] parisc: fix livelock in uaccess
+Date: Tue, 28 Feb 2023 17:34:52 +0000
+Message-ID: <Y/47PMmpLDX5lPWx@ZenIV>
+References: <Y9lz6yk113LmC9SI@ZenIV>
+ <Y9l0w4M91DwYLO3N@ZenIV>
+ <84b1c2e4-c096-ed19-9701-472b54a4890c@gmx.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+Return-path: <linux-parisc-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
-	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
-	List-Unsubscribe:List-Id:In-Reply-To:From:References:Cc:To:Subject:
-	MIME-Version:Date:Message-ID:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=kCGwvpiKxCWgpwYAsI1H2zryLWp7cFNXQvrTdc4pIz4=; b=QiLPIY48+1T9za
-	e3GBzRg3V+kXVfnaRqg/mZeyNtaMZCupGqRjb2Mg2RXKm9iIL2lZiS7AiwT/8A0FFospoqIkb2qM3
-	cvPrgiO0Rcigch/kxtV4yKeUFCsJ8qhAaZtVA7ABFk3uE2CsSFnag/FF1ShqrqmVNY8+5CRK062kR
-	fwLHVHPlEIHssU0HbBTVCEyDbs5eb+/a1TBx8Atlfol98H3xkp9CPZPVEGCWNHPDIxF41rAn1g8XP
-	Xcgn9P90pLEB6TbTYUPMF64pBvnwrKRlRn/3M+6UWtofrHxyBxngJGxiXnU6SSj4x01fQklsD9/AI
-	UWsKgdgdapdUIwRQg5Sg==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1677599795;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=V7pSWC5euLmUDx9YG5RWzWaGkcDB950fdhQfUYWKICc=;
-	b=L7YliKV/d3202CCEuU9Fu2ac86tPOoUC+750FU1UZiFNnKKVsSvv9T7SgjZOSG/zn0wRsS
-	KY458A7FWA74fitA5SLEBpgpLgM7VD7z6cx4ectDFvde8wsW2gXG2GVzJ6wVslmhqI/Rb1
-	YK4AHB1E0McrSW3VjATaBEavJpoDBjY=
-In-Reply-To: <mhng-b8dc8a57-dde0-4995-bbb7-3948a95ba0b1@palmer-ri-x1c9a>
-Content-Language: en-US
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: linux-kernel@vger.kernel.org, akpm@linux-foundation.org, hughd@google.com, jhubbard@nvidia.com, jgg@nvidia.com, rppt@linux.ibm.com, shy828301@gmail.com, vbabka@suse.cz, namit@vmware.com, aarcange@redhat.com, peterx@redhat.com, linux-mm@kvack.org, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, Paul Walmsley <paul.walmsley@sifive.com>, aou@eecs.berkeley.edu
+        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=bN8lETEGtH3eSCzqdqNXhuD99n9DHCrwwsYdF542otk=; b=tlM7n0Xf2FPdjnh6I1lRD/dMeA
+        /hXzqbpV8RRtbLC1sDVsgtMEN7cikGeK3Z5yneR36FFONPjOZYDhLmOP/tyJMoxJHxpZVcoVnVV0M
+        syx0lJ1Po6cnoqtkr5LVPcY5p0oj3P5gJV5Wm7cl3V/2lA269sPqGXI3qSuox0K2VHs51kQDHSTfm
+        lUncCtO7g0VDFwoVXw7wGG2YSp29ouOnhFFV0dGyHRGISsU+Gw86N7WhFw1pGsETFEz5N+P6P8lb6
+        0P3epZK72dBTYM3LK14Md4g++i+Xn8vyTQ2iKpNruxRo8PZF/qH7Ax8EFV0zWBStHnqUwCar2xFby
+        +gfd/aUQ==;
+Content-Disposition: inline
+In-Reply-To: <84b1c2e4-c096-ed19-9701-472b54a4890c@gmx.de>
+Sender: Al Viro <viro@ftp.linux.org.uk>
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: Helge Deller <deller@gmx.de>
+Cc: linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
 
-On 28.02.23 16:50, Palmer Dabbelt wrote:
-> On Fri, 13 Jan 2023 09:10:19 PST (-0800), david@redhat.com wrote:
->> Let's support __HAVE_ARCH_PTE_SWP_EXCLUSIVE by stealing one bit
->> from the offset. This reduces the maximum swap space per file: on 32bit
->> to 16 GiB (was 32 GiB).
+On Mon, Feb 06, 2023 at 05:58:02PM +0100, Helge Deller wrote:
+> Hi Al,
 > 
-> Seems fine to me, I doubt anyone wants a huge pile of swap on rv32.
+> On 1/31/23 21:06, Al Viro wrote:
+> > parisc equivalent of 26178ec11ef3 "x86: mm: consolidate VM_FAULT_RETRY handling"
+> > If e.g. get_user() triggers a page fault and a fatal signal is caught, we might
+> > end up with handle_mm_fault() returning VM_FAULT_RETRY and not doing anything
+> > to page tables.  In such case we must *not* return to the faulting insn -
+> > that would repeat the entire thing without making any progress; what we need
+> > instead is to treat that as failed (user) memory access.
+> > 
+> > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> > ---
+> >   arch/parisc/mm/fault.c | 5 ++++-
+> >   1 file changed, 4 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
+> > index 869204e97ec9..bb30ff6a3e19 100644
+> > --- a/arch/parisc/mm/fault.c
+> > +++ b/arch/parisc/mm/fault.c
+> > @@ -308,8 +308,11 @@ void do_page_fault(struct pt_regs *regs, unsigned long code,
+> > 
+> >   	fault = handle_mm_fault(vma, address, flags, regs);
+> > 
+> > -	if (fault_signal_pending(fault, regs))
+> > +	if (fault_signal_pending(fault, regs)) {
+> > +		if (!user_mode(regs))
+> > +			goto no_context;
+> >   		return;
+> > +	}
+> 
+> The testcase in
+>   https://lore.kernel.org/lkml/20170822102527.GA14671@leverpostej/
+>   https://lore.kernel.org/linux-arch/20210121123140.GD48431@C02TD0UTHF1T.local/
+> does hang with and without above patch on parisc.
+> It does not consume CPU in that state and can be killed with ^C.
+> 
+> Any idea?
 
-Patch is already upstream, so we can't add tags unfortunately. Thanks 
-for the review!
+	Still trying to resurrect the parisc box to test on it...
+FWIW, right now I've locally confirmed that mainline has the bug
+in question and that patch fixes it for alpha, sparc32 and sparc64;
+hexagon, m68k and riscv got acks from other folks; microblaze,
+nios2 and openrisc I can't test at all (no hardware, no qemu setup);
+same for parisc64.  Itanic and parisc32 I might be able to test,
+if I manage to resurrect the hardware.
 
--- 
-Thanks,
-
-David / dhildenb
+	Just to confirm: your "can be killed with ^C" had been on the
+mainline parisc kernel (with userfaultfd enable, of course, or it wouldn't
+hang up at all), right?  Was it 32bit or 64bit kernel?
