@@ -1,209 +1,57 @@
-From: Baoquan He <bhe@redhat.com>
-Subject: [PATCH v3 2/2] arch/*/io.h: remove ioremap_uc in some architectures
-Date: Fri,  3 Mar 2023 18:28:17 +0800
-Message-ID: <20230303102817.212148-3-bhe@redhat.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH v3 2/2] arch/*/io.h: remove ioremap_uc in some
+ architectures
+Date: Sun, 05 Mar 2023 20:23:05 +1100
+Message-ID: <87sfej1rie.fsf@mpe.ellerman.id.au>
 References: <20230303102817.212148-1-bhe@redhat.com>
+ <20230303102817.212148-3-bhe@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1677839331;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yopmX6MDTRKlcNmu9WG5Rv8YrLrJS47N2LsvKHp9hMg=;
-	b=d1ZSam3NCMUDZlRxUttTeHptzYWFxBRTBmOyWflYp0vlSlgR8w8ha0NDrQCYKVepZUskg/
-	r4FBepWXeQ1uCpYygIve4tn7KuNxB4+70qSFzQEkWOQ4Ys0izXry27b4vjdf9Fc8ZrO9Qc
-	qmzMVQxkvJsN3V9rwZK4EVtQGkDPRJU=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1677839331;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yopmX6MDTRKlcNmu9WG5Rv8YrLrJS47N2LsvKHp9hMg=;
-	b=d1ZSam3NCMUDZlRxUttTeHptzYWFxBRTBmOyWflYp0vlSlgR8w8ha0NDrQCYKVepZUskg/
-	r4FBepWXeQ1uCpYygIve4tn7KuNxB4+70qSFzQEkWOQ4Ys0izXry27b4vjdf9Fc8ZrO9Qc
-	qmzMVQxkvJsN3V9rwZK4EVtQGkDPRJU=
-In-Reply-To: <20230303102817.212148-1-bhe@redhat.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
-Sender: "Linuxppc-dev" <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Return-path: <linux-mips-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1678008188;
+        bh=S5kZ8U1DxT09+WsN0usbweAzpxoqM+gTUtw71NO2hZY=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=PMrnpTMqfTNGy77Ve6cpOJPLTpaG1BSaXb77FTMa2BJ7XfCX3GSTu7WOIep1pbFWu
+         DzFuO74vj7b8pC8U/g772fxSec0GaN4NmEJANjSqxvvz74mD0I6Oq68qv6GQvTT0mn
+         NlRVdwUxd7vXNEUHzehDiM5/6Oi2HsiQz3s28QNQLyi0Rk/aZ2X7VIciMCyDUOFCmR
+         naembNI4QBOdZoRFPwCEuYfe8G1CFWpXyAIC7yMlhwqQ2SAN7MysEvFN8k56wuhQFc
+         LK6vvmPRnikQ/9vpIL+CL3NaW3y7w/tmqBbdzHqcfS6UqC1CqbZD+P83AOqT1MhLSn
+         0h03Q/guV/yjA==
+In-Reply-To: <20230303102817.212148-3-bhe@redhat.com>
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-kernel@vger.kernel.org
-Cc: linux-arch@vger.kernel.org, Baoquan He <bhe@redhat.com>, arnd@arndb.de, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, hch@infradead.org, linux-mm@kvack.org, mcgrof@kernel.org, geert@linux-m68k.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Content-Transfer-Encoding: 7bit
+To: Baoquan He <bhe@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org, linux-mm@kvack.org, arnd@arndb.de, geert@linux-m68k.org, mcgrof@kernel.org, hch@infradead.org, Baoquan He <bhe@redhat.com>, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
 
-ioremap_uc() is only meaningful on old x86-32 systems with the PAT
-extension, and on ia64 with its slightly unconventional ioremap()
-behavior, everywhere else this is the same as ioremap() anyway.
+Baoquan He <bhe@redhat.com> writes:
+> ioremap_uc() is only meaningful on old x86-32 systems with the PAT
+> extension, and on ia64 with its slightly unconventional ioremap()
+> behavior, everywhere else this is the same as ioremap() anyway.
+>
+> Here, remove the ioremap_uc() definition in architecutures other
+> than x86 and ia64. These architectures all have asm-generic/io.h
+> included and will have the default ioremap_uc() definition which
+> returns NULL.
+>
+> Note: This changes the existing behaviour and could break code
+> calling ioremap_uc(). If any ARCH meets this breakage and really
+> needs a specific ioremap_uc() for its own usage, one ioremap_uc()
+> can be added in the ARCH.
 
-Here, remove the ioremap_uc() definition in architecutures other
-than x86 and ia64. These architectures all have asm-generic/io.h
-included and will have the default ioremap_uc() definition which
-returns NULL.
+I see one use in:
 
-Note: This changes the existing behaviour and could break code
-calling ioremap_uc(). If any ARCH meets this breakage and really
-needs a specific ioremap_uc() for its own usage, one ioremap_uc()
-can be added in the ARCH.
+drivers/video/fbdev/aty/atyfb_base.c:        par->ati_regbase = ioremap_uc(info->fix.mmio_start, 0x1000);
 
-Link: https://lore.kernel.org/all/20191112105507.GA7122@lst.de/#t
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-hexagon@vger.kernel.org
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: linux-mips@vger.kernel.org
-Cc: linux-parisc@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-sh@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
 
----
- Documentation/driver-api/device-io.rst | 14 +++++++++-----
- arch/alpha/include/asm/io.h            |  1 -
- arch/hexagon/include/asm/io.h          |  3 ---
- arch/m68k/include/asm/kmap.h           |  1 -
- arch/mips/include/asm/io.h             |  1 -
- arch/parisc/include/asm/io.h           |  2 --
- arch/powerpc/include/asm/io.h          |  1 -
- arch/sh/include/asm/io.h               |  2 --
- arch/sparc/include/asm/io_64.h         |  1 -
- 9 files changed, 9 insertions(+), 17 deletions(-)
+Which isn't obviously x86/ia64 specific.
 
-diff --git a/Documentation/driver-api/device-io.rst b/Documentation/driver-api/device-io.rst
-index 4d2baac0311c..12c2ebbaa41e 100644
---- a/Documentation/driver-api/device-io.rst
-+++ b/Documentation/driver-api/device-io.rst
-@@ -408,11 +408,15 @@ functions for details on the CPU side of things.
- ioremap_uc()
- ------------
- 
--ioremap_uc() behaves like ioremap() except that on the x86 architecture without
--'PAT' mode, it marks memory as uncached even when the MTRR has designated
--it as cacheable, see Documentation/x86/pat.rst.
--
--Portable drivers should avoid the use of ioremap_uc().
-+ioremap_uc() will be obsoleted since it's only expected on x86 and ia64.
-+X86 non-PAT system marks memory as uncached even when the MTRR has designated
-+it as cacheable in ioremap_uc()(see Documentation/x86/pat.rst). Ia64 system
-+need check if attributes match, otherwise fails. Other than these two
-+architectures, ioremap_uc() will default to NULL. Any architectures which
-+meets breakage by ioremap_uc() returning NULL should provide a specific
-+implementation to override the default version.
-+
-+Portable drivers should avoid the use of ioremap_uc(), use ioremap() instead.
- 
- ioremap_cache()
- ---------------
-diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
-index 7aeaf7c30a6f..076f0e4e7f1e 100644
---- a/arch/alpha/include/asm/io.h
-+++ b/arch/alpha/include/asm/io.h
-@@ -308,7 +308,6 @@ static inline void __iomem *ioremap(unsigned long port, unsigned long size)
- }
- 
- #define ioremap_wc ioremap
--#define ioremap_uc ioremap
- 
- static inline void iounmap(volatile void __iomem *addr)
- {
-diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
-index dcd9cbbf5934..b9847472f25c 100644
---- a/arch/hexagon/include/asm/io.h
-+++ b/arch/hexagon/include/asm/io.h
-@@ -176,9 +176,6 @@ static inline void writel(u32 data, volatile void __iomem *addr)
- #define _PAGE_IOREMAP (_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
- 		       (__HEXAGON_C_DEV << 6))
- 
--#define ioremap_uc(addr, size) ioremap((addr), (size))
--
--
- #define __raw_writel writel
- 
- static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
-diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
-index 4efb3efa593a..b778f015c917 100644
---- a/arch/m68k/include/asm/kmap.h
-+++ b/arch/m68k/include/asm/kmap.h
-@@ -25,7 +25,6 @@ static inline void __iomem *ioremap(unsigned long physaddr, unsigned long size)
- 	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
- }
- 
--#define ioremap_uc ioremap
- #define ioremap_wt ioremap_wt
- static inline void __iomem *ioremap_wt(unsigned long physaddr,
- 				       unsigned long size)
-diff --git a/arch/mips/include/asm/io.h b/arch/mips/include/asm/io.h
-index 6756baadba6c..da0a625c3c6d 100644
---- a/arch/mips/include/asm/io.h
-+++ b/arch/mips/include/asm/io.h
-@@ -167,7 +167,6 @@ void iounmap(const volatile void __iomem *addr);
-  */
- #define ioremap(offset, size)						\
- 	ioremap_prot((offset), (size), _CACHE_UNCACHED)
--#define ioremap_uc		ioremap
- 
- /*
-  * ioremap_cache -	map bus memory into CPU space
-diff --git a/arch/parisc/include/asm/io.h b/arch/parisc/include/asm/io.h
-index 366537042465..48630c78714a 100644
---- a/arch/parisc/include/asm/io.h
-+++ b/arch/parisc/include/asm/io.h
-@@ -132,8 +132,6 @@ static inline void gsc_writeq(unsigned long long val, unsigned long addr)
- 
- #define ioremap_wc(addr, size)  \
- 	ioremap_prot((addr), (size), _PAGE_IOREMAP)
--#define ioremap_uc(addr, size)  \
--	ioremap_prot((addr), (size), _PAGE_IOREMAP)
- 
- #define pci_iounmap			pci_iounmap
- 
-diff --git a/arch/powerpc/include/asm/io.h b/arch/powerpc/include/asm/io.h
-index 978d687edf32..7873fc83c82c 100644
---- a/arch/powerpc/include/asm/io.h
-+++ b/arch/powerpc/include/asm/io.h
-@@ -863,7 +863,6 @@ void __iomem *ioremap_wt(phys_addr_t address, unsigned long size);
- #endif
- 
- void __iomem *ioremap_coherent(phys_addr_t address, unsigned long size);
--#define ioremap_uc(addr, size)		ioremap((addr), (size))
- #define ioremap_cache(addr, size) \
- 	ioremap_prot((addr), (size), pgprot_val(PAGE_KERNEL))
- 
-diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
-index b3a26b405c8d..12a892804082 100644
---- a/arch/sh/include/asm/io.h
-+++ b/arch/sh/include/asm/io.h
-@@ -278,8 +278,6 @@ unsigned long long poke_real_address_q(unsigned long long addr,
- 	ioremap_prot((addr), (size), pgprot_val(PAGE_KERNEL))
- #endif /* CONFIG_MMU */
- 
--#define ioremap_uc	ioremap
--
- /*
-  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
-  * access
-diff --git a/arch/sparc/include/asm/io_64.h b/arch/sparc/include/asm/io_64.h
-index 9303270b22f3..d8ee1442f303 100644
---- a/arch/sparc/include/asm/io_64.h
-+++ b/arch/sparc/include/asm/io_64.h
-@@ -423,7 +423,6 @@ static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
- 	return (void __iomem *)offset;
- }
- 
--#define ioremap_uc(X,Y)			ioremap((X),(Y))
- #define ioremap_wc(X,Y)			ioremap((X),(Y))
- #define ioremap_wt(X,Y)			ioremap((X),(Y))
- static inline void __iomem *ioremap_np(unsigned long offset, unsigned long size)
--- 
-2.34.1
+I'm pretty sure some powermacs (powerpc) use that driver.
 
+Maybe that exact code path is only reachable on x86/ia64? But if so
+please explain why.
+
+Otherwise it looks like this series could break that driver on powerpc
+at least.
+
+cheers
