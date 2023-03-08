@@ -1,32 +1,32 @@
-From: Valentin Schneider <vschneid@redhat.com>
-Subject: [PATCH v5 7/7] sched, smp: Trace smp callback causing an IPI
-Date: Tue,  7 Mar 2023 14:35:58 +0000
-Message-ID: <20230307143558.294354-8-vschneid@redhat.com>
-References: <20230307143558.294354-1-vschneid@redhat.com>
+From: Baoquan He <bhe@redhat.com>
+Subject: [PATCH v4 3/4] arch/*/io.h: remove ioremap_uc in some architectures
+Date: Wed,  8 Mar 2023 21:07:09 +0800
+Message-ID: <20230308130710.368085-4-bhe@redhat.com>
+References: <20230308130710.368085-1-bhe@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1678199834;
+	s=mimecast20190719; t=1678280868;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=XswZDw+iZ8+4q1nFeXIY6yQ9xCKRhgciDOrB6q6HEYQ=;
-	b=DsKIOyKo6Y+oSKZn98DlYpZOrSlYSIgF2ll/GZs3AgjELhlZeaVt9fKpViNhImZfYijW13
-	Ntpo+eWifuWLAbsOsLcHIyYkJfuCxzwYV/A2pf/ti7A+RhQf3kdHXYobrw2ldZpfNEU9rB
-	P5ROOHbgrGL7TNyAp+PgMO64qFFQzCg=
+	bh=YuzOmgr2u1PyDfkmKFazdLyWcjTDX0CNS9csyPmB6+k=;
+	b=CsjAm2gzaTD9ZktVrcqwhWPOZDQXokm7MJHsL5rwefGCFokASl6A8astgCDlJxND2PF+ka
+	cl/23/Xhow3hFMeo4nwi5OqAJt9/ZyzX1vcYJc1EmjxeBROEs1b/cRnrZfJ8d/h1GVuPNv
+	+d6/JiXCTAMIjbGZpj0RohoPDTYyYRg=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1678199834;
+	s=mimecast20190719; t=1678280869;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=XswZDw+iZ8+4q1nFeXIY6yQ9xCKRhgciDOrB6q6HEYQ=;
-	b=DsKIOyKo6Y+oSKZn98DlYpZOrSlYSIgF2ll/GZs3AgjELhlZeaVt9fKpViNhImZfYijW13
-	Ntpo+eWifuWLAbsOsLcHIyYkJfuCxzwYV/A2pf/ti7A+RhQf3kdHXYobrw2ldZpfNEU9rB
-	P5ROOHbgrGL7TNyAp+PgMO64qFFQzCg=
-In-Reply-To: <20230307143558.294354-1-vschneid@redhat.com>
+	bh=YuzOmgr2u1PyDfkmKFazdLyWcjTDX0CNS9csyPmB6+k=;
+	b=U9bcruO55Ub980T/uC1qbWrDUp/AkGhmZ6AzIkD2i3E6MYCOUfj/IRB4T8B6RRlezT4u6t
+	G3s+mSc6siI80ZTMDlwpTvV2NtXwITApSjg6kbIYqkDdVxZQFzX3a+S5Z4mpfix5wY9HI4
+	BXvAw4ldbdDkoFakb5cJQCrxFGjK5g0=
+In-Reply-To: <20230308130710.368085-1-bhe@redhat.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
@@ -38,220 +38,167 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
 Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
 Sender: "Linuxppc-dev" <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
 Content-Type: text/plain; charset="us-ascii"
-To: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org
-Cc: Juri Lelli <juri.lelli@redhat.com>, Mark Rutland <mark.rutland@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, "Paul E. McKenney" <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Russell King <linux@armlinux.org.uk>, Steven Rostedt <rostedt@goodmis.org>, "David S. Miller" <davem@davemloft.net>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Nicholas Piggin <npiggin@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Guo Ren <guoren@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Daniel Bristot de Oliveira <bristot@redhat.com>, Frederic Weisbecker <frederic@kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org, Baoquan He <bhe@redhat.com>, arnd@arndb.de, linux-sh@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, hch@infradead.org, linux-mm@kvack.org, mcgrof@kernel.org, geert@linux-m68k.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 
-Context
-=======
+ioremap_uc() is only meaningful on old x86-32 systems with the PAT
+extension, and on ia64 with its slightly unconventional ioremap()
+behavior. So remove the ioremap_uc() definition in architecutures
+other than x86 and ia64. These architectures all have asm-generic/io.h
+included and will have the default ioremap_uc() definition which
+returns NULL.
 
-The newly-introduced ipi_send_cpumask tracepoint has a "callback" parameter
-which so far has only been fed with NULL.
+This changes the existing behaviour, while no need to worry about
+any breakage because in the only callsite of ioremap_uc(), code
+has been adjusted to eliminate the impact. Please see
+atyfb_setup_generic() of drivers/video/fbdev/aty/atyfb_base.c.
 
-While CSD_TYPE_SYNC/ASYNC and CSD_TYPE_IRQ_WORK share a similar backing
-struct layout (meaning their callback func can be accessed without caring
-about the actual CSD type), CSD_TYPE_TTWU doesn't even have a function
-attached to its struct. This means we need to check the type of a CSD
-before eventually dereferencing its associated callback.
+If any new invocation of ioremap_uc() need be added, please consider
+using ioremap() intead or adding a ARCH specific version if necessary.
 
-This isn't as trivial as it sounds: the CSD type is stored in
-__call_single_node.u_flags, which get cleared right before the callback is
-executed via csd_unlock(). This implies checking the CSD type before it is
-enqueued on the call_single_queue, as the target CPU's queue can be flushed
-before we get to sending an IPI.
-
-Furthermore, send_call_function_single_ipi() only has a CPU parameter, and
-would need to have an additional argument to trickle down the invoked
-function. This is somewhat silly, as the extra argument will always be
-pushed down to the function even when nothing is being traced, which is
-unnecessary overhead.
-
-Changes
-=======
-
-send_call_function_single_ipi() is only used by smp.c, and is defined in
-sched/core.c as it contains scheduler-specific ops (set_nr_if_polling() of
-a CPU's idle task).
-
-Split it into two parts: the scheduler bits remain in sched/core.c, and the
-actual IPI emission is moved into smp.c. This lets us define an
-__always_inline helper function that can take the related callback as
-parameter without creating useless register pressure in the non-traced path
-which only gains a (disabled) static branch.
-
-Do the same thing for the multi IPI case.
-
-Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
 ---
- kernel/sched/core.c | 18 +++++++-----
- kernel/sched/smp.h  |  2 +-
- kernel/smp.c        | 72 +++++++++++++++++++++++++++++++++------------
- 3 files changed, 66 insertions(+), 26 deletions(-)
+ Documentation/driver-api/device-io.rst | 9 +++++----
+ arch/alpha/include/asm/io.h            | 1 -
+ arch/hexagon/include/asm/io.h          | 3 ---
+ arch/m68k/include/asm/kmap.h           | 1 -
+ arch/mips/include/asm/io.h             | 1 -
+ arch/parisc/include/asm/io.h           | 2 --
+ arch/powerpc/include/asm/io.h          | 1 -
+ arch/sh/include/asm/io.h               | 2 --
+ arch/sparc/include/asm/io_64.h         | 1 -
+ 9 files changed, 5 insertions(+), 16 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 85114f75f1c9c..60c79b4e4a5b1 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -3827,16 +3827,20 @@ void sched_ttwu_pending(void *arg)
- 	rq_unlock_irqrestore(rq, &rf);
+diff --git a/Documentation/driver-api/device-io.rst b/Documentation/driver-api/device-io.rst
+index 4d2baac0311c..d55384b106bd 100644
+--- a/Documentation/driver-api/device-io.rst
++++ b/Documentation/driver-api/device-io.rst
+@@ -408,11 +408,12 @@ functions for details on the CPU side of things.
+ ioremap_uc()
+ ------------
+ 
+-ioremap_uc() behaves like ioremap() except that on the x86 architecture without
+-'PAT' mode, it marks memory as uncached even when the MTRR has designated
+-it as cacheable, see Documentation/x86/pat.rst.
++ioremap_uc() is only meaningful on old x86-32 systems with the PAT extension,
++and on ia64 with its slightly unconventional ioremap() behavior, everywhere
++elss ioremap_uc() defaults to return NULL.
+ 
+-Portable drivers should avoid the use of ioremap_uc().
++
++Portable drivers should avoid the use of ioremap_uc(), use ioremap() instead.
+ 
+ ioremap_cache()
+ ---------------
+diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
+index 7aeaf7c30a6f..076f0e4e7f1e 100644
+--- a/arch/alpha/include/asm/io.h
++++ b/arch/alpha/include/asm/io.h
+@@ -308,7 +308,6 @@ static inline void __iomem *ioremap(unsigned long port, unsigned long size)
  }
  
--void send_call_function_single_ipi(int cpu)
-+/*
-+ * Prepare the scene for sending an IPI for a remote smp_call
-+ *
-+ * Returns true if the caller can proceed with sending the IPI.
-+ * Returns false otherwise.
-+ */
-+bool call_function_single_prep_ipi(int cpu)
+ #define ioremap_wc ioremap
+-#define ioremap_uc ioremap
+ 
+ static inline void iounmap(volatile void __iomem *addr)
  {
--	struct rq *rq = cpu_rq(cpu);
+diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
+index dcd9cbbf5934..b9847472f25c 100644
+--- a/arch/hexagon/include/asm/io.h
++++ b/arch/hexagon/include/asm/io.h
+@@ -176,9 +176,6 @@ static inline void writel(u32 data, volatile void __iomem *addr)
+ #define _PAGE_IOREMAP (_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
+ 		       (__HEXAGON_C_DEV << 6))
+ 
+-#define ioremap_uc(addr, size) ioremap((addr), (size))
 -
--	if (!set_nr_if_polling(rq->idle)) {
--		trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, NULL);
--		arch_send_call_function_single_ipi(cpu);
--	} else {
-+	if (set_nr_if_polling(cpu_rq(cpu)->idle)) {
- 		trace_sched_wake_idle_without_ipi(cpu);
-+		return false;
- 	}
-+
-+	return true;
+-
+ #define __raw_writel writel
+ 
+ static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
+diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
+index 4efb3efa593a..b778f015c917 100644
+--- a/arch/m68k/include/asm/kmap.h
++++ b/arch/m68k/include/asm/kmap.h
+@@ -25,7 +25,6 @@ static inline void __iomem *ioremap(unsigned long physaddr, unsigned long size)
+ 	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
  }
+ 
+-#define ioremap_uc ioremap
+ #define ioremap_wt ioremap_wt
+ static inline void __iomem *ioremap_wt(unsigned long physaddr,
+ 				       unsigned long size)
+diff --git a/arch/mips/include/asm/io.h b/arch/mips/include/asm/io.h
+index 6756baadba6c..da0a625c3c6d 100644
+--- a/arch/mips/include/asm/io.h
++++ b/arch/mips/include/asm/io.h
+@@ -167,7 +167,6 @@ void iounmap(const volatile void __iomem *addr);
+  */
+ #define ioremap(offset, size)						\
+ 	ioremap_prot((offset), (size), _CACHE_UNCACHED)
+-#define ioremap_uc		ioremap
  
  /*
-diff --git a/kernel/sched/smp.h b/kernel/sched/smp.h
-index 2eb23dd0f2856..21ac44428bb02 100644
---- a/kernel/sched/smp.h
-+++ b/kernel/sched/smp.h
-@@ -6,7 +6,7 @@
+  * ioremap_cache -	map bus memory into CPU space
+diff --git a/arch/parisc/include/asm/io.h b/arch/parisc/include/asm/io.h
+index 366537042465..48630c78714a 100644
+--- a/arch/parisc/include/asm/io.h
++++ b/arch/parisc/include/asm/io.h
+@@ -132,8 +132,6 @@ static inline void gsc_writeq(unsigned long long val, unsigned long addr)
  
- extern void sched_ttwu_pending(void *arg);
+ #define ioremap_wc(addr, size)  \
+ 	ioremap_prot((addr), (size), _PAGE_IOREMAP)
+-#define ioremap_uc(addr, size)  \
+-	ioremap_prot((addr), (size), _PAGE_IOREMAP)
  
--extern void send_call_function_single_ipi(int cpu);
-+extern bool call_function_single_prep_ipi(int cpu);
+ #define pci_iounmap			pci_iounmap
  
- #ifdef CONFIG_SMP
- extern void flush_smp_call_function_queue(void);
-diff --git a/kernel/smp.c b/kernel/smp.c
-index 821b5986721ac..5cd680a7e78ef 100644
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -161,9 +161,18 @@ void __init call_function_init(void)
- }
- 
- static __always_inline void
--send_call_function_ipi_mask(const struct cpumask *mask)
-+send_call_function_single_ipi(int cpu, smp_call_func_t func)
- {
--	trace_ipi_send_cpumask(mask, _RET_IP_, NULL);
-+	if (call_function_single_prep_ipi(cpu)) {
-+		trace_ipi_send_cpumask(cpumask_of(cpu), _RET_IP_, func);
-+		arch_send_call_function_single_ipi(cpu);
-+	}
-+}
-+
-+static __always_inline void
-+send_call_function_ipi_mask(const struct cpumask *mask, smp_call_func_t func)
-+{
-+	trace_ipi_send_cpumask(mask, _RET_IP_, func);
- 	arch_send_call_function_ipi_mask(mask);
- }
- 
-@@ -430,12 +439,16 @@ static void __smp_call_single_queue_debug(int cpu, struct llist_node *node)
- 	struct cfd_seq_local *seq = this_cpu_ptr(&cfd_seq_local);
- 	struct call_function_data *cfd = this_cpu_ptr(&cfd_data);
- 	struct cfd_percpu *pcpu = per_cpu_ptr(cfd->pcpu, cpu);
-+	struct __call_single_data *csd;
-+
-+	csd = container_of(node, call_single_data_t, node.llist);
-+	WARN_ON_ONCE(!(CSD_TYPE(csd) & (CSD_TYPE_SYNC | CSD_TYPE_ASYNC)));
- 
- 	cfd_seq_store(pcpu->seq_queue, this_cpu, cpu, CFD_SEQ_QUEUE);
- 	if (llist_add(node, &per_cpu(call_single_queue, cpu))) {
- 		cfd_seq_store(pcpu->seq_ipi, this_cpu, cpu, CFD_SEQ_IPI);
- 		cfd_seq_store(seq->ping, this_cpu, cpu, CFD_SEQ_PING);
--		send_call_function_single_ipi(cpu);
-+		send_call_function_single_ipi(cpu, csd->func);
- 		cfd_seq_store(seq->pinged, this_cpu, cpu, CFD_SEQ_PINGED);
- 	} else {
- 		cfd_seq_store(pcpu->seq_noipi, this_cpu, cpu, CFD_SEQ_NOIPI);
-@@ -477,6 +490,25 @@ static __always_inline void csd_unlock(struct __call_single_data *csd)
- 	smp_store_release(&csd->node.u_flags, 0);
- }
- 
-+static __always_inline void
-+raw_smp_call_single_queue(int cpu, struct llist_node *node, smp_call_func_t func)
-+{
-+	/*
-+	 * The list addition should be visible to the target CPU when it pops
-+	 * the head of the list to pull the entry off it in the IPI handler
-+	 * because of normal cache coherency rules implied by the underlying
-+	 * llist ops.
-+	 *
-+	 * If IPIs can go out of order to the cache coherency protocol
-+	 * in an architecture, sufficient synchronisation should be added
-+	 * to arch code to make it appear to obey cache coherency WRT
-+	 * locking and barrier primitives. Generic code isn't really
-+	 * equipped to do the right thing...
-+	 */
-+	if (llist_add(node, &per_cpu(call_single_queue, cpu)))
-+		send_call_function_single_ipi(cpu, func);
-+}
-+
- static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
- 
- void __smp_call_single_queue(int cpu, struct llist_node *node)
-@@ -493,21 +525,25 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
- 		}
- 	}
+diff --git a/arch/powerpc/include/asm/io.h b/arch/powerpc/include/asm/io.h
+index 978d687edf32..7873fc83c82c 100644
+--- a/arch/powerpc/include/asm/io.h
++++ b/arch/powerpc/include/asm/io.h
+@@ -863,7 +863,6 @@ void __iomem *ioremap_wt(phys_addr_t address, unsigned long size);
  #endif
+ 
+ void __iomem *ioremap_coherent(phys_addr_t address, unsigned long size);
+-#define ioremap_uc(addr, size)		ioremap((addr), (size))
+ #define ioremap_cache(addr, size) \
+ 	ioremap_prot((addr), (size), pgprot_val(PAGE_KERNEL))
+ 
+diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
+index b3a26b405c8d..12a892804082 100644
+--- a/arch/sh/include/asm/io.h
++++ b/arch/sh/include/asm/io.h
+@@ -278,8 +278,6 @@ unsigned long long poke_real_address_q(unsigned long long addr,
+ 	ioremap_prot((addr), (size), pgprot_val(PAGE_KERNEL))
+ #endif /* CONFIG_MMU */
+ 
+-#define ioremap_uc	ioremap
 -
- 	/*
--	 * The list addition should be visible to the target CPU when it pops
--	 * the head of the list to pull the entry off it in the IPI handler
--	 * because of normal cache coherency rules implied by the underlying
--	 * llist ops.
--	 *
--	 * If IPIs can go out of order to the cache coherency protocol
--	 * in an architecture, sufficient synchronisation should be added
--	 * to arch code to make it appear to obey cache coherency WRT
--	 * locking and barrier primitives. Generic code isn't really
--	 * equipped to do the right thing...
-+	 * We have to check the type of the CSD before queueing it, because
-+	 * once queued it can have its flags cleared by
-+	 *   flush_smp_call_function_queue()
-+	 * even if we haven't sent the smp_call IPI yet (e.g. the stopper
-+	 * executes migration_cpu_stop() on the remote CPU).
- 	 */
--	if (llist_add(node, &per_cpu(call_single_queue, cpu)))
--		send_call_function_single_ipi(cpu);
-+	if (trace_ipi_send_cpumask_enabled()) {
-+		call_single_data_t *csd;
-+		smp_call_func_t func;
-+
-+		csd = container_of(node, call_single_data_t, node.llist);
-+		func = CSD_TYPE(csd) == CSD_TYPE_TTWU ?
-+			sched_ttwu_pending : csd->func;
-+
-+		raw_smp_call_single_queue(cpu, node, func);
-+	} else {
-+		raw_smp_call_single_queue(cpu, node, NULL);
-+	}
+ /*
+  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
+  * access
+diff --git a/arch/sparc/include/asm/io_64.h b/arch/sparc/include/asm/io_64.h
+index 9303270b22f3..d8ee1442f303 100644
+--- a/arch/sparc/include/asm/io_64.h
++++ b/arch/sparc/include/asm/io_64.h
+@@ -423,7 +423,6 @@ static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
+ 	return (void __iomem *)offset;
  }
  
- /*
-@@ -976,9 +1012,9 @@ static void smp_call_function_many_cond(const struct cpumask *mask,
- 		 * provided mask.
- 		 */
- 		if (nr_cpus == 1)
--			send_call_function_single_ipi(last_cpu);
-+			send_call_function_single_ipi(last_cpu, func);
- 		else if (likely(nr_cpus > 1))
--			send_call_function_ipi_mask(cfd->cpumask_ipi);
-+			send_call_function_ipi_mask(cfd->cpumask_ipi, func);
- 
- 		cfd_seq_store(this_cpu_ptr(&cfd_seq_local)->pinged, this_cpu, CFD_SEQ_NOCPU, CFD_SEQ_PINGED);
- 	}
+-#define ioremap_uc(X,Y)			ioremap((X),(Y))
+ #define ioremap_wc(X,Y)			ioremap((X),(Y))
+ #define ioremap_wt(X,Y)			ioremap((X),(Y))
+ static inline void __iomem *ioremap_np(unsigned long offset, unsigned long size)
 -- 
-2.31.1
+2.34.1
 
