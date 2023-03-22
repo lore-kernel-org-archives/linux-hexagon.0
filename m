@@ -1,7 +1,7 @@
-From: Valentin Schneider <vschneid@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH v5 7/7] sched, smp: Trace smp callback causing an IPI
-Date: Wed, 22 Mar 2023 18:22:28 +0000
-Message-ID: <xhsmhh6ucd4t7.mognet@vschneid.remote.csb>
+Date: Thu, 23 Mar 2023 00:14:28 +0100
+Message-ID: <20230322231428.GV2017917@hirez.programming.kicks-ass.net>
 References: <20230307143558.294354-1-vschneid@redhat.com>
  <20230307143558.294354-8-vschneid@redhat.com>
  <20230322095329.GS2017917@hirez.programming.kicks-ass.net>
@@ -9,6 +9,7 @@ References: <20230307143558.294354-1-vschneid@redhat.com>
  <20230322140434.GC2357380@hirez.programming.kicks-ass.net>
  <xhsmhjzz8d8km.mognet@vschneid.remote.csb>
  <20230322172242.GH2357380@hirez.programming.kicks-ass.net>
+ <xhsmhh6ucd4t7.mognet@vschneid.remote.csb>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,25 +17,27 @@ Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradea
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
 	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-ID:Date:References
-	:In-Reply-To:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=mG4+GyXPFjYqom6mbJYBPAXizhoX3fk6zcfrO8tuPZI=; b=4AacC8DHWo416V
-	uUBfWxUMFLvh0kpFk6t7nADJ/zCmXjWI1TQtGJyLYW+2NhSOmHZx1Z6UovmeVQ+J3KQglnQP44A2z
-	HF43ARMy5hg9z0Qn5HVuAL2nOiZBtuYCtQRBYvS4R2dq0ZlsPPNcRBrHJTyf69ncbksST5O6qbt+y
-	R7KDhAmYauzeXW4PbGsyowXIpz+1xnN2e82DZpCv/GHfX24OLBKt9NtJg4LovfK3nIWqM/RznAhxq
-	WbL/SksdfkSUPWLxT+lWtoOn+0jTVxZKOMRtoxWMJo0bOStPoQC+C0qvIp6KcWHpkoeBhsWBbQVCO
-	is/MuNkpbladQjxczokA==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1679509358;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=AQmTyEbfymjzRNtIW6wpo43MqQOqbzqrZwvZwgWkUpU=;
-	b=QuheHb3eWxy26Fnn/izIEgc1U4tzVaSflpr7m1ovhBLauyTNhFkQ8P+j+9OJXDZYgh2iVk
-	XRyLwI2DtoFdGDo6yjMdnVXygBBNuOw0e7i86D9RLv8M6SW8mofgCyP7fXRsMWwgQJ9++j
-	SJlDGvcVk2gJDLKZYnczbu5BZdeHpIs=
-In-Reply-To: <20230322172242.GH2357380@hirez.programming.kicks-ass.net>
+	List-Owner; bh=3WjCfikvCNC3vNzLssWs7dDZv8RgDoNiwg1eSzZQdws=; b=L26xBmYK7eSH9s
+	9mZJ+cBIfQo15eqFzKy36lLQTF6W6eaO9jBiF5SMgtRaruGruSdnAHcHLJN9VvaJIfZ0aF4yXOCT0
+	aVhMZxcjErIIw4L9FpsgSTsUJqlmhAsbyVmvKY2beAgmr04sNXnADcCqKF0kModJXSVcYMVkdvv2r
+	dSgJrmttRJGsT2RlnqObATJOEwemnLA/1eyxFNt/S9c0pHiWLtl3STHUw9elHkkbM9a9XuNAncRCJ
+	BENI56XGZOy+T5RTXHBYaU7hYVE6jmmbY4wAphnTYrYjzNrqMf6aaQvaKXsf3U8t9Msmprwbcx3Bu
+	Sn0eYUxsBVJx1iLShkkw==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=hKMA4pE4ZC1WEjwlMS0oahB5WbuLzi761bi+OVXv/X8=; b=k4/hIANBdxC2Z8c++HmkBPk16F
+	hq1n4vi1aFY7d/izKMGpm0/zkTd++0c77IZs+Q5bV257Gjkiy34yMSDd8L7TKq46+CV0zDSHb27H+
+	4KSIRSylcgYZ2OMei78Bb1gC7STjWled8MJkcwhhG29tpOAa6HtPIFWPyA9seeGrRiJr3vWUYPsTp
+	3Vu3FPyPpiLcCMVxhaxuIGSboSf1mmZy7nxDek09nDmg/P6bBJA5M4EMw//9ErW/pvBC1TxeGCDAY
+	4DGmD2DpR96GbtKoxaTV3TYyxFMIuFbNKoIU/LaGvb2xuytoT+Rk3V4s2DX53haN44indyDWk1fXo
+	N1G/mBcw==;
+Content-Disposition: inline
+In-Reply-To: <xhsmhh6ucd4t7.mognet@vschneid.remote.csb>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -45,76 +48,70 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo>
+To: Valentin Schneider <vschneid@redhat.com>
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mi>
 
-On 22/03/23 18:22, Peter Zijlstra wrote:
-> On Wed, Mar 22, 2023 at 05:01:13PM +0000, Valentin Schneider wrote:
->
->> > So I was thinking something like this:
->
->> Hm, this does get rid of the func being passed down the helpers, but this
->> means the trace events are now stateful, i.e. I need the first and last
->> events in a CSD stack to figure out which one actually caused the IPI.
->
-> Isn't much of tracing stateful? I mean, why am I always writing awk
-> programs to parse trace output?
->
-> The one that is directly followed by
-> generic_smp_call_function_single_interrupt() (horrible name that), is
-> the one that tripped the IPI.
->
+On Wed, Mar 22, 2023 at 06:22:28PM +0000, Valentin Schneider wrote:
+> On 22/03/23 18:22, Peter Zijlstra wrote:
 
-Right.
+> >>        hackbench-157   [001]    10.894320: ipi_send_cpu:         cpu=3 callsite=check_preempt_curr+0x37 callback=0x0
+> >
+> > Arguably we should be setting callback to scheduler_ipi(), except
+> > ofcourse, that's not an actual function...
+> >
+> > Maybe we can do "extern inline" for the actual users and provide a dummy
+> > function for the symbol when tracing.
+> >
+> 
+> Huh, I wasn't aware that was an option, I'll look into that. I did scribble
+> down a comment next to smp_send_reschedule(), but having a decodable
+> function name would be better!
 
->> It also requires whoever is looking at the trace to be aware of which IPIs
->> are attached to a CSD, and which ones aren't. ATM that's only the resched
->> IPI, but per the cover letter there's more to come (e.g. tick_broadcast()
->> for arm64/riscv and a few others). For instance:
->> 
->>        hackbench-157   [001]    10.894320: ipi_send_cpu:         cpu=3 callsite=check_preempt_curr+0x37 callback=0x0
->
-> Arguably we should be setting callback to scheduler_ipi(), except
-> ofcourse, that's not an actual function...
->
-> Maybe we can do "extern inline" for the actual users and provide a dummy
-> function for the symbol when tracing.
->
+So clang-15 builds the below (and generates the expected code), but
+gcc-12 vomits nonsense about a non-static inline calling a static inline
+or somesuch bollocks :-/
 
-Huh, I wasn't aware that was an option, I'll look into that. I did scribble
-down a comment next to smp_send_reschedule(), but having a decodable
-function name would be better!
-
->>        hackbench-157   [001]    10.895068: ipi_send_cpu:         cpu=3 callsite=try_to_wake_up+0x29e callback=sched_ttwu_pending+0x0
->>        hackbench-157   [001]    10.895068: ipi_send_cpu:         cpu=3 callsite=try_to_wake_up+0x29e callback=generic_smp_call_function_single_interrupt+0x0
->> 
->> That first one sent a RESCHEDULE IPI, the second one a CALL_FUNCTION one,
->> but you really have to know what you're looking at...
->
-> But you have to know that anyway, you can't do tracing and not know wtf
-> you're doing. Or rather, if you do, I don't give a crap and you can keep
-> the pieces :-)
->
-> Grepping the callback should be pretty quick resolution at to what trips
-> it, no?
->
-> (also, if you *realllllly* can't manage, we can always add yet another
-> argument that gives a type thingy)
->
-
-Ah, I was a bit unclear here - I don't care too much about the IPI type
-being used, but rather being able to figure out on IRQ entry where that IPI
-came from - thinking some more about now, I don't think logging *all* CSDs
-causes an issue there, as you'd look at the earliest-not-seen-yet event
-targeting this CPU anyway.
-
-That'll be made easy once I get to having cpumask filters for ftrace, so
-I can just issue something like:
-
-  trace-cmd record -e 'ipi_send_cpu' -f "cpu == 3" -e 'ipi_send_cpumask' -f "cpus \in {3}" -T hackbench 
-
-(it's somewhere on the todolist...)
-
-TL;DR: I *think* I've convinced myself logging all of them isn't an issue -
-I'm going to play with this on something "smarter" than just hackbench
-under QEMU just to drill it in.
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1991,7 +1991,7 @@ extern char *__get_task_comm(char *to, s
+ })
+ 
+ #ifdef CONFIG_SMP
+-static __always_inline void scheduler_ipi(void)
++extern __always_inline void scheduler_ipi(void)
+ {
+ 	/*
+ 	 * Fold TIF_NEED_RESCHED into the preempt_count; anybody setting
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -130,9 +130,9 @@ extern void arch_smp_send_reschedule(int
+  * scheduler_ipi() is inline so can't be passed as callback reason, but the
+  * callsite IP should be sufficient for root-causing IPIs sent from here.
+  */
+-#define smp_send_reschedule(cpu) ({		  \
+-	trace_ipi_send_cpu(cpu, _RET_IP_, NULL);  \
+-	arch_smp_send_reschedule(cpu);		  \
++#define smp_send_reschedule(cpu) ({				\
++	trace_ipi_send_cpu(cpu, _RET_IP_, &scheduler_ipi);	\
++	arch_smp_send_reschedule(cpu);				\
+ })
+ 
+ /*
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -3790,6 +3790,15 @@ static int ttwu_runnable(struct task_str
+ }
+ 
+ #ifdef CONFIG_SMP
++void scheduler_ipi(void)
++{
++	/*
++	 * Actual users should end up using the extern inline, this is only
++	 * here for the symbol.
++	 */
++	BUG();
++}
++
+ void sched_ttwu_pending(void *arg)
+ {
+ 	struct llist_node *llist = arg;
