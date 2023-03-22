@@ -1,10 +1,11 @@
-From: Valentin Schneider <vschneid@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH v5 7/7] sched, smp: Trace smp callback causing an IPI
-Date: Wed, 22 Mar 2023 12:20:28 +0000
-Message-ID: <xhsmhmt45c703.mognet@vschneid.remote.csb>
+Date: Wed, 22 Mar 2023 15:04:34 +0100
+Message-ID: <20230322140434.GC2357380@hirez.programming.kicks-ass.net>
 References: <20230307143558.294354-1-vschneid@redhat.com>
  <20230307143558.294354-8-vschneid@redhat.com>
  <20230322095329.GS2017917@hirez.programming.kicks-ass.net>
+ <xhsmhmt45c703.mognet@vschneid.remote.csb>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -12,25 +13,27 @@ Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradea
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
 	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-ID:Date:References
-	:In-Reply-To:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=KOR3jEBTCkS/cHBV3KJkuf19hMp/y98lqpP0F3wfmyc=; b=0PKJW2U5J//iZ7
-	X/RECGSPG6/bXecd0mcEuKj4BsMpmokbl3OMP7g9QJ5TH+LhgUQbGcEoViNUEZGE75AGlNhUPwK/w
-	GMWo7jBUe6m7pc93f2hG/xXO1P7iZqBJI64QCk7omuxoZ5qRAWYHT80Vd63tZ5oBszVZ13IAyUIfP
-	yVzNHWUfdhauo6x/ci1+V/YXY2MQxWL1yuH5U1doUel4nk9bljOGyhGEKN5g0J9n+k6snIpcKU9On
-	C2hYBO9vGw+j1pfSGvR8TNXqJ6x4MMFXdiWuntjeS98QCLxl77g59Kl+heHtqXe3hS77rt85H0y5r
-	fJh06C2AWTbMBs1u5wMw==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1679487639;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hPXFCTl8qif3OA4s3YNypS2WhS0XvH7qdHBOusQ/gQI=;
-	b=YAxhCDZ7zuff0hxJriNCNI/IHuGCMIdwBOFuOdkHHnOpSK8kx1wNrtrQnimQqVxX18OEVn
-	hHNX7pyphAS80AO4UCkgsin+W4N44mod4q/vUa+//8FXNgbvdzTBzaD3oa75FTmdLQOXoK
-	D3sBMytS7XCmW2Ir7b/wRWhGMui8ov4=
-In-Reply-To: <20230322095329.GS2017917@hirez.programming.kicks-ass.net>
+	List-Owner; bh=s5vJkKX7V6AaBs27i/FyTWYHS3sNBUTZmlRe46SW0sA=; b=0UI+FuKK//N/VC
+	AwUb8BogW6Iq4Z5Z/5yArcLv0iKtBi/0zGbJ/aBN68iB2IhsOcqr94/XLRswPvrhBBbNuLAmgrUuk
+	3cW2bZYaJXpv6ds7pn5H0ItG6iztjYpXA0Nw4arV3yEhd4bcp0ghl17u2irnVUTgs3Q5lWF+KByoP
+	ZVfh8Y0Xgnt8Valtz1hXyYVEJAZSL9V3BWvMLqBVpRvcelqKrEW4E077/M1K6wB8jABdnDMjgiJtE
+	5etyi4MI/0TGvwQzo+Rkd+jAACg4TuTgotLhlRfr2Y95XFa7QJBNcmI61qilKA2qnl7wtW2LCog0W
+	iGGf9d0QLz2SmdxoFiSQ==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=sOH/P4JrokMCYAgfWwj5ycXuOYqJurQfzeUI9onBv2s=; b=jBjNHOC7qWB4oHhln7lym2SyvG
+	13fiewzNurZdmqlPmM5LTnqVATc7bc7Ck81ekMH2BdQufrQhM/S/cYdNh+nUd/SS8jlISkZJdxng9
+	UGDNfRGIVcLBM0n4Q0WPB/BTCRBw/oZTgxkxh/MFcemdwuVVMfRrzZwT8hleSfze70nwksyC7FdQo
+	URq2nt3wWzTns3K+z/QYKTG28lEJZKPQMPsDVNr07WZ093beJ4RGvPV3dW+CYaEfTPjs2OhVfICrD
+	rnE+0tsqva+jhkqwvNTu6Df6g8GtY/D7ezclkZESxvIP2EapnT7/e9uX8x4F6vTPNIrjB5GOcYvb0
+	GUSRtrjg==;
+Content-Disposition: inline
+In-Reply-To: <xhsmhmt45c703.mognet@vschneid.remote.csb>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -41,76 +44,148 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo>
+To: Valentin Schneider <vschneid@redhat.com>
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mi>
 
-On 22/03/23 10:53, Peter Zijlstra wrote:
-> On Tue, Mar 07, 2023 at 02:35:58PM +0000, Valentin Schneider wrote:
->
->> @@ -477,6 +490,25 @@ static __always_inline void csd_unlock(struct __call_single_data *csd)
->>      smp_store_release(&csd->node.u_flags, 0);
->>  }
->>
->> +static __always_inline void
->> +raw_smp_call_single_queue(int cpu, struct llist_node *node, smp_call_func_t func)
->> +{
->> +	/*
->> +	 * The list addition should be visible to the target CPU when it pops
->> +	 * the head of the list to pull the entry off it in the IPI handler
->> +	 * because of normal cache coherency rules implied by the underlying
->> +	 * llist ops.
->> +	 *
->> +	 * If IPIs can go out of order to the cache coherency protocol
->> +	 * in an architecture, sufficient synchronisation should be added
->> +	 * to arch code to make it appear to obey cache coherency WRT
->> +	 * locking and barrier primitives. Generic code isn't really
->> +	 * equipped to do the right thing...
->> +	 */
->> +	if (llist_add(node, &per_cpu(call_single_queue, cpu)))
->> +		send_call_function_single_ipi(cpu, func);
->> +}
->> +
->>  static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
->>
->>  void __smp_call_single_queue(int cpu, struct llist_node *node)
->> @@ -493,21 +525,25 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
->>              }
->>      }
->>  #endif
->>      /*
->> +	 * We have to check the type of the CSD before queueing it, because
->> +	 * once queued it can have its flags cleared by
->> +	 *   flush_smp_call_function_queue()
->> +	 * even if we haven't sent the smp_call IPI yet (e.g. the stopper
->> +	 * executes migration_cpu_stop() on the remote CPU).
->>       */
->> +	if (trace_ipi_send_cpumask_enabled()) {
->> +		call_single_data_t *csd;
->> +		smp_call_func_t func;
->> +
->> +		csd = container_of(node, call_single_data_t, node.llist);
->> +		func = CSD_TYPE(csd) == CSD_TYPE_TTWU ?
->> +			sched_ttwu_pending : csd->func;
->> +
->> +		raw_smp_call_single_queue(cpu, node, func);
->> +	} else {
->> +		raw_smp_call_single_queue(cpu, node, NULL);
->> +	}
->>  }
->
-> Hurmph... so we only really consume @func when we IPI. Would it not be
-> more useful to trace this thing for *every* csd enqeued?
+On Wed, Mar 22, 2023 at 12:20:28PM +0000, Valentin Schneider wrote:
+> On 22/03/23 10:53, Peter Zijlstra wrote:
 
-It's true that any CSD enqueued on that CPU's call_single_queue in the
-[first CSD llist_add()'ed, IPI IRQ hits] timeframe is a potential source of
-interference.
+> > Hurmph... so we only really consume @func when we IPI. Would it not be
+> > more useful to trace this thing for *every* csd enqeued?
+> 
+> It's true that any CSD enqueued on that CPU's call_single_queue in the
+> [first CSD llist_add()'ed, IPI IRQ hits] timeframe is a potential source of
+> interference.
+> 
+> However, can we be sure that first CSD isn't an indirect cause for the
+> following ones? say the target CPU exits RCU EQS due to the IPI, there's a
+> bit of time before it gets to flush_smp_call_function_queue() where some other CSD
+> could be enqueued *because* of that change in state.
+> 
+> I couldn't find a easy example of that, I might be biased as this is where
+> I'd like to go wrt IPI'ing isolated CPUs in usermode. But regardless, when
+> correlating an IPI IRQ with its source, we'd always have to look at the
+> first CSD in that CSD stack.
 
-However, can we be sure that first CSD isn't an indirect cause for the
-following ones? say the target CPU exits RCU EQS due to the IPI, there's a
-bit of time before it gets to flush_smp_call_function_queue() where some other CSD
-could be enqueued *because* of that change in state.
+So I was thinking something like this:
 
-I couldn't find a easy example of that, I might be biased as this is where
-I'd like to go wrt IPI'ing isolated CPUs in usermode. But regardless, when
-correlating an IPI IRQ with its source, we'd always have to look at the
-first CSD in that CSD stack.
+---
+Subject: trace,smp: Trace all smp_function_call*() invocations
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Wed Mar 22 14:58:36 CET 2023
+
+(Ab)use the trace_ipi_send_cpu*() family to trace all
+smp_function_call*() invocations, not only those that result in an
+actual IPI.
+
+The queued entries log their callback function while the actual IPIs
+are traced on generic_smp_call_function_single_interrupt().
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ kernel/smp.c |   58 ++++++++++++++++++++++++++++++----------------------------
+ 1 file changed, 30 insertions(+), 28 deletions(-)
+
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -106,18 +106,20 @@ void __init call_function_init(void)
+ }
+ 
+ static __always_inline void
+-send_call_function_single_ipi(int cpu, smp_call_func_t func)
++send_call_function_single_ipi(int cpu)
+ {
+ 	if (call_function_single_prep_ipi(cpu)) {
+-		trace_ipi_send_cpu(cpu, _RET_IP_, func);
++		trace_ipi_send_cpu(cpu, _RET_IP_,
++				   generic_smp_call_function_single_interrupt);
+ 		arch_send_call_function_single_ipi(cpu);
+ 	}
+ }
+ 
+ static __always_inline void
+-send_call_function_ipi_mask(const struct cpumask *mask, smp_call_func_t func)
++send_call_function_ipi_mask(const struct cpumask *mask)
+ {
+-	trace_ipi_send_cpumask(mask, _RET_IP_, func);
++	trace_ipi_send_cpumask(mask, _RET_IP_,
++			       generic_smp_call_function_single_interrupt);
+ 	arch_send_call_function_ipi_mask(mask);
+ }
+ 
+@@ -318,25 +320,6 @@ static __always_inline void csd_unlock(s
+ 	smp_store_release(&csd->node.u_flags, 0);
+ }
+ 
+-static __always_inline void
+-raw_smp_call_single_queue(int cpu, struct llist_node *node, smp_call_func_t func)
+-{
+-	/*
+-	 * The list addition should be visible to the target CPU when it pops
+-	 * the head of the list to pull the entry off it in the IPI handler
+-	 * because of normal cache coherency rules implied by the underlying
+-	 * llist ops.
+-	 *
+-	 * If IPIs can go out of order to the cache coherency protocol
+-	 * in an architecture, sufficient synchronisation should be added
+-	 * to arch code to make it appear to obey cache coherency WRT
+-	 * locking and barrier primitives. Generic code isn't really
+-	 * equipped to do the right thing...
+-	 */
+-	if (llist_add(node, &per_cpu(call_single_queue, cpu)))
+-		send_call_function_single_ipi(cpu, func);
+-}
+-
+ static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
+ 
+ void __smp_call_single_queue(int cpu, struct llist_node *node)
+@@ -356,10 +339,23 @@ void __smp_call_single_queue(int cpu, st
+ 		func = CSD_TYPE(csd) == CSD_TYPE_TTWU ?
+ 			sched_ttwu_pending : csd->func;
+ 
+-		raw_smp_call_single_queue(cpu, node, func);
+-	} else {
+-		raw_smp_call_single_queue(cpu, node, NULL);
++		trace_ipi_send_cpu(cpu, _RET_IP_, func);
+ 	}
++
++	/*
++	 * The list addition should be visible to the target CPU when it pops
++	 * the head of the list to pull the entry off it in the IPI handler
++	 * because of normal cache coherency rules implied by the underlying
++	 * llist ops.
++	 *
++	 * If IPIs can go out of order to the cache coherency protocol
++	 * in an architecture, sufficient synchronisation should be added
++	 * to arch code to make it appear to obey cache coherency WRT
++	 * locking and barrier primitives. Generic code isn't really
++	 * equipped to do the right thing...
++	 */
++	if (llist_add(node, &per_cpu(call_single_queue, cpu)))
++		send_call_function_single_ipi(cpu);
+ }
+ 
+ /*
+@@ -798,14 +794,20 @@ static void smp_call_function_many_cond(
+ 		}
+ 
+ 		/*
++		 * Trace each smp_function_call_*() as an IPI, actual IPIs
++		 * will be traced with func==generic_smp_call_function_single_ipi().
++		 */
++		trace_ipi_send_cpumask(cfd->cpumask_ipi, _RET_IP_, func);
++
++		/*
+ 		 * Choose the most efficient way to send an IPI. Note that the
+ 		 * number of CPUs might be zero due to concurrent changes to the
+ 		 * provided mask.
+ 		 */
+ 		if (nr_cpus == 1)
+-			send_call_function_single_ipi(last_cpu, func);
++			send_call_function_single_ipi(last_cpu);
+ 		else if (likely(nr_cpus > 1))
+-			send_call_function_ipi_mask(cfd->cpumask_ipi, func);
++			send_call_function_ipi_mask(cfd->cpumask_ipi);
+ 	}
+ 
+ 	if (run_local && (!cond_func || cond_func(this_cpu, info))) {
