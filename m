@@ -1,87 +1,96 @@
-From: Helge Deller <deller@gmx.de>
-Subject: Re: [PATCH v4 3/4] arch/*/io.h: remove ioremap_uc in some
- architectures
-Date: Fri, 10 Mar 2023 22:14:03 +0100
-Message-ID: <5f807b94-9169-3120-9329-611e4031c665@gmx.de>
-References: <20230308130710.368085-1-bhe@redhat.com>
- <20230308130710.368085-4-bhe@redhat.com>
- <20230309143621.GA12350@alpha.franken.de> <ZAqLuNrPng9i0rZV@MiWiFi-R3L-srv>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v5 1/7] trace: Add trace_ipi_send_cpumask()
+Date: Wed, 22 Mar 2023 10:39:55 +0100
+Message-ID: <20230322093955.GR2017917@hirez.programming.kicks-ass.net>
+References: <20230307143558.294354-1-vschneid@redhat.com>
+ <20230307143558.294354-2-vschneid@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
-        t=1678482846; i=deller@gmx.de;
-        bh=We4tVJ9aX8WWemGD0IA7ECCoCjcoMbMpuqwmPkvAqqQ=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=Fs4lLH/bAjI990hi6oAWHu3X3VrWy3tjXXuztt8y3REr7ICCFlamg5QYRmGvdM5Fu
-         GHSdyxSyJiY888XV0gZzrBL+Ko5rb5YOLxATE1ZhCv2jOVEuRFWO909M3OGH7pZr75
-         k0x1rtJuDFogkmQlkVKFnxI/8XDlOeh3utjdYYwg90cukCxJmgql8lC5VeeReKk9QX
-         fpFXPD5UFxkVgQKl7Ww4eBAG0ICrOSt7bZ1rAVEPfR7OotYtt2ULvJZvjm9MJVFWyF
-         A/U4OnCaEf9lpDimlHnv1cYE6G8TPQ4rU04hN4/EYRVECsXbxTRryC4MsIRusiEKd9
-         mcYHsMUH8P6MA==
-Content-Language: en-US
-In-Reply-To: <ZAqLuNrPng9i0rZV@MiWiFi-R3L-srv>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Baoquan He <bhe@redhat.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, arnd@arndb.de, mpe@ellerman.id.au, geert@linux-m68k.org, mcgrof@kernel.org, hch@infradead.org, linux-alpha@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=2VpewIFpm7v9QVnhtW+13uFGN5b6XLasQX9AOe5LpsM=; b=2Df6i1Kuk4ISSW
+	4plzR6RQXDKCUDyImtmkFzwfNFIrQJHB/oJc7hVT5CUdoTL1rqvBT4MK4jLz7wDEDJErXy2+z8C3U
+	fJmKIsRpAgciu6vV8YbxP0szkOa9N5evVpMGdpVfAOsIE4XMBXFSEgTpJPr2XoT2aR/kWgrD1Pl+C
+	xiGJIXaXiqvGS8+ww3cFfawIdmHrjCcjBG5RarnwxJNlZKD4o3UY/9P4HG37earUAX/fIqeXG36oQ
+	ivzJBUHgBNtvcNzxdgh0DKiI8iVxXN2JQwt3xQFae4XxirkHzF58Ck823oZpXVXfgrPVwE48qLhLs
+	11foFBkVB0+27qEeVULA==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=NIAHg4If27BetC+4UZobAV0PxBnmTt3z+fWts2bKQWA=; b=rgS/CEWAlsTurPe5ucKBiXaDhr
+	ew26BoXauCH9lin/sWfYKxjLJe0WysSt1P4iOSDXV1qfu4JSoUQNAlogwxNIDbcZw5jKIurC6wBP0
+	+/+Z8kdUTp/ZyyNP9QPql3dhW8rHV0QqkfTXWuMoE0vryMGgt+T+aOFFPTKbmbiRK5T84YLaG6C4t
+	iRHD6M2ZFvI2kES3RCcIFI7D2yWW07o0ZjcKw1qqr5MTJddfTUE9AHHetindb2rqkUVxpV/GEVyQu
+	B4Z/fkelloNxIIEvBXXKz9pvL88Uc5JVf1N0nCKJVM3jEC4cK78BNevAeHHN3c0k/dy9sGC9ChrU5
+	42+coITw==;
+Content-Disposition: inline
+In-Reply-To: <20230307143558.294354-2-vschneid@redhat.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: Valentin Schneider <vschneid@redhat.com>
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, Steven Rostedt <rostedt@goodmis.org>, "Paul E. McKenney" <paulmck@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mi>
 
-On 3/10/23 02:45, Baoquan He wrote:
-> On 03/09/23 at 03:36pm, Thomas Bogendoerfer wrote:
->> On Wed, Mar 08, 2023 at 09:07:09PM +0800, Baoquan He wrote:
->>> ioremap_uc() is only meaningful on old x86-32 systems with the PAT
->>> extension, and on ia64 with its slightly unconventional ioremap()
->>> behavior. So remove the ioremap_uc() definition in architecutures
->>> other than x86 and ia64. These architectures all have asm-generic/io.h
->>> included and will have the default ioremap_uc() definition which
->>> returns NULL.
->>>
->>> This changes the existing behaviour, while no need to worry about
->>> any breakage because in the only callsite of ioremap_uc(), code
->>> has been adjusted to eliminate the impact. Please see
->>> atyfb_setup_generic() of drivers/video/fbdev/aty/atyfb_base.c.
->>>
->>> If any new invocation of ioremap_uc() need be added, please consider
->>> using ioremap() intead or adding a ARCH specific version if necessary.
->>>
->>> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
->>> Signed-off-by: Baoquan He <bhe@redhat.com>
->>> Cc: linux-alpha@vger.kernel.org
->>> Cc: linux-hexagon@vger.kernel.org
->>> Cc: linux-m68k@lists.linux-m68k.org
->>> Cc: linux-mips@vger.kernel.org
->>> Cc: linux-parisc@vger.kernel.org
->>> Cc: linuxppc-dev@lists.ozlabs.org
->>> Cc: linux-sh@vger.kernel.org
->>> Cc: sparclinux@vger.kernel.org
->>> ---
->>>   Documentation/driver-api/device-io.rst | 9 +++++----
->>>   arch/alpha/include/asm/io.h            | 1 -
->>>   arch/hexagon/include/asm/io.h          | 3 ---
->>>   arch/m68k/include/asm/kmap.h           | 1 -
->>>   arch/mips/include/asm/io.h             | 1 -
->>>   arch/parisc/include/asm/io.h           | 2 --
->>>   arch/powerpc/include/asm/io.h          | 1 -
->>>   arch/sh/include/asm/io.h               | 2 --
->>>   arch/sparc/include/asm/io_64.h         | 1 -
->>>   9 files changed, 5 insertions(+), 16 deletions(-)
->>
->> this doesn't apply to v6.3-rc1... what tree is this based on ?
->
-> Sorry, I forgot mentioning this in cover letter. This series is
-> followup of below patchset, so it's on top of below patchset and based
-> on v6.3-rc1.
->
-> https://lore.kernel.org/all/20230301034247.136007-1-bhe@redhat.com/T/#u
-> [PATCH v5 00/17] mm: ioremap:  Convert architectures to take GENERIC_IOR=
-EMAP way
+On Tue, Mar 07, 2023 at 02:35:52PM +0000, Valentin Schneider wrote:
+> trace_ipi_raise() is unsuitable for generically tracing IPI sources due to
+> its "reason" argument being an uninformative string (on arm64 all you get
+> is "Function call interrupts" for SMP calls).
+> 
+> Add a variant of it that exports a target cpumask, a callsite and a callback.
+> 
+> Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+> Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+> ---
+>  include/trace/events/ipi.h | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
+> 
+> diff --git a/include/trace/events/ipi.h b/include/trace/events/ipi.h
+> index 0be71dad6ec03..b1125dc27682c 100644
+> --- a/include/trace/events/ipi.h
+> +++ b/include/trace/events/ipi.h
+> @@ -35,6 +35,28 @@ TRACE_EVENT(ipi_raise,
+>  	TP_printk("target_mask=%s (%s)", __get_bitmask(target_cpus), __entry->reason)
+>  );
+>  
+> +TRACE_EVENT(ipi_send_cpumask,
+> +
+> +	TP_PROTO(const struct cpumask *cpumask, unsigned long callsite, void *callback),
+> +
+> +	TP_ARGS(cpumask, callsite, callback),
+> +
+> +	TP_STRUCT__entry(
+> +		__cpumask(cpumask)
+> +		__field(void *, callsite)
+> +		__field(void *, callback)
+> +	),
+> +
+> +	TP_fast_assign(
+> +		__assign_cpumask(cpumask, cpumask_bits(cpumask));
+> +		__entry->callsite = (void *)callsite;
+> +		__entry->callback = callback;
+> +	),
+> +
+> +	TP_printk("cpumask=%s callsite=%pS callback=%pS",
+> +		  __get_cpumask(cpumask), __entry->callsite, __entry->callback)
+> +);
 
-I've applied both patch series on top of v6.3-rc1 and
-tested it with success on the parisc platform (32- and 64-bit kernel).
+Would it make sense to add a variant like: ipi_send_cpu() that records a
+single cpu instead of a cpumask. A lot of sites seems to do:
+cpumask_of(cpu) for that first argument, and it seems to me it is quite
+daft to have to memcpy a full multi-word cpumask in those cases.
 
-You may add to both patch series:
-
-Acked-by: Helge Deller <deller@gmx.de>  # parisc
-
-Thank you!
-Helge
+Remember, nr_possible_cpus > 64 is quite common these days.
