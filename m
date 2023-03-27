@@ -1,7 +1,7 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Subject: [PATCH 08/21] riscv: dma-mapping: only invalidate after DMA, not flush
-Date: Mon, 27 Mar 2023 14:13:04 +0200
-Message-ID: <20230327121317.4081816-9-arnd@kernel.org>
+Subject: [PATCH 09/21] riscv: dma-mapping: skip invalidation before bidirectional DMA
+Date: Mon, 27 Mar 2023 14:13:05 +0200
+Message-ID: <20230327121317.4081816-10-arnd@kernel.org>
 References: <20230327121317.4081816-1-arnd@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,22 +13,22 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
 	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=V6hBBmTUb/14a+F7Ok//C2wtII3J+8SfYsLhIka9szo=; b=IZQYML0HGy9Zlt
-	cucFH8WqdX8rh0HHOJTGu3CDVCmswa7wxRmdsNLwapef1tGfe/3AGR+vbxCGV821dZ0NgcCe5p9GC
-	7GaxtQM7y91dRWqmfEnovtod9cgfIOZM9dy0yLYU2lHeypdoa0m3+gZYrSepah4vnxSJL0iOAla4i
-	KyV+9VJwA23uS3pn6OepREDvF7yeSpaCDh2f8MNnQhfWq9puZbXM/CSyRskHDVUeQ6q2LlViFy8Ss
-	wVlRVF8tu48Hlf30xaWFrVKhGKLf8dGOUxMQZPo8qQRjOcS2itHjKT7Q8VuVYmW/tNJsFVlSiEDdM
-	BHs3AOPCutGmey6x5ZjA==;
+	List-Owner; bh=sjt+Ra3k6GeBw6s1pr+WWzzMceXT8uYQqSqyJkW2H78=; b=eTale3KEcUDE2k
+	JgDxaARPmNWZHzmnEgr7nJCpsdqtFipTeg4pkOQ1YQUqmXxB1enZeuWSXeBe8dSj8TE86aP90WecX
+	LJj9pBIkraWmIZcZlrUCd1Pwgit0LV1U2/SeC2ceE7rw8kmca4kX9h5vNU7i9u2scBG0DiwAxWWWS
+	Z4NbHGy7UKJvD9C0dMjtvcneLn278y3iIsH1bPG/qrhQgiOIBfkoJrq7ZtG22LhTUI2mvQSXbAjwA
+	sirurecFvH9IxXSiJ67AT3Ey+dPzqlkafyUuUoDe8V/bgYgO/eKPfuxgy7cprplUtBlHyupUmU+pl
+	wKpI74YvRcYN+lboILLA==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1679919307;
-	bh=p+eG9OtxIwlFEHuBl1BynARl6RQHBxG84PbOJSDaMSg=;
+	s=k20201202; t=1679919315;
+	bh=gK+eQNvNHVtgIlRiu3kF6HYH3yBsX0klGJL13i4k/aU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=k7yTj16MC4QC0lUkI+OlRgN70GEfUAXZsHUm34awwsfDq+uuBVpGn8XzMpAYzrKep
-	 rzfZf9IvuTrt/evwGGuCXfuT5QwwzcXZODB9YgjYpxv0iZgT9rwRfHG1vVFKHMnR80
-	 WkjKXapkPoQqpX0z8bvvlpG0YOBt+p7Spw/IdU0XpPUFOYiASiKd39EeZPyxyEYUJn
-	 9ZY055tF4c7BVKMQhNCmNKfo+NgnV/grwYyrPuAwvgV7tJNlhsepLbNs91InZGtrtI
-	 0UOObEmqhXtHeujJTAybyrsno6jtIGCIZbfee+GXSUa8z2HvG7G/GO5AeAihPvul14
-	 jCOgl+Q3LDa9w==
+	b=sMy3k5gM2XS604J4ArMuSWvMXzgs2AlKyYx4fCZS7J/lWvOZ2Yw/Z/jrtMa5gIHU9
+	 FjlooO1xQTngsA6hbEvqN4tEnshVSie7B+AEJaU1Cy1oTWuJpEfFFlaRXS3tq+GwRJ
+	 er3cljYGerTP/ivX+B9p913oVNSRI6mJdCnknZw/+Go9C3u3Axj27xDUpsuC4nBj8r
+	 bgnEtVHNKaiAki6GHJ1OFvO5x00a1gCx3DhHWTCMKP7Wv9fwGxJu8GpPhhiTKRkk1x
+	 zZRoP0hNRHHFBO8EoUedx3N9IqVzTMyc60Fp/OWdtgr6CAuRCyXfSdikQcmkzRIL2M
+	 hyE6lbMlfVtJQ==
 In-Reply-To: <20230327121317.4081816-1-arnd@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
@@ -45,11 +45,12 @@ Cc: Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Russell Kin
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-No other architecture intentionally writes back dirty cache lines into
-a buffer that a device has just finished writing into. If the cache is
-clean, this has no effect at all, but if a cacheline in the buffer has
-actually been written by the CPU,  there is a drive bug that is likely
-made worse by overwriting that buffer.
+For a DMA_BIDIRECTIONAL transfer, the caches have to be cleaned
+first to let the device see data written by the CPU, and invalidated
+after the transfer to let the CPU see data written by the device.
+
+riscv also invalidates the caches before the transfer, which does
+not appear to serve any purpose.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
@@ -57,15 +58,15 @@ Signed-off-by: Arnd Bergmann <arnd@arndb.de>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/riscv/mm/dma-noncoherent.c b/arch/riscv/mm/dma-noncoherent.c
-index d919efab6eba..640f4c496d26 100644
+index 640f4c496d26..69c80b2155a1 100644
 --- a/arch/riscv/mm/dma-noncoherent.c
 +++ b/arch/riscv/mm/dma-noncoherent.c
-@@ -42,7 +42,7 @@ void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+@@ -25,7 +25,7 @@ void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+ 		ALT_CMO_OP(clean, vaddr, size, riscv_cbom_block_size);
  		break;
- 	case DMA_FROM_DEVICE:
  	case DMA_BIDIRECTIONAL:
 -		ALT_CMO_OP(flush, vaddr, size, riscv_cbom_block_size);
-+		ALT_CMO_OP(inval, vaddr, size, riscv_cbom_block_size);
++		ALT_CMO_OP(clean, vaddr, size, riscv_cbom_block_size);
  		break;
  	default:
  		break;
