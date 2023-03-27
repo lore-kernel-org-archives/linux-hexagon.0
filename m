@@ -1,204 +1,88 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH 20/21] ARM: dma-mapping: split out arch_dma_mark_clean()
- helper
-Date: Mon, 27 Mar 2023 13:48:35 +0100
-Message-ID: <cb9367fb-0897-244d-15b6-fdfafde2a1c0@arm.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: Re: [PATCH 06/21] powerpc: dma-mapping: minimize for_cpu flushing
+Date: Mon, 27 Mar 2023 12:56:33 +0000
+Message-ID: <52eef604-085e-acf9-f3ee-41ba9d8441d2@csgroup.eu>
 References: <20230327121317.4081816-1-arnd@kernel.org>
- <20230327121317.4081816-21-arnd@kernel.org>
+ <20230327121317.4081816-7-arnd@kernel.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Content-Language: en-GB
-In-Reply-To: <20230327121317.4081816-21-arnd@kernel.org>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Arnd Bergmann <arnd@kernel.org>, linux-kernel@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Neil Armstrong <neil.armstrong@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy <christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Rich Felker <dalias@libc.org>, John
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Content-ID:In-Reply-To:
+	References:Message-ID:Date:Subject:CC:To:From:Reply-To:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=cghdQmoE9OvEyvqjFsL3EX4Vb4d6Y7eYCExJoCfFkAU=; b=adTFo5JxaJ2DKc
+	ZruXR5yfWt1bHuOS8HCXXQCCfBGkm4oG5pjo8rmyMZhWsy/+UG5fQJUX5Gg+i388A1ln1SiIFU7de
+	Y1jZ5NcVKCZFsj83bDeKwQ5QKJoEBp+h574Xq3KrEOt3mTMehh2uHio3yyvmRQo+MDRsLdBxVJg6y
+	Kg1iX5YTkf0y2j2P40EdlFheB4NOiAkTIJTEfouEvYssUJxdIwcSdvE4AlpsjTYjGr2ZxdcBRtJM7
+	nNUU5Q238cShU8mWpDcJBXfdAbIp5y9O66WJxWuPY03PvXVd+6QXARseyyNU6KvwnP5ecw4yHgeK0
+	P2yaYlAcZ5oNTCh0kgLw==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oVvzJ8c3OeTDYtC3Bdo3EwgLzgZiH5nog31XPUOl6aE=;
+ b=OrdtC62m1JMf6Ilrz2tdBq6u3E1ENrFoNPu52M02aLf7zpG1aUTazunlOBMko45xt704NkNWpN8lPk8znpmAR7wdo+uP4yBrR+Bcw4IJfs4rRA01YuV4AAdOnQjU3yshbknTduoc8wzq9E7AAFm6SXTiZHmYc27jLZMgRsypxKeaAAmQkD9pdx5xlat0lNaRfXA2bmH5azmad5rFyGFfIDgDKENsg/10LpifYRy5TDKpZ6Rj/oIR0Goicq2Hfuk79WF6MKCHmi7q+CARSZlHmA+RWE4DWsakZAyB7DqV72G6XsVKQaoJzLLYgid9FLe+dIrkEyAQYWJrw7mjFqDbYw==
+In-Reply-To: <20230327121317.4081816-7-arnd@kernel.org>
+Content-Language: fr-FR
+Content-ID: <5815D0CB14B71F41946F2AF708C5275A@FRAP264.PROD.OUTLOOK.COM>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: Arnd Bergmann <arnd@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Neil Armstrong <neil.armstrong@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S. Miller" <davem@davemloft.net>, Max Filippov <jcmvbkbc@gmail.com>, Christoph Hellwig <hch@lst.de>, Robin Murphy <robin.>
 
-On 2023-03-27 13:13, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> The arm version of the arch_sync_dma_for_cpu() function annotates pages as
-> PG_dcache_clean after a DMA, but no other architecture does this here. On
-> ia64, the same thing is done in arch_sync_dma_for_cpu(), so it makes sense
-> to use the same hook in order to have identical arch_sync_dma_for_cpu()
-> semantics as all other architectures.
-> 
-> Splitting this out has multiple effects:
-> 
->   - for dma-direct, this now gets called after arch_sync_dma_for_cpu()
->     for DMA_FROM_DEVICE mappings, but not for DMA_BIDIRECTIONAL. While
->     it would not be harmful to keep doing it for bidirectional mappings,
->     those are apparently not used in any callers that care about the flag.
-> 
->   - Since arm has its own dma-iommu abstraction, this now also needs to
->     call the same function, so the calls are added there to mirror the
->     dma-direct version.
-> 
->   - Like dma-direct, the dma-iommu version now marks the dcache clean
->     for both coherent and noncoherent devices after a DMA, but it only
->     does this for DMA_FROM_DEVICE, not DMA_BIDIRECTIONAL.
-> 
-> [ HELP NEEDED: can anyone confirm that it is a correct assumption
->    on arm that a cache-coherent device writing to a page always results
->    in it being in a PG_dcache_clean state like on ia64, or can a device
->    write directly into the dcache?]
-
-In AMBA at least, if a snooping write hits in a cache then the data is 
-most likely going to get routed directly into that cache. If it has 
-write-back write-allocate attributes it could also land in any cache 
-along its normal path to RAM; it wouldn't have to go all the way.
-
-Hence all the fun we have where treating a coherent device as 
-non-coherent can still be almost as broken as the other way round :)
-
-Cheers,
-Robin.
-
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->   arch/arm/Kconfig          |  1 +
->   arch/arm/mm/dma-mapping.c | 71 +++++++++++++++++++++++----------------
->   2 files changed, 43 insertions(+), 29 deletions(-)
-> 
-> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-> index e24a9820e12f..125d58c54ab1 100644
-> --- a/arch/arm/Kconfig
-> +++ b/arch/arm/Kconfig
-> @@ -7,6 +7,7 @@ config ARM
->   	select ARCH_HAS_BINFMT_FLAT
->   	select ARCH_HAS_CURRENT_STACK_POINTER
->   	select ARCH_HAS_DEBUG_VIRTUAL if MMU
-> +	select ARCH_HAS_DMA_MARK_CLEAN if MMU
->   	select ARCH_HAS_DMA_WRITE_COMBINE if !ARM_DMA_MEM_BUFFERABLE
->   	select ARCH_HAS_ELF_RANDOMIZE
->   	select ARCH_HAS_FORTIFY_SOURCE
-> diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
-> index cc702cb27ae7..b703cb83d27e 100644
-> --- a/arch/arm/mm/dma-mapping.c
-> +++ b/arch/arm/mm/dma-mapping.c
-> @@ -665,6 +665,28 @@ static void dma_cache_maint(phys_addr_t paddr,
->   	} while (left);
->   }
->   
-> +/*
-> + * Mark the D-cache clean for these pages to avoid extra flushing.
-> + */
-> +void arch_dma_mark_clean(phys_addr_t paddr, size_t size)
-> +{
-> +	unsigned long pfn = PFN_UP(paddr);
-> +	unsigned long off = paddr & (PAGE_SIZE - 1);
-> +	size_t left = size;
-> +
-> +	if (size < PAGE_SIZE)
-> +		return;
-> +
-> +	if (off)
-> +		left -= PAGE_SIZE - off;
-> +
-> +	while (left >= PAGE_SIZE) {
-> +		struct page *page = pfn_to_page(pfn++);
-> +		set_bit(PG_dcache_clean, &page->flags);
-> +		left -= PAGE_SIZE;
-> +	}
-> +}
-> +
->   static bool arch_sync_dma_cpu_needs_post_dma_flush(void)
->   {
->   	if (IS_ENABLED(CONFIG_CPU_V6) ||
-> @@ -715,24 +737,6 @@ void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
->   		outer_inv_range(paddr, paddr + size);
->   		dma_cache_maint(paddr, size, dmac_inv_range);
->   	}
-> -
-> -	/*
-> -	 * Mark the D-cache clean for these pages to avoid extra flushing.
-> -	 */
-> -	if (dir != DMA_TO_DEVICE && size >= PAGE_SIZE) {
-> -		unsigned long pfn = PFN_UP(paddr);
-> -		unsigned long off = paddr & (PAGE_SIZE - 1);
-> -		size_t left = size;
-> -
-> -		if (off)
-> -			left -= PAGE_SIZE - off;
-> -
-> -		while (left >= PAGE_SIZE) {
-> -			struct page *page = pfn_to_page(pfn++);
-> -			set_bit(PG_dcache_clean, &page->flags);
-> -			left -= PAGE_SIZE;
-> -		}
-> -	}
->   }
->   
->   #ifdef CONFIG_ARM_DMA_USE_IOMMU
-> @@ -1294,6 +1298,17 @@ static int arm_iommu_map_sg(struct device *dev, struct scatterlist *sg,
->   	return -EINVAL;
->   }
->   
-> +static void arm_iommu_sync_dma_for_cpu(phys_addr_t phys, size_t len,
-> +				       enum dma_data_direction dir,
-> +				       bool dma_coherent)
-> +{
-> +	if (!dma_coherent)
-> +		arch_sync_dma_for_cpu(phys, s->length, dir);
-> +
-> +	if (dir == DMA_FROM_DEVICE)
-> +		arch_dma_mark_clean(phys, s->length);
-> +}
-> +
->   /**
->    * arm_iommu_unmap_sg - unmap a set of SG buffers mapped by dma_map_sg
->    * @dev: valid struct device pointer
-> @@ -1316,8 +1331,9 @@ static void arm_iommu_unmap_sg(struct device *dev,
->   		if (sg_dma_len(s))
->   			__iommu_remove_mapping(dev, sg_dma_address(s),
->   					       sg_dma_len(s));
-> -		if (!dev->dma_coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC))
-> -			arch_sync_dma_for_cpu(sg_phys(s), s->length, dir);
-> +		if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
-> +			arm_iommu_sync_dma_for_cpu(sg_phys(s), s->length, dir,
-> +						   dev->dma_coherent);
->   	}
->   }
->   
-> @@ -1335,12 +1351,9 @@ static void arm_iommu_sync_sg_for_cpu(struct device *dev,
->   	struct scatterlist *s;
->   	int i;
->   
-> -	if (dev->dma_coherent)
-> -		return;
-> -
->   	for_each_sg(sg, s, nents, i)
-> -		arch_sync_dma_for_cpu(sg_phys(s), s->length, dir);
-> -
-> +		arm_iommu_sync_dma_for_cpu(sg_phys(s), s->length, dir,
-> +					   dev->dma_coherent);
->   }
->   
->   /**
-> @@ -1425,9 +1438,9 @@ static void arm_iommu_unmap_page(struct device *dev, dma_addr_t handle,
->   	if (!iova)
->   		return;
->   
-> -	if (!dev->dma_coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC)) {
-> +	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
->   		phys = iommu_iova_to_phys(mapping->domain, handle);
-> -		arch_sync_dma_for_cpu(phys, size, dir);
-> +		arm_iommu_sync_dma_for_cpu(phys, size, dir, dev->dma_coherent);
->   	}
->   
->   	iommu_unmap(mapping->domain, iova, len);
-> @@ -1497,11 +1510,11 @@ static void arm_iommu_sync_single_for_cpu(struct device *dev,
->   	struct dma_iommu_mapping *mapping = to_dma_iommu_mapping(dev);
->   	phys_addr_t phys;
->   
-> -	if (dev->dma_coherent || !(handle & PAGE_MASK))
-> +	if (!(handle & PAGE_MASK))
->   		return;
->   
->   	phys = iommu_iova_to_phys(mapping->domain, handle);
-> -	arch_sync_dma_for_cpu(phys, size, dir);
-> +	arm_iommu_sync_dma_for_cpu(phys, size, dir, dev->dma_coherent);
->   }
->   
->   static void arm_iommu_sync_single_for_device(struct device *dev,
+DQoNCkxlIDI3LzAzLzIwMjMgw6AgMTQ6MTMsIEFybmQgQmVyZ21hbm4gYSDDqWNyaXTCoDoNCj4g
+RnJvbTogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4NCj4gDQo+IFRoZSBwb3dlcnBjIGRt
+YV9zeW5jXypfZm9yX2NwdSgpIHZhcmlhbnRzIGRvIG1vcmUgZmx1c2hlcyB0aGFuIG9uIG90aGVy
+DQo+IGFyY2hpdGVjdHVyZXMuIFJlZHVjZSBpdCB0byB3aGF0IGV2ZXJ5b25lIGVsc2UgZG9lczoN
+Cj4gDQo+ICAgLSBObyBmbHVzaCBpcyBuZWVkZWQgYWZ0ZXIgZGF0YSBoYXMgYmVlbiBzZW50IHRv
+IGEgZGV2aWNlDQo+IA0KPiAgIC0gV2hlbiBkYXRhIGhhcyBiZWVuIHJlY2VpdmVkIGZyb20gYSBk
+ZXZpY2UsIHRoZSBjYWNoZSBvbmx5IG5lZWRzIHRvDQo+ICAgICBiZSBpbnZhbGlkYXRlZCB0byBj
+bGVhciBvdXQgY2FjaGUgbGluZXMgdGhhdCB3ZXJlIHNwZWN1bGF0aXZlbHkNCj4gICAgIHByZWZl
+dGNoZWQuDQo+IA0KPiBJbiBwYXJ0aWN1bGFyLCB0aGUgc2Vjb25kIGZsdXNoaW5nIG9mIHBhcnRp
+YWwgY2FjaGUgbGluZXMgb2YgYmlkaXJlY3Rpb25hbA0KPiBidWZmZXJzIGlzIGFjdGl2ZWx5IGhh
+cm1mdWwgLS0gaWYgYSBzaW5nbGUgY2FjaGUgbGluZSBpcyB3cml0dGVuIGJ5IGJvdGgNCj4gdGhl
+IENQVSBhbmQgdGhlIGRldmljZSwgZmx1c2hpbmcgaXQgYWdhaW4gZG9lcyBub3QgbWFpbnRhaW4g
+Y29oZXJlbmN5DQo+IGJ1dCBpbnN0ZWFkIG92ZXJ3cml0ZSB0aGUgZGF0YSB0aGF0IHdhcyBqdXN0
+IHJlY2VpdmVkIGZyb20gdGhlIGRldmljZS4NCg0KSHVtIC4uLi4uIFdobyBpcyByaWdodCA/DQoN
+ClRoYXQgYmVoYXZpb3VyIHdhcyBpbnRyb2R1Y2VkIGJ5IGNvbW1pdCAwM2Q3MDYxN2I4YTcgKCJw
+b3dlcnBjOiBQcmV2ZW50IA0KbWVtb3J5IGNvcnJ1cHRpb24gZHVlIHRvIGNhY2hlIGludmFsaWRh
+dGlvbiBvZiB1bmFsaWduZWQgRE1BIGJ1ZmZlciIpDQoNCkkgdGhpbmsgeW91ciBjb21taXQgbG9n
+IHNob3VsZCBleHBsYWluIHdoeSB0aGF0IGNvbW1pdCB3YXMgd3JvbmcsIGFuZCANCm1heWJlIHNh
+eSB0aGF0IHlvdXIgcGF0Y2ggaXMgYSByZXZlcnQgb2YgdGhhdCBjb21taXQgPw0KDQpDaHJpc3Rv
+cGhlDQoNCg0KPiANCj4gU2lnbmVkLW9mZi1ieTogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5k
+ZT4NCj4gLS0tDQo+ICAgYXJjaC9wb3dlcnBjL21tL2RtYS1ub25jb2hlcmVudC5jIHwgMTggKysr
+Ky0tLS0tLS0tLS0tLS0tDQo+ICAgMSBmaWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgMTQg
+ZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL21tL2RtYS1ub25j
+b2hlcmVudC5jIGIvYXJjaC9wb3dlcnBjL21tL2RtYS1ub25jb2hlcmVudC5jDQo+IGluZGV4IGYx
+MDg2OWQyN2RlNS4uZTEwOGNhY2Y4NzdmIDEwMDY0NA0KPiAtLS0gYS9hcmNoL3Bvd2VycGMvbW0v
+ZG1hLW5vbmNvaGVyZW50LmMNCj4gKysrIGIvYXJjaC9wb3dlcnBjL21tL2RtYS1ub25jb2hlcmVu
+dC5jDQo+IEBAIC0xMzIsMjEgKzEzMiwxMSBAQCB2b2lkIGFyY2hfc3luY19kbWFfZm9yX2NwdShw
+aHlzX2FkZHJfdCBwYWRkciwgc2l6ZV90IHNpemUsDQo+ICAgCXN3aXRjaCAoZGlyZWN0aW9uKSB7
+DQo+ICAgCWNhc2UgRE1BX05PTkU6DQo+ICAgCQlCVUcoKTsNCj4gLQljYXNlIERNQV9GUk9NX0RF
+VklDRToNCj4gLQkJLyoNCj4gLQkJICogaW52YWxpZGF0ZSBvbmx5IHdoZW4gY2FjaGUtbGluZSBh
+bGlnbmVkIG90aGVyd2lzZSB0aGVyZSBpcw0KPiAtCQkgKiB0aGUgcG90ZW50aWFsIGZvciBkaXNj
+YXJkaW5nIHVuY29tbWl0dGVkIGRhdGEgZnJvbSB0aGUgY2FjaGUNCj4gLQkJICovDQo+IC0JCWlm
+ICgoc3RhcnQgfCBlbmQpICYgKEwxX0NBQ0hFX0JZVEVTIC0gMSkpDQo+IC0JCQlfX2RtYV9waHlz
+X29wKHN0YXJ0LCBlbmQsIERNQV9DQUNIRV9GTFVTSCk7DQo+IC0JCWVsc2UNCj4gLQkJCV9fZG1h
+X3BoeXNfb3Aoc3RhcnQsIGVuZCwgRE1BX0NBQ0hFX0lOVkFMKTsNCj4gLQkJYnJlYWs7DQo+IC0J
+Y2FzZSBETUFfVE9fREVWSUNFOgkJLyogd3JpdGViYWNrIG9ubHkgKi8NCj4gLQkJX19kbWFfcGh5
+c19vcChzdGFydCwgZW5kLCBETUFfQ0FDSEVfQ0xFQU4pOw0KPiArCWNhc2UgRE1BX1RPX0RFVklD
+RToNCj4gICAJCWJyZWFrOw0KPiAtCWNhc2UgRE1BX0JJRElSRUNUSU9OQUw6CS8qIHdyaXRlYmFj
+ayBhbmQgaW52YWxpZGF0ZSAqLw0KPiAtCQlfX2RtYV9waHlzX29wKHN0YXJ0LCBlbmQsIERNQV9D
+QUNIRV9GTFVTSCk7DQo+ICsJY2FzZSBETUFfRlJPTV9ERVZJQ0U6DQo+ICsJY2FzZSBETUFfQklE
+SVJFQ1RJT05BTDoNCj4gKwkJX19kbWFfcGh5c19vcChzdGFydCwgZW5kLCBETUFfQ0FDSEVfSU5W
+QUwpOw0KPiAgIAkJYnJlYWs7DQo+ICAgCX0NCj4gICB9DQpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1yaXNjdiBtYWlsaW5nIGxpc3QKbGludXgt
+cmlzY3ZAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL2xpbnV4LXJpc2N2Cg==
