@@ -1,151 +1,211 @@
-From: Valentin Schneider <vschneid@redhat.com>
-Subject: Re: [PATCH v5 7/7] sched, smp: Trace smp callback causing an IPI
-Date: Thu, 23 Mar 2023 18:31:37 +0000
-Message-ID: <xhsmh8rfncoae.mognet@vschneid.remote.csb>
-References: <20230307143558.294354-1-vschneid@redhat.com>
- <20230307143558.294354-8-vschneid@redhat.com>
- <20230322095329.GS2017917@hirez.programming.kicks-ass.net>
- <xhsmhmt45c703.mognet@vschneid.remote.csb>
- <20230322140434.GC2357380@hirez.programming.kicks-ass.net>
- <xhsmhbkkjcu4q.mognet@vschneid.remote.csb>
- <20230323174129.GA2753619@hirez.programming.kicks-ass.net>
+From: Arnd Bergmann <arnd@kernel.org>
+Subject: [PATCH 00/21] dma-mapping: unify support for cache flushes
+Date: Mon, 27 Mar 2023 14:12:56 +0200
+Message-ID: <20230327121317.4081816-1-arnd@kernel.org>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1679919237;
+        bh=GiqSNoh/gnOD0kxoCZ+KxN9c2SO+z1nJBns1fyyi+vo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=pq3BAphM3wHtatYjV+DfN2I8sJHS4IYBYyDE+v6/Qc8ZwCT8gpvS4DAGv7VxPzFGA
+         QTONxH3L5u7xfGpaWF72Vn6IOud15UVhnlOu7Pkpc4MFJc3T+eyi/9YHM2uw4o3Q19
+         hlFRkjcr9R2SPBbGCiCcG9K2ncI1oTIHchYegylFXUpPuOkFuj5EhA9x60aFehDKxy
+         Qltw/cCcMI8A23tAm4waeZqorYzy7ERYFcrUh9Z5Dt10vOC7n/8mHT1x94BLc8QwMZ
+         RjkfvTiQw9Na09hCmY2JMMUGUbEev+PR6WHG/lHK6hz99r9Xiisa4orl4KnTMuyptQ
+         /3AEVTN69OUkQ==
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-ID:Date:References
-	:In-Reply-To:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=elzNdtolzgNLcUPJz4OGmM3OabslhaFlP8v2hRoNFCE=; b=iWvx6ssFB3pcVl
-	nnplUDpWpMt5WncQ8rSmX08NMi7juuwTfBnWjGcdAirUS7K7yYnZBfDMcPPsfC159DJdo+4RxRNPQ
-	6r+UU3RUi4CpTVFpOvu/v+W5jUI1Gg0sl2fMmBOshKbq2ARsICMEXWl0MGVK1ksj4CHMXz7XsPMkP
-	r+yYORMv36jv3GEIf1iH7ZdbiG4V1a1qIF9oA7zHRTUMAo13/hKkrbuem0PXZZRmx3NRgD88R2L5o
-	yMq6aCvCI/IBhb/+/e7SlXw394Fb4w/081aJE2xvmGwgKCiXSB9x0GtSnnbcdM3kL7geZGjzStt5X
-	Nw7wdSHx11b0YxaErU/w==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1679596303;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OQhuytQNa//R38jUclcb8GrjXYgITp5dQj88746r1Bo=;
-	b=hzzGJfyMtg4+UYZoLvcYhCd5Zk005nkpFZgR0cdlzrx/hOqAQ2LUYi85ah3jZCHs+und4z
-	d/RRANXxSfkwckr2w3euoDn84gzckfO/k3WOBsHaZo2dGyyNjJVzMuKPbxFep4+VqsheOd
-	JbyoMkzpBilWzvfKoxlJQy7I04aZ1Ok=
-In-Reply-To: <20230323174129.GA2753619@hirez.programming.kicks-ass.net>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Juri Lelli <juri.lelli@redhat.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo>
+To: linux-kernel@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Neil Armstrong <neil.armstrong@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy <christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Rich Felker <dalias@libc.org>, John
 
-On 23/03/23 18:41, Peter Zijlstra wrote:
-> On Thu, Mar 23, 2023 at 04:25:25PM +0000, Valentin Schneider wrote:
->> On 22/03/23 15:04, Peter Zijlstra wrote:
->> > @@ -798,14 +794,20 @@ static void smp_call_function_many_cond(
->> >  		}
->> >  
->> >  		/*
->> > +		 * Trace each smp_function_call_*() as an IPI, actual IPIs
->> > +		 * will be traced with func==generic_smp_call_function_single_ipi().
->> > +		 */
->> > +		trace_ipi_send_cpumask(cfd->cpumask_ipi, _RET_IP_, func);
->> 
->> I just got a trace pointing out this can emit an event even though no IPI
->> is sent if e.g. the cond_func predicate filters all CPUs in the argument
->> mask:
->> 
->>   ipi_send_cpumask:     cpumask= callsite=on_each_cpu_cond_mask+0x3c callback=flush_tlb_func+0x0
->> 
->> Maybe something like so on top?
->> 
->> ---
->> diff --git a/kernel/smp.c b/kernel/smp.c
->> index ba5478814e677..1dc452017d000 100644
->> --- a/kernel/smp.c
->> +++ b/kernel/smp.c
->> @@ -791,6 +791,8 @@ static void smp_call_function_many_cond(const struct cpumask *mask,
->>  			}
->>  		}
->>  
->> +		if (!nr_cpus)
->> +			goto local;
->
-> Hmm, this isn't right. You can get nr_cpus==0 even though it did add
-> some to various lists but never was first.
->
+From: Arnd Bergmann <arnd@arndb.de>
 
-Duh, glanced over that.
+After a long discussion about adding SoC specific semantics for when
+to flush caches in drivers/soc/ drivers that we determined to be
+fundamentally flawed[1], I volunteered to try to move that logic into
+architecture-independent code and make all existing architectures do
+the same thing.
 
-> But urgh, even if we were to say count nr_queued we'd never get the mask
-> right, because we don't track which CPUs have the predicate matched,
-> only those we need to actually send an IPI to :/
->
-> Ooh, I think we can clear those bits from cfd->cpumask, arguably that's
-> a correctness fix too, because the 'run_remote && wait' case shouldn't
-> wait on things we didn't queue.
->
+As we had determined earlier, the behavior is wildly different across
+architectures, but most of the differences come down to either bugs
+(when required flushes are missing) or extra flushes that are harmless
+but might hurt performance.
 
-Yeah, that makes sense to me. Just one tiny suggestion below.
+I finally found the time to come up with an implementation of this, which
+starts by replacing every outlier with one of the three common options:
 
-> Hmm?
->
->
-> --- a/kernel/smp.c
-> +++ b/kernel/smp.c
-> @@ -728,9 +728,9 @@ static void smp_call_function_many_cond(
->  	int cpu, last_cpu, this_cpu = smp_processor_id();
->  	struct call_function_data *cfd;
->  	bool wait = scf_flags & SCF_WAIT;
-> +	int nr_cpus = 0, nr_queued = 0;
->  	bool run_remote = false;
->  	bool run_local = false;
-> -	int nr_cpus = 0;
->  
->  	lockdep_assert_preemption_disabled();
->  
-> @@ -772,8 +772,10 @@ static void smp_call_function_many_cond(
->  		for_each_cpu(cpu, cfd->cpumask) {
->  			call_single_data_t *csd = per_cpu_ptr(cfd->csd, cpu);
->  
-> -			if (cond_func && !cond_func(cpu, info))
-> +			if (cond_func && !cond_func(cpu, info)) {
-> +				__cpumask_clear_cpu(cpu, cfd->cpumask);
->  				continue;
-> +			}
->  
->  			csd_lock(csd);
->  			if (wait)
-> @@ -789,13 +791,15 @@ static void smp_call_function_many_cond(
->  				nr_cpus++;
->  				last_cpu = cpu;
->  			}
-> +			nr_queued++;
->  		}
->  
->  		/*
->  		 * Trace each smp_function_call_*() as an IPI, actual IPIs
->  		 * will be traced with func==generic_smp_call_function_single_ipi().
->  		 */
-> -		trace_ipi_send_cpumask(cfd->cpumask_ipi, _RET_IP_, func);
-> +		if (nr_queued)
+ 1. architectures without speculative prefetching (hegagon, m68k,
+    openrisc, sh, sparc, and certain armv4 and xtensa implementations)
+    only flush their caches before a DMA, by cleaning write-back caches
+    (if any) before a DMA to the device, and by invalidating the caches
+    before a DMA from a device
 
-With your change to cfd->cpumask, we could ditch nr_queued and make this
+ 2. arc, microblaze, mips, nios2, sh and later xtensa now follow the
+    normal 32-bit arm model and invalidate their writeback caches
+    again after a DMA from the device, to remove stale cache lines
+    that got prefetched during the DMA. arc, csky and mips used to
+    invalidate buffers also before the bidirectional DMA, but this
+    is now skipped whenever we know it gets invalidated again
+    after the DMA.
 
-                if (!cpumask_empty(cfd->cpumask))
+ 3. parisc, powerpc and riscv already flushed buffers before
+    a DMA_FROM_DEVICE, and these get moved to the arm64 behavior
+    that does the writeback before and invalidate after both
+    DMA_FROM_DEVICE and DMA_BIDIRECTIONAL in order to avoid the
+    problem of accidentally leaking stale data if the DMA does
+    not actually happen[2].
 
-since cfd->cpumask now only contains CPUs that have had a CSD queued.
+The last patch in the series replaces the architecture specific code
+with a shared version that implements all three based on architecture
+specific parameters that are almost always determined at compile time.
 
-> +			trace_ipi_send_cpumask(cfd->cpumask, _RET_IP_, func);
->  
->  		/*
->  		 * Choose the most efficient way to send an IPI. Note that the
+The difference between cases 1. and 2. is hardware specific, while between
+2. and 3. we need to decide which semantics we want, but I explicitly
+avoid this question in my series and leave it to be decided later.
+
+Another difference that I do not address here is what cache invalidation
+does for partical cache lines. On arm32, arm64 and powerpc, a partial
+cache line always gets written back before invalidation in order to
+ensure that data before or after the buffer is not discarded. On all
+other architectures, the assumption is cache lines are never shared
+between DMA buffer and data that is accessed by the CPU. If we end up
+always writing back dirty cache lines before a DMA (option 3 above),
+then this point becomes moot, otherwise we should probably address this
+in a follow-up series to document one behavior or the other and implement
+it consistently.
+
+Please review!
+
+      Arnd
+
+[1] https://lore.kernel.org/all/20221212115505.36770-1-prabhakar.mahadev-lad.rj@bp.renesas.com/
+[2] https://lore.kernel.org/all/20220606152150.GA31568@willie-the-truck/
+
+Arnd Bergmann (21):
+  openrisc: dma-mapping: flush bidirectional mappings
+  xtensa: dma-mapping: use normal cache invalidation rules
+  sparc32: flush caches in dma_sync_*for_device
+  microblaze: dma-mapping: skip extra DMA flushes
+  powerpc: dma-mapping: split out cache operation logic
+  powerpc: dma-mapping: minimize for_cpu flushing
+  powerpc: dma-mapping: always clean cache in _for_device() op
+  riscv: dma-mapping: only invalidate after DMA, not flush
+  riscv: dma-mapping: skip invalidation before bidirectional DMA
+  csky: dma-mapping: skip invalidating before DMA from device
+  mips: dma-mapping: skip invalidating before bidirectional DMA
+  mips: dma-mapping: split out cache operation logic
+  arc: dma-mapping: skip invalidating before bidirectional DMA
+  parisc: dma-mapping: use regular flush/invalidate ops
+  ARM: dma-mapping: always invalidate WT caches before DMA
+  ARM: dma-mapping: bring back dmac_{clean,inv}_range
+  ARM: dma-mapping: use arch_sync_dma_for_{device,cpu}() internally
+  ARM: drop SMP support for ARM11MPCore
+  ARM: dma-mapping: use generic form of arch_sync_dma_* helpers
+  ARM: dma-mapping: split out arch_dma_mark_clean() helper
+  dma-mapping: replace custom code with generic implementation
+
+ arch/arc/mm/dma.c                          |  66 ++------
+ arch/arm/Kconfig                           |   4 +
+ arch/arm/include/asm/cacheflush.h          |  21 +++
+ arch/arm/include/asm/glue-cache.h          |   4 +
+ arch/arm/mach-oxnas/Kconfig                |   4 -
+ arch/arm/mach-oxnas/Makefile               |   1 -
+ arch/arm/mach-oxnas/headsmp.S              |  23 ---
+ arch/arm/mach-oxnas/platsmp.c              |  96 -----------
+ arch/arm/mach-versatile/platsmp-realview.c |   4 -
+ arch/arm/mm/Kconfig                        |  19 ---
+ arch/arm/mm/cache-fa.S                     |   4 +-
+ arch/arm/mm/cache-nop.S                    |   6 +
+ arch/arm/mm/cache-v4.S                     |  13 +-
+ arch/arm/mm/cache-v4wb.S                   |   4 +-
+ arch/arm/mm/cache-v4wt.S                   |  22 ++-
+ arch/arm/mm/cache-v6.S                     |  35 +---
+ arch/arm/mm/cache-v7.S                     |   6 +-
+ arch/arm/mm/cache-v7m.S                    |   4 +-
+ arch/arm/mm/dma-mapping-nommu.c            |  36 ++--
+ arch/arm/mm/dma-mapping.c                  | 181 ++++++++++-----------
+ arch/arm/mm/proc-arm1020.S                 |   4 +-
+ arch/arm/mm/proc-arm1020e.S                |   4 +-
+ arch/arm/mm/proc-arm1022.S                 |   4 +-
+ arch/arm/mm/proc-arm1026.S                 |   4 +-
+ arch/arm/mm/proc-arm920.S                  |   4 +-
+ arch/arm/mm/proc-arm922.S                  |   4 +-
+ arch/arm/mm/proc-arm925.S                  |   4 +-
+ arch/arm/mm/proc-arm926.S                  |   4 +-
+ arch/arm/mm/proc-arm940.S                  |   4 +-
+ arch/arm/mm/proc-arm946.S                  |   4 +-
+ arch/arm/mm/proc-feroceon.S                |   8 +-
+ arch/arm/mm/proc-macros.S                  |   2 +
+ arch/arm/mm/proc-mohawk.S                  |   4 +-
+ arch/arm/mm/proc-xsc3.S                    |   4 +-
+ arch/arm/mm/proc-xscale.S                  |   6 +-
+ arch/arm64/mm/dma-mapping.c                |  28 ++--
+ arch/csky/mm/dma-mapping.c                 |  46 +++---
+ arch/hexagon/kernel/dma.c                  |  44 ++---
+ arch/m68k/kernel/dma.c                     |  43 +++--
+ arch/microblaze/kernel/dma.c               |  38 ++---
+ arch/mips/mm/dma-noncoherent.c             |  75 +++------
+ arch/nios2/mm/dma-mapping.c                |  57 +++----
+ arch/openrisc/kernel/dma.c                 |  62 ++++---
+ arch/parisc/include/asm/cacheflush.h       |   6 +-
+ arch/parisc/kernel/pci-dma.c               |  33 +++-
+ arch/powerpc/mm/dma-noncoherent.c          |  76 +++++----
+ arch/riscv/mm/dma-noncoherent.c            |  51 +++---
+ arch/sh/kernel/dma-coherent.c              |  43 +++--
+ arch/sparc/Kconfig                         |   2 +-
+ arch/sparc/kernel/ioport.c                 |  38 +++--
+ arch/xtensa/Kconfig                        |   1 -
+ arch/xtensa/include/asm/cacheflush.h       |   6 +-
+ arch/xtensa/kernel/pci-dma.c               |  47 +++---
+ include/linux/dma-sync.h                   | 107 ++++++++++++
+ 54 files changed, 721 insertions(+), 699 deletions(-)
+ delete mode 100644 arch/arm/mach-oxnas/headsmp.S
+ delete mode 100644 arch/arm/mach-oxnas/platsmp.c
+ create mode 100644 include/linux/dma-sync.h
+
+-- 
+2.39.2
+
+Cc: Vineet Gupta <vgupta@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Neil Armstrong <neil.armstrong@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Brian Cain <bcain@quicinc.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Dinh Nguyen <dinguyen@kernel.org>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Rich Felker <dalias@libc.org>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: Conor Dooley <conor.dooley@microchip.com>
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-oxnas@groups.io
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-openrisc@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-xtensa@linux-xtensa.org
