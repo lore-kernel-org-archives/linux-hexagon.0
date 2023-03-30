@@ -1,10 +1,8 @@
-From: "Arnd Bergmann" <arnd@arndb.de>
+From: Ard Biesheuvel <ardb@kernel.org>
 Subject: Re: [PATCH 18/21] ARM: drop SMP support for ARM11MPCore
-Date: Thu, 30 Mar 2023 12:03:16 +0200
-Message-ID: <6a5bd3a3-87e0-4a24-89ca-d265b0817a95@app.fastmail.com>
-References: <20230327121317.4081816-1-arnd@kernel.org>
- <20230327121317.4081816-19-arnd@kernel.org>
- <d7f36a28-0cae-a035-791b-363754aefeee@linaro.org>
+Date: Thu, 30 Mar 2023 13:51:53 +0200
+Message-ID: <CAMj1kXGNjrmTr1R+-09UYtHSgvT6fSgZxvpbEOfeTFxhWtgGcQ@mail.gmail.com>
+References: <20230327121317.4081816-1-arnd@kernel.org> <20230327121317.4081816-19-arnd@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -12,39 +10,26 @@ Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradea
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
 	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:Subject:Cc:To:From:Date:References:
-	In-Reply-To:Message-Id:Mime-Version:Reply-To:Content-ID:Content-Description:
+	List-Archive:List-Unsubscribe:List-Id:Cc:To:Subject:Message-ID:Date:From:
+	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=2BXLO95eOE38LjmpwqAUhHxP+nmFoqku2CYRYNcZCdg=; b=aN1AtU+8wUjtcy
-	ZJ5hrH2+aCDGB8KyEcw1SD8JE6uEYljeHk5QxJ281wPOpJqKLwJlnuKlX47A8snEiSLXzOHdK5yl6
-	FY5x2a/gotraQggM/HKeB+PAv23MHuUprnS/0rxVk7g0zWzJAr8HdyOFXXEbq2Q6Y2tQ3HGZ1OoEk
-	xOi2nqOx9/CyA1Tu0KG4Zax5qT75fQj7ClF5lcqSo8EFCBLbKj9UzczGhND5zpq8Liu2gohb9G9rn
-	1raVQeh+U+KBY4hBxqU8mcJAULO+ivJnTIaqTj+eA5KEmPdqopuUD4WF1gy+0Pij7Nzfml6MQUblh
-	RCR7ZZOu76kdz3iULohA==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:sender
-	:subject:subject:to:to; s=fm1; t=1680170633; x=1680177833; bh=gF
-	qXqcYMWSKuJaGFIiy50Zf8Mul16NUlD8xgems2xkg=; b=JxPZOVxjXCuuUFnz8g
-	uR2No3WKokB1kYnBVGLyuNTT1GHbSx7HcllmOlx7WL73MRjvBNY1Jz63nwSIuXZm
-	fARBRkt2EgiPXJLAvasiK+94JN9Rp7qIpeg/c8F9us28ZAmzX4a12l/FSLzGWeAf
-	GP7Lhb+lkhGzU3GXPlwLR10V758pcgH1ojqXsjwkdVyUvwtO9WMqdgRyfQ7u3ctM
-	W7sU+9bMDjJx0q1aRSpQBmyxejDAdo7VNGKwjccZfKKub+cgQ2ZTm/zkP2y/rRlx
-	wYI35VSqJc9OdGsxpiyx9Lz/h6dHQyx/rbychak5+lhcx20ykt8JwaYwQzyk90NH
-	m/JA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:sender:subject
-	:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-	:x-sasl-enc; s=fm2; t=1680170633; x=1680177833; bh=gFqXqcYMWSKuJ
-	aGFIiy50Zf8Mul16NUlD8xgems2xkg=; b=o3ayTuAjbuBu4DPifrxB/HOOZRdO1
-	xb065wIqst9K32LE2zIFvIgvo3yv5lHodsQ9WEQeJOnQ4UcFBj18pN027eK8euOR
-	PtcZaxUi42xyTMd+sbBNtRmY12wtqYj80lCZcTZsq6sg8WYonLY5xmdrshZ5C44/
-	jXjWmEhQ68ThFXZ/SV/69f9njMopwi7kUxCVm+NBkbrrBCIP7mBID23rgx/hkVub
-	HQT4TO9CRtSmC/0UwEYJhKoIxPA5B3sXRdQjC9d5SuBSM3xeOdM9GqWhROqUG5n+
-	6gfH5c9KmTWNqq/meniN7YOfy58761x7eNGJpjVNO+ni0u9AywZLJQEUQ==
-In-Reply-To: <d7f36a28-0cae-a035-791b-363754aefeee@linaro.org>
+	List-Owner; bh=6PnRbl98IaeDt5/jXOtMTR3lZ0A3glgMYre0ScgKrWo=; b=n8mhmozqYs7a9H
+	k9c+9DyBeZL4CLWgFPUoMRfW46LddThNJFfZj6kgwSERIgx9HEAQ4K4OzgPbamnbyEP9anD7Vidi0
+	spogFMryvO50KKs8iPGndNiqsaILD55a59AepnTOKArkWWUapTp+tsuxmhtSwxMVFDZ2gBrJ5ZkGj
+	yvJYtmVr5OeeWui8+FdJUum/952AiXGj877pXNVgt6Au7zQPbg6lYtBmCK1w3fJ8mboNupUaHIi9w
+	RZ9jLtYCJ04+JlbfPeSAwh5BcGR1f0iI8S4lCEq48GJ//5kQRCg5rDNtd7QTPTRRoZPHSEhW68GFx
+	Pn9x5SJjYaohpGhECDoQ==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1680177146;
+	bh=Lg8Woq7ScP2NFdPayLKkYeMtRMZwMJRAR9+KtXakJhE=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=RZipPa0Ma88cpwApm0Td+Y0hkbkQIILnwFNQiwuNoLfKzZn1t1N2RWebuO5MmOdWR
+	 lQtcg7+hOj2+xkyHWlgIoVZbU8l/ColoV4uTbiTmPZpGMjP4+5b5KL+k1PATzLy9Rp
+	 ne1YU23rrq+LQ/aY1hx5aVq6JaiwH990blyhsz8dbOuarS9Dyli23+YzGF/f36+HG8
+	 eJWfg6HhHG23+Gjz87NUmJCRzsfOcEHVVMSrZcSvvVaSn3bHZUCJGXYVhIzkM552zo
+	 58hqYF8ul49kdxkY2muTd2AEDgWpic6fO2hGOkAcvaSEivLLlgKYSKrkNwb4+H7X43
+	 TxbpI+NG3HS5w==
+In-Reply-To: <20230327121317.4081816-19-arnd@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -55,54 +40,49 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Neil Armstrong <neil.armstrong@linaro.org>, Arnd Bergmann <arnd@kernel.org>, linux-kernel@vger.kernel.org
-Cc: Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Linus Walleij <linus.walleij@linaro.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, guoren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy <christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S . Miller" <davem@davemloft.net>, Max Filippov <jcmvbkbc@gmail.com>, Christoph Hellwig <hch@lst.de>, R
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Neil Armstrong <neil.armstrong@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy <christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S. Miller" <davem@davemloft.net>, M
 
-On Thu, Mar 30, 2023, at 09:48, Neil Armstrong wrote:
-> On 27/03/2023 14:13, Arnd Bergmann wrote:
->> From: Arnd Bergmann <arnd@arndb.de>
->> 
->> The cache management operations for noncoherent DMA on ARMv6 work
->> in two different ways:
->> 
->>   * When CONFIG_DMA_CACHE_RWFO is set, speculative prefetches on in-flight
->>     DMA buffers lead to data corruption when the prefetched data is written
->>     back on top of data from the device.
->> 
->>   * When CONFIG_DMA_CACHE_RWFO is disabled, a cache flush on one CPU
->>     is not seen by the other core(s), leading to inconsistent contents
->>     accross the system.
->> 
->> As a consequence, neither configuration is actually safe to use in a
->> general-purpose kernel that is used on both MPCore systems and ARM1176
->> with prefetching enabled.
->> 
->> We could add further workarounds to make the behavior more dynamic based
->> on the system, but realistically, there are close to zero remaining
->> users on any ARM11MPCore anyway, and nobody seems too interested in it,
->> compared to the more popular ARM1176 used in BMC2835 and AST2500.
->> 
->> The Oxnas platform has some minimal support in OpenWRT, but most of the
->> drivers and dts files never made it into the mainline kernel, while the
->> Arm Versatile/Realview platform mainly serves as a reference system but
->> is not necessary to be kept working once all other ARM11MPCore are gone.
+On Mon, 27 Mar 2023 at 14:18, Arnd Bergmann <arnd@kernel.org> wrote:
 >
-> Acked-by: Neil Armstrong <neil.armstrong@linaro.org>
+> From: Arnd Bergmann <arnd@arndb.de>
 >
-> It's sad but it's the reality, there's no chance full OXNAS support will
-> ever come upstream and no real work has been done for years.
+> The cache management operations for noncoherent DMA on ARMv6 work
+> in two different ways:
 >
-> I think OXNAS support can be programmed for removal for next release,
-> it would need significant work to rework current support to make it acceptable
-> before trying to upstream missing bits anyway.
+>  * When CONFIG_DMA_CACHE_RWFO is set, speculative prefetches on in-flight
+>    DMA buffers lead to data corruption when the prefetched data is written
+>    back on top of data from the device.
+>
+>  * When CONFIG_DMA_CACHE_RWFO is disabled, a cache flush on one CPU
+>    is not seen by the other core(s), leading to inconsistent contents
+>    accross the system.
+>
+> As a consequence, neither configuration is actually safe to use in a
+> general-purpose kernel that is used on both MPCore systems and ARM1176
+> with prefetching enabled.
+>
+> We could add further workarounds to make the behavior more dynamic based
+> on the system, but realistically, there are close to zero remaining
+> users on any ARM11MPCore anyway, and nobody seems too interested in it,
+> compared to the more popular ARM1176 used in BMC2835 and AST2500.
+>
+> The Oxnas platform has some minimal support in OpenWRT, but most of the
+> drivers and dts files never made it into the mainline kernel, while the
+> Arm Versatile/Realview platform mainly serves as a reference system but
+> is not necessary to be kept working once all other ARM11MPCore are gone.
+>
+> Take the easy way out here and drop support for multiprocessing on
+> ARMv6, along with the CONFIG_DMA_CACHE_RWFO option and the cache
+> management implementation for it. This also helps with other ARMv6
+> issues, but for the moment leaves the ability to build a kernel that
+> can run on both ARMv7 SMP and single-processor ARMv6, which we probably
+> want to stop supporting as well, but not as part of this series.
+>
+> Cc: Neil Armstrong <neil.armstrong@linaro.org>
+> Cc: Daniel Golle <daniel@makrotopia.org>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: linux-oxnas@groups.io
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Ok, thanks for your reply!
-
-To clarify, do you think we should plan for removal after the next
-stable release (6.3, removed in 6.4), or after the next LTS
-release (probably 6.6, removed in 6.7)? As far as I understand,
-the next OpenWRT release (23.x) will be based on linux-5.15,
-and the one after that (24.x) would likely still use 6.1, unless
-they skip an LTS kernel.
-
-     Arnd
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
