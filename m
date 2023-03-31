@@ -1,86 +1,61 @@
-From: Neil Armstrong <neil.armstrong@linaro.org>
-Subject: Re: [PATCH 18/21] ARM: drop SMP support for ARM11MPCore
-Date: Thu, 30 Mar 2023 18:40:39 +0200
-Message-ID: <cad25e0a-9594-3d5e-79e7-fd00a80f67ac@linaro.org>
-References: <20230327121317.4081816-1-arnd@kernel.org>
- <20230327121317.4081816-19-arnd@kernel.org>
- <d7f36a28-0cae-a035-791b-363754aefeee@linaro.org>
- <6a5bd3a3-87e0-4a24-89ca-d265b0817a95@app.fastmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 15/21] ARM: dma-mapping: always invalidate WT caches
+ before DMA
+Date: Fri, 31 Mar 2023 11:01:51 +0200
+Message-ID: <CACRpkdbMry_UUYN1MuXTUpRXV+Tj9RSDvN-iBdvR8hDfkTaX4w@mail.gmail.com>
+References: <20230327121317.4081816-1-arnd@kernel.org> <20230327121317.4081816-16-arnd@kernel.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-m68k-owner@vger.kernel.org>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1680194444;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=kz/2H/BTIuKLAKXpo3BrU6LM5Cbhbn/nr7Y/43JgHBo=;
-        b=ZlHh9rnbOioBf3nV/3JYjFE5Qh/bXo4StWdfNEsfuVogmTWridktEfoOhrvWpVNNhE
-         0z/X0MYaJjK/QYT4ITLVIUdplXX/DuXksJC0IpeVKtHOrPLMJe9eSvHXtK4aOFvf4tZs
-         /AbEoXyA7m4P/L9dHHblxxWiEqpMvlOY5GomHTzf+A7mUydBq8mvV4Xac+jQ3DUw+m7d
-         M7bxCvgbaGFMHEPdtiAa6ky4qk4LVn0KlYFTszccyx+U9QZE1gLR26fPAJN9gaLHkJpX
-         WQORjeI04LW5T5Q3kvDg17MPl5M4+c/QRypn5gBwOkQH/rvgvQ4KM27LU9sBhn9IdM+7
-         8UVg==
-Content-Language: en-GB
-In-Reply-To: <6a5bd3a3-87e0-4a24-89ca-d265b0817a95@app.fastmail.com>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-To: Arnd Bergmann <arnd@arndb.de>, Arnd Bergmann <arnd@kernel.org>, linux-kernel@vger.kernel.org
-Cc: Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Linus Walleij <linus.walleij@linaro.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, guoren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy <christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S . Miller" <dave>
+        d=linaro.org; s=google; t=1680253322;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BWm2jI2yHpPi79Yy1CI28Qxt6CEyohh41n1LA0fGLDM=;
+        b=ma9CGEidowfFcQ/RWwH9jcS3JpkuGTgIsGbkrjxNbpyIzTV0VWElAtIXD1pJ7GvLWW
+         o7VY5XN4Af8jnZZ9O6VFKig0/95cqzaeDCJiUPwYZQl8VR+1dmIghX/+s6g86bp9ODnN
+         MAzwUVCiMu/TmuzqPKTEsI7qk7BcH62AgPt5/bQM0gksa4J2iBNXg4d+1aT8ueqsMtsu
+         j/o9cEOqf4x14P3d54vkcr4sulvwLKD3DWlzGUaFgwLRmbPD3v1X3PVwEGdEFSAXSvdX
+         cX0K9wRov1LZHYLnnywTrm7QrejvefZ111ofD9/89zCLVipeznKpthRrdFZIrBFoD4rz
+         Cj1A==
+In-Reply-To: <20230327121317.4081816-16-arnd@kernel.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev" <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Content-Type: text/plain; charset="windows-1252"
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Conor Dooley <conor.dooley@microchip.com>, Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Will Deacon <will@kernel.org>, Christoph Hellwig <hch@lst.de>, Helge Deller <deller@gmx.de>, Russell King <linux@armlinux.org.uk>, Geert Uytterhoeven <geert@linux-m68k.org>, Vineet Gupta <vgupta@kernel.org>, linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>, Brian Cain <bcain@quicinc.com>, Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>, linux-m68k@lists.li, nux-m68k.org, Paul Walmsley <paul.walmsley@sifive.com>, Stafford Horne <shorne@gmail.com>, linux-a
 
-Le 30/03/2023 à 12:03, Arnd Bergmann a écrit :
-> On Thu, Mar 30, 2023, at 09:48, Neil Armstrong wrote:
->> On 27/03/2023 14:13, Arnd Bergmann wrote:
->>> From: Arnd Bergmann <arnd@arndb.de>
->>>
->>> The cache management operations for noncoherent DMA on ARMv6 work
->>> in two different ways:
->>>
->>>    * When CONFIG_DMA_CACHE_RWFO is set, speculative prefetches on in-flight
->>>      DMA buffers lead to data corruption when the prefetched data is written
->>>      back on top of data from the device.
->>>
->>>    * When CONFIG_DMA_CACHE_RWFO is disabled, a cache flush on one CPU
->>>      is not seen by the other core(s), leading to inconsistent contents
->>>      accross the system.
->>>
->>> As a consequence, neither configuration is actually safe to use in a
->>> general-purpose kernel that is used on both MPCore systems and ARM1176
->>> with prefetching enabled.
->>>
->>> We could add further workarounds to make the behavior more dynamic based
->>> on the system, but realistically, there are close to zero remaining
->>> users on any ARM11MPCore anyway, and nobody seems too interested in it,
->>> compared to the more popular ARM1176 used in BMC2835 and AST2500.
->>>
->>> The Oxnas platform has some minimal support in OpenWRT, but most of the
->>> drivers and dts files never made it into the mainline kernel, while the
->>> Arm Versatile/Realview platform mainly serves as a reference system but
->>> is not necessary to be kept working once all other ARM11MPCore are gone.
->>
->> Acked-by: Neil Armstrong <neil.armstrong@linaro.org>
->>
->> It's sad but it's the reality, there's no chance full OXNAS support will
->> ever come upstream and no real work has been done for years.
->>
->> I think OXNAS support can be programmed for removal for next release,
->> it would need significant work to rework current support to make it acceptable
->> before trying to upstream missing bits anyway.
-> 
-> Ok, thanks for your reply!
-> 
-> To clarify, do you think we should plan for removal after the next
-> stable release (6.3, removed in 6.4), or after the next LTS
-> release (probably 6.6, removed in 6.7)? As far as I understand,
-> the next OpenWRT release (23.x) will be based on linux-5.15,
-> and the one after that (24.x) would likely still use 6.1, unless
-> they skip an LTS kernel.
+On Mon, Mar 27, 2023 at 2:16=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wro=
+te:
 
-I think it's ok to remove it ASAP, or at least before the next LTS,
-not having SMP makes the platform barely usable so the earliest is the best.
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> Most ARM CPUs can have write-back caches and that require
+> cache management to be done in the dma_sync_*_for_device()
+> operation. This is typically done in both writeback and
+> writethrough mode.
+>
+> The cache-v4.S (arm720/740/7tdmi/9tdmi) and cache-v4wt.S
+> (arm920t, arm940t) implementations are the exception here,
+> and only do the cache management after the DMA is complete,
+> in the dma_sync_*_for_cpu() operation.
+>
+> Change this for consistency with the other platforms. This
+> should have no user visible effect.
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Neil
+Looks good to me.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-> 
->       Arnd
-
+Yours,
+Linus Walleij
