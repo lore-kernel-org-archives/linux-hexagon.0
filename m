@@ -1,11 +1,13 @@
-From: "Arnd Bergmann" <arnd@arndb.de>
-Subject: Re: [PATCH 15/21] ARM: dma-mapping: always invalidate WT caches before DMA
-Date: Fri, 31 Mar 2023 12:38:45 +0200
-Message-ID: <a8a90181-a003-47a1-8257-fcbf55752249@app.fastmail.com>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH 15/21] ARM: dma-mapping: always invalidate WT caches
+ before DMA
+Date: Fri, 31 Mar 2023 11:01:54 +0000
+Message-ID: <a5f226ee509b4968a4c85784aedbedf4@AcuMS.aculab.com>
 References: <20230327121317.4081816-1-arnd@kernel.org>
  <20230327121317.4081816-16-arnd@kernel.org>
  <ZCai0FmZiOqsMkzc@shell.armlinux.org.uk>
  <ZCapXlrqMOpRxkSu@shell.armlinux.org.uk>
+ <a8a90181-a003-47a1-8257-fcbf55752249@app.fastmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -13,39 +15,17 @@ Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradea
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
 	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:Subject:Cc:To:From:Date:References:
-	In-Reply-To:Message-Id:Mime-Version:Reply-To:Content-ID:Content-Description:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:In-Reply-To:References:
+	Message-ID:Date:Subject:CC:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=xqaEewr8TMhFA1gy2UdY6rYRGQqDTF0fqNEoMina/5Y=; b=eeAAZJkF/3H4wf
-	4wCljOuCREHNCGbDSDdJFZpHoRmrX7Yn/Ekgo7XQLmhzh1m+V49UOivvUbhzlotzxevveSSzLIsor
-	mflzZI6EE18Vbf2cv9TMYKeeeZvGfCiREwG/DN3nqNqefo10m7yeY0pR9Tz+QyJIPKAPTrydOb81Y
-	U9scnNwjZun+Xn9arYUq+l8tNge7kDqRZGz8yiLNlb7BSig6ih8V0kyf4OSatTfouPQo/tYwwr0/p
-	p0kJ9DjIYvu6/q6Kz2Sk9eTbeAXZtnyltbg9k66QNkw7gPDNNQKmW/hEg6t5o+vE2uy35weUn1i20
-	hbNXubsqnohSXpEM3EhA==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:sender
-	:subject:subject:to:to; s=fm1; t=1680259148; x=1680266348; bh=K1
-	dAtQ4qV7dN3w/MsrN2OU4KsjceOP96vjZ3nGCDYgU=; b=O42fuk6H00j4YO3Dp1
-	BZpVEg64wioju/Pf3Ul9c+yC+JB5XdicRTWH0q9GnoWih3BlKO7ycS4VkmJtYAx2
-	HF3aI4h7qS/1m7O+XBotHA3SusQ/XtmZTe1SelV31060xkaQsjLC+Rty4KZ74Yvx
-	8bw7878o63919IzvR+Ca6M1vkcItes1pLEXbaY77LelS2ks3dpTKB9JhtosvgxH9
-	+ApSLt608JKibSkRNbNXaPZrxR74u1HpPdHhBAqQ8bKYy43F0WIYCWltJ8d+Nxr5
-	UY2/i3t/A2I5dEnDHbqWHj0QoVrr3LU/Fv2icw0kSEreyID7p3UTj+/FERmgVJXo
-	hzHw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:sender:subject
-	:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-	:x-sasl-enc; s=fm2; t=1680259148; x=1680266348; bh=K1dAtQ4qV7dN3
-	w/MsrN2OU4KsjceOP96vjZ3nGCDYgU=; b=JPaDge685EIEGG5cDvXTC6Hf/pzvm
-	2LXfWsv3Z5zkMmwE8C32B+GLYMQw2biD8Wtcsh3+gN/RW67iZNDoiLvinyHfJyhO
-	1CBu2+EZ095L80TMg9jHGsuvHMeo907gHC7dt+etaH2q+etaa6eyBD94aOcj5qXE
-	KheUVcYo15nCVOBu+OdUldzz7zhJUqUW6aydUu5zEsy8F+hQs0Zt8D+z64A23JIS
-	Kx1XI8b4kVzknXWdtURj2kbGyM2AkyJIdJez8MQRg+Lw6+RHNdZ/0/Ax+dvk71MU
-	jQs0qBDD/7PUFOzJedDaOZmFQ3hTV7UBmD3GRjqxTL6du3cOOiPJCa2Yw==
-In-Reply-To: <ZCapXlrqMOpRxkSu@shell.armlinux.org.uk>
+	List-Owner; bh=QrBIDbe8KK4B6fCw/HJZA0DOTYv+Szj9ORNl6fuIy1U=; b=ZDlu3SSkiNfKE3
+	HvHGAcqAjvkN0lDr0YBZsQERCpDb487U0psOSc5zkMZv3xFV/9hXyM9HQM0exd8HNQe88dWlseXmB
+	vUdROwa2wIGdXCSXKs4Q1NeadcKWC1BTWD//SRL+FLh7o5eSvnPRWl79XFFl+sVA7pGGgZf0ocRIA
+	Jp+/mMgZM7VowaJk1nzExoyxJUMAGl/rhwHe+DRkoo1ndBP478mRVKO9J8fJUk16vl1xD5/P8u7eQ
+	ncDmOMOJYqfOjeY1zXVoEsOkBOEVzD9jWXMVtelq4Nq7igKW139vK5tGOdjK/Lt8FQP7hUeoiwQ6W
+	UTUZrvvs5VfVZte0JezQ==;
+In-Reply-To: <a8a90181-a003-47a1-8257-fcbf55752249@app.fastmail.com>
+Content-Language: en-US
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -56,82 +36,32 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Vineet Gupta <vgupta@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, guoren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy <christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S . Miller" <davem@davemloft.net>, Max Filippov <jcmvbkbc@gmail.com>, 
+To: 'Arnd Bergmann' <arnd@arndb.de>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@kernel.org>
+Cc: Rich Felker <dalias@libc.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Linus
+ Walleij <linus.walleij@linaro.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, Max Filippov <jcmvbkbc@gmail.com>, "Conor.Dooley" <conor.dooley@microchip.com>, guoren <guoren@kernel.org>, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, Will
+ Deacon <will@kernel.org>, Christoph Hellwig <hch@lst.de>, Helge Deller <deller@gmx.de>, Geert Uytterhoeven <geert@linux-m68k.org>, Vineet Gupta <vgupta@kernel.org>, "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-x>
 
-On Fri, Mar 31, 2023, at 11:35, Russell King (Oracle) wrote:
-> On Fri, Mar 31, 2023 at 10:07:28AM +0100, Russell King (Oracle) wrote:
->> On Mon, Mar 27, 2023 at 02:13:11PM +0200, Arnd Bergmann wrote:
->> > From: Arnd Bergmann <arnd@arndb.de>
->> > 
->> > Most ARM CPUs can have write-back caches and that require
->> > cache management to be done in the dma_sync_*_for_device()
->> > operation. This is typically done in both writeback and
->> > writethrough mode.
->> > 
->> > The cache-v4.S (arm720/740/7tdmi/9tdmi) and cache-v4wt.S
->> > (arm920t, arm940t) implementations are the exception here,
->> > and only do the cache management after the DMA is complete,
->> > in the dma_sync_*_for_cpu() operation.
->> > 
->> > Change this for consistency with the other platforms. This
->> > should have no user visible effect.
->> 
->> NAK...
->> 
->> The reason we do cache management _after_ is to ensure that there
->> is no stale data. The kernel _has_ (at the very least in the past)
->> performed DMA to data structures that are embedded within other
->> data structures, resulting in cache lines being shared. If one of
->> those cache lines is touched while DMA is progressing, then we
->> must to cache management _after_ the DMA operation has completed.
->> Doing it before is no good.
+From: Arnd Bergmann
+> Sent: 31 March 2023 11:39
+...
+> Most architectures that have write-through caches (m68k,
+> microblaze) or write-back caches but no speculation (all other
+> armv4/armv5, hexagon, openrisc, sh, most mips, later xtensa)
+> only invalidate before DMA but not after.
+> 
+> OTOH, most machines that are actually in use today (armv6+,
+> powerpc, later mips, microblaze, riscv, nios2) also have to
+> deal with speculative accesses, so they end up having to
+> invalidate or flush both before and after a DMA_FROM_DEVICE
+> and DMA_BIDIRECTIONAL.
 
-What I'm trying to address here is the inconsistency between
-implementations. If we decide that we always want to invalidate
-after FROM_DEVICE, I can do that as part of the series, but then
-I have to change most of the other arm implementations.
+nios2 is a simple in-order cpu with a short pipeline
+(it is a soft-cpu made from normal fpga logic elements).
+Definitely doesn't do speculative accesses.
+OTOH any one trying to run Linux on it needs their head examined.
 
-Right now, the only WT cache implementations that do the the
-invalidation after the DMA are cache-v4.S (arm720 integrator and
-clps711x), cache-v4wt.S (arm920/arm922 at91rm9200, clps711x,
-ep93xx, omap15xx, imx1 and integrator), some sparc32 leon3 and
-early xtensa.
+	David
 
-Most architectures that have write-through caches (m68k,
-microblaze) or write-back caches but no speculation (all other
-armv4/armv5, hexagon, openrisc, sh, most mips, later xtensa)
-only invalidate before DMA but not after.
-
-OTOH, most machines that are actually in use today (armv6+,
-powerpc, later mips, microblaze, riscv, nios2) also have to
-deal with speculative accesses, so they end up having to
-invalidate or flush both before and after a DMA_FROM_DEVICE
-and DMA_BIDIRECTIONAL.
-
-> It looks like the main offender of "touching cache lines shared
-> with DMA" has now been resolved - that was the SCSI sense buffer,
-> and was fixed some time ago:
->
-> commit de25deb18016f66dcdede165d07654559bb332bc
-> Author: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
-> Date:   Wed Jan 16 13:32:17 2008 +0900
->
-> /if/ that is the one and only case, then we're probably fine, but
-> having been through an era where this kind of thing was the norm
-> and requests to fix it did not get great responses from subsystem
-> maintainers, I just don't trust the kernel not to want to DMA to
-> overlapping cache lines.
-
-Thanks for digging that out, that is very useful. It looks like this
-was around the same time as 03d70617b8a7 ("powerpc: Prevent memory
-corruption due to cache invalidation of unaligned DMA buffer"), so
-it may well have been related. I know we also had more recent 
-problems with USB drivers trying to DMA to stack, which would 
-also cause problems on non-coherent machines, but some of these were
-only found after we introduced VMAP_STACK.
-
-It would be nice to use KASAN prevent reads on cache lines that
-have in-flight DMA.
-
-     Arnd
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
