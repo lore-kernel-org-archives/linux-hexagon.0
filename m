@@ -1,8 +1,8 @@
 From: Shahab Vahedi <Shahab.Vahedi@synopsys.com>
 Subject: Re: [PATCH 13/21] arc: dma-mapping: skip invalidating before
  bidirectional DMA
-Date: Tue, 4 Apr 2023 08:27:08 +0000
-Message-ID: <44b1ee5f-399d-9c3d-b050-02b2dea249be@synopsys.com>
+Date: Thu, 6 Apr 2023 09:01:15 +0000
+Message-ID: <ba0c6b04-cb7d-87ba-a435-919a910282dd@synopsys.com>
 References: <20230327121317.4081816-1-arnd@kernel.org>
  <20230327121317.4081816-14-arnd@kernel.org>
  <2b298e8c-e6fc-a973-9f42-b6a88e92838a@kernel.org>
@@ -12,29 +12,29 @@ Return-path: <linux-m68k-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com; h=from : to : cc :
  subject : date : message-id : references : in-reply-to : content-type :
  content-id : content-transfer-encoding : mime-version; s=pfptdkimsnps;
- bh=94yBqneQ9Lj342QeW9TDCvZXFWBiR0sn8rxyuOp0TBc=;
- b=a7kqVGSrGtvl9HpnkoTThRciRdt+crJz2OXCnWJ0XV8ViQz14hFGDo7TGiTXb8xQWgIt
- 3/bMr4nQ9w0nW5x+w07eTH19g2OHnnqqg5U1gBm+1eRz3GBRklqQL00GRGHSulM+PXET
- uWfAvGd5FBHLsXOHIchy8Aohivg7LTnyM/uBn1SDQWYvwK/mwFcD9cF7OJn0LyBIxV2A
- 3ds1+c01N6QEBd0oYnaFzLy3jfVxpb9rcP0qQ8dUCC80ZvxoqycugLn2jNG46EUDbHyM
- oWCh7NXZgOZcIKgbhFkndrV7VoUb1LCSb6Vdy8Za22pjtpx1l/4JVaKy7Wczlr1ZD6XR 8g== 
+ bh=Gd2cDNip62Ji14ds4OdoQBlo1z5VlqewCRbyiVCpDNg=;
+ b=eB2MReypWcK1+ctba7WH3lOxUPpqvfrfHamccSASd4XErbB5iGRd+mCZeIW7eqYUwTXv
+ 4gkbHSZk1JwKaHXtKdrxAXuF1o3jtUX63zTMtLC/mf2G3OrVZUREqw1UWpb8RxeixvFt
+ rlg6BTSn2NrDE86yDl9Bx2d1gY8wcbQ2uTe4oOKSstatNtE/3WJLS2MdCibENX4XjZhA
+ xzWcq1a/3NOR1EN9KH4SYydh4Ljo2d1QsyhR0yaznuHLbqd580lb32GcZ7xEx0J2Qm2e
+ vMCNX1Ow/wczPRhT4Ha7v4E151adLpU5Hig4VltsHRzwqzOdak3bl97vzOqiG2aq62BN Vg== 
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1680596868; bh=94yBqneQ9Lj342QeW9TDCvZXFWBiR0sn8rxyuOp0TBc=;
+        t=1680772112; bh=Gd2cDNip62Ji14ds4OdoQBlo1z5VlqewCRbyiVCpDNg=;
         h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-        b=GPFoyRAIHf7LjB9oRkoCPh7YfXuW004CD4F2kq/F6Vdv2ntMVJTQPiOMsLKFUBqAr
-         WAQ6vU73eVocQtlrPtBU2metNIJZJGgZdnPR6FTRh7fYisM9NSrsgJ0Ma77EjnjnvS
-         Iy+m5jd/LFqkuuOON0bsrF8ewng08UPBH1tKUT/tkv7PVPvc6HiplNA70nXcuDV32V
-         0yUTOssIJbcQlxOUp6QT3vtbVCyCXN7LWuIrLmrF42SaaUgkyp4U0ZkUlu3IruDKhV
-         LB3oHKrkurdPe7Xcb+jqt+TAaVkpQm1aVEdn1W12zz39Dv0mpzQDop2jfRQGRoKgqq
-         hnftEGnW5To+A==
+        b=hHCQe9EE5vPCy+QfIbZeNMC0iUCPD50BX3tmngIRaZ2h6EZgOSjVHBNYMs8eLDwrP
+         vzfCRrn8noIOky8f1NOykeh1pnqe1iwE9kDJUBeDjopvTh+uvS4EgIcy/Ui/3LTUWl
+         gZOxWs/ZlTGq6hR3WjjzLemSA9QiicFaAexf7qirZ5EcpVgLFaiNsotrx0dDwoXvGJ
+         q7Prxa9NJ6sZqayHMY68QypkTIBFC1bK8Y3b0yHEcErVqhBzNKwJxDSOIdKioRhjsH
+         YltW5v5RzR5esMFJFTFR4psSsoAPxZUtlJ5PdfB3pvMMNxSO01hg983Vikbni6ehyR
+         LCSdp0USajVzg==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=94yBqneQ9Lj342QeW9TDCvZXFWBiR0sn8rxyuOp0TBc=;
- b=S4Vd5tYgdcrXzOQ3bEgFj+/IfpPK7in4gr0tMFqxld8FtkVDWIMnqStvA34RTxtvHI06mX9BwCcA/7W5r5lG01Vswzj5DzeYMFWLnfj5prbrPnSersMZdGJzfLBHHZLfiEqMhxG+0JCQg6MA1UdSKZNObVrmIeTR0nuYUC/Ww1k=
+ bh=Gd2cDNip62Ji14ds4OdoQBlo1z5VlqewCRbyiVCpDNg=;
+ b=ldIZkLcxPRkjGLN/+/2pAhw1+InAMKNlkCA8Y6E5BfxxY2WBYXLjS8860mR5z4I8cJHX//SVIMLPc7zEnamTHxUZyNvwyiXhEvqUGBpk/N+pBWMPJmedl98rnrfol2tHqTK9ELN+mMDdUeNcfK9asfKwEM2OYkxrnYBkeUh9fI8=
 In-Reply-To: <2b298e8c-e6fc-a973-9f42-b6a88e92838a@kernel.org>
 Content-Language: en-US
-Content-ID: <8AEF97A884463F49BD330A84DD8259EB@namprd12.prod.outlook.com>
+Content-ID: <449DE09BAE01DB419F0D7A0AFD51E943@namprd12.prod.outlook.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Vineet Gupta <vgupta@kernel.org>, Arnd Bergmann <arnd@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
@@ -54,6 +54,17 @@ aW5zdGVhZCwgYW5kIHVzZSBqdXN0IGENCj4+IHdyaXRlYmFjayBiZWZvcmUgdGhlIERNQSB3aGVu
 IHdlIGRvIHRoZSBpbnZhbGlkYXRlIGFmdGVyd2FyZHMuDQo+Pg0KPj4gU2lnbmVkLW9mZi1ieTog
 QXJuZCBCZXJnbWFubjxhcm5kQGFybmRiLmRlPg0KPiANCj4gUmV2aWV3ZWQtYnk6IFZpbmVldCBH
 dXB0YSA8dmd1cHRhQGtlcm5lbC5vcmc+DQo+IA0KPiBTaGFoYWIgY2FuIHlvdSBnaXZlIHRoaXMg
-YSBzcGluIG9uIGhzZGsgLSBydW4gZ2xpYmMgdGVzdHN1aXRlIG92ZXIgc3NoIGFuZCBtYWtlIHN1
-cmUgbm90aGluZyBzdHJhbmdlIGhhcHBlbnMuDQo+IA0KPiBUaHgsDQo+IC1WaW5lZXQNCg0KT24g
-aXQuDQotLSANClNoYWhhYg0KDQo=
+YSBzcGluIG9uIGhzZGsgLSBydW4gZ2xpYmMgdGVzdHN1aXRlIG92ZXIgc3NoDQo+IGFuZCBtYWtl
+IHN1cmUgbm90aGluZyBzdHJhbmdlIGhhcHBlbnMuDQo+IA0KPiBUaHgsDQo+IC1WaW5lZXQNCg0K
+VGVzdGVkLWJ5OiBTaGFoYWIgVmFoZWRpIDxzaGFoYWJAc3lub3BzeXMuY29tPg0KDQpObyByZWdy
+ZXNzaW9uIHdhcyBvYnNlcnZlZCBmb3IgdGhlIEFSQyB0YXJnZXQgYmVmb3JlIGFuZCBhZnRlciBh
+cHBseWluZw0KdGhlc2UgMjEgcGF0Y2hlcy4gVGhlIHRlc3QgZW52aXJvbm1lbnQgYW5kIGl0cyBz
+dW1tYXJ5IGZvbGxvdy4NCg0KYm9hcmQ6ICBBUkMgSFNESw0KYmFzZTogICByZXBvOiAgIGxpbnV4
+LW5leHQNCiAgICAgICAgdGFnOiAgICBuZXh0LTIwMjMwNDAzDQogICAgICAgIGNvbW1pdDogMzFi
+ZDM1YjY2MjQ5IEFkZCBsaW51eC1uZXh0IHNwZWNpZmljIGZpbGVzIGZvciAyMDIzMDQwMw0KaG90
+Zml4OiBuZXQ6IHN0bW1hYzogY2hlY2sgZndub2RlIGZvciBwaHkgZGV2aWNlIGJlZm9yZSBzY2Fu
+bmluZyBmb3IgcGh5IFsxXQ0KZ2xpYmM6ICAyLjM3DQoNClN1bW1hcnkgb2YgdGVzdCByZXN1bHRz
+Og0KICAgICAyMCBGQUlMDQogICA0MjI3IFBBU1MNCiAgICAgMzggVU5TVVBQT1JURUQNCiAgICAg
+MTYgWEZBSUwNCiAgICAgIDIgWFBBU1MNCg0KWzFdDQpodHRwczovL2xvcmUua2VybmVsLm9yZy9s
+a21sLzIwMjMwNDA1MDkzOTQ1LjM1NDk0OTEtMS1taWNoYWVsLndlaS5ob25nLnNpdEBpbnRlbC5j
+b20vI3INCg0KLS0gDQpTaGFoYWINCg0K
