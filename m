@@ -1,76 +1,117 @@
-From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH 30/33] sparc64: Convert various functions to use ptdescs
-Date: Mon, 17 Apr 2023 13:50:45 -0700
-Message-ID: <20230417205048.15870-31-vishal.moola@gmail.com>
-References: <20230417205048.15870-1-vishal.moola@gmail.com>
+From: kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH 24/33] m68k: Convert various functions to use ptdescs
+Date: Tue, 18 Apr 2023 06:18:32 +0800
+Message-ID: <202304180652.LeoLmaNQ-lkp@intel.com>
+References: <20230417205048.15870-25-vishal.moola@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681764807; x=1684356807;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uIsUNYOwSPNxjYFxvF4LgB4Ah8JH2T7Nmtlw8Cz+gsw=;
-        b=fsz9HBXpyixYv0zGEIQNfLPb4EjMqtI/28pihon+vRduZpglxs4kGo7QlnsgzbeVep
-         MUefXrtmBIPAEKph1/xE0Hixz+XFSj9eLb4OXqcCPGwVWZta2b+6OV8DcUNUc3MYWho8
-         foQqBfLzT6QF4GBhL/zISw/ZQfIxqSnZu2sd2q6CE2U54ygVclXX08i47edCNHvoHxB+
-         sBBNY+ovhIlsXyYoYKNVSm2boGQ3Di1szM5293gnTSGOnWYTxtAAUVimXGr6dZV0Zyrz
-         TtkMrcCltGZOVK2SbO9vEj4TQWwRgKIU6/H0ozoMQVL6Kfmq0ZrnJgq0p7Ga0/De5Qi0
-         sDcA==
-In-Reply-To: <20230417205048.15870-1-vishal.moola@gmail.com>
+Return-path: <linux-m68k-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1681769967; x=1713305967;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=yMAw32GB6bnYHTIaJx+3YJu4UkN11Fi/gjV1eDLzAFs=;
+  b=U4y6l+zk0G8oVOCICjBZTTf4J4axDVRf2kWd14Hy2EzOhYbdtro8qFHu
+   9gUItQ0X2dmm30doQesI2t9GSRV3G822z5muUvZOgrWpLGpcXb8w+7psb
+   QCJSHtwkE6SQW+/fD7JskbJDpXQhJVO4s/4o5Ksh7lGhtlKY8tGpoKppz
+   QOkrZ16F8CNHBsRd+V1XwLbV1J8ndEALvWvK9B2MBJa4kW7TYKKf3ltKb
+   O/4a931nN346EJjuIc1xzh6Tsw4hl1EkTD4j9u1YPcQYJnQOad4+nrb2n
+   Q92Nyfh/TJchIQMfNShYaGXN4Z56ufx/ZVwNis9roAU6Ub4qa9rKo4/Rv
+   g==;
+Content-Disposition: inline
+In-Reply-To: <20230417205048.15870-25-vishal.moola@gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
-Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Content-Transfer-Encoding: 7bit
+To: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
+Cc: oe-kbuild-all@lists.linux.dev, Linux Memory Management List <linux-mm@kvack.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 
-As part of the conversions to replace pgtable constructor/destructors with
-ptdesc equivalents, convert various page table functions to use ptdescs.
+Hi Vishal,
 
-Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
----
- arch/sparc/mm/init_64.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+kernel test robot noticed the following build warnings:
 
-diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-index 04f9db0c3111..eedb3e03b1fe 100644
---- a/arch/sparc/mm/init_64.c
-+++ b/arch/sparc/mm/init_64.c
-@@ -2893,14 +2893,15 @@ pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
- 
- pgtable_t pte_alloc_one(struct mm_struct *mm)
- {
--	struct page *page = alloc_page(GFP_KERNEL | __GFP_ZERO);
--	if (!page)
-+	struct ptdesc *ptdesc = ptdesc_alloc(GFP_KERNEL | __GFP_ZERO, 0);
-+
-+	if (!ptdesc)
- 		return NULL;
--	if (!pgtable_pte_page_ctor(page)) {
--		__free_page(page);
-+	if (!ptdesc_pte_ctor(ptdesc)) {
-+		ptdesc_free(ptdesc);
- 		return NULL;
- 	}
--	return (pte_t *) page_address(page);
-+	return (pte_t *) ptdesc_address(ptdesc);
- }
- 
- void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-@@ -2910,10 +2911,10 @@ void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
- 
- static void __pte_free(pgtable_t pte)
- {
--	struct page *page = virt_to_page(pte);
-+	struct ptdesc *ptdesc = virt_to_ptdesc(pte);
- 
--	pgtable_pte_page_dtor(page);
--	__free_page(page);
-+	ptdesc_pte_dtor(ptdesc);
-+	ptdesc_free(ptdesc);
- }
- 
- void pte_free(struct mm_struct *mm, pgtable_t pte)
+[auto build test WARNING on akpm-mm/mm-everything]
+[also build test WARNING on next-20230417]
+[cannot apply to s390/features powerpc/next powerpc/fixes geert-m68k/for-next geert-m68k/for-linus linus/master v6.3-rc7]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Vishal-Moola-Oracle/s390-Use-_pt_s390_gaddr-for-gmap-address-tracking/20230418-045832
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
+patch link:    https://lore.kernel.org/r/20230417205048.15870-25-vishal.moola%40gmail.com
+patch subject: [PATCH 24/33] m68k: Convert various functions to use ptdescs
+config: m68k-allyesconfig (https://download.01.org/0day-ci/archive/20230418/202304180652.LeoLmaNQ-lkp@intel.com/config)
+compiler: m68k-linux-gcc (GCC) 12.1.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/630b38053b213e6138d3deb3e4325b24ad6dcb1f
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Vishal-Moola-Oracle/s390-Use-_pt_s390_gaddr-for-gmap-address-tracking/20230418-045832
+        git checkout 630b38053b213e6138d3deb3e4325b24ad6dcb1f
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=m68k olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=m68k SHELL=/bin/bash arch/m68k/mm/
+
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Link: https://lore.kernel.org/oe-kbuild-all/202304180652.LeoLmaNQ-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   arch/m68k/mm/motorola.c: In function 'free_pointer_table':
+>> arch/m68k/mm/motorola.c:204:56: warning: passing argument 1 of 'virt_to_ptdesc' makes pointer from integer without a cast [-Wint-conversion]
+     204 |                         ptdesc_pte_dtor(virt_to_ptdesc(page));
+         |                                                        ^~~~
+         |                                                        |
+         |                                                        long unsigned int
+   In file included from arch/m68k/mm/motorola.c:15:
+   include/linux/mm.h:2721:57: note: expected 'const void *' but argument is of type 'long unsigned int'
+    2721 | static inline struct ptdesc *virt_to_ptdesc(const void *x)
+         |                                             ~~~~~~~~~~~~^
+   arch/m68k/mm/motorola.c: At top level:
+   arch/m68k/mm/motorola.c:418:13: warning: no previous prototype for 'paging_init' [-Wmissing-prototypes]
+     418 | void __init paging_init(void)
+         |             ^~~~~~~~~~~
+
+
+vim +/virt_to_ptdesc +204 arch/m68k/mm/motorola.c
+
+   185	
+   186	int free_pointer_table(void *table, int type)
+   187	{
+   188		ptable_desc *dp;
+   189		unsigned long ptable = (unsigned long)table;
+   190		unsigned long page = ptable & PAGE_MASK;
+   191		unsigned int mask = 1U << ((ptable - page)/ptable_size(type));
+   192	
+   193		dp = PD_PTABLE(page);
+   194		if (PD_MARKBITS (dp) & mask)
+   195			panic ("table already free!");
+   196	
+   197		PD_MARKBITS (dp) |= mask;
+   198	
+   199		if (PD_MARKBITS(dp) == ptable_mask(type)) {
+   200			/* all tables in page are free, free page */
+   201			list_del(dp);
+   202			mmu_page_dtor((void *)page);
+   203			if (type == TABLE_PTE)
+ > 204				ptdesc_pte_dtor(virt_to_ptdesc(page));
+   205			free_page (page);
+   206			return 1;
+   207		} else if (ptable_list[type].next != dp) {
+   208			/*
+   209			 * move this descriptor to the front of the list, since
+   210			 * it has one or more free tables.
+   211			 */
+   212			list_move(dp, &ptable_list[type]);
+   213		}
+   214		return 0;
+   215	}
+   216	
+
 -- 
-2.39.2
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
