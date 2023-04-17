@@ -1,151 +1,70 @@
 From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH 04/33] mm: add utility functions for ptdesc
-Date: Mon, 17 Apr 2023 13:50:19 -0700
-Message-ID: <20230417205048.15870-5-vishal.moola@gmail.com>
+Subject: [PATCH 05/33] mm: Convert pmd_pgtable_page() to pmd_ptdesc()
+Date: Mon, 17 Apr 2023 13:50:20 -0700
+Message-ID: <20230417205048.15870-6-vishal.moola@gmail.com>
 References: <20230417205048.15870-1-vishal.moola@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-m68k-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681764771; x=1684356771;
+        d=gmail.com; s=20221208; t=1681764772; x=1684356772;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=73w88W+Bv7iZwJaXp6X3OPD7H4X7IV5/5eDbDnIxbNE=;
-        b=W9nPVyoXWKBUEnGfTyhkHARBTsZqdpJrkrNTKo667lyZEzjN6PxmFbbY0YylZMq9yl
-         YfrdFmghyeO5HwXhYCrYBTje7eKqSW91jSFSDlT0dbMWvyCEN9ttpAXe7AFMT1oxAH0K
-         BCnetbVzBpycS1Tax/m+o/Gfxhef/Kkj1D6sF8rcDiRlOa7VvGL8i+xK5Gl2/zoIf4yK
-         M/9RMi7Hd+G3wH7cuJrpgQnusczVewZS29/AobewpqmBg09r8g/9YIIka/gTIbj6DHBc
-         MFg7CjS5kCFyT6XG4/q3MJQ78bnC2QIXJhA82Tu9j9zbgdzbLpx3IE+L7G092ISLAdCE
-         r0mA==
+        bh=BPCTGsUKFtNZ0E2E3gxAeEJL+3qovRd//xVc9xUETqc=;
+        b=IRDdSAScs3TBGztRzu6QZgH4fMR7/UKueaVS3DDhFsZMLZlJQUDaWkKiPXvov39z8Z
+         bssT73UYUy1LP7uOeEalBEo3irDXhaxWlDKHCjJjWa82XbzBt1YrruOwks0GGaa/KE2/
+         kcH9ajFlIINgfw2e+eWdEuaQpWFwhb8tF79JjCU2EAC5A/73X/TUfQV/8mop72+F/v41
+         nZHSSM2ss9/OewEDYIYb1Iz4F1hF7m8KXVNPHD0iWKxsJnaQ4CmjrVdNW0xNgbwEICJR
+         VACO7VFEKZxOIvTtIDcu6wtwdqmMEpSRB4owcroJF6TbGx9VSAN4uiN81drhHklILqhb
+         p9aA==
 In-Reply-To: <20230417205048.15870-1-vishal.moola@gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
 Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 
-Introduce utility functions setting the foundation for ptdescs. These
-will also assist in the splitting out of ptdesc from struct page.
-
-ptdesc_alloc() is defined to allocate new ptdesc pages as compound
-pages. This is to standardize ptdescs by allowing for one allocation
-and one free function, in contrast to 2 allocation and 2 free functions.
+Converts pmd_pgtable_page() to pmd_ptdesc() and all its callers. This
+removes some direct accesses to struct page, working towards splitting
+out struct ptdesc from struct page.
 
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 ---
- include/asm-generic/tlb.h | 11 ++++++++++
- include/linux/mm.h        | 44 +++++++++++++++++++++++++++++++++++++++
- include/linux/pgtable.h   | 13 ++++++++++++
- 3 files changed, 68 insertions(+)
+ include/linux/mm.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index b46617207c93..6bade9e0e799 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -481,6 +481,17 @@ static inline void tlb_remove_page(struct mmu_gather *tlb, struct page *page)
- 	return tlb_remove_page_size(tlb, page, PAGE_SIZE);
- }
- 
-+static inline void tlb_remove_ptdesc(struct mmu_gather *tlb, void *pt)
-+{
-+	tlb_remove_table(tlb, pt);
-+}
-+
-+/* Like tlb_remove_ptdesc, but for page-like page directories. */
-+static inline void tlb_remove_page_ptdesc(struct mmu_gather *tlb, struct ptdesc *pt)
-+{
-+	tlb_remove_page(tlb, ptdesc_page(pt));
-+}
-+
- static inline void tlb_change_page_size(struct mmu_gather *tlb,
- 						     unsigned int page_size)
- {
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index b18848ae7e22..ec3cbe2fa665 100644
+index ec3cbe2fa665..069187e84e35 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
-@@ -2744,6 +2744,45 @@ static inline pmd_t *pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long a
- }
- #endif /* CONFIG_MMU */
+@@ -2892,15 +2892,15 @@ static inline void pgtable_pte_page_dtor(struct page *page)
  
-+static inline struct ptdesc *virt_to_ptdesc(const void *x)
-+{
-+	return page_ptdesc(virt_to_head_page(x));
-+}
-+
-+static inline void *ptdesc_to_virt(struct ptdesc *pt)
-+{
-+	return page_to_virt(ptdesc_page(pt));
-+}
-+
-+static inline void *ptdesc_address(struct ptdesc *pt)
-+{
-+	return folio_address(ptdesc_folio(pt));
-+}
-+
-+static inline bool ptdesc_is_reserved(struct ptdesc *pt)
-+{
-+	return folio_test_reserved(ptdesc_folio(pt));
-+}
-+
-+static inline struct ptdesc *ptdesc_alloc(gfp_t gfp, unsigned int order)
-+{
-+	struct page *page = alloc_pages(gfp | __GFP_COMP, order);
-+
-+	return page_ptdesc(page);
-+}
-+
-+static inline void ptdesc_free(struct ptdesc *pt)
-+{
-+	struct page *page = ptdesc_page(pt);
-+
-+	__free_pages(page, compound_order(page));
-+}
-+
-+static inline void ptdesc_clear(void *x)
-+{
-+	clear_page(x);
-+}
-+
- #if USE_SPLIT_PTE_PTLOCKS
- #if ALLOC_SPLIT_PTLOCKS
- void __init ptlock_cache_init(void);
-@@ -2970,6 +3009,11 @@ static inline void mark_page_reserved(struct page *page)
- 	adjust_managed_page_count(page, -1);
+ #if USE_SPLIT_PMD_PTLOCKS
+ 
+-static inline struct page *pmd_pgtable_page(pmd_t *pmd)
++static inline struct ptdesc *pmd_ptdesc(pmd_t *pmd)
+ {
+ 	unsigned long mask = ~(PTRS_PER_PMD * sizeof(pmd_t) - 1);
+-	return virt_to_page((void *)((unsigned long) pmd & mask));
++	return virt_to_ptdesc((void *)((unsigned long) pmd & mask));
  }
  
-+static inline void free_reserved_ptdesc(struct ptdesc *pt)
-+{
-+	free_reserved_page(ptdesc_page(pt));
-+}
-+
- /*
-  * Default method to free all the __init memory into the buddy system.
-  * The freed pages will be poisoned with pattern "poison" if it's within
-diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index 7cc6ea057ee9..7cd803aa38eb 100644
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -97,6 +97,19 @@ TABLE_MATCH(ptl, ptl);
- #undef TABLE_MATCH
- static_assert(sizeof(struct ptdesc) <= sizeof(struct page));
+ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
+ {
+-	return ptlock_ptr(pmd_pgtable_page(pmd));
++	return ptlock_ptr(ptdesc_page(pmd_ptdesc(pmd)));
+ }
  
-+#define ptdesc_page(pt)			(_Generic((pt),			\
-+	const struct ptdesc *:		(const struct page *)(pt),	\
-+	struct ptdesc *:		(struct page *)(pt)))
-+
-+#define ptdesc_folio(pt)		(_Generic((pt),			\
-+	const struct ptdesc *:		(const struct folio *)(pt),	\
-+	struct ptdesc *:		(struct folio *)(pt)))
-+
-+static inline struct ptdesc *page_ptdesc(struct page *page)
-+{
-+	return (struct ptdesc *)page;
-+}
-+
- /*
-  * A page table page can be thought of an array like this: pXd_t[PTRS_PER_PxD]
-  *
+ static inline bool pmd_ptlock_init(struct page *page)
+@@ -2919,7 +2919,7 @@ static inline void pmd_ptlock_free(struct page *page)
+ 	ptlock_free(page);
+ }
+ 
+-#define pmd_huge_pte(mm, pmd) (pmd_pgtable_page(pmd)->pmd_huge_pte)
++#define pmd_huge_pte(mm, pmd) (pmd_ptdesc(pmd)->pmd_huge_pte)
+ 
+ #else
+ 
 -- 
 2.39.2
 
