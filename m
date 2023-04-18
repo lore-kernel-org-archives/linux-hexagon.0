@@ -1,25 +1,25 @@
 From: kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH 24/33] m68k: Convert various functions to use ptdescs
-Date: Tue, 18 Apr 2023 06:18:32 +0800
-Message-ID: <202304180652.LeoLmaNQ-lkp@intel.com>
-References: <20230417205048.15870-25-vishal.moola@gmail.com>
+Subject: Re: [PATCH 04/33] mm: add utility functions for ptdesc
+Date: Tue, 18 Apr 2023 09:22:18 +0800
+Message-ID: <202304180913.p1BuXrBb-lkp@intel.com>
+References: <20230417205048.15870-5-vishal.moola@gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-m68k-owner@vger.kernel.org>
+Return-path: <linux-mips-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1681769967; x=1713305967;
+  t=1681780996; x=1713316996;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=yMAw32GB6bnYHTIaJx+3YJu4UkN11Fi/gjV1eDLzAFs=;
-  b=U4y6l+zk0G8oVOCICjBZTTf4J4axDVRf2kWd14Hy2EzOhYbdtro8qFHu
-   9gUItQ0X2dmm30doQesI2t9GSRV3G822z5muUvZOgrWpLGpcXb8w+7psb
-   QCJSHtwkE6SQW+/fD7JskbJDpXQhJVO4s/4o5Ksh7lGhtlKY8tGpoKppz
-   QOkrZ16F8CNHBsRd+V1XwLbV1J8ndEALvWvK9B2MBJa4kW7TYKKf3ltKb
-   O/4a931nN346EJjuIc1xzh6Tsw4hl1EkTD4j9u1YPcQYJnQOad4+nrb2n
-   Q92Nyfh/TJchIQMfNShYaGXN4Z56ufx/ZVwNis9roAU6Ub4qa9rKo4/Rv
-   g==;
+  bh=xxj4orMdwSEXYJlb7suHd8py6WoU3VU9TrspjC7QyJg=;
+  b=LEycVl/XZGccDaguaPWKnazeh8hVy4Qtr/wHPXFgRlVu0gj+asT87lfX
+   SrQmYdbH2siYSARPem4Wyz7eYTjugAT/5GKFZIt+//E8cbuxDv3bHsKDb
+   wbpL9K35u69lBoi/TKBaQwjxbrgiuToIlO1N16a7h+tH0TzIKKllYmPm2
+   ILFpgv/RBu/pYkdmxWl/Zwk07orBvC6RMovrkHgy9rKjlhxVQk9VLECcf
+   6/iOY2VU2CoQhuFqTDt/1XdB5VNNi8pJSZ5W9daNsm2jQJWrRuw13+RUe
+   AHEWC04tYLZDsn3fKJ9wtUVufJAPGNzHLrUv/PFUPIMXTz6+FvJuuIFDH
+   Q==;
 Content-Disposition: inline
-In-Reply-To: <20230417205048.15870-25-vishal.moola@gmail.com>
+In-Reply-To: <20230417205048.15870-5-vishal.moola@gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -28,89 +28,187 @@ Cc: oe-kbuild-all@lists.linux.dev, Linux Memory Management List <linux-mm@kvack.
 
 Hi Vishal,
 
-kernel test robot noticed the following build warnings:
+kernel test robot noticed the following build errors:
 
-[auto build test WARNING on akpm-mm/mm-everything]
-[also build test WARNING on next-20230417]
-[cannot apply to s390/features powerpc/next powerpc/fixes geert-m68k/for-next geert-m68k/for-linus linus/master v6.3-rc7]
+[auto build test ERROR on akpm-mm/mm-everything]
+[also build test ERROR on s390/features powerpc/next powerpc/fixes geert-m68k/for-next geert-m68k/for-linus linus/master v6.3-rc7 next-20230417]
 [If your patch is applied to the wrong git tree, kindly drop us a note.
 And when submitting patch, we suggest to use '--base' as documented in
 https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
 url:    https://github.com/intel-lab-lkp/linux/commits/Vishal-Moola-Oracle/s390-Use-_pt_s390_gaddr-for-gmap-address-tracking/20230418-045832
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
-patch link:    https://lore.kernel.org/r/20230417205048.15870-25-vishal.moola%40gmail.com
-patch subject: [PATCH 24/33] m68k: Convert various functions to use ptdescs
-config: m68k-allyesconfig (https://download.01.org/0day-ci/archive/20230418/202304180652.LeoLmaNQ-lkp@intel.com/config)
-compiler: m68k-linux-gcc (GCC) 12.1.0
+patch link:    https://lore.kernel.org/r/20230417205048.15870-5-vishal.moola%40gmail.com
+patch subject: [PATCH 04/33] mm: add utility functions for ptdesc
+config: sh-allmodconfig (https://download.01.org/0day-ci/archive/20230418/202304180913.p1BuXrBb-lkp@intel.com/config)
+compiler: sh4-linux-gcc (GCC) 12.1.0
 reproduce (this is a W=1 build):
         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
         chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/630b38053b213e6138d3deb3e4325b24ad6dcb1f
+        # https://github.com/intel-lab-lkp/linux/commit/1b6f8137ca50a543ad2937092836635ca58c78ce
         git remote add linux-review https://github.com/intel-lab-lkp/linux
         git fetch --no-tags linux-review Vishal-Moola-Oracle/s390-Use-_pt_s390_gaddr-for-gmap-address-tracking/20230418-045832
-        git checkout 630b38053b213e6138d3deb3e4325b24ad6dcb1f
+        git checkout 1b6f8137ca50a543ad2937092836635ca58c78ce
         # save the config file
         mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=m68k olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=m68k SHELL=/bin/bash arch/m68k/mm/
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=sh olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=sh prepare
 
 If you fix the issue, kindly add following tag where applicable
 | Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202304180652.LeoLmaNQ-lkp@intel.com/
+| Link: https://lore.kernel.org/oe-kbuild-all/202304180913.p1BuXrBb-lkp@intel.com/
 
-All warnings (new ones prefixed by >>):
+All error/warnings (new ones prefixed by >>):
 
-   arch/m68k/mm/motorola.c: In function 'free_pointer_table':
->> arch/m68k/mm/motorola.c:204:56: warning: passing argument 1 of 'virt_to_ptdesc' makes pointer from integer without a cast [-Wint-conversion]
-     204 |                         ptdesc_pte_dtor(virt_to_ptdesc(page));
-         |                                                        ^~~~
-         |                                                        |
-         |                                                        long unsigned int
-   In file included from arch/m68k/mm/motorola.c:15:
-   include/linux/mm.h:2721:57: note: expected 'const void *' but argument is of type 'long unsigned int'
-    2721 | static inline struct ptdesc *virt_to_ptdesc(const void *x)
-         |                                             ~~~~~~~~~~~~^
-   arch/m68k/mm/motorola.c: At top level:
-   arch/m68k/mm/motorola.c:418:13: warning: no previous prototype for 'paging_init' [-Wmissing-prototypes]
-     418 | void __init paging_init(void)
-         |             ^~~~~~~~~~~
+   In file included from arch/sh/kernel/asm-offsets.c:14:
+   include/linux/mm.h: In function 'virt_to_ptdesc':
+>> include/linux/mm.h:2723:16: error: implicit declaration of function 'page_ptdesc' [-Werror=implicit-function-declaration]
+    2723 |         return page_ptdesc(virt_to_head_page(x));
+         |                ^~~~~~~~~~~
+>> include/linux/mm.h:2723:16: warning: returning 'int' from a function with return type 'struct ptdesc *' makes pointer from integer without a cast [-Wint-conversion]
+    2723 |         return page_ptdesc(virt_to_head_page(x));
+         |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   In file included from arch/sh/include/asm/thread_info.h:13,
+                    from include/linux/thread_info.h:60,
+                    from include/asm-generic/preempt.h:5,
+                    from ./arch/sh/include/generated/asm/preempt.h:1,
+                    from include/linux/preempt.h:78,
+                    from include/linux/spinlock.h:56,
+                    from include/linux/mmzone.h:8,
+                    from include/linux/gfp.h:7,
+                    from include/linux/mm.h:7:
+   include/linux/mm.h: In function 'ptdesc_to_virt':
+>> include/linux/mm.h:2728:29: error: implicit declaration of function 'ptdesc_page'; did you mean 'pte_page'? [-Werror=implicit-function-declaration]
+    2728 |         return page_to_virt(ptdesc_page(pt));
+         |                             ^~~~~~~~~~~
+   arch/sh/include/asm/page.h:139:27: note: in definition of macro '___va'
+     139 | #define ___va(x)        ((x)+PAGE_OFFSET)
+         |                           ^
+   include/linux/mm.h:117:25: note: in expansion of macro '__va'
+     117 | #define page_to_virt(x) __va(PFN_PHYS(page_to_pfn(x)))
+         |                         ^~~~
+   include/linux/mm.h:117:30: note: in expansion of macro 'PFN_PHYS'
+     117 | #define page_to_virt(x) __va(PFN_PHYS(page_to_pfn(x)))
+         |                              ^~~~~~~~
+   include/asm-generic/memory_model.h:64:21: note: in expansion of macro '__page_to_pfn'
+      64 | #define page_to_pfn __page_to_pfn
+         |                     ^~~~~~~~~~~~~
+   include/linux/mm.h:2728:16: note: in expansion of macro 'page_to_virt'
+    2728 |         return page_to_virt(ptdesc_page(pt));
+         |                ^~~~~~~~~~~~
+>> include/asm-generic/memory_model.h:46:35: warning: initialization of 'const struct page *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+      46 | ({      const struct page *__pg = (pg);                         \
+         |                                   ^
+   arch/sh/include/asm/page.h:139:27: note: in definition of macro '___va'
+     139 | #define ___va(x)        ((x)+PAGE_OFFSET)
+         |                           ^
+   include/linux/mm.h:117:25: note: in expansion of macro '__va'
+     117 | #define page_to_virt(x) __va(PFN_PHYS(page_to_pfn(x)))
+         |                         ^~~~
+   include/linux/mm.h:117:30: note: in expansion of macro 'PFN_PHYS'
+     117 | #define page_to_virt(x) __va(PFN_PHYS(page_to_pfn(x)))
+         |                              ^~~~~~~~
+   include/asm-generic/memory_model.h:64:21: note: in expansion of macro '__page_to_pfn'
+      64 | #define page_to_pfn __page_to_pfn
+         |                     ^~~~~~~~~~~~~
+   include/linux/mm.h:117:39: note: in expansion of macro 'page_to_pfn'
+     117 | #define page_to_virt(x) __va(PFN_PHYS(page_to_pfn(x)))
+         |                                       ^~~~~~~~~~~
+   include/linux/mm.h:2728:16: note: in expansion of macro 'page_to_virt'
+    2728 |         return page_to_virt(ptdesc_page(pt));
+         |                ^~~~~~~~~~~~
+   include/linux/mm.h: In function 'ptdesc_address':
+>> include/linux/mm.h:2733:30: error: implicit declaration of function 'ptdesc_folio'; did you mean 'page_folio'? [-Werror=implicit-function-declaration]
+    2733 |         return folio_address(ptdesc_folio(pt));
+         |                              ^~~~~~~~~~~~
+         |                              page_folio
+>> include/linux/mm.h:2733:30: warning: passing argument 1 of 'folio_address' makes pointer from integer without a cast [-Wint-conversion]
+    2733 |         return folio_address(ptdesc_folio(pt));
+         |                              ^~~~~~~~~~~~~~~~
+         |                              |
+         |                              int
+   include/linux/mm.h:2151:55: note: expected 'const struct folio *' but argument is of type 'int'
+    2151 | static inline void *folio_address(const struct folio *folio)
+         |                                   ~~~~~~~~~~~~~~~~~~~~^~~~~
+   include/linux/mm.h: In function 'ptdesc_is_reserved':
+>> include/linux/mm.h:2738:36: warning: passing argument 1 of 'folio_test_reserved' makes pointer from integer without a cast [-Wint-conversion]
+    2738 |         return folio_test_reserved(ptdesc_folio(pt));
+         |                                    ^~~~~~~~~~~~~~~~
+         |                                    |
+         |                                    int
+   In file included from include/linux/mmzone.h:23:
+   include/linux/page-flags.h:375:62: note: expected 'struct folio *' but argument is of type 'int'
+     375 | static __always_inline bool folio_test_##lname(struct folio *folio)     \
+         |                                                ~~~~~~~~~~~~~~^~~~~
+   include/linux/page-flags.h:423:9: note: in expansion of macro 'TESTPAGEFLAG'
+     423 |         TESTPAGEFLAG(uname, lname, policy)                              \
+         |         ^~~~~~~~~~~~
+   include/linux/page-flags.h:494:1: note: in expansion of macro 'PAGEFLAG'
+     494 | PAGEFLAG(Reserved, reserved, PF_NO_COMPOUND)
+         | ^~~~~~~~
+   include/linux/mm.h: In function 'ptdesc_alloc':
+   include/linux/mm.h:2745:16: warning: returning 'int' from a function with return type 'struct ptdesc *' makes pointer from integer without a cast [-Wint-conversion]
+    2745 |         return page_ptdesc(page);
+         |                ^~~~~~~~~~~~~~~~~
+   include/linux/mm.h: In function 'ptdesc_free':
+>> include/linux/mm.h:2750:29: warning: initialization of 'struct page *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+    2750 |         struct page *page = ptdesc_page(pt);
+         |                             ^~~~~~~~~~~
+   include/linux/mm.h: In function 'free_reserved_ptdesc':
+>> include/linux/mm.h:2988:28: warning: passing argument 1 of 'free_reserved_page' makes pointer from integer without a cast [-Wint-conversion]
+    2988 |         free_reserved_page(ptdesc_page(pt));
+         |                            ^~~~~~~~~~~~~~~
+         |                            |
+         |                            int
+   include/linux/mm.h:2971:52: note: expected 'struct page *' but argument is of type 'int'
+    2971 | static inline void free_reserved_page(struct page *page)
+         |                                       ~~~~~~~~~~~~~^~~~
+   cc1: some warnings being treated as errors
+   make[2]: *** [scripts/Makefile.build:114: arch/sh/kernel/asm-offsets.s] Error 1
+   make[2]: Target 'prepare' not remade because of errors.
+   make[1]: *** [Makefile:1286: prepare0] Error 2
+   make[1]: Target 'prepare' not remade because of errors.
+   make: *** [Makefile:226: __sub-make] Error 2
+   make: Target 'prepare' not remade because of errors.
 
 
-vim +/virt_to_ptdesc +204 arch/m68k/mm/motorola.c
+vim +/page_ptdesc +2723 include/linux/mm.h
 
-   185	
-   186	int free_pointer_table(void *table, int type)
-   187	{
-   188		ptable_desc *dp;
-   189		unsigned long ptable = (unsigned long)table;
-   190		unsigned long page = ptable & PAGE_MASK;
-   191		unsigned int mask = 1U << ((ptable - page)/ptable_size(type));
-   192	
-   193		dp = PD_PTABLE(page);
-   194		if (PD_MARKBITS (dp) & mask)
-   195			panic ("table already free!");
-   196	
-   197		PD_MARKBITS (dp) |= mask;
-   198	
-   199		if (PD_MARKBITS(dp) == ptable_mask(type)) {
-   200			/* all tables in page are free, free page */
-   201			list_del(dp);
-   202			mmu_page_dtor((void *)page);
-   203			if (type == TABLE_PTE)
- > 204				ptdesc_pte_dtor(virt_to_ptdesc(page));
-   205			free_page (page);
-   206			return 1;
-   207		} else if (ptable_list[type].next != dp) {
-   208			/*
-   209			 * move this descriptor to the front of the list, since
-   210			 * it has one or more free tables.
-   211			 */
-   212			list_move(dp, &ptable_list[type]);
-   213		}
-   214		return 0;
-   215	}
-   216	
+  2720	
+  2721	static inline struct ptdesc *virt_to_ptdesc(const void *x)
+  2722	{
+> 2723		return page_ptdesc(virt_to_head_page(x));
+  2724	}
+  2725	
+  2726	static inline void *ptdesc_to_virt(struct ptdesc *pt)
+  2727	{
+> 2728		return page_to_virt(ptdesc_page(pt));
+  2729	}
+  2730	
+  2731	static inline void *ptdesc_address(struct ptdesc *pt)
+  2732	{
+> 2733		return folio_address(ptdesc_folio(pt));
+  2734	}
+  2735	
+  2736	static inline bool ptdesc_is_reserved(struct ptdesc *pt)
+  2737	{
+> 2738		return folio_test_reserved(ptdesc_folio(pt));
+  2739	}
+  2740	
+  2741	static inline struct ptdesc *ptdesc_alloc(gfp_t gfp, unsigned int order)
+  2742	{
+  2743		struct page *page = alloc_pages(gfp | __GFP_COMP, order);
+  2744	
+  2745		return page_ptdesc(page);
+  2746	}
+  2747	
+  2748	static inline void ptdesc_free(struct ptdesc *pt)
+  2749	{
+> 2750		struct page *page = ptdesc_page(pt);
+  2751	
+  2752		__free_pages(page, compound_order(page));
+  2753	}
+  2754	
 
 -- 
 0-DAY CI Kernel Test Service
