@@ -1,181 +1,77 @@
-From: Vernon Yang <vernon2gm@gmail.com>
-Subject: Re: [PATCH 4/33] mm: add utility functions for ptdesc
-Date: Wed, 19 Apr 2023 21:33:54 +0800
-Message-ID: <ZD/syK8RYO9FZ6ks@vernon-pc>
-References: <20230417205048.15870-1-vishal.moola@gmail.com>
- <20230417205048.15870-5-vishal.moola@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Palmer Dabbelt <palmer@dabbelt.com>
+Subject: Re: [PATCH 09/21] riscv: dma-mapping: skip invalidation before bidirectional DMA
+Date: Wed, 19 Apr 2023 07:22:51 -0700 (PDT)
+Message-ID: <mhng-7529cf5a-4397-456f-b610-faa619d4faca@palmer-ri-x1c9>
+References: <20230327121317.4081816-10-arnd@kernel.org>
+Mime-Version: 1.0 (MHng)
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org>
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=x/sNFN2bqHt/HIOXhdphmNGhcjS/NoGI23RjVmFZe5Y=; b=l4k/dM6GINl7PF
-	FbZ/BRuEaeWF1OyGjMin7czUbx6ggT3KfBWMKnFMcLMwHmQ+cUSiQ5bamGgLTweZ9a3wlgOT1HDNL
-	3u28dQ4BPceM+JZIcZxBSkWAjsCl+8vKksor3+gy2hdA23+h7H5NYLB0zc7b3j5t1tkn0E06Ch9KW
-	7Rr5uiFXMA14/Z6Dj9jRw1o0sI8e/ZQuMug50gzL690tqZWQrGEsYNwdeg6TF2H4i0YbE3YY7wwGJ
-	n84SY86VZvkXuhJC2stFOiKoHErGWAdYb4itKszITFqwItTJ1TkPt9VyCECAxDZi5LokJxzmC10vD
-	kv7VZwmsuulWwOCX3hmw==;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
+	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
+	List-Unsubscribe:List-Id:Mime-Version:Message-ID:To:From:CC:In-Reply-To:
+	Subject:Date:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:List-Owner;
+	bh=MUSjTlH259eL/MXcjOW5jyIacESSHgnNU108jNWCL6w=; b=qoy+opnw6vIDjHF0R/h7wA07iG
+	u4V91C9O4W+NYaUsBrbII+4ixQuZN2eO6SWLv/EawO6MHMkZ5ZYxzQjY6dw0KgkxbqIA5AFudztkY
+	T+PrOBnNQ8l8pSWadZQXi8edyKv2UBLTdkK1tfz+wrUtNA/Wakl96zBtLquo/fZ6ncaRB2n2oF3oB
+	ZeIDcFcJUlUqaU4RK7X+oXOfJ2nEZ3IOgRTkromKgyN+ALA1z5UUDDS6t1nrncBj+ih4hpAjmRy4j
+	psV1AP37n5MDS2LgSLw0VGAcJFOpGGZ4/24vv4/IXqegEosD3G+ZXMuuy4HFM0Z8ZVQPZurC06c/q
+	+p2VzpLA==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681911243; x=1684503243;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=PxKBdJz6P62xw3o1oOHy6gvL/UmSXqmJ0vRsGDHfXz4=;
-        b=mzt7zUu9/LUJvSIPaNj+nC+ArFvk3Wmz36d7P4hExfQnu/+5EJ/luadmhJCFNiq8eA
-         5mamh3uH/3u0VIJzJy4W31TNXYt1DvfBn6ZHGOaQZO/LaodxyaE7yMJE8BXQrMBetDD1
-         or6ct0PxWqhNSzFTI7QUR0GNkBsKZpZ79DqaN9iIdwxdDsEv8FenNeci7+RSvuikuLAT
-         68J4r2aw28njQbzjpScT2QNoBA3X+SSSqlRvn9uiCaccB9t2Uwb/G4C4D/IZDIaojb9q
-         azW1GR2HjveVXh0qkoLiSeS/y+b+MPHfKKr5FHg+1Fk7e61fzU4VCdWEM74x3aiYuZwi
-         ZxNA==
-Content-Disposition: inline
-In-Reply-To: <20230417205048.15870-5-vishal.moola@gmail.com>
+        d=dabbelt-com.20221208.gappssmtp.com; s=20221208; t=1681914172; x=1684506172;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=IvT99d3vu2s9u2HdXHuOsCskK0/5VChFq+aBcaoQwKM=;
+        b=eJ51Lyhme8n3XB+0k6fcBFov9PY8/EUmTR8+nuSaGr7xBsijqIoLjwhsLzVxYH/nx0
+         wauVowtfzqnaLMg0Md06tjLXI3lWkSGzsXedNOsMpQwkDCNvEtBTyQ19M/Yyo6D06BSV
+         XNjXn0CGdLZl3nFWqDjNax+yB6CXLq01SwKNwyDS36uGnLYxQFXzNQuK/+7hScqPlZwX
+         z+agJw/VCIGMUixwVDzm2XMnLSn8GR3DsnMXY+jrQCfbr9O1Le1uXDKTi2rYkt7oJ2Ce
+         tyNNGrxSj0L54sdbIeiSTDtndMc3YiWnjyxMJLeRw/TsNRHsyFeDM9KNzzDNKUVPs4Et
+         pKOQ==
+In-Reply-To: <20230327121317.4081816-10-arnd@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-um>,
- <mailto:linux-um-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-um/>
-List-Post: <mailto:linux-um@lists.infradead.org>
-List-Help: <mailto:linux-um-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-um>,
- <mailto:linux-um-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-um" <linux-um-bounces@lists.infradead.org>
-Errors-To: linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org
-To: Vishal Moola <vishal.moola@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: arnd@kernel.org
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, vgupta@kernel.org, linux@armlinux.org.uk, neil.armstrong@linaro.org, linus.walleij@linaro.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, guoren@kernel.org, bcain@quicinc.com, geert@linux-m68k.org, monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org, shorne@gmail.com, deller@gmx.de, mpe@ellerman.id.au, christophe.leroy@csgroup.eu, Paul Walmsley <paul.walmsley@sifive.com>, dalias@libc.org, glaubitz@physik.fu-berlin.de, davem@davemloft.net, jcmvbkbc@gmail.com, Christoph Hellwig <hch@lst.de>, robin.murphy@arm.com, prabhakar.mahadev-lad.rj@bp.renesas.com, Conor Dooley <conor.dooley@microchip.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-oxnas@groups.io, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists
 
-On Mon, Apr 17, 2023 at 01:50:19PM -0700, Vishal Moola wrote:
-> Introduce utility functions setting the foundation for ptdescs. These
-> will also assist in the splitting out of ptdesc from struct page.
+On Mon, 27 Mar 2023 05:13:05 PDT (-0700), arnd@kernel.org wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 >
-> ptdesc_alloc() is defined to allocate new ptdesc pages as compound
-> pages. This is to standardize ptdescs by allowing for one allocation
-> and one free function, in contrast to 2 allocation and 2 free functions.
+> For a DMA_BIDIRECTIONAL transfer, the caches have to be cleaned
+> first to let the device see data written by the CPU, and invalidated
+> after the transfer to let the CPU see data written by the device.
 >
-> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> riscv also invalidates the caches before the transfer, which does
+> not appear to serve any purpose.
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
->  include/asm-generic/tlb.h | 11 ++++++++++
->  include/linux/mm.h        | 44 +++++++++++++++++++++++++++++++++++++++
->  include/linux/pgtable.h   | 13 ++++++++++++
->  3 files changed, 68 insertions(+)
+>  arch/riscv/mm/dma-noncoherent.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-> index b46617207c93..6bade9e0e799 100644
-> --- a/include/asm-generic/tlb.h
-> +++ b/include/asm-generic/tlb.h
-> @@ -481,6 +481,17 @@ static inline void tlb_remove_page(struct mmu_gather *tlb, struct page *page)
->  	return tlb_remove_page_size(tlb, page, PAGE_SIZE);
->  }
->
-> +static inline void tlb_remove_ptdesc(struct mmu_gather *tlb, void *pt)
-> +{
-> +	tlb_remove_table(tlb, pt);
-> +}
-> +
-> +/* Like tlb_remove_ptdesc, but for page-like page directories. */
-> +static inline void tlb_remove_page_ptdesc(struct mmu_gather *tlb, struct ptdesc *pt)
-> +{
-> +	tlb_remove_page(tlb, ptdesc_page(pt));
-> +}
-> +
->  static inline void tlb_change_page_size(struct mmu_gather *tlb,
->  						     unsigned int page_size)
->  {
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index b18848ae7e22..ec3cbe2fa665 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -2744,6 +2744,45 @@ static inline pmd_t *pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long a
->  }
->  #endif /* CONFIG_MMU */
->
-> +static inline struct ptdesc *virt_to_ptdesc(const void *x)
-> +{
-> +	return page_ptdesc(virt_to_head_page(x));
-> +}
-> +
-> +static inline void *ptdesc_to_virt(struct ptdesc *pt)
-> +{
-> +	return page_to_virt(ptdesc_page(pt));
-> +}
-> +
-> +static inline void *ptdesc_address(struct ptdesc *pt)
-> +{
-> +	return folio_address(ptdesc_folio(pt));
-> +}
-> +
-> +static inline bool ptdesc_is_reserved(struct ptdesc *pt)
-> +{
-> +	return folio_test_reserved(ptdesc_folio(pt));
-> +}
-> +
-> +static inline struct ptdesc *ptdesc_alloc(gfp_t gfp, unsigned int order)
-> +{
-> +	struct page *page = alloc_pages(gfp | __GFP_COMP, order);
-> +
-> +	return page_ptdesc(page);
-> +}
-> +
-> +static inline void ptdesc_free(struct ptdesc *pt)
-> +{
-> +	struct page *page = ptdesc_page(pt);
-> +
-> +	__free_pages(page, compound_order(page));
-> +}
-> +
-> +static inline void ptdesc_clear(void *x)
-> +{
-> +	clear_page(x);
-> +}
-> +
->  #if USE_SPLIT_PTE_PTLOCKS
->  #if ALLOC_SPLIT_PTLOCKS
->  void __init ptlock_cache_init(void);
-> @@ -2970,6 +3009,11 @@ static inline void mark_page_reserved(struct page *page)
->  	adjust_managed_page_count(page, -1);
->  }
->
-> +static inline void free_reserved_ptdesc(struct ptdesc *pt)
-> +{
-> +	free_reserved_page(ptdesc_page(pt));
-> +}
-> +
->  /*
->   * Default method to free all the __init memory into the buddy system.
->   * The freed pages will be poisoned with pattern "poison" if it's within
-> diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-> index 7cc6ea057ee9..7cd803aa38eb 100644
-> --- a/include/linux/pgtable.h
-> +++ b/include/linux/pgtable.h
-> @@ -97,6 +97,19 @@ TABLE_MATCH(ptl, ptl);
->  #undef TABLE_MATCH
->  static_assert(sizeof(struct ptdesc) <= sizeof(struct page));
->
-> +#define ptdesc_page(pt)			(_Generic((pt),			\
-> +	const struct ptdesc *:		(const struct page *)(pt),	\
-> +	struct ptdesc *:		(struct page *)(pt)))
-> +
-> +#define ptdesc_folio(pt)		(_Generic((pt),			\
-> +	const struct ptdesc *:		(const struct folio *)(pt),	\
-> +	struct ptdesc *:		(struct folio *)(pt)))
-> +
-> +static inline struct ptdesc *page_ptdesc(struct page *page)
-> +{
-> +	return (struct ptdesc *)page;
-> +}
+> diff --git a/arch/riscv/mm/dma-noncoherent.c b/arch/riscv/mm/dma-noncoherent.c
+> index 640f4c496d26..69c80b2155a1 100644
+> --- a/arch/riscv/mm/dma-noncoherent.c
+> +++ b/arch/riscv/mm/dma-noncoherent.c
+> @@ -25,7 +25,7 @@ void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+>  		ALT_CMO_OP(clean, vaddr, size, riscv_cbom_block_size);
+>  		break;
+>  	case DMA_BIDIRECTIONAL:
+> -		ALT_CMO_OP(flush, vaddr, size, riscv_cbom_block_size);
+> +		ALT_CMO_OP(clean, vaddr, size, riscv_cbom_block_size);
+>  		break;
+>  	default:
+>  		break;
 
-Hi Vishal,
-
-I'm a little curious, why is the page_ptdesc() using inline functions instead of macro?
-If this is any magic, please tell me, thank you very much.
-
-> +
->  /*
->   * A page table page can be thought of an array like this: pXd_t[PTRS_PER_PxD]
->   *
->
-> --
-> 2.39.2
->
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
