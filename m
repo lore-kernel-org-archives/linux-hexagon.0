@@ -1,109 +1,181 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH 01/33] s390: Use _pt_s390_gaddr for gmap address tracking
-Date: Wed, 19 Apr 2023 09:54:06 +0200
-Message-ID: <e0c0ad67-f23f-ff35-80bf-841dcfd43d99@redhat.com>
+From: Vernon Yang <vernon2gm@gmail.com>
+Subject: Re: [PATCH 4/33] mm: add utility functions for ptdesc
+Date: Wed, 19 Apr 2023 21:33:54 +0800
+Message-ID: <ZD/syK8RYO9FZ6ks@vernon-pc>
 References: <20230417205048.15870-1-vishal.moola@gmail.com>
- <20230417205048.15870-2-vishal.moola@gmail.com>
- <da600570-51c7-8088-b46b-7524c9e66e5d@redhat.com>
- <CAOzc2pwpRhNoFbdzdzuvrqbZdf2OsrTvBGs40QCZJjA5fS_q1A@mail.gmail.com>
+ <20230417205048.15870-5-vishal.moola@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
-	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
-	List-Unsubscribe:List-Id:In-Reply-To:Subject:From:References:Cc:To:
-	MIME-Version:Date:Message-ID:Reply-To:Content-ID:Content-Description:
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=JCBT5N+bSyiSdZtlTvtTWNmDsPQnuPVILdoqRdpWz0w=; b=WXCuW3NTcU3qQ2
-	B9HwUV3SPJ7r8hFd8R77Us5KFwxh/GrtI6wXZqbNHGOoV/eQtCi1sPLoxWqvoMHGFvcTOBKQr5kQC
-	sVKjTJt27ZGKPSP+nRucc5VCEs8ObwiuAj7Li+/MUeazHyWXSzBsw/6KgS6f56lN+Ex+RMADXW9eU
-	kP/raQ6q3GnjjRDDggMY0uGSd4MQspz24/Msa8wxQQlzOxItCKEOpDZJz4ZofKYBChgAfIw5m591v
-	3jnNeukUCSIzQed8HU/eXYzO5Fcod88qJotScblu1ixaKLtdG+fu8SSf0lGQKGVRFro0MT+iUAbB+
-	5d2eVAwSOkj4TI+gY/xw==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1681890853;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Ku4/Si8D6xrlYmDkiBxBM7QW/Zhm4h1GUH6h0hqbhBo=;
-	b=Cla5vpMiSIZ5MOM+7UGd9nWVvOXptu0l43jeZGrATas6+8FjMyfn14Fgp7gvTt+0hIes+w
-	QwdHtUYCx8CYOVcExcScBGm2t3vI3VvievgQXPz05kwqAR2Czo4iMDt3qZlIugSxHfVorL
-	lvG0B2ZsjbTX60EegYqc9foEfZM6B10=
-In-Reply-To: <CAOzc2pwpRhNoFbdzdzuvrqbZdf2OsrTvBGs40QCZJjA5fS_q1A@mail.gmail.com>
-Content-Language: en-US
+	List-Owner; bh=x/sNFN2bqHt/HIOXhdphmNGhcjS/NoGI23RjVmFZe5Y=; b=l4k/dM6GINl7PF
+	FbZ/BRuEaeWF1OyGjMin7czUbx6ggT3KfBWMKnFMcLMwHmQ+cUSiQ5bamGgLTweZ9a3wlgOT1HDNL
+	3u28dQ4BPceM+JZIcZxBSkWAjsCl+8vKksor3+gy2hdA23+h7H5NYLB0zc7b3j5t1tkn0E06Ch9KW
+	7Rr5uiFXMA14/Z6Dj9jRw1o0sI8e/ZQuMug50gzL690tqZWQrGEsYNwdeg6TF2H4i0YbE3YY7wwGJ
+	n84SY86VZvkXuhJC2stFOiKoHErGWAdYb4itKszITFqwItTJ1TkPt9VyCECAxDZi5LokJxzmC10vD
+	kv7VZwmsuulWwOCX3hmw==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681911243; x=1684503243;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=PxKBdJz6P62xw3o1oOHy6gvL/UmSXqmJ0vRsGDHfXz4=;
+        b=mzt7zUu9/LUJvSIPaNj+nC+ArFvk3Wmz36d7P4hExfQnu/+5EJ/luadmhJCFNiq8eA
+         5mamh3uH/3u0VIJzJy4W31TNXYt1DvfBn6ZHGOaQZO/LaodxyaE7yMJE8BXQrMBetDD1
+         or6ct0PxWqhNSzFTI7QUR0GNkBsKZpZ79DqaN9iIdwxdDsEv8FenNeci7+RSvuikuLAT
+         68J4r2aw28njQbzjpScT2QNoBA3X+SSSqlRvn9uiCaccB9t2Uwb/G4C4D/IZDIaojb9q
+         azW1GR2HjveVXh0qkoLiSeS/y+b+MPHfKKr5FHg+1Fk7e61fzU4VCdWEM74x3aiYuZwi
+         ZxNA==
+Content-Disposition: inline
+In-Reply-To: <20230417205048.15870-5-vishal.moola@gmail.com>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-Content-Type: text/plain; charset="windows-1252"; format="flowed"
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-um>,
+ <mailto:linux-um-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-um/>
+List-Post: <mailto:linux-um@lists.infradead.org>
+List-Help: <mailto:linux-um-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-um>,
+ <mailto:linux-um-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-um" <linux-um-bounces@lists.infradead.org>
+Errors-To: linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org
 To: Vishal Moola <vishal.moola@gmail.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org
 
-T24gMTguMDQuMjMgMjM6MzMsIFZpc2hhbCBNb29sYSB3cm90ZToKPiBPbiBUdWUsIEFwciAxOCwg
-MjAyMyBhdCA4OjQ14oCvQU0gRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+IHdy
-b3RlOgo+Pgo+PiBPbiAxNy4wNC4yMyAyMjo1MCwgVmlzaGFsIE1vb2xhIChPcmFjbGUpIHdyb3Rl
-Ogo+Pj4gczM5MCB1c2VzIHBhZ2UtPmluZGV4IHRvIGtlZXAgdHJhY2sgb2YgcGFnZSB0YWJsZXMg
-Zm9yIHRoZSBndWVzdCBhZGRyZXNzCj4+PiBzcGFjZS4gSW4gYW4gYXR0ZW1wdCB0byBjb25zb2xp
-ZGF0ZSB0aGUgdXNhZ2Ugb2YgcGFnZSBmaWVsZHMgaW4gczM5MCwKPj4+IHJlcGxhY2UgX3B0X3Bh
-ZF8yIHdpdGggX3B0X3MzOTBfZ2FkZHIgdG8gcmVwbGFjZSBwYWdlLT5pbmRleCBpbiBnbWFwLgo+
-Pj4KPj4+IFRoaXMgd2lsbCBoZWxwIHdpdGggdGhlIHNwbGl0dGluZyBvZiBzdHJ1Y3QgcHRkZXNj
-IGZyb20gc3RydWN0IHBhZ2UsIGFzCj4+PiB3ZWxsIGFzIGFsbG93IHMzOTAgdG8gdXNlIF9wdF9m
-cmFnX3JlZmNvdW50IGZvciBmcmFnbWVudGVkIHBhZ2UgdGFibGUKPj4+IHRyYWNraW5nLgo+Pj4K
-Pj4+IFNpbmNlIHBhZ2UtPl9wdF9zMzkwX2dhZGRyIGFsaWFzZXMgd2l0aCBtYXBwaW5nLCBlbnN1
-cmUgaXRzIHNldCB0byBOVUxMCj4+PiBiZWZvcmUgZnJlZWluZyB0aGUgcGFnZXMgYXMgd2VsbC4K
-Pj4+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBWaXNoYWwgTW9vbGEgKE9yYWNsZSkgPHZpc2hhbC5tb29s
-YUBnbWFpbC5jb20+Cj4+PiAtLS0KPj4KPj4gWy4uLl0KPj4KPj4+IGRpZmYgLS1naXQgYS9pbmNs
-dWRlL2xpbnV4L21tX3R5cGVzLmggYi9pbmNsdWRlL2xpbnV4L21tX3R5cGVzLmgKPj4+IGluZGV4
-IDNmYzllNjgwZjE3NC4uMjYxNmQ2NGMwZThjIDEwMDY0NAo+Pj4gLS0tIGEvaW5jbHVkZS9saW51
-eC9tbV90eXBlcy5oCj4+PiArKysgYi9pbmNsdWRlL2xpbnV4L21tX3R5cGVzLmgKPj4+IEBAIC0x
-NDQsNyArMTQ0LDcgQEAgc3RydWN0IHBhZ2Ugewo+Pj4gICAgICAgICAgICAgICAgc3RydWN0IHsg
-ICAgICAgIC8qIFBhZ2UgdGFibGUgcGFnZXMgKi8KPj4+ICAgICAgICAgICAgICAgICAgICAgICAg
-dW5zaWduZWQgbG9uZyBfcHRfcGFkXzE7ICAgICAgICAvKiBjb21wb3VuZF9oZWFkICovCj4+PiAg
-ICAgICAgICAgICAgICAgICAgICAgIHBndGFibGVfdCBwbWRfaHVnZV9wdGU7IC8qIHByb3RlY3Rl
-ZCBieSBwYWdlLT5wdGwgKi8KPj4+IC0gICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBsb25n
-IF9wdF9wYWRfMjsgICAgICAgIC8qIG1hcHBpbmcgKi8KPj4+ICsgICAgICAgICAgICAgICAgICAg
-ICB1bnNpZ25lZCBsb25nIF9wdF9zMzkwX2dhZGRyOyAgIC8qIG1hcHBpbmcgKi8KPj4+ICAgICAg
-ICAgICAgICAgICAgICAgICAgdW5pb24gewo+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIHN0cnVjdCBtbV9zdHJ1Y3QgKnB0X21tOyAvKiB4ODYgcGdkcyBvbmx5ICovCj4+PiAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgYXRvbWljX3QgcHRfZnJhZ19yZWZjb3VudDsgLyog
-cG93ZXJwYyAqLwo+Pgo+PiBUaGUgY29uZnVzaW5nIHBhcnQgaXMsIHRoYXQgdGhlc2UgZ21hcCBw
-YWdlIHRhYmxlcyBhcmUgbm90IG9yZGluYXJ5Cj4+IHByb2Nlc3MgcGFnZSB0YWJsZXMgdGhhdCB3
-ZSB3b3VsZCBvcmRpbmFyaWx5IHBsYWNlIGludG8gdGhpcyBzZWN0aW9uCj4+IGhlcmUuIFRoYXQn
-cyB3aHkgdGhleSBhcmUgYWxzbyBub3QgYWxsb2NhdGVkL2ZyZWVkIHVzaW5nIHRoZSB0eXBpY2Fs
-Cj4+IHBhZ2UgdGFibGUgY29uc3RydWN0b3IvZGVzdHJ1Y3RvciAuLi4KPiAKPiBJIGluaXRpYWxs
-eSB0aG91Z2h0IHRoZSBzYW1lLCBzbyBJIHdhcyBxdWl0ZSBjb25mdXNlZCB3aGVuIEkgc2F3Cj4g
-X19nbWFwX3NlZ21lbnRfZ2FkZHIgd2FzIHVzaW5nIHBtZF9wZ3RhYmxlX3BhZ2UoKS4KPiAKPiBB
-bHRob3VnaCB0aGV5IGFyZSBub3Qgb3JkaW5hcnkgcHJvY2VzcyBwYWdlIHRhYmxlcywgc2luY2Ug
-d2UKPiBldmVudHVhbGx5IHdhbnQgdG8gbW92ZSB0aGVtIG91dCBvZiBzdHJ1Y3QgcGFnZSwgSSB0
-aGluayBzaGlmdGluZyB0aGVtCj4gdG8gYmUgaW4gcHRkZXNjcywgYmVpbmcgYSBtZW1vcnkgZGVz
-Y3JpcHRvciBmb3IgcGFnZSB0YWJsZXMsIG1ha2VzCj4gdGhlIG1vc3Qgc2Vuc2UuCgpTZWVpbmcg
-dXRpbGl0aWVzIGxpa2UgdGxiX3JlbW92ZV9wYWdlX3B0ZGVzYygpIHRoYXQgZG9uJ3QgcmVhbGx5
-IGFwcGx5IAp0byBzdWNoIHBhZ2UgdGFibGVzLCBJIHdvbmRlciBpZiB3ZSBzaG91bGQgbXVjaCBy
-YXRoZXIgdHJlYXQgc3VjaCAKc2hhZG93L2F1eGlsaWFyeS8uLi4gcGFnZSB0YWJsZXMgKGp1c3Qg
-bGlrZSBvdGhlciBhcmNoaXRlY3R1cmVzIGxpa2UgCng4NiwgYXJtLCAuLi4gZW1wbG95IGFzIHdl
-bGwpIGFzIGEgZGlzdGluY3QgdHlwZS4KCkFuZCBoYXZlIHB0ZGVzYyBiZSB0aGUgY29tbW9uIHR5
-cGUgZm9yIGFsbCBwcm9jZXNzIHBhZ2UgdGFibGVzLgoKPiAKPiBBbm90aGVyIG9wdGlvbiBpcyB0
-byBsZWF2ZSBwbWRfcGd0YWJsZV9wYWdlKCkgYXMgaXMganVzdCBmb3IgdGhpcyBjYXNlLgo+IE9y
-IHdlIGNhbiByZXZlcnQgY29tbWl0IDdlMjVkZTc3YmM1ZWEgd2hpY2ggdXNlcyB0aGUgZnVuY3Rp
-b24gaGVyZQo+IHRoZW4gZmlndXJlIG91dCB3aGVyZSB0aGVzZSBnbWFwIHBhZ2VzIHRhYmxlIHBh
-Z2VzIHdpbGwgZ28gbGF0ZXIuCgpJJ20gYWx3YXlzIGNvbmZ1c2VkIHdoZW4gcmVhZGluZyBnbWFw
-IGNvZGUsIHNvIGxldCBtZSBoYXZlIGFub3RoZXIgbG9vayA6KQoKVGhlIGNvbmZ1c2luZyBwYXJ0
-IGlzIHRoYXQgczM5MHggc2hhcmVzIHRoZSBsb3dlc3QgbGV2ZWwgcGFnZSB0YWJsZXMgCihQVEUg
-dGFibGVzKSBiZXR3ZWVuIHRoZSBwcm9jZXNzIGFuZCBnbWFwICgiZ3Vlc3QgbWFwcGluZyIsIHNp
-bWlsYXIgdG8gCkVQVCBvbiB4ODYtNjQpLiBJdCBtYXBzIHRoZXNlIHByb2Nlc3MgUFRFIHRhYmxl
-cyAoY292ZXJpbmcgMSBNaUIpIGludG8gCmdtYXAtc3BlY2lmaWMgUE1EIHRhYmxlcy4KCnBtZF9w
-Z3RhYmxlX3BhZ2UoKSBzaG91bGQgaW5kZWVkIGFsd2F5cyBnaXZlIHVzIGEgZ21hcC1zcGVjaWZp
-YyAKUE1ELXRhYmxlLiBJbiBmYWN0LCBzb21ldGhpbmcgYWxsb2NhdGVkIHZpYSBnbWFwX2FsbG9j
-X3RhYmxlKCkuCgpEZWNvdXBsaW5nIGJvdGggY29uY2VwdHMgc291bmRzIGxpa2UgYSBnb29kIGlk
-ZWEuCgotLSAKVGhhbmtzLAoKRGF2aWQgLyBkaGlsZGVuYgoKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LXJpc2N2IG1haWxpbmcgbGlzdApsaW51
-eC1yaXNjdkBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21h
-aWxtYW4vbGlzdGluZm8vbGludXgtcmlzY3YK
+On Mon, Apr 17, 2023 at 01:50:19PM -0700, Vishal Moola wrote:
+> Introduce utility functions setting the foundation for ptdescs. These
+> will also assist in the splitting out of ptdesc from struct page.
+>
+> ptdesc_alloc() is defined to allocate new ptdesc pages as compound
+> pages. This is to standardize ptdescs by allowing for one allocation
+> and one free function, in contrast to 2 allocation and 2 free functions.
+>
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> ---
+>  include/asm-generic/tlb.h | 11 ++++++++++
+>  include/linux/mm.h        | 44 +++++++++++++++++++++++++++++++++++++++
+>  include/linux/pgtable.h   | 13 ++++++++++++
+>  3 files changed, 68 insertions(+)
+>
+> diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+> index b46617207c93..6bade9e0e799 100644
+> --- a/include/asm-generic/tlb.h
+> +++ b/include/asm-generic/tlb.h
+> @@ -481,6 +481,17 @@ static inline void tlb_remove_page(struct mmu_gather *tlb, struct page *page)
+>  	return tlb_remove_page_size(tlb, page, PAGE_SIZE);
+>  }
+>
+> +static inline void tlb_remove_ptdesc(struct mmu_gather *tlb, void *pt)
+> +{
+> +	tlb_remove_table(tlb, pt);
+> +}
+> +
+> +/* Like tlb_remove_ptdesc, but for page-like page directories. */
+> +static inline void tlb_remove_page_ptdesc(struct mmu_gather *tlb, struct ptdesc *pt)
+> +{
+> +	tlb_remove_page(tlb, ptdesc_page(pt));
+> +}
+> +
+>  static inline void tlb_change_page_size(struct mmu_gather *tlb,
+>  						     unsigned int page_size)
+>  {
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index b18848ae7e22..ec3cbe2fa665 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -2744,6 +2744,45 @@ static inline pmd_t *pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long a
+>  }
+>  #endif /* CONFIG_MMU */
+>
+> +static inline struct ptdesc *virt_to_ptdesc(const void *x)
+> +{
+> +	return page_ptdesc(virt_to_head_page(x));
+> +}
+> +
+> +static inline void *ptdesc_to_virt(struct ptdesc *pt)
+> +{
+> +	return page_to_virt(ptdesc_page(pt));
+> +}
+> +
+> +static inline void *ptdesc_address(struct ptdesc *pt)
+> +{
+> +	return folio_address(ptdesc_folio(pt));
+> +}
+> +
+> +static inline bool ptdesc_is_reserved(struct ptdesc *pt)
+> +{
+> +	return folio_test_reserved(ptdesc_folio(pt));
+> +}
+> +
+> +static inline struct ptdesc *ptdesc_alloc(gfp_t gfp, unsigned int order)
+> +{
+> +	struct page *page = alloc_pages(gfp | __GFP_COMP, order);
+> +
+> +	return page_ptdesc(page);
+> +}
+> +
+> +static inline void ptdesc_free(struct ptdesc *pt)
+> +{
+> +	struct page *page = ptdesc_page(pt);
+> +
+> +	__free_pages(page, compound_order(page));
+> +}
+> +
+> +static inline void ptdesc_clear(void *x)
+> +{
+> +	clear_page(x);
+> +}
+> +
+>  #if USE_SPLIT_PTE_PTLOCKS
+>  #if ALLOC_SPLIT_PTLOCKS
+>  void __init ptlock_cache_init(void);
+> @@ -2970,6 +3009,11 @@ static inline void mark_page_reserved(struct page *page)
+>  	adjust_managed_page_count(page, -1);
+>  }
+>
+> +static inline void free_reserved_ptdesc(struct ptdesc *pt)
+> +{
+> +	free_reserved_page(ptdesc_page(pt));
+> +}
+> +
+>  /*
+>   * Default method to free all the __init memory into the buddy system.
+>   * The freed pages will be poisoned with pattern "poison" if it's within
+> diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+> index 7cc6ea057ee9..7cd803aa38eb 100644
+> --- a/include/linux/pgtable.h
+> +++ b/include/linux/pgtable.h
+> @@ -97,6 +97,19 @@ TABLE_MATCH(ptl, ptl);
+>  #undef TABLE_MATCH
+>  static_assert(sizeof(struct ptdesc) <= sizeof(struct page));
+>
+> +#define ptdesc_page(pt)			(_Generic((pt),			\
+> +	const struct ptdesc *:		(const struct page *)(pt),	\
+> +	struct ptdesc *:		(struct page *)(pt)))
+> +
+> +#define ptdesc_folio(pt)		(_Generic((pt),			\
+> +	const struct ptdesc *:		(const struct folio *)(pt),	\
+> +	struct ptdesc *:		(struct folio *)(pt)))
+> +
+> +static inline struct ptdesc *page_ptdesc(struct page *page)
+> +{
+> +	return (struct ptdesc *)page;
+> +}
+
+Hi Vishal,
+
+I'm a little curious, why is the page_ptdesc() using inline functions instead of macro?
+If this is any magic, please tell me, thank you very much.
+
+> +
+>  /*
+>   * A page table page can be thought of an array like this: pXd_t[PTRS_PER_PxD]
+>   *
+>
+> --
+> 2.39.2
+>
