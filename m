@@ -1,76 +1,178 @@
 From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH v2 31/34] sparc64: Convert various functions to use ptdescs
-Date: Mon,  1 May 2023 12:28:26 -0700
-Message-ID: <20230501192829.17086-32-vishal.moola@gmail.com>
+Subject: [PATCH v2 34/34] mm: Remove pgtable_{pmd, pte}_page_{ctor, dtor}() wrappers
+Date: Mon,  1 May 2023 12:28:29 -0700
+Message-ID: <20230501192829.17086-35-vishal.moola@gmail.com>
 References: <20230501192829.17086-1-vishal.moola@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-mips-owner@vger.kernel.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682969359; x=1685561359;
+        d=gmail.com; s=20221208; t=1682969364; x=1685561364;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=uIsUNYOwSPNxjYFxvF4LgB4Ah8JH2T7Nmtlw8Cz+gsw=;
-        b=JvPLlmC/XzUWqdECLyDwvfeLFLPFT450E92A3QXyvZyOZFiHjs0SqrfxeBMPzeb8LI
-         K2VYtEv3r+e+UcHKuqN8TTRgEDMk5QiHg2w8LWe4aiFQNNV8Hh6df9gt7z6D8qxOouWJ
-         wLPmS/k/ifaj+fNqHq4KBrLkalomexLgsPcDr4xMzpwyPwPn0hyVLwNcBBGjvlXZkwRl
-         lPtqWGJrBs3wn3DJU9zWYI2bb/1KFvoVhNYahmv1oY0+idoipKM5ABGGY8tIdglpIS4E
-         WqBtNig6OCJrivJLAJr7mSv5nUheWG1j4pFaa5KN6zFjtfYkKhLunWXNp9G65rPn/E55
-         zhpg==
+        bh=tVP5uHyitpWmGyZGGmBmuGVwAuiqA5RrNeRETZrKFQk=;
+        b=l3gNIC841LsuGqQQ2UpVF+XnHjZ+kiBXZeZy4GTzDMbWbXaEiG5ArSl/ydDvotE01/
+         fGJ2+A5T8Q0iCPtlIlo1cxl3Uf1AxNVghNXp2wCgxamPWRN0f7NM89uS/eqg02SKiRak
+         np/AOUUvT9Iq32lA1ArHNRu1TUuWBGP97diP1cbyLES/I8a8uq904CtHM5VcyBKmIx8g
+         ULh11nFUApu/c5GfuUXZpzFhh6lYLhMsU4hm7q2aFdXWAxNpZKe/ScDOD1gC9EPME0aI
+         4wA9wQgJ9NzOXeiB1g9JMqcyyqFI/8Wvj0CTUQfo5zcTDuOrG/ytNAkFcETgxxSn2sbl
+         hW5Q==
 In-Reply-To: <20230501192829.17086-1-vishal.moola@gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 To: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
-Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, "David S. Miller" <davem@davemloft.net>
+Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 
-As part of the conversions to replace pgtable constructor/destructors with
-ptdesc equivalents, convert various page table functions to use ptdescs.
+These functions are no longer necessary. Remove them and cleanup
+Documentation referencing them.
 
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 ---
- arch/sparc/mm/init_64.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ Documentation/mm/split_page_table_lock.rst    | 12 +++++------
+ .../zh_CN/mm/split_page_table_lock.rst        | 14 ++++++-------
+ include/linux/mm.h                            | 20 -------------------
+ 3 files changed, 13 insertions(+), 33 deletions(-)
 
-diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-index 04f9db0c3111..eedb3e03b1fe 100644
---- a/arch/sparc/mm/init_64.c
-+++ b/arch/sparc/mm/init_64.c
-@@ -2893,14 +2893,15 @@ pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
+diff --git a/Documentation/mm/split_page_table_lock.rst b/Documentation/mm/split_page_table_lock.rst
+index 50ee0dfc95be..b3c612183135 100644
+--- a/Documentation/mm/split_page_table_lock.rst
++++ b/Documentation/mm/split_page_table_lock.rst
+@@ -53,7 +53,7 @@ Support of split page table lock by an architecture
+ ===================================================
  
- pgtable_t pte_alloc_one(struct mm_struct *mm)
- {
--	struct page *page = alloc_page(GFP_KERNEL | __GFP_ZERO);
--	if (!page)
-+	struct ptdesc *ptdesc = ptdesc_alloc(GFP_KERNEL | __GFP_ZERO, 0);
-+
-+	if (!ptdesc)
- 		return NULL;
--	if (!pgtable_pte_page_ctor(page)) {
--		__free_page(page);
-+	if (!ptdesc_pte_ctor(ptdesc)) {
-+		ptdesc_free(ptdesc);
- 		return NULL;
- 	}
--	return (pte_t *) page_address(page);
-+	return (pte_t *) ptdesc_address(ptdesc);
+ There's no need in special enabling of PTE split page table lock: everything
+-required is done by pgtable_pte_page_ctor() and pgtable_pte_page_dtor(), which
++required is done by ptdesc_pte_ctor() and ptdesc_pte_dtor(), which
+ must be called on PTE table allocation / freeing.
+ 
+ Make sure the architecture doesn't use slab allocator for page table
+@@ -63,8 +63,8 @@ This field shares storage with page->ptl.
+ PMD split lock only makes sense if you have more than two page table
+ levels.
+ 
+-PMD split lock enabling requires pgtable_pmd_page_ctor() call on PMD table
+-allocation and pgtable_pmd_page_dtor() on freeing.
++PMD split lock enabling requires ptdesc_pmd_ctor() call on PMD table
++allocation and ptdesc_pmd_dtor() on freeing.
+ 
+ Allocation usually happens in pmd_alloc_one(), freeing in pmd_free() and
+ pmd_free_tlb(), but make sure you cover all PMD table allocation / freeing
+@@ -72,7 +72,7 @@ paths: i.e X86_PAE preallocate few PMDs on pgd_alloc().
+ 
+ With everything in place you can set CONFIG_ARCH_ENABLE_SPLIT_PMD_PTLOCK.
+ 
+-NOTE: pgtable_pte_page_ctor() and pgtable_pmd_page_ctor() can fail -- it must
++NOTE: ptdesc_pte_ctor() and ptdesc_pmd_ctor() can fail -- it must
+ be handled properly.
+ 
+ page->ptl
+@@ -92,7 +92,7 @@ trick:
+    split lock with enabled DEBUG_SPINLOCK or DEBUG_LOCK_ALLOC, but costs
+    one more cache line for indirect access;
+ 
+-The spinlock_t allocated in pgtable_pte_page_ctor() for PTE table and in
+-pgtable_pmd_page_ctor() for PMD table.
++The spinlock_t allocated in ptdesc_pte_ctor() for PTE table and in
++ptdesc_pmd_ctor() for PMD table.
+ 
+ Please, never access page->ptl directly -- use appropriate helper.
+diff --git a/Documentation/translations/zh_CN/mm/split_page_table_lock.rst b/Documentation/translations/zh_CN/mm/split_page_table_lock.rst
+index 4fb7aa666037..a3323eb9dc40 100644
+--- a/Documentation/translations/zh_CN/mm/split_page_table_lock.rst
++++ b/Documentation/translations/zh_CN/mm/split_page_table_lock.rst
+@@ -56,16 +56,16 @@ Hugetlb特定的辅助函数:
+ 架构对分页表锁的支持
+ ====================
+ 
+-没有必要特别启用PTE分页表锁：所有需要的东西都由pgtable_pte_page_ctor()
+-和pgtable_pte_page_dtor()完成，它们必须在PTE表分配/释放时被调用。
++没有必要特别启用PTE分页表锁：所有需要的东西都由ptdesc_pte_ctor()
++和ptdesc_pte_dtor()完成，它们必须在PTE表分配/释放时被调用。
+ 
+ 确保架构不使用slab分配器来分配页表：slab使用page->slab_cache来分配其页
+ 面。这个区域与page->ptl共享存储。
+ 
+ PMD分页锁只有在你有两个以上的页表级别时才有意义。
+ 
+-启用PMD分页锁需要在PMD表分配时调用pgtable_pmd_page_ctor()，在释放时调
+-用pgtable_pmd_page_dtor()。
++启用PMD分页锁需要在PMD表分配时调用ptdesc_pmd_ctor()，在释放时调
++用ptdesc_pmd_dtor()。
+ 
+ 分配通常发生在pmd_alloc_one()中，释放发生在pmd_free()和pmd_free_tlb()
+ 中，但要确保覆盖所有的PMD表分配/释放路径：即X86_PAE在pgd_alloc()中预先
+@@ -73,7 +73,7 @@ PMD分页锁只有在你有两个以上的页表级别时才有意义。
+ 
+ 一切就绪后，你可以设置CONFIG_ARCH_ENABLE_SPLIT_PMD_PTLOCK。
+ 
+-注意：pgtable_pte_page_ctor()和pgtable_pmd_page_ctor()可能失败--必
++注意：ptdesc_pte_ctor()和ptdesc_pmd_ctor()可能失败--必
+ 须正确处理。
+ 
+ page->ptl
+@@ -90,7 +90,7 @@ page->ptl用于访问分割页表锁，其中'page'是包含该表的页面struc
+    的指针并动态分配它。这允许在启用DEBUG_SPINLOCK或DEBUG_LOCK_ALLOC的
+    情况下使用分页锁，但由于间接访问而多花了一个缓存行。
+ 
+-PTE表的spinlock_t分配在pgtable_pte_page_ctor()中，PMD表的spinlock_t
+-分配在pgtable_pmd_page_ctor()中。
++PTE表的spinlock_t分配在ptdesc_pte_ctor()中，PMD表的spinlock_t
++分配在ptdesc_pmd_ctor()中。
+ 
+ 请不要直接访问page->ptl - -使用适当的辅助函数。
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index dc61aeca9077..dfa3e202099a 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2858,11 +2858,6 @@ static inline bool ptdesc_pte_ctor(struct ptdesc *ptdesc)
+ 	return true;
  }
  
- void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-@@ -2910,10 +2911,10 @@ void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
- 
- static void __pte_free(pgtable_t pte)
+-static inline bool pgtable_pte_page_ctor(struct page *page)
+-{
+-	return ptdesc_pte_ctor(page_ptdesc(page));
+-}
+-
+ static inline void ptdesc_pte_dtor(struct ptdesc *ptdesc)
  {
--	struct page *page = virt_to_page(pte);
-+	struct ptdesc *ptdesc = virt_to_ptdesc(pte);
- 
--	pgtable_pte_page_dtor(page);
--	__free_page(page);
-+	ptdesc_pte_dtor(ptdesc);
-+	ptdesc_free(ptdesc);
+ 	struct folio *folio = ptdesc_folio(ptdesc);
+@@ -2872,11 +2867,6 @@ static inline void ptdesc_pte_dtor(struct ptdesc *ptdesc)
+ 	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
  }
  
- void pte_free(struct mm_struct *mm, pgtable_t pte)
+-static inline void pgtable_pte_page_dtor(struct page *page)
+-{
+-	ptdesc_pte_dtor(page_ptdesc(page));
+-}
+-
+ #define pte_offset_map_lock(mm, pmd, address, ptlp)	\
+ ({							\
+ 	spinlock_t *__ptl = pte_lockptr(mm, pmd);	\
+@@ -2967,11 +2957,6 @@ static inline bool ptdesc_pmd_ctor(struct ptdesc *ptdesc)
+ 	return true;
+ }
+ 
+-static inline bool pgtable_pmd_page_ctor(struct page *page)
+-{
+-	return ptdesc_pmd_ctor(page_ptdesc(page));
+-}
+-
+ static inline void ptdesc_pmd_dtor(struct ptdesc *ptdesc)
+ {
+ 	struct folio *folio = ptdesc_folio(ptdesc);
+@@ -2981,11 +2966,6 @@ static inline void ptdesc_pmd_dtor(struct ptdesc *ptdesc)
+ 	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
+ }
+ 
+-static inline void pgtable_pmd_page_dtor(struct page *page)
+-{
+-	ptdesc_pmd_dtor(page_ptdesc(page));
+-}
+-
+ /*
+  * No scalability reason to split PUD locks yet, but follow the same pattern
+  * as the PMD locks to make it easier if we decide to.  The VM should not be
 -- 
 2.39.2
 
