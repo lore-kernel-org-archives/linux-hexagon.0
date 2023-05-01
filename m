@@ -1,23 +1,23 @@
 From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH v2 22/34] csky: Convert __pte_free_tlb() to use ptdescs
-Date: Mon,  1 May 2023 12:28:17 -0700
-Message-ID: <20230501192829.17086-23-vishal.moola@gmail.com>
+Subject: [PATCH v2 23/34] hexagon: Convert __pte_free_tlb() to use ptdescs
+Date: Mon,  1 May 2023 12:28:18 -0700
+Message-ID: <20230501192829.17086-24-vishal.moola@gmail.com>
 References: <20230501192829.17086-1-vishal.moola@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682969346; x=1685561346;
+        d=gmail.com; s=20221208; t=1682969347; x=1685561347;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=WInZHFLF0E37CPvH/fyQuQmpONrFi7mPGahLu3Z9gNY=;
-        b=q4na0YpY6+HIdR7eCjpOfgl3pLZKXaYPSEQBquag8z/68f0H1ARrXFU5GHdi9YxK8/
-         rB/VLGJXy6D4ZufE/2LOOEwnretxgWAB++ZlGVRxVIYCoUOlMN8apcsmkHtbQevtOOJx
-         LNKiQlcElPDsuGjD80MSn3zT41r1jijBtepWy2itQQP8kPb/qbuR3Nu9du37XsuFat5b
-         tY9vSCaH65FZJZYGzqq6Sev5FEiEarceFI+PkCB4zysu+TPDmYzeupQ3qWrtewRiW+Ef
-         pPbEC2E+2Gu9odmO4zWHfrgw5vSTXCdgYdvlBNlEJqZMmLFOH+elBEgtadEGjmhbbSeV
-         twkg==
+        bh=apg836Gn0N7QExyyhUUGNgc2fd2r3iyoAghRwsUjc2o=;
+        b=WbTJO1ayjn3HXL/iQMZCmT2+RnFSF2O5WG+VKbNfOxDU8NvbfSgz+Wjs4UVgNNQcMr
+         uLj57ayYRa/f+rOhAVP0jHM/2f33b+TbcsUuT8OausfFIQuWjGI50HrH5E0KiKkIgQwa
+         0uM85OALkALC3dGk5nJ/tYYANgKg4uu8cRvFIwQEiY4YzwHIJvVidPyhHtwxmNKQYA0W
+         tAWz4vl42KgoRYKzs8w7tUocWedsU0Shw+kefBEmySvrYYB7bH8pThcvpYZ6Dpmw316z
+         icjhKqrruYJxczjDCcNsGgrwDrViIcKW8h7/U3ESAg45ipYAB08luKD04Ylpo9b00Q6j
+         cFOg==
 In-Reply-To: <20230501192829.17086-1-vishal.moola@gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
@@ -29,24 +29,28 @@ ptdesc equivalents.
 
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 ---
- arch/csky/include/asm/pgalloc.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/hexagon/include/asm/pgalloc.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/csky/include/asm/pgalloc.h b/arch/csky/include/asm/pgalloc.h
-index 7d57e5da0914..af26f1191b43 100644
---- a/arch/csky/include/asm/pgalloc.h
-+++ b/arch/csky/include/asm/pgalloc.h
-@@ -63,8 +63,8 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+diff --git a/arch/hexagon/include/asm/pgalloc.h b/arch/hexagon/include/asm/pgalloc.h
+index f0c47e6a7427..0f8432430e68 100644
+--- a/arch/hexagon/include/asm/pgalloc.h
++++ b/arch/hexagon/include/asm/pgalloc.h
+@@ -87,10 +87,10 @@ static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
+ 		max_kernel_seg = pmdindex;
+ }
  
- #define __pte_free_tlb(tlb, pte, address)		\
- do {							\
--	pgtable_pte_page_dtor(pte);			\
--	tlb_remove_page(tlb, pte);			\
-+	ptdesc_pte_dtor(page_ptdesc(pte));		\
-+	tlb_remove_page_ptdesc(tlb, page_ptdesc(pte));	\
+-#define __pte_free_tlb(tlb, pte, addr)		\
+-do {						\
+-	pgtable_pte_page_dtor((pte));		\
+-	tlb_remove_page((tlb), (pte));		\
++#define __pte_free_tlb(tlb, pte, addr)				\
++do {								\
++	ptdesc_pte_dtor((page_ptdesc(pte)));			\
++	tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));	\
  } while (0)
  
- extern void pagetable_init(void);
+ #endif
 -- 
 2.39.2
 
