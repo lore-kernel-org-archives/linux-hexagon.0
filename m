@@ -1,87 +1,76 @@
 From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH v2 18/34] mm: Remove page table members from struct page
-Date: Mon,  1 May 2023 12:28:13 -0700
-Message-ID: <20230501192829.17086-19-vishal.moola@gmail.com>
+Subject: [PATCH v2 27/34] nios2: Convert __pte_free_tlb() to use ptdescs
+Date: Mon,  1 May 2023 12:28:22 -0700
+Message-ID: <20230501192829.17086-28-vishal.moola@gmail.com>
 References: <20230501192829.17086-1-vishal.moola@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
+	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=HR/haTJLSXRZemE5O2pV1loGmM1+ddrHSLyIVrlglo8=; b=nu1o5AuRlc37SZ
+	gKvx0FCCE7RtGNUp8wywlSzNAIiDHHV55sdSLKUMoG9jrlwjJF9HR8HMNmouC62pVGE/s0Vs8c0m1
+	Kd2/Z39psGLJqVAPQVKr1NHb9hl17340n+qZNfJ4/xRSiJlLLJOsLe1OGSl5863tord3Ow2f3lyJl
+	LsppN6lJ/qHUO5TJrxHebZLHy9YnLZ+eU6MPgMh6wSamH5yK48ZLu/E2UuoinubpMPlbvQzn2TTsC
+	jVkpr0kkZDMyo/jCT3zviayCjm8Bbm36mPE5zcXEoCyR2soZj5gwR+PHfR3Z0OMP1C7KISww1eyN3
+	YicJs8zxIij+zEXo8dqw==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682969339; x=1685561339;
+        d=gmail.com; s=20221208; t=1682969354; x=1685561354;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=mrqntkjJd8BO8YfASMnosk0HIl+t/0EXXW8sSx0dJVg=;
-        b=YynIc3MWOn+7eKGjmZARCn/IjCANfe8gTHKhI/1ubKTs4ZbiubHG1P9aimD9KzNrIR
-         eunJCIzqiXfZGl0CCMrWEsO+nwpbu9UTA+2coBncf0PpX1ohouYsG2DEdDJZPuTXi/ir
-         yR5oJPT4K2awb6eBfuzacZRfwPXKDUNKWynDv8oNvVCBXhLYj3JhwMiPBRO+Fg6hjdSs
-         FM9xgZDHU6Sc+urW7voaFKEt/7m6LjDuxZZp6qL4zZI9dwEcGtT8oaSDqFIY7TNV4Oop
-         NDnPsASY2UskW6usELO5k/OqVJv807YApzHQHt4bSD2BLXySmWIPAbRFeQIxlm3YwdkY
-         qcpQ==
+        bh=tniPUuVL526Jec1TVIaHRLAUx7OruO8jRIKlA5wqt8Q=;
+        b=sCYdFD4O8Had2jReQPDULWIb6jXMWTBVOP1xIsSQDJFrjK4Unzq4xPir2vv9xD60ba
+         KhnmERHxh4wjne9PTfzHFe7mUKtGQVGSRxsSTI7oGHQc7fKexIRwy4BhAuhQWGLGw+L4
+         jhaBOvefDEjvTltxe1zcg9AOJCenWnwtbQvW8h9UKrmrEmLrYzROLydP0XMIyNyplCDF
+         ksvZ9Q2L1rfMSznCSwk+WHikKvzxa7zVAjndA+MUieyvTGKh0Hnkx2VWar6ZLI/SEpj3
+         zJ2Emm1btVtqn0B7TpGayRWt9h4mLeUHtWruxn5Hxr1lyas/Ibpq/YOzX0vO1bUnoNNT
+         ju/g==
 In-Reply-To: <20230501192829.17086-1-vishal.moola@gmail.com>
-Content-Type: text/plain; charset="us-ascii"
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 To: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
-Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Dinh Nguyen <dinguyen@kernel.org>
 
-The page table members are now split out into their own ptdesc struct.
-Remove them from struct page.
+Part of the conversions to replace pgtable constructor/destructors with
+ptdesc equivalents.
 
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 ---
- include/linux/mm_types.h | 14 --------------
- include/linux/pgtable.h  |  3 ---
- 2 files changed, 17 deletions(-)
+ arch/nios2/include/asm/pgalloc.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index 6161fe1ae5b8..31ffa1be21d0 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -141,20 +141,6 @@ struct page {
- 		struct {	/* Tail pages of compound page */
- 			unsigned long compound_head;	/* Bit zero is set */
- 		};
--		struct {	/* Page table pages */
--			unsigned long _pt_pad_1;	/* compound_head */
--			pgtable_t pmd_huge_pte; /* protected by page->ptl */
--			unsigned long _pt_s390_gaddr;	/* mapping */
--			union {
--				struct mm_struct *pt_mm; /* x86 pgds only */
--				atomic_t pt_frag_refcount; /* powerpc */
--			};
--#if ALLOC_SPLIT_PTLOCKS
--			spinlock_t *ptl;
--#else
--			spinlock_t ptl;
--#endif
--		};
- 		struct {	/* ZONE_DEVICE pages */
- 			/** @pgmap: Points to the hosting device page map. */
- 			struct dev_pagemap *pgmap;
-diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index b067ac10f3dd..90fa73a896db 100644
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -1034,10 +1034,7 @@ struct ptdesc {
- TABLE_MATCH(flags, __page_flags);
- TABLE_MATCH(compound_head, pt_list);
- TABLE_MATCH(compound_head, _pt_pad_1);
--TABLE_MATCH(pmd_huge_pte, pmd_huge_pte);
- TABLE_MATCH(mapping, _pt_s390_gaddr);
--TABLE_MATCH(pt_mm, pt_mm);
--TABLE_MATCH(ptl, ptl);
- #undef TABLE_MATCH
- static_assert(sizeof(struct ptdesc) <= sizeof(struct page));
+diff --git a/arch/nios2/include/asm/pgalloc.h b/arch/nios2/include/asm/pgalloc.h
+index ecd1657bb2ce..ed868f4c0ca9 100644
+--- a/arch/nios2/include/asm/pgalloc.h
++++ b/arch/nios2/include/asm/pgalloc.h
+@@ -28,10 +28,10 @@ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
  
+ extern pgd_t *pgd_alloc(struct mm_struct *mm);
+ 
+-#define __pte_free_tlb(tlb, pte, addr)				\
+-	do {							\
+-		pgtable_pte_page_dtor(pte);			\
+-		tlb_remove_page((tlb), (pte));			\
++#define __pte_free_tlb(tlb, pte, addr)					\
++	do {								\
++		ptdesc_pte_dtor(page_ptdesc(pte));			\
++		tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));	\
+ 	} while (0)
+ 
+ #endif /* _ASM_NIOS2_PGALLOC_H */
 -- 
 2.39.2
-
-
