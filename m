@@ -1,118 +1,66 @@
-From: "Nicholas Piggin" <npiggin@gmail.com>
-Subject: Re: [PATCH] Remove HAVE_VIRT_CPU_ACCOUNTING_GEN option
-Date: Wed, 03 May 2023 00:24:24 +1000
-Message-ID: <CSBUZL6M3MSS.316JRNGXVMLB@wheely>
-References: <20230429063348.125544-1-npiggin@gmail.com>
- <mhng-7ec0443b-2201-41b7-996c-78c3a61f0230@palmer-ri-x1c9a>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 0/7] Expect immutable pointer in virt_to_phys/isa_virt_to_bus
+ prototypes
+Date: Wed, 3 May 2023 09:32:30 +0200
+Message-ID: <CACRpkdYCZ0rya3hE+BRrHwP=fASjkpp_Y=BiC=WY-_z0yyRNEg@mail.gmail.com>
+References: <168155718437.13678.714141668943813263.stgit@skinsburskii.localdomain>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-m68k-owner@vger.kernel.org>
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683037483; x=1685629483;
-        h=in-reply-to:references:cc:to:from:subject:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+        d=linaro.org; s=google; t=1683099161; x=1685691161;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=s1aeen3ZK+Eot6IC/oOTAkZg5Jx6a7diThkYUUdZei0=;
-        b=o7eV6bV5rpKciv6EIj9ga4Omoc8JiajzV/SXD9s6GTpCIHwLsqIeUrnFZuC+xAIaiW
-         WjEsJu1B2GKv/VlyiP9foiCAZE6F++nD+BWDCHQtjX8GXp25FXxTTDqEhJfEaCmCRZnW
-         r/TojnhdtU1uIxMuMFFOdIT7Ow7MxYnqTZbrKtm4QgaRKGsCrFqUlZThCmVisJrJf8LM
-         /bNVZ2wUIhggAaUQvPy2HmP3xLnCZxM2nh9Oy/B1JiqMdIiCPGs2rAsKMpXcHd+3R9I1
-         ZjnOJ4VKyNowo/00zxs8soF2kfewUpLu4llf08zWCp8MVLdUhOzj6mQ/SdBcj0q0dUoG
-         ml+g==
-In-Reply-To: <mhng-7ec0443b-2201-41b7-996c-78c3a61f0230@palmer-ri-x1c9a>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, vgupta@kernel.org, linux-snps-arc@lists.infradead.org, bcain@quicinc.com, linux-hexagon@vger.kernel.org, chenhuacai@kernel.org, loongarch@lists.linux.dev, geert@linux-m68k.org, linux-m68k@lists.linux-m68k.org, monstr@monstr.eu, tsbogend@alpha.franken.de, linux-mips@vger.kernel.org, dinguyen@kernel.org, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, linux-openrisc@vger.kernel.org, James.Bottomley@HansenPartnership.com, deller@gmx.de, linux-parisc@vger.kernel.org, Paul Walmsley <paul.walmsley@sifive.com>, aou@eecs.berkeley.edu, linux-riscv@lists.infradead.org, ysato@users.sourceforge.jp, dalias@libc.org
+        bh=Uy5PpAsKGu7ciMA0KH8W435+ovkPrJCw8/GzBOIehDY=;
+        b=ld7X1/eOQn3jw3nscqDgK6ddNhZLhCbJd9fPsanB0OgdXTNVkQ6EYUUqBqyPM/a4vY
+         CbHtyASiJA418MX0oSjMiiVC6FiPHw14WLUdEeW4Umr+YbCrJrLf7Hu5eVK7mdrvS4DL
+         9OmWoG7mWW8rmfaib9lGQ1oMZzSYCCqUfliHLErQsjuMdJcbCt3LcNup8fzoyt0Y/8GR
+         akHy/Cg/e08JrY/cBm35hsRfsCSXWjiae/OD5Dh8cA2PThcAjwbY7B/39CO37V9omWgv
+         O4OooSmTvvfZDRD1Nt5OUOhrDwbp6u/SmztihR1xLy5JcdwnB1lQkg/5xvUiJBgW8awI
+         T2mA==
+In-Reply-To: <168155718437.13678.714141668943813263.stgit@skinsburskii.localdomain>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev" <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Content-Type: text/plain; charset="utf-8"
+To: Stanislav Kinsburskii <skinsburskii@linux.microsoft.com>
+Cc: linux-ia64@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>, linux-mips@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Omar Sandoval <osandov@fb.com>, linux-arch@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Helge Deller <deller@gmx.de>, x86@kernel.org, Stanislav Kinsburskii <stanislav.kinsburskii@gmail.com>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Matt Turner <mattst88@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-alpha@vger.kernel.org, Richard Henderson <richard.henderson@linaro.org>, Nicholas Piggin <npiggin@gmail.com>, Mark Brown <broonie@kernel.org>, Borislav Petkov <bp@alien8.de>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>, Brian Cain <bcain@quicin>, c.com, , Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Chris Down <chris@chrisdown.name>, linux-
 
-On Sun Apr 30, 2023 at 6:14 AM AEST, Palmer Dabbelt wrote:
-> On Fri, 28 Apr 2023 23:33:48 PDT (-0700), npiggin@gmail.com wrote:
-> > This option was created in commit 554b0004d0ec4 ("vtime: Add
-> > HAVE_VIRT_CPU_ACCOUNTING_GEN Kconfig") for architectures to indicate
-> > they support the 64-bit cputime_t required for VIRT_CPU_ACCOUNTING_GEN.
-> >
-> > The cputime_t type has since been removed, so this doesn't have any
-> > meaning. Remove it.
-> >
-> > Cc: linux-arch@vger.kernel.org
-> > Cc: linux-kernel@vger.kernel.org
-> > Cc: Vineet Gupta <vgupta@kernel.org>
-> > Cc: linux-snps-arc@lists.infradead.org
-> > Cc: Brian Cain <bcain@quicinc.com>
-> > Cc: linux-hexagon@vger.kernel.org
-> > Cc: Huacai Chen <chenhuacai@kernel.org>
-> > Cc: loongarch@lists.linux.dev
-> > Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> > Cc: linux-m68k@lists.linux-m68k.org
-> > Cc: Michal Simek <monstr@monstr.eu>
-> > Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> > Cc: linux-mips@vger.kernel.org
-> > Cc: Dinh Nguyen <dinguyen@kernel.org>
-> > Cc: Jonas Bonn <jonas@southpole.se>
-> > Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> > Cc: Stafford Horne <shorne@gmail.com>
-> > Cc: linux-openrisc@vger.kernel.org
-> > Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-> > Cc: Helge Deller <deller@gmx.de>
-> > Cc: linux-parisc@vger.kernel.org
-> > Cc: Paul Walmsley <paul.walmsley@sifive.com>
-> > Cc: Palmer Dabbelt <palmer@dabbelt.com>
-> > Cc: Albert Ou <aou@eecs.berkeley.edu>
-> > Cc: linux-riscv@lists.infradead.org
-> > Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-> > Cc: Rich Felker <dalias@libc.org>
-> > Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-> > Cc: linux-sh@vger.kernel.org
-> > Cc: "David S. Miller" <davem@davemloft.net>
-> > Cc: sparclinux@vger.kernel.org
-> > Cc: Richard Weinberger <richard@nod.at>
-> > Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> > Cc: Johannes Berg <johannes@sipsolutions.net>
-> > Cc: linux-um@lists.infradead.org
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: Ingo Molnar <mingo@redhat.com>
-> > Cc: Borislav Petkov <bp@alien8.de>
-> > Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> > Cc: x86@kernel.org
-> > Cc: "H. Peter Anvin" <hpa@zytor.com>
-> > Cc: Kevin Hilman <khilman@baylibre.com>
-> > Cc: Frederic Weisbecker <frederic@kernel.org>
-> > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-> > ---
-> > Hi,
-> >
-> > Could we tidy this? I don't know what tree it can go in, timers,
-> > sched, asm-generic, probably doesn't matter.
-> >
-> > The only thing this actually does is gate VIRT_CPU_ACCOUNTING_GEN and
-> > NO_HZ_FULL so if your arch has some other issue that requires this
-> > then the documentation needs to change. Any concerns from the archs?
-> > I.e., 32-bit that does *not* define HAVE_VIRT_CPU_ACCOUNTING_GEN
-> > which looks to be:
-> >
-> > arc
-> > hexagon
-> > loongarch 32-bit with SMP
-> > m68k
-> > microblaze
-> > mips 32-bit with SMP
-> > nios2
-> > openrisc
-> > parisc 32-bit
-> > riscv 32-bit
+On Thu, Apr 27, 2023 at 7:41=E2=80=AFPM Stanislav Kinsburskii
+<skinsburskii@linux.microsoft.com> wrote:
+
+> This series is aimed to address compilation warnings when a constant poin=
+ter
+> is passed to virt_to_phys and isa_virt_to_bus functions:
 >
-> Nothing's jumping out, though I haven't tested this yet so I'm not 100%. =
-=20
-> I assume this isn't aimed for this merge window, given the timing? =20
-
-No, maybe the next one though.
-
-> Probably best to give this sort of thing time to bake in linux-next, but=
-=20
-> I doubt anyone is even paying attention to rv32/NO_HZ_FULL so no big=20
-> deal either way on my end.
+>   warning: passing argument 1 of =E2=80=98virt_to_phys=E2=80=99 discards =
+=E2=80=98const=E2=80=99 qualifier from pointer target type
+>   warning: passing argument 1 of =E2=80=98isa_virt_to_bus=E2=80=99 discar=
+ds =E2=80=98const=E2=80=99 qualifier from pointer target type
 >
-> Acked-by: Palmer Dabbelt <palmer@rivosinc.com> # RISC-V
+> The change(s) is the same for all architectures, but it's split into a se=
+ries on
+> per-arch basis to simplify applying and testing on the maintainers side.
+>
+> The following series implements...
 
-Thanks,
-Nick
+This is nice.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+I am working with an adjacent task, which is to make virt_to_pfn() and
+pfn_to_virt() into static inlines. I might need to rebase my work on top
+of this but it should be doable, I am currently stressing the buildbots
+with this with the idea to propose it to Arnd once v6.4-rc1 is out:
+https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-integrator.git=
+/log/?h=3Db4/virt-to-pfn-v6-4-rc1
+
+Yours,
+Linus Walleij
