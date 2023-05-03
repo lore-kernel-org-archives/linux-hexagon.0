@@ -1,66 +1,43 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 0/7] Expect immutable pointer in virt_to_phys/isa_virt_to_bus
- prototypes
-Date: Wed, 3 May 2023 09:32:30 +0200
-Message-ID: <CACRpkdYCZ0rya3hE+BRrHwP=fASjkpp_Y=BiC=WY-_z0yyRNEg@mail.gmail.com>
-References: <168155718437.13678.714141668943813263.stgit@skinsburskii.localdomain>
+From: Frederic Weisbecker <frederic@kernel.org>
+Subject: Re: [PATCH] Remove HAVE_VIRT_CPU_ACCOUNTING_GEN option
+Date: Wed, 3 May 2023 13:06:44 +0200
+Message-ID: <ZFJARBDqWPLSy7Ge@localhost.localdomain>
+References: <20230429063348.125544-1-npiggin@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1683099161; x=1685691161;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Uy5PpAsKGu7ciMA0KH8W435+ovkPrJCw8/GzBOIehDY=;
-        b=ld7X1/eOQn3jw3nscqDgK6ddNhZLhCbJd9fPsanB0OgdXTNVkQ6EYUUqBqyPM/a4vY
-         CbHtyASiJA418MX0oSjMiiVC6FiPHw14WLUdEeW4Umr+YbCrJrLf7Hu5eVK7mdrvS4DL
-         9OmWoG7mWW8rmfaib9lGQ1oMZzSYCCqUfliHLErQsjuMdJcbCt3LcNup8fzoyt0Y/8GR
-         akHy/Cg/e08JrY/cBm35hsRfsCSXWjiae/OD5Dh8cA2PThcAjwbY7B/39CO37V9omWgv
-         O4OooSmTvvfZDRD1Nt5OUOhrDwbp6u/SmztihR1xLy5JcdwnB1lQkg/5xvUiJBgW8awI
-         T2mA==
-In-Reply-To: <168155718437.13678.714141668943813263.stgit@skinsburskii.localdomain>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
-Sender: "Linuxppc-dev" <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
-Content-Type: text/plain; charset="utf-8"
-To: Stanislav Kinsburskii <skinsburskii@linux.microsoft.com>
-Cc: linux-ia64@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>, linux-mips@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Omar Sandoval <osandov@fb.com>, linux-arch@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Helge Deller <deller@gmx.de>, x86@kernel.org, Stanislav Kinsburskii <stanislav.kinsburskii@gmail.com>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Matt Turner <mattst88@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-alpha@vger.kernel.org, Richard Henderson <richard.henderson@linaro.org>, Nicholas Piggin <npiggin@gmail.com>, Mark Brown <broonie@kernel.org>, Borislav Petkov <bp@alien8.de>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>, Brian Cain <bcain@quicin>, c.com, , Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Chris Down <chris@chrisdown.name>, linux-
+Return-path: <linux-arch-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1683112007;
+        bh=1Z/abXjYScbaeQJORhJfZ1yaBTS2vU/U1cufhR2GD0M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DYeRD57ViS93rxSgHpAWB7YMqFMUVx8+EiMfSRn6yQEG7G9RSDQSNSSe1sxzZ3BLo
+         GvrB3gAjIST0ilFZUg8IMfwBDx8wfH+KA+j3pBm5lWI8UmkhRuaPcCrBRvajh/kKlf
+         sc97elHz9FlAP3leMT4UaefDRJMGkLzMHZE6FdoaOvmUUjuDHCL58u0eFmESKWCS4j
+         iTu0lEr+kmh/c3tzKSar0Ap1ePkXfG5K61exCSLbCF+9ApT/2au8DOYFlhGDOEhdXg
+         2pQvwMWVokBgoPnt+ruSQN7Puaw5HnfRo4DOOVEE3FkCyWkRa5+PjlZzOTI1BYYKE3
+         QatkVXcriRXBA==
+Content-Disposition: inline
+In-Reply-To: <20230429063348.125544-1-npiggin@gmail.com>
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+To: Nicholas Piggin <npiggin@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet Gupta <vgupta@kernel.org>, linux-snps-arc@lists.infradead.org, Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org, Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-mips@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, linux-openrisc@vger.kernel.org, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.o
 
-On Thu, Apr 27, 2023 at 7:41=E2=80=AFPM Stanislav Kinsburskii
-<skinsburskii@linux.microsoft.com> wrote:
+Le Sat, Apr 29, 2023 at 04:33:48PM +1000, Nicholas Piggin a =E9crit :
+> This option was created in commit 554b0004d0ec4 ("vtime: Add
+> HAVE_VIRT_CPU_ACCOUNTING_GEN Kconfig") for architectures to indicate
+> they support the 64-bit cputime_t required for VIRT_CPU_ACCOUNTING_GEN.
+>=20
+> The cputime_t type has since been removed, so this doesn't have any
+> meaning. Remove it.
 
-> This series is aimed to address compilation warnings when a constant poin=
-ter
-> is passed to virt_to_phys and isa_virt_to_bus functions:
->
->   warning: passing argument 1 of =E2=80=98virt_to_phys=E2=80=99 discards =
-=E2=80=98const=E2=80=99 qualifier from pointer target type
->   warning: passing argument 1 of =E2=80=98isa_virt_to_bus=E2=80=99 discar=
-ds =E2=80=98const=E2=80=99 qualifier from pointer target type
->
-> The change(s) is the same for all architectures, but it's split into a se=
-ries on
-> per-arch basis to simplify applying and testing on the maintainers side.
->
-> The following series implements...
+Well, cputime_t has disappeared but not the u64 type used
+for task/cpu time accounting.
 
-This is nice.
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+But now we have the vtime seqcount. Though we already had it
+when we introduced that Kconfig switch so I can't remember why
+this was necessary :-(
 
-I am working with an adjacent task, which is to make virt_to_pfn() and
-pfn_to_virt() into static inlines. I might need to rebase my work on top
-of this but it should be doable, I am currently stressing the buildbots
-with this with the idea to propose it to Arnd once v6.4-rc1 is out:
-https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-integrator.git=
-/log/?h=3Db4/virt-to-pfn-v6-4-rc1
+It _looks_ OK but I might be missing something...
 
-Yours,
-Linus Walleij
+Thanks.
