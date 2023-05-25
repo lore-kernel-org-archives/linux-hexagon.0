@@ -1,61 +1,68 @@
-From: Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH v2 05/34] mm: add utility functions for ptdesc
-Date: Thu, 25 May 2023 23:25:37 +0300
-Message-ID: <20230525202537.GA4967@kernel.org>
+From: Vishal Moola <vishal.moola@gmail.com>
+Subject: Re: [PATCH v2 01/34] mm: Add PAGE_TYPE_OP folio functions
+Date: Thu, 25 May 2023 13:38:54 -0700
+Message-ID: <CAOzc2pzGPBYL3S=noc1AAEtep04GexRmn2f_T3BPgVFZKaqXTg@mail.gmail.com>
 References: <20230501192829.17086-1-vishal.moola@gmail.com>
- <20230501192829.17086-6-vishal.moola@gmail.com>
- <20230525090956.GX4967@kernel.org>
- <CAOzc2pxSH6GhBnAoSOjvYJk2VdMDFZi3H_1qGC5Cdyp3j4AzPQ@mail.gmail.com>
+ <20230501192829.17086-2-vishal.moola@gmail.com> <20230525085555.GV4967@kernel.org>
+ <CAOzc2pxx489C26NnS9NHkUQY9PYiagzt-nYK6LnkJ1N3NYQWzg@mail.gmail.com> <20230525202011.GZ4967@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-mips-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685046362;
-        bh=q0CSXKuNpY/cOn/THS8/5Wy4aJR83TTmgU6zxWwJSXw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SQE8oA8lQRwEus253i9PgXAYxS+1hfEWgxQkG8dNMuK5+C2MzFWHC2gCVa/sCTaIh
-         mINB5DgFECw+pGenAIWbq/ant+MDQxcFaxJeNamZqmWfH2SE50ljnoCt5WDkZMFN/y
-         zSsFGUWBnPo7WzVzFj57OnJKTLZv8v06II8J4E2+FMu/J0lzw0cg8/Um5wKRhTuiBz
-         M1a9kePx9hC6/XnF66pTT3tDmfydVWOZ+PUuN61Pd1nQtUDi8l6wozX8HGFWMhSLig
-         QS2F5MDwxfui88OZl1d4xhMuIeMffwSLM7NnRPkICdlmFaTyYVH5nOaWhDuFI01iqL
-         PEjExdKRm1jxQ==
-Content-Disposition: inline
-In-Reply-To: <CAOzc2pxSH6GhBnAoSOjvYJk2VdMDFZi3H_1qGC5Cdyp3j4AzPQ@mail.gmail.com>
+Return-path: <linux-m68k-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1685047145; x=1687639145;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VbD1OYIGibvwFMRrdJMTdc4wGgHOsGEW6NjvtgF3JXU=;
+        b=hsCL+sMjCSPEeQwY9ipI1+Ugi88AzJEwmAmsO1IR16vD0JLbTTRj1EWY5Xyhze+GRV
+         OIRanM33HOk1xRjR7/GHHUD5lVS6HFpcFxeDfzeE8/I0OcBZz8czUxvwLPGCPl3ZI/jZ
+         DVqHoFaNkDaMUMuSYvpfhlO6EV7GylFCaeIZ84F6j+93L973raF6hD3O66C/pZ4eWLz+
+         QLbFT/lbaOp/9U1+H051UFvXelrd7lzOtz3vj1HsEWe84ksN1HTRbSJYJedE8uZu9k6u
+         F1jI+oM85Ujez7vT22bFzFiXTlvVTKRouPJkd38Xldm/McWaSi1VxP376ACeyocGF45q
+         tGcA==
+In-Reply-To: <20230525202011.GZ4967@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="windows-1252"
-To: Vishal Moola <vishal.moola@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+To: Mike Rapoport <rppt@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org
 
-On Thu, May 25, 2023 at 11:04:28AM -0700, Vishal Moola wrote:
-> On Thu, May 25, 2023 at 2:10=E2=80=AFAM Mike Rapoport <rppt@kernel.org> w=
-rote:
-> > > +
-> > > +static inline struct ptdesc *ptdesc_alloc(gfp_t gfp, unsigned int or=
-der)
-> > > +{
-> > > +     struct page *page =3D alloc_pages(gfp | __GFP_COMP, order);
-> > > +
-> > > +     return page_ptdesc(page);
-> > > +}
-> > > +
-> > > +static inline void ptdesc_free(struct ptdesc *pt)
-> > > +{
-> > > +     struct page *page =3D ptdesc_page(pt);
-> > > +
-> > > +     __free_pages(page, compound_order(page));
-> > > +}
+On Thu, May 25, 2023 at 1:20=E2=80=AFPM Mike Rapoport <rppt@kernel.org> wro=
+te:
+>
+> On Thu, May 25, 2023 at 10:00:23AM -0700, Vishal Moola wrote:
+> > On Thu, May 25, 2023 at 1:56=E2=80=AFAM Mike Rapoport <rppt@kernel.org>=
+ wrote:
+> > >
+> > > Hi,
+> > >
+> > > On Mon, May 01, 2023 at 12:27:56PM -0700, Vishal Moola (Oracle) wrote=
+:
+> > > > No folio equivalents for page type operations have been defined, so
+> > > > define them for later folio conversions.
+> > >
+> > > Can you please elaborate why would we need folios for page table desc=
+riptors?
 > >
-> > The ptdesc_{alloc,free} API does not sound right to me. The name
-> > ptdesc_alloc() implies the allocation of the ptdesc itself, rather than
-> > allocation of page table page. The same goes for free.
->=20
-> I'm not sure I see the difference. Could you elaborate?
+> > Thanks for the review!
+> >
+> > These macros are for callers that care about the page type, i.e. Table =
+and
+> > Buddy. Aside from accounting for those cases, the page tables don't use=
+ folios.
+> > These are more for the cleanliness of those callers.
+>
+> But why using folio APIs for PageType will be cleaner than using page API=
+s?
+> Do you have an example?
 
-I read ptdesc_alloc() as "allocate a ptdesc" rather than as "allocate a
-page for page table and return ptdesc pointing to that page". Seems very
-confusing to me already and it will be even more confusion when we'll start
-allocating actual ptdescs.
-=20
---=20
-Sincerely yours,
-Mike.
+Ah, for example in mm/memory-failure.c there are a couple uses of PageTable=
+.
+Like the line :
+if (folio_test_slab(folio) || PageTable(&folio->page) ||
+folio_test_reserved(folio))
+where that PageTable(&folio->page) can now be written as folio_test_table(f=
+olio)
+instead.
+
+Also there are numerous uses of PageBuddy in mm/compaction.c that will
+likely need to be converted to folios as well.
