@@ -1,25 +1,25 @@
 From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Subject: Re: [PATCH 2/2] powerpc/xmon: use KSYM_NAME_LEN in array size
-Date: Tue, 30 May 2023 14:54:57 +0200
-Message-ID: <CANiq72=QeTgtZL4k9=4CJP6C_Hv=rh3fsn3B9S3KFoPXkyWk3w@mail.gmail.com>
-References: <CGME20230529111404epcas5p2d540d726dcf3e21aae2a6a0958e2eea5@epcas5p2.samsung.com>
- <20230529111337.352990-1-maninder1.s@samsung.com> <20230529111337.352990-2-maninder1.s@samsung.com>
+Subject: Re: [PATCH 1/2] hexagon/traps.c: use KSYM_NAME_LEN in array size
+Date: Tue, 30 May 2023 14:59:15 +0200
+Message-ID: <CANiq72nTqbof=SThq-PRhz=ks2WRvdUXBzJoesyXUmB2KB5pmA@mail.gmail.com>
+References: <CGME20230529111350epcas5p46a1fa16ffb2a39008c26d03c5c63f109@epcas5p4.samsung.com>
+ <20230529111337.352990-1-maninder1.s@samsung.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685451309; x=1688043309;
+        d=gmail.com; s=20221208; t=1685451566; x=1688043566;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1EExUiqYGPAGs+gsix048NKVSDGe99d7YwmeqIwl9rU=;
-        b=JtxDIm0lWrfYqXp1uWdsfFKWSgbbZ22HNue1yFm4trGTkGFo6xIWrEoI8KhdELLQIq
-         DmECGu2waVpow6RkIqk3AX5YTN81bUQ38ACduEbGqRhLkcS4+aytN0jtUfSloYRWKQ+q
-         vJ0J2K3/U3iSTAnBLpcaJBTIDJ4PsFSVRybdG1dxrRnsgqT6D7gFv8MPH9l+nYqEATRm
-         /oGzvXMzw4aKlZlJX/qsd02+8TlbqEw/84uUqvj61DTDFGSAJGYrjrf8E1nbueJLbm4u
-         AlOHw1376rAI3yUYgvk4ZhWGkPLuPeKI/Fb1pBA5e3XSOjJHmY7DC3vI1uRZ8RBpw1hF
-         J/rw==
-In-Reply-To: <20230529111337.352990-2-maninder1.s@samsung.com>
+        bh=pUns/AgpqXLAWkbT9nsAikv8VufNiDnQgvXLGdGlTyQ=;
+        b=OmrsvIF7hVLwpUuwLixBRJ6u4vsZnI03aBYhM18P6OCXa/SkjvHSiOjWX6yU2Q+gVi
+         hZSYPF3eITVKkYItFYr40i+B779YjeABUR1SkuuWHeOyReu71Ytc8ggaIRkhc0xEM/if
+         4VJTLo1GjdIk59fADOfd1uFtp0DXUobZ2kIb1rsy+zJyeHL48aoL2Dy+fG3jFt9R0ldN
+         gGySuiRHmb2P+Bx+5K/TX2xeZ4KYSiIdtYy3pIyxAJoOuZwR1vFnfswavB3CyexFxUMO
+         CyvNnOx/Od3r2WXffSaYZum9hThqDE6T/s2Pvq0DSbvGqtj9N+4juL1VKBfGT3Tq++hv
+         89oA==
+In-Reply-To: <20230529111337.352990-1-maninder1.s@samsung.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
@@ -37,20 +37,25 @@ Cc: nathanl@linux.ibm.com, bcain@quicinc.com, keescook@chromium.org, gary@garygu
 On Mon, May 29, 2023 at 1:14=E2=80=AFPM Maninder Singh <maninder1.s@samsung=
 .com> wrote:
 >
-> +static char tmpstr[KSYM_NAME_LEN];
+> kallsyms_lookup which in turn calls for kallsyms_lookup_buildid()
+> writes on index "KSYM_NAME_LEN - 1".
+>
+> Thus array size should be KSYM_NAME_LEN.
+>
+> for hexagon it was defined as "128" directly.
+> and commit '61968dbc2d5d' changed define value to 512,
+> So both were missed to update with new size.
+>
+> Fixes: 61968dbc2d5d ("kallsyms: increase maximum kernel symbol length to =
+512")
+>
+> Co-developed-by: Onkarnath <onkarnath.1@samsung.com>
+> Signed-off-by: Onkarnath <onkarnath.1@samsung.com>
+> Signed-off-by: Maninder Singh <maninder1.s@samsung.com>
+
+With the updated commit hash:
 
 Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
-
-Side-note: in `get_function_bounds()`, I see `kallsyms_lookup()` being
-used, but the name seems discarded? Can
-`kallsyms_lookup_size_offset()` be used instead, thus avoiding the
-usage of the buffer there to begin with?
-
-Side-note 2: in `scanhex()`, I see a loop `i<63` using `tmpstr` which
-then is used to do a `kallsyms_lookup_name()`, so I guess symbols
-larger than 64 couldn't be found. I have no idea about what are the
-external constraints here, but perhaps it is possible to increase the
-`line` buffer etc. to then allow for bigger symbols to be found.
 
 Cheers,
 Miguel
