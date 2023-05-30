@@ -1,65 +1,62 @@
-From: Azeem Shaikh <azeemshaikh38@gmail.com>
-Subject: [PATCH] Hexagon: Replace all non-returning strlcpy with strscpy
-Date: Tue, 30 May 2023 16:26:08 +0000
-Message-ID: <20230530162608.984333-1-azeemshaikh38@gmail.com>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH 1/1] arch:hexagon/powerpc: use KSYM_NAME_LEN in array size
+Date: Tue, 30 May 2023 16:14:01 -0700
+Message-ID: <202305301611.34F0A680A2@keescook>
+References: <20230529052821.58175-1-maninder1.s@samsung.com>
+ <CGME20230529052832epcas5p4fa1b8cf25d9810d32bd2ccf012086fb3@epcms5p1>
+ <CANiq72ncDr68qeahrHuQ63dj1Va3=Us6ZSjGRkr6Zp8j+=yH_Q@mail.gmail.com>
+ <20230529105707epcms5p1418eac680ebe1736196706b0db80dd39@epcms5p1>
+ <CANiq72n_eso7_pgna8ukmEnuCQPsKYPr0NU-Ss9Nwv0VzX=etg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685463973; x=1688055973;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=bINww4BS9Q6hxqerWqXoOb0apgrSo5QFqqzYaEsD6HE=;
-        b=MjX3/0w6ekjWWGcLGn9tr1TaBi4CybNxXDzzXBFtWRYXgboucEwWrJZJorQSHNBFZR
-         8xY+IPe69+dq1vkIKsmw8QoLy+bR0IDcFCLQRp1qdCXmjrHZO+T4iiW1yTXac52YZPZD
-         i8YPRtU9SP3ngHxSCMDT8HOe+TOw2bkcLqC4EL2HQpmYonYqZljzroaO6RH/Q4Y6BdFN
-         dPI1wWouIeFmezuItohGf1wF0UYddRct9iRw0s/q1PO5rRNW9yCv2lfeVCb/jNRrEpDn
-         ABjbjE2EGvyE2dhtxrV6ca3hWrivplnL2db1hoczt+wvlZPUnJcBo7N85dSt9iC007tt
-         FdKA==
+        d=chromium.org; s=google; t=1685488442; x=1688080442;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=43Cq77dQ/zrfTfrqcrXS896rxBWu+H66vhJzdZh3Sqc=;
+        b=RhGkv/UgqOw2a+M5Bu2/ULyGBQHPPzkrDPUyaz2nTpMZKESlZL2wEfrXpNPy/E35Hr
+         ib+DwzUKBebWVZvTvFVKLXFT2yOi+8DwafPBMdk6e5LBlSa0kUzutXwe+POZ6/MXpZUy
+         jLVOubfaaSTjXFX0n7gXFj1P1vIMR+TjHUfLM=
+Content-Disposition: inline
+In-Reply-To: <CANiq72n_eso7_pgna8ukmEnuCQPsKYPr0NU-Ss9Nwv0VzX=etg@mail.gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Brian Cain <bcain@quicinc.com>
-Cc: linux-hardening@vger.kernel.org, Azeem Shaikh <azeemshaikh38@gmail.com>, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc: maninder1.s@samsung.com, Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, "bcain@quicinc.com" <bcain@quicinc.com>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "npiggin@gmail.com" <npiggin@gmail.com>, "christophe.leroy@csgroup.eu" <christophe.leroy@csgroup.eu>, "nathanl@linux.ibm.com" <nathanl@linux.ibm.com>, "ustavoars@kernel.org" <ustavoars@kernel.org>, "alex.gaynor@gmail.com" <alex.gaynor@gmail.com>, "gary@garyguo.net" <gary@garyguo.net>, "ojeda@kernel.org" <ojeda@kernel.org>, "pmladek@suse.com" <pmladek@suse.com>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Onkarnath <onkarnath.1@samsung.c>
 
-strlcpy() reads the entire source buffer first.
-This read may exceed the destination size limit.
-This is both inefficient and can lead to linear read
-overflows if a source string is not NUL-terminated [1].
-In an effort to remove strlcpy() completely [2], replace
-strlcpy() here with strscpy().
-No return values were used, so direct replacement is safe.
+On Mon, May 29, 2023 at 04:50:45PM +0200, Miguel Ojeda wrote:
+> Kees: what is the current stance on `[static N]` parameters? Something like:
+> 
+>     const char *kallsyms_lookup(unsigned long addr,
+>                                 unsigned long *symbolsize,
+>                                 unsigned long *offset,
+>     -                           char **modname, char *namebuf);
+>     +                           char **modname, char namebuf[static KSYM_NAME_LEN]);
+> 
+> makes the compiler complain about cases like these (even if trivial):
+> 
+>     arch/powerpc/xmon/xmon.c:1711:10: error: array argument is too small;
+>         contains 128 elements, callee requires at least 512
+> [-Werror,-Warray-bounds]
+>             name = kallsyms_lookup(pc, &size, &offset, NULL, tmpstr);
+>                  ^                                           ~~~~~~
+>     ./include/linux/kallsyms.h:86:29: note: callee declares array
+> parameter as static here
+>             char **modname, char namebuf[static KSYM_NAME_LEN]);
+>                                  ^      ~~~~~~~~~~~~~~~~~~~~~~
 
-[1] https://www.kernel.org/doc/html/latest/process/deprecated.html#strlcpy
-[2] https://github.com/KSPP/linux/issues/89
+Wouldn't that be a good thing? (I.e. complain about the size mismatch?)
 
-Signed-off-by: Azeem Shaikh <azeemshaikh38@gmail.com>
----
- arch/hexagon/kernel/setup.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> But I only see 2 files in the kernel using `[static N]` (from 2020 and
+> 2021). Should something else be used instead (e.g. `__counted_by`),
+> even if constexpr-sized?.
 
-diff --git a/arch/hexagon/kernel/setup.c b/arch/hexagon/kernel/setup.c
-index 1880d9beaf2b..621674e86232 100644
---- a/arch/hexagon/kernel/setup.c
-+++ b/arch/hexagon/kernel/setup.c
-@@ -66,9 +66,9 @@ void __init setup_arch(char **cmdline_p)
- 		on_simulator = 0;
- 
- 	if (p[0] != '\0')
--		strlcpy(boot_command_line, p, COMMAND_LINE_SIZE);
-+		strscpy(boot_command_line, p, COMMAND_LINE_SIZE);
- 	else
--		strlcpy(boot_command_line, default_command_line,
-+		strscpy(boot_command_line, default_command_line,
- 			COMMAND_LINE_SIZE);
- 
- 	/*
-@@ -76,7 +76,7 @@ void __init setup_arch(char **cmdline_p)
- 	 * are both picked up by the init code. If no reason to
- 	 * make them different, pass the same pointer back.
- 	 */
--	strlcpy(cmd_line, boot_command_line, COMMAND_LINE_SIZE);
-+	strscpy(cmd_line, boot_command_line, COMMAND_LINE_SIZE);
- 	*cmdline_p = cmd_line;
- 
- 	parse_early_param();
+Yeah, it seems pretty uncommon. I'd say traditionally arrays aren't
+based too often, rather structs containing them.
 
+But ultimately, yeah, everything could gain __counted_by and friends in
+the future.
+
+-- 
+Kees Cook
