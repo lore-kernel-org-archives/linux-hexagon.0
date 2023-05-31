@@ -1,7 +1,7 @@
 From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH v3 09/34] mm: Convert pmd_ptlock_init() to use ptdescs
-Date: Wed, 31 May 2023 14:30:07 -0700
-Message-ID: <20230531213032.25338-10-vishal.moola@gmail.com>
+Subject: [PATCH v3 11/34] mm: Convert pmd_ptlock_free() to use ptdescs
+Date: Wed, 31 May 2023 14:30:09 -0700
+Message-ID: <20230531213032.25338-12-vishal.moola@gmail.com>
 References: <20230531213032.25338-1-vishal.moola@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -16,17 +16,17 @@ List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
 Errors-To: xen-devel-bounces@lists.xenproject.org
 Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685568687; x=1688160687;
+        d=gmail.com; s=20221208; t=1685568691; x=1688160691;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=M8eY/8E6JF8s/V5NNW8TZkaDOnTKuaiqrBMcG8UrW5A=;
-        b=F74YoiyArmyQwVgOOUW2kfK/7YQSeytT5Qdq4W7jztqrHFW+OxsR62y2z0sZiEV/Pj
-         CHUjkMgQ+tHkrFh4S6EPBTtuP0+8wu5BQZyij+e15SnoNrkShPqGZvWdjF5BKJMv2Qv9
-         d//2kHJUZF8y/wk4PqE5bOyyg7AT91rLlQi2SzidEtRHvmTf0yi6wamtogBgC9EY9N9P
-         uw5EAPHRhzcCUSce1FYm7EE8CHhgk2SNgdWG+thFtb+Fd9K9ZtkE1HL6Lqu8zbrIjBxa
-         OBo4gwjzqO/AwYTPpiaC4MdC5Mq0f0RkoLNLDnNUh3I4ll9vsxHX0eJNI6QQ67EeV90U
-         TdMw==
+        bh=G1jEnioq7k9B+WnYjAw3S6OIwBriiVkAgPsVN7nSKAQ=;
+        b=sRB3lx4kAmnM8+wptcE+ajVYWk3XjheLnACKkDukTCUf9xFbPcDCYhPah6bex/BYdh
+         giGFY1Br6w10nUQCd9DWblMM8GH+uaGuqnqROXiLO3UcERmYA2lDrQkgyUuZp7Z8kkqA
+         nuRpQ/9G4vNwfZmkO1bs5HdxOej2dcQ5VFdd4ryduclGMMN3123XdTOk5+I53fDJyOM9
+         XY0ZeZ9oP8N1MEbhuB5it+QgLHnwrzlk6MNwsUUfvNiqVb/KKB+BbxPk/D/IjrOXLBJg
+         QnLP5YOwWWUD0KCage2oW1q2o8nxOiUGc6Utker8eoaHUzZhr+sfeHDiQePcAYy+fUoc
+         EHhQ==
 In-Reply-To: <20230531213032.25338-1-vishal.moola@gmail.com>
 Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
@@ -41,43 +41,43 @@ Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
  1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 6f7263fcd821..8e63e60c399c 100644
+index bc2f139de4e7..ffc82355fea6 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
-@@ -2923,12 +2923,12 @@ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
- 	return ptlock_ptr(pmd_ptdesc(pmd));
+@@ -2931,12 +2931,12 @@ static inline bool pmd_ptlock_init(struct ptdesc *ptdesc)
+ 	return ptlock_init(ptdesc);
  }
  
--static inline bool pmd_ptlock_init(struct page *page)
-+static inline bool pmd_ptlock_init(struct ptdesc *ptdesc)
+-static inline void pmd_ptlock_free(struct page *page)
++static inline void pmd_ptlock_free(struct ptdesc *ptdesc)
  {
  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
--	page->pmd_huge_pte = NULL;
-+	ptdesc->pmd_huge_pte = NULL;
+-	VM_BUG_ON_PAGE(page->pmd_huge_pte, page);
++	VM_BUG_ON_PAGE(ptdesc->pmd_huge_pte, ptdesc_page(ptdesc));
  #endif
--	return ptlock_init(page);
-+	return ptlock_init(ptdesc_page(ptdesc));
+-	ptlock_free(page);
++	ptlock_free(ptdesc_page(ptdesc));
  }
  
- static inline void pmd_ptlock_free(struct page *page)
-@@ -2948,7 +2948,7 @@ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
- 	return &mm->page_table_lock;
+ #define pmd_huge_pte(mm, pmd) (pmd_ptdesc(pmd)->pmd_huge_pte)
+@@ -2949,7 +2949,7 @@ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
  }
  
--static inline bool pmd_ptlock_init(struct page *page) { return true; }
-+static inline bool pmd_ptlock_init(struct ptdesc *ptdesc) { return true; }
- static inline void pmd_ptlock_free(struct page *page) {}
+ static inline bool pmd_ptlock_init(struct ptdesc *ptdesc) { return true; }
+-static inline void pmd_ptlock_free(struct page *page) {}
++static inline void pmd_ptlock_free(struct ptdesc *ptdesc) {}
  
  #define pmd_huge_pte(mm, pmd) ((mm)->pmd_huge_pte)
-@@ -2964,7 +2964,7 @@ static inline spinlock_t *pmd_lock(struct mm_struct *mm, pmd_t *pmd)
  
- static inline bool pgtable_pmd_page_ctor(struct page *page)
+@@ -2973,7 +2973,7 @@ static inline bool pgtable_pmd_page_ctor(struct page *page)
+ 
+ static inline void pgtable_pmd_page_dtor(struct page *page)
  {
--	if (!pmd_ptlock_init(page))
-+	if (!pmd_ptlock_init(page_ptdesc(page)))
- 		return false;
- 	__SetPageTable(page);
- 	inc_lruvec_page_state(page, NR_PAGETABLE);
+-	pmd_ptlock_free(page);
++	pmd_ptlock_free(page_ptdesc(page));
+ 	__ClearPageTable(page);
+ 	dec_lruvec_page_state(page, NR_PAGETABLE);
+ }
 -- 
 2.40.1
 
