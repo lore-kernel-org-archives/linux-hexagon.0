@@ -1,55 +1,61 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH 2/2] powerpc/xmon: use KSYM_NAME_LEN in array size
-Date: Thu, 01 Jun 2023 12:02:16 +1000
-Message-ID: <87ilc8ym6v.fsf@mail.lhotse>
-References: <CGME20230529111404epcas5p2d540d726dcf3e21aae2a6a0958e2eea5@epcas5p2.samsung.com>
- <20230529111337.352990-1-maninder1.s@samsung.com>
- <20230529111337.352990-2-maninder1.s@samsung.com>
- <CANiq72=QeTgtZL4k9=4CJP6C_Hv=rh3fsn3B9S3KFoPXkyWk3w@mail.gmail.com>
+From: Guo Ren <guoren@kernel.org>
+Subject: Re: [PATCH v3 22/34] csky: Convert __pte_free_tlb() to use ptdescs
+Date: Thu, 1 Jun 2023 12:36:23 +0800
+Message-ID: <CAJF2gTSEguewbRMD8w3u3tfSPt-Opy+i=jm_8W2+NtAP1OYSsA@mail.gmail.com>
+References: <20230531213032.25338-1-vishal.moola@gmail.com> <20230531213032.25338-23-vishal.moola@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1685584941;
-        bh=EKqPUa5BbsNp2IS+PVeURMLivGy9/PqofQB8JVPKzHk=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=iVM+pWfOIbhHL9f9DmsNTYSYsnsKADtZjQT9IBkW+solKs/5jaM7HmHXujPBPR3sR
-         wMMXiW8q5QUIc2tF+b7pContzFBOjsvsrQZp+PB993f8ACrE562bCVTAPxc4nHPlVT
-         1JaDyr37YE8RGysSYBHCWpx6blwoqIhVENU7L02HS4t35C05grIv/jnerzHXtBFxkr
-         LlFZ4pTbtpMi1kzvCtW/E0KSPxtdyhZedudAUHM4yCfBKpWkN+tj7x/zD6gocR2QVp
-         hI0nknDZgWcSY2pAmQYBBAJ+nUybSxOQcns2PjvlZPakzmphOIgWmf3ANOTX/gtTkW
-         24NljidWcxz/Q==
-In-Reply-To: <CANiq72=QeTgtZL4k9=4CJP6C_Hv=rh3fsn3B9S3KFoPXkyWk3w@mail.gmail.com>
+Return-path: <linux-arch-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685594197;
+        bh=QZIVYOfQMQfDIruN7rSg689YIbiJbkkfE8AKRfy2n5U=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=XjX+qO5TgZej3fh2HJQIqiOR5PxyL4koYuTQx2qeUwz0mw2WS7S8765bRMbrDCQVG
+         whIGCjOlXBTjeWiN2+LrCx+Or8mSlhjQdHY5MFaYnqKspwUjKhBsJekNkwwwC3A2tK
+         RRJ+PYWLTNVwk2Tc4E1sjjLY66LER3hFT6QIRdlz0YEtfE5QnejkEMpgjlFtCb1L5b
+         jav2+jHQW0E6lB/EBDYRssonNB4dhirDM2pvI3kpcWJ0B9czAKVTkvmbZ2ylsgGsMq
+         x3kGCiBqFY0IqxyFq7Pvs4DJbAWcMeNsAFCqYa1UhLYAOwr6LlCcKM6JbTbj+s1hsP
+         DnX5huppMSCjQ==
+In-Reply-To: <20230531213032.25338-23-vishal.moola@gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="windows-1252"
-To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Maninder Singh <maninder1.s@samsung.com>
-Cc: bcain@quicinc.com, npiggin@gmail.com, christophe.leroy@csgroup.eu, keescook@chromium.org, nathanl@linux.ibm.com, ustavoars@kernel.org, alex.gaynor@gmail.com, gary@garyguo.net, ojeda@kernel.org, pmladek@suse.com, wedsonaf@google.com, linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Onkarnath <onkarnath.1@samsung.com>
+To: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org
 
-Miguel Ojeda <miguel.ojeda.sandonis@gmail.com> writes:
-> On Mon, May 29, 2023 at 1:14=E2=80=AFPM Maninder Singh <maninder1.s@samsu=
-ng.com> wrote:
->>
->> +static char tmpstr[KSYM_NAME_LEN];
+Acked-by: Guo Ren <guoren@kernel.org>
+
+On Thu, Jun 1, 2023 at 5:34=E2=80=AFAM Vishal Moola (Oracle)
+<vishal.moola@gmail.com> wrote:
 >
-> Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
+> Part of the conversions to replace pgtable constructor/destructors with
+> ptdesc equivalents.
 >
-> Side-note: in `get_function_bounds()`, I see `kallsyms_lookup()` being
-> used, but the name seems discarded? Can
-> `kallsyms_lookup_size_offset()` be used instead, thus avoiding the
-> usage of the buffer there to begin with?
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> ---
+>  arch/csky/include/asm/pgalloc.h | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/csky/include/asm/pgalloc.h b/arch/csky/include/asm/pgal=
+loc.h
+> index 7d57e5da0914..9c84c9012e53 100644
+> --- a/arch/csky/include/asm/pgalloc.h
+> +++ b/arch/csky/include/asm/pgalloc.h
+> @@ -63,8 +63,8 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+>
+>  #define __pte_free_tlb(tlb, pte, address)              \
+>  do {                                                   \
+> -       pgtable_pte_page_dtor(pte);                     \
+> -       tlb_remove_page(tlb, pte);                      \
+> +       pagetable_pte_dtor(page_ptdesc(pte));           \
+> +       tlb_remove_page_ptdesc(tlb, page_ptdesc(pte));  \
+>  } while (0)
+>
+>  extern void pagetable_init(void);
+> --
+> 2.40.1
+>
 
-A few lines below it uses the modname, and AFAICS there's no (easy) way
-to lookup the modname without also looking up the name.
 
-> Side-note 2: in `scanhex()`, I see a loop `i<63` using `tmpstr` which
-> then is used to do a `kallsyms_lookup_name()`, so I guess symbols
-> larger than 64 couldn't be found. I have no idea about what are the
-> external constraints here, but perhaps it is possible to increase the
-> `line` buffer etc. to then allow for bigger symbols to be found.
-
-Yeah that looks wrong. I don't see any symbols that long in current
-kernels, but we should fix it.
-
-Thanks for looking.
-
-cheers
+--=20
+Best Regards
+ Guo Ren
