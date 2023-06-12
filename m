@@ -1,197 +1,143 @@
-From: Nathan Chancellor <nathan@kernel.org>
-Subject: Re: [PATCH v6 02/19] hexagon: mm: Convert to GENERIC_IOREMAP
-Date: Mon, 12 Jun 2023 09:02:37 -0700
-Message-ID: <20230612160237.GA199007@dev-arch.thelio-3990X>
-References: <20230609075528.9390-3-bhe@redhat.com>
- <202306091859.NhlW2nny-lkp@intel.com>
- <ZIQzrRo0JhfBLDes@MiWiFi-R3L-srv>
- <20230611054019.GL52412@kernel.org>
- <ZIV+bD1ksJz0CTz2@MiWiFi-R3L-srv>
+From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Subject: [PATCH v4 00/34] Split ptdesc from struct page
+Date: Mon, 12 Jun 2023 14:03:49 -0700
+Message-ID: <20230612210423.18611-1-vishal.moola@gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686585760;
-        bh=Cw8/v58Xwe9nL7yTk1IkL4cO65ODqpxDl2gTcvbhl3s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=epqC8+rmPDl+BzBaPqK8iPO5GY2MfOWKrl9+fdaLf2x9qOH4UJnmnHT7N140y6g3L
-         Vq1Wdf/Nc3kYloaEu/NdI/4N7ZpHmGMTFcEchMqJDX+a7usWKgZNg9X097J1IglqZG
-         V0sMpHL/tY7r3M1XGzo5yDodJJEFIJr2DSjiwCN76R2WGDcNxTG9MB6+OGph59BGhI
-         zzXsCR/Sq6eJtqXu7v2qAC9m2XUOdpx5CA4ugsdN5cTHf+mUKkcctvIfEP4rhl29hU
-         4tuIloBLb2UgEOSVC60yxOuGH3E7/Gn5bopZq/OJqk+wTK25LqIncxPClX/YEyYrVl
-         maL8Z7Z+IBPoA==
-Content-Disposition: inline
-In-Reply-To: <ZIV+bD1ksJz0CTz2@MiWiFi-R3L-srv>
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Baoquan He <bhe@redhat.com>
-Cc: Mike Rapoport <rppt@kernel.org>, kernel test robot <lkp@intel.com>, linux-kernel@vger.kernel.org, llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev, linux-arch@vger.kernel.org, linux-mm@kvack.org, arnd@arndb.de, christophe.leroy@csgroup.eu, hch@lst.de, willy@infradead.org, agordeev@linux.ibm.com, wangkefeng.wang@huawei.com, schnelle@linux.ibm.com, David.Laight@aculab.com, shorne@gmail.com, deller@gmx.de, Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-Id:Date:Subject:Cc
+	:To:From:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:
+	List-Owner; bh=d/SajnrYpQal0B2COub3DpGDn5nFpIW2G/RM/DcMVZY=; b=NjXTItEXH3nXSD
+	U58fGff7k07n/aO6+qvICqdf9rrqCQ31brkWhx4TnQSuW1UZocjm9xjHbxcWeV98Hku+DFDsH368A
+	cyXN92yIagk39LTEZw9KiDIvygIrCWdlFaWUrreElIk5G/GzP51JuoDDUqDaS+4+zukIxvv97+ySX
+	oMmTtC7AsySUozXW5aUnvYL4JbZlWGzw/+7apr/QjW2QSgzo+P1rYH31YN4pCvRAtVbGvXsJ2X1Bw
+	9lkOmegSoiNwkrVkCozJSe7RyuMT77RFNh7/uYgIOw/kMO2+kqVOtkfBg0H+60nAL2UatYWblxx1V
+	UWsAD9RCBWMsFQRwHqZw==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1686603886; x=1689195886;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=/6pdu881MOfYV84y7VWiKcwnRMuA78CxiUeG+tta1a0=;
+        b=AczjUHTxusxNkOV7VOEz6qxIWLPwqleq1d3zEUXquo3Fhsoe1KG76B/gUTqOv/33pt
+         hkZpJlkJ76KcjlL6x+InhPSbBDifa6NLLiEoUNkBXYArrGr7STcImjuc2VoeU9NxvC54
+         lebWddx8WzULKd+NI5c/Uram1goESu9pTxdzE6eH38FehdYYICJ+bMuQn+ugw7AsVbL/
+         Ov7eTgdYCG1Jz6kQBnoPdVHFrSKaQB695zJO8R2Ai20iELWwDV05kAAdjc5zIkHXp/c4
+         vxfy2MDQ46mM15p8VfpaN3wDCzp8jtDUPX+KA7Bdo1ZYDTCwrfTMRa5pYDNMk4zv//aF
+         toWw==
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
+Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Huacai Chen <chenhuacai@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, David Hildenbrand <david@redhat.com>, Claudio
 
-On Sun, Jun 11, 2023 at 03:57:32PM +0800, Baoquan He wrote:
-> On 06/11/23 at 08:40am, Mike Rapoport wrote:
-> > Hi Baoquan,
-> > 
-> > On Sat, Jun 10, 2023 at 04:26:21PM +0800, Baoquan He wrote:
-> > > On 06/09/23 at 07:09pm, kernel test robot wrote:
-> > > > Hi Baoquan,
-> > > > 
-> > > > kernel test robot noticed the following build errors:
-> > > > 
-> > > > [auto build test ERROR on akpm-mm/mm-everything]
-> > > > 
-> > > > url:    https://github.com/intel-lab-lkp/linux/commits/Baoquan-He/asm-generic-iomap-h-remove-ARCH_HAS_IOREMAP_xx-macros/20230609-160014
-> > > > base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
-> > > > patch link:    https://lore.kernel.org/r/20230609075528.9390-3-bhe%40redhat.com
-> > > > patch subject: [PATCH v6 02/19] hexagon: mm: Convert to GENERIC_IOREMAP
-> > > > config: hexagon-randconfig-r041-20230608 (https://download.01.org/0day-ci/archive/20230609/202306091859.NhlW2nny-lkp@intel.com/config)
-> > > > compiler: clang version 17.0.0 (https://github.com/llvm/llvm-project.git 4a5ac14ee968ff0ad5d2cc1ffa0299048db4c88a)
-> > > > reproduce (this is a W=1 build):
-> > > >         mkdir -p ~/bin
-> > > >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-> > > >         chmod +x ~/bin/make.cross
-> > > >         git remote add akpm-mm https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git
-> > > >         git fetch akpm-mm mm-everything
-> > > >         git checkout akpm-mm/mm-everything
-> > > >         b4 shazam https://lore.kernel.org/r/20230609075528.9390-3-bhe@redhat.com
-> > > >         # save the config file
-> > > >         mkdir build_dir && cp config build_dir/.config
-> > > >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang ~/bin/make.cross W=1 O=build_dir ARCH=hexagon olddefconfig
-> > > >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang ~/bin/make.cross W=1 O=build_dir ARCH=hexagon prepare
-> > > > 
-> > > > If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> > > > the same patch/commit), kindly add following tags
-> > > > | Reported-by: kernel test robot <lkp@intel.com>
-> > > > | Closes: https://lore.kernel.org/oe-kbuild-all/202306091859.NhlW2nny-lkp@intel.com/
-> > > 
-> > > Thanks for reporting. I reproduced them on my local machine. Below patch
-> > > can fix them. And by the way, I also saw the clone3 warning, and have to 
-> > > made change in scripts/checksyscalls.sh to mute it, wondering how you
-> > > handle it in your testing.
-> > 
-> > I think the warning kbuild reported is rather this one:
-> > 
-> > >> include/asm-generic/io.h:1078:6: error: conflicting types for 'iounmap'
-> >     1078 | void iounmap(volatile void __iomem *addr);
-> >          |      ^
-> 
-> This one is reported as error. The old iounmap() declaration has a const,
-> while the standard one doesn't have. So I just remove the old one to use
-> the standard one.
-> 
-> Another one is warning about PCI_IOBASE. Because inb/w/l and outb/w/l is
-> redefined in asm-generic/io.h, and it uses PCI_IOBASE which is defniend
-> as NULL in asm-generic/io.h if ARCH doesn't have its own PCI_IOBASE
-> definition. Then the warning is triggered. So I define macro to override
-> the standard inb/w/l and outb/w/l.
-> 
-> #ifndef PCI_IOBASE
-> #define PCI_IOBASE ((void __iomem *)0)
-> #endif
+The MM subsystem is trying to shrink struct page. This patchset
+introduces a memory descriptor for page table tracking - struct ptdesc.
 
-I believe that this series [1] by Niklas Schnelle should take care of
-the PCI_IOBASE warnings (which are not Hexagon specific), so there is no
-need to worry about them when they show up in build reports.
+This patchset introduces ptdesc, splits ptdesc from struct page, and
+converts many callers of page table constructor/destructors to use ptdescs.
 
-[1]: https://lore.kernel.org/20230522105049.1467313-1-schnelle@linux.ibm.com/
+Ptdesc is a foundation to further standardize page tables, and eventually
+allow for dynamic allocation of page tables independent of struct page.
+However, the use of pages for page table tracking is quite deeply
+ingrained and varied across archictectures, so there is still a lot of
+work to be done before that can happen.
 
-Cheers,
-Nathan
+This is rebased on next-20230609.
 
-> > > stdin>:1520:2: warning: syscall clone3 not implemented [-W#warnings]
-> > >  1520 | #warning syscall clone3 not implemented
-> > >       |  ^
-> > > 1 warning generated.
-> > > 
-> > > ------
-> > > diff --git a/scripts/checksyscalls.sh b/scripts/checksyscalls.sh
-> > > index 1e5d2eeb726d..3a369b78edb7 100755
-> > > --- a/scripts/checksyscalls.sh
-> > > +++ b/scripts/checksyscalls.sh
-> > > @@ -148,6 +148,7 @@ cat << EOF
-> > >  #define __IGNORE_nanosleep
-> > >  #define __IGNORE_io_getevents
-> > >  #define __IGNORE_recvmmsg
-> > > +#define __IGNORE_clone3
-> > >  #endif
-> > > 
-> > > 
-> > > From 6a86f4360a61a2b7b4d71172e5c03be554367553 Mon Sep 17 00:00:00 2001
-> > > From: root <root@dell-pem620-01.dell2.lab.eng.bos.redhat.com>
-> > > Date: Fri, 9 Jun 2023 21:21:36 -0400
-> > > Subject: [PATCH] hexagon: mm: fix warning in asm/io.h
-> > > Content-type: text/plain
-> > > 
-> > > Remove the old iounmap() declaration which is not consistent with the
-> > > standard one in asm-generic/io.h, let's use the standard one.
-> > > 
-> > > And also add macro definition of inb/w/l and outb/w/l to override
-> > > the definition of them in asm-generic/io.h.
-> > > 
-> > > Reported-by: kernel test robot <lkp@intel.com>
-> > > Signed-off-by: Baoquan He <bhe@redhat.com>
-> > > ---
-> > >  arch/hexagon/include/asm/io.h | 8 ++++++--
-> > >  scripts/checksyscalls.sh      | 1 +
-> > >  2 files changed, 7 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
-> > > index dcd9cbbf5934..efe9cb00ebf8 100644
-> > > --- a/arch/hexagon/include/asm/io.h
-> > > +++ b/arch/hexagon/include/asm/io.h
-> > > @@ -27,8 +27,6 @@
-> > >  extern int remap_area_pages(unsigned long start, unsigned long phys_addr,
-> > >  				unsigned long end, unsigned long flags);
-> > >  
-> > > -extern void iounmap(const volatile void __iomem *addr);
-> > > -
-> > >  /* Defined in lib/io.c, needed for smc91x driver. */
-> > >  extern void __raw_readsw(const void __iomem *addr, void *data, int wordlen);
-> > >  extern void __raw_writesw(void __iomem *addr, const void *data, int wordlen);
-> > > @@ -207,16 +205,19 @@ static inline void memset_io(volatile void __iomem *addr, int value,
-> > >   *
-> > >   * Operates on "I/O bus I/O space"
-> > >   */
-> > > +#define inb inb
-> > >  static inline u8 inb(unsigned long port)
-> > >  {
-> > >  	return readb(_IO_BASE + (port & IO_SPACE_LIMIT));
-> > >  }
-> > >  
-> > > +#define inw inw
-> > >  static inline u16 inw(unsigned long port)
-> > >  {
-> > >  	return readw(_IO_BASE + (port & IO_SPACE_LIMIT));
-> > >  }
-> > >  
-> > > +#define inl inl
-> > >  static inline u32 inl(unsigned long port)
-> > >  {
-> > >  	return readl(_IO_BASE + (port & IO_SPACE_LIMIT));
-> > > @@ -227,16 +228,19 @@ static inline u32 inl(unsigned long port)
-> > >   * @data: data to write to
-> > >   * @addr:  address in I/O space
-> > >   */
-> > > +#define outb outb
-> > >  static inline void outb(u8 data, unsigned long port)
-> > >  {
-> > >  	writeb(data, _IO_BASE + (port & IO_SPACE_LIMIT));
-> > >  }
-> > >  
-> > > +#define outw outw
-> > >  static inline void outw(u16 data, unsigned long port)
-> > >  {
-> > >  	writew(data, _IO_BASE + (port & IO_SPACE_LIMIT));
-> > >  }
-> > >  
-> > > +#define outl outl
-> > >  static inline void outl(u32 data, unsigned long port)
-> > >  {
-> > >  	writel(data, _IO_BASE + (port & IO_SPACE_LIMIT));
-> > > 
-> > 
-> > -- 
-> > Sincerely yours,
-> > Mike.
-> > 
-> 
-> 
+v4:
+  Got more Acked-bys
+  Fixed m68k compilation issue
+  Dropped unnecessary casts
+  Cleanup some fields in struct ptdesc
+
+Vishal Moola (Oracle) (34):
+  mm: Add PAGE_TYPE_OP folio functions
+  s390: Use _pt_s390_gaddr for gmap address tracking
+  s390: Use pt_frag_refcount for pagetables
+  pgtable: Create struct ptdesc
+  mm: add utility functions for ptdesc
+  mm: Convert pmd_pgtable_page() to pmd_ptdesc()
+  mm: Convert ptlock_alloc() to use ptdescs
+  mm: Convert ptlock_ptr() to use ptdescs
+  mm: Convert pmd_ptlock_init() to use ptdescs
+  mm: Convert ptlock_init() to use ptdescs
+  mm: Convert pmd_ptlock_free() to use ptdescs
+  mm: Convert ptlock_free() to use ptdescs
+  mm: Create ptdesc equivalents for pgtable_{pte,pmd}_page_{ctor,dtor}
+  powerpc: Convert various functions to use ptdescs
+  x86: Convert various functions to use ptdescs
+  s390: Convert various gmap functions to use ptdescs
+  s390: Convert various pgalloc functions to use ptdescs
+  mm: Remove page table members from struct page
+  pgalloc: Convert various functions to use ptdescs
+  arm: Convert various functions to use ptdescs
+  arm64: Convert various functions to use ptdescs
+  csky: Convert __pte_free_tlb() to use ptdescs
+  hexagon: Convert __pte_free_tlb() to use ptdescs
+  loongarch: Convert various functions to use ptdescs
+  m68k: Convert various functions to use ptdescs
+  mips: Convert various functions to use ptdescs
+  nios2: Convert __pte_free_tlb() to use ptdescs
+  openrisc: Convert __pte_free_tlb() to use ptdescs
+  riscv: Convert alloc_{pmd, pte}_late() to use ptdescs
+  sh: Convert pte_free_tlb() to use ptdescs
+  sparc64: Convert various functions to use ptdescs
+  sparc: Convert pgtable_pte_page_{ctor, dtor}() to ptdesc equivalents
+  um: Convert {pmd, pte}_free_tlb() to use ptdescs
+  mm: Remove pgtable_{pmd, pte}_page_{ctor, dtor}() wrappers
+
+ Documentation/mm/split_page_table_lock.rst    |  12 +-
+ .../zh_CN/mm/split_page_table_lock.rst        |  14 +-
+ arch/arm/include/asm/tlb.h                    |  12 +-
+ arch/arm/mm/mmu.c                             |   6 +-
+ arch/arm64/include/asm/tlb.h                  |  14 +-
+ arch/arm64/mm/mmu.c                           |   7 +-
+ arch/csky/include/asm/pgalloc.h               |   4 +-
+ arch/hexagon/include/asm/pgalloc.h            |   8 +-
+ arch/loongarch/include/asm/pgalloc.h          |  27 ++-
+ arch/loongarch/mm/pgtable.c                   |   7 +-
+ arch/m68k/include/asm/mcf_pgalloc.h           |  41 ++--
+ arch/m68k/include/asm/sun3_pgalloc.h          |   8 +-
+ arch/m68k/mm/motorola.c                       |   4 +-
+ arch/mips/include/asm/pgalloc.h               |  31 +--
+ arch/mips/mm/pgtable.c                        |   7 +-
+ arch/nios2/include/asm/pgalloc.h              |   8 +-
+ arch/openrisc/include/asm/pgalloc.h           |   8 +-
+ arch/powerpc/mm/book3s64/mmu_context.c        |  10 +-
+ arch/powerpc/mm/book3s64/pgtable.c            |  32 +--
+ arch/powerpc/mm/pgtable-frag.c                |  46 ++--
+ arch/riscv/include/asm/pgalloc.h              |   8 +-
+ arch/riscv/mm/init.c                          |  16 +-
+ arch/s390/include/asm/pgalloc.h               |   4 +-
+ arch/s390/include/asm/tlb.h                   |   4 +-
+ arch/s390/mm/gmap.c                           | 222 +++++++++++-------
+ arch/s390/mm/pgalloc.c                        | 126 +++++-----
+ arch/sh/include/asm/pgalloc.h                 |   9 +-
+ arch/sparc/mm/init_64.c                       |  17 +-
+ arch/sparc/mm/srmmu.c                         |   5 +-
+ arch/um/include/asm/pgalloc.h                 |  18 +-
+ arch/x86/mm/pgtable.c                         |  46 ++--
+ arch/x86/xen/mmu_pv.c                         |   2 +-
+ include/asm-generic/pgalloc.h                 |  62 +++--
+ include/asm-generic/tlb.h                     |  11 +
+ include/linux/mm.h                            | 155 ++++++++----
+ include/linux/mm_types.h                      |  14 --
+ include/linux/page-flags.h                    |  20 +-
+ include/linux/pgtable.h                       |  60 +++++
+ mm/memory.c                                   |   8 +-
+ 39 files changed, 664 insertions(+), 449 deletions(-)
+
+-- 
+2.40.1
