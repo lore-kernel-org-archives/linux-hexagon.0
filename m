@@ -1,36 +1,58 @@
 From: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
 Subject: Re: [PATCH v9 01/42] mm: Rename arch pte_mkwrite()'s to
  pte_mkwrite_novma()
-Date: Tue, 13 Jun 2023 16:14:41 +0000
-Message-ID: <b5febf204db2c2d080e32a9429a4265340091034.camel@intel.com>
+Date: Tue, 13 Jun 2023 16:14:10 +0000
+Message-ID: <13a368447d2c64d09b69fa7d1556dd9ea55f70b7.camel@intel.com>
 References: <20230613001108.3040476-1-rick.p.edgecombe@intel.com>
-         <20230613001108.3040476-2-rick.p.edgecombe@intel.com>
-         <497e571e-e4de-7634-7da6-683599a4bbba@redhat.com>
+	 <20230613001108.3040476-2-rick.p.edgecombe@intel.com>
+	 <CAMuHMdX7K-9gXuOM3KkFieM_W2-Sbb3AVZ-sR65abRMdSBux5A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Content-ID:In-Reply-To:
+	References:Message-ID:Date:Subject:CC:To:From:Reply-To:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=3/KjlD3vRfvLmWUUZuTuwlLmdHzspje4NeVcxzuDoTQ=; b=R2Qioi6eXmlidT
+	SWzH9jJBVdXd+V2pWr/vXkbU9h3SZXgDVzA3pVPxj/N0HaigM6WpNQ0UTNU6gN+tn1Xic9jIIuzXp
+	lekLpVpVbn6YjzuPes3193ASjawlOXX34IFYMkNnnRMbDr4sx2Uidilvlt3g4zqZ92T/MSfQ3tcAX
+	KuVfb6UnsxyLpngFhiCyeiiK8vMtWdjDYpS/PWuZRok1QUMa6oGDEhiSp/81wuYY9jrUGm0xVNeg6
+	rzMgFJRwjUDWntFl8WT96cUJD92g+avrTl6j+CyW5cCl/64IZmtK2r5FxvQZVrAsNwrrGIFVbyJvp
+	r3uMIIp9jNQ4+BNObjaQ==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1686672953; x=1718208953;
+  t=1686673002; x=1718209002;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-id:content-transfer-encoding:
    mime-version;
-  bh=0U2cwbkyUuTAI9fOh9arm1xJSPvXM/Vlz7KbWvXnSso=;
-  b=kBQ8WasxZXYw80pKCevdG702+ZLJ5rV1yBxFIJ3k+etVsyFpnjVpMSPD
-   JhCBcI4KVL43el5Dr3T33QW1uYQZy+mPmQjJ8rickmCUR1Fr9YJ6xh5lJ
-   kSoQHhIDh2/F+bLJ50g0K+PlcMxu+aLyPUUjHfRUlS0sQ5/tE3lwUU45F
-   pn2eHWhEqTBhNSm89+KB0HmRfe2cV/nPIJV7InIv1Z+yOhRnyX3UdXUDS
-   ZJ/EMde4ZW9p32YTYdyHrCnPx6wuOtshQJHOoxVZ60wVGzbsSVTfrQyLP
-   8rIMTmbvki7te2Rvj94VLkpL7jek7/ABRFhd9RhBZ88BQ9Foc2fwBFj/e
-   Q==;
-In-Reply-To: <497e571e-e4de-7634-7da6-683599a4bbba@redhat.com>
+  bh=C5Ys1f9+JE7Bmibl52QMo05WseGH+YcevQbOApSKGbw=;
+  b=JwOoBtY5zNBogIYrPhvmnGqMrKBWJvIAAFyYdBCUWrzsla+F7/oGhTAa
+   eRd2oNht9R4iuTB1IDHaFMBJtQfrgzZ+nzsWzKo7T6L+bzNvuu2o5EflC
+   VZhCZksS8GD77k2N59PPjRooH+6QBVRzO7u3oEq034BezVUY0WfpgQgh0
+   EBT+EANGNzIzQr5Zux712eV7jhJJ/oyG8VFdRbXKUDq1ebp2mLYyfyH3N
+   FMn2ThQkUDmgD0JrNOgIHWXZEMcSsMKg1IuikrhNsyiO7YBIWXg11oqmn
+   sUskc5bx8vpCr9HeQUsvpO8zLWoGnXg4zxupZBkAQMG6Qf0erPO7W4AHg
+   A==;
+In-Reply-To: <CAMuHMdX7K-9gXuOM3KkFieM_W2-Sbb3AVZ-sR65abRMdSBux5A@mail.gmail.com>
 Content-Language: en-US
-Content-ID: <7EE3FBC8E983814C9215D2E914896984@namprd11.prod.outlook.com>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "tglx@linutronix.de" <tglx@linutronix.de>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "kcc@google.com" <kcc@google.com>, "Lutomirski, Andy" <luto@kernel.org>, "nadav.amit@gmail.com" <nadav.amit@gmail.com>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "david@redhat.com" <david@redhat.com>, "Schimpe, Christina" <christina.schimpe@intel.com>, "Torvalds, Linus" <torvalds@linux-foundation.org>, "peterz@infradead.org" <peterz@infradead.org>, "corbet@lwn.net" <corbet@lwn.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jannh@google.com" <jannh@google.com>, "dethoma@microsoft.com" <dethoma@microsoft.com>, "broonie@kernel.org" <broonie@kernel.org>, m
-Cc: "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "monstr@monstr.eu" <monstr@monstr.eu>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>, "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>, "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>, "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "dinguyen@kernel.org" <dinguyen@kernel.org>, linuxppc-dev@
+Content-ID: <8CB5F580BF0FAB4999F6807B618856D7@namprd11.prod.outlook.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: "geert@linux-m68k.org" <geert@linux-m68k.org>
+Cc: "Schimpe, Christina" <christina.schimpe@intel.com>, "Yang, Weijiang" <weijiang.yang@intel.com>, "hjl.tools@gmail.com" <hjl.tools@gmail.com>, "x86@kernel.org" <x86@kernel.org>, "monstr@monstr.eu" <monstr@monstr.eu>, "rppt@kernel.org" <rppt@kernel.org>, "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>, "Torvalds, Linus" <torvalds@linux-foundation.org>, "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>, "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>, "dinguyen@kernel.org" <dinguyen@kernel.org>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "tglx@linutronix.de" <tglx@linutronix.de>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "arnd@arndb.de" <arnd@arndb.de>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "Lutomirski, Andy" <luto@kerne>
 
-T24gVHVlLCAyMDIzLTA2LTEzIGF0IDE0OjI2ICswMjAwLCBEYXZpZCBIaWxkZW5icmFuZCB3cm90
-ZToNCj4gDQo+IEFja2VkLWJ5OiBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT4N
-Cg0KVGhhbmtzIQ0K
+On Tue, 2023-06-13 at 09:19 +0200, Geert Uytterhoeven wrote:
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+
+Thanks!
