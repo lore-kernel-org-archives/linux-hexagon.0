@@ -1,38 +1,37 @@
-From: Mike Rapoport <rppt@kernel.org>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH v9 01/42] mm: Rename arch pte_mkwrite()'s to
  pte_mkwrite_novma()
-Date: Tue, 13 Jun 2023 10:43:47 +0300
-Message-ID: <20230613074347.GR52412@kernel.org>
+Date: Tue, 13 Jun 2023 14:26:53 +0200
+Message-ID: <497e571e-e4de-7634-7da6-683599a4bbba@redhat.com>
 References: <20230613001108.3040476-1-rick.p.edgecombe@intel.com>
  <20230613001108.3040476-2-rick.p.edgecombe@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
+	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
+	List-Unsubscribe:List-Id:In-Reply-To:From:References:Cc:To:Subject:
+	MIME-Version:Date:Message-ID:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=1I4g1L1LZVuurrGJPXbjGUxhmXBg5ha813t1LX0CXsM=; b=CBECYVa5mrB4HJ
-	QutNMLpzCkKlc6DNrX9K7gaVdRuNBcZCIeFVtQ+psT4Qg9K+iHOeq9hTWg/QIAgPZmuOtWM71RbBq
-	xp2xEsHubxusmYsQEBqrkgJElPlT5v5TuEeVmzax3soEmZnskv1u0yp5RyxFo0G7QZp223ACQLxUv
-	d2F4ot2yfN9nyKL3Vmx/jUTPz1vSrq02CZlhHUnfflrH1YvqiRXnf/JnbTHyM/nOlfjU07fW8DuPc
-	dssLK0hKEQX3Eq5wZIoYL1DZuDTLD1GDqbTimgkay7GY4V7zS8STO1wfHmtwnt5f1L9gVOXvta6xO
-	yHTw4eCcyiA6ogNEj3Gg==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1686642270;
-	bh=ez0I+RKRhMdZt82NML91fPb7fzRC4/NkCFA3IdK3cEg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=HyA2VS9kwVTQsYOWOuof1Z4qJ92ct0+rpQ0B5SIAzOL2Mz6wp6NoYwA7DcLYOqzj9
-	 Q8Z9RGOQt5lsRA8Nc33tC8G7SiwN9ipBSdD03bBdhpX4MycI3Vh7vOT7ypJVtsouWv
-	 8Bsg5dlRSFLhnsq+PWCSJc5VolYLva+SeDgrT92N096TEl0/uLmsJvVPLGz9OK3/dz
-	 OYm6tEkeVT/cDyaIgk5UyxE5b/W7hyDcldGwNesOYI9EZOqwD7xGIveZKNt/lp9izm
-	 uoBjmwxoGZjGvj7XWF9lQv7iNjjhyG9sIxFni/WcE8h+xW9r48P7ifrawWGz2rEEWN
-	 FKciDs53eQHeQ==
-Content-Disposition: inline
+	List-Owner; bh=xkXQxjx6gjErq1w7kJzSs1OPJ5YxoJ1hAt4rnuDIHs4=; b=HRhVa7G7GGd43z
+	sFHZ8yn33rpuB2HGp7Mamc/rT79rvBcwbLdZ/M1ICKKyuwuezgVJIK0qiyM5VEtlzRrttwQsBl9jv
+	8/JLGL2y9BXh0dp/BZczxgO/wSbyxiPKOWm4xRANFhnriV8Flms8bY5qPwtmTV7UzBHsQP0DI2X+t
+	KCMW8TO7Zo986W9VHGh3JJ+e82Oa9YZgz1ARqxQlWn1XmO2vaDo+a9tUf+l6SrctLSjLGjtSu5+cn
+	IrORg/BK5i6ktsCLAlpPX88QVqnn6wj+CH8PupudlIaCOmtZD5MgBnMIJHsKkXk1RYLsVhhXXhWVB
+	Qwjy9V1zPdjMYEcAYmwQ==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1686659219;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=x4X42epITHEmHx9Rdq7WZvtJt4reSEJsGpXTx4uakPs=;
+	b=XnHIVU90C9TJ+dH5iLKcGln4N+lzVrbOu5uj9N85J15wwf4z10nruD+dGMcniFwEbHmk7J
+	lHqVWWDwwSjfFAlkhuZEh3i956u4PWyXakr9CaL1RFFbLTbOyagldGAbMpSdR0WEY9Ty6Z
+	P0oxgRVuraXBH5frWwz/MY1wNqSs+/s=
 In-Reply-To: <20230613001108.3040476-2-rick.p.edgecombe@intel.com>
+Content-Language: en-US
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -43,73 +42,84 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-api@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Andy Lutomirski <luto@kernel.org>, Balbir Singh <bsingharora@gmail.com>, Borislav Petkov <bp@alien8.de>, Cyrill Gorcunov <gorcunov@gmail.com>, Dave Hansen <dave.hansen@linux.intel.com>, Eugene Syromiatnikov <esyr@redhat.com>, Florian Weimer <fweimer@redhat.com>, "H . J . Lu" <hjl.tools@gmail.com>, Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>, Kees Cook <keescook@chromium.org>, Mike Kravetz <mike.kravetz@oracle.com>, Nadav Amit <nadav.amit@gmail.com>, Oleg Nesterov <oleg@redhat.com>, Pavel Machek <pavel@ucw.cz>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap>
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
+To: Rick Edgecombe <rick.p.edgecombe@intel.com>, x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-api@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Andy Lutomirski <luto@kernel.org>, Balbir Singh <bsingharora@gmail.com>, Borislav Petkov <bp@alien8.de>, Cyrill Gorcunov <gorcunov@gmail.com>, Dave Hansen <dave.hansen@linux.intel.com>, Eugene Syromiatnikov <esyr@redhat.com>, Florian Weimer <fweimer@redhat.com>, "H . J . Lu" <hjl.tools@gmail.com>, Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>, Kees Cook <keescook@chromium.org>, Mike Kravetz <mike.kravetz@oracle.com>, Nadav Amit <nadav.amit@gmail.com>, Oleg Nesterov <oleg@redhat.com>, Pavel Machek <pavel@ucw.cz>, Peter Zijlstra <pet>
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, Linus Torvalds <torvalds@linuxfoundation.org>
 
-On Mon, Jun 12, 2023 at 05:10:27PM -0700, Rick Edgecombe wrote:
-> The x86 Shadow stack feature includes a new type of memory called shadow
-> stack. This shadow stack memory has some unusual properties, which requires
-> some core mm changes to function properly.
-> 
-> One of these unusual properties is that shadow stack memory is writable,
-> but only in limited ways. These limits are applied via a specific PTE
-> bit combination. Nevertheless, the memory is writable, and core mm code
-> will need to apply the writable permissions in the typical paths that
-> call pte_mkwrite(). Future patches will make pte_mkwrite() take a VMA, so
-> that the x86 implementation of it can know whether to create regular
-> writable memory or shadow stack memory.
-
-Nit:                            ^ mapping?
-
-> But there are a couple of challenges to this. Modifying the signatures of
-> each arch pte_mkwrite() implementation would be error prone because some
-> are generated with macros and would need to be re-implemented. Also, some
-> pte_mkwrite() callers operate on kernel memory without a VMA.
-> 
-> So this can be done in a three step process. First pte_mkwrite() can be
-> renamed to pte_mkwrite_novma() in each arch, with a generic pte_mkwrite()
-> added that just calls pte_mkwrite_novma(). Next callers without a VMA can
-> be moved to pte_mkwrite_novma(). And lastly, pte_mkwrite() and all callers
-> can be changed to take/pass a VMA.
-> 
-> Start the process by renaming pte_mkwrite() to pte_mkwrite_novma() and
-> adding the pte_mkwrite() wrapper in linux/pgtable.h. Apply the same
-> pattern for pmd_mkwrite(). Since not all archs have a pmd_mkwrite_novma(),
-> create a new arch config HAS_HUGE_PAGE that can be used to tell if
-> pmd_mkwrite() should be defined. Otherwise in the !HAS_HUGE_PAGE cases the
-> compiler would not be able to find pmd_mkwrite_novma().
-> 
-> No functional change.
-> 
-> Cc: linux-doc@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: linux-alpha@vger.kernel.org
-> Cc: linux-snps-arc@lists.infradead.org
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-csky@vger.kernel.org
-> Cc: linux-hexagon@vger.kernel.org
-> Cc: linux-ia64@vger.kernel.org
-> Cc: loongarch@lists.linux.dev
-> Cc: linux-m68k@lists.linux-m68k.org
-> Cc: Michal Simek <monstr@monstr.eu>
-> Cc: Dinh Nguyen <dinguyen@kernel.org>
-> Cc: linux-mips@vger.kernel.org
-> Cc: openrisc@lists.librecores.org
-> Cc: linux-parisc@vger.kernel.org
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Cc: linux-riscv@lists.infradead.org
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-sh@vger.kernel.org
-> Cc: sparclinux@vger.kernel.org
-> Cc: linux-um@lists.infradead.org
-> Cc: linux-arch@vger.kernel.org
-> Cc: linux-mm@kvack.org
-> Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-> Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-> Link: https://lore.kernel.org/lkml/CAHk-=wiZjSu7c9sFYZb3q04108stgHff2wfbokGCCgW7riz+8Q@mail.gmail.com/
-
-Reviewed-by: Mike Rapoport (IBM) <rppt@kernel.org>
-
--- 
-Sincerely yours,
-Mike.
+T24gMTMuMDYuMjMgMDI6MTAsIFJpY2sgRWRnZWNvbWJlIHdyb3RlOgo+IFRoZSB4ODYgU2hhZG93
+IHN0YWNrIGZlYXR1cmUgaW5jbHVkZXMgYSBuZXcgdHlwZSBvZiBtZW1vcnkgY2FsbGVkIHNoYWRv
+dwo+IHN0YWNrLiBUaGlzIHNoYWRvdyBzdGFjayBtZW1vcnkgaGFzIHNvbWUgdW51c3VhbCBwcm9w
+ZXJ0aWVzLCB3aGljaCByZXF1aXJlcwo+IHNvbWUgY29yZSBtbSBjaGFuZ2VzIHRvIGZ1bmN0aW9u
+IHByb3Blcmx5Lgo+IAo+IE9uZSBvZiB0aGVzZSB1bnVzdWFsIHByb3BlcnRpZXMgaXMgdGhhdCBz
+aGFkb3cgc3RhY2sgbWVtb3J5IGlzIHdyaXRhYmxlLAo+IGJ1dCBvbmx5IGluIGxpbWl0ZWQgd2F5
+cy4gVGhlc2UgbGltaXRzIGFyZSBhcHBsaWVkIHZpYSBhIHNwZWNpZmljIFBURQo+IGJpdCBjb21i
+aW5hdGlvbi4gTmV2ZXJ0aGVsZXNzLCB0aGUgbWVtb3J5IGlzIHdyaXRhYmxlLCBhbmQgY29yZSBt
+bSBjb2RlCj4gd2lsbCBuZWVkIHRvIGFwcGx5IHRoZSB3cml0YWJsZSBwZXJtaXNzaW9ucyBpbiB0
+aGUgdHlwaWNhbCBwYXRocyB0aGF0Cj4gY2FsbCBwdGVfbWt3cml0ZSgpLiBGdXR1cmUgcGF0Y2hl
+cyB3aWxsIG1ha2UgcHRlX21rd3JpdGUoKSB0YWtlIGEgVk1BLCBzbwo+IHRoYXQgdGhlIHg4NiBp
+bXBsZW1lbnRhdGlvbiBvZiBpdCBjYW4ga25vdyB3aGV0aGVyIHRvIGNyZWF0ZSByZWd1bGFyCj4g
+d3JpdGFibGUgbWVtb3J5IG9yIHNoYWRvdyBzdGFjayBtZW1vcnkuCj4gCj4gQnV0IHRoZXJlIGFy
+ZSBhIGNvdXBsZSBvZiBjaGFsbGVuZ2VzIHRvIHRoaXMuIE1vZGlmeWluZyB0aGUgc2lnbmF0dXJl
+cyBvZgo+IGVhY2ggYXJjaCBwdGVfbWt3cml0ZSgpIGltcGxlbWVudGF0aW9uIHdvdWxkIGJlIGVy
+cm9yIHByb25lIGJlY2F1c2Ugc29tZQo+IGFyZSBnZW5lcmF0ZWQgd2l0aCBtYWNyb3MgYW5kIHdv
+dWxkIG5lZWQgdG8gYmUgcmUtaW1wbGVtZW50ZWQuIEFsc28sIHNvbWUKPiBwdGVfbWt3cml0ZSgp
+IGNhbGxlcnMgb3BlcmF0ZSBvbiBrZXJuZWwgbWVtb3J5IHdpdGhvdXQgYSBWTUEuCj4gCj4gU28g
+dGhpcyBjYW4gYmUgZG9uZSBpbiBhIHRocmVlIHN0ZXAgcHJvY2Vzcy4gRmlyc3QgcHRlX21rd3Jp
+dGUoKSBjYW4gYmUKPiByZW5hbWVkIHRvIHB0ZV9ta3dyaXRlX25vdm1hKCkgaW4gZWFjaCBhcmNo
+LCB3aXRoIGEgZ2VuZXJpYyBwdGVfbWt3cml0ZSgpCj4gYWRkZWQgdGhhdCBqdXN0IGNhbGxzIHB0
+ZV9ta3dyaXRlX25vdm1hKCkuIE5leHQgY2FsbGVycyB3aXRob3V0IGEgVk1BIGNhbgo+IGJlIG1v
+dmVkIHRvIHB0ZV9ta3dyaXRlX25vdm1hKCkuIEFuZCBsYXN0bHksIHB0ZV9ta3dyaXRlKCkgYW5k
+IGFsbCBjYWxsZXJzCj4gY2FuIGJlIGNoYW5nZWQgdG8gdGFrZS9wYXNzIGEgVk1BLgo+IAo+IFN0
+YXJ0IHRoZSBwcm9jZXNzIGJ5IHJlbmFtaW5nIHB0ZV9ta3dyaXRlKCkgdG8gcHRlX21rd3JpdGVf
+bm92bWEoKSBhbmQKPiBhZGRpbmcgdGhlIHB0ZV9ta3dyaXRlKCkgd3JhcHBlciBpbiBsaW51eC9w
+Z3RhYmxlLmguIEFwcGx5IHRoZSBzYW1lCj4gcGF0dGVybiBmb3IgcG1kX21rd3JpdGUoKS4gU2lu
+Y2Ugbm90IGFsbCBhcmNocyBoYXZlIGEgcG1kX21rd3JpdGVfbm92bWEoKSwKPiBjcmVhdGUgYSBu
+ZXcgYXJjaCBjb25maWcgSEFTX0hVR0VfUEFHRSB0aGF0IGNhbiBiZSB1c2VkIHRvIHRlbGwgaWYK
+PiBwbWRfbWt3cml0ZSgpIHNob3VsZCBiZSBkZWZpbmVkLiBPdGhlcndpc2UgaW4gdGhlICFIQVNf
+SFVHRV9QQUdFIGNhc2VzIHRoZQo+IGNvbXBpbGVyIHdvdWxkIG5vdCBiZSBhYmxlIHRvIGZpbmQg
+cG1kX21rd3JpdGVfbm92bWEoKS4KPiAKPiBObyBmdW5jdGlvbmFsIGNoYW5nZS4KPiAKPiBDYzog
+bGludXgtZG9jQHZnZXIua2VybmVsLm9yZwo+IENjOiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwu
+b3JnCj4gQ2M6IGxpbnV4LWFscGhhQHZnZXIua2VybmVsLm9yZwo+IENjOiBsaW51eC1zbnBzLWFy
+Y0BsaXN0cy5pbmZyYWRlYWQub3JnCj4gQ2M6IGxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFk
+ZWFkLm9yZwo+IENjOiBsaW51eC1jc2t5QHZnZXIua2VybmVsLm9yZwo+IENjOiBsaW51eC1oZXhh
+Z29uQHZnZXIua2VybmVsLm9yZwo+IENjOiBsaW51eC1pYTY0QHZnZXIua2VybmVsLm9yZwo+IENj
+OiBsb29uZ2FyY2hAbGlzdHMubGludXguZGV2Cj4gQ2M6IGxpbnV4LW02OGtAbGlzdHMubGludXgt
+bTY4ay5vcmcKPiBDYzogTWljaGFsIFNpbWVrIDxtb25zdHJAbW9uc3RyLmV1Pgo+IENjOiBEaW5o
+IE5ndXllbiA8ZGluZ3V5ZW5Aa2VybmVsLm9yZz4KPiBDYzogbGludXgtbWlwc0B2Z2VyLmtlcm5l
+bC5vcmcKPiBDYzogb3BlbnJpc2NAbGlzdHMubGlicmVjb3Jlcy5vcmcKPiBDYzogbGludXgtcGFy
+aXNjQHZnZXIua2VybmVsLm9yZwo+IENjOiBsaW51eHBwYy1kZXZAbGlzdHMub3psYWJzLm9yZwo+
+IENjOiBsaW51eC1yaXNjdkBsaXN0cy5pbmZyYWRlYWQub3JnCj4gQ2M6IGxpbnV4LXMzOTBAdmdl
+ci5rZXJuZWwub3JnCj4gQ2M6IGxpbnV4LXNoQHZnZXIua2VybmVsLm9yZwo+IENjOiBzcGFyY2xp
+bnV4QHZnZXIua2VybmVsLm9yZwo+IENjOiBsaW51eC11bUBsaXN0cy5pbmZyYWRlYWQub3JnCj4g
+Q2M6IGxpbnV4LWFyY2hAdmdlci5rZXJuZWwub3JnCj4gQ2M6IGxpbnV4LW1tQGt2YWNrLm9yZwo+
+IFN1Z2dlc3RlZC1ieTogTGludXMgVG9ydmFsZHMgPHRvcnZhbGRzQGxpbnV4Zm91bmRhdGlvbi5v
+cmc+Cj4gU2lnbmVkLW9mZi1ieTogUmljayBFZGdlY29tYmUgPHJpY2sucC5lZGdlY29tYmVAaW50
+ZWwuY29tPgo+IExpbms6IGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2xrbWwvQ0FIay09d2laalN1
+N2M5c0ZZWmIzcTA0MTA4c3RnSGZmMndmYm9rR0NDZ1c3cml6KzhRQG1haWwuZ21haWwuY29tLwo+
+IC0tLQo+IEhpIE5vbi14ODYgQXJjaOKAmXMsCj4gCj4geDg2IGhhcyBhIGZlYXR1cmUgdGhhdCBh
+bGxvd3MgZm9yIHRoZSBjcmVhdGlvbiBvZiBhIHNwZWNpYWwgdHlwZSBvZgo+IHdyaXRhYmxlIG1l
+bW9yeSAoc2hhZG93IHN0YWNrKSB0aGF0IGlzIG9ubHkgd3JpdGFibGUgaW4gbGltaXRlZCBzcGVj
+aWZpYwo+IHdheXMuIFByZXZpb3VzbHksIGNoYW5nZXMgd2VyZSBwcm9wb3NlZCB0byBjb3JlIE1N
+IGNvZGUgdG8gdGVhY2ggaXQgdG8KPiBkZWNpZGUgd2hlbiB0byBjcmVhdGUgbm9ybWFsbHkgd3Jp
+dGFibGUgbWVtb3J5IG9yIHRoZSBzcGVjaWFsIHNoYWRvdyBzdGFjawo+IHdyaXRhYmxlIG1lbW9y
+eSwgYnV0IERhdmlkIEhpbGRlbmJyYW5kIHN1Z2dlc3RlZFswXSB0byBjaGFuZ2UKPiBwWFhfbWt3
+cml0ZSgpIHRvIHRha2UgYSBWTUEsIHNvIGF3YXJlbmVzcyBvZiBzaGFkb3cgc3RhY2sgbWVtb3J5
+IGNhbiBiZQo+IG1vdmVkIGludG8geDg2IGNvZGUuIExhdGVyIExpbnVzIHN1Z2dlc3RlZCBhIGxl
+c3MgZXJyb3ItcHJvbmUgd2F5WzFdIHRvIGdvCj4gYWJvdXQgdGhpcyBhZnRlciB0aGUgZmlyc3Qg
+YXR0ZW1wdCBoYWQgYSBidWcuCj4gCj4gU2luY2UgcFhYX21rd3JpdGUoKSBpcyBkZWZpbmVkIGlu
+IGV2ZXJ5IGFyY2gsIGl0IHJlcXVpcmVzIHNvbWUgdHJlZS13aWRlCj4gY2hhbmdlcy4gU28gdGhh
+dCBpcyB3aHkgeW91IGFyZSBzZWVpbmcgc29tZSBwYXRjaGVzIG91dCBvZiBhIGJpZyB4ODYKPiBz
+ZXJpZXMgcG9wIHVwIGluIHlvdXIgYXJjaCBtYWlsaW5nIGxpc3QuIFRoZXJlIGlzIG5vIGZ1bmN0
+aW9uYWwgY2hhbmdlLgo+IEFmdGVyIHRoaXMgcmVmYWN0b3IsIHRoZSBzaGFkb3cgc3RhY2sgc2Vy
+aWVzIGdvZXMgb24gdG8gdXNlIHRoZSBhcmNoCj4gaGVscGVycyB0byBwdXNoIGFyY2ggbWVtb3J5
+IGRldGFpbHMgaW5zaWRlIGFyY2gveDg2IGFuZCBvdGhlciBhcmNoJ3MKPiB3aXRoIHVwY29taW5n
+IHNoYWRvdyBzdGFjayBmZWF0dXJlcy4KPiAKPiBUZXN0aW5nIHdhcyBqdXN0IDAtZGF5IGJ1aWxk
+IHRlc3RpbmcuCj4gCj4gSG9wZWZ1bGx5IHRoYXQgaXMgZW5vdWdoIGNvbnRleHQuIFRoYW5rcyEK
+PiAKPiBbMF0gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvbGttbC8wZTI5YTJkMC0wOGQ4LWJjZDYt
+ZmYyNi00YmVhMGU0MDM3YjBAcmVkaGF0LmNvbS8KPiBbMV0gaHR0cHM6Ly9sb3JlLmtlcm5lbC5v
+cmcvbGttbC9DQUhrLT13aVpqU3U3YzlzRllaYjNxMDQxMDhzdGdIZmYyd2Zib2tHQ0NnVzdyaXor
+OFFAbWFpbC5nbWFpbC5jb20vCj4gLS0tCgpBY2tlZC1ieTogRGF2aWQgSGlsZGVuYnJhbmQgPGRh
+dmlkQHJlZGhhdC5jb20+CgotLSAKQ2hlZXJzLAoKRGF2aWQgLyBkaGlsZGVuYgoKCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LXJpc2N2IG1haWxp
+bmcgbGlzdApsaW51eC1yaXNjdkBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZy
+YWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtcmlzY3YK
