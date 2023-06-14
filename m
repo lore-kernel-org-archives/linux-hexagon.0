@@ -1,75 +1,62 @@
 From: Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH v4 20/34] arm: Convert various functions to use ptdescs
-Date: Wed, 14 Jun 2023 18:03:27 +0300
-Message-ID: <20230614150327.GS52412@kernel.org>
+Subject: Re: [PATCH v4 21/34] arm64: Convert various functions to use ptdescs
+Date: Wed, 14 Jun 2023 18:05:28 +0300
+Message-ID: <20230614150528.GT52412@kernel.org>
 References: <20230612210423.18611-1-vishal.moola@gmail.com>
- <20230612210423.18611-21-vishal.moola@gmail.com>
+ <20230612210423.18611-22-vishal.moola@gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-path: <linux-m68k-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686755045;
-        bh=9A+PDe1vPCUMDrQYdu5z8EQPSeOjm0q+6tl+clXFAfM=;
+        s=k20201202; t=1686755166;
+        bh=mYL5daBcxMikalMhh9cCFY+r9XquqesA54K3hjfOLTg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=j5Ugc1koC28gH2KkEPLkPoTIPNK11ApEJ+qx3mv6eyx57zInMns1iK9e2ZeYWZtaS
-         d6VTROxAYi4QnXIkn3k8NB95BIGVtq/48gNq3/0I/WMA49BRIKydm5cPzbMITNJFuZ
-         ukIwVNbIGFF0ylO7WubZ38JabSGFDmsGB/tgUH9+2GD4DtHbeAr300i11RRFVklrjO
-         zXwlgRZnQv07KKoC7y7mb9Y81PZOH2N9ueNVcmIy2/IhSmwSzwFpOrdGsiFw0fBA3k
-         Xwkm0A1j+e4mOhYVoVB8lslu0VNwTEUQ6zk7ZxZcwqL0ZAjNIDJH5uFFjVn0dxTv++
-         vvViLh1xvoRTQ==
+        b=STNRxM+Y/xkG0QyBoc53kcCb5yG1Ly+XJdRdHc/zJ1TCbDaJDD0OuxmfQFFT6l7Kq
+         qCp4eYGEWaY44zLye/aA/Sc6bwWU7i2YmGCf+enSLd3bLx7RIr/9d9ksK/M8XETdpa
+         h/shck3gYngL3WCudQKzi54g1OqDGBTFn+RvxrwG+iuix2d51fV9RXhELY1o9p6nzP
+         PK46LJSg5B9o0xTe73U8Gbss933xivoRdOgA30zw2Sz2WY7mXiXJkZyDnMtU6ViDZX
+         9gqDJzLtn1zUkTLc7vaWLzH0+Q5q/9ETD/YLmVjUjGTzC8B0nzsq7nYMwwuGkaFucZ
+         jo9CN9hwdi+0A==
 Content-Disposition: inline
-In-Reply-To: <20230612210423.18611-21-vishal.moola@gmail.com>
+In-Reply-To: <20230612210423.18611-22-vishal.moola@gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, Catalin Marinas <catalin.marinas@arm.com>
 
-On Mon, Jun 12, 2023 at 02:04:09PM -0700, Vishal Moola (Oracle) wrote:
+On Mon, Jun 12, 2023 at 02:04:10PM -0700, Vishal Moola (Oracle) wrote:
 > As part of the conversions to replace pgtable constructor/destructors with
 > ptdesc equivalents, convert various page table functions to use ptdescs.
-> 
-> late_alloc() also uses the __get_free_pages() helper function. Convert
-> this to use pagetable_alloc() and ptdesc_address() instead to help
-> standardize page tables further.
 > 
 > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 
 Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
 
-One comment below.
-
 > ---
->  arch/arm/include/asm/tlb.h | 12 +++++++-----
->  arch/arm/mm/mmu.c          |  6 +++---
->  2 files changed, 10 insertions(+), 8 deletions(-)
+>  arch/arm64/include/asm/tlb.h | 14 ++++++++------
+>  arch/arm64/mm/mmu.c          |  7 ++++---
+>  2 files changed, 12 insertions(+), 9 deletions(-)
 > 
-> diff --git a/arch/arm/include/asm/tlb.h b/arch/arm/include/asm/tlb.h
-> index b8cbe03ad260..f40d06ad5d2a 100644
-> --- a/arch/arm/include/asm/tlb.h
-> +++ b/arch/arm/include/asm/tlb.h
-> @@ -39,7 +39,9 @@ static inline void __tlb_remove_table(void *_table)
->  static inline void
->  __pte_free_tlb(struct mmu_gather *tlb, pgtable_t pte, unsigned long addr)
+> diff --git a/arch/arm64/include/asm/tlb.h b/arch/arm64/include/asm/tlb.h
+> index c995d1f4594f..2c29239d05c3 100644
+> --- a/arch/arm64/include/asm/tlb.h
+> +++ b/arch/arm64/include/asm/tlb.h
+> @@ -75,18 +75,20 @@ static inline void tlb_flush(struct mmu_gather *tlb)
+>  static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t pte,
+>  				  unsigned long addr)
 >  {
 > -	pgtable_pte_page_dtor(pte);
+> -	tlb_remove_table(tlb, pte);
 > +	struct ptdesc *ptdesc = page_ptdesc(pte);
 > +
 > +	pagetable_pte_dtor(ptdesc);
->  
->  #ifndef CONFIG_ARM_LPAE
->  	/*
-> @@ -50,17 +52,17 @@ __pte_free_tlb(struct mmu_gather *tlb, pgtable_t pte, unsigned long addr)
->  	__tlb_adjust_range(tlb, addr - PAGE_SIZE, 2 * PAGE_SIZE);
->  #endif
->  
-> -	tlb_remove_table(tlb, pte);
 > +	tlb_remove_ptdesc(tlb, ptdesc);
 >  }
 >  
->  static inline void
->  __pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmdp, unsigned long addr)
+>  #if CONFIG_PGTABLE_LEVELS > 2
+>  static inline void __pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmdp,
+>  				  unsigned long addr)
 >  {
->  #ifdef CONFIG_ARM_LPAE
 > -	struct page *page = virt_to_page(pmdp);
 > +	struct ptdesc *ptdesc = virt_to_ptdesc(pmdp);
 >  
@@ -77,33 +64,46 @@ One comment below.
 > -	tlb_remove_table(tlb, page);
 > +	pagetable_pmd_dtor(ptdesc);
 > +	tlb_remove_ptdesc(tlb, ptdesc);
+>  }
 >  #endif
->  }
 >  
-> diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
-> index 22292cf3381c..294518fd0240 100644
-> --- a/arch/arm/mm/mmu.c
-> +++ b/arch/arm/mm/mmu.c
-> @@ -737,11 +737,11 @@ static void __init *early_alloc(unsigned long sz)
->  
->  static void *__init late_alloc(unsigned long sz)
+> @@ -94,7 +96,7 @@ static inline void __pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmdp,
+>  static inline void __pud_free_tlb(struct mmu_gather *tlb, pud_t *pudp,
+>  				  unsigned long addr)
 >  {
-> -	void *ptr = (void *)__get_free_pages(GFP_PGTABLE_KERNEL, get_order(sz));
-> +	void *ptdesc = pagetable_alloc(GFP_PGTABLE_KERNEL, get_order(sz));
->  
-> -	if (!ptr || !pgtable_pte_page_ctor(virt_to_page(ptr)))
-> +	if (!ptdesc || !pagetable_pte_ctor(ptdesc))
->  		BUG();
-> -	return ptr;
-> +	return ptdesc;
-
-should be
-
-	return  ptdesc_to_virt(ptdesc);
-
+> -	tlb_remove_table(tlb, virt_to_page(pudp));
+> +	tlb_remove_ptdesc(tlb, virt_to_ptdesc(pudp));
 >  }
+>  #endif
 >  
->  static pte_t * __init arm_pte_alloc(pmd_t *pmd, unsigned long addr,
+> diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+> index af6bc8403ee4..5867a0e917b9 100644
+> --- a/arch/arm64/mm/mmu.c
+> +++ b/arch/arm64/mm/mmu.c
+> @@ -426,6 +426,7 @@ static phys_addr_t __pgd_pgtable_alloc(int shift)
+>  static phys_addr_t pgd_pgtable_alloc(int shift)
+>  {
+>  	phys_addr_t pa = __pgd_pgtable_alloc(shift);
+> +	struct ptdesc *ptdesc = page_ptdesc(phys_to_page(pa));
+>  
+>  	/*
+>  	 * Call proper page table ctor in case later we need to
+> @@ -433,12 +434,12 @@ static phys_addr_t pgd_pgtable_alloc(int shift)
+>  	 * this pre-allocated page table.
+>  	 *
+>  	 * We don't select ARCH_ENABLE_SPLIT_PMD_PTLOCK if pmd is
+> -	 * folded, and if so pgtable_pmd_page_ctor() becomes nop.
+> +	 * folded, and if so pagetable_pte_ctor() becomes nop.
+>  	 */
+>  	if (shift == PAGE_SHIFT)
+> -		BUG_ON(!pgtable_pte_page_ctor(phys_to_page(pa)));
+> +		BUG_ON(!pagetable_pte_ctor(ptdesc));
+>  	else if (shift == PMD_SHIFT)
+> -		BUG_ON(!pgtable_pmd_page_ctor(phys_to_page(pa)));
+> +		BUG_ON(!pagetable_pmd_ctor(ptdesc));
+>  
+>  	return pa;
+>  }
 > -- 
 > 2.40.1
 > 
