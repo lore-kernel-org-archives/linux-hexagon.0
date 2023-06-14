@@ -1,247 +1,109 @@
 From: Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH v4 19/34] pgalloc: Convert various functions to use
- ptdescs
-Date: Wed, 14 Jun 2023 17:59:17 +0300
-Message-ID: <20230614145917.GR52412@kernel.org>
+Subject: Re: [PATCH v4 20/34] arm: Convert various functions to use ptdescs
+Date: Wed, 14 Jun 2023 18:03:27 +0300
+Message-ID: <20230614150327.GS52412@kernel.org>
 References: <20230612210423.18611-1-vishal.moola@gmail.com>
- <20230612210423.18611-20-vishal.moola@gmail.com>
+ <20230612210423.18611-21-vishal.moola@gmail.com>
 Mime-Version: 1.0
+Return-path: <linux-arch-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1686755045;
+        bh=9A+PDe1vPCUMDrQYdu5z8EQPSeOjm0q+6tl+clXFAfM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=j5Ugc1koC28gH2KkEPLkPoTIPNK11ApEJ+qx3mv6eyx57zInMns1iK9e2ZeYWZtaS
+         d6VTROxAYi4QnXIkn3k8NB95BIGVtq/48gNq3/0I/WMA49BRIKydm5cPzbMITNJFuZ
+         ukIwVNbIGFF0ylO7WubZ38JabSGFDmsGB/tgUH9+2GD4DtHbeAr300i11RRFVklrjO
+         zXwlgRZnQv07KKoC7y7mb9Y81PZOH2N9ueNVcmIy2/IhSmwSzwFpOrdGsiFw0fBA3k
+         Xwkm0A1j+e4mOhYVoVB8lslu0VNwTEUQ6zk7ZxZcwqL0ZAjNIDJH5uFFjVn0dxTv++
+         vvViLh1xvoRTQ==
+Content-Disposition: inline
+In-Reply-To: <20230612210423.18611-21-vishal.moola@gmail.com>
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=yAwb2LqCbWsrDOjH35ELzL5krBQcYVuR9uMRcPo9oh4=; b=WNvDfdVIVgXj8I
-	W1cKdhj6mzGsLVC719F3TTwiJ+JxEqIp7X4oe43mWkbQ7uaPZaVqFXQJuy3cDwVCGjTG7ij/3PWbk
-	C9+4bNjFC1NxAvZNmD5wi+DDO1zeT2XhaQTer50fhMvbzkvKqNdXh+VNNJy17ScL5U567XqSmycJL
-	MctNip3znG5Ncbe9hEnDFADeMMiMvV9PBUBPAL8SYs6F1boqjHtxHh+GQZydeVx4KRrbg0C64acxv
-	OS/X9+96zGnLUxbiDYRzjGuQ6uZlSFhLRTJXUTZVQN87XiJPHVX3HVPbvQDF8w4AN5mnaJSqv1SZu
-	4r9X9gXlW7z30MBFtdgQ==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1686754795;
-	bh=Snf0vvy1ZfRMDrG2QV2GY/XXoVVQULhRbHTUN6/ozYs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Yb6roLWgU1FpArbgMhm3suW779Jdabd7l+H7dMd2zBGyrh0BOeY5wtdMql6biURZl
-	 v4iwBz/HuCXVMtg61KO5mBWTrhq69oDtUrOThilHfsnE8uTE2ZygL8lFanhWvJUrqE
-	 vMcJQ9egXs+J1/HmerJQneWZPIb7WwKm6eCArSImVwb+BZcAaye0RccD/lcNjLTILt
-	 TGcYSdafz5ds7jjw5qQKCC3YeIHWy3SRi7PvyD5uV8jIRQEF+KcbULtCXAQiLGBilE
-	 AxzTGwTNCf+5ligff90SIYQR5ysfy1RO+UiN0WBtTnV4rm3ThxZVJb9CHZkUcTgAgY
-	 VSYQ3btc5Uccg==
-Content-Disposition: inline
-In-Reply-To: <20230612210423.18611-20-vishal.moola@gmail.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 To: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, Catalin Marinas <catalin.marinas@arm.com>
 
-On Mon, Jun 12, 2023 at 02:04:08PM -0700, Vishal Moola (Oracle) wrote:
+On Mon, Jun 12, 2023 at 02:04:09PM -0700, Vishal Moola (Oracle) wrote:
 > As part of the conversions to replace pgtable constructor/destructors with
 > ptdesc equivalents, convert various page table functions to use ptdescs.
 > 
-> Some of the functions use the *get*page*() helper functions. Convert
-> these to use pagetable_alloc() and ptdesc_address() instead to help
+> late_alloc() also uses the __get_free_pages() helper function. Convert
+> this to use pagetable_alloc() and ptdesc_address() instead to help
 > standardize page tables further.
 > 
 > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+
+Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
+
+One comment below.
+
 > ---
->  include/asm-generic/pgalloc.h | 62 +++++++++++++++++++++--------------
->  1 file changed, 37 insertions(+), 25 deletions(-)
+>  arch/arm/include/asm/tlb.h | 12 +++++++-----
+>  arch/arm/mm/mmu.c          |  6 +++---
+>  2 files changed, 10 insertions(+), 8 deletions(-)
 > 
-> diff --git a/include/asm-generic/pgalloc.h b/include/asm-generic/pgalloc.h
-> index a7cf825befae..3fd6ce79e654 100644
-> --- a/include/asm-generic/pgalloc.h
-> +++ b/include/asm-generic/pgalloc.h
-> @@ -18,7 +18,11 @@
->   */
->  static inline pte_t *__pte_alloc_one_kernel(struct mm_struct *mm)
+> diff --git a/arch/arm/include/asm/tlb.h b/arch/arm/include/asm/tlb.h
+> index b8cbe03ad260..f40d06ad5d2a 100644
+> --- a/arch/arm/include/asm/tlb.h
+> +++ b/arch/arm/include/asm/tlb.h
+> @@ -39,7 +39,9 @@ static inline void __tlb_remove_table(void *_table)
+>  static inline void
+>  __pte_free_tlb(struct mmu_gather *tlb, pgtable_t pte, unsigned long addr)
 >  {
-> -	return (pte_t *)__get_free_page(GFP_PGTABLE_KERNEL);
-> +	struct ptdesc *ptdesc = pagetable_alloc(GFP_PGTABLE_KERNEL, 0);
-> +
-> +	if (!ptdesc)
-> +		return NULL;
-> +	return ptdesc_address(ptdesc);
->  }
->  
->  #ifndef __HAVE_ARCH_PTE_ALLOC_ONE_KERNEL
-> @@ -41,7 +45,7 @@ static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
->   */
->  static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
->  {
-> -	free_page((unsigned long)pte);
-> +	pagetable_free(virt_to_ptdesc(pte));
->  }
->  
->  /**
-> @@ -49,7 +53,7 @@ static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
->   * @mm: the mm_struct of the current context
->   * @gfp: GFP flags to use for the allocation
->   *
-> - * Allocates a page and runs the pgtable_pte_page_ctor().
-> + * Allocates a ptdesc and runs the pagetable_pte_ctor().
-
-Allocates memory for page table and ptdesc
-
->   *
->   * This function is intended for architectures that need
->   * anything beyond simple page allocation or must have custom GFP flags.
-
-The Return: description here should be fixed up
-
-> @@ -58,17 +62,17 @@ static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
->   */
->  static inline pgtable_t __pte_alloc_one(struct mm_struct *mm, gfp_t gfp)
->  {
-> -	struct page *pte;
-> +	struct ptdesc *ptdesc;
->  
-> -	pte = alloc_page(gfp);
-> -	if (!pte)
-> +	ptdesc = pagetable_alloc(gfp, 0);
-> +	if (!ptdesc)
->  		return NULL;
-> -	if (!pgtable_pte_page_ctor(pte)) {
-> -		__free_page(pte);
-> +	if (!pagetable_pte_ctor(ptdesc)) {
-> +		pagetable_free(ptdesc);
->  		return NULL;
->  	}
->  
-> -	return pte;
-> +	return ptdesc_page(ptdesc);
->  }
->  
->  #ifndef __HAVE_ARCH_PTE_ALLOC_ONE
-> @@ -76,7 +80,7 @@ static inline pgtable_t __pte_alloc_one(struct mm_struct *mm, gfp_t gfp)
->   * pte_alloc_one - allocate a page for PTE-level user page table
->   * @mm: the mm_struct of the current context
->   *
-> - * Allocates a page and runs the pgtable_pte_page_ctor().
-> + * Allocates a ptdesc and runs the pagetable_pte_ctor().
-
-Allocates memory for page table and ptdesc
-
->   *
->   * Return: `struct page` initialized as page table or %NULL on error
-
-Return: ptdesc ...
-
->   */
-> @@ -98,8 +102,10 @@ static inline pgtable_t pte_alloc_one(struct mm_struct *mm)
->   */
->  static inline void pte_free(struct mm_struct *mm, struct page *pte_page)
->  {
-> -	pgtable_pte_page_dtor(pte_page);
-> -	__free_page(pte_page);
-> +	struct ptdesc *ptdesc = page_ptdesc(pte_page);
+> -	pgtable_pte_page_dtor(pte);
+> +	struct ptdesc *ptdesc = page_ptdesc(pte);
 > +
 > +	pagetable_pte_dtor(ptdesc);
-> +	pagetable_free(ptdesc);
->  }
 >  
->  
-> @@ -110,7 +116,7 @@ static inline void pte_free(struct mm_struct *mm, struct page *pte_page)
->   * pmd_alloc_one - allocate a page for PMD-level page table
->   * @mm: the mm_struct of the current context
->   *
-> - * Allocates a page and runs the pgtable_pmd_page_ctor().
-> + * Allocates a ptdesc and runs the pagetable_pmd_ctor().
-
-Allocate memory for page table and ptdesc
-
->   * Allocations use %GFP_PGTABLE_USER in user context and
->   * %GFP_PGTABLE_KERNEL in kernel context.
->   *
-> @@ -118,28 +124,30 @@ static inline void pte_free(struct mm_struct *mm, struct page *pte_page)
->   */
->  static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long addr)
->  {
-> -	struct page *page;
-> +	struct ptdesc *ptdesc;
->  	gfp_t gfp = GFP_PGTABLE_USER;
->  
->  	if (mm == &init_mm)
->  		gfp = GFP_PGTABLE_KERNEL;
-> -	page = alloc_page(gfp);
-> -	if (!page)
-> +	ptdesc = pagetable_alloc(gfp, 0);
-> +	if (!ptdesc)
->  		return NULL;
-> -	if (!pgtable_pmd_page_ctor(page)) {
-> -		__free_page(page);
-> +	if (!pagetable_pmd_ctor(ptdesc)) {
-> +		pagetable_free(ptdesc);
->  		return NULL;
->  	}
-> -	return (pmd_t *)page_address(page);
-> +	return ptdesc_address(ptdesc);
->  }
+>  #ifndef CONFIG_ARM_LPAE
+>  	/*
+> @@ -50,17 +52,17 @@ __pte_free_tlb(struct mmu_gather *tlb, pgtable_t pte, unsigned long addr)
+>  	__tlb_adjust_range(tlb, addr - PAGE_SIZE, 2 * PAGE_SIZE);
 >  #endif
 >  
->  #ifndef __HAVE_ARCH_PMD_FREE
->  static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
+> -	tlb_remove_table(tlb, pte);
+> +	tlb_remove_ptdesc(tlb, ptdesc);
+>  }
+>  
+>  static inline void
+>  __pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmdp, unsigned long addr)
 >  {
-> +	struct ptdesc *ptdesc = virt_to_ptdesc(pmd);
-> +
->  	BUG_ON((unsigned long)pmd & (PAGE_SIZE-1));
-> -	pgtable_pmd_page_dtor(virt_to_page(pmd));
-> -	free_page((unsigned long)pmd);
+>  #ifdef CONFIG_ARM_LPAE
+> -	struct page *page = virt_to_page(pmdp);
+> +	struct ptdesc *ptdesc = virt_to_ptdesc(pmdp);
+>  
+> -	pgtable_pmd_page_dtor(page);
+> -	tlb_remove_table(tlb, page);
 > +	pagetable_pmd_dtor(ptdesc);
-> +	pagetable_free(ptdesc);
->  }
+> +	tlb_remove_ptdesc(tlb, ptdesc);
 >  #endif
+>  }
 >  
-> @@ -149,11 +157,15 @@ static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
+> diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
+> index 22292cf3381c..294518fd0240 100644
+> --- a/arch/arm/mm/mmu.c
+> +++ b/arch/arm/mm/mmu.c
+> @@ -737,11 +737,11 @@ static void __init *early_alloc(unsigned long sz)
 >  
->  static inline pud_t *__pud_alloc_one(struct mm_struct *mm, unsigned long addr)
+>  static void *__init late_alloc(unsigned long sz)
 >  {
-> -	gfp_t gfp = GFP_PGTABLE_USER;
-> +	gfp_t gfp = GFP_PGTABLE_USER | __GFP_ZERO;
+> -	void *ptr = (void *)__get_free_pages(GFP_PGTABLE_KERNEL, get_order(sz));
+> +	void *ptdesc = pagetable_alloc(GFP_PGTABLE_KERNEL, get_order(sz));
+>  
+> -	if (!ptr || !pgtable_pte_page_ctor(virt_to_page(ptr)))
+> +	if (!ptdesc || !pagetable_pte_ctor(ptdesc))
+>  		BUG();
+> -	return ptr;
+> +	return ptdesc;
 
-GFP_PGTABLE_USER already contains __GFP_ZERO
+should be
 
-> +	struct ptdesc *ptdesc;
->  
->  	if (mm == &init_mm)
->  		gfp = GFP_PGTABLE_KERNEL;
-> -	return (pud_t *)get_zeroed_page(gfp);
-> +	ptdesc = pagetable_alloc(gfp, 0);
-> +	if (!ptdesc)
-> +		return NULL;
-> +	return ptdesc_address(ptdesc);
+	return  ptdesc_to_virt(ptdesc);
+
 >  }
 >  
->  #ifndef __HAVE_ARCH_PUD_ALLOC_ONE
-> @@ -175,7 +187,7 @@ static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long addr)
->  static inline void __pud_free(struct mm_struct *mm, pud_t *pud)
->  {
->  	BUG_ON((unsigned long)pud & (PAGE_SIZE-1));
-> -	free_page((unsigned long)pud);
-> +	pagetable_free(virt_to_ptdesc(pud));
->  }
->  
->  #ifndef __HAVE_ARCH_PUD_FREE
-> @@ -190,7 +202,7 @@ static inline void pud_free(struct mm_struct *mm, pud_t *pud)
->  #ifndef __HAVE_ARCH_PGD_FREE
->  static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
->  {
-> -	free_page((unsigned long)pgd);
-> +	pagetable_free(virt_to_ptdesc(pgd));
->  }
->  #endif
->  
+>  static pte_t * __init arm_pte_alloc(pmd_t *pmd, unsigned long addr,
 > -- 
 > 2.40.1
 > 
