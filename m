@@ -1,9 +1,9 @@
 From: Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH v4 06/34] mm: Convert pmd_pgtable_page() to pmd_ptdesc()
-Date: Wed, 14 Jun 2023 16:51:12 +0300
-Message-ID: <20230614135112.GE52412@kernel.org>
+Subject: Re: [PATCH v4 07/34] mm: Convert ptlock_alloc() to use ptdescs
+Date: Wed, 14 Jun 2023 16:51:38 +0300
+Message-ID: <20230614135138.GF52412@kernel.org>
 References: <20230612210423.18611-1-vishal.moola@gmail.com>
- <20230612210423.18611-7-vishal.moola@gmail.com>
+ <20230612210423.18611-8-vishal.moola@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -14,24 +14,24 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
 	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=/QSHULLIDSkxiAzlCmdgQTqei3bwz32cpp6WhMlPPJs=; b=1ddLa9/e2VRJtq
-	Z2GlfZAi7gJ7u3ubnMhDMdeKxWZKzsm/10uH6gM60ytU6CImtPtjvYWKYEKkxNI8DRu2i2VyYmB0V
-	BHk8X4DhRDiixUSMJoW7nPzJbU7j4jP74E/Uxfdhp7nqOUsUl0eFB9De+xWJSC0jbfX16Wv1xf7Yd
-	ubr1JQXKHdM7gRIyAsl6Z1c63UK5oO8yrIw5LJJ0NlaqbcMLL2gOFNjVKVYG+RcpiBGDM76yqQRw1
-	wTXE5+sQXpsL6VPBreywVgTQii/31v7VKsJEQ0MGVe3nn6bItoGEjJa8dZmh+ourM04LQyToaaSWK
-	bXO+6vgaiq/t3hOiparw==;
+	List-Owner; bh=3FWgkUUvhRFbTULMdiSZczu91BLecz1rMosZASjMRKw=; b=BOXjwOSsFIdo7a
+	ZMnPExcV7tuRxWaJ6ivyDU9of6AsBNUztzk1gRtfWfuJSmIAcaX9G7LuVfPNRrwrNN0ZTCQofEgte
+	mOE2N90UsR5WyLfUzOGckTmu/Y+KofzFL2769lHTiNsBLU/U83vwCwuUEqJg16R7k2OEoykKvVCUO
+	3LIrqE6DLm+c09mVWr6EL12yjyn1Q5UWkZ92WNvV1mqafW7uQiianvLAOLzOiaumdAPzu4oJfbd6J
+	04wwg3g0QVgIKDC5XE2d2Gw5cPl+cpZNB5lr05T4X+UiogvCmt7Hoywq5gcZg3mEs3Q31RviDW3L0
+	g9vSV+4FmwoE9LFecxPw==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1686750710;
-	bh=MAYhMoo3f8WL6wMqKE5pm7ocfhsiks+frK6iH2blioo=;
+	s=k20201202; t=1686750736;
+	bh=VwaE4ixu2oYgT8bWCqZd/sCxt5Vr7LA6FKY2uA7+iKA=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=UEIirlFbT/jXJvHUAqdydA59j1RgDZUUfgyOKgwNndXqGOEHUHhZfOzL8/NQgVHWq
-	 /q8XC8zbUoWUdbEY52nA6n3QMoY+5uT3nVSo46hX3ckloa8Tsk20nvsFk+nFyI69rq
-	 kqHKU2qNg4cLDxDKYqW/CF0jwV3eWOULQ1qERJP4E28CBFcj6QUn7snwpsx+9K+Qu2
-	 POIbcaK1ERRHtrayBYsdhpVVMqCnIj3U/FswN9W3HiA4Vsg6KhJEbi7yWjCVgy7Bim
-	 qkQ5e6uOUhmZCAZAp2Mldqm52UMAWsfOcJWE7Vw1mqKjcEoYqpl1pq42H9ff1U9Ztz
-	 NxXUpOfWIJH1g==
+	b=Pvu46WaEl54YKxvYrg17S6Us5Z+6jc6ZyxloGDXNG3sVbWCAn8khJSWsZ739VwfPP
+	 KwSYnW5Cb22U/hoqAU+3FM5yWaAmL/GvAe5O+LdrEw3/pZtxxI5c7cLPpLdtEqXk8T
+	 Fbh9NCB++t1sBODF7SprarK+tEpzTtUTE1tfwFFFrABefWFeIYBfx1eKkeOd7kHivF
+	 njsBTw00M7iYLOdiQBjB3A+VyNpSzWxaS2T8NQnbhp/VhP28ksnHBcMgphMjijMkdr
+	 wBr5rhU0/C9m5DU9+5BLMiU/dcdSlTsxTG9cV+YRjI8bVXWZYj/RDtOKkEZB/GxHIp
+	 Of8H4nZJFOgvQ==
 Content-Disposition: inline
-In-Reply-To: <20230612210423.18611-7-vishal.moola@gmail.com>
+In-Reply-To: <20230612210423.18611-8-vishal.moola@gmail.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -45,50 +45,70 @@ Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.o
 To: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>
 
-On Mon, Jun 12, 2023 at 02:03:55PM -0700, Vishal Moola (Oracle) wrote:
-> Converts pmd_pgtable_page() to pmd_ptdesc() and all its callers. This
-> removes some direct accesses to struct page, working towards splitting
-> out struct ptdesc from struct page.
+On Mon, Jun 12, 2023 at 02:03:56PM -0700, Vishal Moola (Oracle) wrote:
+> This removes some direct accesses to struct page, working towards
+> splitting out struct ptdesc from struct page.
 > 
 > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 
 Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
 
 > ---
->  include/linux/mm.h | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+>  include/linux/mm.h | 6 +++---
+>  mm/memory.c        | 4 ++--
+>  2 files changed, 5 insertions(+), 5 deletions(-)
 > 
 > diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index f184f1eba85d..088b7664f897 100644
+> index 088b7664f897..e6f1be2a405e 100644
 > --- a/include/linux/mm.h
 > +++ b/include/linux/mm.h
-> @@ -2931,15 +2931,15 @@ static inline void pgtable_pte_page_dtor(struct page *page)
+> @@ -2825,7 +2825,7 @@ static inline void pagetable_clear(void *x)
+>  #if USE_SPLIT_PTE_PTLOCKS
+>  #if ALLOC_SPLIT_PTLOCKS
+>  void __init ptlock_cache_init(void);
+> -extern bool ptlock_alloc(struct page *page);
+> +bool ptlock_alloc(struct ptdesc *ptdesc);
+>  extern void ptlock_free(struct page *page);
 >  
->  #if USE_SPLIT_PMD_PTLOCKS
->  
-> -static inline struct page *pmd_pgtable_page(pmd_t *pmd)
-> +static inline struct ptdesc *pmd_ptdesc(pmd_t *pmd)
+>  static inline spinlock_t *ptlock_ptr(struct page *page)
+> @@ -2837,7 +2837,7 @@ static inline void ptlock_cache_init(void)
 >  {
->  	unsigned long mask = ~(PTRS_PER_PMD * sizeof(pmd_t) - 1);
-> -	return virt_to_page((void *)((unsigned long) pmd & mask));
-> +	return virt_to_ptdesc((void *)((unsigned long) pmd & mask));
 >  }
 >  
->  static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
+> -static inline bool ptlock_alloc(struct page *page)
+> +static inline bool ptlock_alloc(struct ptdesc *ptdesc)
 >  {
-> -	return ptlock_ptr(pmd_pgtable_page(pmd));
-> +	return ptlock_ptr(ptdesc_page(pmd_ptdesc(pmd)));
+>  	return true;
+>  }
+> @@ -2867,7 +2867,7 @@ static inline bool ptlock_init(struct page *page)
+>  	 * slab code uses page->slab_cache, which share storage with page->ptl.
+>  	 */
+>  	VM_BUG_ON_PAGE(*(unsigned long *)&page->ptl, page);
+> -	if (!ptlock_alloc(page))
+> +	if (!ptlock_alloc(page_ptdesc(page)))
+>  		return false;
+>  	spin_lock_init(ptlock_ptr(page));
+>  	return true;
+> diff --git a/mm/memory.c b/mm/memory.c
+> index 80ce9dda2779..ba9579117686 100644
+> --- a/mm/memory.c
+> +++ b/mm/memory.c
+> @@ -5934,14 +5934,14 @@ void __init ptlock_cache_init(void)
+>  			SLAB_PANIC, NULL);
 >  }
 >  
->  static inline bool pmd_ptlock_init(struct page *page)
-> @@ -2958,7 +2958,7 @@ static inline void pmd_ptlock_free(struct page *page)
->  	ptlock_free(page);
+> -bool ptlock_alloc(struct page *page)
+> +bool ptlock_alloc(struct ptdesc *ptdesc)
+>  {
+>  	spinlock_t *ptl;
+>  
+>  	ptl = kmem_cache_alloc(page_ptl_cachep, GFP_KERNEL);
+>  	if (!ptl)
+>  		return false;
+> -	page->ptl = ptl;
+> +	ptdesc->ptl = ptl;
+>  	return true;
 >  }
->  
-> -#define pmd_huge_pte(mm, pmd) (pmd_pgtable_page(pmd)->pmd_huge_pte)
-> +#define pmd_huge_pte(mm, pmd) (pmd_ptdesc(pmd)->pmd_huge_pte)
->  
->  #else
 >  
 > -- 
 > 2.40.1
