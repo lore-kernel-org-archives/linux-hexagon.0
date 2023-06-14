@@ -1,30 +1,30 @@
 From: Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH v4 09/34] mm: Convert pmd_ptlock_init() to use ptdescs
-Date: Wed, 14 Jun 2023 16:52:36 +0300
-Message-ID: <20230614135236.GH52412@kernel.org>
+Subject: Re: [PATCH v4 10/34] mm: Convert ptlock_init() to use ptdescs
+Date: Wed, 14 Jun 2023 16:57:51 +0300
+Message-ID: <20230614135751.GI52412@kernel.org>
 References: <20230612210423.18611-1-vishal.moola@gmail.com>
- <20230612210423.18611-10-vishal.moola@gmail.com>
+ <20230612210423.18611-11-vishal.moola@gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686750793;
-        bh=i+dWwopS2R2pjDCoeERaU9nBu0jCYzS/lwxwHCWXb4I=;
+        s=k20201202; t=1686751109;
+        bh=zODqmBJZryq+bXrqw2+dO7/Egr05l6EFGh7EoAR+f5Q=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TGto5Dvi/HN8fU/LSHI/Xe9mWSqjuoMuAggxIeDsDpSdGjOz+OD5Q61dYnwlfUI2u
-         12eC8JWZkY3dBTcv69CxtYmzohm/TspcjrDl3Zxm+eVFHQ1BuvWvblYU6lS5nHTdB4
-         4jgzdRwk6I0iRkcg+lC5rT6e/+Zoj8O4Z4XMzKkrAI3Xrl//xHCT0oSrSqy8qzE0DR
-         HFjNZU76vrLc90NskBD5ZmADqSbItjU5wL2oiacXptUySDzj5MWQp2048o6t9bgjHk
-         3J9d7i2fEQepFckTIKlCANmHRPvvJQeN1+/+mCtl5JH8j+CkcnEmQVaXh28mzw5CiW
-         A7drC/yoaT/Vw==
+        b=lSDu5H7KOZKMWJOQe/RZf66XvE8x+eCZ2Ytzhs66p+GHx+ddxnclpSnPyGBBVOC05
+         kntWJ9TrG8h428EjebftgV+rAv2YXAhTb0cmqdcy2uTjvuT0Ga5hGuS9drSzCT7vEe
+         lZBUTVYDwjRpPWR0zfBUHmtTwZ2dHpcIOTvlm3uWIc27APHLBBUO1V3IJqvs3/W4hf
+         V4LiUm2GDpkcLNAf56LDxlLuEAL6oO/16Aw5vUDA8I/ZMKz2QG0XPQLr9Bk8rgf5Zl
+         R9Y5FHwwoN9JyP4cz6UUoLxJJznNWVeOmwWxNxC0W9lJyus9Kc2Q39K0WgkNq1Cbbd
+         +hjJK6ETZawtw==
 Content-Disposition: inline
-In-Reply-To: <20230612210423.18611-10-vishal.moola@gmail.com>
+In-Reply-To: <20230612210423.18611-11-vishal.moola@gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>
 
-On Mon, Jun 12, 2023 at 02:03:58PM -0700, Vishal Moola (Oracle) wrote:
+On Mon, Jun 12, 2023 at 02:03:59PM -0700, Vishal Moola (Oracle) wrote:
 > This removes some direct accesses to struct page, working towards
 > splitting out struct ptdesc from struct page.
 > 
@@ -33,47 +33,61 @@ On Mon, Jun 12, 2023 at 02:03:58PM -0700, Vishal Moola (Oracle) wrote:
 Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
 
 > ---
->  include/linux/mm.h | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
+>  include/linux/mm.h | 14 +++++++-------
+>  1 file changed, 7 insertions(+), 7 deletions(-)
 > 
 > diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index bb934d51390f..daecf1db6cf1 100644
+> index daecf1db6cf1..f48e626d9c98 100644
 > --- a/include/linux/mm.h
 > +++ b/include/linux/mm.h
-> @@ -2942,12 +2942,12 @@ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
->  	return ptlock_ptr(pmd_ptdesc(pmd));
+> @@ -2857,7 +2857,7 @@ static inline spinlock_t *pte_lockptr(struct mm_struct *mm, pmd_t *pmd)
+>  	return ptlock_ptr(page_ptdesc(pmd_page(*pmd)));
 >  }
 >  
-> -static inline bool pmd_ptlock_init(struct page *page)
-> +static inline bool pmd_ptlock_init(struct ptdesc *ptdesc)
+> -static inline bool ptlock_init(struct page *page)
+> +static inline bool ptlock_init(struct ptdesc *ptdesc)
 >  {
->  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-> -	page->pmd_huge_pte = NULL;
-> +	ptdesc->pmd_huge_pte = NULL;
->  #endif
-> -	return ptlock_init(page);
-> +	return ptlock_init(ptdesc_page(ptdesc));
+>  	/*
+>  	 * prep_new_page() initialize page->private (and therefore page->ptl)
+> @@ -2866,10 +2866,10 @@ static inline bool ptlock_init(struct page *page)
+>  	 * It can happen if arch try to use slab for page table allocation:
+>  	 * slab code uses page->slab_cache, which share storage with page->ptl.
+>  	 */
+> -	VM_BUG_ON_PAGE(*(unsigned long *)&page->ptl, page);
+> -	if (!ptlock_alloc(page_ptdesc(page)))
+> +	VM_BUG_ON_PAGE(*(unsigned long *)&ptdesc->ptl, ptdesc_page(ptdesc));
+> +	if (!ptlock_alloc(ptdesc))
+>  		return false;
+> -	spin_lock_init(ptlock_ptr(page_ptdesc(page)));
+> +	spin_lock_init(ptlock_ptr(ptdesc));
+>  	return true;
 >  }
 >  
->  static inline void pmd_ptlock_free(struct page *page)
-> @@ -2967,7 +2967,7 @@ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
+> @@ -2882,13 +2882,13 @@ static inline spinlock_t *pte_lockptr(struct mm_struct *mm, pmd_t *pmd)
 >  	return &mm->page_table_lock;
 >  }
+>  static inline void ptlock_cache_init(void) {}
+> -static inline bool ptlock_init(struct page *page) { return true; }
+> +static inline bool ptlock_init(struct ptdesc *ptdesc) { return true; }
+>  static inline void ptlock_free(struct page *page) {}
+>  #endif /* USE_SPLIT_PTE_PTLOCKS */
 >  
-> -static inline bool pmd_ptlock_init(struct page *page) { return true; }
-> +static inline bool pmd_ptlock_init(struct ptdesc *ptdesc) { return true; }
->  static inline void pmd_ptlock_free(struct page *page) {}
->  
->  #define pmd_huge_pte(mm, pmd) ((mm)->pmd_huge_pte)
-> @@ -2983,7 +2983,7 @@ static inline spinlock_t *pmd_lock(struct mm_struct *mm, pmd_t *pmd)
->  
->  static inline bool pgtable_pmd_page_ctor(struct page *page)
+>  static inline bool pgtable_pte_page_ctor(struct page *page)
 >  {
-> -	if (!pmd_ptlock_init(page))
-> +	if (!pmd_ptlock_init(page_ptdesc(page)))
+> -	if (!ptlock_init(page))
+> +	if (!ptlock_init(page_ptdesc(page)))
 >  		return false;
 >  	__SetPageTable(page);
 >  	inc_lruvec_page_state(page, NR_PAGETABLE);
+> @@ -2947,7 +2947,7 @@ static inline bool pmd_ptlock_init(struct ptdesc *ptdesc)
+>  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+>  	ptdesc->pmd_huge_pte = NULL;
+>  #endif
+> -	return ptlock_init(ptdesc_page(ptdesc));
+> +	return ptlock_init(ptdesc);
+>  }
+>  
+>  static inline void pmd_ptlock_free(struct page *page)
 > -- 
 > 2.40.1
 > 
