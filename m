@@ -1,106 +1,144 @@
 From: Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH v4 12/34] mm: Convert ptlock_free() to use ptdescs
-Date: Wed, 14 Jun 2023 16:59:47 +0300
-Message-ID: <20230614135947.GK52412@kernel.org>
+Subject: Re: [PATCH v4 13/34] mm: Create ptdesc equivalents for
+ pgtable_{pte,pmd}_page_{ctor,dtor}
+Date: Wed, 14 Jun 2023 17:10:49 +0300
+Message-ID: <20230614141049.GL52412@kernel.org>
 References: <20230612210423.18611-1-vishal.moola@gmail.com>
- <20230612210423.18611-13-vishal.moola@gmail.com>
+ <20230612210423.18611-14-vishal.moola@gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-m68k-owner@vger.kernel.org>
+Return-path: <linux-mips-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686751225;
-        bh=uKraQGeV6CHflKMTQULlWthGg679fqUnVunPDgo/6HY=;
+        s=k20201202; t=1686751886;
+        bh=nq3f91/c6VdnG05wknAO7CzsIzeIwd55LMS9xhs7vLc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PDvLwogGgBD7itA4KpDmMOz5f6z6VH2iaHunkUOmJGb2CV9/5MwRPKrP111EYXtEb
-         UEqH+CWzIgF1Rc6XrQFIv/yMpYEmEBGoEuDURlPd52I/fGmF+q5wVqQlIl9KpU5+Uk
-         bgdwaGWMrQOsCsKhPDLR53apMHeHe+9FdmAd1a7miKQKkWiXMpItAY3NijXk99Jluh
-         Pxd9FqKP+sLyI/lOsBPezf8JoB5Fqp5Gg8oE7VA+UHq8nk2Bo7G2Cvf5IS4Aq32CvE
-         s4FZBegGotMSVk+KfyEvDwvHHiHE5HW4dc9hJuLo8yp+W1/X4mVZFqgnWQ8kmzqF33
-         SBYFIqusV7nCA==
+        b=ZhJtlj5I8piICZIev7qvB69N2MRkFrUNmM4AY9KOSxdltgl+qcVmK0w/AhUDKOYUE
+         C0naLvwDyTJX3vMjNC8e9+i7bgqJP3nnR+cfRN/EKtI25YOH2TSwU36LZazWsweF02
+         YGMNzwODmUGT8dkPREzGod/+rUbK65tLM4QfOSq3fgVX2NpImfyc5X1iBcneHw7wgS
+         aWE67OFlHHdjdwxPMfJUf27XkhoC98XnYJ++XQkAMrKDt/blZeMPDlGxeoaoTED8QE
+         EqDj0B92olx0FPba9u2ztMQCZcN18316sOzneqJzKqI8FGzRdybM2tuA29sFD9tYUy
+         7yV6zVzN7CwRA==
 Content-Disposition: inline
-In-Reply-To: <20230612210423.18611-13-vishal.moola@gmail.com>
+In-Reply-To: <20230612210423.18611-14-vishal.moola@gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 To: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>
 
-On Mon, Jun 12, 2023 at 02:04:01PM -0700, Vishal Moola (Oracle) wrote:
-> This removes some direct accesses to struct page, working towards
-> splitting out struct ptdesc from struct page.
-> 
+On Mon, Jun 12, 2023 at 02:04:02PM -0700, Vishal Moola (Oracle) wrote:
+> Creates pagetable_pte_ctor(), pagetable_pmd_ctor(), pagetable_pte_dtor(),
+> and pagetable_pmd_dtor() and make the original pgtable
+> constructor/destructors wrappers.
+
+Nit: either "creates ... makes" or "create ... make"
+I like the second form more.
+ 
 > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 
 Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
 
 > ---
->  include/linux/mm.h | 10 +++++-----
->  mm/memory.c        |  4 ++--
->  2 files changed, 7 insertions(+), 7 deletions(-)
+>  include/linux/mm.h | 56 ++++++++++++++++++++++++++++++++++------------
+>  1 file changed, 42 insertions(+), 14 deletions(-)
 > 
 > diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 3b54bb4c9753..a1af7983e1bd 100644
+> index a1af7983e1bd..dc211c43610b 100644
 > --- a/include/linux/mm.h
 > +++ b/include/linux/mm.h
-> @@ -2826,7 +2826,7 @@ static inline void pagetable_clear(void *x)
->  #if ALLOC_SPLIT_PTLOCKS
->  void __init ptlock_cache_init(void);
->  bool ptlock_alloc(struct ptdesc *ptdesc);
-> -extern void ptlock_free(struct page *page);
-> +void ptlock_free(struct ptdesc *ptdesc);
->  
->  static inline spinlock_t *ptlock_ptr(struct ptdesc *ptdesc)
->  {
-> @@ -2842,7 +2842,7 @@ static inline bool ptlock_alloc(struct ptdesc *ptdesc)
->  	return true;
->  }
->  
-> -static inline void ptlock_free(struct page *page)
-> +static inline void ptlock_free(struct ptdesc *ptdesc)
->  {
->  }
->  
-> @@ -2883,7 +2883,7 @@ static inline spinlock_t *pte_lockptr(struct mm_struct *mm, pmd_t *pmd)
->  }
->  static inline void ptlock_cache_init(void) {}
->  static inline bool ptlock_init(struct ptdesc *ptdesc) { return true; }
-> -static inline void ptlock_free(struct page *page) {}
-> +static inline void ptlock_free(struct ptdesc *ptdesc) {}
+> @@ -2886,20 +2886,34 @@ static inline bool ptlock_init(struct ptdesc *ptdesc) { return true; }
+>  static inline void ptlock_free(struct ptdesc *ptdesc) {}
 >  #endif /* USE_SPLIT_PTE_PTLOCKS */
 >  
->  static inline bool pgtable_pte_page_ctor(struct page *page)
-> @@ -2897,7 +2897,7 @@ static inline bool pgtable_pte_page_ctor(struct page *page)
->  
->  static inline void pgtable_pte_page_dtor(struct page *page)
+> -static inline bool pgtable_pte_page_ctor(struct page *page)
+> +static inline bool pagetable_pte_ctor(struct ptdesc *ptdesc)
 >  {
-> -	ptlock_free(page);
-> +	ptlock_free(page_ptdesc(page));
->  	__ClearPageTable(page);
->  	dec_lruvec_page_state(page, NR_PAGETABLE);
->  }
-> @@ -2955,7 +2955,7 @@ static inline void pmd_ptlock_free(struct ptdesc *ptdesc)
->  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
->  	VM_BUG_ON_PAGE(ptdesc->pmd_huge_pte, ptdesc_page(ptdesc));
->  #endif
-> -	ptlock_free(ptdesc_page(ptdesc));
-> +	ptlock_free(ptdesc);
->  }
->  
->  #define pmd_huge_pte(mm, pmd) (pmd_ptdesc(pmd)->pmd_huge_pte)
-> diff --git a/mm/memory.c b/mm/memory.c
-> index ba9579117686..d4d2ea5cf0fd 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -5945,8 +5945,8 @@ bool ptlock_alloc(struct ptdesc *ptdesc)
+> -	if (!ptlock_init(page_ptdesc(page)))
+> +	struct folio *folio = ptdesc_folio(ptdesc);
+> +
+> +	if (!ptlock_init(ptdesc))
+>  		return false;
+> -	__SetPageTable(page);
+> -	inc_lruvec_page_state(page, NR_PAGETABLE);
+> +	__folio_set_table(folio);
+
+This comment is more to patch 1 ("mm: Add PAGE_TYPE_OP folio functions")
+
+It would be better to have _pgtable here, as "table" does not necessary
+mean page table.
+With PageType SetPageTable was fine, but with folio I think it should be
+more explicit.
+
+I'd add a third parameter to PAGE_TYPE_OPS for that.
+
+> +	lruvec_stat_add_folio(folio, NR_PAGETABLE);
 >  	return true;
 >  }
 >  
-> -void ptlock_free(struct page *page)
-> +void ptlock_free(struct ptdesc *ptdesc)
+> +static inline bool pgtable_pte_page_ctor(struct page *page)
+> +{
+> +	return pagetable_pte_ctor(page_ptdesc(page));
+> +}
+> +
+> +static inline void pagetable_pte_dtor(struct ptdesc *ptdesc)
+> +{
+> +	struct folio *folio = ptdesc_folio(ptdesc);
+> +
+> +	ptlock_free(ptdesc);
+> +	__folio_clear_table(folio);
+> +	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
+> +}
+> +
+>  static inline void pgtable_pte_page_dtor(struct page *page)
 >  {
-> -	kmem_cache_free(page_ptl_cachep, page->ptl);
-> +	kmem_cache_free(page_ptl_cachep, ptdesc->ptl);
+> -	ptlock_free(page_ptdesc(page));
+> -	__ClearPageTable(page);
+> -	dec_lruvec_page_state(page, NR_PAGETABLE);
+> +	pagetable_pte_dtor(page_ptdesc(page));
 >  }
->  #endif
+>  
+>  #define pte_offset_map_lock(mm, pmd, address, ptlp)	\
+> @@ -2981,20 +2995,34 @@ static inline spinlock_t *pmd_lock(struct mm_struct *mm, pmd_t *pmd)
+>  	return ptl;
+>  }
+>  
+> -static inline bool pgtable_pmd_page_ctor(struct page *page)
+> +static inline bool pagetable_pmd_ctor(struct ptdesc *ptdesc)
+>  {
+> -	if (!pmd_ptlock_init(page_ptdesc(page)))
+> +	struct folio *folio = ptdesc_folio(ptdesc);
+> +
+> +	if (!pmd_ptlock_init(ptdesc))
+>  		return false;
+> -	__SetPageTable(page);
+> -	inc_lruvec_page_state(page, NR_PAGETABLE);
+> +	__folio_set_table(folio);
+> +	lruvec_stat_add_folio(folio, NR_PAGETABLE);
+>  	return true;
+>  }
+>  
+> +static inline bool pgtable_pmd_page_ctor(struct page *page)
+> +{
+> +	return pagetable_pmd_ctor(page_ptdesc(page));
+> +}
+> +
+> +static inline void pagetable_pmd_dtor(struct ptdesc *ptdesc)
+> +{
+> +	struct folio *folio = ptdesc_folio(ptdesc);
+> +
+> +	pmd_ptlock_free(ptdesc);
+> +	__folio_clear_table(folio);
+> +	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
+> +}
+> +
+>  static inline void pgtable_pmd_page_dtor(struct page *page)
+>  {
+> -	pmd_ptlock_free(page_ptdesc(page));
+> -	__ClearPageTable(page);
+> -	dec_lruvec_page_state(page, NR_PAGETABLE);
+> +	pagetable_pmd_dtor(page_ptdesc(page));
+>  }
+>  
+>  /*
 > -- 
 > 2.40.1
 > 
