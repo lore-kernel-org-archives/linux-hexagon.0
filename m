@@ -1,73 +1,99 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v4 27/34] nios2: Convert __pte_free_tlb() to use ptdescs
-Date: Wed, 14 Jun 2023 11:30:05 +0200
-Message-ID: <CAMuHMdXPASfLM8St_JZOW3Wke+ickJoo1oDr+orRbTERy=Zgwg@mail.gmail.com>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH v4 01/34] mm: Add PAGE_TYPE_OP folio functions
+Date: Wed, 14 Jun 2023 16:02:07 +0300
+Message-ID: <20230614130207.GZ52412@kernel.org>
 References: <20230612210423.18611-1-vishal.moola@gmail.com>
- <20230612210423.18611-28-vishal.moola@gmail.com> <e52c7a74-da68-08d2-54e2-f95a8c5b52e7@kernel.org>
+ <20230612210423.18611-2-vishal.moola@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:Cc:To:Subject:Message-ID:Date:From:
-	In-Reply-To:References:MIME-Version:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=cqPNv0lPa7jtqQZYA8yTVeKiaSxGzYtV2rdhNMSjOhc=; b=t1x76BCnI8UnYy
-	allwUuJa50xb00LeaAEjnGsYkt/RYPrwYhelEbyw+M8b5NP1gZZTKc9MoyXAuv+VSgmL7FRlgXSsc
-	n+Q4oqvYydbzysVTXJpJt1hVBC7Mqz6HhhpvwTZlJgtyn+NPvFiGGB3e91y/WxDxexrm3Xb11Xn8Z
-	/x1IFf/gNWH9AkZ7YdMBqz08VKTdgggB1Il6pnNjpC8Q4bOxes/SxEuap5MXppHqzTqNDdM5Wfqku
-	xvBhCixX4D6XrNMhuHjXARNb8Ur4BOycHnbzlw8DgvyIFNzrhxL80oIaQCZEy3HVkDKg1bqn3kZjd
-	EfNpTw3U6Rg9YJBuP8pQ==;
-In-Reply-To: <e52c7a74-da68-08d2-54e2-f95a8c5b52e7@kernel.org>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-Content-Type: text/plain; charset="windows-1252"
-To: Dinh Nguyen <dinguyen@kernel.org>
-Cc: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>
+Return-path: <linux-arch-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1686747764;
+        bh=Z0S2d/Eru6a8jIIub+wJj2QGnnAEIe7xODp5r4XEjY4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Ij1kaX2f2DmI7HK85FkEb/euMvHbhk1Yl6Bfkym5Y/V3n55SCcwdtHPiMl/Uaznfq
+         /JPBcReV4N5cCfLGrjl0lmP3t1/xIRQ0sNu8SuNRKfJvFTG3ehEI7XrnyZzzj/mq5Z
+         LIzsfSZJkFEA+VFk5od8SUJmz7a2MZahKi7y83tUViVFyHKqtoU7QmKJKuQUMruG+3
+         ZBcXEtH/BdXI8p8nle54zxP2rJXEAQvrH6UElVJeso6ar3qrgbKRU7tK7ulw5ExB7M
+         3MJes9iMWx7TD3tX2qF3/3jOSJV75iRXzB8fjYUsip9RPr0GERlktBmW7yBKguUpKQ
+         +EDy1u2Ox8vrA==
+Content-Disposition: inline
+In-Reply-To: <20230612210423.18611-2-vishal.moola@gmail.com>
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>
 
-SGkgRGluaCwKCk9uIFdlZCwgSnVuIDE0LCAyMDIzIGF0IDEyOjE34oCvQU0gRGluaCBOZ3V5ZW4g
-PGRpbmd1eWVuQGtlcm5lbC5vcmc+IHdyb3RlOgo+IE9uIDYvMTIvMjMgMTY6MDQsIFZpc2hhbCBN
-b29sYSAoT3JhY2xlKSB3cm90ZToKPiA+IFBhcnQgb2YgdGhlIGNvbnZlcnNpb25zIHRvIHJlcGxh
-Y2UgcGd0YWJsZSBjb25zdHJ1Y3Rvci9kZXN0cnVjdG9ycyB3aXRoCj4gPiBwdGRlc2MgZXF1aXZh
-bGVudHMuCj4gPgo+ID4gU2lnbmVkLW9mZi1ieTogVmlzaGFsIE1vb2xhIChPcmFjbGUpIDx2aXNo
-YWwubW9vbGFAZ21haWwuY29tPgo+ID4gLS0tCj4gPiAgIGFyY2gvbmlvczIvaW5jbHVkZS9hc20v
-cGdhbGxvYy5oIHwgOCArKysrLS0tLQo+ID4gICAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25z
-KCspLCA0IGRlbGV0aW9ucygtKQo+ID4KPiA+IGRpZmYgLS1naXQgYS9hcmNoL25pb3MyL2luY2x1
-ZGUvYXNtL3BnYWxsb2MuaCBiL2FyY2gvbmlvczIvaW5jbHVkZS9hc20vcGdhbGxvYy5oCj4gPiBp
-bmRleCBlY2QxNjU3YmIyY2UuLmNlNmJiOGU3NDI3MSAxMDA2NDQKPiA+IC0tLSBhL2FyY2gvbmlv
-czIvaW5jbHVkZS9hc20vcGdhbGxvYy5oCj4gPiArKysgYi9hcmNoL25pb3MyL2luY2x1ZGUvYXNt
-L3BnYWxsb2MuaAo+ID4gQEAgLTI4LDEwICsyOCwxMCBAQCBzdGF0aWMgaW5saW5lIHZvaWQgcG1k
-X3BvcHVsYXRlKHN0cnVjdCBtbV9zdHJ1Y3QgKm1tLCBwbWRfdCAqcG1kLAo+ID4KPiA+ICAgZXh0
-ZXJuIHBnZF90ICpwZ2RfYWxsb2Moc3RydWN0IG1tX3N0cnVjdCAqbW0pOwo+ID4KPiA+IC0jZGVm
-aW5lIF9fcHRlX2ZyZWVfdGxiKHRsYiwgcHRlLCBhZGRyKSAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICBcCj4gPiAtICAgICBkbyB7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIFwKPiA+IC0gICAgICAgICAgICAgcGd0YWJsZV9wdGVfcGFnZV9k
-dG9yKHB0ZSk7ICAgICAgICAgICAgICAgICAgICAgXAo+ID4gLSAgICAgICAgICAgICB0bGJfcmVt
-b3ZlX3BhZ2UoKHRsYiksIChwdGUpKTsgICAgICAgICAgICAgICAgICBcCj4gPiArI2RlZmluZSBf
-X3B0ZV9mcmVlX3RsYih0bGIsIHB0ZSwgYWRkcikgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICBcCj4gPiArICAgICBkbyB7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXAo+ID4gKyAgICAgICAgICAgICBwYWdldGFi
-bGVfcHRlX2R0b3IocGFnZV9wdGRlc2MocHRlKSk7ICAgICAgICAgICAgICAgICAgIFwKPiA+ICsg
-ICAgICAgICAgICAgdGxiX3JlbW92ZV9wYWdlX3B0ZGVzYygodGxiKSwgKHBhZ2VfcHRkZXNjKHB0
-ZSkpKTsgICAgICBcCj4gPiAgICAgICB9IHdoaWxlICgwKQo+ID4KPiA+ICAgI2VuZGlmIC8qIF9B
-U01fTklPUzJfUEdBTExPQ19IICovCj4KPiBBcHBsaWVkIQoKSSBkb24ndCB0aGluayB5b3UgY2Fu
-IGp1c3QgYXBwbHkgdGhpcyBwYXRjaCwgYXMgdGhlIG5ldyBmdW5jdGlvbnMKd2VyZSBvbmx5IGlu
-dHJvZHVjZWQgaW4gW1BBVENIIHY0IDA1LzM0XSBvZiB0aGlzIHNlcmllcy4KCkdye29ldGplLGVl
-dGluZ31zLAoKICAgICAgICAgICAgICAgICAgICAgICAgR2VlcnQKCi0tIApHZWVydCBVeXR0ZXJo
-b2V2ZW4gLS0gVGhlcmUncyBsb3RzIG9mIExpbnV4IGJleW9uZCBpYTMyIC0tIGdlZXJ0QGxpbnV4
-LW02OGsub3JnCgpJbiBwZXJzb25hbCBjb252ZXJzYXRpb25zIHdpdGggdGVjaG5pY2FsIHBlb3Bs
-ZSwgSSBjYWxsIG15c2VsZiBhIGhhY2tlci4gQnV0CndoZW4gSSdtIHRhbGtpbmcgdG8gam91cm5h
-bGlzdHMgSSBqdXN0IHNheSAicHJvZ3JhbW1lciIgb3Igc29tZXRoaW5nIGxpa2UgdGhhdC4KICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAtLSBMaW51cyBUb3J2YWxkcwoKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtcmlzY3YgbWFpbGlu
-ZyBsaXN0CmxpbnV4LXJpc2N2QGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJh
-ZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1yaXNjdgo=
+On Mon, Jun 12, 2023 at 02:03:50PM -0700, Vishal Moola (Oracle) wrote:
+> No folio equivalents for page type operations have been defined, so
+> define them for later folio conversions.
+> 
+> Also changes the Page##uname macros to take in const struct page* since
+> we only read the memory here.
+> 
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+
+Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
+
+> ---
+>  include/linux/page-flags.h | 20 ++++++++++++++++++--
+>  1 file changed, 18 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+> index 92a2063a0a23..e99a616b9bcd 100644
+> --- a/include/linux/page-flags.h
+> +++ b/include/linux/page-flags.h
+> @@ -908,6 +908,8 @@ static inline bool is_page_hwpoison(struct page *page)
+>  
+>  #define PageType(page, flag)						\
+>  	((page->page_type & (PAGE_TYPE_BASE | flag)) == PAGE_TYPE_BASE)
+> +#define folio_test_type(folio, flag)					\
+> +	((folio->page.page_type & (PAGE_TYPE_BASE | flag)) == PAGE_TYPE_BASE)
+>  
+>  static inline int page_type_has_type(unsigned int page_type)
+>  {
+> @@ -920,20 +922,34 @@ static inline int page_has_type(struct page *page)
+>  }
+>  
+>  #define PAGE_TYPE_OPS(uname, lname)					\
+> -static __always_inline int Page##uname(struct page *page)		\
+> +static __always_inline int Page##uname(const struct page *page)		\
+>  {									\
+>  	return PageType(page, PG_##lname);				\
+>  }									\
+> +static __always_inline int folio_test_##lname(const struct folio *folio)\
+> +{									\
+> +	return folio_test_type(folio, PG_##lname);			\
+> +}									\
+>  static __always_inline void __SetPage##uname(struct page *page)		\
+>  {									\
+>  	VM_BUG_ON_PAGE(!PageType(page, 0), page);			\
+>  	page->page_type &= ~PG_##lname;					\
+>  }									\
+> +static __always_inline void __folio_set_##lname(struct folio *folio)	\
+> +{									\
+> +	VM_BUG_ON_FOLIO(!folio_test_type(folio, 0), folio);		\
+> +	folio->page.page_type &= ~PG_##lname;				\
+> +}									\
+>  static __always_inline void __ClearPage##uname(struct page *page)	\
+>  {									\
+>  	VM_BUG_ON_PAGE(!Page##uname(page), page);			\
+>  	page->page_type |= PG_##lname;					\
+> -}
+> +}									\
+> +static __always_inline void __folio_clear_##lname(struct folio *folio)	\
+> +{									\
+> +	VM_BUG_ON_FOLIO(!folio_test_##lname(folio), folio);		\
+> +	folio->page.page_type |= PG_##lname;				\
+> +}									\
+>  
+>  /*
+>   * PageBuddy() indicates that the page is free and in the buddy system
+> -- 
+> 2.40.1
+> 
+> 
+
+-- 
+Sincerely yours,
+Mike.
