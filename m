@@ -1,104 +1,95 @@
-From: Baoquan He <bhe@redhat.com>
-Subject: Re: [PATCH v6 02/19] hexagon: mm: Convert to GENERIC_IOREMAP
-Date: Fri, 16 Jun 2023 20:46:33 +0800
-Message-ID: <ZIxZqd85xWRriAW4@MiWiFi-R3L-srv>
-References: <20230609075528.9390-3-bhe@redhat.com>
- <202306091859.NhlW2nny-lkp@intel.com>
- <ZIQzrRo0JhfBLDes@MiWiFi-R3L-srv>
- <20230611054019.GL52412@kernel.org>
- <ZIV+bD1ksJz0CTz2@MiWiFi-R3L-srv>
- <20230612160237.GA199007@dev-arch.thelio-3990X>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v4 04/34] pgtable: Create struct ptdesc
+Date: Fri, 16 Jun 2023 21:38:21 +0100
+Message-ID: <ZIzIPQBXvnMtQekj@casper.infradead.org>
+References: <20230612210423.18611-1-vishal.moola@gmail.com>
+ <20230612210423.18611-5-vishal.moola@gmail.com>
+ <fd63179-6ad6-fd86-79d6-2833c91111f8@google.com>
 Mime-Version: 1.0
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1686919601;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=3oE/aox+P5EI2fK8L6+t8Yc5hZ1jrOyHxepshYMemZM=;
-        b=ABUTU/IMiiFo4ghpdHUARouHkRqfscJB/9GZnDSqQ43wh8J2hWoxhj9YNZtMIKwdhlp870
-        1wgH3NhIk3S9vAfKCZj4VYo19elbNN2O4vG8R67JMCWXdLArt5oel5IvvIjHFUmh9Av5SO
-        K+yop5ncsjFJKOCQ1RyABwJjdsvWPZw=
-Content-Disposition: inline
-In-Reply-To: <20230612160237.GA199007@dev-arch.thelio-3990X>
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: Mike Rapoport <rppt@kernel.org>, kernel test robot <lkp@intel.com>, linux-kernel@vger.kernel.org, llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev, linux-arch@vger.kernel.org, linux-mm@kvack.org, arnd@arndb.de, christophe.leroy@csgroup.eu, hch@lst.de, willy@infradead.org, agordeev@linux.ibm.com, wangkefeng.wang@huawei.com, schnelle@linux.ibm.com, David.Laight@aculab.com, shorne@gmail.com, deller@gmx.de, Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=G136bXhsdH51zk1Y79GT0RmDlsZbwEJ9e+y9r1zjvVA=; b=Tl8xaeYXW/v14d
+	uN4blkgU79Q62w9XiwsnnOvjAcUKkOMVgpMwORemkfwsfPqAeht9zPt0iMjAFUp3F+5s27iYICR77
+	5Q72IMpN77ZDBoufPbIPq6JsJ29t2EmAWYoOYZ4s5OcQgxJoFh6eAJ/xdM1Hjr6EpZ+WmLxvMT0QZ
+	1lrHbDiytbLQhF8NajkGaGOCt5OR1qN6Vpt2Kve36zsoI97tJZqBq60z4IMk+A41ZULb2hzA5BENL
+	y5hIeKMLBz+d0THoIhJqYTIVMa+gim3w28/5fZX2/oxG2SjXVC3bMFxE6hL4wp2mmVpIhv4n2EYdi
+	Iqho14+hBLbHaawmQB9g==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=fw74FAZhkocnJnJyLR/WQNNOz26kiObyhL++hGG0nWw=; b=QBNdm8qv6j/A/iWrMKfpB6M7G8
+	dX02GHdjAg9rPGckqaKAq0nuLHgnEOZOUcT5iS1KFKrWFBJlTrkF2I4g5N2YgCfsexrQECwyFoHPp
+	z6yd+/vIl/PequagU7pGV8UNE2yhdOrdkDT+t3SJSVONZj6Q1cQWhoxiK+7FUVh/Fb17OdOH8kjtt
+	OWIuj2P4ze5K/i70TfCVLOSJSXO+Ry9WEoIoy6BlMNh0EJ1wlu/c8zXDIuEPPIicVlz2AV+6m8LDv
+	lA4vOEDBJYuPKGoF8lu2OSuuFhx10iSF/LiB0UcYpqrALuMFJM02PbH03w+/bd9OLb/nrxdqasmpe
+	J/m6D//w==;
+Content-Disposition: inline
+In-Reply-To: <fd63179-6ad6-fd86-79d6-2833c91111f8@google.com>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: Hugh Dickins <hughd@google.com>
+Cc: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org
 
-On 06/12/23 at 09:02am, Nathan Chancellor wrote:
-> On Sun, Jun 11, 2023 at 03:57:32PM +0800, Baoquan He wrote:
-> > On 06/11/23 at 08:40am, Mike Rapoport wrote:
-> > > Hi Baoquan,
-> > > 
-> > > On Sat, Jun 10, 2023 at 04:26:21PM +0800, Baoquan He wrote:
-> > > > On 06/09/23 at 07:09pm, kernel test robot wrote:
-> > > > > Hi Baoquan,
-> > > > > 
-> > > > > kernel test robot noticed the following build errors:
-> > > > > 
-> > > > > [auto build test ERROR on akpm-mm/mm-everything]
-> > > > > 
-> > > > > url:    https://github.com/intel-lab-lkp/linux/commits/Baoquan-He/asm-generic-iomap-h-remove-ARCH_HAS_IOREMAP_xx-macros/20230609-160014
-> > > > > base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
-> > > > > patch link:    https://lore.kernel.org/r/20230609075528.9390-3-bhe%40redhat.com
-> > > > > patch subject: [PATCH v6 02/19] hexagon: mm: Convert to GENERIC_IOREMAP
-> > > > > config: hexagon-randconfig-r041-20230608 (https://download.01.org/0day-ci/archive/20230609/202306091859.NhlW2nny-lkp@intel.com/config)
-> > > > > compiler: clang version 17.0.0 (https://github.com/llvm/llvm-project.git 4a5ac14ee968ff0ad5d2cc1ffa0299048db4c88a)
-> > > > > reproduce (this is a W=1 build):
-> > > > >         mkdir -p ~/bin
-> > > > >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-> > > > >         chmod +x ~/bin/make.cross
-> > > > >         git remote add akpm-mm https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git
-> > > > >         git fetch akpm-mm mm-everything
-> > > > >         git checkout akpm-mm/mm-everything
-> > > > >         b4 shazam https://lore.kernel.org/r/20230609075528.9390-3-bhe@redhat.com
-> > > > >         # save the config file
-> > > > >         mkdir build_dir && cp config build_dir/.config
-> > > > >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang ~/bin/make.cross W=1 O=build_dir ARCH=hexagon olddefconfig
-> > > > >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang ~/bin/make.cross W=1 O=build_dir ARCH=hexagon prepare
-> > > > > 
-> > > > > If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> > > > > the same patch/commit), kindly add following tags
-> > > > > | Reported-by: kernel test robot <lkp@intel.com>
-> > > > > | Closes: https://lore.kernel.org/oe-kbuild-all/202306091859.NhlW2nny-lkp@intel.com/
-> > > > 
-> > > > Thanks for reporting. I reproduced them on my local machine. Below patch
-> > > > can fix them. And by the way, I also saw the clone3 warning, and have to 
-> > > > made change in scripts/checksyscalls.sh to mute it, wondering how you
-> > > > handle it in your testing.
-> > > 
-> > > I think the warning kbuild reported is rather this one:
-> > > 
-> > > >> include/asm-generic/io.h:1078:6: error: conflicting types for 'iounmap'
-> > >     1078 | void iounmap(volatile void __iomem *addr);
-> > >          |      ^
-> > 
-> > This one is reported as error. The old iounmap() declaration has a const,
-> > while the standard one doesn't have. So I just remove the old one to use
-> > the standard one.
-> > 
-> > Another one is warning about PCI_IOBASE. Because inb/w/l and outb/w/l is
-> > redefined in asm-generic/io.h, and it uses PCI_IOBASE which is defniend
-> > as NULL in asm-generic/io.h if ARCH doesn't have its own PCI_IOBASE
-> > definition. Then the warning is triggered. So I define macro to override
-> > the standard inb/w/l and outb/w/l.
-> > 
-> > #ifndef PCI_IOBASE
-> > #define PCI_IOBASE ((void __iomem *)0)
-> > #endif
+On Thu, Jun 15, 2023 at 12:57:19AM -0700, Hugh Dickins wrote:
+> Probably just trivial collisions in most architectures, which either
+> of us can easily adjust to the other; powerpc likely to be more awkward,
+> but fairly easily resolved; s390 quite a problem.
 > 
-> I believe that this series [1] by Niklas Schnelle should take care of
-> the PCI_IOBASE warnings (which are not Hexagon specific), so there is no
-> need to worry about them when they show up in build reports.
+> I've so far been unable to post a v2 of my series (and powerpc and s390
+> were stupidly wrong in the v1), because a good s390 patch is not yet
+> decided - Gerald Schaefer and I are currently working on that, on the
+> s390 list (I took off most Ccs until we are settled and I can post v2).
 > 
-> [1]: https://lore.kernel.org/20230522105049.1467313-1-schnelle@linux.ibm.com/
+> As you have no doubt found yourself, s390 has sophisticated handling of
+> free half-pages already, and I need to add rcu_head usage in there too:
+> it's tricky to squeeze it all in, and ptdesc does not appear to help us
+> in any way (though mostly it's just changing some field names, okay).
+> 
+> If ptdesc were actually allowing a flexible structure which architectures
+> could add into, that would (in some future) be nice; but of course at
+> present it's still fitting it all into one struct page, and mandating
+> new restrictions which just make an architecture's job harder.
 
-That's great, then I can skip the fixing of PCI_IOBASE warnings, only
-wrap the fixing of iounmap() declaration issue into the new post. Thanks
-a lot for the information, Nathan.
+The intent is to get ptdescs to be dynamically allocated at some point
+in the ~2-3 years out future when we have finished the folio project ...
+which is not a terribly helpful thing for me to say.
 
-Thanks
-Baoquan
+I have three suggestions, probably all dreadful:
 
+1. s390 could change its behaviour to always allocate page tables in
+pairs.  That is, it fills in two pmd_t entries any time it takes a fault
+in either of them.
+
+2. We could allocate two or four pages at a time for s390 to allocate
+2kB pages from.  That gives us a lot more space to store RCU heads.
+
+3. We could use s390 as a guinea-pig for dynamic ptdesc allocation.
+Every time we allocate a struct page, we have a slab cache for an
+s390-special definition of struct ptdesc, we allocate a ptdesc and store
+a pointer to that in compound_head.
+
+We could sweeten #3 by doing that not just for s390 but also for every
+configuration which has ALLOC_SPLIT_PTLOCKS today.  That would get rid
+of the ambiguity between "is ptl a pointer or a lock".
+
+> But I've no desire to undo powerpc's use of pt_frag_refcount:
+> just warning that we may want to undo any use of it in s390.
+
+I would dearly love ppc & s390 to use the _same_ scheme to solve the
+same problem.
