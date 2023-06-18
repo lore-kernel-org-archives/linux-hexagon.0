@@ -1,189 +1,75 @@
-From: Vishal Moola <vishal.moola@gmail.com>
-Subject: Re: [PATCH v4 04/34] pgtable: Create struct ptdesc
-Date: Fri, 16 Jun 2023 14:28:44 -0700
-Message-ID: <CAOzc2pwhoF=XNCoe-+w2Z5MRoRJGvTfSr56HV00OGitEBMtPcw@mail.gmail.com>
-References: <20230612210423.18611-1-vishal.moola@gmail.com>
- <20230612210423.18611-5-vishal.moola@gmail.com> <fd63179-6ad6-fd86-79d6-2833c91111f8@google.com>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Subject: Re: [PATCH 1/1] arch:hexagon/powerpc: use KSYM_NAME_LEN in array size
+Date: Sun, 18 Jun 2023 16:20:14 +0200
+Message-ID: <CANiq72=K1sXz=TjBSjx+7JuTueH6vjbz9--Q2dGDYj3naKvroQ@mail.gmail.com>
+References: <20230529052821.58175-1-maninder1.s@samsung.com>
+ <CGME20230529052832epcas5p4fa1b8cf25d9810d32bd2ccf012086fb3@epcms5p1>
+ <CANiq72ncDr68qeahrHuQ63dj1Va3=Us6ZSjGRkr6Zp8j+=yH_Q@mail.gmail.com>
+ <20230529105707epcms5p1418eac680ebe1736196706b0db80dd39@epcms5p1>
+ <CANiq72n_eso7_pgna8ukmEnuCQPsKYPr0NU-Ss9Nwv0VzX=etg@mail.gmail.com> <202305301611.34F0A680A2@keescook>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-mips-owner@vger.kernel.org>
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1686950935; x=1689542935;
+        d=gmail.com; s=20221208; t=1687098025; x=1689690025;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=S8f4Qp7cwj4O2kdf7qLqLnrTRkxhB0m+8FmgrZaxSBc=;
-        b=kDqKbU7P9edSk/BgMH9xSstpKqVCZCkotk48bdhsv9CQedo7tgzNx594G7ZL6GQuxg
-         jA1o2JPcz0QDYMp8Gk7IfVIBu/Qb0pO39azZ5F7HLfZC1IgCGAp3b3idtV3rR/BwTQDN
-         x0xETay6eu3ghZcxBbeBHYOXCm+0UdQ18fM+kmxKxAuiYRqF/zWkw4LlfaXk/Ol9POup
-         f5e5C/WGoi8jmqXjJwP7rx3T/q8TLMKNW53qsepy7E0u9eKRuHWvS7CgQ60QFJLvcMrS
-         P+YDUzuxecN+sqBu1rA+X9cuH9CB9q1H/97ksOSagJnc4ZVXc8JgbNn89oLF/7saT6Tn
-         z99g==
-In-Reply-To: <fd63179-6ad6-fd86-79d6-2833c91111f8@google.com>
+        bh=UKngzCbi/z0YczLfmgJ8G+89JRu+Tx99q0y6rf+xc3g=;
+        b=VaAic+1rlhUTFVg7WGWjD/PM++B/69nK3R1DcgWj7rqNxpw4yV9fuUWKfpqgtW/K7I
+         Jku2fodUUoezlMprvokwNK49VRwuEDr/JdcXT2eyuPymQU/KU44RR6E4F/VCjvAoxDk1
+         KrGyx51eGhHP3KY8eiarxseURUuPzQcRrZnqyy8Wh1wskYRfipZKy11JzbyD16UzaKvC
+         nsVkqLniY3F1bfuJP/l8ILPUL5tUoOJ/pHmFBOxEGlZGVPMIk7aUfKcOWy+M2DZ9RWfc
+         Y3uvvy4nQTH4yi9lyWQ0OCifbD4zzFYRwWNQVmJHCU+m8tyCaeCz/eCA8ppT0z0pCwT+
+         +7NA==
+In-Reply-To: <202305301611.34F0A680A2@keescook>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="windows-1252"
-To: Hugh Dickins <hughd@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel
+To: Kees Cook <keescook@chromium.org>
+Cc: maninder1.s@samsung.com, Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, "bcain@quicinc.com" <bcain@quicinc.com>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "npiggin@gmail.com" <npiggin@gmail.com>, "christophe.leroy@csgroup.eu" <christophe.leroy@csgroup.eu>, "nathanl@linux.ibm.com" <nathanl@linux.ibm.com>, "ustavoars@kernel.org" <ustavoars@kernel.org>, "alex.gaynor@gmail.com" <alex.gaynor@gmail.com>, "gary@garyguo.net" <gary@garyguo.net>, "ojeda@kernel.org" <ojeda@kernel.org>, "pmladek@suse.com" <pmladek@suse.com>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Onkarnath <onkarnath.1@samsung.c>
 
-On Thu, Jun 15, 2023 at 12:57=E2=80=AFAM Hugh Dickins <hughd@google.com> wr=
-ote:
+On Wed, May 31, 2023 at 1:14=E2=80=AFAM Kees Cook <keescook@chromium.org> w=
+rote:
 >
-> On Mon, 12 Jun 2023, Vishal Moola (Oracle) wrote:
->
-> > Currently, page table information is stored within struct page. As part
-> > of simplifying struct page, create struct ptdesc for page table
-> > information.
+> On Mon, May 29, 2023 at 04:50:45PM +0200, Miguel Ojeda wrote:
+> > Kees: what is the current stance on `[static N]` parameters? Something =
+like:
 > >
-> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
->
-> Vishal, as I think you have already guessed, your ptdesc series and
-> my pte_free_defer() "mm: free retracted page table by RCU" series are
-> on a collision course.
->
-> Probably just trivial collisions in most architectures, which either
-> of us can easily adjust to the other; powerpc likely to be more awkward,
-> but fairly easily resolved; s390 quite a problem.
->
-> I've so far been unable to post a v2 of my series (and powerpc and s390
-> were stupidly wrong in the v1), because a good s390 patch is not yet
-> decided - Gerald Schaefer and I are currently working on that, on the
-> s390 list (I took off most Ccs until we are settled and I can post v2).
->
-> As you have no doubt found yourself, s390 has sophisticated handling of
-> free half-pages already, and I need to add rcu_head usage in there too:
-> it's tricky to squeeze it all in, and ptdesc does not appear to help us
-> in any way (though mostly it's just changing some field names, okay).
->
-> If ptdesc were actually allowing a flexible structure which architectures
-> could add into, that would (in some future) be nice; but of course at
-> present it's still fitting it all into one struct page, and mandating
-> new restrictions which just make an architecture's job harder.
-
-A goal of ptdescs is to make architecture's jobs simpler and standardized.
-Unfortunately, ptdescs are nowhere near isolated from struct page yet.
-This version of struct ptdesc contains the exact number of fields architect=
-ures
-need right now, just reorganized to be located next to each other. It *prob=
-ably*
-shouldn't make an architectures job harder, aside from discouraging their u=
-se
-of yet even more members of struct page.
-
-> Some notes on problematic fields below FYI.
->
-> > ---
-> >  include/linux/pgtable.h | 51 +++++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 51 insertions(+)
+> >     const char *kallsyms_lookup(unsigned long addr,
+> >                                 unsigned long *symbolsize,
+> >                                 unsigned long *offset,
+> >     -                           char **modname, char *namebuf);
+> >     +                           char **modname, char namebuf[static KSY=
+M_NAME_LEN]);
 > >
-> > diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-> > index c5a51481bbb9..330de96ebfd6 100644
-> > --- a/include/linux/pgtable.h
-> > +++ b/include/linux/pgtable.h
-> > @@ -975,6 +975,57 @@ static inline void ptep_modify_prot_commit(struct =
-vm_area_struct *vma,
-> >  #endif /* __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION */
-> >  #endif /* CONFIG_MMU */
+> > makes the compiler complain about cases like these (even if trivial):
 > >
-> > +
-> > +/**
-> > + * struct ptdesc - Memory descriptor for page tables.
-> > + * @__page_flags: Same as page flags. Unused for page tables.
-> > + * @pt_list: List of used page tables. Used for s390 and x86.
-> > + * @_pt_pad_1: Padding that aliases with page's compound head.
-> > + * @pmd_huge_pte: Protected by ptdesc->ptl, used for THPs.
-> > + * @_pt_s390_gaddr: Aliases with page's mapping. Used for s390 gmap on=
-ly.
-> > + * @pt_mm: Used for x86 pgds.
-> > + * @pt_frag_refcount: For fragmented page table tracking. Powerpc and =
-s390 only.
-> > + * @ptl: Lock for the page table.
-> > + *
-> > + * This struct overlays struct page for now. Do not modify without a g=
-ood
-> > + * understanding of the issues.
-> > + */
-> > +struct ptdesc {
-> > +     unsigned long __page_flags;
-> > +
-> > +     union {
-> > +             struct list_head pt_list;
+> >     arch/powerpc/xmon/xmon.c:1711:10: error: array argument is too smal=
+l;
+> >         contains 128 elements, callee requires at least 512
+> > [-Werror,-Warray-bounds]
+> >             name =3D kallsyms_lookup(pc, &size, &offset, NULL, tmpstr);
+> >                  ^                                           ~~~~~~
+> >     ./include/linux/kallsyms.h:86:29: note: callee declares array
+> > parameter as static here
+> >             char **modname, char namebuf[static KSYM_NAME_LEN]);
+> >                                  ^      ~~~~~~~~~~~~~~~~~~~~~~
 >
-> I shall be needing struct rcu_head rcu_head (or pt_rcu_head or whatever,
-> if you prefer) in this union too.  Sharing the lru or pt_list with rcu_he=
-ad
-> is what's difficult to get right and efficient on s390 - and if ptdesc ga=
-ve
-> us an independent rcu_head for each page table, that would be a blessing!
-> but sadly not, it still has to squeeze into a struct page.
+> Wouldn't that be a good thing? (I.e. complain about the size mismatch?)
 
-I can add a pt_rcu_head along with a comment to deter aliasing issues :)
-Independent rcu_heads aren't coming any time soon though :(
+Yeah, I would say so (i.e. I meant it as a good thing).
 
-> > +             struct {
-> > +                     unsigned long _pt_pad_1;
-> > +                     pgtable_t pmd_huge_pte;
-> > +             };
-> > +     };
-> > +     unsigned long _pt_s390_gaddr;
-> > +
-> > +     union {
-> > +             struct mm_struct *pt_mm;
-> > +             atomic_t pt_frag_refcount;
+> > But I only see 2 files in the kernel using `[static N]` (from 2020 and
+> > 2021). Should something else be used instead (e.g. `__counted_by`),
+> > even if constexpr-sized?.
 >
-> Whether s390 will want pt_mm is not yet decided: I want to use it,
-> Gerald prefers to go without it; but if we do end up using it,
-> then pt_frag_refcount is a luxury we would have to give up.
+> Yeah, it seems pretty uncommon. I'd say traditionally arrays aren't
+> based too often, rather structs containing them.
+>
+> But ultimately, yeah, everything could gain __counted_by and friends in
+> the future.
 
-I don't like the use of pt_mm for s390 either. s390 uses space equivalent
-to all five words allocated in the page table struct (albeit in various pla=
-ces
-of struct page). Using extra space (especially allocated for unrelated
-reasons) just because it exists makes things more complicated and
-confusing, and s390 is already confusing enough as a result of that.
+That would be nice!
 
-If having access to pt_mm is necessary I can drop the
-pt_frag_refcount patch, but I'd rather avoid it.
-
-> s390 does very well already with its _refcount tricks, and I'd expect
-> powerpc's simpler but more wasteful implementation to work as well
-> with _refcount too - I know that a few years back, powerpc did misuse
-> _refcount (it did not allow for speculative accesses, thought it had
-> sole ownership of that field); but s390 copes well with that, and I
-> expect powerpc can do so too, without the luxury of pt_frag_refcount.
->
-> But I've no desire to undo powerpc's use of pt_frag_refcount:
-> just warning that we may want to undo any use of it in s390.
->
-> I thought I had more issues to mention, probably Gerald will
-> remind me of a whole new unexplored dimension! gmap perhaps.
->
-> Hugh
->
-> > +     };
-> > +
-> > +#if ALLOC_SPLIT_PTLOCKS
-> > +     spinlock_t *ptl;
-> > +#else
-> > +     spinlock_t ptl;
-> > +#endif
-> > +};
-> > +
-> > +#define TABLE_MATCH(pg, pt)                                          \
-> > +     static_assert(offsetof(struct page, pg) =3D=3D offsetof(struct pt=
-desc, pt))
-> > +TABLE_MATCH(flags, __page_flags);
-> > +TABLE_MATCH(compound_head, pt_list);
-> > +TABLE_MATCH(compound_head, _pt_pad_1);
-> > +TABLE_MATCH(pmd_huge_pte, pmd_huge_pte);
-> > +TABLE_MATCH(mapping, _pt_s390_gaddr);
-> > +TABLE_MATCH(pt_mm, pt_mm);
-> > +TABLE_MATCH(ptl, ptl);
-> > +#undef TABLE_MATCH
-> > +static_assert(sizeof(struct ptdesc) <=3D sizeof(struct page));
-> > +
-> >  /*
-> >   * No-op macros that just return the current protection value. Defined=
- here
-> >   * because these macros can be used even if CONFIG_MMU is not defined.
-> > --
-> > 2.40.1
+Cheers,
+Miguel
