@@ -1,146 +1,104 @@
-From: Baoquan He <bhe@redhat.com>
-Subject: [PATCH v7 02/19] hexagon: mm: Convert to GENERIC_IOREMAP
-Date: Tue, 20 Jun 2023 21:13:39 +0800
-Message-ID: <20230620131356.25440-3-bhe@redhat.com>
-References: <20230620131356.25440-1-bhe@redhat.com>
+From: Vishal Moola <vishal.moola@gmail.com>
+Subject: Re: [PATCH v4 04/34] pgtable: Create struct ptdesc
+Date: Tue, 20 Jun 2023 13:01:39 -0700
+Message-ID: <CAOzc2pwMW64O0m4Zu4zVFTY+qCJRK7V+7niN_t1m7pLaJrtb2A@mail.gmail.com>
+References: <20230612210423.18611-1-vishal.moola@gmail.com>
+ <20230612210423.18611-5-vishal.moola@gmail.com> <ZIxXw9ERkYv+ipdd@nvidia.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687266884;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=4y8XwGcIF2jz2W1CKgMhspALuMHaJJCUGdTHN9uXAgA=;
-        b=iKCyGdpj/usauQJv7iD8rn1JfZrBEiqqIIeRf6uaBagQvjHFXB0jieYwZIyzBIVb1ALYQN
-        0kc9VZUuvASHS2p1E0TK6fB3bSEdkk74R+DUgVEa3tbmoBzhf78ONhYiIVfNFfkJnc9bgK
-        bnQr7RH0eEmLESIp4Kfgi5AmQRJHdTI=
-In-Reply-To: <20230620131356.25440-1-bhe@redhat.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1687291309; x=1689883309;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Q4F3qXm8x1AVi+0TrKGx40m/sFxYrt6Lj9IeE/BrpeU=;
+        b=g8Wha6YZBIQ4F35wQ8P6Y0c98+3LfOEjAen8YviDIN/VpMlvLwu/TwEQtEhwi2wLbk
+         4/b97qENpIhbKycIE1G3aUVCeb+vz/rCN/gI0l10ch7iG8C6c3ywB5bQ5tQe6ryGYXul
+         5XkEWnvnLWIaJ1vsJQRh6tPgKWpuL7AyPHBFZQZGhCATWoDKR1D2YRUNFvvEx6dCnM6X
+         zMyQcs2OOhmWkXYBbd2Z3eHBKxjZIMZIeFLBGw0YYdvfY15fMS5Ra2rC/awJj+k/fir6
+         OMXeho7/p64d1/Gcc6dtEtZlx65PVhnR78rxvmM8tH1fn8015FZgY0Ml6WWkfDm6BXzA
+         dR7g==
+In-Reply-To: <ZIxXw9ERkYv+ipdd@nvidia.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: linux-kernel@vger.kernel.org
-Cc: linux-arch@vger.kernel.org, linux-mm@kvack.org, arnd@arndb.de, hch@lst.de, christophe.leroy@csgroup.eu, rppt@kernel.org, willy@infradead.org, agordeev@linux.ibm.com, wangkefeng.wang@huawei.com, schnelle@linux.ibm.com, David.Laight@ACULAB.COM, shorne@gmail.com, deller@gmx.de, nathan@kernel.org, glaubitz@physik.fu-berlin.de, Baoquan He <bhe@redhat.com>, Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>
 
-By taking GENERIC_IOREMAP method, the generic ioremap_prot() and
-iounmap() are visible and available to arch. This change will
-simplify implementation by removing duplicated codes with generic
-ioremap_prot() and iounmap(), and has the equivalent functioality.
+On Fri, Jun 16, 2023 at 5:38=E2=80=AFAM Jason Gunthorpe <jgg@nvidia.com> wr=
+ote:
+>
+> On Mon, Jun 12, 2023 at 02:03:53PM -0700, Vishal Moola (Oracle) wrote:
+> > Currently, page table information is stored within struct page. As part
+> > of simplifying struct page, create struct ptdesc for page table
+> > information.
+> >
+> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> > ---
+> >  include/linux/pgtable.h | 51 +++++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 51 insertions(+)
+> >
+> > diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+> > index c5a51481bbb9..330de96ebfd6 100644
+> > --- a/include/linux/pgtable.h
+> > +++ b/include/linux/pgtable.h
+> > @@ -975,6 +975,57 @@ static inline void ptep_modify_prot_commit(struct =
+vm_area_struct *vma,
+> >  #endif /* __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION */
+> >  #endif /* CONFIG_MMU */
+> >
+> > +
+> > +/**
+> > + * struct ptdesc - Memory descriptor for page tables.
+> > + * @__page_flags: Same as page flags. Unused for page tables.
+> > + * @pt_list: List of used page tables. Used for s390 and x86.
+> > + * @_pt_pad_1: Padding that aliases with page's compound head.
+> > + * @pmd_huge_pte: Protected by ptdesc->ptl, used for THPs.
+> > + * @_pt_s390_gaddr: Aliases with page's mapping. Used for s390 gmap on=
+ly.
+> > + * @pt_mm: Used for x86 pgds.
+> > + * @pt_frag_refcount: For fragmented page table tracking. Powerpc and =
+s390 only.
+> > + * @ptl: Lock for the page table.
+> > + *
+> > + * This struct overlays struct page for now. Do not modify without a g=
+ood
+> > + * understanding of the issues.
+> > + */
+> > +struct ptdesc {
+> > +     unsigned long __page_flags;
+> > +
+> > +     union {
+> > +             struct list_head pt_list;
+> > +             struct {
+> > +                     unsigned long _pt_pad_1;
+> > +                     pgtable_t pmd_huge_pte;
+> > +             };
+> > +     };
+> > +     unsigned long _pt_s390_gaddr;
+> > +
+> > +     union {
+> > +             struct mm_struct *pt_mm;
+> > +             atomic_t pt_frag_refcount;
+> > +     };
+> > +
+> > +#if ALLOC_SPLIT_PTLOCKS
+> > +     spinlock_t *ptl;
+> > +#else
+> > +     spinlock_t ptl;
+> > +#endif
+> > +};
+>
+> I think you should include the memcg here too? It needs to be valid
+> for a ptdesc, even if we don't currently deref it through the ptdesc
+> type.
 
-For hexagon, the current ioremap() and iounmap() are the same as
-generic version. After taking GENERIC_IOREMAP way, the old ioremap()
-and iounmap() can be completely removed.
+Yes, thanks for catching that! I'll add it to v5.
 
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Reviewed-by: Mike Rapoport (IBM) <rppt@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: Brian Cain <bcain@quicinc.com>
-Cc: linux-hexagon@vger.kernel.org
----
-v6->v7:
-- Fix building error reported by lkp test robot. Here I only fixed the
-  redefinition of iounmap(), ignored the PCI_IOBASE warnings since
-  Nathan kindly reminded me the warning is a generic issue, and Niklas
-  is working on that within below patchset.
-  https://lore.kernel.org/all/20230612160237.GA199007@dev-arch.thelio-3990X/T/#u
+> Also, do you see a way to someday put a 'struct rcu_head' into here?
 
- arch/hexagon/Kconfig          |  1 +
- arch/hexagon/include/asm/io.h | 11 +++++----
- arch/hexagon/mm/ioremap.c     | 44 -----------------------------------
- 3 files changed, 8 insertions(+), 48 deletions(-)
- delete mode 100644 arch/hexagon/mm/ioremap.c
+Eventually, when they're being dynamically allocated independent of
+struct page. Although at that point I'm not sure if we'll need one.
 
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index 54eadf265178..17afffde1a7f 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -25,6 +25,7 @@ config HEXAGON
- 	select NEED_SG_DMA_LENGTH
- 	select NO_IOPORT_MAP
- 	select GENERIC_IOMAP
-+	select GENERIC_IOREMAP
- 	select GENERIC_SMP_IDLE_THREAD
- 	select STACKTRACE_SUPPORT
- 	select GENERIC_CLOCKEVENTS_BROADCAST
-diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
-index 46a099de85b7..e2b308e32a37 100644
---- a/arch/hexagon/include/asm/io.h
-+++ b/arch/hexagon/include/asm/io.h
-@@ -27,8 +27,6 @@
- extern int remap_area_pages(unsigned long start, unsigned long phys_addr,
- 				unsigned long end, unsigned long flags);
- 
--extern void iounmap(const volatile void __iomem *addr);
--
- /* Defined in lib/io.c, needed for smc91x driver. */
- extern void __raw_readsw(const void __iomem *addr, void *data, int wordlen);
- extern void __raw_writesw(void __iomem *addr, const void *data, int wordlen);
-@@ -170,8 +168,13 @@ static inline void writel(u32 data, volatile void __iomem *addr)
- #define writew_relaxed __raw_writew
- #define writel_relaxed __raw_writel
- 
--void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
--#define ioremap_uc(X, Y) ioremap((X), (Y))
-+/*
-+ * I/O memory mapping functions.
-+ */
-+#define _PAGE_IOREMAP (_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
-+		       (__HEXAGON_C_DEV << 6))
-+
-+#define ioremap_uc(addr, size) ioremap((addr), (size))
- 
- 
- #define __raw_writel writel
-diff --git a/arch/hexagon/mm/ioremap.c b/arch/hexagon/mm/ioremap.c
-deleted file mode 100644
-index 255c5b1ee1a7..000000000000
---- a/arch/hexagon/mm/ioremap.c
-+++ /dev/null
-@@ -1,44 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
--/*
-- * I/O remap functions for Hexagon
-- *
-- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
-- */
--
--#include <linux/io.h>
--#include <linux/vmalloc.h>
--#include <linux/mm.h>
--
--void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
--{
--	unsigned long last_addr, addr;
--	unsigned long offset = phys_addr & ~PAGE_MASK;
--	struct vm_struct *area;
--
--	pgprot_t prot = __pgprot(_PAGE_PRESENT|_PAGE_READ|_PAGE_WRITE
--					|(__HEXAGON_C_DEV << 6));
--
--	last_addr = phys_addr + size - 1;
--
--	/*  Wrapping not allowed  */
--	if (!size || (last_addr < phys_addr))
--		return NULL;
--
--	/*  Rounds up to next page size, including whole-page offset */
--	size = PAGE_ALIGN(offset + size);
--
--	area = get_vm_area(size, VM_IOREMAP);
--	addr = (unsigned long)area->addr;
--
--	if (ioremap_page_range(addr, addr+size, phys_addr, prot)) {
--		vunmap((void *)addr);
--		return NULL;
--	}
--
--	return (void __iomem *) (offset + addr);
--}
--
--void iounmap(const volatile void __iomem *addr)
--{
--	vunmap((void *) ((unsigned long) addr & PAGE_MASK));
--}
--- 
-2.34.1
-
+> Thanks,
+> Jason
