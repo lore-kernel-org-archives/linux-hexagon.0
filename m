@@ -1,152 +1,127 @@
 From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH v5 00/33] Split ptdesc from struct page
-Date: Thu, 22 Jun 2023 13:57:12 -0700
-Message-ID: <20230622205745.79707-1-vishal.moola@gmail.com>
+Subject: [PATCH v5 03/33] pgtable: Create struct ptdesc
+Date: Thu, 22 Jun 2023 13:57:15 -0700
+Message-ID: <20230622205745.79707-4-vishal.moola@gmail.com>
+References: <20230622205745.79707-1-vishal.moola@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-Id:Date:Subject:Cc
-	:To:From:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:
-	List-Owner; bh=/fh7d/iW/IUpdsIRakVHTxTN/ANoJdSEH/svcZJLG9g=; b=thQsaD7xYalyI9
-	/YZoswLAPvK8DQn21O0bLeEovxQGpxTbRT2KISdOvBb9y3xe4TAUUCkb5Mqs07Pwv0IZcGWpwDdvV
-	OsB96QFaWA3/gq1itYPO3WmC5VjqAWTbGDFVjLeeOHP6bGjwXmCGsKQX4rT/an3bJ97Cm/EXTlvFP
-	W8AYRcfbmMOo27G5E7Zs+BCzEDvjCoyMZKMVdEb9PWIFaDPNlnC9dH9rJ+mtope0C5divPQGrbTBT
-	CeWBj6fb64NJymV7qFtFUhcJOGl/aJBO8qu0Oq15umSdAdVXCCRalCitv8H+oh8TTt6xy+RMPQjBl
-	sI8mPFYjqc6crMKXkyhA==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687467476; x=1690059476;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Q4Ig2n4cGI8BP25CqcNRq43JhOmkIIdJVFlb5elIpOA=;
-        b=mqvv9g7FTX6YZrTAez67m8G0SADgQWX+ct2Q2ktq+TbKMG/cOnFNL1HUEejNSN9nds
-         9vEK9L2HpCPHz3mnLHm7QE7bazoap9KPjRBuUT4kw6MBU7tHylSDou09veevPp+Qm5tI
-         J6+0hmA98DudaYxzAoNczqxDp5g6z2tqapGcR3NSEAPAgqMiM1eNh+iIzBq7ayejKjj9
-         5MP9SwhVaQTCo1G312fdQXe7vTjboPcFBobNzdFt65RtUbRTWvFRUfh7ZZb+Tak5rboQ
-         uGsNAcBwqdQTtsTo7UoikA/hvdu33PxWnma34tmu5wLmqc0vL2bNnLhMWuiaLjOulKtx
-         4JUQ==
+Content-Transfer-Encoding: 8bit
+Return-path: <xen-devel-bounces@lists.xenproject.org>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1687467482; x=1690059482;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=g10wkISUfh+NWh/zmhT9FX+m3ZttfvdTUqPKBonJP24=;
+        b=pU1rNku+EwfuvvAUFkFumH3vBy2yB8eY8b9rmQMddlJoc9QhOnRcokyjWDtIUPPy9P
+         MyE7phtpnefNxvysKqFF1dCChREaY4VAw7Hj9WJFlZFrzpk6eifBId3wubz0Vyh/S2pn
+         8/Y3zkVGHHKKYxzZzu8HCxLQTltPQvJHitS9QsbrsAUgPjueiuuK933isxWF/RQdLHvt
+         zcy+Qct09qmvfH+KRctZzkT+vvZGDQDyiysBgsbHpUxND18HRJm9vVFEK6S0KHOtgU7u
+         IRCWYGiDuX3Hydg/OjrZHIGz2lGmohOF8cCd3deLunhE1oH3PJ2GTuP2PJzlmW5OQRrp
+         EAKQ==
+In-Reply-To: <20230622205745.79707-1-vishal.moola@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
-Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Huacai Chen <chenhuacai@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, David Hildenbrand <david@redhat.com>, Claudio
+Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Mike Rapoport <rppt@kernel.org>
 
-The MM subsystem is trying to shrink struct page. This patchset
-introduces a memory descriptor for page table tracking - struct ptdesc.
+Currently, page table information is stored within struct page. As part
+of simplifying struct page, create struct ptdesc for page table
+information.
 
-This patchset introduces ptdesc, splits ptdesc from struct page, and
-converts many callers of page table constructor/destructors to use ptdescs.
+Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
+---
+ include/linux/pgtable.h | 68 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 68 insertions(+)
 
-Ptdesc is a foundation to further standardize page tables, and eventually
-allow for dynamic allocation of page tables independent of struct page.
-However, the use of pages for page table tracking is quite deeply
-ingrained and varied across archictectures, so there is still a lot of
-work to be done before that can happen.
-
-This is rebased on next-20230621.
-
-There is a minor conflict with patch 24 and the mm-unstable tree in
-arch/m68k/mm/motorola.c - The end result of applying the patch should
-be the same.
-
-
-v5:
-  More Acked-bys :)
-  Cleanup some documentation wording and formatting
-  Add pt_rcu_head to ptdesc
-  Add memcg to ptdesc (and align it with struct page)
-  Ensure all get_free_page() callers prohibit HIGHMEM for 32 bit support.
-  Renamed folio_{set, clear}_table() to folio_{set, clear}_pgtable()
-  Removed pagetable_clear() as it is not necessary right now
-  pagetable_free() now sets page->mapping = NULL
-  Dropped s390 _refcount to _pt_frag_refcount conversion patch
-
-Vishal Moola (Oracle) (33):
-  mm: Add PAGE_TYPE_OP folio functions
-  s390: Use _pt_s390_gaddr for gmap address tracking
-  pgtable: Create struct ptdesc
-  mm: add utility functions for ptdesc
-  mm: Convert pmd_pgtable_page() to pmd_ptdesc()
-  mm: Convert ptlock_alloc() to use ptdescs
-  mm: Convert ptlock_ptr() to use ptdescs
-  mm: Convert pmd_ptlock_init() to use ptdescs
-  mm: Convert ptlock_init() to use ptdescs
-  mm: Convert pmd_ptlock_free() to use ptdescs
-  mm: Convert ptlock_free() to use ptdescs
-  mm: Create ptdesc equivalents for pgtable_{pte,pmd}_page_{ctor,dtor}
-  powerpc: Convert various functions to use ptdescs
-  x86: Convert various functions to use ptdescs
-  s390: Convert various gmap functions to use ptdescs
-  s390: Convert various pgalloc functions to use ptdescs
-  mm: Remove page table members from struct page
-  pgalloc: Convert various functions to use ptdescs
-  arm: Convert various functions to use ptdescs
-  arm64: Convert various functions to use ptdescs
-  csky: Convert __pte_free_tlb() to use ptdescs
-  hexagon: Convert __pte_free_tlb() to use ptdescs
-  loongarch: Convert various functions to use ptdescs
-  m68k: Convert various functions to use ptdescs
-  mips: Convert various functions to use ptdescs
-  nios2: Convert __pte_free_tlb() to use ptdescs
-  openrisc: Convert __pte_free_tlb() to use ptdescs
-  riscv: Convert alloc_{pmd, pte}_late() to use ptdescs
-  sh: Convert pte_free_tlb() to use ptdescs
-  sparc64: Convert various functions to use ptdescs
-  sparc: Convert pgtable_pte_page_{ctor, dtor}() to ptdesc equivalents
-  um: Convert {pmd, pte}_free_tlb() to use ptdescs
-  mm: Remove pgtable_{pmd, pte}_page_{ctor, dtor}() wrappers
-
- Documentation/mm/split_page_table_lock.rst    |  12 +-
- .../zh_CN/mm/split_page_table_lock.rst        |  14 +-
- arch/arm/include/asm/tlb.h                    |  12 +-
- arch/arm/mm/mmu.c                             |   7 +-
- arch/arm64/include/asm/tlb.h                  |  14 +-
- arch/arm64/mm/mmu.c                           |   7 +-
- arch/csky/include/asm/pgalloc.h               |   4 +-
- arch/hexagon/include/asm/pgalloc.h            |   8 +-
- arch/loongarch/include/asm/pgalloc.h          |  27 ++-
- arch/loongarch/mm/pgtable.c                   |   7 +-
- arch/m68k/include/asm/mcf_pgalloc.h           |  43 ++--
- arch/m68k/include/asm/sun3_pgalloc.h          |   8 +-
- arch/m68k/mm/motorola.c                       |   4 +-
- arch/mips/include/asm/pgalloc.h               |  32 +--
- arch/mips/mm/pgtable.c                        |   8 +-
- arch/nios2/include/asm/pgalloc.h              |   8 +-
- arch/openrisc/include/asm/pgalloc.h           |   8 +-
- arch/powerpc/mm/book3s64/mmu_context.c        |  10 +-
- arch/powerpc/mm/book3s64/pgtable.c            |  32 +--
- arch/powerpc/mm/pgtable-frag.c                |  46 ++--
- arch/riscv/include/asm/pgalloc.h              |   8 +-
- arch/riscv/mm/init.c                          |  16 +-
- arch/s390/include/asm/pgalloc.h               |   4 +-
- arch/s390/include/asm/tlb.h                   |   4 +-
- arch/s390/mm/gmap.c                           | 207 ++++++++++--------
- arch/s390/mm/pgalloc.c                        | 108 ++++-----
- arch/sh/include/asm/pgalloc.h                 |   9 +-
- arch/sparc/mm/init_64.c                       |  17 +-
- arch/sparc/mm/srmmu.c                         |   5 +-
- arch/um/include/asm/pgalloc.h                 |  18 +-
- arch/x86/mm/pgtable.c                         |  47 ++--
- arch/x86/xen/mmu_pv.c                         |   2 +-
- include/asm-generic/pgalloc.h                 |  88 +++++---
- include/asm-generic/tlb.h                     |  11 +
- include/linux/mm.h                            | 153 +++++++++----
- include/linux/mm_types.h                      |  14 --
- include/linux/page-flags.h                    |  30 ++-
- include/linux/pgtable.h                       |  77 +++++++
- mm/memory.c                                   |   8 +-
- 39 files changed, 684 insertions(+), 453 deletions(-)
-
+diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+index 5063b482e34f..d46cb709ce08 100644
+--- a/include/linux/pgtable.h
++++ b/include/linux/pgtable.h
+@@ -987,6 +987,74 @@ static inline void ptep_modify_prot_commit(struct vm_area_struct *vma,
+ #endif /* __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION */
+ #endif /* CONFIG_MMU */
+ 
++
++/**
++ * struct ptdesc -    Memory descriptor for page tables.
++ * @__page_flags:     Same as page flags. Unused for page tables.
++ * @pt_rcu_head:      For freeing page table pages.
++ * @pt_list:          List of used page tables. Used for s390 and x86.
++ * @_pt_pad_1:        Padding that aliases with page's compound head.
++ * @pmd_huge_pte:     Protected by ptdesc->ptl, used for THPs.
++ * @_pt_s390_gaddr:   Aliases with page's mapping. Used for s390 gmap only.
++ * @pt_mm:            Used for x86 pgds.
++ * @pt_frag_refcount: For fragmented page table tracking. Powerpc and s390 only.
++ * @ptl:              Lock for the page table.
++ * @__page_type:      Same as page->page_type. Unused for page tables.
++ * @_refcount:        Same as page refcount. Used for s390 page tables.
++ * @pt_memcg_data:    Memcg data. Tracked for page tables here.
++ *
++ * This struct overlays struct page for now. Do not modify without a good
++ * understanding of the issues.
++ */
++struct ptdesc {
++	unsigned long __page_flags;
++
++	union {
++		struct rcu_head pt_rcu_head;
++		struct list_head pt_list;
++		struct {
++			unsigned long _pt_pad_1;
++			pgtable_t pmd_huge_pte;
++		};
++	};
++	unsigned long _pt_s390_gaddr;
++
++	union {
++		struct mm_struct *pt_mm;
++		atomic_t pt_frag_refcount;
++	};
++
++	union {
++		unsigned long _pt_pad_2;
++#if ALLOC_SPLIT_PTLOCKS
++		spinlock_t *ptl;
++#else
++		spinlock_t ptl;
++#endif
++	};
++	unsigned int __page_type;
++	atomic_t _refcount;
++#ifdef CONFIG_MEMCG
++	unsigned long pt_memcg_data;
++#endif
++};
++
++#define TABLE_MATCH(pg, pt)						\
++	static_assert(offsetof(struct page, pg) == offsetof(struct ptdesc, pt))
++TABLE_MATCH(flags, __page_flags);
++TABLE_MATCH(compound_head, pt_list);
++TABLE_MATCH(compound_head, _pt_pad_1);
++TABLE_MATCH(pmd_huge_pte, pmd_huge_pte);
++TABLE_MATCH(mapping, _pt_s390_gaddr);
++TABLE_MATCH(pt_mm, pt_mm);
++TABLE_MATCH(ptl, ptl);
++TABLE_MATCH(rcu_head, pt_rcu_head);
++#ifdef CONFIG_MEMCG
++TABLE_MATCH(memcg_data, pt_memcg_data);
++#endif
++#undef TABLE_MATCH
++static_assert(sizeof(struct ptdesc) <= sizeof(struct page));
++
+ /*
+  * No-op macros that just return the current protection value. Defined here
+  * because these macros can be used even if CONFIG_MMU is not defined.
 -- 
 2.40.1
+
+
