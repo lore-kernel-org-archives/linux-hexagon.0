@@ -1,198 +1,65 @@
-From: kernel test robot <lkp@intel.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 Subject: Re: [PATCH v5 24/33] m68k: Convert various functions to use ptdescs
-Date: Sun, 25 Jun 2023 15:57:56 +0800
-Message-ID: <202306251513.WVzxgGxu-lkp@intel.com>
-References: <20230622205745.79707-25-vishal.moola@gmail.com>
+Date: Sun, 25 Jun 2023 10:51:19 +0200
+Message-ID: <CAMuHMdU2ZM1oJ7=Br6nezLpxjDQo_07N3T-adOupDm0Jntp=Qg@mail.gmail.com>
+References: <20230622205745.79707-1-vishal.moola@gmail.com> <20230622205745.79707-25-vishal.moola@gmail.com>
 Mime-Version: 1.0
-Return-path: <linux-mips-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1687679922; x=1719215922;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=eTIwvrfKylgiLU30c+QKGL2VdYd5OeJbT6ROhsR0yJI=;
-  b=RLJOYEPHBNSGXq/vuLXtIXn+f3uXPPJyF+6LxlauyJTb8Yia8322ZfpE
-   tYhAkiXNdS+2b3HxB7pRJhVwZ2K7BCa8veecAiqXzxE70ysmN9JiA6w1z
-   LJg7EENodukZ+1Bys0OrYl7VTSFFjZlx/RpyqA+1tB+MwzJBjBa1KOCEh
-   fElGG0lGLlcBdGDjacTyhC2z0oHCQkOgliOqsD/tBEEXxWeCX788aFFrY
-   iJRXcBc19x3iwlVHNFPsjlHe66YGHPpnyAMpk6R+uY/L32+Ff/zJ0Ay8H
-   rXX8LKgY6RDIWYwPD37TN+KOJ/XQnA4K1W9soTBiD919YR4gMl+RDUTqh
-   A==;
-Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-m68k-owner@vger.kernel.org>
 In-Reply-To: <20230622205745.79707-25-vishal.moola@gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
-Cc: oe-kbuild-all@lists.linux.dev, Linux Memory Management List <linux-mm@kvack.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mike Rapoport <rppt@kernel.org>
+Content-Type: text/plain; charset="windows-1252"
+To: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, Mike Rapoport <rppt@kernel.org>
 
 Hi Vishal,
 
-kernel test robot noticed the following build errors:
+On Thu, Jun 22, 2023 at 10:58=E2=80=AFPM Vishal Moola (Oracle)
+<vishal.moola@gmail.com> wrote:
+> As part of the conversions to replace pgtable constructor/destructors with
+> ptdesc equivalents, convert various page table functions to use ptdescs.
+>
+> Some of the functions use the *get*page*() helper functions. Convert
+> these to use pagetable_alloc() and ptdesc_address() instead to help
+> standardize page tables further.
+>
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 
-[auto build test ERROR on next-20230622]
-[cannot apply to akpm-mm/mm-everything powerpc/next powerpc/fixes s390/features geert-m68k/for-next geert-m68k/for-linus linus/master v6.4-rc7 v6.4-rc6 v6.4-rc5 v6.4-rc7]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Thanks for your patch!
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Vishal-Moola-Oracle/mm-Add-PAGE_TYPE_OP-folio-functions/20230623-050011
-base:   next-20230622
-patch link:    https://lore.kernel.org/r/20230622205745.79707-25-vishal.moola%40gmail.com
-patch subject: [PATCH v5 24/33] m68k: Convert various functions to use ptdescs
-config: m68k-randconfig-s051-20230625 (https://download.01.org/0day-ci/archive/20230625/202306251513.WVzxgGxu-lkp@intel.com/config)
-compiler: m68k-linux-gcc (GCC) 12.3.0
-reproduce: (https://download.01.org/0day-ci/archive/20230625/202306251513.WVzxgGxu-lkp@intel.com/reproduce)
+> --- a/arch/m68k/include/asm/mcf_pgalloc.h
+> +++ b/arch/m68k/include/asm/mcf_pgalloc.h
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202306251513.WVzxgGxu-lkp@intel.com/
+>  static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+>  {
+>         pgd_t *new_pgd;
+> +       struct ptdesc *ptdesc =3D pagetable_alloc((GFP_DMA | GFP_NOWARN) &
 
-All error/warnings (new ones prefixed by >>):
+0-day already told you for v3 that GFP_NOWARN does not exist.
+Please try cross-compiling your changes:
+https://mirrors.edge.kernel.org/pub/tools/crosstool/
 
-   In file included from arch/m68k/include/asm/pgalloc.h:12,
-                    from kernel/fork.c:103:
-   arch/m68k/include/asm/mcf_pgalloc.h: In function 'pgd_alloc':
->> arch/m68k/include/asm/mcf_pgalloc.h:82:60: error: 'GFP_NOWARN' undeclared (first use in this function); did you mean 'GFP_NOWAIT'?
-      82 |         struct ptdesc *ptdesc = pagetable_alloc((GFP_DMA | GFP_NOWARN) &
-         |                                                            ^~~~~~~~~~
-         |                                                            GFP_NOWAIT
-   arch/m68k/include/asm/mcf_pgalloc.h:82:60: note: each undeclared identifier is reported only once for each function it appears in
-   arch/m68k/include/asm/mcf_pgalloc.h: At top level:
->> arch/m68k/include/asm/mcf_pgalloc.h:23:16: warning: 'ptdesc_address' is static but used in inline function 'pte_alloc_one_kernel' which is not static
-      23 |         return ptdesc_address(ptdesc);
-         |                ^~~~~~~~~~~~~~
->> arch/m68k/include/asm/mcf_pgalloc.h:17:33: warning: 'pagetable_alloc' is static but used in inline function 'pte_alloc_one_kernel' which is not static
-      17 |         struct ptdesc *ptdesc = pagetable_alloc((GFP_DMA | __GFP_ZERO) &
-         |                                 ^~~~~~~~~~~~~~~
->> arch/m68k/include/asm/mcf_pgalloc.h:10:24: warning: 'virt_to_ptdesc' is static but used in inline function 'pte_free_kernel' which is not static
-      10 |         pagetable_free(virt_to_ptdesc(pte));
-         |                        ^~~~~~~~~~~~~~
->> arch/m68k/include/asm/mcf_pgalloc.h:10:9: warning: 'pagetable_free' is static but used in inline function 'pte_free_kernel' which is not static
-      10 |         pagetable_free(virt_to_ptdesc(pte));
-         |         ^~~~~~~~~~~~~~
---
-   In file included from arch/m68k/mm/mcfmmu.c:21:
-   arch/m68k/include/asm/mcf_pgalloc.h: In function 'pgd_alloc':
->> arch/m68k/include/asm/mcf_pgalloc.h:82:60: error: 'GFP_NOWARN' undeclared (first use in this function); did you mean 'GFP_NOWAIT'?
-      82 |         struct ptdesc *ptdesc = pagetable_alloc((GFP_DMA | GFP_NOWARN) &
-         |                                                            ^~~~~~~~~~
-         |                                                            GFP_NOWAIT
-   arch/m68k/include/asm/mcf_pgalloc.h:82:60: note: each undeclared identifier is reported only once for each function it appears in
-   arch/m68k/mm/mcfmmu.c: At top level:
-   arch/m68k/mm/mcfmmu.c:36:13: warning: no previous prototype for 'paging_init' [-Wmissing-prototypes]
-      36 | void __init paging_init(void)
-         |             ^~~~~~~~~~~
-   arch/m68k/mm/mcfmmu.c: In function 'paging_init':
-   arch/m68k/mm/mcfmmu.c:41:37: warning: variable 'bootmem_end' set but not used [-Wunused-but-set-variable]
-      41 |         unsigned long next_pgtable, bootmem_end;
-         |                                     ^~~~~~~~~~~
-   arch/m68k/include/asm/mcf_pgalloc.h: At top level:
->> arch/m68k/include/asm/mcf_pgalloc.h:23:16: warning: 'ptdesc_address' is static but used in inline function 'pte_alloc_one_kernel' which is not static
-      23 |         return ptdesc_address(ptdesc);
-         |                ^~~~~~~~~~~~~~
->> arch/m68k/include/asm/mcf_pgalloc.h:17:33: warning: 'pagetable_alloc' is static but used in inline function 'pte_alloc_one_kernel' which is not static
-      17 |         struct ptdesc *ptdesc = pagetable_alloc((GFP_DMA | __GFP_ZERO) &
-         |                                 ^~~~~~~~~~~~~~~
->> arch/m68k/include/asm/mcf_pgalloc.h:10:24: warning: 'virt_to_ptdesc' is static but used in inline function 'pte_free_kernel' which is not static
-      10 |         pagetable_free(virt_to_ptdesc(pte));
-         |                        ^~~~~~~~~~~~~~
->> arch/m68k/include/asm/mcf_pgalloc.h:10:9: warning: 'pagetable_free' is static but used in inline function 'pte_free_kernel' which is not static
-      10 |         pagetable_free(virt_to_ptdesc(pte));
-         |         ^~~~~~~~~~~~~~
+> +                       ~__GFP_HIGHMEM, 0);
+>
+> -       new_pgd =3D (pgd_t *)__get_free_page(GFP_DMA | __GFP_NOWARN);
+> -       if (!new_pgd)
+> +       if (!ptdesc)
+>                 return NULL;
+> +       new_pgd =3D ptdesc_address(ptdesc);
+> +
+>         memcpy(new_pgd, swapper_pg_dir, PTRS_PER_PGD * sizeof(pgd_t));
+>         memset(new_pgd, 0, PAGE_OFFSET >> PGDIR_SHIFT);
+>         return new_pgd;
 
+Gr{oetje,eeting}s,
 
-vim +82 arch/m68k/include/asm/mcf_pgalloc.h
+                        Geert
 
-     7	
-     8	extern inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-     9	{
-  > 10		pagetable_free(virt_to_ptdesc(pte));
-    11	}
-    12	
-    13	extern const char bad_pmd_string[];
-    14	
-    15	extern inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
-    16	{
-  > 17		struct ptdesc *ptdesc = pagetable_alloc((GFP_DMA | __GFP_ZERO) &
-    18				~__GFP_HIGHMEM, 0);
-    19	
-    20		if (!ptdesc)
-    21			return NULL;
-    22	
-  > 23		return ptdesc_address(ptdesc);
-    24	}
-    25	
-    26	extern inline pmd_t *pmd_alloc_kernel(pgd_t *pgd, unsigned long address)
-    27	{
-    28		return (pmd_t *) pgd;
-    29	}
-    30	
-    31	#define pmd_populate(mm, pmd, pte) (pmd_val(*pmd) = (unsigned long)(pte))
-    32	
-    33	#define pmd_populate_kernel pmd_populate
-    34	
-    35	static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t pgtable,
-    36					  unsigned long address)
-    37	{
-    38		struct ptdesc *ptdesc = virt_to_ptdesc(pgtable);
-    39	
-    40		pagetable_pte_dtor(ptdesc);
-    41		pagetable_free(ptdesc);
-    42	}
-    43	
-    44	static inline pgtable_t pte_alloc_one(struct mm_struct *mm)
-    45	{
-    46		struct ptdesc *ptdesc = pagetable_alloc(GFP_DMA | __GFP_ZERO, 0);
-    47		pte_t *pte;
-    48	
-    49		if (!ptdesc)
-    50			return NULL;
-    51		if (!pagetable_pte_ctor(ptdesc)) {
-    52			pagetable_free(ptdesc);
-    53			return NULL;
-    54		}
-    55	
-    56		pte = ptdesc_address(ptdesc);
-    57		return pte;
-    58	}
-    59	
-    60	static inline void pte_free(struct mm_struct *mm, pgtable_t pgtable)
-    61	{
-    62		struct ptdesc *ptdesc = virt_to_ptdesc(pgtable);
-    63	
-    64		pagetable_pte_dtor(ptdesc);
-    65		pagetable_free(ptdesc);
-    66	}
-    67	
-    68	/*
-    69	 * In our implementation, each pgd entry contains 1 pmd that is never allocated
-    70	 * or freed.  pgd_present is always 1, so this should never be called. -NL
-    71	 */
-    72	#define pmd_free(mm, pmd) BUG()
-    73	
-    74	static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
-    75	{
-    76		pagetable_free(virt_to_ptdesc(pgd));
-    77	}
-    78	
-    79	static inline pgd_t *pgd_alloc(struct mm_struct *mm)
-    80	{
-    81		pgd_t *new_pgd;
-  > 82		struct ptdesc *ptdesc = pagetable_alloc((GFP_DMA | GFP_NOWARN) &
-    83				~__GFP_HIGHMEM, 0);
-    84	
-    85		if (!ptdesc)
-    86			return NULL;
-    87		new_pgd = ptdesc_address(ptdesc);
-    88	
-    89		memcpy(new_pgd, swapper_pg_dir, PTRS_PER_PGD * sizeof(pgd_t));
-    90		memset(new_pgd, 0, PAGE_OFFSET >> PGDIR_SHIFT);
-    91		return new_pgd;
-    92	}
-    93	
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
