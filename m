@@ -1,7 +1,7 @@
 From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH v6 09/33] mm: Convert ptlock_init() to use ptdescs
-Date: Mon, 26 Jun 2023 20:14:07 -0700
-Message-ID: <20230627031431.29653-10-vishal.moola@gmail.com>
+Subject: [PATCH v6 11/33] mm: Convert ptlock_free() to use ptdescs
+Date: Mon, 26 Jun 2023 20:14:09 -0700
+Message-ID: <20230627031431.29653-12-vishal.moola@gmail.com>
 References: <20230627031431.29653-1-vishal.moola@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -16,17 +16,17 @@ List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
 Errors-To: xen-devel-bounces@lists.xenproject.org
 Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687835727; x=1690427727;
+        d=gmail.com; s=20221208; t=1687835731; x=1690427731;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=uRcW1jW+95PozpJhE7MOWGztyyXp9a8KAqI8T3AvQGQ=;
-        b=pvA/vO4MDeq4kIIhsE3yrV9+ALefWilKkLuNIgHhecd9VDeKpQ3CrB44RRLXN/wH9a
-         v+3v6EJOL2IcXShzxOvXaOjl2qaDyEgyn03s8SsAgafbqCa5mGXGEFvhH716JQIAT0SC
-         QEIWs35jWLlJpDE0C433qu5q7ESJ8UkDS3w921ZCRctPmdDsHkPUrtmlpYzw5VwqW3do
-         SQRdIAIjkZikdiXvEEkKtp7sFgpQSLF0GRJH1HdPtksJU7st37GWKQiDw1MyawGMKHo0
-         s5ztl+d6CGvn0kzD8aZyh2iX1osumXcuHPhisUrTXBEX0Rdvq7Iup64Z2b22TeYu/gRr
-         mzYg==
+        bh=bhgUYiKwQSwYMGFv9d1r56wjiuPfdLCT9N5JwdJpvSY=;
+        b=NN6JuQbcJSEhuQl119fqyrzmvfTJLSgZNGPIizHO44moV6zy7vRkkkGbpzNnm+T/zk
+         LfpssTQxYHLCLcRT6ur03GhfUH0PR3hr1gEAZWn4KlOVQ/bRaXKu0XwyzIXh7FK2T78w
+         GV5aBHngJRtwmpryMrqg1wnpyNcK63Z6rXozTP8pqdze8wtkdCn+4d6Nxd1VmHHTwiSp
+         Hj2gVskjJaa7d3mxLgebdTWNoaiyWHEkTnVETMwzQNfFNqae/PKVEKJL0sEqbBCs/7Gc
+         Lg3rR1WUfvzFXQfsjuyOG1PSX82wJS5wL2NRG2ks6qk/cPnX1GTuY36dOOOiPPB0JsGq
+         3KdQ==
 In-Reply-To: <20230627031431.29653-1-vishal.moola@gmail.com>
 Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
@@ -38,61 +38,74 @@ splitting out struct ptdesc from struct page.
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
 ---
- include/linux/mm.h | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ include/linux/mm.h | 10 +++++-----
+ mm/memory.c        |  4 ++--
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 1c4c6a7b69b3..4af424e4015a 100644
+index 0221675e4dc5..69e6d6696c44 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
-@@ -2830,7 +2830,7 @@ static inline spinlock_t *pte_lockptr(struct mm_struct *mm, pmd_t *pmd)
- 	return ptlock_ptr(page_ptdesc(pmd_page(*pmd)));
- }
+@@ -2799,7 +2799,7 @@ static inline void pagetable_free(struct ptdesc *pt)
+ #if ALLOC_SPLIT_PTLOCKS
+ void __init ptlock_cache_init(void);
+ bool ptlock_alloc(struct ptdesc *ptdesc);
+-extern void ptlock_free(struct page *page);
++void ptlock_free(struct ptdesc *ptdesc);
  
--static inline bool ptlock_init(struct page *page)
-+static inline bool ptlock_init(struct ptdesc *ptdesc)
+ static inline spinlock_t *ptlock_ptr(struct ptdesc *ptdesc)
  {
- 	/*
- 	 * prep_new_page() initialize page->private (and therefore page->ptl)
-@@ -2839,10 +2839,10 @@ static inline bool ptlock_init(struct page *page)
- 	 * It can happen if arch try to use slab for page table allocation:
- 	 * slab code uses page->slab_cache, which share storage with page->ptl.
- 	 */
--	VM_BUG_ON_PAGE(*(unsigned long *)&page->ptl, page);
--	if (!ptlock_alloc(page_ptdesc(page)))
-+	VM_BUG_ON_PAGE(*(unsigned long *)&ptdesc->ptl, ptdesc_page(ptdesc));
-+	if (!ptlock_alloc(ptdesc))
- 		return false;
--	spin_lock_init(ptlock_ptr(page_ptdesc(page)));
-+	spin_lock_init(ptlock_ptr(ptdesc));
+@@ -2815,7 +2815,7 @@ static inline bool ptlock_alloc(struct ptdesc *ptdesc)
  	return true;
  }
  
-@@ -2855,13 +2855,13 @@ static inline spinlock_t *pte_lockptr(struct mm_struct *mm, pmd_t *pmd)
- 	return &mm->page_table_lock;
+-static inline void ptlock_free(struct page *page)
++static inline void ptlock_free(struct ptdesc *ptdesc)
+ {
+ }
+ 
+@@ -2856,7 +2856,7 @@ static inline spinlock_t *pte_lockptr(struct mm_struct *mm, pmd_t *pmd)
  }
  static inline void ptlock_cache_init(void) {}
--static inline bool ptlock_init(struct page *page) { return true; }
-+static inline bool ptlock_init(struct ptdesc *ptdesc) { return true; }
- static inline void ptlock_free(struct page *page) {}
+ static inline bool ptlock_init(struct ptdesc *ptdesc) { return true; }
+-static inline void ptlock_free(struct page *page) {}
++static inline void ptlock_free(struct ptdesc *ptdesc) {}
  #endif /* USE_SPLIT_PTE_PTLOCKS */
  
  static inline bool pgtable_pte_page_ctor(struct page *page)
+@@ -2870,7 +2870,7 @@ static inline bool pgtable_pte_page_ctor(struct page *page)
+ 
+ static inline void pgtable_pte_page_dtor(struct page *page)
  {
--	if (!ptlock_init(page))
-+	if (!ptlock_init(page_ptdesc(page)))
- 		return false;
- 	__SetPageTable(page);
- 	inc_lruvec_page_state(page, NR_PAGETABLE);
-@@ -2931,7 +2931,7 @@ static inline bool pmd_ptlock_init(struct ptdesc *ptdesc)
+-	ptlock_free(page);
++	ptlock_free(page_ptdesc(page));
+ 	__ClearPageTable(page);
+ 	dec_lruvec_page_state(page, NR_PAGETABLE);
+ }
+@@ -2939,7 +2939,7 @@ static inline void pmd_ptlock_free(struct ptdesc *ptdesc)
  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- 	ptdesc->pmd_huge_pte = NULL;
+ 	VM_BUG_ON_PAGE(ptdesc->pmd_huge_pte, ptdesc_page(ptdesc));
  #endif
--	return ptlock_init(ptdesc_page(ptdesc));
-+	return ptlock_init(ptdesc);
+-	ptlock_free(ptdesc_page(ptdesc));
++	ptlock_free(ptdesc);
  }
  
- static inline void pmd_ptlock_free(struct page *page)
+ #define pmd_huge_pte(mm, pmd) (pmd_ptdesc(pmd)->pmd_huge_pte)
+diff --git a/mm/memory.c b/mm/memory.c
+index 2ff14f50c7b3..8743aef6095b 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -5931,8 +5931,8 @@ bool ptlock_alloc(struct ptdesc *ptdesc)
+ 	return true;
+ }
+ 
+-void ptlock_free(struct page *page)
++void ptlock_free(struct ptdesc *ptdesc)
+ {
+-	kmem_cache_free(page_ptl_cachep, page->ptl);
++	kmem_cache_free(page_ptl_cachep, ptdesc->ptl);
+ }
+ #endif
 -- 
 2.40.1
 
