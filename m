@@ -1,38 +1,40 @@
-From: David Hildenbrand <david@redhat.com>
+From: Matthew Wilcox <willy@infradead.org>
 Subject: Re: [PATCH v6 00/33] Split ptdesc from struct page
-Date: Wed, 28 Jun 2023 09:41:18 +0200
-Message-ID: <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
+Date: Wed, 28 Jun 2023 19:51:09 +0100
+Message-ID: <ZJyBHdcjuaykIRG9@casper.infradead.org>
 References: <20230627031431.29653-1-vishal.moola@gmail.com>
  <e8992eee-4140-427e-bacb-9449f346318@google.com>
  <ac1c162c-07d8-6084-44ca-a2c1a4183df2@redhat.com>
  <90e643ca-de72-2f4c-f4fe-35e06e1a9277@google.com>
+ <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
-	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
-	List-Unsubscribe:List-Id:In-Reply-To:Subject:From:References:Cc:To:
-	MIME-Version:Date:Message-ID:Reply-To:Content-ID:Content-Description:
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
+	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=6zs0ITBlj+LpPxGWTn80+biXL3kTNNhF0VLWWCFCmgk=; b=0rCSwW1bSkBkjn
-	Eojy2HFuLrQQ1ed8WfKQWyX5g3KBDGr0tj4hv/i7S9L9BYQ0az3TdNDLFg7FLE4sZm+Dygcop1EXM
-	BUiCkKhZqsqo2mXWdxo8bg92mkcVSy/FLtBJzTirFAeROf1jcPuVRz5ZymXTMHziyPOl/TQP9PgIx
-	w/DONb/Oojpg2DaKEkgJlzjWS1QLdl3CQfC1vRJGd7aVrfb7OTwqI0R211IjZecSQcxyDURvvOdsE
-	TVjLnq820+Qm3C8525CYA9yXScWM7IRZ5AGnHKQm+oeXoEcb8Yru9FIR26L1SG34U2qQyDB4uxnaU
-	sWAAhUZ1QS2bCKGLkM2g==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1687938084;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SH32jNlN6Jqg7DPKFWcTzn8QudVshhtxY6DizRJx1h4=;
-	b=S4D8ghz4dH6SXiRzbL4HnXOL94HXIJ7TdoQEk+FA1LMbfacW8J/dM5fQWvc0FNa8aHq3tS
-	vrn3+YLN+GUNj9reo2frJUtFgMlH2zWx0mTzvWwJIMWHVh+dVFFvcwt3Sl3n6EIQkTGIJP
-	r5U8KKDWOkaQ4BMCoz8w9Ya4U0q2llM=
-In-Reply-To: <90e643ca-de72-2f4c-f4fe-35e06e1a9277@google.com>
-Content-Language: en-US
+	List-Owner; bh=T6BpvRiEz+8ewJPzss0e45msYW1bKUOMC3OrFkixJu4=; b=jCHcL8f7YIcjQG
+	JlpThHHID837AfxgdvFoudBNNZ3/M5SMO7mViqKpwvVC7Q0z+oYDLYg4rt4G4fXDwVXBDF7rz08iR
+	IgLWeCvtd3upW5KtFiiaAmSBOwrPe6FTU99nYTYGG3ZM8eWcl7m6ak9/mJnRCwV3NHaTbM40Djnlr
+	h2ErOrCmrymtQwGUNOx/gYuPz5iOZwip7GOyOGcROE4PWkuUjkJQZVR3z1ZbWz91NOqLiaCLrHGYU
+	OtVO85jFR0NG2y52jRQ/45N9OI05kGGE2pXahffjrpLH9VFwblckKQyYaH4JB3ZOMIOQI36Kw5mjL
+	0Db2dZH0i1shtKRjJNxg==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=gzBVL7uWfH/0QncUeiWSVvNT7tu19KKFpZm/SdtHfy0=; b=F0geF1mDFUhFwejscu79P5AerF
+	ChPxlz8AungTNw2nYlH8TmeT0FdBYZ403uLo6dwYbFZivePasVeM2QOKhl+SGZUnj3aelPYXtEfM9
+	SrOHM/3oUTni3eU+S6cGIy3fXu368hUaiU/EA6YN2NOx+dDC0fkki3YX0I7X5QXDEfuDII33co6YT
+	AgpMwEBC4ya/EPvRDl80CtdVgP3e2XagbMLqDsAoh6VP3gh2KZpEwz3m1/E0HTdSv3vSxKIUbldmu
+	z9Fsmk0Dd2L6fefBSyj6JHJ0VqW7vTaNglMS0xkY6KNSksqhU+OkIfDiDfBXKznANmEoK/ikyWU4U
+	7raG+AtA==;
+Content-Disposition: inline
+In-Reply-To: <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -43,62 +45,37 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Hugh Dickins <hughd@google.com>
-Cc: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Huacai Chen <chenhuacai@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, Claudio
+To: David Hildenbrand <david@redhat.com>
+Cc: Hugh Dickins <hughd@google.com>, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Huacai Chen <chenhuacai@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, Claudio Imbrenda <im>
 
-On 27.06.23 22:13, Hugh Dickins wrote:
-> On Tue, 27 Jun 2023, David Hildenbrand wrote:
->> On 27.06.23 06:44, Hugh Dickins wrote:
->>> On Mon, 26 Jun 2023, Vishal Moola (Oracle) wrote:
->>>
->>>> The MM subsystem is trying to shrink struct page. This patchset
->>>> introduces a memory descriptor for page table tracking - struct ptdesc.
->>> ...
->>>>    39 files changed, 686 insertions(+), 455 deletions(-)
->>>
->>> I don't see the point of this patchset: to me it is just obfuscation of
->>> the present-day tight relationship between page table and struct page.
->>>
->>> Matthew already explained:
->>>
->>>> The intent is to get ptdescs to be dynamically allocated at some point
->>>> in the ~2-3 years out future when we have finished the folio project ...
->>>
->>> So in a kindly mood, I'd say that this patchset is ahead of its time.
->>> But I can certainly adapt to it, if everyone else sees some point to it.
->>
->> I share your thoughts, that code churn which will help eventually in the far,
->> far future (not wanting to sound too pessimistic, but it's not going to be
->> there tomorrow ;) ).
->>
->> However, if it's just the same as the other conversions we already did (e.g.,
->> struct slab), then I guess there is no reason to stop now -- the obfuscation
->> already happened.
->>
->> ... or is there a difference regarding this conversion and the previous ones?
+On Wed, Jun 28, 2023 at 09:41:18AM +0200, David Hildenbrand wrote:
+> I'm not a friend of these "overlays"; it all only really makes sense to me
+> once we actually allocate the descriptors dynamically. Maybe some of the
+> existing/ongoing conversions were different (that's why I was asking for the
+> difference, as you said the "struct slab" thing was well received).
 > 
-> I was aware of the struct slab thing, didn't see much point there myself
-> either; but it was welcomed by Vlastimil, and barely affected outside of
-> slab allocators, so I had no reason to object.
-> 
-> You think that if a little unnecessary churn (a *lot* of churn if you
-> include folios, which did save some repeated calls to compound_head())
-> has already occurred, that's a good precedent for allowing more and more?
+> If they are primarily only unnecessary churn for now (and unclear when/how
+> it will become useful), I share your opinion.
 
-Well, if you phrase it like that ... no, I'm not in favor of unnecessary 
-churn at all. Yes, folios were/are a lot of churn (IMHO not unnecessary, 
-though).
+One of the reasons for doing these conversions "early" is that it helps
+people who work on this code know what fields they can actually use in
+their memory descriptor.  We have a _lot_ of historical baggage with
+people just using random bits in struct page for their own purposes
+without necessarily considering the effects on the rest of the system.
 
-I'm not a friend of these "overlays"; it all only really makes sense to 
-me once we actually allocate the descriptors dynamically. Maybe some of 
-the existing/ongoing conversions were different (that's why I was asking 
-for the difference, as you said the "struct slab" thing was well received).
+By creating specific types for each user of struct page, we can see
+what's actually going on.  Before the ptdesc conversion started, I could
+not have told you which bits in struct page were used by the s390 code.
+I knew they were playing some fun games with the refcount (it's even
+documented in the s390 code!) but I didn't know they were using ...
+whetever it is; page->private to point to the kvm private data?
 
-If they are primarily only unnecessary churn for now (and unclear 
-when/how it will become useful), I share your opinion.
+So maybe it is harder for MM developers right now to see what fields in
+memdesc A overlap with which fields in memdesc B.  That _ought_ not to
+be a concern!  We document which fields are available in each memdesc,
+and have various assertions to trip when people make things not line up
+any more.  There can still be problems, of course; we haven't set the
+assertions quite tightly enough in some cases.
 
--- 
-Cheers,
-
-David / dhildenb
+People are going to keep adding crap to struct page, and they're going
+to keep misusing the crap that's in struct page.  That has to stop.
