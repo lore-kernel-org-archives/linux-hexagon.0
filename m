@@ -1,80 +1,172 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 02/12] fbdev/sm712fb: Do not include <linux/screen_info.h>
-Date: Thu, 29 Jun 2023 13:45:41 +0200
-Message-ID: <20230629121952.10559-3-tzimmermann@suse.de>
+Subject: [PATCH 10/12] fbdev/core: Use fb_is_primary_device() in fb_firmware_edid()
+Date: Thu, 29 Jun 2023 13:45:49 +0200
+Message-ID: <20230629121952.10559-11-tzimmermann@suse.de>
 References: <20230629121952.10559-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-ia64-owner@vger.kernel.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1688041196; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1688041201; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=IXGU5X8lHgcy0xSrc3ZVVAstecW58Mhx3eVBaUQt3EA=;
-        b=LkHGO7baJX3zJX0cf+a+c/FoUp4pImvT9g1shyK677YQqnqHTwkq2/nbPfpIMVxGT5xDkj
-        aT1pTu4l3b7vpn/6c2VUCblTNZr1fAjD/lJ0StGaPRg75StQdS4Z+R+XnN2JzWnH/E34VU
-        zK/QygQuma782ceDLn96pVDkn5oZtOU=
+        bh=cKqppA9yoJZh0DiZwFUWalm8/3eVYO9+kOc1QaTDT1U=;
+        b=GNmoPY2llgIzzKGALYCGCXujJoF8v3kumNCXFmuYjsIH7mTC1ESO1hzHUmvWxwEJjXVv+F
+        ctb/570RZnfi7nsxRKlV4VzAM8j+Py9XRtnRv5wMp3UxCCXDlLGmUiRVqkWxBLYywKsYy5
+        FKlDGCyem5GQ2H/Qk6hWZdY37D1mLw0=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1688041196;
+        s=susede2_ed25519; t=1688041201;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=IXGU5X8lHgcy0xSrc3ZVVAstecW58Mhx3eVBaUQt3EA=;
-        b=5mRgVk1/pVfSDoygZItWVKC6R0IzmCwK6ZL98BBiHU3NrlL4mP9k6A6PayShKVnBSPBC2x
-        88su8LwJ20TmyWBQ==
+        bh=cKqppA9yoJZh0DiZwFUWalm8/3eVYO9+kOc1QaTDT1U=;
+        b=zn2ycVN7bMs7MpMjurzeBDZvYIidBZ4ripZC2HXkAKRELmBxT7C4nSZT/5sVnb9LQGf2Kj
+        pUzRMoQKnAC0euCQ==
 In-Reply-To: <20230629121952.10559-1-tzimmermann@suse.de>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
 To: arnd@arndb.de, deller@gmx.de, daniel@ffwll.ch, airlied@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-staging@lists.linux.dev, linux-arch@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Teddy Wang <teddy.wang@siliconmotion.com>
+Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-staging@lists.linux.dev, linux-arch@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, Antonino Daplas <adaplas@gmail.com>, Maik Broemme <mbroemme@libmpq.org>, Randy Dunlap <rdunlap@infradead.org>
 
-Sm712fb's dependency on <linux/screen_info.h> is artificial in that
-it only uses struct screen_info for its internals. Replace the use of
-struct screen_info with a custom data structure and remove the include
-of <linux/screen_info.h>.
+Detect the primary VGA device with fb_is_primary_device() in the
+implementation of fb_firmware_edid(). Remove the existing code.
+
+Adapt the function to receive an instance of struct fb_info and
+update all callers.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
 Cc: Helge Deller <deller@gmx.de>
+Cc: Antonino Daplas <adaplas@gmail.com>
+Cc: Maik Broemme <mbroemme@libmpq.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
 ---
- drivers/video/fbdev/sm712fb.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/core/fbmon.c          | 25 +++++++----------------
+ drivers/video/fbdev/i810/i810-i2c.c       |  2 +-
+ drivers/video/fbdev/intelfb/intelfbdrv.c  |  2 +-
+ drivers/video/fbdev/nvidia/nv_i2c.c       |  2 +-
+ drivers/video/fbdev/savage/savagefb-i2c.c |  2 +-
+ include/linux/fb.h                        |  2 +-
+ 6 files changed, 12 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/video/fbdev/sm712fb.c b/drivers/video/fbdev/sm712fb.c
-index b7ad3c644e138..f929091da4e77 100644
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -27,12 +27,17 @@
- #include <linux/uaccess.h>
- #include <linux/module.h>
- #include <linux/console.h>
--#include <linux/screen_info.h>
- 
- #include <linux/pm.h>
- 
- #include "sm712.h"
- 
-+struct smtcfb_screen_info {
-+	u16 lfb_width;
-+	u16 lfb_height;
-+	u16 lfb_depth;
-+};
-+
- /*
-  * Private structure
+diff --git a/drivers/video/fbdev/core/fbmon.c b/drivers/video/fbdev/core/fbmon.c
+index 79e5bfbdd34c2..35be4431f649a 100644
+--- a/drivers/video/fbdev/core/fbmon.c
++++ b/drivers/video/fbdev/core/fbmon.c
+@@ -28,7 +28,6 @@
   */
-@@ -829,7 +834,7 @@ static const struct modeinit vgamode[] = {
- 	},
- };
+ #include <linux/fb.h>
+ #include <linux/module.h>
+-#include <linux/pci.h>
+ #include <linux/slab.h>
+ #include <video/edid.h>
+ #include <video/of_videomode.h>
+@@ -1482,31 +1481,21 @@ int fb_validate_mode(const struct fb_var_screeninfo *var, struct fb_info *info)
+ }
  
--static struct screen_info smtc_scr_info;
-+static struct smtcfb_screen_info smtc_scr_info;
+ #if defined(CONFIG_FIRMWARE_EDID) && defined(CONFIG_X86)
+-
+-/*
+- * We need to ensure that the EDID block is only returned for
+- * the primary graphics adapter.
+- */
+-
+-const unsigned char *fb_firmware_edid(struct device *device)
++const unsigned char *fb_firmware_edid(struct fb_info *info)
+ {
+-	struct pci_dev *dev = NULL;
+-	struct resource *res = NULL;
+ 	unsigned char *edid = NULL;
  
- static char *mode_option;
+-	if (device)
+-		dev = to_pci_dev(device);
+-
+-	if (dev)
+-		res = &dev->resource[PCI_ROM_RESOURCE];
+-
+-	if (res && res->flags & IORESOURCE_ROM_SHADOW)
++	/*
++	 * We need to ensure that the EDID block is only
++	 * returned for the primary graphics adapter.
++	 */
++	if (fb_is_primary_device(info))
+ 		edid = edid_info.dummy;
  
+ 	return edid;
+ }
+ #else
+-const unsigned char *fb_firmware_edid(struct device *device)
++const unsigned char *fb_firmware_edid(struct fb_info *info)
+ {
+ 	return NULL;
+ }
+diff --git a/drivers/video/fbdev/i810/i810-i2c.c b/drivers/video/fbdev/i810/i810-i2c.c
+index 7db17d0d8a8cf..b605e96620c1f 100644
+--- a/drivers/video/fbdev/i810/i810-i2c.c
++++ b/drivers/video/fbdev/i810/i810-i2c.c
+@@ -161,7 +161,7 @@ int i810_probe_i2c_connector(struct fb_info *info, u8 **out_edid, int conn)
+ 	if (conn < par->ddc_num) {
+ 		edid = fb_ddc_read(&par->chan[conn].adapter);
+ 	} else {
+-		const u8 *e = fb_firmware_edid(info->device);
++		const u8 *e = fb_firmware_edid(info);
+ 
+ 		if (e != NULL) {
+ 			DPRINTK("i810-i2c: Getting EDID from BIOS\n");
+diff --git a/drivers/video/fbdev/intelfb/intelfbdrv.c b/drivers/video/fbdev/intelfb/intelfbdrv.c
+index a81095b2b1ea5..4633a75e3a613 100644
+--- a/drivers/video/fbdev/intelfb/intelfbdrv.c
++++ b/drivers/video/fbdev/intelfb/intelfbdrv.c
+@@ -1024,7 +1024,7 @@ static int intelfb_init_var(struct intelfb_info *dinfo)
+ 		       sizeof(struct fb_var_screeninfo));
+ 		msrc = 5;
+ 	} else {
+-		const u8 *edid_s = fb_firmware_edid(&dinfo->pdev->dev);
++		const u8 *edid_s = fb_firmware_edid(dinfo->info);
+ 		u8 *edid_d = NULL;
+ 
+ 		if (edid_s) {
+diff --git a/drivers/video/fbdev/nvidia/nv_i2c.c b/drivers/video/fbdev/nvidia/nv_i2c.c
+index 0b48965a6420c..632e7d622ebfa 100644
+--- a/drivers/video/fbdev/nvidia/nv_i2c.c
++++ b/drivers/video/fbdev/nvidia/nv_i2c.c
+@@ -159,7 +159,7 @@ int nvidia_probe_i2c_connector(struct fb_info *info, int conn, u8 **out_edid)
+ 
+ 	if (!edid && conn == 1) {
+ 		/* try to get from firmware */
+-		const u8 *e = fb_firmware_edid(info->device);
++		const u8 *e = fb_firmware_edid(info);
+ 
+ 		if (e != NULL)
+ 			edid = kmemdup(e, EDID_LENGTH, GFP_KERNEL);
+diff --git a/drivers/video/fbdev/savage/savagefb-i2c.c b/drivers/video/fbdev/savage/savagefb-i2c.c
+index 80fa87e2ae2ff..cf9c376f76526 100644
+--- a/drivers/video/fbdev/savage/savagefb-i2c.c
++++ b/drivers/video/fbdev/savage/savagefb-i2c.c
+@@ -227,7 +227,7 @@ int savagefb_probe_i2c_connector(struct fb_info *info, u8 **out_edid)
+ 
+ 	if (!edid) {
+ 		/* try to get from firmware */
+-		const u8 *e = fb_firmware_edid(info->device);
++		const u8 *e = fb_firmware_edid(info);
+ 
+ 		if (e)
+ 			edid = kmemdup(e, EDID_LENGTH, GFP_KERNEL);
+diff --git a/include/linux/fb.h b/include/linux/fb.h
+index 1d5c13f34b098..5ffd2223326bf 100644
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -761,7 +761,7 @@ extern int fb_get_mode(int flags, u32 val, struct fb_var_screeninfo *var,
+ extern int fb_validate_mode(const struct fb_var_screeninfo *var,
+ 			    struct fb_info *info);
+ extern int fb_parse_edid(unsigned char *edid, struct fb_var_screeninfo *var);
+-extern const unsigned char *fb_firmware_edid(struct device *device);
++extern const unsigned char *fb_firmware_edid(struct fb_info *info);
+ extern void fb_edid_to_monspecs(unsigned char *edid,
+ 				struct fb_monspecs *specs);
+ extern void fb_destroy_modedb(struct fb_videomode *modedb);
 -- 
 2.41.0
 
