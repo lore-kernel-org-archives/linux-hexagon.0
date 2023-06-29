@@ -1,71 +1,190 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 11/12] fbdev/core: Protect edid_info with CONFIG_ARCH_HAS_EDID_INFO
-Date: Thu, 29 Jun 2023 13:45:50 +0200
-Message-ID: <20230629121952.10559-12-tzimmermann@suse.de>
+Subject: [PATCH 09/12] drivers: Add dependencies on CONFIG_ARCH_HAS_SCREEN_INFO
+Date: Thu, 29 Jun 2023 13:45:48 +0200
+Message-ID: <20230629121952.10559-10-tzimmermann@suse.de>
 References: <20230629121952.10559-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1688041202; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8M3t+sIilpS+dvhDHVydT9EOWn+SooUMabnf/LFMHbo=;
-        b=ZbROsLIJAkfIR/+jRVLDcd83SvH5cZmugk8kZwgL9JSMI/gKbyQR3HtKCm4o42ShuZpYkk
-        PpOlJkUDBbcOuQ/YbZW1LarrlsmuvA7IRfwyIlPCdp7XjLFZCUf5QkBgkeK4CAQiyu6q+p
-        rHluDhQg1B0za6ZvhP208NqkrxcQvWg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1688041202;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8M3t+sIilpS+dvhDHVydT9EOWn+SooUMabnf/LFMHbo=;
-        b=3Hj6UbEAQMoFiqqs75ilDIpvJONgA2he7Vj193adp37UYAYmUsCXwiE0RCS1+n5Jev4Itq
-        c8ZFL5Xhnj0s4yAQ==
-In-Reply-To: <20230629121952.10559-1-tzimmermann@suse.de>
-List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
+	Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=nRgAra4QBCGu3CAcp9gJn9Esyu5AFBJ42Gmhsz2OpQU=; b=3ZG8aLNag8k1FI
+	kktOPibD6UdMwOnWjpMEkDd53eEQn3/IYTzg/ohSV73saHhYoYn6riVkwVrMnlSssj3DENWjTY1CH
+	ddStieQ9qdxeELJ5bX6/rGYPqpxwPztE+w2FVYyhd5FVg90BVmHuzn0QmGQEpvT7tP2ckyAsD3Lij
+	uO+AHOwBn8gMygtb9OfWU99UQKhA1Cr5la4VbtQ2CdorupVQqJieigZ+7Wn+Dt9yEWyhcQUZ14WSW
+	9nuWgHl2/bky641/G/jO2exyzAuzyOuvdMYaIjUIYi/OrhB1dWvTZKsN5uaFrb2HX7ov6epfVV4Om
+	2oDiMYQZhpWTAixCNRZA==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1688041201; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Q8/hObzYgPS0TDvHlNkxQWLSeXSJyMjTeBMLqYqFK4w=;
+	b=UPfSiLPg0fPgXj6DVWbIwAx8SsBG5GL3OD/7mLd65j8fwmU+DvPt3QzSfJKiRMSESoepX9
+	eM5NP2Jl7avazGdPsovrA89jdGZnFXHxxT3O/UdtnP6AQBQmMmB0fb0hdUmBE/YVBR8zBv
+	CQYBtniEcZ5wJ20vfbvuSi9ax+7JLg4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1688041201;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Q8/hObzYgPS0TDvHlNkxQWLSeXSJyMjTeBMLqYqFK4w=;
+	b=L3PyCj5jKQ5vE7MYne4nWCsAiDM0bCWXnp9ECQ/thRxLRW/+klbPAr42RqiLHE8RIsU2gZ
+	akbya49XJu79VVCQ==
+In-Reply-To: <20230629121952.10559-1-tzimmermann@suse.de>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 To: arnd@arndb.de, deller@gmx.de, daniel@ffwll.ch, airlied@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-staging@lists.linux.dev, linux-arch@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, Randy Dunlap <rdunlap@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-staging@lists.linux.dev, linux-arch@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, Ard Biesheuvel <ardb@kernel.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, Greg Kroah-Hartman <gregk>
 
-Guard usage of edid_info with CONFIG_ARCH_HAS_EDID_INFO instead
-of CONFIG_X86. No functional changes.
+Various files within drivers/ depend on the declaration of the
+screen_info variable. Add this information to Kconfig.
+
+In the case of the dummy console, the dependency exists only
+on ARM. Ignore it on !ARM platforms.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: David Airlie <airlied@gmail.com>
 Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: Helge Deller <deller@gmx.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Javier Martinez Canillas <javierm@redhat.com>
 Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/video/fbdev/core/fbmon.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/firmware/Kconfig      | 1 +
+ drivers/firmware/efi/Kconfig  | 1 +
+ drivers/gpu/drm/Kconfig       | 1 +
+ drivers/hv/Kconfig            | 1 +
+ drivers/video/console/Kconfig | 2 ++
+ drivers/video/fbdev/Kconfig   | 4 ++++
+ 6 files changed, 10 insertions(+)
 
-diff --git a/drivers/video/fbdev/core/fbmon.c b/drivers/video/fbdev/core/fbmon.c
-index 35be4431f649a..9ae063021e431 100644
---- a/drivers/video/fbdev/core/fbmon.c
-+++ b/drivers/video/fbdev/core/fbmon.c
-@@ -1480,17 +1480,19 @@ int fb_validate_mode(const struct fb_var_screeninfo *var, struct fb_info *info)
- 		-EINVAL : 0;
- }
+diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
+index 0432737bbb8b4..65bbf7422f1db 100644
+--- a/drivers/firmware/Kconfig
++++ b/drivers/firmware/Kconfig
+@@ -228,6 +228,7 @@ config QCOM_SCM_DOWNLOAD_MODE_DEFAULT
  
--#if defined(CONFIG_FIRMWARE_EDID) && defined(CONFIG_X86)
-+#if defined(CONFIG_FIRMWARE_EDID)
- const unsigned char *fb_firmware_edid(struct fb_info *info)
- {
- 	unsigned char *edid = NULL;
+ config SYSFB
+ 	bool
++	depends on ARCH_HAS_SCREEN_INFO
+ 	select BOOT_VESA_SUPPORT
  
-+#if defined(CONFIG_ARCH_HAS_EDID_INFO)
- 	/*
- 	 * We need to ensure that the EDID block is only
- 	 * returned for the primary graphics adapter.
- 	 */
- 	if (fb_is_primary_device(info))
- 		edid = edid_info.dummy;
-+#endif
+ config SYSFB_SIMPLEFB
+diff --git a/drivers/firmware/efi/Kconfig b/drivers/firmware/efi/Kconfig
+index 043ca31c114eb..963d305421e50 100644
+--- a/drivers/firmware/efi/Kconfig
++++ b/drivers/firmware/efi/Kconfig
+@@ -225,6 +225,7 @@ config EFI_DISABLE_PCI_DMA
+ config EFI_EARLYCON
+ 	def_bool y
+ 	depends on SERIAL_EARLYCON && !ARM && !IA64
++	depends on ARCH_HAS_SCREEN_INFO
+ 	select FONT_SUPPORT
+ 	select ARCH_USE_MEMREMAP_PROT
  
- 	return edid;
- }
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index afb3b2f5f4253..63dfc3391d2ff 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -366,6 +366,7 @@ source "drivers/gpu/drm/sprd/Kconfig"
+ config DRM_HYPERV
+ 	tristate "DRM Support for Hyper-V synthetic video device"
+ 	depends on DRM && PCI && MMU && HYPERV
++	depends on ARCH_HAS_SCREEN_INFO
+ 	select DRM_KMS_HELPER
+ 	select DRM_GEM_SHMEM_HELPER
+ 	help
+diff --git a/drivers/hv/Kconfig b/drivers/hv/Kconfig
+index 00242107d62e0..3730c9b42a9bd 100644
+--- a/drivers/hv/Kconfig
++++ b/drivers/hv/Kconfig
+@@ -6,6 +6,7 @@ config HYPERV
+ 	tristate "Microsoft Hyper-V client drivers"
+ 	depends on (X86 && X86_LOCAL_APIC && HYPERVISOR_GUEST) \
+ 		|| (ACPI && ARM64 && !CPU_BIG_ENDIAN)
++	depends on ARCH_HAS_SCREEN_INFO
+ 	select PARAVIRT
+ 	select X86_HV_CALLBACK_VECTOR if X86
+ 	select OF_EARLY_FLATTREE if OF
+diff --git a/drivers/video/console/Kconfig b/drivers/video/console/Kconfig
+index a2a88d42edf0c..b39e2ae039783 100644
+--- a/drivers/video/console/Kconfig
++++ b/drivers/video/console/Kconfig
+@@ -10,6 +10,7 @@ config VGA_CONSOLE
+ 	depends on !4xx && !PPC_8xx && !SPARC && !M68K && !PARISC &&  !SUPERH && \
+ 		(!ARM || ARCH_FOOTBRIDGE || ARCH_INTEGRATOR || ARCH_NETWINDER) && \
+ 		!ARM64 && !ARC && !MICROBLAZE && !OPENRISC && !S390 && !UML
++	depends on ARCH_HAS_SCREEN_INFO
+ 	select APERTURE_HELPERS if (DRM || FB || VFIO_PCI_CORE)
+ 	default y
+ 	help
+@@ -48,6 +49,7 @@ config SGI_NEWPORT_CONSOLE
+ 
+ config DUMMY_CONSOLE
+ 	bool
++	depends on ARCH_HAS_SCREEN_INFO || !ARM
+ 	default y
+ 
+ config DUMMY_CONSOLE_COLUMNS
+diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
+index cecf15418632d..e11d85e802bc7 100644
+--- a/drivers/video/fbdev/Kconfig
++++ b/drivers/video/fbdev/Kconfig
+@@ -655,6 +655,7 @@ config FB_UVESA
+ config FB_VESA
+ 	bool "VESA VGA graphics support"
+ 	depends on (FB = y) && X86
++	depends on ARCH_HAS_SCREEN_INFO
+ 	select APERTURE_HELPERS
+ 	select FB_CFB_FILLRECT
+ 	select FB_CFB_COPYAREA
+@@ -669,6 +670,7 @@ config FB_VESA
+ config FB_EFI
+ 	bool "EFI-based Framebuffer Support"
+ 	depends on (FB = y) && !IA64 && EFI
++	depends on ARCH_HAS_SCREEN_INFO
+ 	select APERTURE_HELPERS
+ 	select DRM_PANEL_ORIENTATION_QUIRKS
+ 	select FB_CFB_FILLRECT
+@@ -1089,6 +1091,7 @@ config FB_CARILLO_RANCH
+ config FB_INTEL
+ 	tristate "Intel 830M/845G/852GM/855GM/865G/915G/945G/945GM/965G/965GM support"
+ 	depends on FB && PCI && X86 && AGP_INTEL && EXPERT
++	depends on ARCH_HAS_SCREEN_INFO
+ 	select FB_MODE_HELPERS
+ 	select FB_CFB_FILLRECT
+ 	select FB_CFB_COPYAREA
+@@ -2185,6 +2188,7 @@ config FB_BROADSHEET
+ config FB_HYPERV
+ 	tristate "Microsoft Hyper-V Synthetic Video support"
+ 	depends on FB && HYPERV
++	depends on ARCH_HAS_SCREEN_INFO
+ 	select FB_CFB_FILLRECT
+ 	select FB_CFB_COPYAREA
+ 	select FB_CFB_IMAGEBLIT
 -- 
 2.41.0
-
