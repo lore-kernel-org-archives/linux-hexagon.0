@@ -1,81 +1,126 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v6 00/33] Split ptdesc from struct page
-Date: Wed, 28 Jun 2023 19:51:09 +0100
-Message-ID: <ZJyBHdcjuaykIRG9@casper.infradead.org>
-References: <20230627031431.29653-1-vishal.moola@gmail.com>
- <e8992eee-4140-427e-bacb-9449f346318@google.com>
- <ac1c162c-07d8-6084-44ca-a2c1a4183df2@redhat.com>
- <90e643ca-de72-2f4c-f4fe-35e06e1a9277@google.com>
- <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 00/12] arch,fbdev: Move screen_info into arch/
+Date: Thu, 29 Jun 2023 13:45:39 +0200
+Message-ID: <20230629121952.10559-1-tzimmermann@suse.de>
 Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-arch-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1688041195; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=nwKCg0ASpMSj/N7nk6+LAWl9eqN5SgDZ9SSsI3CKIes=;
+        b=ifsv+rsuemSFYPhJ/STIdTvx6x75qUEhLLGZ2g9AvONK3jL91ZNzeWNAtZraZVcGWThcHM
+        EfQbM+qs5azyCMPqS9sZhBhwKPyBWCHJQhLVHCTMFRSDdi3SXNdEiGVeBJdlRqG6pE2rO7
+        z3oGS2FeItnucroHvhtx1EF9mKdmXIA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1688041195;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=nwKCg0ASpMSj/N7nk6+LAWl9eqN5SgDZ9SSsI3CKIes=;
+        b=E6n/U6MQ4f+3rPbM2UsNu1qwtOXOlMais+WpB4FpCxfnJZvfgaxmYOknSshObU0+YcztfQ
+        wODdqbuTw1DsqWBw==
+List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:References:
-	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=T6BpvRiEz+8ewJPzss0e45msYW1bKUOMC3OrFkixJu4=; b=jCHcL8f7YIcjQG
-	JlpThHHID837AfxgdvFoudBNNZ3/M5SMO7mViqKpwvVC7Q0z+oYDLYg4rt4G4fXDwVXBDF7rz08iR
-	IgLWeCvtd3upW5KtFiiaAmSBOwrPe6FTU99nYTYGG3ZM8eWcl7m6ak9/mJnRCwV3NHaTbM40Djnlr
-	h2ErOrCmrymtQwGUNOx/gYuPz5iOZwip7GOyOGcROE4PWkuUjkJQZVR3z1ZbWz91NOqLiaCLrHGYU
-	OtVO85jFR0NG2y52jRQ/45N9OI05kGGE2pXahffjrpLH9VFwblckKQyYaH4JB3ZOMIOQI36Kw5mjL
-	0Db2dZH0i1shtKRjJNxg==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=gzBVL7uWfH/0QncUeiWSVvNT7tu19KKFpZm/SdtHfy0=; b=F0geF1mDFUhFwejscu79P5AerF
-	ChPxlz8AungTNw2nYlH8TmeT0FdBYZ403uLo6dwYbFZivePasVeM2QOKhl+SGZUnj3aelPYXtEfM9
-	SrOHM/3oUTni3eU+S6cGIy3fXu368hUaiU/EA6YN2NOx+dDC0fkki3YX0I7X5QXDEfuDII33co6YT
-	AgpMwEBC4ya/EPvRDl80CtdVgP3e2XagbMLqDsAoh6VP3gh2KZpEwz3m1/E0HTdSv3vSxKIUbldmu
-	z9Fsmk0Dd2L6fefBSyj6JHJ0VqW7vTaNglMS0xkY6KNSksqhU+OkIfDiDfBXKznANmEoK/ikyWU4U
-	7raG+AtA==;
-Content-Disposition: inline
-In-Reply-To: <26282cb8-b6b0-f3a0-e82d-b4fec45c5f72@redhat.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: David Hildenbrand <david@redhat.com>
-Cc: Hugh Dickins <hughd@google.com>, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Huacai Chen <chenhuacai@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, Claudio Imbrenda <im>
+To: arnd@arndb.de, deller@gmx.de, daniel@ffwll.ch, airlied@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-staging@lists.linux.dev, linux-arch@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>
 
-On Wed, Jun 28, 2023 at 09:41:18AM +0200, David Hildenbrand wrote:
-> I'm not a friend of these "overlays"; it all only really makes sense to me
-> once we actually allocate the descriptors dynamically. Maybe some of the
-> existing/ongoing conversions were different (that's why I was asking for the
-> difference, as you said the "struct slab" thing was well received).
-> 
-> If they are primarily only unnecessary churn for now (and unclear when/how
-> it will become useful), I share your opinion.
+The variables screen_info and edid_info provide information about
+the system's screen, and possibly EDID data of the connected display.
+Both are defined and set by architecture code. But both variables are
+declared in non-arch header files. Dependencies are at bease loosely
+tracked. To resolve this, move the global state screen_info and its
+companion edid_info into arch/. Only declare them on architectures
+that define them. List dependencies on the variables in the Kconfig
+files. Also clean up the callers.
 
-One of the reasons for doing these conversions "early" is that it helps
-people who work on this code know what fields they can actually use in
-their memory descriptor.  We have a _lot_ of historical baggage with
-people just using random bits in struct page for their own purposes
-without necessarily considering the effects on the rest of the system.
+Patch 1 to 4 resolve a number of unnecessary include statements of
+<linux/screen_info.h>. The header should only be included in source
+files that access struct screen_info.
 
-By creating specific types for each user of struct page, we can see
-what's actually going on.  Before the ptdesc conversion started, I could
-not have told you which bits in struct page were used by the s390 code.
-I knew they were playing some fun games with the refcount (it's even
-documented in the s390 code!) but I didn't know they were using ...
-whetever it is; page->private to point to the kvm private data?
+Patches 5 to 7 move the declaration of screen_info and edid_info to
+<asm-generic/screen_info.h>. Architectures that provide either set
+a Kconfig token to enable them.
 
-So maybe it is harder for MM developers right now to see what fields in
-memdesc A overlap with which fields in memdesc B.  That _ought_ not to
-be a concern!  We document which fields are available in each memdesc,
-and have various assertions to trip when people make things not line up
-any more.  There can still be problems, of course; we haven't set the
-assertions quite tightly enough in some cases.
+Patches 8 to 9 make users of screen_info depend on the architecture's
+feature.
 
-People are going to keep adding crap to struct page, and they're going
-to keep misusing the crap that's in struct page.  That has to stop.
+Finally, patches 10 to 12 rework fbdev's handling of firmware EDID
+data to make use of existing helpers and the refactored edid_info.
+
+Tested on x86-64. Built for a variety of platforms.
+
+Future directions: with the patchset in place, it will become possible
+to provide screen_info and edid_info only if there are users. Some
+architectures do this by testing for CONFIG_VT, CONFIG_DUMMY_CONSOLE,
+etc. A more uniform approach would be nice. We should also attempt
+to minimize access to the global screen_info as much as possible. To
+do so, some drivers, such as efifb and vesafb, would require an update.
+The firmware's EDID data could possibly made available outside of fbdev.
+For example, the simpledrm and ofdrm drivers could provide such data
+to userspace compositors.
+
+Thomas Zimmermann (12):
+  efi: Do not include <linux/screen_info.h> from EFI header
+  fbdev/sm712fb: Do not include <linux/screen_info.h>
+  sysfb: Do not include <linux/screen_info.h> from sysfb header
+  staging/sm750fb: Do not include <linux/screen_info.h>
+  arch: Remove trailing whitespaces
+  arch: Declare screen_info in <asm/screen_info.h>
+  arch/x86: Declare edid_info in <asm/screen_info.h>
+  drivers/firmware: Remove trailing whitespaces
+  drivers: Add dependencies on CONFIG_ARCH_HAS_SCREEN_INFO
+  fbdev/core: Use fb_is_primary_device() in fb_firmware_edid()
+  fbdev/core: Protect edid_info with CONFIG_ARCH_HAS_EDID_INFO
+  fbdev/core: Define empty fb_firmware_edid() in <linux/fb.h>
+
+ arch/Kconfig                                  | 12 +++++++
+ arch/alpha/Kconfig                            |  1 +
+ arch/arm/Kconfig                              |  1 +
+ arch/arm/kernel/efi.c                         |  2 ++
+ arch/arm64/Kconfig                            |  1 +
+ arch/arm64/kernel/efi.c                       |  1 +
+ arch/csky/Kconfig                             |  1 +
+ arch/hexagon/Kconfig                          |  1 +
+ arch/ia64/Kconfig                             |  5 +--
+ arch/loongarch/Kconfig                        |  1 +
+ arch/mips/Kconfig                             |  1 +
+ arch/nios2/Kconfig                            |  1 +
+ arch/powerpc/Kconfig                          |  1 +
+ arch/riscv/Kconfig                            |  1 +
+ arch/sh/Kconfig                               |  7 ++--
+ arch/sparc/Kconfig                            |  1 +
+ arch/x86/Kconfig                              |  2 ++
+ arch/xtensa/Kconfig                           |  1 +
+ drivers/firmware/Kconfig                      |  3 +-
+ drivers/firmware/efi/Kconfig                  |  1 +
+ drivers/firmware/efi/libstub/efi-stub-entry.c |  2 ++
+ drivers/firmware/efi/libstub/screen_info.c    |  2 ++
+ drivers/gpu/drm/Kconfig                       |  1 +
+ drivers/hv/Kconfig                            |  1 +
+ drivers/staging/sm750fb/sm750.c               |  1 -
+ drivers/staging/sm750fb/sm750_accel.c         |  1 -
+ drivers/staging/sm750fb/sm750_cursor.c        |  1 -
+ drivers/staging/sm750fb/sm750_hw.c            |  1 -
+ drivers/video/console/Kconfig                 |  2 ++
+ drivers/video/fbdev/Kconfig                   |  4 +++
+ drivers/video/fbdev/core/fbmon.c              | 34 ++++++-------------
+ drivers/video/fbdev/i810/i810-i2c.c           |  2 +-
+ drivers/video/fbdev/intelfb/intelfbdrv.c      |  2 +-
+ drivers/video/fbdev/nvidia/nv_i2c.c           |  2 +-
+ drivers/video/fbdev/savage/savagefb-i2c.c     |  2 +-
+ drivers/video/fbdev/sm712fb.c                 |  9 +++--
+ include/asm-generic/Kbuild                    |  1 +
+ include/asm-generic/screen_info.h             | 18 ++++++++++
+ include/linux/efi.h                           |  3 +-
+ include/linux/fb.h                            | 10 +++++-
+ include/linux/screen_info.h                   |  2 +-
+ include/linux/sysfb.h                         |  3 +-
+ include/video/edid.h                          |  3 --
+ 43 files changed, 105 insertions(+), 47 deletions(-)
+ create mode 100644 include/asm-generic/screen_info.h
+
+
+base-commit: d2f0af8472494398a42153684b790b723a79f143
+-- 
+2.41.0
+
