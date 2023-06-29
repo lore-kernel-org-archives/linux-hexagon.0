@@ -1,8 +1,9 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 09/12] drivers: Add dependencies on CONFIG_ARCH_HAS_SCREEN_INFO
-Date: Thu, 29 Jun 2023 13:45:48 +0200
-Message-ID: <20230629121952.10559-10-tzimmermann@suse.de>
+From: "Arnd Bergmann" <arnd@arndb.de>
+Subject: Re: [PATCH 07/12] arch/x86: Declare edid_info in <asm/screen_info.h>
+Date: Thu, 29 Jun 2023 14:35:46 +0200
+Message-ID: <80e3a583-805e-4e8f-a67b-ebe2e4b9a7e5@app.fastmail.com>
 References: <20230629121952.10559-1-tzimmermann@suse.de>
+ <20230629121952.10559-8-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -10,34 +11,39 @@ Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradea
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
 	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
-	Message-ID:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
+	List-Archive:List-Unsubscribe:List-Id:Subject:Cc:To:From:Date:References:
+	In-Reply-To:Message-Id:Mime-Version:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=nRgAra4QBCGu3CAcp9gJn9Esyu5AFBJ42Gmhsz2OpQU=; b=3ZG8aLNag8k1FI
-	kktOPibD6UdMwOnWjpMEkDd53eEQn3/IYTzg/ohSV73saHhYoYn6riVkwVrMnlSssj3DENWjTY1CH
-	ddStieQ9qdxeELJ5bX6/rGYPqpxwPztE+w2FVYyhd5FVg90BVmHuzn0QmGQEpvT7tP2ckyAsD3Lij
-	uO+AHOwBn8gMygtb9OfWU99UQKhA1Cr5la4VbtQ2CdorupVQqJieigZ+7Wn+Dt9yEWyhcQUZ14WSW
-	9nuWgHl2/bky641/G/jO2exyzAuzyOuvdMYaIjUIYi/OrhB1dWvTZKsN5uaFrb2HX7ov6epfVV4Om
-	2oDiMYQZhpWTAixCNRZA==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1688041201; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Q8/hObzYgPS0TDvHlNkxQWLSeXSJyMjTeBMLqYqFK4w=;
-	b=UPfSiLPg0fPgXj6DVWbIwAx8SsBG5GL3OD/7mLd65j8fwmU+DvPt3QzSfJKiRMSESoepX9
-	eM5NP2Jl7avazGdPsovrA89jdGZnFXHxxT3O/UdtnP6AQBQmMmB0fb0hdUmBE/YVBR8zBv
-	CQYBtniEcZ5wJ20vfbvuSi9ax+7JLg4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1688041201;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Q8/hObzYgPS0TDvHlNkxQWLSeXSJyMjTeBMLqYqFK4w=;
-	b=L3PyCj5jKQ5vE7MYne4nWCsAiDM0bCWXnp9ECQ/thRxLRW/+klbPAr42RqiLHE8RIsU2gZ
-	akbya49XJu79VVCQ==
-In-Reply-To: <20230629121952.10559-1-tzimmermann@suse.de>
+	List-Owner; bh=TQfJYKjFuTxBxFIcup163TdO5/H4oZgTTG6YYCHpg8U=; b=p307/ZaC1SZVHC
+	s4fxG035xNOarHcA9cDoA+CYrViPBmZkhL/pVwJqjiSm5tHoE9w0H5L+55nKujyhh8ajYQJYa/XII
+	DwaQ0ACP+dGYYkKGQpbmGR8qttKnCVlLts1Zk7z7Tah49SxnI29G9K8vNqa1pb662goPfKO3gszFP
+	91k8fEzVFqNBPSk2thEHgSdNsYUutKccqGG+A19kprzjuiKwPWZ0R0tYit2V2KVGFt3WjQtlcIuXs
+	q63NHQVbezSNV2osPwgpRD0ssmlN6xH/R6pH+ctI+frz6z8xmVzSmkXnRlLIcPgVCFPjUvk9jZItI
+	uWd07CWfson5wOFXRQNg==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:sender
+	:subject:subject:to:to; s=fm1; t=1688042167; x=1688049367; bh=bT
+	G+9AqapEnTzTdZN+3/z4mAZ7LW415XlukWbIMXEK4=; b=jVer3ZsYEpv4oKp9MB
+	szsrrrdYGu7rGZrQTOVLMkGALoFHHLvc/oUUpXJBoXJgdCfT0l7aA0yKhATrYNXB
+	aEGN9jvcC01pqiHdFsqq0bkFFSz9UIn0wpYtG5wYSyHBgIUb0q0WF10Dn3D0ys+Q
+	XdVTz1xDdvBF5BWZT8QJkN/TJUgNTFQEn9uRiImRIIIxVlZAUYgfDYxAZN24C9If
+	0fvLO/7Vh+JJJx9ib3bnVyk06XlQdUmqqoWItzk2IhpGynOSTiS1PFOrwsJCeCaJ
+	8UiDOATEhC65kKFJEjC7rOkzppp5TX9XQuMvRoXskdiug/iaC/tnwPy1ygPdzaL6
+	IoZw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:sender:subject
+	:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+	:x-sasl-enc; s=fm2; t=1688042167; x=1688049367; bh=bTG+9AqapEnTz
+	TdZN+3/z4mAZ7LW415XlukWbIMXEK4=; b=CccPJWvx1a+Oz1MM5Taiu9fsGftW9
+	hmgBcLqXYChcnfp2nv6RWUg7M5kQcytbmDfhV1AVipcw49+CmNKous2ER6JLcGud
+	qLKDK3EFXotIhbICdzx3r91mhkebGgUqVWBxeOtOqIwIjt2VLx2+7M0e0ZNBw8IY
+	QYBew9HSxFvupkHfoU1p8ZntBi5WUvQWBmTXQhafzKFZRTGtPdZIsRBX2guG6EvC
+	jm91VDAmWV04RD50eKeuNQ1gIbDXgSNCl/ADV15oAHykwZ0L0pLZZYK3u1cr3+Rr
+	x7zXD2MAiXbufbU1CsLjDKzyEFWnoX4+00s21o08yDXbrmZmwqDH+dXBg==
+In-Reply-To: <20230629121952.10559-8-tzimmermann@suse.de>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -48,143 +54,21 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: arnd@arndb.de, deller@gmx.de, daniel@ffwll.ch, airlied@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-staging@lists.linux.dev, linux-arch@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, Ard Biesheuvel <ardb@kernel.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, Greg Kroah-Hartman <gregk>
+To: Thomas Zimmermann <tzimmermann@suse.de>, Helge Deller <deller@gmx.de>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-staging@lists.linux.dev, Linux-Arch <linux-arch@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, Peter Zijlstra <pet>
 
-Various files within drivers/ depend on the declaration of the
-screen_info variable. Add this information to Kconfig.
+On Thu, Jun 29, 2023, at 13:45, Thomas Zimmermann wrote:
+> The global variable edid_info contains the firmware's EDID information
+> as an extension to the regular screen_info on x86. Therefore move it to
+> <asm/screen_info.h>.
+>
+> Add the Kconfig token ARCH_HAS_EDID_INFO to guard against access on
+> architectures that don't provide edid_info. Select it on x86.
 
-In the case of the dummy console, the dependency exists only
-on ARM. Ignore it on !ARM platforms.
+I'm not sure we need another symbol in addition to
+CONFIG_FIRMWARE_EDID. Since all the code behind that
+existing symbol is also x86 specific, would it be enough
+to just add either 'depends on X86' or 'depends on X86 ||
+COMPILE_TEST' there?
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: David Airlie <airlied@gmail.com>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Wei Liu <wei.liu@kernel.org>
-Cc: Dexuan Cui <decui@microsoft.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Javier Martinez Canillas <javierm@redhat.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/firmware/Kconfig      | 1 +
- drivers/firmware/efi/Kconfig  | 1 +
- drivers/gpu/drm/Kconfig       | 1 +
- drivers/hv/Kconfig            | 1 +
- drivers/video/console/Kconfig | 2 ++
- drivers/video/fbdev/Kconfig   | 4 ++++
- 6 files changed, 10 insertions(+)
-
-diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
-index 0432737bbb8b4..65bbf7422f1db 100644
---- a/drivers/firmware/Kconfig
-+++ b/drivers/firmware/Kconfig
-@@ -228,6 +228,7 @@ config QCOM_SCM_DOWNLOAD_MODE_DEFAULT
- 
- config SYSFB
- 	bool
-+	depends on ARCH_HAS_SCREEN_INFO
- 	select BOOT_VESA_SUPPORT
- 
- config SYSFB_SIMPLEFB
-diff --git a/drivers/firmware/efi/Kconfig b/drivers/firmware/efi/Kconfig
-index 043ca31c114eb..963d305421e50 100644
---- a/drivers/firmware/efi/Kconfig
-+++ b/drivers/firmware/efi/Kconfig
-@@ -225,6 +225,7 @@ config EFI_DISABLE_PCI_DMA
- config EFI_EARLYCON
- 	def_bool y
- 	depends on SERIAL_EARLYCON && !ARM && !IA64
-+	depends on ARCH_HAS_SCREEN_INFO
- 	select FONT_SUPPORT
- 	select ARCH_USE_MEMREMAP_PROT
- 
-diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-index afb3b2f5f4253..63dfc3391d2ff 100644
---- a/drivers/gpu/drm/Kconfig
-+++ b/drivers/gpu/drm/Kconfig
-@@ -366,6 +366,7 @@ source "drivers/gpu/drm/sprd/Kconfig"
- config DRM_HYPERV
- 	tristate "DRM Support for Hyper-V synthetic video device"
- 	depends on DRM && PCI && MMU && HYPERV
-+	depends on ARCH_HAS_SCREEN_INFO
- 	select DRM_KMS_HELPER
- 	select DRM_GEM_SHMEM_HELPER
- 	help
-diff --git a/drivers/hv/Kconfig b/drivers/hv/Kconfig
-index 00242107d62e0..3730c9b42a9bd 100644
---- a/drivers/hv/Kconfig
-+++ b/drivers/hv/Kconfig
-@@ -6,6 +6,7 @@ config HYPERV
- 	tristate "Microsoft Hyper-V client drivers"
- 	depends on (X86 && X86_LOCAL_APIC && HYPERVISOR_GUEST) \
- 		|| (ACPI && ARM64 && !CPU_BIG_ENDIAN)
-+	depends on ARCH_HAS_SCREEN_INFO
- 	select PARAVIRT
- 	select X86_HV_CALLBACK_VECTOR if X86
- 	select OF_EARLY_FLATTREE if OF
-diff --git a/drivers/video/console/Kconfig b/drivers/video/console/Kconfig
-index a2a88d42edf0c..b39e2ae039783 100644
---- a/drivers/video/console/Kconfig
-+++ b/drivers/video/console/Kconfig
-@@ -10,6 +10,7 @@ config VGA_CONSOLE
- 	depends on !4xx && !PPC_8xx && !SPARC && !M68K && !PARISC &&  !SUPERH && \
- 		(!ARM || ARCH_FOOTBRIDGE || ARCH_INTEGRATOR || ARCH_NETWINDER) && \
- 		!ARM64 && !ARC && !MICROBLAZE && !OPENRISC && !S390 && !UML
-+	depends on ARCH_HAS_SCREEN_INFO
- 	select APERTURE_HELPERS if (DRM || FB || VFIO_PCI_CORE)
- 	default y
- 	help
-@@ -48,6 +49,7 @@ config SGI_NEWPORT_CONSOLE
- 
- config DUMMY_CONSOLE
- 	bool
-+	depends on ARCH_HAS_SCREEN_INFO || !ARM
- 	default y
- 
- config DUMMY_CONSOLE_COLUMNS
-diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
-index cecf15418632d..e11d85e802bc7 100644
---- a/drivers/video/fbdev/Kconfig
-+++ b/drivers/video/fbdev/Kconfig
-@@ -655,6 +655,7 @@ config FB_UVESA
- config FB_VESA
- 	bool "VESA VGA graphics support"
- 	depends on (FB = y) && X86
-+	depends on ARCH_HAS_SCREEN_INFO
- 	select APERTURE_HELPERS
- 	select FB_CFB_FILLRECT
- 	select FB_CFB_COPYAREA
-@@ -669,6 +670,7 @@ config FB_VESA
- config FB_EFI
- 	bool "EFI-based Framebuffer Support"
- 	depends on (FB = y) && !IA64 && EFI
-+	depends on ARCH_HAS_SCREEN_INFO
- 	select APERTURE_HELPERS
- 	select DRM_PANEL_ORIENTATION_QUIRKS
- 	select FB_CFB_FILLRECT
-@@ -1089,6 +1091,7 @@ config FB_CARILLO_RANCH
- config FB_INTEL
- 	tristate "Intel 830M/845G/852GM/855GM/865G/915G/945G/945GM/965G/965GM support"
- 	depends on FB && PCI && X86 && AGP_INTEL && EXPERT
-+	depends on ARCH_HAS_SCREEN_INFO
- 	select FB_MODE_HELPERS
- 	select FB_CFB_FILLRECT
- 	select FB_CFB_COPYAREA
-@@ -2185,6 +2188,7 @@ config FB_BROADSHEET
- config FB_HYPERV
- 	tristate "Microsoft Hyper-V Synthetic Video support"
- 	depends on FB && HYPERV
-+	depends on ARCH_HAS_SCREEN_INFO
- 	select FB_CFB_FILLRECT
- 	select FB_CFB_COPYAREA
- 	select FB_CFB_IMAGEBLIT
--- 
-2.41.0
+      Arnd
