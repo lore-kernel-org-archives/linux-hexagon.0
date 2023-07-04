@@ -1,10 +1,10 @@
 From: Javier Martinez Canillas <javierm@redhat.com>
-Subject: Re: [PATCH 03/12] sysfb: Do not include <linux/screen_info.h> from
- sysfb header
-Date: Tue, 04 Jul 2023 18:26:29 +0200
-Message-ID: <87cz17lk22.fsf@minerva.mail-host-address-is-not-set>
+Subject: Re: [PATCH 04/12] staging/sm750fb: Do not include
+ <linux/screen_info.h>
+Date: Tue, 04 Jul 2023 18:27:01 +0200
+Message-ID: <87a5wblk16.fsf@minerva.mail-host-address-is-not-set>
 References: <20230629121952.10559-1-tzimmermann@suse.de>
- <20230629121952.10559-4-tzimmermann@suse.de>
+ <20230629121952.10559-5-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,22 +15,22 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-ID:Date:References
 	:In-Reply-To:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=34WDUy7i5Wh6wzgno2BpzJrVdO3ZEc6gTi4J4xLGMnI=; b=E3ky2KNH7IhC+I
-	+VLXDaNdPzt66k+rXhvgzgTgViEqys6UsUHW3p2zGKpZqEw5KqAp33a6xZh2n1scalSA85UUZtZco
-	HvBlwBoDdOov399qGFf5yNl8nzkMB+xkXO5NbeoaVUi8yA6bEnucMX+khC3Mziw8DoDYiVOT1/g9r
-	mOCTTvb8Jf2w0DHdyUXzMXqfWUHM5aXrWE+JGzLgtv8Yx2RwD7EsA8tqMqWD10qIgglktoIOj2RBP
-	D3x+sOUKGI/sB0OlrrT9og6/G4A/ISXHzIVBfpoxJD4sCUtn1maDUzgdaRs/ZMRKUljBRiQrOyTO8
-	LNNI+10hpNwGi6yibYMg==;
+	List-Owner; bh=qptQ7k72PeOlrWpxWEqPW4/R9AnrczAbf5hadBQ1KwM=; b=hrEoj3YxXPn2RW
+	HaPzzGAa+CLaxshnXOwseXQdwiioDqqwJm6YU7zXgFPhr3a9g16N6w8ZiLyUEJx6w15dFCAITAV7V
+	XR0KTX0OY77w87nWPOklLPl46D4RvYNqMeekNvnYG95NgYXFwow7IhEYkwxnjlQML3wtAeS2ZxWmR
+	noFPK3chq1+0aylto132GYXVaq0vsfxu65xv9OaNH9IQIONt9/HDwckFOms4KWWWOBAXhDyQE0sGT
+	Ie/CX4Z1PUu/w6uTWgl4WZtX1/R0maBWnPJAd/L3AD4gnZYiwv+QsLmNHgoiPQ4hlwAEJifqLt+Nm
+	b4KbOTvutEjUGgSGM56w==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1688487993;
+	s=mimecast20190719; t=1688488025;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=3N/Gyf3beclIUSfPsZhAnE2wLloPptbf+HqX/lLqDWc=;
-	b=fHw9FiyufPGlzK4AIgS0dgZSj76QR2FVKZvFvIluVIyEuP6f3F2l9lrIR/e7xDHUCo0DWG
-	LtDrB9sZuGTrAaR8aaSfQoiN+gnQoz1dcDo/jLka8JWUNjX/woiMKkO0AMpZE+9Vz1vK2O
-	XMYn5sTagth877zSew8hlnGG90Q13y8=
-In-Reply-To: <20230629121952.10559-4-tzimmermann@suse.de>
+	bh=4kQnHD6yHzrEv/r8EzHQhBzLicpYH1qRl0henJBZG6I=;
+	b=Sosg1f596cxBf/cRddM2ban7iErXisx9K0oEmVEUG9IKKw2UPTtpFnxFcQJZB274k10qAm
+	Qic6jAN2kncK7el8ljFxzr8xy/6SK+Yxg2O9sw6aNT1MUDJvHIRuuqfBvoX372lSwvMh+n
+	RHif54X2yCo9K/dSz80Ab3PUAgHVE9I=
+In-Reply-To: <20230629121952.10559-5-tzimmermann@suse.de>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -42,18 +42,16 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 To: Thomas Zimmermann <tzimmermann@suse.de>, arnd@arndb.de, deller@gmx.de, daniel@ffwll.ch, airlied@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-staging@lists.linux.dev, linux-arch@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, Ard Biesheuvel <ardb@kernel.org>, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-arch@vger.kernel.org, linux-hyperv@vger.kernel.org, linux-efi@vger.kernel.org, linux-ia64@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org, linux-mips@vger.kernel.org, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, loongarch@lists.linux.dev, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-arm-kernel@lists.infradead.org, Teddy Wang <teddy.wang@siliconmotion.com>
 
 Thomas Zimmermann <tzimmermann@suse.de> writes:
 
-> The header file <linux/sysfb.h> does not need anything from
-> <linux/screen_info.h>. Declare struct screen_info and remove
-> the include statements.
+> The sm750fb driver does not need anything from <linux/screen_info.h>.
+> Remove the include statements.
 >
 > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Cc: Hans de Goede <hdegoede@redhat.com>
-> Cc: Javier Martinez Canillas <javierm@redhat.com>
+> Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+> Cc: Teddy Wang <teddy.wang@siliconmotion.com>
 > ---
 
 Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
