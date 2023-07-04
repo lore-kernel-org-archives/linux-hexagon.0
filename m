@@ -1,115 +1,68 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 20/21] ARM: dma-mapping: split out arch_dma_mark_clean() helper
-Date: Mon, 3 Jul 2023 09:54:46 +0200
-Message-ID: <CAMuHMdW5bXeE=nr7+hHxL+xhm2q05udkJpMBM-BG7g9S7Nt7Zg@mail.gmail.com>
-References: <20230327121317.4081816-1-arnd@kernel.org> <20230327121317.4081816-21-arnd@kernel.org>
+From: Javier Martinez Canillas <javierm@redhat.com>
+Subject: Re: [PATCH 01/12] efi: Do not include <linux/screen_info.h> from
+ EFI header
+Date: Tue, 04 Jul 2023 18:23:40 +0200
+Message-ID: <87ilazlk6r.fsf@minerva.mail-host-address-is-not-set>
+References: <20230629121952.10559-1-tzimmermann@suse.de>
+ <20230629121952.10559-2-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20230327121317.4081816-21-arnd@kernel.org>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="windows-1252"
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Neil Armstrong <neil.armstrong@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Stafford Horne <shorne@gmail.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy <christophe.leroy@csgroup.eu>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Rich Felker <dalias@libc.org>, John
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-ID:Date:References
+	:In-Reply-To:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=X3M4UQ0JeIrag1sA8TzK8YG2nLJuEsGSwCtVkHX17RQ=; b=qiZiga+eSVIkgV
+	YGcOXZHaH1WqscnbX+86NQ8ZhEO+dYpGmkUkJ2O/9jDPZi4KeDM1l7TMMzYTeLEjEP1aOFUOHBWWX
+	xYEuvEKl8NYxmkSK/jS3pA2j933nrP3xt0T/eecl4rJmyYheMaqV0/2FQkufhGt5XyJs3dV/Fzpwq
+	xG6L12BbqI2eVcmRS0dCDO7p7ZhzB9lDE5a/QzHfN3zdY4jwVqdJhL3LwR2lCweoWVF8yBZWd4lCR
+	L3JrsRDMXAMWY+II5npqZ7Kgn0XEFiJzieNFh7FvcdpQZUwGtU+zA+k0rXiURGE5TFnPceNqezYvu
+	kSirMLJ7SXEgumd/NYzA==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1688487824;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2FITFWtbRXE3gky2EO4aMziTa3J/r1+wMO4yc2vs7Pc=;
+	b=Yaj0XoGTnPY3jldtaJrBd3h0EFLc5QY5r2f1GcQiDU5Bwt+QkhnRA5Y3ClkBsx59aWT2Mc
+	O1BXRKMpVO9+Wb82xQFvJuf17h84NyATS9f4N1wgCJHvmtmtX5bmQkya0n1s8pMiouL+Iu
+	fyHZ1/QKZQcqnRr3IdPIPspTAWH3/GI=
+In-Reply-To: <20230629121952.10559-2-tzimmermann@suse.de>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: Thomas Zimmermann <tzimmermann@suse.de>, arnd@arndb.de, deller@gmx.de, daniel@ffwll.ch, airlied@gmail.com
+Cc: linux-hyperv@vger.kernel.org, linux-efi@vger.kernel.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-staging@lists.linux.dev, Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org, loongarch@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 
-Hi Arnd,
+Thomas Zimmermann <tzimmermann@suse.de> writes:
 
-On Mon, Mar 27, 2023 at 2:16=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wro=
-te:
-> From: Arnd Bergmann <arnd@arndb.de>
+> The header file <linux/efi.h> does not need anything from
+> <linux/screen_info.h>. Declare struct screen_info and remove
+> the include statements. Update a number of source files that
+> require struct screen_info's definition.
 >
-> The arm version of the arch_sync_dma_for_cpu() function annotates pages as
-> PG_dcache_clean after a DMA, but no other architecture does this here. On
-> ia64, the same thing is done in arch_sync_dma_for_cpu(), so it makes sense
-> to use the same hook in order to have identical arch_sync_dma_for_cpu()
-> semantics as all other architectures.
->
-> Splitting this out has multiple effects:
->
->  - for dma-direct, this now gets called after arch_sync_dma_for_cpu()
->    for DMA_FROM_DEVICE mappings, but not for DMA_BIDIRECTIONAL. While
->    it would not be harmful to keep doing it for bidirectional mappings,
->    those are apparently not used in any callers that care about the flag.
->
->  - Since arm has its own dma-iommu abstraction, this now also needs to
->    call the same function, so the calls are added there to mirror the
->    dma-direct version.
->
->  - Like dma-direct, the dma-iommu version now marks the dcache clean
->    for both coherent and noncoherent devices after a DMA, but it only
->    does this for DMA_FROM_DEVICE, not DMA_BIDIRECTIONAL.
->
-> [ HELP NEEDED: can anyone confirm that it is a correct assumption
->   on arm that a cache-coherent device writing to a page always results
->   in it being in a PG_dcache_clean state like on ia64, or can a device
->   write directly into the dcache?]
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: Ard Biesheuvel <ardb@kernel.org>
+> Cc: Russell King <linux@armlinux.org.uk>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> ---
 
-Thanks for your patch, which is now commit 322dbe898f82fd8a
-("ARM: dma-mapping: split out arch_dma_mark_clean() helper") in
-esmil/jh7100-dmapool.
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 
-If CONFIG_ARM_DMA_USE_IOMMU=3Dy, the build fails.
+-- 
+Best regards,
 
-> --- a/arch/arm/mm/dma-mapping.c
-> +++ b/arch/arm/mm/dma-mapping.c
-
-> @@ -1294,6 +1298,17 @@ static int arm_iommu_map_sg(struct device *dev, st=
-ruct scatterlist *sg,
->         return -EINVAL;
->  }
->
-> +static void arm_iommu_sync_dma_for_cpu(phys_addr_t phys, size_t len,
-> +                                      enum dma_data_direction dir,
-> +                                      bool dma_coherent)
-> +{
-> +       if (!dma_coherent)
-> +               arch_sync_dma_for_cpu(phys, s->length, dir);
-
-s/s->length/len/
-
-> +
-> +       if (dir =3D=3D DMA_FROM_DEVICE)
-> +               arch_dma_mark_clean(phys, s->length);
-
-Likewise.
-
-> +}
-> +
->  /**
->   * arm_iommu_unmap_sg - unmap a set of SG buffers mapped by dma_map_sg
->   * @dev: valid struct device pointer
-
-> @@ -1425,9 +1438,9 @@ static void arm_iommu_unmap_page(struct device *dev=
-, dma_addr_t handle,
->         if (!iova)
->                 return;
->
-> -       if (!dev->dma_coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC)) {
-> +       if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
-
-Missing opening curly brace.
-
->                 phys =3D iommu_iova_to_phys(mapping->domain, handle);
-> -               arch_sync_dma_for_cpu(phys, size, dir);
-> +               arm_iommu_sync_dma_for_cpu(phys, size, dir, dev->dma_cohe=
-rent);
->         }
->
->         iommu_unmap(mapping->domain, iova, len);
-
-With the above fixed, it builds and boots fine (on R-Car M2-W).
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+Javier Martinez Canillas
+Core Platforms
+Red Hat
