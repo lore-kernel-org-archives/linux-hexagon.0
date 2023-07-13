@@ -1,30 +1,33 @@
-From: Palmer Dabbelt <palmer@rivosinc.com>
+From: Guo Ren <guoren@kernel.org>
 Subject: Re: [PATCH 4/4] vgacon, arch/*: remove unused screen_info definitions
-Date: Wed, 12 Jul 2023 07:46:30 -0700 (PDT)
-Message-ID: <mhng-099c5770-3367-48d7-a068-25762b837196@palmer-ri-x1c9a>
-References: <20230707095415.1449376-4-arnd@kernel.org>
-Mime-Version: 1.0 (MHng)
-Content-Transfer-Encoding: 8bit
-Return-path: <sparclinux-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20221208.gappssmtp.com; s=20221208; t=1689173190; x=1691765190;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=3RJlGEMkrK0JJ4Kxd7hYeKyRhV465TrolA6xg6qfxJ8=;
-        b=rkydKRIpQBAKPCJ/OjBL6hiE17WoRL68apriz9iDe8EWclBfKbIdoJm4e9Eq2EPQi0
-         ifoCBc/mQNoqKpsVSFjAvU1zwmLLbcz9gOwTfHqUO7t77dBsUyymCe5IRz40Fg6SDToR
-         Oc6ao8Q3d3m8mD29bYwG3wr4aNSAhk4NRV8IxVo4QDWs5rInTu/wOy/c/e3gbxq1ux8y
-         U2BvPk7NxgGPhtSCzjNCOr4B+wGukwQDT0GS1npIvr9Dq9pIRajUzWQ26doL3oleIJbu
-         48U7KoFPYtHT9bJygROE78+SiMVX5rgurr4XvDfj0iyB6n4M4XuWhzc3I/VD3kVmqxoT
-         6gag==
+Date: Wed, 12 Jul 2023 20:33:57 -0400
+Message-ID: <CAJF2gTQGCmfMH2S4hns76ttqM8K-4dO-rhkE6vL+w9akajpwvw@mail.gmail.com>
+References: <20230707095415.1449376-1-arnd@kernel.org> <20230707095415.1449376-4-arnd@kernel.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-sh-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1689208450;
+        bh=h0GsuVfwe0mSJLf0CUYKSs4tBJsF9ZFlVOYHCDQ2FTM=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=GahPxDoylll4i3tp/d3OvcPh8d1ShV9I+8WcM7ZT2D2sLN6p2rKK/m09g2zRz4qcy
+         F2rySwRVdeC9m/VNG8y7Auf5xjQ8GGv7sxGAjv2QnHfsO5P2qPwfEVHDHz4upR1Stb
+         0svGsYKHnp2OnB4tcPiWlEDxQzWwM037lnQ5L+3SmZzdANAN1VFD3JCu1h0EOXahy2
+         jebbI+IQsmVRtyUUQ3Fkwsj2y53ZoC9wenHyp41klp+7y3eG/WWnkmRP3fLSUhA9Gk
+         m47jp8V7hlVaFKOXnHMbs0HZL2xB8/Oj1RPqDKYfLvCFdmDCBJtnDQ5ekkthJ0BbY4
+         WtUWhH+ZPTeKw==
 In-Reply-To: <20230707095415.1449376-4-arnd@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: arnd@kernel.org
-Cc: tzimmermann@suse.de, javierm@redhat.com, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux@armlinux.org.uk, dri-devel@lists.freedesktop.org, Ard Biesheuvel <ardb@kernel.org>, deller@gmx.de, Greg KH <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, guoren@kernel.org, bcain@quicinc.com, dinguyen@kernel.org, dalias@libc.org, glaubitz@physik.fu-berlin.de, davem@davemloft.net, chris@zankel.net, jcmvbkbc@gmail.com, masahiroy@kernel.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>, javierm@redhat.com, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>, dri-devel@lists.freedesktop.org, Ard Biesheuvel <ardb@kernel.org>, Helge Deller <deller@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Brian Cain <bcain@quicinc.com>, Dinh Nguyen <dinguyen@kernel.org>, Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S. Miller" <davem@davemloft.net>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, Masahiro Yamada <masahiroy@kernel.org>, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
 
-On Fri, 07 Jul 2023 02:52:26 PDT (-0700), arnd@kernel.org wrote:
+csky:
+Acked-by: Guo Ren <guoren@kernel.org>
+
+On Fri, Jul 7, 2023 at 5:56=E2=80=AFAM Arnd Bergmann <arnd@kernel.org> wrot=
+e:
+>
 > From: Arnd Bergmann <arnd@arndb.de>
 >
 > A number of architectures either kept the screen_info definition for
@@ -62,30 +65,32 @@ On Fri, 07 Jul 2023 02:52:26 PDT (-0700), arnd@kernel.org wrote:
 >  #include <asm/pgalloc.h>
 >
 > -#ifdef CONFIG_DUMMY_CONSOLE
-> -struct screen_info screen_info = {
-> -	.orig_video_lines	= 30,
-> -	.orig_video_cols	= 80,
-> -	.orig_video_mode	= 0,
-> -	.orig_video_ega_bx	= 0,
-> -	.orig_video_isVGA	= 1,
-> -	.orig_video_points	= 8
+> -struct screen_info screen_info =3D {
+> -       .orig_video_lines       =3D 30,
+> -       .orig_video_cols        =3D 80,
+> -       .orig_video_mode        =3D 0,
+> -       .orig_video_ega_bx      =3D 0,
+> -       .orig_video_isVGA       =3D 1,
+> -       .orig_video_points      =3D 8
 > -};
 > -#endif
 > -
 >  static void __init csky_memblock_init(void)
 >  {
->  	unsigned long lowmem_size = PFN_DOWN(LOWMEM_LIMIT - PHYS_OFFSET_OFFSET);
+>         unsigned long lowmem_size =3D PFN_DOWN(LOWMEM_LIMIT - PHYS_OFFSET=
+_OFFSET);
 > diff --git a/arch/hexagon/kernel/Makefile b/arch/hexagon/kernel/Makefile
 > index e73cb321630ec..3fdf937eb572e 100644
 > --- a/arch/hexagon/kernel/Makefile
 > +++ b/arch/hexagon/kernel/Makefile
-> @@ -17,5 +17,3 @@ obj-y += vm_vectors.o
->  obj-$(CONFIG_HAS_DMA) += dma.o
+> @@ -17,5 +17,3 @@ obj-y +=3D vm_vectors.o
+>  obj-$(CONFIG_HAS_DMA) +=3D dma.o
 >
->  obj-$(CONFIG_STACKTRACE) += stacktrace.o
+>  obj-$(CONFIG_STACKTRACE) +=3D stacktrace.o
 > -
-> -obj-$(CONFIG_VGA_CONSOLE) += screen_info.o
-> diff --git a/arch/hexagon/kernel/screen_info.c b/arch/hexagon/kernel/screen_info.c
+> -obj-$(CONFIG_VGA_CONSOLE) +=3D screen_info.o
+> diff --git a/arch/hexagon/kernel/screen_info.c b/arch/hexagon/kernel/scre=
+en_info.c
 > deleted file mode 100644
 > index 1e1ceb18bafe7..0000000000000
 > --- a/arch/hexagon/kernel/screen_info.c
@@ -106,9 +111,10 @@ On Fri, 07 Jul 2023 02:52:26 PDT (-0700), arnd@kernel.org wrote:
 >
 >  #include <asm/mmu_context.h>
 >  #include <asm/sections.h>
-> @@ -36,10 +35,6 @@ static struct pt_regs fake_regs = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
->  					0, 0, 0, 0, 0, 0,
->  					0};
+> @@ -36,10 +35,6 @@ static struct pt_regs fake_regs =3D { 0, 0, 0, 0, 0, 0=
+, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+>                                         0, 0, 0, 0, 0, 0,
+>                                         0};
 >
 > -#ifdef CONFIG_VT
 > -struct screen_info screen_info;
@@ -130,7 +136,7 @@ On Fri, 07 Jul 2023 02:52:26 PDT (-0700), arnd@kernel.org wrote:
 >  #include <linux/init.h>
 >  #include <linux/initrd.h>
 > @@ -69,10 +68,6 @@ EXPORT_SYMBOL(cpu_data);
->  struct sh_machine_vector sh_mv = { .mv_name = "generic", };
+>  struct sh_machine_vector sh_mv =3D { .mv_name =3D "generic", };
 >  EXPORT_SYMBOL(sh_mv);
 >
 > -#ifdef CONFIG_VT
@@ -139,7 +145,7 @@ On Fri, 07 Jul 2023 02:52:26 PDT (-0700), arnd@kernel.org wrote:
 > -
 >  extern int root_mountflags;
 >
->  #define RAMDISK_IMAGE_START_MASK	0x07FF
+>  #define RAMDISK_IMAGE_START_MASK       0x07FF
 > diff --git a/arch/sparc/kernel/setup_32.c b/arch/sparc/kernel/setup_32.c
 > index 34ef7febf0d56..e3b72a7b46d37 100644
 > --- a/arch/sparc/kernel/setup_32.c
@@ -156,16 +162,16 @@ On Fri, 07 Jul 2023 02:52:26 PDT (-0700), arnd@kernel.org wrote:
 >
 >  #include "kernel.h"
 >
-> -struct screen_info screen_info = {
-> -	0, 0,			/* orig-x, orig-y */
-> -	0,			/* unused */
-> -	0,			/* orig-video-page */
-> -	0,			/* orig-video-mode */
-> -	128,			/* orig-video-cols */
-> -	0,0,0,			/* ega_ax, ega_bx, ega_cx */
-> -	54,			/* orig-video-lines */
-> -	0,                      /* orig-video-isVGA */
-> -	16                      /* orig-video-points */
+> -struct screen_info screen_info =3D {
+> -       0, 0,                   /* orig-x, orig-y */
+> -       0,                      /* unused */
+> -       0,                      /* orig-video-page */
+> -       0,                      /* orig-video-mode */
+> -       128,                    /* orig-video-cols */
+> -       0,0,0,                  /* ega_ax, ega_bx, ega_cx */
+> -       54,                     /* orig-video-lines */
+> -       0,                      /* orig-video-isVGA */
+> -       16                      /* orig-video-points */
 > -};
 > -
 >  /* Typing sync at the prom prompt calls the function pointed to by
@@ -187,16 +193,16 @@ On Fri, 07 Jul 2023 02:52:26 PDT (-0700), arnd@kernel.org wrote:
 >  DEFINE_SPINLOCK(ns87303_lock);
 >  EXPORT_SYMBOL(ns87303_lock);
 >
-> -struct screen_info screen_info = {
-> -	0, 0,			/* orig-x, orig-y */
-> -	0,			/* unused */
-> -	0,			/* orig-video-page */
-> -	0,			/* orig-video-mode */
-> -	128,			/* orig-video-cols */
-> -	0, 0, 0,		/* unused, ega_bx, unused */
-> -	54,			/* orig-video-lines */
-> -	0,                      /* orig-video-isVGA */
-> -	16                      /* orig-video-points */
+> -struct screen_info screen_info =3D {
+> -       0, 0,                   /* orig-x, orig-y */
+> -       0,                      /* unused */
+> -       0,                      /* orig-video-page */
+> -       0,                      /* orig-video-mode */
+> -       128,                    /* orig-video-cols */
+> -       0, 0, 0,                /* unused, ega_bx, unused */
+> -       54,                     /* orig-video-lines */
+> -       0,                      /* orig-video-isVGA */
+> -       16                      /* orig-video-points */
 > -};
 > -
 >  static void
@@ -219,18 +225,24 @@ On Fri, 07 Jul 2023 02:52:26 PDT (-0700), arnd@kernel.org wrote:
 >  #include <asm/traps.h>
 >
 > -#if defined(CONFIG_VGA_CONSOLE) || defined(CONFIG_DUMMY_CONSOLE)
-> -struct screen_info screen_info = {
-> -	.orig_x = 0,
-> -	.orig_y = 24,
-> -	.orig_video_cols = 80,
-> -	.orig_video_lines = 24,
-> -	.orig_video_isVGA = 1,
-> -	.orig_video_points = 16,
+> -struct screen_info screen_info =3D {
+> -       .orig_x =3D 0,
+> -       .orig_y =3D 24,
+> -       .orig_video_cols =3D 80,
+> -       .orig_video_lines =3D 24,
+> -       .orig_video_isVGA =3D 1,
+> -       .orig_video_points =3D 16,
 > -};
 > -#endif
 > -
 >  #ifdef CONFIG_BLK_DEV_INITRD
 >  extern unsigned long initrd_start;
 >  extern unsigned long initrd_end;
+> --
+> 2.39.2
+>
 
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+
+--=20
+Best Regards
+ Guo Ren
