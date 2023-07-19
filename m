@@ -1,84 +1,78 @@
-From: "Arnd Bergmann" <arnd@arndb.de>
-Subject: Re: [PATCH v2 5/9] vgacon: remove screen_info dependency
-Date: Wed, 19 Jul 2023 16:38:57 +0200
-Message-ID: <3b047cd4-a61f-44b6-830b-b4e35bfccd72@app.fastmail.com>
+From: Helge Deller <deller@gmx.de>
+Subject: Re: [PATCH v2 0/9] video: screen_info cleanups
+Date: Wed, 19 Jul 2023 16:57:30 +0200
+Message-ID: <6c9be40f-0970-3eb5-899f-b69aa09d7f97@gmx.de>
 References: <20230719123944.3438363-1-arnd@kernel.org>
- <20230719123944.3438363-6-arnd@kernel.org>
- <32595080-dd79-5cf0-46e7-b82d0df8f067@linaro.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-ia64-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-transfer-encoding:content-type:content-type:date
-        :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to; s=fm2; t=
-        1689777595; x=1689784795; bh=nZU6p3n7fickF5wKWXmSN8Sc6/MSvsFTYGP
-        0irgDDx8=; b=F6uhOe0xlOcUS4dDy1oq5df2GK1xAMcbSu8LZgoyXmvhlUzRu78
-        bGWxTgJiJi6zrRqVfawYfkrNgFxRyoDY1fhSxgqhl2HFLNsxG4oCXLOUvtc1H1J9
-        yKpHN5YOXPSGucUUa4WBBwirLFW7BcNoa9nEJIN8VY/wxM9DZRnEh0QMcm0tWtCR
-        dKTHuIxJjhaZFzLsV9DTjnLCbGrttI4s9sB6wKBYnGTTcqvQf0+2gn/VHNspuTtL
-        UCPm3ZVAMHyA6sMFGbrinOOlTU5JT8hRDtp3UUk+cM86plnrvFOW8ztaQcBfW6T8
-        F6uE/5iwV3Pzt0P1Egm7uCnyHKH+4DwB/7g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:content-type:date:date:feedback-id:feedback-id
-        :from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-        1689777595; x=1689784795; bh=nZU6p3n7fickF5wKWXmSN8Sc6/MSvsFTYGP
-        0irgDDx8=; b=RT3ufktFiEmOaEJtwn2kNPwX1CxJHO84CaryEahSFHfcxzKAOKP
-        GbsmwKdkij2/wPBd7ZceYMaF8fRakoZMD4mqWlf0Zxmc3G8CDJFEJnfyubpj4GpK
-        BTGeK/U7hKm6Xv3VxJI6XGVSS5z+dkFKgATEYbUSs/PzvBavnLdZpIWHdDX7DPwN
-        15x30i+ixySDP0gi6hrqw9TjDxXFUe4m0DoLzGSNryLWDKksDFvYLsm8ExaZoHgl
-        VF+nPTLS/vCYm/jinaZDPIrkGemb4sE71T5g0dm8v0j1hZVFJOBDNUTynb37Cocc
-        llP48wfwjZ64vJQYBWEmvFIXuwbXcmFTjiw==
-In-Reply-To: <32595080-dd79-5cf0-46e7-b82d0df8f067@linaro.org>
-List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="iso-8859-1"
-To: =?UTF-8?Q?Phil_Mathieu-Daud=C3=A9?= <philmd@linaro.org>, Arnd Bergmann <arnd@kernel.org>, linux-fbdev@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, Helge Deller <deller@gmx.de>, Javier Martinez Canillas <javierm@redhat.com>
-Cc: linux-hyperv@vger.kernel.org, x86@kernel.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dave Hansen <dave.hansen@linux.intel.com>, dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Will Deacon <will@kernel.org>, linux-efi@vger.kernel.org, guoren <guoren@kernel.org>, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, WANG Xuerui <kernel@xen0n.name>, "K. Y. Srinivasan" <kys@microsoft.com>, Dave Airlie <airlied@gmail.com>, Ard Biesheuvel <ardb@kernel.org>, Wei Liu <wei.liu@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, Dexuan Cui
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
+	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
+	List-Unsubscribe:List-Id:In-Reply-To:From:References:Cc:To:Subject:
+	MIME-Version:Date:Message-ID:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=ZsnXQQuz7YmDyKHS3uIp8bhrTAyTzEBYng5KUz9MjlM=; b=G0zCPAKrBV8MHu
+	KOqW7zqMkpmXrjzKljz8DmyF29gLSQ3p6mDRMYWDfEYTSwQVNujDhsid+Q56j1lo7zaLOGcUcHlw3
+	/8gHvdvHuDg979TO6QXDPY6x/oU97M9zmQN0YDys9Hz/bIFJ0etqzpXgzXsiT+ZejM9/3RmCfoZmj
+	+W5hpnIYBx2HBHSiHHbrFwN34bI54MznO9hpWX3la4GxUzY5fM94wLWHTBUrttDPnlUyLdIcnuRSY
+	j+XliF9K9VqY3G6ZzGryXOoB0/obhqleN7rSh3uEAnEBuTrvBPAGlOu0dIqsXNiSM1v+8DlUsAGRV
+	sjTVUbWG1j/Xg4QvACqg==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de;
+ s=s31663417; t=1689778659; x=1690383459; i=deller@gmx.de;
+ bh=iQUnHGbic8gu+ig2/dvuRMVZ9NdHOWOrYR1bIcIdEEI=;
+ h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
+ b=Oj76ZDbvIWlVeT7RknkMQBRZveyGPeaavM/7Hd2yo0VaxgBreq1RYAEB0hFfewqVvvghv6Q
+ bodOrVr550D5HZlqDgB3YLfPOrTCQM3TCjKHDB2dJOZHoIa71786MQxwB1NbvycigzSKOxAXb
+ 6ZzEXcDb9k3UgAEfth7TfHSLA58vvfzUv6ulGW71L5xNw0gixI8MKF5gnbT3fhbWS+ATeYNKt
+ ieCK2TFKuSXE/ozWDwJJy++aTZ0SBnrY/ovnKdb81Uk7xmvoS7C6bZynPoMyxlk0tyc4eBPNb
+ ugz85t+iHLpPDHwe2/OJ0aXdRz0Qd8Wj5Gm6vVqKd6ptYS3WJ2ZA==
+Content-Language: en-US
+In-Reply-To: <20230719123944.3438363-1-arnd@kernel.org>
+List-Id: <linux-hexagon.vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+To: Arnd Bergmann <arnd@kernel.org>, linux-fbdev@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, Javier Martinez Canillas <javierm@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, "K. Y. Srinivasan" <kys@microsoft.com>, Ard Biesheuvel <ardb@kernel.org>, Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@quicinc.com>, Catalin Marinas <catalin.marinas@arm.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, Daniel Vetter <daniel@ffwll.ch>, Dave Hansen <dave.hansen@linux.intel.com>, David Airlie <airlied@gmail.com>, Deepak Rawat <drawat.floss@gmail.com>, Dexuan Cui <decui@microsoft.com>, Dinh Nguyen <dinguyen@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guo Ren <guoren@kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Khalid Aziz <khalid@gonehiking.org>, Linus Walleij <linus.walleij@linaro.org>, Matt Turner <mattst88@gmail.com>, Max
 
-On Wed, Jul 19, 2023, at 15:49, Philippe Mathieu-Daud=C3=A9 wrote:
-> On 19/7/23 14:39, Arnd Bergmann wrote:
-
->> @@ -1074,13 +1077,13 @@ static int vgacon_resize(struct vc_data *c, u=
-nsigned int width,
->>   		 * Ho ho!  Someone (svgatextmode, eh?) may have reprogrammed
->>   		 * the video mode!  Set the new defaults then and go away.
->>   		 */
->> -		screen_info.orig_video_cols =3D width;
->> -		screen_info.orig_video_lines =3D height;
->> +		vga_si->orig_video_cols =3D width;
->> +		vga_si->orig_video_lines =3D height;
->>   		vga_default_font_height =3D c->vc_cell_height;
->>   		return 0;
->>   	}
->> -	if (width % 2 || width > screen_info.orig_video_cols ||
->> -	    height > (screen_info.orig_video_lines * vga_default_font_heigh=
-t)/
->> +	if (width % 2 || width > vga_si->orig_video_cols ||
->> +	    height > (vga_si->orig_video_lines * vga_default_font_height)/
->>   	    c->vc_cell_height)
->>   		return -EINVAL;
->>  =20
->> @@ -1110,8 +1113,8 @@ static void vgacon_save_screen(struct vc_data *=
-c)
->>   		 * console initialization routines.
->>   		 */
->>   		vga_bootup_console =3D 1;
->> -		c->state.x =3D screen_info.orig_x;
->> -		c->state.y =3D screen_info.orig_y;
->> +		c->state.x =3D vga_si->orig_x;
->> +		c->state.y =3D vga_si->orig_y;
+On 7/19/23 14:39, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 >
-> Not really my area, so bare with me if this is obviously not
-> possible :) If using DUMMY_CONSOLE, can we trigger a save_screen
-> / resize? If so, we'd reach here with vga_si=3DNULL.
+> I refreshed the first four patches that I sent before with very minor
+> updates, and then added some more to further disaggregate the use
+> of screen_info:
 >
+>   - I found that powerpc wasn't using vga16fb any more
+>
+>   - vgacon can be almost entirely separated from the global
+>     screen_info, except on x86
+>
+>   - similarly, the EFI framebuffer initialization can be
+>     kept separate, except on x86.
 
-I think it cannot happen because the only way that anything calls
-into vgacon.c is through the "conswitchp =3D &vga_con;" that now happens
-at the same time as the "vga_si =3D &screen_info;". It's definitely
-possible that I'm missing something as well here.
+Nice cleanup, Arnd!
 
-     Arnd
+You may add a
+Acked-by: Helge Deller <deller@gmx.de>
+to the series.
+
+
+> I did extensive build testing on arm/arm64/x86 and the normal built bot
+> testing for the other architectures.
+
+> Which tree should this get merged through?
+
+I suggest drm-misc or fbdev. Either is fine for me.
+
+Since it applies cleanly onto git head, I can put it a few days into
+the fbdev git tree to see if some builds break. Just let me know.
+
+Helge
