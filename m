@@ -1,9 +1,9 @@
 From: Javier Martinez Canillas <javierm@redhat.com>
-Subject: Re: [PATCH v2 8/9] hyperv: avoid dependency on screen_info
-Date: Wed, 19 Jul 2023 16:25:08 +0200
-Message-ID: <877cqwhtbv.fsf@minerva.mail-host-address-is-not-set>
+Subject: Re: [PATCH v2 9/9] efi: move screen_info into efi init code
+Date: Wed, 19 Jul 2023 16:35:34 +0200
+Message-ID: <874jm0hsuh.fsf@minerva.mail-host-address-is-not-set>
 References: <20230719123944.3438363-1-arnd@kernel.org>
- <20230719123944.3438363-9-arnd@kernel.org>
+ <20230719123944.3438363-10-arnd@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -14,22 +14,22 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-ID:Date:References
 	:In-Reply-To:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=gnGkG1JF1cjQISlUI6l9Fw1eHGtJT646zoWmuHgGXtc=; b=R+PYuL4zp9X4sy
-	ONBtOV4PzNtoeXQvmtK8niAEvdZdGgRD3ZnB5rOUnrsd2Naok6fAQGOq/lAR+E935zMLoR4r+OvK4
-	cZK/oMAC24NMXJgSAaFaSG1DITD8G9CwzczOgigrCaLvOG7p5DPoOGvIxbhSq4LWbGYbcuiD++Qvl
-	oyAiFX7gqX7SJlZVtEUy0F1sCyer6ghXFMOIQf47UHr8Lz6f9kjBaJAVwJ3kmLydeO25KtWnlPs4o
-	LfDeNaWFiY/mCNpbUsuTCHKGiVUfsN9uEZWMnIz3eNYan+lXgJooxS93yg07Phn7Yhn+jBJHOoJDS
-	c9apZnCB7qIc0yToH80g==;
+	List-Owner; bh=0yR2pETHpvoCxjhuTQ6BY3WvX1lOuzTYu5NNEoCacNE=; b=IcCs1h/01aGdW+
+	s3z3IE/gfHo3pNhIkcR7NJ98fqXOAKXPEr8+AltpXDZjGMJNXvJWZt1Pmg9MZ1JoLUUIPf1D5YxJF
+	lworwk99eaGKre6DborrcegBlV3a5WHX4ujcwbgAZ+aMC4swQPbLYWtq21zNpnNTkUlr3+rjL6EwT
+	q1xQO+zq7UbnZ68Xo1aTRitO4MIxzV61UWwlJ7OYi3jzv7Dk+LWlbtGb3m9y2cF4GUONO/vlBrzy8
+	Yji4UVzK5t0ysXqWfwZXfa4KcRDVadUu7zok6063eajS0u1Uwm6guOiQTEvrpU7+Qw0DVSriyigEO
+	2t0IeSQc6iYsxCDvzV+w==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1689776712;
+	s=mimecast20190719; t=1689777338;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=xY+xsOpuPsAa6KICDwWDt2PoXyQ0u/vopB2mSitD/gY=;
-	b=WMF3x1Fmt+xfSiHrnFh/QfgZ5hZ/n9AFVrEydXR/KESgnfTaxKRikMHxQbkYpCnxrC7LPn
-	b9RUi8xE41OMdk/N2Cp/s7d2XdSmAolU3uU8/rpGyK9P6M8czhbc6xPpTPDpvahH0Bg6DP
-	evV4IPrWufQex92dAqUDP0R8V6fMc9s=
-In-Reply-To: <20230719123944.3438363-9-arnd@kernel.org>
+	bh=GW017PQkbwcyBZVSjL1eIJ3Tr23afBwEJMZO/sY3MB8=;
+	b=Bk+dk1mBEQJDTKuW9K8t8hp3CB+h01vAXtIZOhfUUaOwjhn9QZJr3CrmMjGOtTHDmM5KZW
+	vSQUlLA10dA9WKF3pWrhH871D3hn+/HeD7aooccGEqHBD5haE3RVpCeBrHeqIAGuJObE5/
+	sZCUoatdaCiRxEVTfL/SXBzjE87DKv8=
+In-Reply-To: <20230719123944.3438363-10-arnd@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -47,16 +47,26 @@ Arnd Bergmann <arnd@kernel.org> writes:
 
 > From: Arnd Bergmann <arnd@arndb.de>
 >
-> The two hyperv framebuffer drivers (hyperv_fb or hyperv_drm_drv) access the
-> global screen_info in order to take over from the sysfb framebuffer, which
-> in turn could be handled by simplefb, simpledrm or efifb. Similarly, the
-> vmbus_drv code marks the original EFI framebuffer as reserved, but this
-> is not required if there is no sysfb.
+> After the vga console no longer relies on global screen_info, there are
+> only two remaining use cases:
 >
-> As a preparation for making screen_info itself more local to the sysfb
-> helper code, add a compile-time conditional in all three files that relate
-> to hyperv fb and just skip this code if there is no sysfb that needs to
-> be unregistered.
+>  - on the x86 architecture, it is used for multiple boot methods
+>    (bzImage, EFI, Xen, kexec) to commicate the initial VGA or framebuffer
+
+communicate
+
+>    settings to a number of device drivers.
+>
+>  - on other architectures, it is only used as part of the EFI stub,
+>    and only for the three sysfb framebuffers (simpledrm, simplefb, efifb).
+>
+> Remove the duplicate data structure definitions by moving it into the
+> efi-init.c file that sets it up initially for the EFI case, leaving x86
+> as an exception that retains its own definition for non-EFI boots.
+>
+> The added #ifdefs here are optional, I added them to further limit the
+> reach of screen_info to configurations that have at least one of the
+> users enabled.
 >
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
