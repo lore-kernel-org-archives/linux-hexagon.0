@@ -1,7 +1,7 @@
 From: Arnd Bergmann <arnd@kernel.org>
-Subject: [PATCH v2 7/9] vga16fb: drop powerpc support
-Date: Wed, 19 Jul 2023 14:39:42 +0200
-Message-ID: <20230719123944.3438363-8-arnd@kernel.org>
+Subject: [PATCH v2 8/9] hyperv: avoid dependency on screen_info
+Date: Wed, 19 Jul 2023 14:39:43 +0200
+Message-ID: <20230719123944.3438363-9-arnd@kernel.org>
 References: <20230719123944.3438363-1-arnd@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -13,22 +13,22 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
 	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=8v2qE2ukh8zcrz3NkIlDaHt/8ubJsNnZoG1j3Zh3C8k=; b=bCvk9Muz0Lf9xQ
-	kcQmLwcPekU5eoy7R0pA5tfMsbZJggK4SV/gRDnlwkNI9m0duTHqj0fw+WWmhe8VIhoy9tZY99khU
-	OazGTRFZmWJvI/aJ9L03I58LsZyuc0Hcx/FHpaEyZwyG0TIC+8GuJ8TuTiE1xk0YT3xR+uNlKR4hr
-	oIP9NRw/imA3leWdwWawQ5HfJNUHZTCj7kg0d1hIHlO+BbgInh82GABPFRoni1+Zs06ayRffJJX1Q
-	xhCnZxuiBMj5tlxNcv35tggpLg5yZT64YGEaAHOoNJebi2sS9h+5d2jPgeX9wv3zwv1s09C/Fj372
-	x6UfP8kK1zhxT/cCUO9w==;
+	List-Owner; bh=exkWgSGSe006ohG6lqAInwuxIR/oDq43C/kZBZ+xvmk=; b=pSR4XlLINBGlYe
+	VX02jweVzqTTSOnf+a2MzE0z9D/vp2wsGKNk/fF6xF7djxIv7JOinMjTcuWKDucl/pBkLGpS623u/
+	r20X8H1hSqPG7Xqu9K3KFu3BgBonkrcKp1nCGmElndh5gaRMEW0ByjHaw1fqM99lf1n6qoSbM+yxT
+	F7A/gY6+qOiex/nH3NktPrQPDj7EgPljYQQkOrtsmEYpJSdTUBdzBSVaSRAWMLAz130MyesTpMbW1
+	/Y1+1bUjApRBYGr0OJ7HAG6kzzNS3BtfKrKYGvOBTSMyLOIR2BLYN2KowlBgByLT7jVzqg+24Va34
+	ZwQ/sn8NCg01nl7428/A==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1689770481;
-	bh=v4M0j8Y9+LzNwuF8nVwMAulIi63E5C7p3UByRxJEuxo=;
+	s=k20201202; t=1689770491;
+	bh=9fW6U6BHu4TUL4RWpVUJbdMggGEj9FTfMpLEh+DKB4A=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=vKNV9sNTUJTcnOk/TL1KoiaHwQQWXHhoPLKo9L7gVUY2yHAnPr3rQfnX/Hso6oJB+
-	 CVdZjSwY/u59qA7uEwriqWsna0VDWCA/aNy3xTaAcHxVapcawxYk8rr49rerGskgYx
-	 EJQDb1y5KekinNzg4lX8z5NxO4z5mTup06SfWlkpBZ68CgccaIITSkVOcz/btQ61id
-	 eAtCGgCQBOga8OpRGnTyyB54IQWyww6fUqyA5eClL00d32lpYcqM2IQB1PufsqqvYg
-	 1quMka/+qOF+lFoyojoKihE+OHdIXdpDavOUO4HdjzNycQivZ6VIEN22J9iVg/xnEl
-	 TF7iPTAVjg67A==
+	b=bQx8YO5rdZGaGJpL2Tgt6DTW/RbyR/A8QofqucAc+4eXdqqSGZqRJ1SkbMDzh4BLI
+	 2NLToZZIHIF9hyPL+Cyk9ib9veIe3JFCFQPNi1M5+29webS34B7tOY2yr6coi1kyR9
+	 68cbQ5j1lku+Y3+WAYkMKAfJYmwUgtN18hZyJw7RPd8HjbKYCKDKOoyZuP0RMlDEPX
+	 GCkx3VMGRM6F3nmHYu2QILv1caInSzegNyJm5qhaqJg/HU5Vh3+s6GYahBrXTRz+u2
+	 q5NpRtNW4/xAU+AMW7Nj2hyg2oXsH5ekaaNx3M1dPNTw9WEqMuc5GB/KyGcnL8ktIs
+	 NotTDXWPm4GSw==
 In-Reply-To: <20230719123944.3438363-1-arnd@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
@@ -45,109 +45,88 @@ Cc: Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, "K. 
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-I noticed that commit 0db5b61e0dc07 ("fbdev/vga16fb: Create
-EGA/VGA devices in sysfb code") broke vga16fb on non-x86 platforms,
-because the sysfb code never creates a vga-framebuffer device when
-screen_info.orig_video_isVGA is set to '1' instead of VIDEO_TYPE_VGAC.
+The two hyperv framebuffer drivers (hyperv_fb or hyperv_drm_drv) access the
+global screen_info in order to take over from the sysfb framebuffer, which
+in turn could be handled by simplefb, simpledrm or efifb. Similarly, the
+vmbus_drv code marks the original EFI framebuffer as reserved, but this
+is not required if there is no sysfb.
 
-However, it turns out that the only architecture that has allowed
-building vga16fb in the past 20 years is powerpc, and this only worked
-on two 32-bit platforms and never on 64-bit powerpc. The last machine
-that actually used this was removed in linux-3.10, so this is all dead
-code and can be removed.
+As a preparation for making screen_info itself more local to the sysfb
+helper code, add a compile-time conditional in all three files that relate
+to hyperv fb and just skip this code if there is no sysfb that needs to
+be unregistered.
 
-The big-endian support in vga16fb.c could also be removed, but I'd just
-leave this in place.
-
-Fixes: 933ee7119fb14 ("powerpc: remove PReP platform")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/powerpc/kernel/setup-common.c | 16 ----------------
- drivers/video/fbdev/Kconfig        |  2 +-
- drivers/video/fbdev/vga16fb.c      |  9 +--------
- 3 files changed, 2 insertions(+), 25 deletions(-)
+ drivers/gpu/drm/hyperv/hyperv_drm_drv.c | 7 ++++---
+ drivers/hv/vmbus_drv.c                  | 6 ++++--
+ drivers/video/fbdev/hyperv_fb.c         | 8 ++++----
+ 3 files changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-index d2a446216444f..81a6313927228 100644
---- a/arch/powerpc/kernel/setup-common.c
-+++ b/arch/powerpc/kernel/setup-common.c
-@@ -22,7 +22,6 @@
- #include <linux/seq_file.h>
- #include <linux/ioport.h>
- #include <linux/console.h>
--#include <linux/screen_info.h>
- #include <linux/root_dev.h>
- #include <linux/cpu.h>
- #include <linux/unistd.h>
-@@ -98,21 +97,6 @@ int boot_cpu_hwid = -1;
- int dcache_bsize;
- int icache_bsize;
+diff --git a/drivers/gpu/drm/hyperv/hyperv_drm_drv.c b/drivers/gpu/drm/hyperv/hyperv_drm_drv.c
+index 8026118c6e033..9a44a00effc24 100644
+--- a/drivers/gpu/drm/hyperv/hyperv_drm_drv.c
++++ b/drivers/gpu/drm/hyperv/hyperv_drm_drv.c
+@@ -73,9 +73,10 @@ static int hyperv_setup_vram(struct hyperv_drm_device *hv,
+ 	struct drm_device *dev = &hv->dev;
+ 	int ret;
  
--/*
-- * This still seems to be needed... -- paulus
-- */ 
--struct screen_info screen_info = {
--	.orig_x = 0,
--	.orig_y = 25,
--	.orig_video_cols = 80,
--	.orig_video_lines = 25,
--	.orig_video_isVGA = 1,
--	.orig_video_points = 16
--};
--#if defined(CONFIG_FB_VGA16_MODULE)
--EXPORT_SYMBOL(screen_info);
--#endif
--
- /* Variables required to store legacy IO irq routing */
- int of_i8042_kbd_irq;
- EXPORT_SYMBOL_GPL(of_i8042_kbd_irq);
-diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
-index 9169ee532baf7..ebc3cdfdfca07 100644
---- a/drivers/video/fbdev/Kconfig
-+++ b/drivers/video/fbdev/Kconfig
-@@ -368,7 +368,7 @@ config FB_IMSTT
+-	drm_aperture_remove_conflicting_framebuffers(screen_info.lfb_base,
+-						     screen_info.lfb_size,
+-						     &hyperv_driver);
++	if (IS_ENABLED(CONFIG_SYSFB))
++		drm_aperture_remove_conflicting_framebuffers(screen_info.lfb_base,
++							     screen_info.lfb_size,
++							     &hyperv_driver);
  
- config FB_VGA16
- 	tristate "VGA 16-color graphics support"
--	depends on FB && (X86 || PPC)
-+	depends on FB && X86
- 	select APERTURE_HELPERS
- 	select FB_CFB_FILLRECT
- 	select FB_CFB_COPYAREA
-diff --git a/drivers/video/fbdev/vga16fb.c b/drivers/video/fbdev/vga16fb.c
-index 34d00347ad58a..8e28f9dd19044 100644
---- a/drivers/video/fbdev/vga16fb.c
-+++ b/drivers/video/fbdev/vga16fb.c
-@@ -185,8 +185,6 @@ static inline void setindex(int index)
- /* Check if the video mode is supported by the driver */
- static inline int check_mode_supported(const struct screen_info *si)
- {
--	/* non-x86 architectures treat orig_video_isVGA as a boolean flag */
--#if defined(CONFIG_X86)
- 	/* only EGA and VGA in 16 color graphic mode are supported */
- 	if (si->orig_video_isVGA != VIDEO_TYPE_EGAC &&
- 	    si->orig_video_isVGA != VIDEO_TYPE_VGAC)
-@@ -197,7 +195,7 @@ static inline int check_mode_supported(const struct screen_info *si)
- 	    si->orig_video_mode != 0x10 &&	/* 640x350/4 (EGA) */
- 	    si->orig_video_mode != 0x12)	/* 640x480/4 (VGA) */
- 		return -ENODEV;
--#endif
-+
+ 	hv->fb_size = (unsigned long)hv->mmio_megabytes * 1024 * 1024;
+ 
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 67f95a29aeca5..5bc059e8a9f5f 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -2100,8 +2100,10 @@ static void __maybe_unused vmbus_reserve_fb(void)
+ 
+ 	if (efi_enabled(EFI_BOOT)) {
+ 		/* Gen2 VM: get FB base from EFI framebuffer */
+-		start = screen_info.lfb_base;
+-		size = max_t(__u32, screen_info.lfb_size, 0x800000);
++		if (IS_ENABLED(CONFIG_SYSFB)) {
++			start = screen_info.lfb_base;
++			size = max_t(__u32, screen_info.lfb_size, 0x800000);
++		}
+ 	} else {
+ 		/* Gen1 VM: get FB base from PCI */
+ 		pdev = pci_get_device(PCI_VENDOR_ID_MICROSOFT,
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index b331452aab4fb..7e0d1c4235549 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -1030,7 +1030,7 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 			goto getmem_done;
+ 		}
+ 		pr_info("Unable to allocate enough contiguous physical memory on Gen 1 VM. Using MMIO instead.\n");
+-	} else {
++	} else if (IS_ENABLED(CONFIG_SYSFB)) {
+ 		base = screen_info.lfb_base;
+ 		size = screen_info.lfb_size;
+ 	}
+@@ -1076,13 +1076,13 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ getmem_done:
+ 	aperture_remove_conflicting_devices(base, size, KBUILD_MODNAME);
+ 
+-	if (gen2vm) {
++	if (!gen2vm) {
++		pci_dev_put(pdev);
++	} else if (IS_ENABLED(CONFIG_SYSFB)) {
+ 		/* framebuffer is reallocated, clear screen_info to avoid misuse from kexec */
+ 		screen_info.lfb_size = 0;
+ 		screen_info.lfb_base = 0;
+ 		screen_info.orig_video_isVGA = 0;
+-	} else {
+-		pci_dev_put(pdev);
+ 	}
+ 
  	return 0;
- }
- 
-@@ -1338,12 +1336,7 @@ static int vga16fb_probe(struct platform_device *dev)
- 	printk(KERN_INFO "vga16fb: mapped to 0x%p\n", info->screen_base);
- 	par = info->par;
- 
--#if defined(CONFIG_X86)
- 	par->isVGA = si->orig_video_isVGA == VIDEO_TYPE_VGAC;
--#else
--	/* non-x86 architectures treat orig_video_isVGA as a boolean flag */
--	par->isVGA = si->orig_video_isVGA;
--#endif
- 	par->palette_blanked = 0;
- 	par->vesa_blanked = 0;
- 
 -- 
 2.39.2
