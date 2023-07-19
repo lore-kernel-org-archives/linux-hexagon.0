@@ -1,9 +1,9 @@
 From: Javier Martinez Canillas <javierm@redhat.com>
-Subject: Re: [PATCH v2 6/9] vgacon: clean up global screen_info instances
-Date: Wed, 19 Jul 2023 16:17:07 +0200
-Message-ID: <87cz0ohtp8.fsf@minerva.mail-host-address-is-not-set>
+Subject: Re: [PATCH v2 7/9] vga16fb: drop powerpc support
+Date: Wed, 19 Jul 2023 16:23:53 +0200
+Message-ID: <87a5vshtdy.fsf@minerva.mail-host-address-is-not-set>
 References: <20230719123944.3438363-1-arnd@kernel.org>
- <20230719123944.3438363-7-arnd@kernel.org>
+ <20230719123944.3438363-8-arnd@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -14,22 +14,22 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	List-Archive:List-Unsubscribe:List-Id:MIME-Version:Message-ID:Date:References
 	:In-Reply-To:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=JGI2pK8pfBXV9fdEywa6nAd2atT9pUmcJOJylXKjtXw=; b=MU06RU1zr/+8l1
-	ft8IJFDdFaoYjSGsTSb+f+b8oye2Ufupz5cVytwFruanbYKjiYqkny8epCnTAf7Nw+by9XNBfV2qk
-	D2QQCd7CInrH1gc1dfbZMOHB/CZpwiWF5XFSd0twarRpt8vmqzVccsieaw97bqz5I2yYEXWZshwfE
-	51+zU8gyPTXhxlKQ/aMswG+D2j2d+8xw7JprcjzwhPcUxO8fX8tAWOd1KUK2axPoryCECVsujvacA
-	+7vE2mpxyqgJTeFglkUxKvBKZWvpiYZqeNU7lNW+waxjK6ewb+6Xewy8pMMhr1AbZ17t/FzqRVHyt
-	oEQUB2sz1g0z3eLfgvCw==;
+	List-Owner; bh=qTjRvb/QfLNjpRtNxlWBHMNJQEzP06trON4PO57jwaw=; b=GDCtDZhcyXEJic
+	+5Jb7MrSLwUt5bK0ZhCDUixVmw0+02WDBieEXKynpl6XoGLGnDAFdCLyX6TVrUJb1UlcvTObG/QBI
+	e8kxcSMARX0cFcTWNmDmFkC/HLRPZbrz6BnRuUCO7Dx5cox/e4J//TF6A2R6ZbykAGr1wqWJ+FK1J
+	vVLFjmTzUMGY+cQhcDP+mxsKgHKKKsilpBX9ebr053jMLWJVfSV1OF/I8PUjM2Af4as73g7wtCmiU
+	ckHnPQ/MiKkeuJOAJdOs0EMp+Td4uY4EA0VWeX/oFEiad5YPCYJlvOklYGhZ05nxC65EXgRZvIMp/
+	WQhVyvgqIP1Vzb1M8nZg==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1689776252;
+	s=mimecast20190719; t=1689776639;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YjdFQRNR08a24eSSE2jcx3RnjwPdI3D1UG9L8u3hsoE=;
-	b=GvFk42u94xyBV9J1PucXfmkCDMzFCyZcLAkWC5c9vOYRH4oopfQAdW4MGQYpg9pfahugm2
-	aN7RAmzGq21L7gYfzeHoWn9YIVEs3gTwOUkIhllmk81bMeUw11jA8Zu+arXUxfskCOJNwW
-	1YV1HGUima4kq1l95WLa7z6dOh5TTGA=
-In-Reply-To: <20230719123944.3438363-7-arnd@kernel.org>
+	bh=AYL0WxfELPHjwx6ZiDqavEiQQIijrcopNRfhrvLV03A=;
+	b=DGl5JY9HyulFIN/2+f+illzXjr1CUuSPQJD1122DRrwP6xZ92xeN2pjhyAJKxa+HgV3FIl
+	MynIC41Cm5gBRFdGnOCNo1AIeuuXPtrvlxSorh2+q4UwJ7JZyfc3uHorXVkAiFh5mHtz0H
+	ecT14gFgxtldx91wuKFNLDzERZKBYqE=
+In-Reply-To: <20230719123944.3438363-8-arnd@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -47,35 +47,25 @@ Arnd Bergmann <arnd@kernel.org> writes:
 
 > From: Arnd Bergmann <arnd@arndb.de>
 >
-> To prepare for completely separating the VGA console screen_info from
-> the one used in EFI/sysfb, rename the vgacon instances and make them
-> local as much as possible.
+> I noticed that commit 0db5b61e0dc07 ("fbdev/vga16fb: Create
+> EGA/VGA devices in sysfb code") broke vga16fb on non-x86 platforms,
+> because the sysfb code never creates a vga-framebuffer device when
+> screen_info.orig_video_isVGA is set to '1' instead of VIDEO_TYPE_VGAC.
 >
-> ia64 and arm both have confurations with vgacon and efi, but the contents
-
-is this a typo for configurations ?
-
-> never overlaps because ia64 has no EFI framebuffer, and arm only has
-> vga console on legacy platforms without EFI. Renaming these is required
-> before the EFI screen_info can be moved into drivers/firmware.
+> However, it turns out that the only architecture that has allowed
+> building vga16fb in the past 20 years is powerpc, and this only worked
+> on two 32-bit platforms and never on 64-bit powerpc. The last machine
+> that actually used this was removed in linux-3.10, so this is all dead
+> code and can be removed.
 >
-> The ia64 vga console is actually registered in two places from
-> setup_arch(), but one of them is wrong, so drop the one in pcdp.c and
-> the fix the one in setup.c to use the correct conditional.
+> The big-endian support in vga16fb.c could also be removed, but I'd just
+> leave this in place.
 >
-
-s/the fix the/fix the
-
-> x86 has to keep them together, as the boot protocol is used to switch
-> between VGA text console and framebuffer through the screen_info data.
->
+> Fixes: 933ee7119fb14 ("powerpc: remove PReP platform")
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
 
-Patch looks good to me, but I'm not that familiar with some of the arches
-to give a proper reviewed-by.
-
-Acked-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 
 -- 
 Best regards,
