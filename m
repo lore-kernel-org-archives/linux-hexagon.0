@@ -1,263 +1,56 @@
-From: Ard Biesheuvel <ardb@kernel.org>
-Subject: Re: [PATCH v2 9/9] efi: move screen_info into efi init code
-Date: Wed, 19 Jul 2023 15:19:34 +0200
-Message-ID: <CAMj1kXF4YZXqG8Hu-dHZo3mxSk2d1n5gPPzQrPYPyFo1do=wFA@mail.gmail.com>
-References: <20230719123944.3438363-1-arnd@kernel.org> <20230719123944.3438363-10-arnd@kernel.org>
+From: =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <philmd@linaro.org>
+Subject: Re: [PATCH v2 4/9] vgacon, arch/*: remove unused screen_info
+ definitions
+Date: Wed, 19 Jul 2023 15:34:38 +0200
+Message-ID: <f918a76f-324a-5c91-7dcc-5f5d43b247f6@linaro.org>
+References: <20230719123944.3438363-1-arnd@kernel.org>
+ <20230719123944.3438363-5-arnd@kernel.org>
 Mime-Version: 1.0
-Return-path: <linux-alpha-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1689772787;
-        bh=yZoCxvNF5s0gL/fZtsW+zvWlIovQA8LgUz6UkdxGC18=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=B3FK0vJ/geeo1KWfDAjZE4Nnb4XhlzaflLFCpaAMO/pGW7O3eZ/MgtrmV0aDAUiaY
-         jIU5zafPcmgBBDq7Tm+4bayYpq9amyuZSZCDdPc1ybsJ0qBuUyEVyPjgnEpYpJw4R2
-         Db4CJ5lHkTbFq0ZKP994jou3QZ5T1HKJZymx7VyB8fqrVEhSQplQok7x9lmeMJAKeY
-         +QnwYLVfcCCj+60EzIsMUH+1cWJO7ve22LVx2RrXbi1WoJ0lmEetp+AM9ZFbUhNE/e
-         iFUT+SAATeVQNM8PYUv+6S7wt3gViQfMxgSegXx2j0rNxYbB6Ew7vQTEhbFliA/btb
-         hve5lEzRaaXfw==
-In-Reply-To: <20230719123944.3438363-10-arnd@kernel.org>
+Content-Transfer-Encoding: base64
+Return-path: <linux-sh-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1689773685; x=1692365685;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=7iqyJ1tyt/zGintHwIRAOam+B9iGxWukjiMScggaplw=;
+        b=tnwmFnoxmhunQP8kjZ6qRl/OGitVUDE3mJI4J0Bb9Bp8DUXPw7FUvoH4SJaponnIjO
+         79/V5ps+CVomWPG8NqwqNbIO27SABfwVaVw3Mb6qZ7VdwIgmflhthWPDxDkyN+f84CyN
+         Zq8sLp3Svrl/2foju6LSuOvdNyrJH3ic0TqeIW8z8qycFVYogIcRSsPJoWCvYQP1w8aL
+         n/t1wnClJAh/vfLOvbGFPdk/C5OweTX/OB/xQHUXjfxicXFF43koJxJP4T8yqxoolLPE
+         XjzgJzV1MbjftRFqHKBTG8TuBD/B+I1enQDU1ce3L3gmKkUdxXiX6YtiZQRcIeH2Vk5D
+         97zw==
+Content-Language: en-US
+In-Reply-To: <20230719123944.3438363-5-arnd@kernel.org>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: linux-fbdev@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, Helge Deller <deller@gmx.de>, Javier Martinez Canillas <javierm@redhat.com>, Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, "K. Y. Srinivasan" <kys@microsoft.com>, Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@quicinc.com>, Catalin Marinas <catalin.marinas@arm.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, Daniel Vetter <daniel@ffwll.ch>, Dave Hansen <dave.hansen@linux.intel.com>, David Airlie <airlied@gmail.com>, Deepak Rawat <drawat.floss@gmail.com>, Dexuan Cui <decui@microsoft.com>, Dinh Nguyen <dinguyen@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guo Ren <guoren@kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>
+Content-Type: text/plain; charset="macroman"; format="flowed"
+To: Arnd Bergmann <arnd@kernel.org>, linux-fbdev@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>, Helge Deller <deller@gmx.de>, Javier Martinez Canillas <javierm@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, "K. Y. Srinivasan" <kys@microsoft.com>, Ard Biesheuvel <ardb@kernel.org>, Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@quicinc.com>, Catalin Marinas <catalin.marinas@arm.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, Daniel Vetter <daniel@ffwll.ch>, Dave Hansen <dave.hansen@linux.intel.com>, David Airlie <airlied@gmail.com>, Deepak Rawat <drawat.floss@gmail.com>, Dexuan Cui <decui@microsoft.com>, Dinh Nguyen <dinguyen@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guo Ren <guoren@kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>, John Paul Adrian Glaubitz <glaubitz@physik.fu->
 
-On Wed, 19 Jul 2023 at 14:41, Arnd Bergmann <arnd@kernel.org> wrote:
->
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> After the vga console no longer relies on global screen_info, there are
-> only two remaining use cases:
->
->  - on the x86 architecture, it is used for multiple boot methods
->    (bzImage, EFI, Xen, kexec) to commicate the initial VGA or framebuffer
->    settings to a number of device drivers.
->
->  - on other architectures, it is only used as part of the EFI stub,
->    and only for the three sysfb framebuffers (simpledrm, simplefb, efifb).
->
-> Remove the duplicate data structure definitions by moving it into the
-> efi-init.c file that sets it up initially for the EFI case, leaving x86
-> as an exception that retains its own definition for non-EFI boots.
->
-> The added #ifdefs here are optional, I added them to further limit the
-> reach of screen_info to configurations that have at least one of the
-> users enabled.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-
-> ---
->  arch/arm/kernel/setup.c                       |  4 ----
->  arch/arm64/kernel/efi.c                       |  4 ----
->  arch/arm64/kernel/image-vars.h                |  2 ++
->  arch/ia64/kernel/setup.c                      |  4 ----
->  arch/loongarch/kernel/efi.c                   |  3 ++-
->  arch/loongarch/kernel/image-vars.h            |  2 ++
->  arch/loongarch/kernel/setup.c                 |  5 -----
->  arch/riscv/kernel/image-vars.h                |  2 ++
->  arch/riscv/kernel/setup.c                     |  5 -----
->  drivers/firmware/efi/efi-init.c               | 14 +++++++++++++-
->  drivers/firmware/efi/libstub/efi-stub-entry.c |  8 +++++++-
->  11 files changed, 28 insertions(+), 25 deletions(-)
->
-> diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
-> index 86c2751f56dcf..135b7eff03f72 100644
-> --- a/arch/arm/kernel/setup.c
-> +++ b/arch/arm/kernel/setup.c
-> @@ -939,10 +939,6 @@ static struct screen_info vgacon_screen_info = {
->  };
->  #endif
->
-> -#if defined(CONFIG_EFI)
-> -struct screen_info screen_info;
-> -#endif
-> -
->  static int __init customize_machine(void)
->  {
->         /*
-> diff --git a/arch/arm64/kernel/efi.c b/arch/arm64/kernel/efi.c
-> index 3afbe503b066f..ff2d5169d7f1f 100644
-> --- a/arch/arm64/kernel/efi.c
-> +++ b/arch/arm64/kernel/efi.c
-> @@ -71,10 +71,6 @@ static __init pteval_t create_mapping_protection(efi_memory_desc_t *md)
->         return pgprot_val(PAGE_KERNEL_EXEC);
->  }
->
-> -/* we will fill this structure from the stub, so don't put it in .bss */
-> -struct screen_info screen_info __section(".data");
-> -EXPORT_SYMBOL(screen_info);
-> -
->  int __init efi_create_mapping(struct mm_struct *mm, efi_memory_desc_t *md)
->  {
->         pteval_t prot_val = create_mapping_protection(md);
-> diff --git a/arch/arm64/kernel/image-vars.h b/arch/arm64/kernel/image-vars.h
-> index 35f3c79595137..5e4dc72ab1bda 100644
-> --- a/arch/arm64/kernel/image-vars.h
-> +++ b/arch/arm64/kernel/image-vars.h
-> @@ -27,7 +27,9 @@ PROVIDE(__efistub__text                       = _text);
->  PROVIDE(__efistub__end                 = _end);
->  PROVIDE(__efistub___inittext_end               = __inittext_end);
->  PROVIDE(__efistub__edata               = _edata);
-> +#if defined(CONFIG_EFI_EARLYCON) || defined(CONFIG_SYSFB)
->  PROVIDE(__efistub_screen_info          = screen_info);
-> +#endif
->  PROVIDE(__efistub__ctype               = _ctype);
->
->  PROVIDE(__pi___memcpy                  = __pi_memcpy);
-> diff --git a/arch/ia64/kernel/setup.c b/arch/ia64/kernel/setup.c
-> index 82feae1323f40..e91a91b5e9142 100644
-> --- a/arch/ia64/kernel/setup.c
-> +++ b/arch/ia64/kernel/setup.c
-> @@ -86,10 +86,6 @@ EXPORT_SYMBOL(local_per_cpu_offset);
->  #endif
->  unsigned long ia64_cycles_per_usec;
->  struct ia64_boot_param *ia64_boot_param;
-> -#if defined(CONFIG_EFI)
-> -/* No longer used on ia64, but needed for linking */
-> -struct screen_info screen_info;
-> -#endif
->  #ifdef CONFIG_VGA_CONSOLE
->  unsigned long vga_console_iobase;
->  unsigned long vga_console_membase;
-> diff --git a/arch/loongarch/kernel/efi.c b/arch/loongarch/kernel/efi.c
-> index 9fc10cea21e10..df7db34024e61 100644
-> --- a/arch/loongarch/kernel/efi.c
-> +++ b/arch/loongarch/kernel/efi.c
-> @@ -115,7 +115,8 @@ void __init efi_init(void)
->
->         set_bit(EFI_CONFIG_TABLES, &efi.flags);
->
-> -       init_screen_info();
-> +       if (IS_ENABLED(CONFIG_EFI_EARLYCON) || IS_ENABLED(CONFIG_SYSFB))
-> +               init_screen_info();
->
->         if (boot_memmap == EFI_INVALID_TABLE_ADDR)
->                 return;
-> diff --git a/arch/loongarch/kernel/image-vars.h b/arch/loongarch/kernel/image-vars.h
-> index e561989d02de9..5087416b9678d 100644
-> --- a/arch/loongarch/kernel/image-vars.h
-> +++ b/arch/loongarch/kernel/image-vars.h
-> @@ -12,7 +12,9 @@ __efistub_kernel_entry                = kernel_entry;
->  __efistub_kernel_asize         = kernel_asize;
->  __efistub_kernel_fsize         = kernel_fsize;
->  __efistub_kernel_offset                = kernel_offset;
-> +#if defined(CONFIG_EFI_EARLYCON) || defined(CONFIG_SYSFB)
->  __efistub_screen_info          = screen_info;
-> +#endif
->
->  #endif
->
-> diff --git a/arch/loongarch/kernel/setup.c b/arch/loongarch/kernel/setup.c
-> index 77e7a3722caa6..4570c3149b849 100644
-> --- a/arch/loongarch/kernel/setup.c
-> +++ b/arch/loongarch/kernel/setup.c
-> @@ -16,7 +16,6 @@
->  #include <linux/dmi.h>
->  #include <linux/efi.h>
->  #include <linux/export.h>
-> -#include <linux/screen_info.h>
->  #include <linux/memblock.h>
->  #include <linux/initrd.h>
->  #include <linux/ioport.h>
-> @@ -57,10 +56,6 @@
->  #define SMBIOS_CORE_PACKAGE_OFFSET     0x23
->  #define LOONGSON_EFI_ENABLE            (1 << 3)
->
-> -#ifdef CONFIG_EFI
-> -struct screen_info screen_info __section(".data");
-> -#endif
-> -
->  unsigned long fw_arg0, fw_arg1, fw_arg2;
->  DEFINE_PER_CPU(unsigned long, kernelsp);
->  struct cpuinfo_loongarch cpu_data[NR_CPUS] __read_mostly;
-> diff --git a/arch/riscv/kernel/image-vars.h b/arch/riscv/kernel/image-vars.h
-> index 15616155008cc..89d92f9644d5e 100644
-> --- a/arch/riscv/kernel/image-vars.h
-> +++ b/arch/riscv/kernel/image-vars.h
-> @@ -27,7 +27,9 @@ __efistub__start              = _start;
->  __efistub__start_kernel                = _start_kernel;
->  __efistub__end                 = _end;
->  __efistub__edata               = _edata;
-> +#if defined(CONFIG_EFI_EARLYCON) || defined(CONFIG_SYSFB)
->  __efistub_screen_info          = screen_info;
-> +#endif
->
->  #endif
->
-> diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
-> index a3dbe13f45fb3..aea585dc8e8f3 100644
-> --- a/arch/riscv/kernel/setup.c
-> +++ b/arch/riscv/kernel/setup.c
-> @@ -15,7 +15,6 @@
->  #include <linux/memblock.h>
->  #include <linux/sched.h>
->  #include <linux/console.h>
-> -#include <linux/screen_info.h>
->  #include <linux/of_fdt.h>
->  #include <linux/sched/task.h>
->  #include <linux/smp.h>
-> @@ -39,10 +38,6 @@
->
->  #include "head.h"
->
-> -#if defined(CONFIG_EFI)
-> -struct screen_info screen_info __section(".data");
-> -#endif
-> -
->  /*
->   * The lucky hart to first increment this variable will boot the other cores.
->   * This is used before the kernel initializes the BSS so it can't be in the
-> diff --git a/drivers/firmware/efi/efi-init.c b/drivers/firmware/efi/efi-init.c
-> index ef0820f1a9246..d4987d0130801 100644
-> --- a/drivers/firmware/efi/efi-init.c
-> +++ b/drivers/firmware/efi/efi-init.c
-> @@ -55,6 +55,15 @@ static phys_addr_t __init efi_to_phys(unsigned long addr)
->
->  extern __weak const efi_config_table_type_t efi_arch_tables[];
->
-> +/*
-> + * x86 defines its own screen_info and uses it even without EFI,
-> + * everything else can get it from here.
-> + */
-> +#if !defined(CONFIG_X86) && (defined(CONFIG_SYSFB) || defined(CONFIG_EFI_EARLYCON))
-> +struct screen_info screen_info __section(".data");
-> +EXPORT_SYMBOL_GPL(screen_info);
-> +#endif
-> +
->  static void __init init_screen_info(void)
->  {
->         struct screen_info *si;
-> @@ -240,5 +249,8 @@ void __init efi_init(void)
->         memblock_reserve(data.phys_map & PAGE_MASK,
->                          PAGE_ALIGN(data.size + (data.phys_map & ~PAGE_MASK)));
->
-> -       init_screen_info();
-> +       if (IS_ENABLED(CONFIG_X86) ||
-> +           IS_ENABLED(CONFIG_SYSFB) ||
-> +           IS_ENABLED(CONFIG_EFI_EARLYCON))
-> +               init_screen_info();
->  }
-> diff --git a/drivers/firmware/efi/libstub/efi-stub-entry.c b/drivers/firmware/efi/libstub/efi-stub-entry.c
-> index 2f1902e5d4075..a6c0498351905 100644
-> --- a/drivers/firmware/efi/libstub/efi-stub-entry.c
-> +++ b/drivers/firmware/efi/libstub/efi-stub-entry.c
-> @@ -13,7 +13,13 @@ struct screen_info *alloc_screen_info(void)
->  {
->         if (IS_ENABLED(CONFIG_ARM))
->                 return __alloc_screen_info();
-> -       return (void *)&screen_info + screen_info_offset;
-> +
-> +       if (IS_ENABLED(CONFIG_X86) ||
-> +           IS_ENABLED(CONFIG_EFI_EARLYCON) ||
-> +           IS_ENABLED(CONFIG_SYSFB))
-> +               return (void *)&screen_info + screen_info_offset;
-> +
-> +       return NULL;
->  }
->
->  /*
-> --
-> 2.39.2
->
+T24gMTkvNy8yMyAxNDozOSwgQXJuZCBCZXJnbWFubiB3cm90ZToKPiBGcm9tOiBBcm5kIEJlcmdt
+YW5uIDxhcm5kQGFybmRiLmRlPgo+IAo+IEEgbnVtYmVyIG9mIGFyY2hpdGVjdHVyZXMgZWl0aGVy
+IGtlcHQgdGhlIHNjcmVlbl9pbmZvIGRlZmluaXRpb24gZm9yCj4gaGlzdG9yaWNhbCBwdXJwb3Nl
+cyBhcyBpdCB1c2VkIHRvIGJlIHJlcXVpcmVkIGJ5IHRoZSBnZW5lcmljIFZUIGNvZGUsIG9yCj4g
+dGhleSBjb3BpZWQgaXQgZnJvbSBhbm90aGVyIGFyY2hpdGVjdHVyZSBpbiBvcmRlciB0byBidWls
+ZCB0aGUgVkdBIGNvbnNvbGUKPiBkcml2ZXIgaW4gYW4gYWxsbW9kY29uZmlnIGJ1aWxkLiBUaGUg
+bWlwcyBkZWZpbml0aW9uIGlzIHVzZWQgYnkgc29tZQo+IHBsYXRmb3JtcywgYnV0IHRoZSBpbml0
+aWFsaXphdGlvbiBvbiBqYXp6IGlzIG5vdCBuZWVkZWQuCj4gCj4gTm93IHRoYXQgdmdhY29uIG5v
+IGxvbmdlciBidWlsZHMgb24gdGhlc2UgYXJjaGl0ZWN0dXJlcywgcmVtb3ZlIHRoZQo+IHN0YWxl
+IGRlZmluaXRpb25zIGFuZCBpbml0aWFsaXphdGlvbnMuCj4gCj4gUmV2aWV3ZWQtYnk6IEphdmll
+ciBNYXJ0aW5leiBDYW5pbGxhcyA8amF2aWVybUByZWRoYXQuY29tPgo+IFJldmlld2VkLWJ5OiBU
+aG9tYXMgWmltbWVybWFubiA8dHppbW1lcm1hbm5Ac3VzZS5kZT4KPiBBY2tlZC1ieTogRGluaCBO
+Z3V5ZW4gPGRpbmd1eWVuQGtlcm5lbC5vcmc+Cj4gQWNrZWQtYnk6IE1heCBGaWxpcHBvdiA8amNt
+dmJrYmNAZ21haWwuY29tPgo+IEFja2VkLWJ5OiBQYWxtZXIgRGFiYmVsdCA8cGFsbWVyQHJpdm9z
+aW5jLmNvbT4KPiBBY2tlZC1ieTogR3VvIFJlbiA8Z3VvcmVuQGtlcm5lbC5vcmc+Cj4gU2lnbmVk
+LW9mZi1ieTogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4KPiAtLS0KPiAgIGFyY2gvY3Nr
+eS9rZXJuZWwvc2V0dXAuYyAgICAgICAgICB8IDEyIC0tLS0tLS0tLS0tLQo+ICAgYXJjaC9oZXhh
+Z29uL2tlcm5lbC9NYWtlZmlsZSAgICAgIHwgIDIgLS0KPiAgIGFyY2gvaGV4YWdvbi9rZXJuZWwv
+c2NyZWVuX2luZm8uYyB8ICAzIC0tLQo+ICAgYXJjaC9taXBzL2phenovc2V0dXAuYyAgICAgICAg
+ICAgIHwgIDkgLS0tLS0tLS0tCj4gICBhcmNoL25pb3MyL2tlcm5lbC9zZXR1cC5jICAgICAgICAg
+fCAgNSAtLS0tLQo+ICAgYXJjaC9zaC9rZXJuZWwvc2V0dXAuYyAgICAgICAgICAgIHwgIDUgLS0t
+LS0KPiAgIGFyY2gvc3BhcmMva2VybmVsL3NldHVwXzMyLmMgICAgICB8IDEzIC0tLS0tLS0tLS0t
+LS0KPiAgIGFyY2gvc3BhcmMva2VybmVsL3NldHVwXzY0LmMgICAgICB8IDEzIC0tLS0tLS0tLS0t
+LS0KPiAgIGFyY2gveHRlbnNhL2tlcm5lbC9zZXR1cC5jICAgICAgICB8IDEyIC0tLS0tLS0tLS0t
+LQo+ICAgOSBmaWxlcyBjaGFuZ2VkLCA3NCBkZWxldGlvbnMoLSkKPiAgIGRlbGV0ZSBtb2RlIDEw
+MDY0NCBhcmNoL2hleGFnb24va2VybmVsL3NjcmVlbl9pbmZvLmMKClJldmlld2VkLWJ5OiBQaGls
+aXBwZSBNYXRoaWV1LURhdWTDqSA8cGhpbG1kQGxpbmFyby5vcmc+Cgo=
