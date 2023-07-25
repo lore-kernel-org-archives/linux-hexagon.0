@@ -1,87 +1,97 @@
 From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH mm-unstable v7 27/31] sh: Convert pte_free_tlb() to use ptdescs
-Date: Mon, 24 Jul 2023 21:20:47 -0700
-Message-ID: <20230725042051.36691-28-vishal.moola@gmail.com>
+Subject: [PATCH mm-unstable v7 28/31] sparc64: Convert various functions to use ptdescs
+Date: Mon, 24 Jul 2023 21:20:48 -0700
+Message-ID: <20230725042051.36691-29-vishal.moola@gmail.com>
 References: <20230725042051.36691-1-vishal.moola@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org>
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
 	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
 	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
 	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=o7CStUpLFB7D9jmiRxAOsU9qI9YOzRKCTqHrJk7whg8=; b=Je9M2FYmCILvY5
-	E/Z+95Sp28uvBQa/GYt1VcZFlegWRx8KYWGF1wZJGE5mmj95sw31PU3Tq/xSdTUbpKpTIkW4HHuJm
-	uAJ+M+/5UQI8kbYWUoc70wNYomi+SVc30cVZmHkVG+z5EiPPLzpuKUyvBzXfdKeINhu4Twv86tIm8
-	h4mn5qsQtvIKVX/xaBoNp+/fLTKpqP78awFFe0bEkFLgui0srPPBOvfas9c/bkCYg7qksW7ZE+J2W
-	mtL2GdODlHWE56e5aaNcIeiiD8+4pU+jkyU+Wvf6y4uaph2n7rcTztHUf01wCkW6yUVT0Qll116Vb
-	WJUAXCc9LwGO/Doyb/NQ==;
+	List-Owner; bh=GRxlbRpeEdVxVUvESOew0TFMNyKMxIQyMiLDiv2JSwE=; b=SDzFAuqSI6X42O
+	BqJZBlVoFHucr+3TJxJA3fsLCWvMtzBtW40nOWdvTKFTUfvXmchTxhuprEGsOG0ScxQOT6D4GcorQ
+	qZTHM5Zs9Rl4USd41CFTY4Zbct7Sy6DZai84j1E211mXBxA+UnRgDtT1xOqtUzIDv9kWFYEV6Oy6O
+	pCDY9/or94GJE5mFaEaCxznf+R+fOOwtcMD7F4wjEIP+BsE69tt3bryZUYdB27wrpRbBM5goPgvZc
+	wiiOjZgS487DSW4YXHxeYNn7tWdAjXLGZQ3znJT4RPMCV6KZs++s6N0t76U0WVBLU5eFcmzJlW363
+	hZV8wzsWiNFQ+bfl8ekg==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690258924; x=1690863724;
+        d=gmail.com; s=20221208; t=1690258926; x=1690863726;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=NG13BwzmmAIpXpcduEwvRHFbS3iQhU18W2JpKLteVDY=;
-        b=GBQqKOXR4MY0Ps6Ytzn9QjLc5kcnNARqYVMOSqCl4nxxP5zueTINjr7iMbjZhk8uU1
-         uF+ZNdDLWemlb8QXVTn60jLorPF4KaxuajyPq7XQ8ZCUpgrsfyxcNU4aZsjJHBdfgv4V
-         f3SehFOrdMCWYaV3GNfOxXZlwwtfQps2pLwSnw0r1MZbny4VXC0cZl+5ECg/uwswSkJJ
-         2spe5/EA1yI0VqTuQ1Drr9GEQcMwkhM/FKbElCEbuZdJkSdi81Zbahgosic5IMYJMWsY
-         zz7YF2FVGFBOrfl6ZnWHbV39qhmx668oKEAvnRRKMjMLLqABK50UfsT2Oc13y2cvxYxd
-         xuhw==
+        bh=K9EaWELDe99nUon5K3Z+iJo2yPeaFSzyCnD+eyoagSI=;
+        b=qNSUsqiVKVB0ESH5eMh2318rltbeTzVNrLxONrPQx/nleyciLPoBJAEyvEQiA5s1Tn
+         685R6sAh2RRkBOJ+dHhwwHaTsDfn1Dq0fhp7maY379FRtPvlZFAioZBWPPk7fa1Wkq01
+         qN75vY9UJqWiLkOixY4L6XdTPAaqKlrcR9SWRLlUZxoXjG975sFhxm21WZutHmQKl3h2
+         OQ9WcHoISTJ2OjIGWYQNx9W6xFSNLrPRAFCGXfmCK8TcPNzYvmKngSTkC45cBTIzIEjY
+         73sY0YERl7Ohg+xplAh/xTNZowvdAeC+fipfIzPvDIC0nmap4j6fccJNDYEXWoxWM6gV
+         WCvA==
 In-Reply-To: <20230725042051.36691-1-vishal.moola@gmail.com>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-um>,
- <mailto:linux-um-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-um/>
-List-Post: <mailto:linux-um@lists.infradead.org>
-List-Help: <mailto:linux-um-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-um>,
- <mailto:linux-um-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-um" <linux-um-bounces@lists.infradead.org>
-Errors-To: linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
 To: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
-Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Geert Uytterhoeven <geert+renesas@glider.be>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Mike Rapoport <rppt@kernel.org>
+Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, "David S. Miller" <davem@davemloft.net>, Mike Rapoport <rppt@kernel.org>
 
-Part of the conversions to replace pgtable constructor/destructors with
-ptdesc equivalents. Also cleans up some spacing issues.
+As part of the conversions to replace pgtable constructor/destructors with
+ptdesc equivalents, convert various page table functions to use ptdescs.
 
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
 ---
- arch/sh/include/asm/pgalloc.h | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/sparc/mm/init_64.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/arch/sh/include/asm/pgalloc.h b/arch/sh/include/asm/pgalloc.h
-index a9e98233c4d4..5d8577ab1591 100644
---- a/arch/sh/include/asm/pgalloc.h
-+++ b/arch/sh/include/asm/pgalloc.h
-@@ -2,6 +2,7 @@
- #ifndef __ASM_SH_PGALLOC_H
- #define __ASM_SH_PGALLOC_H
+diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
+index 0d7fd793924c..9a63a3e08e40 100644
+--- a/arch/sparc/mm/init_64.c
++++ b/arch/sparc/mm/init_64.c
+@@ -2893,14 +2893,15 @@ pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
  
-+#include <linux/mm.h>
- #include <asm/page.h>
- 
- #define __HAVE_ARCH_PMD_ALLOC_ONE
-@@ -31,10 +32,10 @@ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
- 	set_pmd(pmd, __pmd((unsigned long)page_address(pte)));
+ pgtable_t pte_alloc_one(struct mm_struct *mm)
+ {
+-	struct page *page = alloc_page(GFP_KERNEL | __GFP_ZERO);
+-	if (!page)
++	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL | __GFP_ZERO, 0);
++
++	if (!ptdesc)
+ 		return NULL;
+-	if (!pgtable_pte_page_ctor(page)) {
+-		__free_page(page);
++	if (!pagetable_pte_ctor(ptdesc)) {
++		pagetable_free(ptdesc);
+ 		return NULL;
+ 	}
+-	return (pte_t *) page_address(page);
++	return ptdesc_address(ptdesc);
  }
  
--#define __pte_free_tlb(tlb,pte,addr)			\
--do {							\
--	pgtable_pte_page_dtor(pte);			\
--	tlb_remove_page((tlb), (pte));			\
-+#define __pte_free_tlb(tlb, pte, addr)				\
-+do {								\
-+	pagetable_pte_dtor(page_ptdesc(pte));			\
-+	tlb_remove_page_ptdesc((tlb), (page_ptdesc(pte)));	\
- } while (0)
+ void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+@@ -2910,10 +2911,10 @@ void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
  
- #endif /* __ASM_SH_PGALLOC_H */
+ static void __pte_free(pgtable_t pte)
+ {
+-	struct page *page = virt_to_page(pte);
++	struct ptdesc *ptdesc = virt_to_ptdesc(pte);
+ 
+-	pgtable_pte_page_dtor(page);
+-	__free_page(page);
++	pagetable_pte_dtor(ptdesc);
++	pagetable_free(ptdesc);
+ }
+ 
+ void pte_free(struct mm_struct *mm, pgtable_t pte)
 -- 
 2.40.1
