@@ -1,7 +1,7 @@
 From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH mm-unstable v8 09/31] mm: Convert pmd_ptlock_free() to use ptdescs
-Date: Mon, 31 Jul 2023 10:03:10 -0700
-Message-ID: <20230731170332.69404-10-vishal.moola@gmail.com>
+Subject: [PATCH mm-unstable v8 11/31] mm: Create ptdesc equivalents for pgtable_{pte,pmd}_page_{ctor,dtor}
+Date: Mon, 31 Jul 2023 10:03:12 -0700
+Message-ID: <20230731170332.69404-12-vishal.moola@gmail.com>
 References: <20230731170332.69404-1-vishal.moola@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -16,69 +16,120 @@ List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
 Errors-To: xen-devel-bounces@lists.xenproject.org
 Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690823036; x=1691427836;
+        d=gmail.com; s=20221208; t=1690823040; x=1691427840;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=iZ7ozcISUSGoixC5UzzNE5tJz0+L18C1Imj6XmV/DYM=;
-        b=YpVyYPxPRtPTKHT9+tyvzqfvzCuhkFnhsMCX6nJF7RWviYaDE6pxTcvqFICRytHQ3F
-         mk3OEWmycmo6ouKKcTZJZ/J9GI0O0U+IOIhkq6cf5NcWzs3F3Ep7I9wPm/bnxo3IbGbP
-         5A5D1El9yg833uJSmp138hZ30DYMCVkIUWUYXAVHfkbTx4hT6PxevukL8QnCpSiv14Rw
-         Ab1JsXOoVAvxWjOf0Fsk8pxufrrxg62ZUs/sWVYn8yXcxdG4Ij3aN3bFcjr1GQQkDcpq
-         XCDoC5WGNDUaZUPNMTX8kXKJ799hVc0z6s0hq6YfOkQjqMhJ1aFCFD+uKI8XA047G16z
-         xszQ==
+        bh=GM8s3dDlKIn9bcZ3Rv1fAyQJ11tvy15JiujAITQGQIU=;
+        b=WsnCjEuFun6IuHpPh6Ck/rBg4AZLbVHEs2jk+7TEc5kPbUlyDbLU82vMQ8hYNiUbEV
+         KmukkQXHlnalx2MRwxX9OA1ED5qQ+cRzMsv/rlYCU41nnUNJeib6/uXFu8sMt236/2Ud
+         yhZAMNcebKfkSv6mc59ZybiKh0RsfAPQpPnm2pft2DHqmzXA9/C0fNB/u3wlBocoiSJC
+         LtpkvTvVemtPOevOsyRiBPGxBKIgXaumZpQx0YFqajcNPkaTnpsizZKv1A3XIPWZnK5y
+         p/CzUaAjAQ1JZb9e9DygJrxewNU/aZAjuX8qYUs6cV2yG2QRoeh00nb4O3A983HwtiRJ
+         fbTg==
 In-Reply-To: <20230731170332.69404-1-vishal.moola@gmail.com>
 Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
 Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Mike Rapoport <rppt@kernel.org>
 
-This removes some direct accesses to struct page, working towards
-splitting out struct ptdesc from struct page.
+Create pagetable_pte_ctor(), pagetable_pmd_ctor(), pagetable_pte_dtor(),
+and pagetable_pmd_dtor() and make the original pgtable
+constructor/destructors wrappers.
 
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
 ---
- include/linux/mm.h | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/linux/mm.h | 56 ++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 42 insertions(+), 14 deletions(-)
 
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 675972d3f7e4..774fe83c0c16 100644
+index ffddae95af78..bd3d99d81984 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
-@@ -2982,12 +2982,12 @@ static inline bool pmd_ptlock_init(struct ptdesc *ptdesc)
- 	return ptlock_init(ptdesc);
- }
+@@ -2902,20 +2902,34 @@ static inline bool ptlock_init(struct ptdesc *ptdesc) { return true; }
+ static inline void ptlock_free(struct ptdesc *ptdesc) {}
+ #endif /* USE_SPLIT_PTE_PTLOCKS */
  
--static inline void pmd_ptlock_free(struct page *page)
-+static inline void pmd_ptlock_free(struct ptdesc *ptdesc)
+-static inline bool pgtable_pte_page_ctor(struct page *page)
++static inline bool pagetable_pte_ctor(struct ptdesc *ptdesc)
  {
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
--	VM_BUG_ON_PAGE(page->pmd_huge_pte, page);
-+	VM_BUG_ON_PAGE(ptdesc->pmd_huge_pte, ptdesc_page(ptdesc));
- #endif
--	ptlock_free(page);
-+	ptlock_free(ptdesc_page(ptdesc));
+-	if (!ptlock_init(page_ptdesc(page)))
++	struct folio *folio = ptdesc_folio(ptdesc);
++
++	if (!ptlock_init(ptdesc))
+ 		return false;
+-	__SetPageTable(page);
+-	inc_lruvec_page_state(page, NR_PAGETABLE);
++	__folio_set_pgtable(folio);
++	lruvec_stat_add_folio(folio, NR_PAGETABLE);
+ 	return true;
  }
  
- #define pmd_huge_pte(mm, pmd) (pmd_ptdesc(pmd)->pmd_huge_pte)
-@@ -3000,7 +3000,7 @@ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
++static inline bool pgtable_pte_page_ctor(struct page *page)
++{
++	return pagetable_pte_ctor(page_ptdesc(page));
++}
++
++static inline void pagetable_pte_dtor(struct ptdesc *ptdesc)
++{
++	struct folio *folio = ptdesc_folio(ptdesc);
++
++	ptlock_free(ptdesc);
++	__folio_clear_pgtable(folio);
++	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
++}
++
+ static inline void pgtable_pte_page_dtor(struct page *page)
+ {
+-	ptlock_free(page_ptdesc(page));
+-	__ClearPageTable(page);
+-	dec_lruvec_page_state(page, NR_PAGETABLE);
++	pagetable_pte_dtor(page_ptdesc(page));
  }
  
- static inline bool pmd_ptlock_init(struct ptdesc *ptdesc) { return true; }
--static inline void pmd_ptlock_free(struct page *page) {}
-+static inline void pmd_ptlock_free(struct ptdesc *ptdesc) {}
+ pte_t *__pte_offset_map(pmd_t *pmd, unsigned long addr, pmd_t *pmdvalp);
+@@ -3013,20 +3027,34 @@ static inline spinlock_t *pmd_lock(struct mm_struct *mm, pmd_t *pmd)
+ 	return ptl;
+ }
  
- #define pmd_huge_pte(mm, pmd) ((mm)->pmd_huge_pte)
+-static inline bool pgtable_pmd_page_ctor(struct page *page)
++static inline bool pagetable_pmd_ctor(struct ptdesc *ptdesc)
+ {
+-	if (!pmd_ptlock_init(page_ptdesc(page)))
++	struct folio *folio = ptdesc_folio(ptdesc);
++
++	if (!pmd_ptlock_init(ptdesc))
+ 		return false;
+-	__SetPageTable(page);
+-	inc_lruvec_page_state(page, NR_PAGETABLE);
++	__folio_set_pgtable(folio);
++	lruvec_stat_add_folio(folio, NR_PAGETABLE);
+ 	return true;
+ }
  
-@@ -3024,7 +3024,7 @@ static inline bool pgtable_pmd_page_ctor(struct page *page)
- 
++static inline bool pgtable_pmd_page_ctor(struct page *page)
++{
++	return pagetable_pmd_ctor(page_ptdesc(page));
++}
++
++static inline void pagetable_pmd_dtor(struct ptdesc *ptdesc)
++{
++	struct folio *folio = ptdesc_folio(ptdesc);
++
++	pmd_ptlock_free(ptdesc);
++	__folio_clear_pgtable(folio);
++	lruvec_stat_sub_folio(folio, NR_PAGETABLE);
++}
++
  static inline void pgtable_pmd_page_dtor(struct page *page)
  {
--	pmd_ptlock_free(page);
-+	pmd_ptlock_free(page_ptdesc(page));
- 	__ClearPageTable(page);
- 	dec_lruvec_page_state(page, NR_PAGETABLE);
+-	pmd_ptlock_free(page_ptdesc(page));
+-	__ClearPageTable(page);
+-	dec_lruvec_page_state(page, NR_PAGETABLE);
++	pagetable_pmd_dtor(page_ptdesc(page));
  }
+ 
+ /*
 -- 
 2.40.1
 
