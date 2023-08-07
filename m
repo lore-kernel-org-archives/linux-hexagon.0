@@ -1,7 +1,7 @@
 From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-Subject: [PATCH mm-unstable v9 29/31] sparc: Convert pgtable_pte_page_{ctor, dtor}() to ptdesc equivalents
-Date: Mon,  7 Aug 2023 16:05:11 -0700
-Message-ID: <20230807230513.102486-30-vishal.moola@gmail.com>
+Subject: [PATCH mm-unstable v9 21/31] loongarch: Convert various functions to use ptdescs
+Date: Mon,  7 Aug 2023 16:05:03 -0700
+Message-ID: <20230807230513.102486-22-vishal.moola@gmail.com>
 References: <20230807230513.102486-1-vishal.moola@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -16,54 +16,114 @@ List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
 Errors-To: xen-devel-bounces@lists.xenproject.org
 Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1691449578; x=1692054378;
+        d=gmail.com; s=20221208; t=1691449561; x=1692054361;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Yb5+fiX/YSPgeVruPImZCslC+7XzLtSDmAZ+KnCCvCw=;
-        b=LURal4KqklmU9AiCOifU5Mxc6WM+IybZMw4f+H9b+ehsvWfF2rdEGUCUpHED/xgeP0
-         03+is7BherE6vDUPF9cInwhZZ6O6FVEP73Sri7+CBG0/7jN64G4bgtBq56ZrcLUBIxxT
-         uSfx8fFqjmiqF0MtkULVgc1gjFJH4lOvkwRfZt9wzMVRnizjKRrxJwuFQ2mIfEo7cHgy
-         UR2ZIO+mIWR9RWU4d+HJedZnPKiZaDv8i4STB2D6+pQaLcMt/pvWXKdhAwPxBTPHyGDc
-         YUL8XwwyvOUHrQNxNKfZS8WVqZrgPXs80ZLFz3I7kRgWNiGS07HTyMzLuT9V1dLH0d1v
-         g2Pg==
+        bh=VD2saKmHCgP979K/4Ur2DZD5lv+pCsAy+26MDZ4lRXE=;
+        b=KaA5Xf0Zq7VankK3QOvVnhKCvDQA0idGZ5r/QtBaYpBUZhM7IUDDnipX0Mck9NuTr6
+         FMzfUiWHWV61utAYtiNJjvsmZyQrjEGqV1vWWuYtjGooZk9wKA6pHj8JXiEh77Vd66gm
+         gq9wCdtohtsBXI+QiM0g5DM3RYb5yVm35tcAKNI7nQZaFVODWjyuyXisRnjCevekbcDp
+         QweW3qBvEiOtjGdP8+KO+Ai79xaww40f8oFcpzIoZ31G0t7vkt4E3RfT7Asw6Y6mNUmW
+         4v5tgaFeOHT3yezqwQ6Pv7HkjczS8wtW/o3vWALkNkC7/L83lM6ERIvU0onlnalg95pZ
+         XQOA==
 In-Reply-To: <20230807230513.102486-1-vishal.moola@gmail.com>
 Content-Type: text/plain; charset="us-ascii"
 To: Andrew Morton <akpm@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>
-Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, "David S. Miller" <davem@davemloft.net>, Mike Rapoport <rppt@kernel.org>
+Cc: linux-mm@kvack.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>, "Vishal Moola (Oracle)" <vishal.moola@gmail.com>, Huacai Chen <chenhuacai@kernel.org>, Mike Rapoport <rppt@kernel.org>
 
-Part of the conversions to replace pgtable pte constructor/destructors with
-ptdesc equivalents.
+As part of the conversions to replace pgtable constructor/destructors with
+ptdesc equivalents, convert various page table functions to use ptdescs.
+
+Some of the functions use the *get*page*() helper functions. Convert
+these to use pagetable_alloc() and ptdesc_address() instead to help
+standardize page tables further.
 
 Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
 Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
 ---
- arch/sparc/mm/srmmu.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/loongarch/include/asm/pgalloc.h | 27 +++++++++++++++------------
+ arch/loongarch/mm/pgtable.c          |  7 ++++---
+ 2 files changed, 19 insertions(+), 15 deletions(-)
 
-diff --git a/arch/sparc/mm/srmmu.c b/arch/sparc/mm/srmmu.c
-index 13f027afc875..8393faa3e596 100644
---- a/arch/sparc/mm/srmmu.c
-+++ b/arch/sparc/mm/srmmu.c
-@@ -355,7 +355,8 @@ pgtable_t pte_alloc_one(struct mm_struct *mm)
- 		return NULL;
- 	page = pfn_to_page(__nocache_pa((unsigned long)ptep) >> PAGE_SHIFT);
- 	spin_lock(&mm->page_table_lock);
--	if (page_ref_inc_return(page) == 2 && !pgtable_pte_page_ctor(page)) {
-+	if (page_ref_inc_return(page) == 2 &&
-+			!pagetable_pte_ctor(page_ptdesc(page))) {
- 		page_ref_dec(page);
- 		ptep = NULL;
- 	}
-@@ -371,7 +372,7 @@ void pte_free(struct mm_struct *mm, pgtable_t ptep)
- 	page = pfn_to_page(__nocache_pa((unsigned long)ptep) >> PAGE_SHIFT);
- 	spin_lock(&mm->page_table_lock);
- 	if (page_ref_dec_return(page) == 1)
--		pgtable_pte_page_dtor(page);
-+		pagetable_pte_dtor(page_ptdesc(page));
- 	spin_unlock(&mm->page_table_lock);
+diff --git a/arch/loongarch/include/asm/pgalloc.h b/arch/loongarch/include/asm/pgalloc.h
+index af1d1e4a6965..23f5b1107246 100644
+--- a/arch/loongarch/include/asm/pgalloc.h
++++ b/arch/loongarch/include/asm/pgalloc.h
+@@ -45,9 +45,9 @@ extern void pagetable_init(void);
+ extern pgd_t *pgd_alloc(struct mm_struct *mm);
  
- 	srmmu_free_nocache(ptep, SRMMU_PTE_TABLE_SIZE);
+ #define __pte_free_tlb(tlb, pte, address)			\
+-do {							\
+-	pgtable_pte_page_dtor(pte);			\
+-	tlb_remove_page((tlb), pte);			\
++do {								\
++	pagetable_pte_dtor(page_ptdesc(pte));			\
++	tlb_remove_page_ptdesc((tlb), page_ptdesc(pte));	\
+ } while (0)
+ 
+ #ifndef __PAGETABLE_PMD_FOLDED
+@@ -55,18 +55,18 @@ do {							\
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+ 	pmd_t *pmd;
+-	struct page *pg;
++	struct ptdesc *ptdesc;
+ 
+-	pg = alloc_page(GFP_KERNEL_ACCOUNT);
+-	if (!pg)
++	ptdesc = pagetable_alloc(GFP_KERNEL_ACCOUNT, 0);
++	if (!ptdesc)
+ 		return NULL;
+ 
+-	if (!pgtable_pmd_page_ctor(pg)) {
+-		__free_page(pg);
++	if (!pagetable_pmd_ctor(ptdesc)) {
++		pagetable_free(ptdesc);
+ 		return NULL;
+ 	}
+ 
+-	pmd = (pmd_t *)page_address(pg);
++	pmd = ptdesc_address(ptdesc);
+ 	pmd_init(pmd);
+ 	return pmd;
+ }
+@@ -80,10 +80,13 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
+ static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+ 	pud_t *pud;
++	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, 0);
+ 
+-	pud = (pud_t *) __get_free_page(GFP_KERNEL);
+-	if (pud)
+-		pud_init(pud);
++	if (!ptdesc)
++		return NULL;
++	pud = ptdesc_address(ptdesc);
++
++	pud_init(pud);
+ 	return pud;
+ }
+ 
+diff --git a/arch/loongarch/mm/pgtable.c b/arch/loongarch/mm/pgtable.c
+index 1260cf30e3ee..b14343e211b6 100644
+--- a/arch/loongarch/mm/pgtable.c
++++ b/arch/loongarch/mm/pgtable.c
+@@ -11,10 +11,11 @@
+ 
+ pgd_t *pgd_alloc(struct mm_struct *mm)
+ {
+-	pgd_t *ret, *init;
++	pgd_t *init, *ret = NULL;
++	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, 0);
+ 
+-	ret = (pgd_t *) __get_free_page(GFP_KERNEL);
+-	if (ret) {
++	if (ptdesc) {
++		ret = (pgd_t *)ptdesc_address(ptdesc);
+ 		init = pgd_offset(&init_mm, 0UL);
+ 		pgd_init(ret);
+ 		memcpy(ret + USER_PTRS_PER_PGD, init + USER_PTRS_PER_PGD,
 -- 
 2.40.1
 
