@@ -1,73 +1,56 @@
-From: Brian Cain <bcain@quicinc.com>
-Subject: RE: [PATCH] Hexagon: Make pfn accessors statics inlines
-Date: Wed, 9 Aug 2023 16:17:07 +0000
-Message-ID: <SN6PR02MB4205A0DCD5355ECBAB39A0A3B812A@SN6PR02MB4205.namprd02.prod.outlook.com>
-References: <20230808-hexagon-virt-to-pfn-v1-1-68d07c221f17@linaro.org>
+From: Atul Raut <rauji.raut@gmail.com>
+Subject: hexagon: fix warning comparing pointer to 0
+Date: Wed,  9 Aug 2023 11:51:48 -0700
+Message-ID: <20230809185147.98262-1-rauji.raut@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=qcppdkim1;
- bh=Wo/6kfzeHoYrpEe9xmaECGG7d6fPFTIHAia96Y2Abfg=;
- b=FF3keMIL5IJQGCPRogrkYtjLE9b5WVjFAteWsktynAjcC6oFEt/rDdaVz4RnN5eExlsP
- BR44GJlbmZB6ACekhCPl0oQZWqQ2otUX8YDheAK8rlOhr9jA4tzTmkwmohC46rzg3M25
- b0XmtgQrrllBJE4s1w8s2fYAfcgOSdhtCax65A6i0nirLTDnKEqWCoXhWBFPQU0vgiUO
- nSEaC5XBQUZmExw0gMcZgw+pSaDRpP477tlm4ry3j+MG72ziLxmaewFm8SIRtIblt1Qz
- Gm8xk3c42Ugh9UD2wFBwynZqOOzpxtE0hIbIymM6aq/JA2v1ktLATjZk8V1JGVvEjmwG HA== 
-In-Reply-To: <20230808-hexagon-virt-to-pfn-v1-1-68d07c221f17@linaro.org>
-Content-Language: en-US
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1691607320; x=1692212120;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ml4dfY3mLq3SCYyf0vfwwEcWzqsDXJO/lar+p7qztwU=;
+        b=CKnfz7HzOaVI1c8Xxr/EcY6QKMHJqQ7cpVvPcskHfjmo+1EB//ZE6mSGoOgQzRL0dm
+         Qv3t33bzM31KbPHqwnZdkvyMtbGA7wUTrtHLiU7mkItOoAnl5Y/DaEmES9Wdy6CYGmHO
+         GbdAtlOU69nBqzLiIHS08lp6pndIZCacZz+27Tpyn94Yon5/nTvm0M48Apo31BYEFDAw
+         58wDsx2Ev1OQLkhzyElbGU/FAo9XNJz+F0vZrkIzNRDw50pLLbetVSmTTuPhcQ0g9SWu
+         aV8dUrZj3SNr9ICs03jULfBLMdCfxBVuE4hrEE2XWTscQ55RS4cN3FOmfJieEW/8nrdR
+         A8Bg==
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: bcain@quicinc.com
+Cc: linux-hexagon@vger.kernel.org, linux-kernel-mentees@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTGludXMgV2FsbGVpaiA8
-bGludXMud2FsbGVpakBsaW5hcm8ub3JnPg0KPiBTZW50OiBUdWVzZGF5LCBBdWd1c3QgOCwgMjAy
-MyAzOjMwIEFNDQo+IFRvOiBCcmlhbiBDYWluIDxiY2FpbkBxdWljaW5jLmNvbT4NCj4gQ2M6IGxp
-bnV4LWhleGFnb25Admdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3Jn
-OyBMaW51cyBXYWxsZWlqDQo+IDxsaW51cy53YWxsZWlqQGxpbmFyby5vcmc+DQo+IFN1YmplY3Q6
-IFtQQVRDSF0gSGV4YWdvbjogTWFrZSBwZm4gYWNjZXNzb3JzIHN0YXRpY3MgaW5saW5lcw0KPiAN
-Cj4gV0FSTklORzogVGhpcyBlbWFpbCBvcmlnaW5hdGVkIGZyb20gb3V0c2lkZSBvZiBRdWFsY29t
-bS4gUGxlYXNlIGJlIHdhcnkgb2YNCj4gYW55IGxpbmtzIG9yIGF0dGFjaG1lbnRzLCBhbmQgZG8g
-bm90IGVuYWJsZSBtYWNyb3MuDQo+IA0KPiBNYWtpbmcgdmlydF90b19wZm4oKSBhIHN0YXRpYyBp
-bmxpbmUgdGFraW5nIGEgc3Ryb25nbHkgdHlwZWQNCj4gKGNvbnN0IHZvaWQgKikgbWFrZXMgdGhl
-IGNvbnRyYWN0IG9mIGEgcGFzc2luZyBhIHBvaW50ZXIgb2YgdGhhdA0KPiB0eXBlIHRvIHRoZSBm
-dW5jdGlvbiBleHBsaWNpdCBhbmQgZXhwb3NlcyBhbnkgbWlzdXNlIG9mIHRoZQ0KPiBtYWNybyB2
-aXJ0X3RvX3BmbigpIGFjdGluZyBwb2x5bW9ycGhpYyBhbmQgYWNjZXB0aW5nIG1hbnkgdHlwZXMN
-Cj4gc3VjaCBhcyAodm9pZCAqKSwgKHVuaXRwdHJfdCkgb3IgKHVuc2lnbmVkIGxvbmcpIGFzIGFy
-Z3VtZW50cw0KPiB3aXRob3V0IHdhcm5pbmdzLg0KPiANCj4gRm9yIHN5bW1ldHJ5IGRvIHRoZSBz
-YW1lIHdpdGggcGZuX3RvX3ZpcnQoKS4NCj4gDQo+IEZvciBjb21waWxldGltZSByZXNvbHV0aW9u
-IG9mIF9fcGEoKSB3ZSBuZWVkIFBBR0VfT0ZGU0VUIHdoaWNoDQo+IHdhcyBub3QgYXZhaWxhYmxl
-IHRvIF9fcGEoKSBhbmQgcmVzb2x2ZWQgYnkgdGhlIHByZXByb2Nlc3Nvcg0KPiB3aGVyZXZlciBf
-X3BhKCkgd2FzIHVzZWQuIEZpeCB0aGlzIGJ5IGV4cGxpY2l0bHkgaW5jbHVkaW5nDQo+IDxhc20v
-bWVtLWxheW91dC5oPiB3aGVyZSByZXF1aXJlZCwgZm9sbG93aW5nIHRoZSBwYXR0ZXJuIG9mIHRo
-ZQ0KPiBhcmNoaXRlY3R1cmVzIHBhZ2UuaCBmaWxlLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogTGlu
-dXMgV2FsbGVpaiA8bGludXMud2FsbGVpakBsaW5hcm8ub3JnPg0KPiAtLS0NCj4gIGFyY2gvaGV4
-YWdvbi9pbmNsdWRlL2FzbS9wYWdlLmggfCAxNSArKysrKysrKysrKysrLS0NCj4gIDEgZmlsZSBj
-aGFuZ2VkLCAxMyBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdp
-dCBhL2FyY2gvaGV4YWdvbi9pbmNsdWRlL2FzbS9wYWdlLmgNCj4gYi9hcmNoL2hleGFnb24vaW5j
-bHVkZS9hc20vcGFnZS5oDQo+IGluZGV4IDljMDNiOTk2NWYwNy4uYjNkNGEyYzA2NWJlIDEwMDY0
-NA0KPiAtLS0gYS9hcmNoL2hleGFnb24vaW5jbHVkZS9hc20vcGFnZS5oDQo+ICsrKyBiL2FyY2gv
-aGV4YWdvbi9pbmNsdWRlL2FzbS9wYWdlLmgNCj4gQEAgLTc4LDYgKzc4LDkgQEAgdHlwZWRlZiBz
-dHJ1Y3QgcGFnZSAqcGd0YWJsZV90Ow0KPiAgI2RlZmluZSBfX3BnZCh4KSAgICAgICAoKHBnZF90
-KSB7ICh4KSB9KQ0KPiAgI2RlZmluZSBfX3BncHJvdCh4KSAgICAoKHBncHJvdF90KSB7ICh4KSB9
-KQ0KPiANCj4gKy8qIE5lZWRlZCBmb3IgUEFHRV9PRkZTRVQgdXNlZCBpbiB0aGUgbWFjcm8gcmln
-aHQgYmVsb3cgKi8NCj4gKyNpbmNsdWRlIDxhc20vbWVtLWxheW91dC5oPg0KPiArDQo+ICAvKg0K
-PiAgICogV2UgbmVlZCBhIF9fcGEgYW5kIGEgX192YSByb3V0aW5lIGZvciBrZXJuZWwgc3BhY2Uu
-DQo+ICAgKiBNSVBTIHNheXMgdGhleSdyZSBvbmx5IHVzZWQgZHVyaW5nIG1lbV9pbml0Lg0KPiBA
-QCAtMTI1LDggKzEyOCwxNiBAQCBzdGF0aWMgaW5saW5lIHZvaWQgY2xlYXJfcGFnZSh2b2lkICpw
-YWdlKQ0KPiAgICovDQo+ICAjZGVmaW5lIHBhZ2VfdG9fcGh5cyhwYWdlKSAgICAgIChwYWdlX3Rv
-X3BmbihwYWdlKSA8PCBQQUdFX1NISUZUKQ0KPiANCj4gLSNkZWZpbmUgdmlydF90b19wZm4oa2Fk
-ZHIpICAgICAgKF9fcGEoa2FkZHIpID4+IFBBR0VfU0hJRlQpDQo+IC0jZGVmaW5lIHBmbl90b192
-aXJ0KHBmbikgICAgICAgIF9fdmEoKHBmbikgPDwgUEFHRV9TSElGVCkNCj4gK3N0YXRpYyBpbmxp
-bmUgdW5zaWduZWQgbG9uZyB2aXJ0X3RvX3Bmbihjb25zdCB2b2lkICprYWRkcikNCj4gK3sNCj4g
-KyAgICAgICByZXR1cm4gX19wYShrYWRkcikgPj4gUEFHRV9TSElGVDsNCj4gK30NCj4gKw0KPiAr
-c3RhdGljIGlubGluZSB2b2lkICogcGZuX3RvX3ZpcnQodW5zaWduZWQgbG9uZyBwZm4pDQo+ICt7
-DQo+ICsgICAgICAgcmV0dXJuIF9fdmEocGZuKSA8PCBQQUdFX1NISUZUOw0KPiArfQ0KPiArDQo+
-IA0KPiAgI2RlZmluZSBwYWdlX3RvX3ZpcnQocGFnZSkgICAgIF9fdmEocGFnZV90b19waHlzKHBh
-Z2UpKQ0KPiANCj4gDQo+IC0tLQ0KPiBiYXNlLWNvbW1pdDogMDZjMmFmYjg2MmY5ZGE4ZGM1ZWZh
-NGI2MDc2YTBlNDhjM2ZiYWFhNQ0KPiBjaGFuZ2UtaWQ6IDIwMjMwODA4LWhleGFnb24tdmlydC10
-by1wZm4tNDU3YmQ1MWE1NzQ0DQo+IA0KPiBCZXN0IHJlZ2FyZHMsDQo+IC0tDQo+IExpbnVzIFdh
-bGxlaWogPGxpbnVzLndhbGxlaWpAbGluYXJvLm9yZz4NCg0KQWNrZWQtYnk6IEJyaWFuIENhaW4g
-PGJjYWluQHF1aWNpbmMuY29tPg0K
+Fix the following coccicheck warning:
+./arch/hexagon/kernel/traps.c:138:6-7: WARNING comparing pointer to 0
+
+Signed-off-by: Atul Raut <rauji.raut@gmail.com>
+---
+ arch/hexagon/kernel/traps.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
+index 6447763ce5a9..78486eea77d7 100644
+--- a/arch/hexagon/kernel/traps.c
++++ b/arch/hexagon/kernel/traps.c
+@@ -80,7 +80,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
+ 	int kstack_depth_to_print = 24;
+ 	unsigned long offset, size;
+ 	const char *name = NULL;
+-	unsigned long *newfp;
++	unsigned long *newfp = NULL;
+ 	unsigned long low, high;
+ 	char tmpstr[128];
+ 	char *modname;
+@@ -135,7 +135,7 @@ static void do_show_stack(struct task_struct *task, unsigned long *fp,
+ 		}
+ 
+ 		/* Attempt to continue past exception. */
+-		if (0 == newfp) {
++		if (!newfp) {
+ 			struct pt_regs *regs = (struct pt_regs *) (((void *)fp)
+ 						+ 8);
+ 
+-- 
+2.34.1
+
