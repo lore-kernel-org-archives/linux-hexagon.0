@@ -1,85 +1,73 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH] Hexagon: Make pfn accessors statics inlines
-Date: Tue, 08 Aug 2023 10:29:34 +0200
-Message-ID: <20230808-hexagon-virt-to-pfn-v1-1-68d07c221f17@linaro.org>
+From: Brian Cain <bcain@quicinc.com>
+Subject: RE: [PATCH] Hexagon: Make pfn accessors statics inlines
+Date: Wed, 9 Aug 2023 16:17:07 +0000
+Message-ID: <SN6PR02MB4205A0DCD5355ECBAB39A0A3B812A@SN6PR02MB4205.namprd02.prod.outlook.com>
+References: <20230808-hexagon-virt-to-pfn-v1-1-68d07c221f17@linaro.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1691515268; x=1692120068;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=GnlwcxtfhGEad5ogPgdtYB2fKyOwYUFZ/Ow51BWBgcE=;
-        b=Gty5qz43cZIYHLVTOxYSJbZftHHI9VWyTnepI9JZUXIxmxGcPHkVG+15/o5KwCW/14
-         Khe0N2zP6wMO2/ZLZVuozH3lUSxfVgznVMv4DMmd416wvcxB44HD/gWrFaY40hfvKOaS
-         ixwX7qMn4+A8J5gR26URk5Z6udKWZHvTVCw1hRXSoNFbCqK5/Th37/vhSp7W8rKvPJwM
-         Mp6wnIgD2ZBnJxNOnPRaexHYszi2hgaWUtjVW2+bXNQtnPx3YrFNbkWa48uiCvDqcb2y
-         uxWymqhX8N8YSgBAVZoBFepMdf0ADm0cSIgTTCtBSwgur+pwfqCYIThUjwFBPdcW92XN
-         bQwQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=qcppdkim1;
+ bh=Wo/6kfzeHoYrpEe9xmaECGG7d6fPFTIHAia96Y2Abfg=;
+ b=FF3keMIL5IJQGCPRogrkYtjLE9b5WVjFAteWsktynAjcC6oFEt/rDdaVz4RnN5eExlsP
+ BR44GJlbmZB6ACekhCPl0oQZWqQ2otUX8YDheAK8rlOhr9jA4tzTmkwmohC46rzg3M25
+ b0XmtgQrrllBJE4s1w8s2fYAfcgOSdhtCax65A6i0nirLTDnKEqWCoXhWBFPQU0vgiUO
+ nSEaC5XBQUZmExw0gMcZgw+pSaDRpP477tlm4ry3j+MG72ziLxmaewFm8SIRtIblt1Qz
+ Gm8xk3c42Ugh9UD2wFBwynZqOOzpxtE0hIbIymM6aq/JA2v1ktLATjZk8V1JGVvEjmwG HA== 
+In-Reply-To: <20230808-hexagon-virt-to-pfn-v1-1-68d07c221f17@linaro.org>
+Content-Language: en-US
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Brian Cain <bcain@quicinc.com>
-Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Making virt_to_pfn() a static inline taking a strongly typed
-(const void *) makes the contract of a passing a pointer of that
-type to the function explicit and exposes any misuse of the
-macro virt_to_pfn() acting polymorphic and accepting many types
-such as (void *), (unitptr_t) or (unsigned long) as arguments
-without warnings.
-
-For symmetry do the same with pfn_to_virt().
-
-For compiletime resolution of __pa() we need PAGE_OFFSET which
-was not available to __pa() and resolved by the preprocessor
-wherever __pa() was used. Fix this by explicitly including
-<asm/mem-layout.h> where required, following the pattern of the
-architectures page.h file.
-
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
- arch/hexagon/include/asm/page.h | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
-
-diff --git a/arch/hexagon/include/asm/page.h b/arch/hexagon/include/asm/page.h
-index 9c03b9965f07..b3d4a2c065be 100644
---- a/arch/hexagon/include/asm/page.h
-+++ b/arch/hexagon/include/asm/page.h
-@@ -78,6 +78,9 @@ typedef struct page *pgtable_t;
- #define __pgd(x)       ((pgd_t) { (x) })
- #define __pgprot(x)    ((pgprot_t) { (x) })
- 
-+/* Needed for PAGE_OFFSET used in the macro right below */
-+#include <asm/mem-layout.h>
-+
- /*
-  * We need a __pa and a __va routine for kernel space.
-  * MIPS says they're only used during mem_init.
-@@ -125,8 +128,16 @@ static inline void clear_page(void *page)
-  */
- #define page_to_phys(page)      (page_to_pfn(page) << PAGE_SHIFT)
- 
--#define virt_to_pfn(kaddr)      (__pa(kaddr) >> PAGE_SHIFT)
--#define pfn_to_virt(pfn)        __va((pfn) << PAGE_SHIFT)
-+static inline unsigned long virt_to_pfn(const void *kaddr)
-+{
-+	return __pa(kaddr) >> PAGE_SHIFT;
-+}
-+
-+static inline void * pfn_to_virt(unsigned long pfn)
-+{
-+	return __va(pfn) << PAGE_SHIFT;
-+}
-+
- 
- #define page_to_virt(page)	__va(page_to_phys(page))
- 
-
----
-base-commit: 06c2afb862f9da8dc5efa4b6076a0e48c3fbaaa5
-change-id: 20230808-hexagon-virt-to-pfn-457bd51a5744
-
-Best regards,
--- 
-Linus Walleij <linus.walleij@linaro.org>
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTGludXMgV2FsbGVpaiA8
+bGludXMud2FsbGVpakBsaW5hcm8ub3JnPg0KPiBTZW50OiBUdWVzZGF5LCBBdWd1c3QgOCwgMjAy
+MyAzOjMwIEFNDQo+IFRvOiBCcmlhbiBDYWluIDxiY2FpbkBxdWljaW5jLmNvbT4NCj4gQ2M6IGxp
+bnV4LWhleGFnb25Admdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3Jn
+OyBMaW51cyBXYWxsZWlqDQo+IDxsaW51cy53YWxsZWlqQGxpbmFyby5vcmc+DQo+IFN1YmplY3Q6
+IFtQQVRDSF0gSGV4YWdvbjogTWFrZSBwZm4gYWNjZXNzb3JzIHN0YXRpY3MgaW5saW5lcw0KPiAN
+Cj4gV0FSTklORzogVGhpcyBlbWFpbCBvcmlnaW5hdGVkIGZyb20gb3V0c2lkZSBvZiBRdWFsY29t
+bS4gUGxlYXNlIGJlIHdhcnkgb2YNCj4gYW55IGxpbmtzIG9yIGF0dGFjaG1lbnRzLCBhbmQgZG8g
+bm90IGVuYWJsZSBtYWNyb3MuDQo+IA0KPiBNYWtpbmcgdmlydF90b19wZm4oKSBhIHN0YXRpYyBp
+bmxpbmUgdGFraW5nIGEgc3Ryb25nbHkgdHlwZWQNCj4gKGNvbnN0IHZvaWQgKikgbWFrZXMgdGhl
+IGNvbnRyYWN0IG9mIGEgcGFzc2luZyBhIHBvaW50ZXIgb2YgdGhhdA0KPiB0eXBlIHRvIHRoZSBm
+dW5jdGlvbiBleHBsaWNpdCBhbmQgZXhwb3NlcyBhbnkgbWlzdXNlIG9mIHRoZQ0KPiBtYWNybyB2
+aXJ0X3RvX3BmbigpIGFjdGluZyBwb2x5bW9ycGhpYyBhbmQgYWNjZXB0aW5nIG1hbnkgdHlwZXMN
+Cj4gc3VjaCBhcyAodm9pZCAqKSwgKHVuaXRwdHJfdCkgb3IgKHVuc2lnbmVkIGxvbmcpIGFzIGFy
+Z3VtZW50cw0KPiB3aXRob3V0IHdhcm5pbmdzLg0KPiANCj4gRm9yIHN5bW1ldHJ5IGRvIHRoZSBz
+YW1lIHdpdGggcGZuX3RvX3ZpcnQoKS4NCj4gDQo+IEZvciBjb21waWxldGltZSByZXNvbHV0aW9u
+IG9mIF9fcGEoKSB3ZSBuZWVkIFBBR0VfT0ZGU0VUIHdoaWNoDQo+IHdhcyBub3QgYXZhaWxhYmxl
+IHRvIF9fcGEoKSBhbmQgcmVzb2x2ZWQgYnkgdGhlIHByZXByb2Nlc3Nvcg0KPiB3aGVyZXZlciBf
+X3BhKCkgd2FzIHVzZWQuIEZpeCB0aGlzIGJ5IGV4cGxpY2l0bHkgaW5jbHVkaW5nDQo+IDxhc20v
+bWVtLWxheW91dC5oPiB3aGVyZSByZXF1aXJlZCwgZm9sbG93aW5nIHRoZSBwYXR0ZXJuIG9mIHRo
+ZQ0KPiBhcmNoaXRlY3R1cmVzIHBhZ2UuaCBmaWxlLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogTGlu
+dXMgV2FsbGVpaiA8bGludXMud2FsbGVpakBsaW5hcm8ub3JnPg0KPiAtLS0NCj4gIGFyY2gvaGV4
+YWdvbi9pbmNsdWRlL2FzbS9wYWdlLmggfCAxNSArKysrKysrKysrKysrLS0NCj4gIDEgZmlsZSBj
+aGFuZ2VkLCAxMyBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdp
+dCBhL2FyY2gvaGV4YWdvbi9pbmNsdWRlL2FzbS9wYWdlLmgNCj4gYi9hcmNoL2hleGFnb24vaW5j
+bHVkZS9hc20vcGFnZS5oDQo+IGluZGV4IDljMDNiOTk2NWYwNy4uYjNkNGEyYzA2NWJlIDEwMDY0
+NA0KPiAtLS0gYS9hcmNoL2hleGFnb24vaW5jbHVkZS9hc20vcGFnZS5oDQo+ICsrKyBiL2FyY2gv
+aGV4YWdvbi9pbmNsdWRlL2FzbS9wYWdlLmgNCj4gQEAgLTc4LDYgKzc4LDkgQEAgdHlwZWRlZiBz
+dHJ1Y3QgcGFnZSAqcGd0YWJsZV90Ow0KPiAgI2RlZmluZSBfX3BnZCh4KSAgICAgICAoKHBnZF90
+KSB7ICh4KSB9KQ0KPiAgI2RlZmluZSBfX3BncHJvdCh4KSAgICAoKHBncHJvdF90KSB7ICh4KSB9
+KQ0KPiANCj4gKy8qIE5lZWRlZCBmb3IgUEFHRV9PRkZTRVQgdXNlZCBpbiB0aGUgbWFjcm8gcmln
+aHQgYmVsb3cgKi8NCj4gKyNpbmNsdWRlIDxhc20vbWVtLWxheW91dC5oPg0KPiArDQo+ICAvKg0K
+PiAgICogV2UgbmVlZCBhIF9fcGEgYW5kIGEgX192YSByb3V0aW5lIGZvciBrZXJuZWwgc3BhY2Uu
+DQo+ICAgKiBNSVBTIHNheXMgdGhleSdyZSBvbmx5IHVzZWQgZHVyaW5nIG1lbV9pbml0Lg0KPiBA
+QCAtMTI1LDggKzEyOCwxNiBAQCBzdGF0aWMgaW5saW5lIHZvaWQgY2xlYXJfcGFnZSh2b2lkICpw
+YWdlKQ0KPiAgICovDQo+ICAjZGVmaW5lIHBhZ2VfdG9fcGh5cyhwYWdlKSAgICAgIChwYWdlX3Rv
+X3BmbihwYWdlKSA8PCBQQUdFX1NISUZUKQ0KPiANCj4gLSNkZWZpbmUgdmlydF90b19wZm4oa2Fk
+ZHIpICAgICAgKF9fcGEoa2FkZHIpID4+IFBBR0VfU0hJRlQpDQo+IC0jZGVmaW5lIHBmbl90b192
+aXJ0KHBmbikgICAgICAgIF9fdmEoKHBmbikgPDwgUEFHRV9TSElGVCkNCj4gK3N0YXRpYyBpbmxp
+bmUgdW5zaWduZWQgbG9uZyB2aXJ0X3RvX3Bmbihjb25zdCB2b2lkICprYWRkcikNCj4gK3sNCj4g
+KyAgICAgICByZXR1cm4gX19wYShrYWRkcikgPj4gUEFHRV9TSElGVDsNCj4gK30NCj4gKw0KPiAr
+c3RhdGljIGlubGluZSB2b2lkICogcGZuX3RvX3ZpcnQodW5zaWduZWQgbG9uZyBwZm4pDQo+ICt7
+DQo+ICsgICAgICAgcmV0dXJuIF9fdmEocGZuKSA8PCBQQUdFX1NISUZUOw0KPiArfQ0KPiArDQo+
+IA0KPiAgI2RlZmluZSBwYWdlX3RvX3ZpcnQocGFnZSkgICAgIF9fdmEocGFnZV90b19waHlzKHBh
+Z2UpKQ0KPiANCj4gDQo+IC0tLQ0KPiBiYXNlLWNvbW1pdDogMDZjMmFmYjg2MmY5ZGE4ZGM1ZWZh
+NGI2MDc2YTBlNDhjM2ZiYWFhNQ0KPiBjaGFuZ2UtaWQ6IDIwMjMwODA4LWhleGFnb24tdmlydC10
+by1wZm4tNDU3YmQ1MWE1NzQ0DQo+IA0KPiBCZXN0IHJlZ2FyZHMsDQo+IC0tDQo+IExpbnVzIFdh
+bGxlaWogPGxpbnVzLndhbGxlaWpAbGluYXJvLm9yZz4NCg0KQWNrZWQtYnk6IEJyaWFuIENhaW4g
+PGJjYWluQHF1aWNpbmMuY29tPg0K
