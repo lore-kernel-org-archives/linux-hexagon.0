@@ -1,35 +1,36 @@
 From: suijingfeng <suijingfeng@loongson.cn>
 Subject: Re: [06/12] arch: Declare screen_info in <asm/screen_info.h>
-Date: Fri, 18 Aug 2023 22:04:38 +0800
-Message-ID: <924934b8-d2ca-c1ea-b357-202c2f995adc@loongson.cn>
+Date: Fri, 18 Aug 2023 22:18:55 +0800
+Message-ID: <1af49baf-05e8-8cc8-c5b7-766db5a4acad@loongson.cn>
 References: <20230629121952.10559-7-tzimmermann@suse.de>
+ <924934b8-d2ca-c1ea-b357-202c2f995adc@loongson.cn>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
 	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
-	List-Unsubscribe:List-Id:In-Reply-To:From:References:Cc:To:Subject:
+	List-Unsubscribe:List-Id:In-Reply-To:References:Cc:To:From:Subject:
 	MIME-Version:Date:Message-ID:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=A74IsXX7jE+1UmNfHNOi7QLEpvfRi1Wckm/UXY0kLwc=; b=rXToX9bs3ozfec
-	U1M3OIXmAGiCTciW7HqW5Mq5j19iRIGkZjsz4WiGPa9aL9IqN2kES8+O/di5ygp4rsTXgp80z04EA
-	u3s+yyAZuwbPs9TgEgJaCKBwUXy8IwLy/7husYxhhBjXOq+xzNg6E4l834v7OOYk8bFf1Whn7IOl0
-	4MeLt7bc3axodXfK6Jt90tPVWsZLltJ+vPInErIHlVnzjtgYgA3jOyw2FJkqwcGNKJgPlrSd/dj8X
-	shA8EW0V8VRGned9B9C2oAL3JSyjP8s4HNT+AEfhZWtz2RNzZi2lhtYOvDjPewrrA182dgXLnJB3r
-	TPAb3M8TQczz8ECVRWAA==;
+	List-Owner; bh=Byihvuk7PYpZQlVBSaSKWrjxSOH/IBzbrn7jGMsTags=; b=Bviua8kjqymNbc
+	WlP7I9hyiJp/JG6Pp7ZnyYQHJQK/Ls0Mxe9kzly1KS740flSgnP4qV+UwF4VE+UhxHwyXN+1Q3gDv
+	j1C/qUzpX+iJIacryDP7tjn1LrIrwQSxYqsSzLMT9bU/FRCJg29EF6DtiZrCjAV3wcU+g5hxgATW5
+	JrcICHZbZr+ILfhW2AY2yVzqohMhHNjezNPvIf5Fu42QlktbSiyZ2tFf0+xT9row5w//7o7Zcbk6F
+	L55/2tcndx9r95Bjcqbv30KGfPWMjp0Vq3HICBaex7+pUqz5YP/axx+UzGClwvsltVavHwfnJ8tt+
+	EOpb47qsTHsD5RvaDdFg==;
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+	In-Reply-To:References:Cc:To:From:Subject:MIME-Version:Date:Message-ID:Sender
 	:Reply-To:Content-ID:Content-Description;
-	bh=LpYJBrw/KZpqz4CxRW8Voi0gBXzIMHPgm2pnQSIqVuo=; b=gYF6lDCXPfHbhW4iZsj9YJYDN4
-	Fvb/F2Bje06vGS3QPYH9Mvv846R3veehqbOyp3RlB/3tyBAea3V8TY++8ErQ1bei6ll0q0CijPTrm
-	7lEsYJ83Ykw+GNee8Kpj6PlI6W/Z1EBYmknwSZ/dp9wA7i4YSj1fd5y5vRA+Id14dAMpQl+i0hJWL
-	YsSmHkKRcDY7GKapATvhcy8IE6j28ZGSh/TsCCS57McQBXGHMKrFnIMtbZ33AHmP1atVe1q73POWj
-	ZlhCsN5CPYP5QtzKySx12g70upPz8PvFmesVZ1lTcdyrvo9GgNO2cy0R99pd480RaR9eGwfkDMfXO
-	0yRQ+iPw==;
+	bh=BnDzFXgN/70pYIT9ZpfKT9DFrS5k3lkhqcEyov/gj5I=; b=SlXGAYBPuMlXg+/QLZvmhPYzEU
+	+aN46o3X8e2DK6zwiwLs3xPe0637Z8o4vZAY8h2OMpcgRRcFFzmvfsiLX1lyU6/gH5r8kv9ZIJBgD
+	+plZJXkyz1um+8rt5UPPDO8A6MuOuQ35bM6QDqk3AbJzpfXSVHrmyP66R58+c4GOvPfIfg2f7Ydvc
+	b/XcnxV9guTw5zAr375HVVrwrycwLZmfLtZeTJPsV9Xz5Z2Q2JtlmbB6n6uSPR+d/BnG7muaSVbin
+	7/1NT2JEvQK2f29uAH0bMFH3+soJgvkNcE/by4aI5W7t4hL9LCTMb6FZ+N0TytoOBGPueJtkw3b8p
+	lkjAtkYw==;
 Content-Language: en-US
-In-Reply-To: <20230629121952.10559-7-tzimmermann@suse.de>
+In-Reply-To: <924934b8-d2ca-c1ea-b357-202c2f995adc@loongson.cn>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -40,360 +41,281 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 To: Thomas Zimmermann <tzimmermann@suse.de>, arnd@arndb.de, deller@gmx.de, daniel@ffwll.ch, airlied@gmail.com
 Cc: linux-hyperv@vger.kernel.org, linux-efi@vger.kernel.org, linux-ia64@vger.kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Rich Felker <dalias@libc.org>, Guo Ren <guoren@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org, Will Deacon <will@kernel.org>, WANG Xuerui <kernel@xen0n.name>, linux-arch@vger.kernel.org, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, linux-staging@lists.linux.dev, Russell
 
-Hi,
-
-
-Why this patch get dropped in the end?
-
-Since the global screen_info is an arch-specific thing,
-Whenever an arch-neutral module or subsystem references the global screen_info,
-There are some complaints from either compile testing robot.
-Well, a programmer may handle it by using the CONFIG_SYSFB guard,
-but it is not as precise as what this patch provided.
-
-Personally, I think this patch is still valuable.
-I suggest either forcing all other architectures to export screen_info,
-like the X86 and IA64 arch does, after all the screen_info is a good thing.
-or provide the fine-control version like this patch does.
-
-
-On 2023/6/29 19:45, Thomas Zimmermann wrote:
-> The variable screen_info does not exist on all architectures. Declare
-> it in <asm-generic/screen_info.h>. All architectures that do declare it
-> will provide it via <asm/screen_info.h>.
->
-> Add the Kconfig token ARCH_HAS_SCREEN_INFO to guard against access on
-> architectures that don't provide screen_info.
->
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Richard Henderson <richard.henderson@linaro.org>
-> Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-> Cc: Matt Turner <mattst88@gmail.com>
-> Cc: Russell King <linux@armlinux.org.uk>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Guo Ren <guoren@kernel.org>
-> Cc: Brian Cain <bcain@quicinc.com>
-> Cc: Huacai Chen <chenhuacai@kernel.org>
-> Cc: WANG Xuerui <kernel@xen0n.name>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: Dinh Nguyen <dinguyen@kernel.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Nicholas Piggin <npiggin@gmail.com>
-> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Cc: Paul Walmsley <paul.walmsley@sifive.com>
-> Cc: Palmer Dabbelt <palmer@dabbelt.com>
-> Cc: Albert Ou <aou@eecs.berkeley.edu>
-> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-> Cc: Rich Felker <dalias@libc.org>
-> Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: x86@kernel.org
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: Chris Zankel <chris@zankel.net>
-> Cc: Max Filippov <jcmvbkbc@gmail.com>
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Frederic Weisbecker <frederic@kernel.org>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Cc: Sami Tolvanen <samitolvanen@google.com>
-> Cc: Juerg Haefliger <juerg.haefliger@canonical.com>
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-> Cc: Niklas Schnelle <schnelle@linux.ibm.com>
-> Cc: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Sebastian Reichel <sebastian.reichel@collabora.com>
-> Cc: "Mike Rapoport (IBM)" <rppt@kernel.org>
-> Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-> Cc: Zi Yan <ziy@nvidia.com>
-> Acked-by: WANG Xuerui <git@xen0n.name> # loongarch
-> ---
->   arch/Kconfig                      |  6 ++++++
->   arch/alpha/Kconfig                |  1 +
->   arch/arm/Kconfig                  |  1 +
->   arch/arm64/Kconfig                |  1 +
->   arch/csky/Kconfig                 |  1 +
->   arch/hexagon/Kconfig              |  1 +
->   arch/ia64/Kconfig                 |  1 +
->   arch/loongarch/Kconfig            |  1 +
->   arch/mips/Kconfig                 |  1 +
->   arch/nios2/Kconfig                |  1 +
->   arch/powerpc/Kconfig              |  1 +
->   arch/riscv/Kconfig                |  1 +
->   arch/sh/Kconfig                   |  1 +
->   arch/sparc/Kconfig                |  1 +
->   arch/x86/Kconfig                  |  1 +
->   arch/xtensa/Kconfig               |  1 +
->   drivers/video/Kconfig             |  3 +++
->   include/asm-generic/Kbuild        |  1 +
->   include/asm-generic/screen_info.h | 12 ++++++++++++
->   include/linux/screen_info.h       |  2 +-
->   20 files changed, 38 insertions(+), 1 deletion(-)
->   create mode 100644 include/asm-generic/screen_info.h
->
-> diff --git a/arch/Kconfig b/arch/Kconfig
-> index 205fd23e0cada..2f58293fd7bcb 100644
-> --- a/arch/Kconfig
-> +++ b/arch/Kconfig
-> @@ -1466,6 +1466,12 @@ config ARCH_HAS_NONLEAF_PMD_YOUNG
->   	  address translations. Page table walkers that clear the accessed bit
->   	  may use this capability to reduce their search space.
->   
-> +config ARCH_HAS_SCREEN_INFO
-> +	bool
-> +	help
-> +	  Selected by architectures that provide a global instance of
-> +	  screen_info.
-> +
->   source "kernel/gcov/Kconfig"
->   
->   source "scripts/gcc-plugins/Kconfig"
-> diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
-> index a5c2b1aa46b02..d749011d88b14 100644
-> --- a/arch/alpha/Kconfig
-> +++ b/arch/alpha/Kconfig
-> @@ -4,6 +4,7 @@ config ALPHA
->   	default y
->   	select ARCH_32BIT_USTAT_F_TINODE
->   	select ARCH_HAS_CURRENT_STACK_POINTER
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_MIGHT_HAVE_PC_PARPORT
->   	select ARCH_MIGHT_HAVE_PC_SERIO
->   	select ARCH_NO_PREEMPT
-> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-> index 0fb4b218f6658..a9d01ee67a90e 100644
-> --- a/arch/arm/Kconfig
-> +++ b/arch/arm/Kconfig
-> @@ -15,6 +15,7 @@ config ARM
->   	select ARCH_HAS_MEMBARRIER_SYNC_CORE
->   	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
->   	select ARCH_HAS_PTE_SPECIAL if ARM_LPAE
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_SETUP_DMA_OPS
->   	select ARCH_HAS_SET_MEMORY
->   	select ARCH_STACKWALK
-> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-> index 343e1e1cae10a..21addc4715bb3 100644
-> --- a/arch/arm64/Kconfig
-> +++ b/arch/arm64/Kconfig
-> @@ -36,6 +36,7 @@ config ARM64
->   	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
->   	select ARCH_HAS_PTE_DEVMAP
->   	select ARCH_HAS_PTE_SPECIAL
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_SETUP_DMA_OPS
->   	select ARCH_HAS_SET_DIRECT_MAP
->   	select ARCH_HAS_SET_MEMORY
-> diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
-> index 4df1f8c9d170b..28444e581fc1f 100644
-> --- a/arch/csky/Kconfig
-> +++ b/arch/csky/Kconfig
-> @@ -10,6 +10,7 @@ config CSKY
->   	select ARCH_USE_QUEUED_RWLOCKS
->   	select ARCH_USE_QUEUED_SPINLOCKS
->   	select ARCH_HAS_CURRENT_STACK_POINTER
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_INLINE_READ_LOCK if !PREEMPTION
->   	select ARCH_INLINE_READ_LOCK_BH if !PREEMPTION
->   	select ARCH_INLINE_READ_LOCK_IRQ if !PREEMPTION
-> diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-> index 54eadf2651786..cc683c0a43d34 100644
-> --- a/arch/hexagon/Kconfig
-> +++ b/arch/hexagon/Kconfig
-> @@ -5,6 +5,7 @@ comment "Linux Kernel Configuration for Hexagon"
->   config HEXAGON
->   	def_bool y
->   	select ARCH_32BIT_OFF_T
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
->   	select ARCH_NO_PREEMPT
->   	select DMA_GLOBAL_POOL
-> diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
-> index e79f15e32a451..8b1e785e6d53d 100644
-> --- a/arch/ia64/Kconfig
-> +++ b/arch/ia64/Kconfig
-> @@ -10,6 +10,7 @@ config IA64
->   	bool
->   	select ARCH_BINFMT_ELF_EXTRA_PHDRS
->   	select ARCH_HAS_DMA_MARK_CLEAN
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_STRNCPY_FROM_USER
->   	select ARCH_HAS_STRNLEN_USER
->   	select ARCH_MIGHT_HAVE_PC_PARPORT
-> diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
-> index d38b066fc931b..6aab2fb7753da 100644
-> --- a/arch/loongarch/Kconfig
-> +++ b/arch/loongarch/Kconfig
-> @@ -13,6 +13,7 @@ config LOONGARCH
->   	select ARCH_HAS_FORTIFY_SOURCE
->   	select ARCH_HAS_NMI_SAFE_THIS_CPU_OPS
->   	select ARCH_HAS_PTE_SPECIAL
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
->   	select ARCH_INLINE_READ_LOCK if !PREEMPTION
->   	select ARCH_INLINE_READ_LOCK_BH if !PREEMPTION
-> diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-> index 675a8660cb85a..c0ae09789cb6d 100644
-> --- a/arch/mips/Kconfig
-> +++ b/arch/mips/Kconfig
-> @@ -10,6 +10,7 @@ config MIPS
->   	select ARCH_HAS_KCOV
->   	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE if !EVA
->   	select ARCH_HAS_PTE_SPECIAL if !(32BIT && CPU_HAS_RIXI)
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_STRNCPY_FROM_USER
->   	select ARCH_HAS_STRNLEN_USER
->   	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
-> diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
-> index e5936417d3cd3..7183eea282212 100644
-> --- a/arch/nios2/Kconfig
-> +++ b/arch/nios2/Kconfig
-> @@ -3,6 +3,7 @@ config NIOS2
->   	def_bool y
->   	select ARCH_32BIT_OFF_T
->   	select ARCH_HAS_DMA_PREP_COHERENT
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_SYNC_DMA_FOR_CPU
->   	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
->   	select ARCH_HAS_DMA_SET_UNCACHED
-> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> index bff5820b7cda1..b1acad3076180 100644
-> --- a/arch/powerpc/Kconfig
-> +++ b/arch/powerpc/Kconfig
-> @@ -148,6 +148,7 @@ config PPC
->   	select ARCH_HAS_PTE_DEVMAP		if PPC_BOOK3S_64
->   	select ARCH_HAS_PTE_SPECIAL
->   	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE && PPC_BOOK3S_64
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_SET_MEMORY
->   	select ARCH_HAS_STRICT_KERNEL_RWX	if (PPC_BOOK3S || PPC_8xx || 40x) && !HIBERNATION
->   	select ARCH_HAS_STRICT_KERNEL_RWX	if PPC_85xx && !HIBERNATION && !RANDOMIZE_BASE
-> diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-> index 5966ad97c30c3..b5a48f8424af9 100644
-> --- a/arch/riscv/Kconfig
-> +++ b/arch/riscv/Kconfig
-> @@ -29,6 +29,7 @@ config RISCV
->   	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
->   	select ARCH_HAS_PMEM_API
->   	select ARCH_HAS_PTE_SPECIAL
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_SET_DIRECT_MAP if MMU
->   	select ARCH_HAS_SET_MEMORY if MMU
->   	select ARCH_HAS_STRICT_KERNEL_RWX if MMU && !XIP_KERNEL
-> diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-> index 04b9550cf0070..001f5149952b4 100644
-> --- a/arch/sh/Kconfig
-> +++ b/arch/sh/Kconfig
-> @@ -10,6 +10,7 @@ config SUPERH
->   	select ARCH_HAS_GIGANTIC_PAGE
->   	select ARCH_HAS_GCOV_PROFILE_ALL
->   	select ARCH_HAS_PTE_SPECIAL
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
->   	select ARCH_HIBERNATION_POSSIBLE if MMU
->   	select ARCH_MIGHT_HAVE_PC_PARPORT
-> diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-> index 8535e19062f65..e4bfb80b48cfe 100644
-> --- a/arch/sparc/Kconfig
-> +++ b/arch/sparc/Kconfig
-> @@ -13,6 +13,7 @@ config 64BIT
->   config SPARC
->   	bool
->   	default y
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_MIGHT_HAVE_PC_PARPORT if SPARC64 && PCI
->   	select ARCH_MIGHT_HAVE_PC_SERIO
->   	select DMA_OPS
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index 53bab123a8ee4..d7c2bf4ee403d 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -91,6 +91,7 @@ config X86
->   	select ARCH_HAS_NONLEAF_PMD_YOUNG	if PGTABLE_LEVELS > 2
->   	select ARCH_HAS_UACCESS_FLUSHCACHE	if X86_64
->   	select ARCH_HAS_COPY_MC			if X86_64
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_SET_MEMORY
->   	select ARCH_HAS_SET_DIRECT_MAP
->   	select ARCH_HAS_STRICT_KERNEL_RWX
-> diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
-> index 3c6e5471f025b..c6cbd7459939c 100644
-> --- a/arch/xtensa/Kconfig
-> +++ b/arch/xtensa/Kconfig
-> @@ -8,6 +8,7 @@ config XTENSA
->   	select ARCH_HAS_DMA_PREP_COHERENT if MMU
->   	select ARCH_HAS_GCOV_PROFILE_ALL
->   	select ARCH_HAS_KCOV
-> +	select ARCH_HAS_SCREEN_INFO
->   	select ARCH_HAS_SYNC_DMA_FOR_CPU if MMU
->   	select ARCH_HAS_SYNC_DMA_FOR_DEVICE if MMU
->   	select ARCH_HAS_DMA_SET_UNCACHED if MMU
-> diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
-> index 8b2b9ac37c3df..d4a72bea56be0 100644
-> --- a/drivers/video/Kconfig
-> +++ b/drivers/video/Kconfig
-> @@ -21,6 +21,9 @@ config STI_CORE
->   config VIDEO_CMDLINE
->   	bool
->   
-> +config ARCH_HAS_SCREEN_INFO
-> +	bool
-> +
->   config VIDEO_NOMODESET
->   	bool
->   	default n
-> diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
-> index 941be574bbe00..5e5d4158a4b4b 100644
-> --- a/include/asm-generic/Kbuild
-> +++ b/include/asm-generic/Kbuild
-> @@ -47,6 +47,7 @@ mandatory-y += percpu.h
->   mandatory-y += pgalloc.h
->   mandatory-y += preempt.h
->   mandatory-y += rwonce.h
-> +mandatory-y += screen_info.h
->   mandatory-y += sections.h
->   mandatory-y += serial.h
->   mandatory-y += shmparam.h
-> diff --git a/include/asm-generic/screen_info.h b/include/asm-generic/screen_info.h
-> new file mode 100644
-> index 0000000000000..6fd0e50fabfcd
-> --- /dev/null
-> +++ b/include/asm-generic/screen_info.h
-> @@ -0,0 +1,12 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +
-> +#ifndef _ASM_GENERIC_SCREEN_INFO_H
-> +#define _ASM_GENERIC_SCREEN_INFO_H
-> +
-> +#include <uapi/linux/screen_info.h>
-> +
-> +#if defined(CONFIG_ARCH_HAS_SCREEN_INFO)
-> +extern struct screen_info screen_info;
-> +#endif
-> +
-> +#endif /* _ASM_GENERIC_SCREEN_INFO_H */
-> diff --git a/include/linux/screen_info.h b/include/linux/screen_info.h
-> index eab7081392d50..c764b9a51c24b 100644
-> --- a/include/linux/screen_info.h
-> +++ b/include/linux/screen_info.h
-> @@ -4,6 +4,6 @@
->   
->   #include <uapi/linux/screen_info.h>
->   
-> -extern struct screen_info screen_info;
-> +#include <asm/screen_info.h>
->   
->   #endif /* _SCREEN_INFO_H */
+Ck9uIDIwMjMvOC8xOCAyMjowNCwgc3VpamluZ2Zlbmcgd3JvdGU6Cj4gSGksCj4KPgo+IFdoeSB0
+aGlzIHBhdGNoIGdldCBkcm9wcGVkIGluIHRoZSBlbmQ/Cj4KPiBTaW5jZSB0aGUgZ2xvYmFsIHNj
+cmVlbl9pbmZvIGlzIGFuIGFyY2gtc3BlY2lmaWMgdGhpbmcsCj4gV2hlbmV2ZXIgYW4gYXJjaC1u
+ZXV0cmFsIG1vZHVsZSBvciBzdWJzeXN0ZW0gcmVmZXJlbmNlcyB0aGUgZ2xvYmFsIAo+IHNjcmVl
+bl9pbmZvLAo+IFRoZXJlIGFyZSBzb21lIGNvbXBsYWludHMgZnJvbSBlaXRoZXIgY29tcGlsZSB0
+ZXN0aW5nIHJvYm90LgoKClRoZXJlIGFyZSBzb21lIGNvbXBsYWludHMgZnJvbSBlaXRoZXIgY29t
+cGlsZSB0ZXN0aW5nIHJvYm90IG9yIGRvbWFpbiAKc3BlY2lmaWMgcmV2aWV3ZXJzIHdobyBkb3Vi
+dCB3aHkgeW91IHNlbGVjdCB0aGUgQ09ORklHX1NZU0ZCIG5vdCAKQ09ORklHX1ZUIG9yIENPTkZJ
+R19FRkkuCgoKPiBXZWxsLCBhIHByb2dyYW1tZXIgbWF5IGhhbmRsZSBpdCBieSB1c2luZyB0aGUg
+Q09ORklHX1NZU0ZCIGd1YXJkLAo+IGJ1dCBpdCBpcyBub3QgYXMgcHJlY2lzZSBhcyB3aGF0IHRo
+aXMgcGF0Y2ggcHJvdmlkZWQuCj4KPiBQZXJzb25hbGx5LCBJIHRoaW5rIHRoaXMgcGF0Y2ggaXMg
+c3RpbGwgdmFsdWFibGUuCj4gSSBzdWdnZXN0IGVpdGhlciBmb3JjaW5nIGFsbCBvdGhlciBhcmNo
+aXRlY3R1cmVzIHRvIGV4cG9ydCBzY3JlZW5faW5mbywKPiBsaWtlIHRoZSBYODYgYW5kIElBNjQg
+YXJjaCBkb2VzLCBhZnRlciBhbGwgdGhlIHNjcmVlbl9pbmZvIGlzIGEgZ29vZCAKPiB0aGluZy4K
+PiBvciBwcm92aWRlIHRoZSBmaW5lLWNvbnRyb2wgdmVyc2lvbiBsaWtlIHRoaXMgcGF0Y2ggZG9l
+cy4KPgoKQmVjYXVzZSBhbGwgb2YgdGhlIHRocmVlIHRva2VucyhDT05GSUdfU1lTRkIgbm90IENP
+TkZJR19WVCBvciBDT05GSUdfRUZJLikKCmhhdmUgbm8gZGlyZWN0IHJlbGF0aW9uc2hpcCB3aXRo
+IHRoZSBnbG9iYWwgc2NyZWVuX2luZm8gaWYgYW4gYXJjaCBpcyAKbm90IG1lbnRpb25lZCBmaXJz
+dC4KCgoKPiBPbiAyMDIzLzYvMjkgMTk6NDUsIFRob21hcyBaaW1tZXJtYW5uIHdyb3RlOgo+PiBU
+aGUgdmFyaWFibGUgc2NyZWVuX2luZm8gZG9lcyBub3QgZXhpc3Qgb24gYWxsIGFyY2hpdGVjdHVy
+ZXMuIERlY2xhcmUKPj4gaXQgaW4gPGFzbS1nZW5lcmljL3NjcmVlbl9pbmZvLmg+LiBBbGwgYXJj
+aGl0ZWN0dXJlcyB0aGF0IGRvIGRlY2xhcmUgaXQKPj4gd2lsbCBwcm92aWRlIGl0IHZpYSA8YXNt
+L3NjcmVlbl9pbmZvLmg+Lgo+Pgo+PiBBZGQgdGhlIEtjb25maWcgdG9rZW4gQVJDSF9IQVNfU0NS
+RUVOX0lORk8gdG8gZ3VhcmQgYWdhaW5zdCBhY2Nlc3Mgb24KPj4gYXJjaGl0ZWN0dXJlcyB0aGF0
+IGRvbid0IHByb3ZpZGUgc2NyZWVuX2luZm8uCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IFRob21hcyBa
+aW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPgo+PiBDYzogUmljaGFyZCBIZW5kZXJzb24g
+PHJpY2hhcmQuaGVuZGVyc29uQGxpbmFyby5vcmc+Cj4+IENjOiBJdmFuIEtva3NoYXlza3kgPGlu
+a0BqdXJhc3NpYy5wYXJrLm1zdS5ydT4KPj4gQ2M6IE1hdHQgVHVybmVyIDxtYXR0c3Q4OEBnbWFp
+bC5jb20+Cj4+IENjOiBSdXNzZWxsIEtpbmcgPGxpbnV4QGFybWxpbnV4Lm9yZy51az4KPj4gQ2M6
+IENhdGFsaW4gTWFyaW5hcyA8Y2F0YWxpbi5tYXJpbmFzQGFybS5jb20+Cj4+IENjOiBXaWxsIERl
+YWNvbiA8d2lsbEBrZXJuZWwub3JnPgo+PiBDYzogR3VvIFJlbiA8Z3VvcmVuQGtlcm5lbC5vcmc+
+Cj4+IENjOiBCcmlhbiBDYWluIDxiY2FpbkBxdWljaW5jLmNvbT4KPj4gQ2M6IEh1YWNhaSBDaGVu
+IDxjaGVuaHVhY2FpQGtlcm5lbC5vcmc+Cj4+IENjOiBXQU5HIFh1ZXJ1aSA8a2VybmVsQHhlbjBu
+Lm5hbWU+Cj4+IENjOiBUaG9tYXMgQm9nZW5kb2VyZmVyIDx0c2JvZ2VuZEBhbHBoYS5mcmFua2Vu
+LmRlPgo+PiBDYzogRGluaCBOZ3V5ZW4gPGRpbmd1eWVuQGtlcm5lbC5vcmc+Cj4+IENjOiBNaWNo
+YWVsIEVsbGVybWFuIDxtcGVAZWxsZXJtYW4uaWQuYXU+Cj4+IENjOiBOaWNob2xhcyBQaWdnaW4g
+PG5waWdnaW5AZ21haWwuY29tPgo+PiBDYzogQ2hyaXN0b3BoZSBMZXJveSA8Y2hyaXN0b3BoZS5s
+ZXJveUBjc2dyb3VwLmV1Pgo+PiBDYzogUGF1bCBXYWxtc2xleSA8cGF1bC53YWxtc2xleUBzaWZp
+dmUuY29tPgo+PiBDYzogUGFsbWVyIERhYmJlbHQgPHBhbG1lckBkYWJiZWx0LmNvbT4KPj4gQ2M6
+IEFsYmVydCBPdSA8YW91QGVlY3MuYmVya2VsZXkuZWR1Pgo+PiBDYzogWW9zaGlub3JpIFNhdG8g
+PHlzYXRvQHVzZXJzLnNvdXJjZWZvcmdlLmpwPgo+PiBDYzogUmljaCBGZWxrZXIgPGRhbGlhc0Bs
+aWJjLm9yZz4KPj4gQ2M6IEpvaG4gUGF1bCBBZHJpYW4gR2xhdWJpdHogPGdsYXViaXR6QHBoeXNp
+ay5mdS1iZXJsaW4uZGU+Cj4+IENjOiAiRGF2aWQgUy4gTWlsbGVyIiA8ZGF2ZW1AZGF2ZW1sb2Z0
+Lm5ldD4KPj4gQ2M6IFRob21hcyBHbGVpeG5lciA8dGdseEBsaW51dHJvbml4LmRlPgo+PiBDYzog
+SW5nbyBNb2xuYXIgPG1pbmdvQHJlZGhhdC5jb20+Cj4+IENjOiBCb3Jpc2xhdiBQZXRrb3YgPGJw
+QGFsaWVuOC5kZT4KPj4gQ2M6IERhdmUgSGFuc2VuIDxkYXZlLmhhbnNlbkBsaW51eC5pbnRlbC5j
+b20+Cj4+IENjOiB4ODZAa2VybmVsLm9yZwo+PiBDYzogIkguIFBldGVyIEFudmluIiA8aHBhQHp5
+dG9yLmNvbT4KPj4gQ2M6IENocmlzIFphbmtlbCA8Y2hyaXNAemFua2VsLm5ldD4KPj4gQ2M6IE1h
+eCBGaWxpcHBvdiA8amNtdmJrYmNAZ21haWwuY29tPgo+PiBDYzogSGVsZ2UgRGVsbGVyIDxkZWxs
+ZXJAZ214LmRlPgo+PiBDYzogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4KPj4gQ2M6IEtl
+ZXMgQ29vayA8a2Vlc2Nvb2tAY2hyb21pdW0ub3JnPgo+PiBDYzogIlBhdWwgRS4gTWNLZW5uZXki
+IDxwYXVsbWNrQGtlcm5lbC5vcmc+Cj4+IENjOiBQZXRlciBaaWpsc3RyYSA8cGV0ZXJ6QGluZnJh
+ZGVhZC5vcmc+Cj4+IENjOiBGcmVkZXJpYyBXZWlzYmVja2VyIDxmcmVkZXJpY0BrZXJuZWwub3Jn
+Pgo+PiBDYzogQW5kcmV3IE1vcnRvbiA8YWtwbUBsaW51eC1mb3VuZGF0aW9uLm9yZz4KPj4gQ2M6
+IEFyZCBCaWVzaGV1dmVsIDxhcmRiQGtlcm5lbC5vcmc+Cj4+IENjOiBTYW1pIFRvbHZhbmVuIDxz
+YW1pdG9sdmFuZW5AZ29vZ2xlLmNvbT4KPj4gQ2M6IEp1ZXJnIEhhZWZsaWdlciA8anVlcmcuaGFl
+ZmxpZ2VyQGNhbm9uaWNhbC5jb20+Cj4+IENjOiBHZWVydCBVeXR0ZXJob2V2ZW4gPGdlZXJ0QGxp
+bnV4LW02OGsub3JnPgo+PiBDYzogQW5zaHVtYW4gS2hhbmR1YWwgPGFuc2h1bWFuLmtoYW5kdWFs
+QGFybS5jb20+Cj4+IENjOiBOaWtsYXMgU2NobmVsbGUgPHNjaG5lbGxlQGxpbnV4LmlibS5jb20+
+Cj4+IENjOiAiUnVzc2VsbCBLaW5nIChPcmFjbGUpIiA8cm1rK2tlcm5lbEBhcm1saW51eC5vcmcu
+dWs+Cj4+IENjOiBMaW51cyBXYWxsZWlqIDxsaW51cy53YWxsZWlqQGxpbmFyby5vcmc+Cj4+IENj
+OiBTZWJhc3RpYW4gUmVpY2hlbCA8c2ViYXN0aWFuLnJlaWNoZWxAY29sbGFib3JhLmNvbT4KPj4g
+Q2M6ICJNaWtlIFJhcG9wb3J0IChJQk0pIiA8cnBwdEBrZXJuZWwub3JnPgo+PiBDYzogIktpcmls
+bCBBLiBTaHV0ZW1vdiIgPGtpcmlsbC5zaHV0ZW1vdkBsaW51eC5pbnRlbC5jb20+Cj4+IENjOiBa
+aSBZYW4gPHppeUBudmlkaWEuY29tPgo+PiBBY2tlZC1ieTogV0FORyBYdWVydWkgPGdpdEB4ZW4w
+bi5uYW1lPiAjIGxvb25nYXJjaAo+PiAtLS0KPj4gwqAgYXJjaC9LY29uZmlnwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA2ICsrKysrKwo+PiDCoCBhcmNoL2Fs
+cGhhL0tjb25maWfCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDEgKwo+PiDCoCBh
+cmNoL2FybS9LY29uZmlnwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMSAr
+Cj4+IMKgIGFyY2gvYXJtNjQvS2NvbmZpZ8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8
+wqAgMSArCj4+IMKgIGFyY2gvY3NreS9LY29uZmlnwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqAgfMKgIDEgKwo+PiDCoCBhcmNoL2hleGFnb24vS2NvbmZpZ8KgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgIHzCoCAxICsKPj4gwqAgYXJjaC9pYTY0L0tjb25maWfCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCB8wqAgMSArCj4+IMKgIGFyY2gvbG9vbmdhcmNoL0tjb25maWfCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAxICsKPj4gwqAgYXJjaC9taXBzL0tjb25maWfCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMSArCj4+IMKgIGFyY2gvbmlvczIvS2NvbmZp
+Z8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMSArCj4+IMKgIGFyY2gvcG93ZXJw
+Yy9LY29uZmlnwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDEgKwo+PiDCoCBhcmNoL3Jp
+c2N2L0tjb25maWfCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDEgKwo+PiDCoCBh
+cmNoL3NoL0tjb25maWfCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDEg
+Kwo+PiDCoCBhcmNoL3NwYXJjL0tjb25maWfCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
+fMKgIDEgKwo+PiDCoCBhcmNoL3g4Ni9LY29uZmlnwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoCB8wqAgMSArCj4+IMKgIGFyY2gveHRlbnNhL0tjb25maWfCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgIHzCoCAxICsKPj4gwqAgZHJpdmVycy92aWRlby9LY29uZmlnwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgIHzCoCAzICsrKwo+PiDCoCBpbmNsdWRlL2FzbS1nZW5lcmljL0tidWls
+ZMKgwqDCoMKgwqDCoMKgIHzCoCAxICsKPj4gwqAgaW5jbHVkZS9hc20tZ2VuZXJpYy9zY3JlZW5f
+aW5mby5oIHwgMTIgKysrKysrKysrKysrCj4+IMKgIGluY2x1ZGUvbGludXgvc2NyZWVuX2luZm8u
+aMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+PiDCoCAyMCBmaWxlcyBjaGFuZ2VkLCAzOCBpbnNlcnRp
+b25zKCspLCAxIGRlbGV0aW9uKC0pCj4+IMKgIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2Fz
+bS1nZW5lcmljL3NjcmVlbl9pbmZvLmgKPj4KPj4gZGlmZiAtLWdpdCBhL2FyY2gvS2NvbmZpZyBi
+L2FyY2gvS2NvbmZpZwo+PiBpbmRleCAyMDVmZDIzZTBjYWRhLi4yZjU4MjkzZmQ3YmNiIDEwMDY0
+NAo+PiAtLS0gYS9hcmNoL0tjb25maWcKPj4gKysrIGIvYXJjaC9LY29uZmlnCj4+IEBAIC0xNDY2
+LDYgKzE0NjYsMTIgQEAgY29uZmlnIEFSQ0hfSEFTX05PTkxFQUZfUE1EX1lPVU5HCj4+IMKgwqDC
+oMKgwqDCoMKgIGFkZHJlc3MgdHJhbnNsYXRpb25zLiBQYWdlIHRhYmxlIHdhbGtlcnMgdGhhdCBj
+bGVhciB0aGUgCj4+IGFjY2Vzc2VkIGJpdAo+PiDCoMKgwqDCoMKgwqDCoCBtYXkgdXNlIHRoaXMg
+Y2FwYWJpbGl0eSB0byByZWR1Y2UgdGhlaXIgc2VhcmNoIHNwYWNlLgo+PiDCoCArY29uZmlnIEFS
+Q0hfSEFTX1NDUkVFTl9JTkZPCj4+ICvCoMKgwqAgYm9vbAo+PiArwqDCoMKgIGhlbHAKPj4gK8Kg
+wqDCoMKgwqAgU2VsZWN0ZWQgYnkgYXJjaGl0ZWN0dXJlcyB0aGF0IHByb3ZpZGUgYSBnbG9iYWwg
+aW5zdGFuY2Ugb2YKPj4gK8KgwqDCoMKgwqAgc2NyZWVuX2luZm8uCj4+ICsKPj4gwqAgc291cmNl
+ICJrZXJuZWwvZ2Nvdi9LY29uZmlnIgo+PiDCoCDCoCBzb3VyY2UgInNjcmlwdHMvZ2NjLXBsdWdp
+bnMvS2NvbmZpZyIKPj4gZGlmZiAtLWdpdCBhL2FyY2gvYWxwaGEvS2NvbmZpZyBiL2FyY2gvYWxw
+aGEvS2NvbmZpZwo+PiBpbmRleCBhNWMyYjFhYTQ2YjAyLi5kNzQ5MDExZDg4YjE0IDEwMDY0NAo+
+PiAtLS0gYS9hcmNoL2FscGhhL0tjb25maWcKPj4gKysrIGIvYXJjaC9hbHBoYS9LY29uZmlnCj4+
+IEBAIC00LDYgKzQsNyBAQCBjb25maWcgQUxQSEEKPj4gwqDCoMKgwqDCoCBkZWZhdWx0IHkKPj4g
+wqDCoMKgwqDCoCBzZWxlY3QgQVJDSF8zMkJJVF9VU1RBVF9GX1RJTk9ERQo+PiDCoMKgwqDCoMKg
+IHNlbGVjdCBBUkNIX0hBU19DVVJSRU5UX1NUQUNLX1BPSU5URVIKPj4gK8KgwqDCoCBzZWxlY3Qg
+QVJDSF9IQVNfU0NSRUVOX0lORk8KPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9NSUdIVF9IQVZF
+X1BDX1BBUlBPUlQKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9NSUdIVF9IQVZFX1BDX1NFUklP
+Cj4+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfTk9fUFJFRU1QVAo+PiBkaWZmIC0tZ2l0IGEvYXJj
+aC9hcm0vS2NvbmZpZyBiL2FyY2gvYXJtL0tjb25maWcKPj4gaW5kZXggMGZiNGIyMThmNjY1OC4u
+YTlkMDFlZTY3YTkwZSAxMDA2NDQKPj4gLS0tIGEvYXJjaC9hcm0vS2NvbmZpZwo+PiArKysgYi9h
+cmNoL2FybS9LY29uZmlnCj4+IEBAIC0xNSw2ICsxNSw3IEBAIGNvbmZpZyBBUk0KPj4gwqDCoMKg
+wqDCoCBzZWxlY3QgQVJDSF9IQVNfTUVNQkFSUklFUl9TWU5DX0NPUkUKPj4gwqDCoMKgwqDCoCBz
+ZWxlY3QgQVJDSF9IQVNfTk9OX09WRVJMQVBQSU5HX0FERFJFU1NfU1BBQ0UKPj4gwqDCoMKgwqDC
+oCBzZWxlY3QgQVJDSF9IQVNfUFRFX1NQRUNJQUwgaWYgQVJNX0xQQUUKPj4gK8KgwqDCoCBzZWxl
+Y3QgQVJDSF9IQVNfU0NSRUVOX0lORk8KPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU0VU
+VVBfRE1BX09QUwo+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNIX0hBU19TRVRfTUVNT1JZCj4+IMKg
+wqDCoMKgwqAgc2VsZWN0IEFSQ0hfU1RBQ0tXQUxLCj4+IGRpZmYgLS1naXQgYS9hcmNoL2FybTY0
+L0tjb25maWcgYi9hcmNoL2FybTY0L0tjb25maWcKPj4gaW5kZXggMzQzZTFlMWNhZTEwYS4uMjFh
+ZGRjNDcxNWJiMyAxMDA2NDQKPj4gLS0tIGEvYXJjaC9hcm02NC9LY29uZmlnCj4+ICsrKyBiL2Fy
+Y2gvYXJtNjQvS2NvbmZpZwo+PiBAQCAtMzYsNiArMzYsNyBAQCBjb25maWcgQVJNNjQKPj4gwqDC
+oMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfTk9OX09WRVJMQVBQSU5HX0FERFJFU1NfU1BBQ0UKPj4g
+wqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfUFRFX0RFVk1BUAo+PiDCoMKgwqDCoMKgIHNlbGVj
+dCBBUkNIX0hBU19QVEVfU1BFQ0lBTAo+PiArwqDCoMKgIHNlbGVjdCBBUkNIX0hBU19TQ1JFRU5f
+SU5GTwo+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNIX0hBU19TRVRVUF9ETUFfT1BTCj4+IMKgwqDC
+oMKgwqAgc2VsZWN0IEFSQ0hfSEFTX1NFVF9ESVJFQ1RfTUFQCj4+IMKgwqDCoMKgwqAgc2VsZWN0
+IEFSQ0hfSEFTX1NFVF9NRU1PUlkKPj4gZGlmZiAtLWdpdCBhL2FyY2gvY3NreS9LY29uZmlnIGIv
+YXJjaC9jc2t5L0tjb25maWcKPj4gaW5kZXggNGRmMWY4YzlkMTcwYi4uMjg0NDRlNTgxZmMxZiAx
+MDA2NDQKPj4gLS0tIGEvYXJjaC9jc2t5L0tjb25maWcKPj4gKysrIGIvYXJjaC9jc2t5L0tjb25m
+aWcKPj4gQEAgLTEwLDYgKzEwLDcgQEAgY29uZmlnIENTS1kKPj4gwqDCoMKgwqDCoCBzZWxlY3Qg
+QVJDSF9VU0VfUVVFVUVEX1JXTE9DS1MKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9VU0VfUVVF
+VUVEX1NQSU5MT0NLUwo+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNIX0hBU19DVVJSRU5UX1NUQUNL
+X1BPSU5URVIKPj4gK8KgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU0NSRUVOX0lORk8KPj4gwqDCoMKg
+wqDCoCBzZWxlY3QgQVJDSF9JTkxJTkVfUkVBRF9MT0NLIGlmICFQUkVFTVBUSU9OCj4+IMKgwqDC
+oMKgwqAgc2VsZWN0IEFSQ0hfSU5MSU5FX1JFQURfTE9DS19CSCBpZiAhUFJFRU1QVElPTgo+PiDC
+oMKgwqDCoMKgIHNlbGVjdCBBUkNIX0lOTElORV9SRUFEX0xPQ0tfSVJRIGlmICFQUkVFTVBUSU9O
+Cj4+IGRpZmYgLS1naXQgYS9hcmNoL2hleGFnb24vS2NvbmZpZyBiL2FyY2gvaGV4YWdvbi9LY29u
+ZmlnCj4+IGluZGV4IDU0ZWFkZjI2NTE3ODYuLmNjNjgzYzBhNDNkMzQgMTAwNjQ0Cj4+IC0tLSBh
+L2FyY2gvaGV4YWdvbi9LY29uZmlnCj4+ICsrKyBiL2FyY2gvaGV4YWdvbi9LY29uZmlnCj4+IEBA
+IC01LDYgKzUsNyBAQCBjb21tZW50ICJMaW51eCBLZXJuZWwgQ29uZmlndXJhdGlvbiBmb3IgSGV4
+YWdvbiIKPj4gwqAgY29uZmlnIEhFWEFHT04KPj4gwqDCoMKgwqDCoCBkZWZfYm9vbCB5Cj4+IMKg
+wqDCoMKgwqAgc2VsZWN0IEFSQ0hfMzJCSVRfT0ZGX1QKPj4gK8KgwqDCoCBzZWxlY3QgQVJDSF9I
+QVNfU0NSRUVOX0lORk8KPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU1lOQ19ETUFfRk9S
+X0RFVklDRQo+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNIX05PX1BSRUVNUFQKPj4gwqDCoMKgwqDC
+oCBzZWxlY3QgRE1BX0dMT0JBTF9QT09MCj4+IGRpZmYgLS1naXQgYS9hcmNoL2lhNjQvS2NvbmZp
+ZyBiL2FyY2gvaWE2NC9LY29uZmlnCj4+IGluZGV4IGU3OWYxNWUzMmE0NTEuLjhiMWU3ODVlNmQ1
+M2QgMTAwNjQ0Cj4+IC0tLSBhL2FyY2gvaWE2NC9LY29uZmlnCj4+ICsrKyBiL2FyY2gvaWE2NC9L
+Y29uZmlnCj4+IEBAIC0xMCw2ICsxMCw3IEBAIGNvbmZpZyBJQTY0Cj4+IMKgwqDCoMKgwqAgYm9v
+bAo+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNIX0JJTkZNVF9FTEZfRVhUUkFfUEhEUlMKPj4gwqDC
+oMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfRE1BX01BUktfQ0xFQU4KPj4gK8KgwqDCoCBzZWxlY3Qg
+QVJDSF9IQVNfU0NSRUVOX0lORk8KPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU1RSTkNQ
+WV9GUk9NX1VTRVIKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU1RSTkxFTl9VU0VSCj4+
+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfTUlHSFRfSEFWRV9QQ19QQVJQT1JUCj4+IGRpZmYgLS1n
+aXQgYS9hcmNoL2xvb25nYXJjaC9LY29uZmlnIGIvYXJjaC9sb29uZ2FyY2gvS2NvbmZpZwo+PiBp
+bmRleCBkMzhiMDY2ZmM5MzFiLi42YWFiMmZiNzc1M2RhIDEwMDY0NAo+PiAtLS0gYS9hcmNoL2xv
+b25nYXJjaC9LY29uZmlnCj4+ICsrKyBiL2FyY2gvbG9vbmdhcmNoL0tjb25maWcKPj4gQEAgLTEz
+LDYgKzEzLDcgQEAgY29uZmlnIExPT05HQVJDSAo+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNIX0hB
+U19GT1JUSUZZX1NPVVJDRQo+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNIX0hBU19OTUlfU0FGRV9U
+SElTX0NQVV9PUFMKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfUFRFX1NQRUNJQUwKPj4g
+K8KgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU0NSRUVOX0lORk8KPj4gwqDCoMKgwqDCoCBzZWxlY3Qg
+QVJDSF9IQVNfVElDS19CUk9BRENBU1QgaWYgR0VORVJJQ19DTE9DS0VWRU5UU19CUk9BRENBU1QK
+Pj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9JTkxJTkVfUkVBRF9MT0NLIGlmICFQUkVFTVBUSU9O
+Cj4+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfSU5MSU5FX1JFQURfTE9DS19CSCBpZiAhUFJFRU1Q
+VElPTgo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9taXBzL0tjb25maWcgYi9hcmNoL21pcHMvS2NvbmZp
+Zwo+PiBpbmRleCA2NzVhODY2MGNiODVhLi5jMGFlMDk3ODljYjZkIDEwMDY0NAo+PiAtLS0gYS9h
+cmNoL21pcHMvS2NvbmZpZwo+PiArKysgYi9hcmNoL21pcHMvS2NvbmZpZwo+PiBAQCAtMTAsNiAr
+MTAsNyBAQCBjb25maWcgTUlQUwo+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNIX0hBU19LQ09WCj4+
+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfSEFTX05PTl9PVkVSTEFQUElOR19BRERSRVNTX1NQQUNF
+IGlmICFFVkEKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfUFRFX1NQRUNJQUwgaWYgISgz
+MkJJVCAmJiBDUFVfSEFTX1JJWEkpCj4+ICvCoMKgwqAgc2VsZWN0IEFSQ0hfSEFTX1NDUkVFTl9J
+TkZPCj4+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfSEFTX1NUUk5DUFlfRlJPTV9VU0VSCj4+IMKg
+wqDCoMKgwqAgc2VsZWN0IEFSQ0hfSEFTX1NUUk5MRU5fVVNFUgo+PiDCoMKgwqDCoMKgIHNlbGVj
+dCBBUkNIX0hBU19USUNLX0JST0FEQ0FTVCBpZiBHRU5FUklDX0NMT0NLRVZFTlRTX0JST0FEQ0FT
+VAo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9uaW9zMi9LY29uZmlnIGIvYXJjaC9uaW9zMi9LY29uZmln
+Cj4+IGluZGV4IGU1OTM2NDE3ZDNjZDMuLjcxODNlZWEyODIyMTIgMTAwNjQ0Cj4+IC0tLSBhL2Fy
+Y2gvbmlvczIvS2NvbmZpZwo+PiArKysgYi9hcmNoL25pb3MyL0tjb25maWcKPj4gQEAgLTMsNiAr
+Myw3IEBAIGNvbmZpZyBOSU9TMgo+PiDCoMKgwqDCoMKgIGRlZl9ib29sIHkKPj4gwqDCoMKgwqDC
+oCBzZWxlY3QgQVJDSF8zMkJJVF9PRkZfVAo+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNIX0hBU19E
+TUFfUFJFUF9DT0hFUkVOVAo+PiArwqDCoMKgIHNlbGVjdCBBUkNIX0hBU19TQ1JFRU5fSU5GTwo+
+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNIX0hBU19TWU5DX0RNQV9GT1JfQ1BVCj4+IMKgwqDCoMKg
+wqAgc2VsZWN0IEFSQ0hfSEFTX1NZTkNfRE1BX0ZPUl9ERVZJQ0UKPj4gwqDCoMKgwqDCoCBzZWxl
+Y3QgQVJDSF9IQVNfRE1BX1NFVF9VTkNBQ0hFRAo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBj
+L0tjb25maWcgYi9hcmNoL3Bvd2VycGMvS2NvbmZpZwo+PiBpbmRleCBiZmY1ODIwYjdjZGExLi5i
+MWFjYWQzMDc2MTgwIDEwMDY0NAo+PiAtLS0gYS9hcmNoL3Bvd2VycGMvS2NvbmZpZwo+PiArKysg
+Yi9hcmNoL3Bvd2VycGMvS2NvbmZpZwo+PiBAQCAtMTQ4LDYgKzE0OCw3IEBAIGNvbmZpZyBQUEMK
+Pj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfUFRFX0RFVk1BUMKgwqDCoMKgwqDCoMKgIGlm
+IFBQQ19CT09LM1NfNjQKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfUFRFX1NQRUNJQUwK
+Pj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU0NBTEVEX0NQVVRJTUXCoMKgwqDCoMKgwqDC
+oCBpZiAKPj4gVklSVF9DUFVfQUNDT1VOVElOR19OQVRJVkUgJiYgUFBDX0JPT0szU182NAo+PiAr
+wqDCoMKgIHNlbGVjdCBBUkNIX0hBU19TQ1JFRU5fSU5GTwo+PiDCoMKgwqDCoMKgIHNlbGVjdCBB
+UkNIX0hBU19TRVRfTUVNT1JZCj4+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfSEFTX1NUUklDVF9L
+RVJORUxfUldYwqDCoMKgIGlmIChQUENfQk9PSzNTIHx8IFBQQ184eHggCj4+IHx8IDQweCkgJiYg
+IUhJQkVSTkFUSU9OCj4+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfSEFTX1NUUklDVF9LRVJORUxf
+UldYwqDCoMKgIGlmIFBQQ184NXh4ICYmIAo+PiAhSElCRVJOQVRJT04gJiYgIVJBTkRPTUlaRV9C
+QVNFCj4+IGRpZmYgLS1naXQgYS9hcmNoL3Jpc2N2L0tjb25maWcgYi9hcmNoL3Jpc2N2L0tjb25m
+aWcKPj4gaW5kZXggNTk2NmFkOTdjMzBjMy4uYjVhNDhmODQyNGFmOSAxMDA2NDQKPj4gLS0tIGEv
+YXJjaC9yaXNjdi9LY29uZmlnCj4+ICsrKyBiL2FyY2gvcmlzY3YvS2NvbmZpZwo+PiBAQCAtMjks
+NiArMjksNyBAQCBjb25maWcgUklTQ1YKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfTk9O
+X09WRVJMQVBQSU5HX0FERFJFU1NfU1BBQ0UKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNf
+UE1FTV9BUEkKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfUFRFX1NQRUNJQUwKPj4gK8Kg
+wqDCoCBzZWxlY3QgQVJDSF9IQVNfU0NSRUVOX0lORk8KPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJD
+SF9IQVNfU0VUX0RJUkVDVF9NQVAgaWYgTU1VCj4+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfSEFT
+X1NFVF9NRU1PUlkgaWYgTU1VCj4+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfSEFTX1NUUklDVF9L
+RVJORUxfUldYIGlmIE1NVSAmJiAhWElQX0tFUk5FTAo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9zaC9L
+Y29uZmlnIGIvYXJjaC9zaC9LY29uZmlnCj4+IGluZGV4IDA0Yjk1NTBjZjAwNzAuLjAwMWY1MTQ5
+OTUyYjQgMTAwNjQ0Cj4+IC0tLSBhL2FyY2gvc2gvS2NvbmZpZwo+PiArKysgYi9hcmNoL3NoL0tj
+b25maWcKPj4gQEAgLTEwLDYgKzEwLDcgQEAgY29uZmlnIFNVUEVSSAo+PiDCoMKgwqDCoMKgIHNl
+bGVjdCBBUkNIX0hBU19HSUdBTlRJQ19QQUdFCj4+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfSEFT
+X0dDT1ZfUFJPRklMRV9BTEwKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfUFRFX1NQRUNJ
+QUwKPj4gK8KgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU0NSRUVOX0lORk8KPj4gwqDCoMKgwqDCoCBz
+ZWxlY3QgQVJDSF9IQVNfVElDS19CUk9BRENBU1QgaWYgR0VORVJJQ19DTE9DS0VWRU5UU19CUk9B
+RENBU1QKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9ISUJFUk5BVElPTl9QT1NTSUJMRSBpZiBN
+TVUKPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9NSUdIVF9IQVZFX1BDX1BBUlBPUlQKPj4gZGlm
+ZiAtLWdpdCBhL2FyY2gvc3BhcmMvS2NvbmZpZyBiL2FyY2gvc3BhcmMvS2NvbmZpZwo+PiBpbmRl
+eCA4NTM1ZTE5MDYyZjY1Li5lNGJmYjgwYjQ4Y2ZlIDEwMDY0NAo+PiAtLS0gYS9hcmNoL3NwYXJj
+L0tjb25maWcKPj4gKysrIGIvYXJjaC9zcGFyYy9LY29uZmlnCj4+IEBAIC0xMyw2ICsxMyw3IEBA
+IGNvbmZpZyA2NEJJVAo+PiDCoCBjb25maWcgU1BBUkMKPj4gwqDCoMKgwqDCoCBib29sCj4+IMKg
+wqDCoMKgwqAgZGVmYXVsdCB5Cj4+ICvCoMKgwqAgc2VsZWN0IEFSQ0hfSEFTX1NDUkVFTl9JTkZP
+Cj4+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfTUlHSFRfSEFWRV9QQ19QQVJQT1JUIGlmIFNQQVJD
+NjQgJiYgUENJCj4+IMKgwqDCoMKgwqAgc2VsZWN0IEFSQ0hfTUlHSFRfSEFWRV9QQ19TRVJJTwo+
+PiDCoMKgwqDCoMKgIHNlbGVjdCBETUFfT1BTCj4+IGRpZmYgLS1naXQgYS9hcmNoL3g4Ni9LY29u
+ZmlnIGIvYXJjaC94ODYvS2NvbmZpZwo+PiBpbmRleCA1M2JhYjEyM2E4ZWU0Li5kN2MyYmY0ZWU0
+MDNkIDEwMDY0NAo+PiAtLS0gYS9hcmNoL3g4Ni9LY29uZmlnCj4+ICsrKyBiL2FyY2gveDg2L0tj
+b25maWcKPj4gQEAgLTkxLDYgKzkxLDcgQEAgY29uZmlnIFg4Ngo+PiDCoMKgwqDCoMKgIHNlbGVj
+dCBBUkNIX0hBU19OT05MRUFGX1BNRF9ZT1VOR8KgwqDCoCBpZiBQR1RBQkxFX0xFVkVMUyA+IDIK
+Pj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfVUFDQ0VTU19GTFVTSENBQ0hFwqDCoMKgIGlm
+IFg4Nl82NAo+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNIX0hBU19DT1BZX01DwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCBpZiBYODZfNjQKPj4gK8KgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU0NSRUVOX0lO
+Rk8KPj4gwqDCoMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU0VUX01FTU9SWQo+PiDCoMKgwqDCoMKg
+IHNlbGVjdCBBUkNIX0hBU19TRVRfRElSRUNUX01BUAo+PiDCoMKgwqDCoMKgIHNlbGVjdCBBUkNI
+X0hBU19TVFJJQ1RfS0VSTkVMX1JXWAo+PiBkaWZmIC0tZ2l0IGEvYXJjaC94dGVuc2EvS2NvbmZp
+ZyBiL2FyY2gveHRlbnNhL0tjb25maWcKPj4gaW5kZXggM2M2ZTU0NzFmMDI1Yi4uYzZjYmQ3NDU5
+OTM5YyAxMDA2NDQKPj4gLS0tIGEvYXJjaC94dGVuc2EvS2NvbmZpZwo+PiArKysgYi9hcmNoL3h0
+ZW5zYS9LY29uZmlnCj4+IEBAIC04LDYgKzgsNyBAQCBjb25maWcgWFRFTlNBCj4+IMKgwqDCoMKg
+wqAgc2VsZWN0IEFSQ0hfSEFTX0RNQV9QUkVQX0NPSEVSRU5UIGlmIE1NVQo+PiDCoMKgwqDCoMKg
+IHNlbGVjdCBBUkNIX0hBU19HQ09WX1BST0ZJTEVfQUxMCj4+IMKgwqDCoMKgwqAgc2VsZWN0IEFS
+Q0hfSEFTX0tDT1YKPj4gK8KgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU0NSRUVOX0lORk8KPj4gwqDC
+oMKgwqDCoCBzZWxlY3QgQVJDSF9IQVNfU1lOQ19ETUFfRk9SX0NQVSBpZiBNTVUKPj4gwqDCoMKg
+wqDCoCBzZWxlY3QgQVJDSF9IQVNfU1lOQ19ETUFfRk9SX0RFVklDRSBpZiBNTVUKPj4gwqDCoMKg
+wqDCoCBzZWxlY3QgQVJDSF9IQVNfRE1BX1NFVF9VTkNBQ0hFRCBpZiBNTVUKPj4gZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvdmlkZW8vS2NvbmZpZyBiL2RyaXZlcnMvdmlkZW8vS2NvbmZpZwo+PiBpbmRl
+eCA4YjJiOWFjMzdjM2RmLi5kNGE3MmJlYTU2YmUwIDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3Zp
+ZGVvL0tjb25maWcKPj4gKysrIGIvZHJpdmVycy92aWRlby9LY29uZmlnCj4+IEBAIC0yMSw2ICsy
+MSw5IEBAIGNvbmZpZyBTVElfQ09SRQo+PiDCoCBjb25maWcgVklERU9fQ01ETElORQo+PiDCoMKg
+wqDCoMKgIGJvb2wKPj4gwqAgK2NvbmZpZyBBUkNIX0hBU19TQ1JFRU5fSU5GTwo+PiArwqDCoMKg
+IGJvb2wKPj4gKwo+PiDCoCBjb25maWcgVklERU9fTk9NT0RFU0VUCj4+IMKgwqDCoMKgwqAgYm9v
+bAo+PiDCoMKgwqDCoMKgIGRlZmF1bHQgbgo+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9hc20tZ2Vu
+ZXJpYy9LYnVpbGQgYi9pbmNsdWRlL2FzbS1nZW5lcmljL0tidWlsZAo+PiBpbmRleCA5NDFiZTU3
+NGJiZTAwLi41ZTVkNDE1OGE0YjRiIDEwMDY0NAo+PiAtLS0gYS9pbmNsdWRlL2FzbS1nZW5lcmlj
+L0tidWlsZAo+PiArKysgYi9pbmNsdWRlL2FzbS1nZW5lcmljL0tidWlsZAo+PiBAQCAtNDcsNiAr
+NDcsNyBAQCBtYW5kYXRvcnkteSArPSBwZXJjcHUuaAo+PiDCoCBtYW5kYXRvcnkteSArPSBwZ2Fs
+bG9jLmgKPj4gwqAgbWFuZGF0b3J5LXkgKz0gcHJlZW1wdC5oCj4+IMKgIG1hbmRhdG9yeS15ICs9
+IHJ3b25jZS5oCj4+ICttYW5kYXRvcnkteSArPSBzY3JlZW5faW5mby5oCj4+IMKgIG1hbmRhdG9y
+eS15ICs9IHNlY3Rpb25zLmgKPj4gwqAgbWFuZGF0b3J5LXkgKz0gc2VyaWFsLmgKPj4gwqAgbWFu
+ZGF0b3J5LXkgKz0gc2htcGFyYW0uaAo+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9hc20tZ2VuZXJp
+Yy9zY3JlZW5faW5mby5oIAo+PiBiL2luY2x1ZGUvYXNtLWdlbmVyaWMvc2NyZWVuX2luZm8uaAo+
+PiBuZXcgZmlsZSBtb2RlIDEwMDY0NAo+PiBpbmRleCAwMDAwMDAwMDAwMDAwLi42ZmQwZTUwZmFi
+ZmNkCj4+IC0tLSAvZGV2L251bGwKPj4gKysrIGIvaW5jbHVkZS9hc20tZ2VuZXJpYy9zY3JlZW5f
+aW5mby5oCj4+IEBAIC0wLDAgKzEsMTIgQEAKPj4gKy8qIFNQRFgtTGljZW5zZS1JZGVudGlmaWVy
+OiBHUEwtMi4wICovCj4+ICsKPj4gKyNpZm5kZWYgX0FTTV9HRU5FUklDX1NDUkVFTl9JTkZPX0gK
+Pj4gKyNkZWZpbmUgX0FTTV9HRU5FUklDX1NDUkVFTl9JTkZPX0gKPj4gKwo+PiArI2luY2x1ZGUg
+PHVhcGkvbGludXgvc2NyZWVuX2luZm8uaD4KPj4gKwo+PiArI2lmIGRlZmluZWQoQ09ORklHX0FS
+Q0hfSEFTX1NDUkVFTl9JTkZPKQo+PiArZXh0ZXJuIHN0cnVjdCBzY3JlZW5faW5mbyBzY3JlZW5f
+aW5mbzsKPj4gKyNlbmRpZgo+PiArCj4+ICsjZW5kaWYgLyogX0FTTV9HRU5FUklDX1NDUkVFTl9J
+TkZPX0ggKi8KPj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvc2NyZWVuX2luZm8uaCBiL2lu
+Y2x1ZGUvbGludXgvc2NyZWVuX2luZm8uaAo+PiBpbmRleCBlYWI3MDgxMzkyZDUwLi5jNzY0Yjlh
+NTFjMjRiIDEwMDY0NAo+PiAtLS0gYS9pbmNsdWRlL2xpbnV4L3NjcmVlbl9pbmZvLmgKPj4gKysr
+IGIvaW5jbHVkZS9saW51eC9zY3JlZW5faW5mby5oCj4+IEBAIC00LDYgKzQsNiBAQAo+PiDCoCDC
+oCAjaW5jbHVkZSA8dWFwaS9saW51eC9zY3JlZW5faW5mby5oPgo+PiDCoCAtZXh0ZXJuIHN0cnVj
+dCBzY3JlZW5faW5mbyBzY3JlZW5faW5mbzsKPj4gKyNpbmNsdWRlIDxhc20vc2NyZWVuX2luZm8u
+aD4KPj4gwqAgwqAgI2VuZGlmIC8qIF9TQ1JFRU5fSU5GT19IICovCgoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtcmlzY3YgbWFpbGluZyBsaXN0
+CmxpbnV4LXJpc2N2QGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5v
+cmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1yaXNjdgo=
