@@ -1,58 +1,67 @@
-From: Stanislav Kinsburskii <skinsburskii@linux.microsoft.com>
-Subject: Re: [PATCH 0/7] Expect immutable pointer in
- virt_to_phys/isa_virt_to_bus prototypes
-Date: Tue, 22 Aug 2023 14:26:43 -0700
-Message-ID: <43329.3704105139$1692922247@news.gmane.org>
-References: <168155718437.13678.714141668943813263.stgit@skinsburskii.localdomain>
- <52dd950a-e714-4ebe-a663-4e0ec6463d03@app.fastmail.com>
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: Re: (subset) [PATCH 00/17] -Wmissing-prototype warning fixes
+Date: Thu, 24 Aug 2023 21:12:49 -0400
+Message-ID: <169292577153.789945.11297239773543112051.b4-ty@oracle.com>
+References: <20230810141947.1236730-1-arnd@kernel.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane-mx.org@lists.ozlabs.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com AF9CE2127C80
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1692922170;
-	bh=sv6DcWBBSEGmhA8F4G7aY7hVhke3+bslRKfTB+4Ii7U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=MrRC1d6L9JAZEHExoNj55zYorTOtyuAuuF6yHy3YMYISl2FaIWwzWl5k6NBjgheNg
-	 64cVkfXKIBCseKIaDIMZk19ekt6kO0bW5f0ghjV0qtDJtfqIwswpGdLb1+LndPE0Gp
-	 DTR7Mji6Q+4m0A5Ugqtc2thBSoCF3P/pD2ymgCGc=
-Content-Disposition: inline
-In-Reply-To: <52dd950a-e714-4ebe-a663-4e0ec6463d03@app.fastmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
+	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=w1vxIICUrglFAIpXe2KIgHiR2ggyFU/dBZ3mh7xQFTc=; b=SzEO1Ox7Fyszhl
+	so96q0niGMpFeR0+MQmJzKu9nrdN4pTQuO6Bu6fpytm4MFgls8+RBnW+49I/JO4ZJ1Qi7sGykEJJ4
+	mNkKfLgWY83o48L2XJb4cDtJvuPOfCT6wJ/m2dUQwbP/BIfPFx5eCLHdiQaNlB7CtR2o5x5wQ/aM9
+	BgzryKIM/doqzW04Z6oF0tLyQyZ/DYmHnwv07wdjzy8p1BE0sp+oR7/thylqmRW5PT0wdvt3IHG5n
+	pA0kKHS5IYrciyQgri8RU+D/lfI7lhwBsOtK22RrYupDIXl4oaBT9su+Bxw1TMWn0ZcB1HAB7A2Bn
+	4nsGolzY4IGTPWOjYj7g==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=corp-2023-03-30;
+ bh=uhEjckime6bsF1xq0dmnY+LwEHiDmuGwjHJQ7hVpFpk=;
+ b=xT4JwIyBXmmvopnLoTqXTVQDIyq4jGSov+rjFGn7JrEsFJ0nGwiZ57rChZOcNtxS8gnd
+ 32i9D/0gBNdAu6wmrSv4Tj5XGTtiOMTcrD7d8d7sIx9zu+UBUHmYA/WieiP0xKAeu3gF
+ eHe1MsKPNrAZDzygQo0FmmEXELlSaZ2xMctwoLvlgndq1xchpQqBIi92sT4g6z/NC03I
+ Sq45+sJdryY0Xt3UtsdNEeUPJQQwXRC0pKx/6zSsrk8N0z228cv46+9188htxHxgrJuH
+ O19AK6RPcqphkoDDRpvAZZx3qvPOulLbxkXwvTBtVM7s38ELpJEo9mWBxT45N4g00a45 fg== 
+In-Reply-To: <20230810141947.1236730-1-arnd@kernel.org>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane-mx.org@lists.ozlabs.org
-Sender: "Linuxppc-dev" <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane-mx.org@lists.ozlabs.org>
-Content-Type: text/plain; charset="utf-8"
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-ia64@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Dave Hansen <dave.hansen@linux.intel.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>, linux-mips@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, linux-hexagon@vger.kernel.org, Omar Sandoval <osandov@fb.com>, Linux-Arch <linux-arch@vger.kernel.org>, Florian Fainelli <f.fainelli@gmail.com>, Helge Deller <deller@gmx.de>, x86@kernel.org, Stanislav Kinsburskii <stanislav.kinsburskii@gmail.com>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Matt Turner <mattst88@gmail.com>, Richard Henderson <richard.henderson@linaro.org>, Nicholas Piggin <npiggin@gmail.com>, Mark Brown <broonie@kernel.org>, Borislav Petkov <bp@alien8.de>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>, Brian Cain <bcain@quicinc.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Chris Down <chr>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
+To: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>
+Cc: "Martin K . Petersen" <martin.petersen@oracle.com>, Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael
 
-On Fri, Apr 28, 2023 at 08:40:51AM +0100, Arnd Bergmann wrote:
-> On Sat, Apr 15, 2023, at 12:17, Stanislav Kinsburskii wrote:
-> > This series is aimed to address compilation warnings when a constant pointer
-> > is passed to virt_to_phys and isa_virt_to_bus functions:
-> >
-> >   warning: passing argument 1 of ‘virt_to_phys’ discards ‘const’ 
-> > qualifier from pointer target type
-> >   warning: passing argument 1 of ‘isa_virt_to_bus’ discards ‘const’ 
-> > qualifier from pointer target type
-> >
-> > The change(s) is the same for all architectures, but it's split into a series on
-> > per-arch basis to simplify applying and testing on the maintainers side.
-> >
+On Thu, 10 Aug 2023 16:19:18 +0200, Arnd Bergmann wrote:
+
+> Most of the patches I sent so far for the -Wmissing-prototype warnings
+> have made it into linux-next now. There are a few that I'm resending
+> now as nobody has picked them up, and then a number of fixes that I
+> found while test-building across all architectures rather than just the
+> ones I usually test.
 > 
-> Looks all good to me. If everyone is happy with it, I'll queue it up
-> after in the asm-generic tree for 6.5, once rc1 is out.
+> The first 15 patches in this series should be uncontroversial, so
+> I expect that either a subsystem maintainer or Andrew Morton can
+> apply these directly.
 > 
+> [...]
 
-Hello Arnd,
-Is the plan to merge this series into 6.5 still on?
+Applied to 6.6/scsi-queue, thanks!
 
-Stanislav
+[07/17] scsi: qlogicpti: mark qlogicpti_info() static
+        https://git.kernel.org/mkp/scsi/c/71cc486335c4
+[11/17] scsi: gvp11: remove unused gvp11_setup() function
+        https://git.kernel.org/mkp/scsi/c/bfaa4a0ce1bb
 
->  Arnd
+-- 
+Martin K. Petersen	Oracle Linux Engineering
