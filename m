@@ -1,34 +1,38 @@
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
+From: Michael Schmitz <schmitzmic@gmail.com>
 Subject: Re: (subset) [PATCH 00/17] -Wmissing-prototype warning fixes
-Date: Thu, 24 Aug 2023 21:12:49 -0400
-Message-ID: <169292577153.789945.11297239773543112051.b4-ty@oracle.com>
+Date: Fri, 25 Aug 2023 13:30:32 +1200
+Message-ID: <3956e2a4-c545-1212-e95f-3cf61a60d6a4@gmail.com>
 References: <20230810141947.1236730-1-arnd@kernel.org>
+ <169292577153.789945.11297239773543112051.b4-ty@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
-	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
-	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
-	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
+	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
+	List-Unsubscribe:List-Id:In-Reply-To:From:References:Cc:To:Subject:
+	MIME-Version:Date:Message-ID:Reply-To:Content-ID:Content-Description:
 	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=w1vxIICUrglFAIpXe2KIgHiR2ggyFU/dBZ3mh7xQFTc=; b=SzEO1Ox7Fyszhl
-	so96q0niGMpFeR0+MQmJzKu9nrdN4pTQuO6Bu6fpytm4MFgls8+RBnW+49I/JO4ZJ1Qi7sGykEJJ4
-	mNkKfLgWY83o48L2XJb4cDtJvuPOfCT6wJ/m2dUQwbP/BIfPFx5eCLHdiQaNlB7CtR2o5x5wQ/aM9
-	BgzryKIM/doqzW04Z6oF0tLyQyZ/DYmHnwv07wdjzy8p1BE0sp+oR7/thylqmRW5PT0wdvt3IHG5n
-	pA0kKHS5IYrciyQgri8RU+D/lfI7lhwBsOtK22RrYupDIXl4oaBT9su+Bxw1TMWn0ZcB1HAB7A2Bn
-	4nsGolzY4IGTPWOjYj7g==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=corp-2023-03-30;
- bh=uhEjckime6bsF1xq0dmnY+LwEHiDmuGwjHJQ7hVpFpk=;
- b=xT4JwIyBXmmvopnLoTqXTVQDIyq4jGSov+rjFGn7JrEsFJ0nGwiZ57rChZOcNtxS8gnd
- 32i9D/0gBNdAu6wmrSv4Tj5XGTtiOMTcrD7d8d7sIx9zu+UBUHmYA/WieiP0xKAeu3gF
- eHe1MsKPNrAZDzygQo0FmmEXELlSaZ2xMctwoLvlgndq1xchpQqBIi92sT4g6z/NC03I
- Sq45+sJdryY0Xt3UtsdNEeUPJQQwXRC0pKx/6zSsrk8N0z228cv46+9188htxHxgrJuH
- O19AK6RPcqphkoDDRpvAZZx3qvPOulLbxkXwvTBtVM7s38ELpJEo9mWBxT45N4g00a45 fg== 
-In-Reply-To: <20230810141947.1236730-1-arnd@kernel.org>
+	List-Owner; bh=XRFsbK80JiiYgBMmV8RvEOuPBOvu6E1CA9lCpvaM+bI=; b=nqn6e612I/dV4l
+	MCxQlmSonPEPYJJR+b+84hjmFRaqT9fjXXPT0RwKHt58mxSFmEpZs43P9ZY0RilEuwHWu2q27Yzrk
+	rddvQWlIvh1WA8RAS662F1jMwRMBQ6Zvv1TWWg/1OSZ8UqNwVJZECQJWH7tFU+2e790guo6UC44Ti
+	n5kF7sNJaJ/lRr7WC/w4IEZ1zoIvXxgDHvMI7nGuYkiXugLtZf7KOIgvwPjysMKwZKHnDRwL/VU1g
+	kgBLkeSUri654a5eZGviQAz1ilPwSKzQ+4NejMKkpJ1A/lGJDK0te7QMsLhNOBHnF9GTPShvW7pAJ
+	zSbU8Ug6vn1RrK4iJjvA==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1692927057; x=1693531857;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Z7ELdHtTL5wYh7Mk37fDEn5rWUjAm0EdSJQg/6HWPPQ=;
+        b=Tmlz4s2OgK58rZBzZOqQBOTKsewJsSbr0lEcw148TWgipwzPC4h3leu6DHGlT2r85/
+         Uip0aLw7OTRJ61MyT/fB+2M0fG4g6LWvilyhBIrARSkzuGacd0puWelGLD8sQFEorTQR
+         iWM9dveRRwtXAAMgsQ1/wPN9YLRbtznx8UH3GB/Gc6Kl2jKJWnRhPY+VLZrWbWEKV9yS
+         nafEaqYDFpVR5/DPJmFBDt9xOQCxtCGGHTqymDFSbzyjxleu1nAu7M/vlGloF4CFWAV1
+         1Mn9tQCCGOF3Z8ZylRnT1zAlhIOy4YB5/0u2bxeQjx03+CoamjdoA+ECCtWPkVPf8KF0
+         7rAQ==
+Content-Language: en-US
+In-Reply-To: <169292577153.789945.11297239773543112051.b4-ty@oracle.com>
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
@@ -39,29 +43,33 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-To: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>
-Cc: "Martin K . Petersen" <martin.petersen@oracle.com>, Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+To: "Martin K. Petersen" <martin.petersen@oracle.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy <christophe.leroy@csgroup.eu>, Palmer Dabbelt <palmer@dabbelt.com>, Heiko Carstens <hca@linux.ibm.com>, J
 
-On Thu, 10 Aug 2023 16:19:18 +0200, Arnd Bergmann wrote:
-
-> Most of the patches I sent so far for the -Wmissing-prototype warnings
-> have made it into linux-next now. There are a few that I'm resending
-> now as nobody has picked them up, and then a number of fixes that I
-> found while test-building across all architectures rather than just the
-> ones I usually test.
-> 
-> The first 15 patches in this series should be uncontroversial, so
-> I expect that either a subsystem maintainer or Andrew Morton can
-> apply these directly.
-> 
-> [...]
-
-Applied to 6.6/scsi-queue, thanks!
-
-[07/17] scsi: qlogicpti: mark qlogicpti_info() static
-        https://git.kernel.org/mkp/scsi/c/71cc486335c4
-[11/17] scsi: gvp11: remove unused gvp11_setup() function
-        https://git.kernel.org/mkp/scsi/c/bfaa4a0ce1bb
-
--- 
-Martin K. Petersen	Oracle Linux Engineering
+SGkgTWFydGluLCBBcm5kLAoKT24gMjUvMDgvMjMgMTM6MTIsIE1hcnRpbiBLLiBQZXRlcnNlbiB3
+cm90ZToKPiBPbiBUaHUsIDEwIEF1ZyAyMDIzIDE2OjE5OjE4ICswMjAwLCBBcm5kIEJlcmdtYW5u
+IHdyb3RlOgo+Cj4+IE1vc3Qgb2YgdGhlIHBhdGNoZXMgSSBzZW50IHNvIGZhciBmb3IgdGhlIC1X
+bWlzc2luZy1wcm90b3R5cGUgd2FybmluZ3MKPj4gaGF2ZSBtYWRlIGl0IGludG8gbGludXgtbmV4
+dCBub3cuIFRoZXJlIGFyZSBhIGZldyB0aGF0IEknbSByZXNlbmRpbmcKPj4gbm93IGFzIG5vYm9k
+eSBoYXMgcGlja2VkIHRoZW0gdXAsIGFuZCB0aGVuIGEgbnVtYmVyIG9mIGZpeGVzIHRoYXQgSQo+
+PiBmb3VuZCB3aGlsZSB0ZXN0LWJ1aWxkaW5nIGFjcm9zcyBhbGwgYXJjaGl0ZWN0dXJlcyByYXRo
+ZXIgdGhhbiBqdXN0IHRoZQo+PiBvbmVzIEkgdXN1YWxseSB0ZXN0Lgo+Pgo+PiBUaGUgZmlyc3Qg
+MTUgcGF0Y2hlcyBpbiB0aGlzIHNlcmllcyBzaG91bGQgYmUgdW5jb250cm92ZXJzaWFsLCBzbwo+
+PiBJIGV4cGVjdCB0aGF0IGVpdGhlciBhIHN1YnN5c3RlbSBtYWludGFpbmVyIG9yIEFuZHJldyBN
+b3J0b24gY2FuCj4+IGFwcGx5IHRoZXNlIGRpcmVjdGx5Lgo+Pgo+PiBbLi4uXQo+IEFwcGxpZWQg
+dG8gNi42L3Njc2ktcXVldWUsIHRoYW5rcyEKPgo+IFswNy8xN10gc2NzaTogcWxvZ2ljcHRpOiBt
+YXJrIHFsb2dpY3B0aV9pbmZvKCkgc3RhdGljCj4gICAgICAgICAgaHR0cHM6Ly9naXQua2VybmVs
+Lm9yZy9ta3Avc2NzaS9jLzcxY2M0ODYzMzVjNAo+IFsxMS8xN10gc2NzaTogZ3ZwMTE6IHJlbW92
+ZSB1bnVzZWQgZ3ZwMTFfc2V0dXAoKSBmdW5jdGlvbgo+ICAgICAgICAgIGh0dHBzOi8vZ2l0Lmtl
+cm5lbC5vcmcvbWtwL3Njc2kvYy9iZmFhNGEwY2UxYmIKCkkgc29tZWhvdyBtaXNzZWQgdGhhdCBv
+bmUgLi4uCgpUaGUgZ3ZwMTFfc2V0dXAoKSBmdW5jdGlvbiB3YXMgcHJvYmFibHkgYSByZWxpYyBm
+cm9tIHRoZSB0aW1lcyBiZWZvcmUgCm1vZHVsZSBwYXJhbWV0ZXJzLgoKU2luY2UgZ3ZwMTFfeGZl
+cl9tYXNrIGFwcGVhcnMgdG8gYmUgcmVxdWlyZWQgZm9yIHNvbWUgQW1pZ2Egc3lzdGVtcyB0byAK
+c2V0IHRoZSBETUEgbWFzaywgSSdkIGJlc3Qgc2VuZCBhIHBhdGNoIHRvIGFkZCBzdWNoIGEgbW9k
+dWxlIHBhcmFtZXRlciAuLi4KCkRvIHlvdSBrbm93IGFueSBkZXRhaWxzIGFyb3VuZCB0aGUgdXNl
+IG9mIERNQSBtYXNrcyBmb3IgQW1pZ2EgV0QzM0M5MyAKZHJpdmVycywgR2VlcnQ/CgpDaGVlcnMs
+CgogwqDCoMKgIE1pY2hhZWwKCgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpsaW51eC1yaXNjdiBtYWlsaW5nIGxpc3QKbGludXgtcmlzY3ZAbGlzdHMu
+aW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZv
+L2xpbnV4LXJpc2N2Cg==
