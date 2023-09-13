@@ -1,64 +1,95 @@
-From: Michael Schmitz <schmitzmic@gmail.com>
-Subject: Re: (subset) [PATCH 00/17] -Wmissing-prototype warning fixes
-Date: Mon, 28 Aug 2023 20:07:27 +1200
-Message-ID: <dbed3311-6b8e-a396-7e9e-2747902c5d6a@gmail.com>
-References: <20230810141947.1236730-1-arnd@kernel.org>
- <169292577153.789945.11297239773543112051.b4-ty@oracle.com>
- <3956e2a4-c545-1212-e95f-3cf61a60d6a4@gmail.com>
- <CAMuHMdWC2S330_Vb_NTHTDC=BakBsw4ouP-eFJv0erV1-jmvTQ@mail.gmail.com>
- <130b3b57-edb0-184d-5b5f-69b013715773@gmail.com>
- <CAMuHMdUkZmkBSksvaGcDCKz2tsgkwyWgDa+WwCJm2UxFMCj1jw@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH v3] Hexagon: Make pfn accessors statics inlines
+Date: Wed, 13 Sep 2023 13:28:35 +0200
+Message-ID: <20230913-hexagon-virt-to-pfn-v3-1-8bed34005011@linaro.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
-	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
-	List-Unsubscribe:List-Id:In-Reply-To:MIME-Version:Date:Message-ID:From:Cc:
-	References:To:Subject:Reply-To:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Owner;
-	bh=cCmgIaYJCF2gGapsUCwS+GsTC4RYiJP6NahEH2YlDN8=; b=jc8ORqz6m/s4F/4XZHAV2db0L4
-	Hf9Cq9xJfUmqofhnkjUWxWGR61Veu3BX+0CquqUyiUAJSSAZiMxxrrPLHoZtIlHQ97Y86V0t7iOF6
-	Sa6MJ2TcEV4FMDURIJipntNgO3uMlytdGvd2+CX8RSRLUuTAD5G1JzNYKumVLe/QvH4Cud8fsGqIw
-	4RZzoXiEGmusAjg/A4gL1eHIy9A40GVvcT/TnIerTbmK20XpDwu1NJsxVQPOI56Jfh+Zl/hvJLXxB
-	VTA0oij9Hb9BJW888HnuLfP04OGCjBERHN7HRinMDcklY80XgM3FBAshZUL6pGVTR/SP1yDQMdESY
-	h3zbrO9Q==;
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-hexagon-owner@vger.kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1693210077; x=1693814877;
-        h=content-transfer-encoding:in-reply-to:mime-version:user-agent:date
-         :message-id:from:cc:references:to:subject:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pnrE6dyfVAprK/xFUC60jFewyVljQRt3NNtTMulp0V0=;
-        b=LVg55P2ejT0BJXH9H1+hgJHcBL2A+IF5g+KpwZsnJ2WoqXmcrL9ZfEfa3T6fNEdxE+
-         ga2nqaZ+gZjmffBcNuVnaXDtmvodkJeUEflTba5i6j/rIlhBduWdBgZRPVnHwy+erFMo
-         Q2sF5ZgAuDt+03EKZEd8qEogPdBU5cTg8EccDlTx6cSnC2QLYfomUfDCZyZGJl19L0Ry
-         zfDO9BgqWN0KlkikpK3fWA7KZvQWChySAj+L6JXiUhVTo7xH2gRnW3f4Al2lAGJTZzAW
-         5ZruNkogVGDYB3ptB7Tk7PeewBGyh+fZdTDyBJ7/jPzoGq3RnYeGV17VCUydj0j+5OXO
-         MJDA==
-In-Reply-To: <CAMuHMdUkZmkBSksvaGcDCKz2tsgkwyWgDa+WwCJm2UxFMCj1jw@mail.gmail.com>
-List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane-mx.org@lists.infradead.org
-Content-Type: text/plain; charset="windows-1252"; format="flowed"
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Christo
+        d=linaro.org; s=google; t=1694604521; x=1695209321; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=wbyHNNsN+Rn8ywOWxCv7Wlqb7uh+vWNRuvfamsm2vmc=;
+        b=somuFy2nBKLNXqD6nDqNDRMxknIZMZnCRmH97Z6Y+b94Vi3ZOS9VJJYc8sX0WUt7Fo
+         P0fNdCCWH9SnZCosdaiIBGrtDzzWtJZ1cVqxVhS1TxjtX/+dvtjp/8fc9swnFFYgn+AM
+         Ke2x8gTJyDuAQMWpgUR9Kcvx4qrkdIkOHw9ZhJZDt1ruZnH+CPl7ALwSYOwOqizKDX1U
+         UDZC4zM6Zg8cD5Sg5/AvPT0JhGhrAEthHDEircOvGfarAR8njzhg1OqE11j2oJcJjQoz
+         7lLxCEt6TpRbDwz53/yytdE7qDSWw7VW6AOdiQItce4o5hsc5zBJLIaXnTZxH30tRqMw
+         wlEw==
+List-ID: <linux-hexagon.vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+To: Brian Cain <bcain@quicinc.com>
+Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-SGkgR2VlcnQsCgpBbSAyOC4wOC4yMDIzIHVtIDE4OjQyIHNjaHJpZWIgR2VlcnQgVXl0dGVyaG9l
-dmVuOgo+IE9uIFNhdCwgQXVnIDI2LCAyMDIzIGF0IDEyOjQ04oCvQU0gTWljaGFlbCBTY2htaXR6
-IDxzY2htaXR6bWljQGdtYWlsLmNvbT4gd3JvdGU6Cj4+IChJbmNpZGVudGFsbHkgLSBkaWQgeW91
-IGV2ZXIgcHVibGlzaCB0aGUgbTY4ayBmdWxsIGhpc3RvcnkgdHJlZSBhbnl3aGVyZQo+PiBpbiBn
-aXQ/KQo+Cj4gWW91IG1lYW4gdGhlIGdpdGlmaWVkIHZlcnNpb24gb2YgdGhlIExpbnV4L202OGsg
-Q1ZTIHRyZWUgUmFsZiBjcmVhdGVkCj4gZm9yIG1lIGJlY2F1c2UgbXkgbWFjaGluZSB3YXNuJ3Qg
-cG93ZXJmdWwgZW5vdWdoPwoKVGhlIHZlcnkgc2FtZSAuLi4KCj4gTm8sIGFuZCBJIHNob3VsZCBs
-b29rIGludG8gZG9pbmcgdGhhdC4uLgoKTm8gcHJlc3N1cmUhCgpDaGVlcnMsCgoJTWljaGFlbAoK
-Pgo+IEdye29ldGplLGVldGluZ31zLAo+Cj4gICAgICAgICAgICAgICAgICAgICAgICAgR2VlcnQK
-PgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgt
-cmlzY3YgbWFpbGluZyBsaXN0CmxpbnV4LXJpc2N2QGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDov
-L2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1yaXNjdgo=
+Making virt_to_pfn() a static inline taking a strongly typed
+(const void *) makes the contract of a passing a pointer of that
+type to the function explicit and exposes any misuse of the
+macro virt_to_pfn() acting polymorphic and accepting many types
+such as (void *), (unitptr_t) or (unsigned long) as arguments
+without warnings.
+
+For symmetry do the same with pfn_to_virt().
+
+For compiletime resolution of __pa() we need PAGE_OFFSET which
+was not available to __pa() and resolved by the preprocessor
+wherever __pa() was used. Fix this by explicitly including
+<asm/mem-layout.h> where required, following the pattern of the
+architectures page.h file.
+
+Acked-by: Brian Cain <bcain@quicinc.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+Changes in v3:
+- Rebase on kernel v6.6-rc1
+- Link to v2: https://lore.kernel.org/r/20230810-hexagon-virt-to-pfn-v2-1-ec8b4152f9fe@linaro.org
+
+Changes in v2:
+- Use more elaborate casting back to unsigned long before shifting
+  in pfn_to_virt and back to void * after that.
+- Link to v1: https://lore.kernel.org/r/20230808-hexagon-virt-to-pfn-v1-1-68d07c221f17@linaro.org
+---
+ arch/hexagon/include/asm/page.h | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/arch/hexagon/include/asm/page.h b/arch/hexagon/include/asm/page.h
+index 9c03b9965f07..10f1bc07423c 100644
+--- a/arch/hexagon/include/asm/page.h
++++ b/arch/hexagon/include/asm/page.h
+@@ -78,6 +78,9 @@ typedef struct page *pgtable_t;
+ #define __pgd(x)       ((pgd_t) { (x) })
+ #define __pgprot(x)    ((pgprot_t) { (x) })
+ 
++/* Needed for PAGE_OFFSET used in the macro right below */
++#include <asm/mem-layout.h>
++
+ /*
+  * We need a __pa and a __va routine for kernel space.
+  * MIPS says they're only used during mem_init.
+@@ -125,8 +128,16 @@ static inline void clear_page(void *page)
+  */
+ #define page_to_phys(page)      (page_to_pfn(page) << PAGE_SHIFT)
+ 
+-#define virt_to_pfn(kaddr)      (__pa(kaddr) >> PAGE_SHIFT)
+-#define pfn_to_virt(pfn)        __va((pfn) << PAGE_SHIFT)
++static inline unsigned long virt_to_pfn(const void *kaddr)
++{
++	return __pa(kaddr) >> PAGE_SHIFT;
++}
++
++static inline void *pfn_to_virt(unsigned long pfn)
++{
++	return (void *)((unsigned long)__va(pfn) << PAGE_SHIFT);
++}
++
+ 
+ #define page_to_virt(page)	__va(page_to_phys(page))
+ 
+
+---
+base-commit: 0bb80ecc33a8fb5a682236443c1e740d5c917d1d
+change-id: 20230808-hexagon-virt-to-pfn-457bd51a5744
+
+Best regards,
+-- 
+Linus Walleij <linus.walleij@linaro.org>
+
