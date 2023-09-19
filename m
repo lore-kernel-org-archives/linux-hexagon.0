@@ -1,47 +1,32 @@
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Richard Weinberger <richard@nod.at>
 Subject: Re: Arches that don't support PREEMPT
-Date: Tue, 19 Sep 2023 11:31:08 -0400
-Message-ID: <20230919113108.1c988906@gandalf.local.home>
-References: <20230912082606.GB35261@noisy.programming.kicks-ass.net>
-        <87cyyfxd4k.ffs@tglx>
-        <CAHk-=whnwC01m_1f-gaM1xbvvwzwTiKitrWniA-ChZv+bM03dg@mail.gmail.com>
-        <87led2wdj0.ffs@tglx>
-        <ZQmbhoQIINs8rLHp@casper.infradead.org>
-        <0e69f7df80dc5878071deb0d80938138d19de1d1.camel@physik.fu-berlin.de>
-        <20230919134218.GA39281@noisy.programming.kicks-ass.net>
-        <a6c84803274116ec827cd4bdd4e72a8d0c304c27.camel@physik.fu-berlin.de>
-        <20230919141627.GB39281@noisy.programming.kicks-ass.net>
-        <a428516ebeae71e33635edc83052c972ce40c85d.camel@physik.fu-berlin.de>
-        <ZQmw5dUzcFOWjHdB@casper.infradead.org>
+Date: Tue, 19 Sep 2023 18:22:46 +0200 (CEST)
+Message-ID: <551475267.58816.1695140566849.JavaMail.zimbra@nod.at>
+References: <87zg1u1h5t.fsf@oracle.com> <87led2wdj0.ffs@tglx> <ZQmbhoQIINs8rLHp@casper.infradead.org> <0e69f7df80dc5878071deb0d80938138d19de1d1.camel@physik.fu-berlin.de> <20230919134218.GA39281@noisy.programming.kicks-ass.net> <bd664a61-4506-bab0-19c3-0011f57005b5@cambridgegreys.com> <87y1h2ur98.ffs@tglx> <9a5c0856-d542-9912-7494-53d7fe4538a3@cambridgegreys.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-hexagon-owner@vger.kernel.org>
-In-Reply-To: <ZQmw5dUzcFOWjHdB@casper.infradead.org>
+In-Reply-To: <9a5c0856-d542-9912-7494-53d7fe4538a3@cambridgegreys.com>
 List-ID: <linux-hexagon.vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii"
-To: Matthew Wilcox <willy@infradead.org>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Ankur Arora <ankur.a.arora@oracle.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org, akpm@linux-foundation.org, luto@kernel.org, bp@alien8.de, dave.hansen@linux.intel.com, hpa@zytor.com, mingo@redhat.com, juri.lelli@redhat.com, vincent.guittot@linaro.org, mgorman@suse.de, jon.grimm@amd.com, bharata@amd.com, raghavendra.kt@amd.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, jgross@suse.com, andrew.cooper3@citrix.com, Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cam>
+Content-Type: text/plain; charset="iso-8859-1"
+To: anton ivanov <anton.ivanov@cambridgegreys.com>
+Cc: tglx <tglx@linutronix.de>, Peter Zijlstra <peterz@infradead.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Matthew Wilcox <willy@infradead.org>, torvalds <torvalds@linux-foundation.org>, Ankur Arora <ankur.a.arora@oracle.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>, x86 <x86@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, bp <bp@alien8.de>, dave hansen <dave.hansen@linux.intel.com>, hpa <hpa@zytor.com>, mingo <mingo@redhat.com>, juri lelli <juri.lelli@redhat.com>, vincent guittot <vincent.guittot@linaro.org>, mgorman@suse.de, Steven Rostedt <rostedt@goodmis.org>, jon grimm <jon.grimm@amd.com>, bharata@amd.com, raghavendra kt <raghavendra.kt@amd.com>, boris ostrovsky <bori>
 
-On Tue, 19 Sep 2023 15:32:05 +0100
-Matthew Wilcox <willy@infradead.org> wrote:
+----- Urspr=C3=BCngliche Mail -----
+> Von: "anton ivanov" <anton.ivanov@cambridgegreys.com>
+> It's been a while. I remember that I dropped it at the time, but do not r=
+emember
+> the full details.
+>=20
+> There was some stuff related to FP state and a few other issues I ran int=
+o while
+> rewriting the interrupt controller. Some of it may be resolved by now as =
+we are
+> using host cpu flags, etc.
 
-> On Tue, Sep 19, 2023 at 04:24:48PM +0200, John Paul Adrian Glaubitz wrote:
-> > If the conversion isn't hard, why is the first reflex the urge to remove an architecture
-> > instead of offering advise how to get the conversion done?  
-> 
-> Because PREEMPT has been around since before 2005 (cc19ca86a023 created
-> Kconfig.preempt and I don't need to go back further than that to make my
-> point), and you haven't done the work yet.  Clearly it takes the threat
-> of removal to get some kind of motion.
+I remember also having a hacky but working version almost 10 years ago.
+It was horrible slow because of the extra scheduler rounds.
+But yes, if PREEMPT will be a must-have feature we'll have to try again.
 
-Or the use case of a preempt kernel on said arch has never been a request.
-Just because it was available doesn't necessarily mean it's required.
-
-Please, let's not jump to threats of removal just to get a feature in.
-Simply ask first. I didn't see anyone reaching out to the maintainers
-asking for this as it will be needed for a new feature that will likely
-make maintaining said arch easier.
-
-Everything is still in brainstorming mode.
-
--- Steve
+Thanks,
+//richard
