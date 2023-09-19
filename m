@@ -1,75 +1,89 @@
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: Arches that don't support PREEMPT
-Date: Tue, 19 Sep 2023 19:58:31 +0200
-Message-ID: <64746d98b60f1677cecd26501511f140688801e1.camel@physik.fu-berlin.de>
+Date: Tue, 19 Sep 2023 20:31:50 +0200
+Message-ID: <87pm2eui95.ffs@tglx>
 References: <87zg1u1h5t.fsf@oracle.com>
-         <CAHk-=whMkp68vNxVn1H3qe_P7n=X2sWPL9kvW22dsvMFH8FcQQ@mail.gmail.com>
-         <20230911150410.GC9098@noisy.programming.kicks-ass.net>
-         <87h6o01w1a.fsf@oracle.com>
-         <20230912082606.GB35261@noisy.programming.kicks-ass.net>
-         <87cyyfxd4k.ffs@tglx>
-         <CAHk-=whnwC01m_1f-gaM1xbvvwzwTiKitrWniA-ChZv+bM03dg@mail.gmail.com>
-         <87led2wdj0.ffs@tglx> <ZQmbhoQIINs8rLHp@casper.infradead.org>
-         <0e69f7df80dc5878071deb0d80938138d19de1d1.camel@physik.fu-berlin.de>
-         <20230919134218.GA39281@noisy.programming.kicks-ass.net>
-         <a6c84803274116ec827cd4bdd4e72a8d0c304c27.camel@physik.fu-berlin.de>
-         <CAHk-=wgUimqtF7PqFfRw4Ju5H1KYkp6+8F=hBz7amGQ8GaGKkA@mail.gmail.com>
+ <CAHk-=whMkp68vNxVn1H3qe_P7n=X2sWPL9kvW22dsvMFH8FcQQ@mail.gmail.com>
+ <20230911150410.GC9098@noisy.programming.kicks-ass.net>
+ <87h6o01w1a.fsf@oracle.com>
+ <20230912082606.GB35261@noisy.programming.kicks-ass.net>
+ <87cyyfxd4k.ffs@tglx>
+ <CAHk-=whnwC01m_1f-gaM1xbvvwzwTiKitrWniA-ChZv+bM03dg@mail.gmail.com>
+ <87led2wdj0.ffs@tglx> <ZQmbhoQIINs8rLHp@casper.infradead.org>
+ <0e69f7df80dc5878071deb0d80938138d19de1d1.camel@physik.fu-berlin.de>
+ <20230919134218.GA39281@noisy.programming.kicks-ass.net>
+ <a6c84803274116ec827cd4bdd4e72a8d0c304c27.camel@physik.fu-berlin.de>
+ <CAHk-=wgUimqtF7PqFfRw4Ju5H1KYkp6+8F=hBz7amGQ8GaGKkA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-hexagon-owner@vger.kernel.org>
+Return-path: <linux-alpha-owner@vger.kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1695148311;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=mKyOmmSSJD2Ws4VR+XqPS/XNP5VPNOwNw6yDdf2ZDQU=;
+        b=xXqJqYUZla9VpgC4S4ShTGkMIL3gkkhNvGjlWhi5L1gkuz5icUdocjTZfEjeUV9x1XfF1d
+        9gCf9onnbE0u4V9GNNs47U9xjPBMw2DWytTSoQsodttKIzqkL+7HlaYEWW4FSVqwFkxP9b
+        m3N7cld1jgwk+v3jf2F2vowyOYzbp0oeTYfBdyMg3skppXJK7mZs9rhgY8B0yUaEjzj5rv
+        eNPjV+ty7EkQisVX1wCgp5HdgxQTcki84SeKDSqMlKMRQ4Dwk5yJNMqTIIkjzdPuUEmZXw
+        ZLXZiD6XCNIDxdM95XJgYydUDvKFSGuDWDp3q+ZqWzDj1uSibW0RuXplJpLfmA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1695148311;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=mKyOmmSSJD2Ws4VR+XqPS/XNP5VPNOwNw6yDdf2ZDQU=;
+        b=HSw+FE/2ECBsn8P+jBW//lrHd8c9W9Bxp5rJpQcF0U/qlJOFxqfRtQIDeqJGdvK2cG7ELT
+        v2DdyOFXFBXeLSDg==
 In-Reply-To: <CAHk-=wgUimqtF7PqFfRw4Ju5H1KYkp6+8F=hBz7amGQ8GaGKkA@mail.gmail.com>
 List-ID: <linux-hexagon.vger.kernel.org>
 Content-Type: text/plain; charset="us-ascii"
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Matthew Wilcox <willy@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Ankur Arora <ankur.a.arora@oracle.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org, akpm@linux-foundation.org, luto@kernel.org, bp@alien8.de, dave.hansen@linux.intel.com, hpa@zytor.com, mingo@redhat.com, juri.lelli@redhat.com, vincent.guittot@linaro.org, mgorman@suse.de, rostedt@goodmis.org, jon.grimm@amd.com, bharata@amd.com, raghavendra.kt@amd.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, jgross@suse.com, andrew.cooper3@citrix.com, Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipso>
+Content-Transfer-Encoding: 7bit
+To: Linus Torvalds <torvalds@linux-foundation.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Peter Zijlstra <peterz@infradead.org>, Matthew Wilcox <willy@infradead.org>, Ankur Arora <ankur.a.arora@oracle.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org, akpm@linux-foundation.org, luto@kernel.org, bp@alien8.de, dave.hansen@linux.intel.com, hpa@zytor.com, mingo@redhat.com, juri.lelli@redhat.com, vincent.guittot@linaro.org, mgorman@suse.de, rostedt@goodmis.org, jon.grimm@amd.com, bharata@amd.com, raghavendra.kt@amd.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, jgross@suse.com, andrew.cooper3@citrix.com, Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, linux-um@lists.infradead
 
-Hi Linus!
-
-On Tue, 2023-09-19 at 10:25 -0700, Linus Torvalds wrote:
+On Tue, Sep 19 2023 at 10:25, Linus Torvalds wrote:
 > On Tue, 19 Sept 2023 at 06:48, John Paul Adrian Glaubitz
 > <glaubitz@physik.fu-berlin.de> wrote:
-> > 
-> > As Geert poined out, I'm not seeing anything particular problematic with the
-> > architectures lacking CONFIG_PREEMPT at the moment. This seems to be more
-> > something about organizing KConfig files.
-> 
+>>
+>> As Geert poined out, I'm not seeing anything particular problematic with the
+>> architectures lacking CONFIG_PREEMPT at the moment. This seems to be more
+>> something about organizing KConfig files.
+>
 > It can definitely be problematic.
-> 
+>
 > Not the Kconfig file part, and not the preempt count part itself.
-> 
+>
 > But the fact that it has never been used and tested means that there
 > might be tons of "this architecture code knows it's not preemptible,
 > because this architecture doesn't support preemption".
-> 
+>
 > So you may have basic architecture code that simply doesn't have the
 > "preempt_disable()/enable()" pairs that it needs.
-> 
+>
 > PeterZ mentioned the generic entry code, which does this for the entry
 > path. But it actually goes much deeper: just do a
-> 
+>
 >     git grep preempt_disable arch/x86/kernel
-> 
+>
 > and then do the same for some other architectures.
-> 
+>
 > Looking at alpha, for example, there *are* hits for it, so at least
 > some of the code there clearly *tries* to do it. But does it cover all
 > the required parts? If it's never been tested, I'd be surprised if
 > it's all just ready to go.
-
-Thanks for the detailed explanation.
-
+>
 > I do think we'd need to basically continue to support ARCH_NO_PREEMPT
 > - and such architectures migth end up with the worst-cast latencies of
 > only scheduling at return to user space.
 
-Great to hear, thank you.
+The only thing these architectures should gain is the preempt counter
+itself, but yes the extra preemption points are not mandatory to
+have, i.e. we simply do not enable them for the nostalgia club.
 
-And, yes, eventually I would be happy to help get alpha and m68k converted.
+The removal of cond_resched() might cause latencies, but then I doubt
+that these museus pieces are used for real work :)
 
-Adrian
+Thanks,
 
--- 
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+        tglx
