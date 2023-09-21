@@ -1,92 +1,206 @@
-From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Subject: Re: Arches that don't support PREEMPT
-Date: Wed, 20 Sep 2023 15:38:33 +0100
-Message-ID: <159b79fc-16d8-2d12-ed17-fb508879d791@cambridgegreys.com>
-References: <20230911150410.GC9098@noisy.programming.kicks-ass.net>
- <87h6o01w1a.fsf@oracle.com>
- <20230912082606.GB35261@noisy.programming.kicks-ass.net>
- <87cyyfxd4k.ffs@tglx>
- <CAHk-=whnwC01m_1f-gaM1xbvvwzwTiKitrWniA-ChZv+bM03dg@mail.gmail.com>
- <87led2wdj0.ffs@tglx> <ZQmbhoQIINs8rLHp@casper.infradead.org>
- <0e69f7df80dc5878071deb0d80938138d19de1d1.camel@physik.fu-berlin.de>
- <20230919134218.GA39281@noisy.programming.kicks-ass.net>
- <a6c84803274116ec827cd4bdd4e72a8d0c304c27.camel@physik.fu-berlin.de>
- <20230919141627.GB39281@noisy.programming.kicks-ass.net>
+From: Baoquan He <bhe@redhat.com>
+Subject: [PATCH v5 3/4] arch/*/io.h: remove ioremap_uc in some architectures
+Date: Thu, 21 Sep 2023 19:04:23 +0800
+Message-ID: <20230921110424.215592-4-bhe@redhat.com>
+References: <20230921110424.215592-1-bhe@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=lists.infradead.org; s=bombadil.20210309; h=Sender:Content-Type:
-	Content-Transfer-Encoding:List-Subscribe:List-Help:List-Post:List-Archive:
-	List-Unsubscribe:List-Id:In-Reply-To:From:References:Cc:To:Subject:
-	MIME-Version:Date:Message-ID:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	List-Owner; bh=rdN3ddq+RwnBD/OXMjMnMQsueNZZp52q1X1u3N45Ee0=; b=0BEA3AdoSZWvDp
-	VJVBWbom0ncelL/rgkskDS2dD1SuelnS6P57u3bOEBbjTaOkM+skv8WsgArW9LsWYeZspggjYmHOC
-	t3lHu0ozgLkBWaAP7af5n5yl6EXh29694dibIxZTw+A2dKD1J15sUyxDNZMM13eeq13WDJUCCmpWT
-	amiPSQ0EMlGzi5IquZ6eyu9F4j7RLaq+UgDuOzKu2qJLAeBoIhDBq4Grm++BKWVKA7rydx0ICg7HH
-	Bvw0lrjh89E2i90SawElds3WvO6Q5S8Gp99sIiK3E2z5dbdNTyRHMv8+xr/inUNZ7lGBuHbFMB7I4
-	xfXncCFDQvu0g2nYq9UQ==;
-Content-Language: en-US
-In-Reply-To: <20230919141627.GB39281@noisy.programming.kicks-ass.net>
+Content-Transfer-Encoding: 8bit
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1695294304;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tn5ZDFUI6iPOIWmja0Ms5+F66UgwvJBJvQvpQLjnla0=;
+	b=SWBKMLvih6qwkDFPntieOfkgn+qrC6NQ1e1XZMNNQcxVToqayGZlZKDvBdEGpW/AajTEPz
+	32QbLcR6Z7eHppKzb15bYXRuC7+3AGj4hVFPdS2P7BJoLh038EMJKiKHaJU773uL/LIRbg
+	e8I9qQ40xCQEx8BkUaKdrSvK+qtLkwE=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1695294304;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tn5ZDFUI6iPOIWmja0Ms5+F66UgwvJBJvQvpQLjnla0=;
+	b=SWBKMLvih6qwkDFPntieOfkgn+qrC6NQ1e1XZMNNQcxVToqayGZlZKDvBdEGpW/AajTEPz
+	32QbLcR6Z7eHppKzb15bYXRuC7+3AGj4hVFPdS2P7BJoLh038EMJKiKHaJU773uL/LIRbg
+	e8I9qQ40xCQEx8BkUaKdrSvK+qtLkwE=
+In-Reply-To: <20230921110424.215592-1-bhe@redhat.com>
 List-Id: <linux-hexagon.vger.kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-um>,
- <mailto:linux-um-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-um/>
-List-Post: <mailto:linux-um@lists.infradead.org>
-List-Help: <mailto:linux-um-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-um>,
- <mailto:linux-um-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-um" <linux-um-bounces@lists.infradead.org>
-Errors-To: linux-um-bounces+glud-user-mode-linux-devel=m.gmane-mx.org@lists.infradead.org
-Content-Type: text/plain; charset="us-ascii"; format="flowed"
-To: Peter Zijlstra <peterz@infradead.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Matthew Wilcox <willy@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Ankur Arora <ankur.a.arora@oracle.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org, akpm@linux-foundation.org, luto@kernel.org, bp@alien8.de, dave.hansen@linux.intel.com, hpa@zytor.com, mingo@redhat.com, juri.lelli@redhat.com, vincent.guittot@linaro.org, mgorman@suse.de, rostedt@goodmis.org, jon.grimm@amd.com, bharata@amd.com, raghavendra.kt@amd.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, jgross@suse.com, andrew.cooper3@citrix.com, Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, Richard Weinberger <richard@nod.at>, Johannes Berg <johannes@sipsolutions.net>, linux-um@lists.infradead.org, Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org, Richard Henderson <richard.henderson@li>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org
+Sender: "Linuxppc-dev" <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane-mx.org@lists.ozlabs.org>
+Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org, tsbogend@alpha.franken.de, Baoquan He <bhe@redhat.com>, arnd@arndb.de, linux-sh@vger.kernel.org, deller@gmx.de, linux-m68k@lists.linux-m68k.org, jiaxun.yang@flygoat.com, linux-mips@vger.kernel.org, hch@infradead.org, linux-mm@kvack.org, mcgrof@kernel.org, f.fainelli@gmail.com, geert@linux-m68k.org, linux-parisc@vger.kernel.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org, akpm@linux-foundation.org, linuxppc-dev@lists.ozlabs.org
 
+ioremap_uc() is only meaningful on old x86-32 systems with the PAT
+extension, and on ia64 with its slightly unconventional ioremap()
+behavior. So remove the ioremap_uc() definition in architecutures
+other than x86 and ia64. These architectures all have asm-generic/io.h
+included and will have the default ioremap_uc() definition which
+returns NULL.
 
+This changes the existing behaviour, while no need to worry about
+any breakage because in the only callsite of ioremap_uc(), code
+has been adjusted to eliminate the impact. Please see
+atyfb_setup_generic() of drivers/video/fbdev/aty/atyfb_base.c.
 
-On 19/09/2023 15:16, Peter Zijlstra wrote:
-> On Tue, Sep 19, 2023 at 03:48:09PM +0200, John Paul Adrian Glaubitz wrote:
->> On Tue, 2023-09-19 at 15:42 +0200, Peter Zijlstra wrote:
->>>> The agreement to kill off ia64 wasn't an invitation to kill off other stuff
->>>> that people are still working on! Can we please not do this?
->>>
->>> If you're working on one of them, then surely it's a simple matter of
->>> working on adding CONFIG_PREEMPT support :-)
->>
->> As Geert poined out, I'm not seeing anything particular problematic with the
->> architectures lacking CONFIG_PREEMPT at the moment. This seems to be more
->> something about organizing KConfig files.
-> 
-> The plan in the parent thread is to remove PREEMPT_NONE and
-> PREEMPT_VOLUNTARY and only keep PREEMPT_FULL.
-> 
->> I find it a bit unfair that maintainers of architectures that have huge companies
->> behind them use their manpower to urge less popular architectures for removal just
->> because they don't have 150 people working on the port so they can keep up with
->> design changes quickly.
-> 
-> PREEMPT isn't something new. Also, I don't think the arch part for
-> actually supporting it is particularly hard, mostly it is sticking the
-> preempt_schedule_irq() call in return from interrupt code path.
+If any new invocation of ioremap_uc() need be added, please consider
+using ioremap() intead or adding a ARCH specific version if necessary.
 
-That calls local_irq_enable() which does various signal related/irq pending work on UML. That in turn does no like being invoked again (as you may have already been invoked out of that) in the IRQ return path.
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Acked-by: Helge Deller <deller@gmx.de>  # parisc
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+---
+ Documentation/driver-api/device-io.rst | 9 +++++----
+ arch/alpha/include/asm/io.h            | 1 -
+ arch/hexagon/include/asm/io.h          | 3 ---
+ arch/m68k/include/asm/kmap.h           | 1 -
+ arch/mips/include/asm/io.h             | 1 -
+ arch/parisc/include/asm/io.h           | 2 --
+ arch/powerpc/include/asm/io.h          | 1 -
+ arch/sh/include/asm/io.h               | 2 --
+ arch/sparc/include/asm/io_64.h         | 1 -
+ 9 files changed, 5 insertions(+), 16 deletions(-)
 
-So it is likely to end up being slightly more difficult than that for UML - it will need to be wrapped so it can be invoked from the "host" side signal code as well as invoked with some additional checks to avoid making a hash out of the IRQ handling.
-
-It may be necessary to modify some of the existing reentrancy prevention logic in the signal handlers as well and change it to make use of the preempt count instead of its own flags/counters.
-
-> 
-> If you convert the arch to generic-entry (a much larger undertaking)
-> then you get this for free.
-> 
-> _______________________________________________
-> linux-um mailing list
-> linux-um@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-um
-> 
-
+diff --git a/Documentation/driver-api/device-io.rst b/Documentation/driver-api/device-io.rst
+index 2c7abd234f4e..d55384b106bd 100644
+--- a/Documentation/driver-api/device-io.rst
++++ b/Documentation/driver-api/device-io.rst
+@@ -408,11 +408,12 @@ functions for details on the CPU side of things.
+ ioremap_uc()
+ ------------
+ 
+-ioremap_uc() behaves like ioremap() except that on the x86 architecture without
+-'PAT' mode, it marks memory as uncached even when the MTRR has designated
+-it as cacheable, see Documentation/arch/x86/pat.rst.
++ioremap_uc() is only meaningful on old x86-32 systems with the PAT extension,
++and on ia64 with its slightly unconventional ioremap() behavior, everywhere
++elss ioremap_uc() defaults to return NULL.
+ 
+-Portable drivers should avoid the use of ioremap_uc().
++
++Portable drivers should avoid the use of ioremap_uc(), use ioremap() instead.
+ 
+ ioremap_cache()
+ ---------------
+diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
+index 7aeaf7c30a6f..076f0e4e7f1e 100644
+--- a/arch/alpha/include/asm/io.h
++++ b/arch/alpha/include/asm/io.h
+@@ -308,7 +308,6 @@ static inline void __iomem *ioremap(unsigned long port, unsigned long size)
+ }
+ 
+ #define ioremap_wc ioremap
+-#define ioremap_uc ioremap
+ 
+ static inline void iounmap(volatile void __iomem *addr)
+ {
+diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
+index e2b308e32a37..b7bc246dbcb1 100644
+--- a/arch/hexagon/include/asm/io.h
++++ b/arch/hexagon/include/asm/io.h
+@@ -174,9 +174,6 @@ static inline void writel(u32 data, volatile void __iomem *addr)
+ #define _PAGE_IOREMAP (_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
+ 		       (__HEXAGON_C_DEV << 6))
+ 
+-#define ioremap_uc(addr, size) ioremap((addr), (size))
+-
+-
+ #define __raw_writel writel
+ 
+ static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
+diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
+index 4efb3efa593a..b778f015c917 100644
+--- a/arch/m68k/include/asm/kmap.h
++++ b/arch/m68k/include/asm/kmap.h
+@@ -25,7 +25,6 @@ static inline void __iomem *ioremap(unsigned long physaddr, unsigned long size)
+ 	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
+ }
+ 
+-#define ioremap_uc ioremap
+ #define ioremap_wt ioremap_wt
+ static inline void __iomem *ioremap_wt(unsigned long physaddr,
+ 				       unsigned long size)
+diff --git a/arch/mips/include/asm/io.h b/arch/mips/include/asm/io.h
+index 41d8bd5adef8..1ecf255efb40 100644
+--- a/arch/mips/include/asm/io.h
++++ b/arch/mips/include/asm/io.h
+@@ -170,7 +170,6 @@ void iounmap(const volatile void __iomem *addr);
+  */
+ #define ioremap(offset, size)						\
+ 	ioremap_prot((offset), (size), _CACHE_UNCACHED)
+-#define ioremap_uc		ioremap
+ 
+ /*
+  * ioremap_cache -	map bus memory into CPU space
+diff --git a/arch/parisc/include/asm/io.h b/arch/parisc/include/asm/io.h
+index 366537042465..48630c78714a 100644
+--- a/arch/parisc/include/asm/io.h
++++ b/arch/parisc/include/asm/io.h
+@@ -132,8 +132,6 @@ static inline void gsc_writeq(unsigned long long val, unsigned long addr)
+ 
+ #define ioremap_wc(addr, size)  \
+ 	ioremap_prot((addr), (size), _PAGE_IOREMAP)
+-#define ioremap_uc(addr, size)  \
+-	ioremap_prot((addr), (size), _PAGE_IOREMAP)
+ 
+ #define pci_iounmap			pci_iounmap
+ 
+diff --git a/arch/powerpc/include/asm/io.h b/arch/powerpc/include/asm/io.h
+index 0732b743e099..21bd3e8bffce 100644
+--- a/arch/powerpc/include/asm/io.h
++++ b/arch/powerpc/include/asm/io.h
+@@ -900,7 +900,6 @@ void __iomem *ioremap_wt(phys_addr_t address, unsigned long size);
+ #endif
+ 
+ void __iomem *ioremap_coherent(phys_addr_t address, unsigned long size);
+-#define ioremap_uc(addr, size)		ioremap((addr), (size))
+ #define ioremap_cache(addr, size) \
+ 	ioremap_prot((addr), (size), pgprot_val(PAGE_KERNEL))
+ 
+diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
+index f2f38e9d489a..790bea22c9b5 100644
+--- a/arch/sh/include/asm/io.h
++++ b/arch/sh/include/asm/io.h
+@@ -302,8 +302,6 @@ unsigned long long poke_real_address_q(unsigned long long addr,
+ 	ioremap_prot((addr), (size), pgprot_val(PAGE_KERNEL))
+ #endif /* CONFIG_MMU */
+ 
+-#define ioremap_uc	ioremap
+-
+ /*
+  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
+  * access
+diff --git a/arch/sparc/include/asm/io_64.h b/arch/sparc/include/asm/io_64.h
+index 9303270b22f3..d8ee1442f303 100644
+--- a/arch/sparc/include/asm/io_64.h
++++ b/arch/sparc/include/asm/io_64.h
+@@ -423,7 +423,6 @@ static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
+ 	return (void __iomem *)offset;
+ }
+ 
+-#define ioremap_uc(X,Y)			ioremap((X),(Y))
+ #define ioremap_wc(X,Y)			ioremap((X),(Y))
+ #define ioremap_wt(X,Y)			ioremap((X),(Y))
+ static inline void __iomem *ioremap_np(unsigned long offset, unsigned long size)
 -- 
-Anton R. Ivanov
-Cambridgegreys Limited. Registered in England. Company Number 10273661
-https://www.cambridgegreys.com/
+2.41.0
+
