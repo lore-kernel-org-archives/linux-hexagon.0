@@ -2,120 +2,228 @@ Return-Path: <linux-hexagon-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3ABBE81E04
-	for <linux-hexagon@archiver.kernel.org>; Fri,  6 Oct 2023 14:51:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E749CD6137
+	for <linux-hexagon@archiver.kernel.org>; Mon,  9 Oct 2023 21:19:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232663AbjJFOvY convert rfc822-to-8bit (ORCPT
+        id S1378265AbjJIVTQ (ORCPT
         <rfc822;linux-hexagon@archiver.kernel.org>);
-        Fri, 6 Oct 2023 10:51:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37692 "EHLO
+        Mon, 9 Oct 2023 17:19:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232658AbjJFOvX (ORCPT
+        with ESMTP id S1378236AbjJIVTQ (ORCPT
         <rfc822;linux-hexagon@vger.kernel.org>);
-        Fri, 6 Oct 2023 10:51:23 -0400
-Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E13FA6;
-        Fri,  6 Oct 2023 07:51:21 -0700 (PDT)
-Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-5a1d0fee86aso26471947b3.2;
-        Fri, 06 Oct 2023 07:51:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696603880; x=1697208680;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iH1WSSdRdMGN/blmpsRHcGzazR8XoV0oXL3Y8AOIRuQ=;
-        b=EmSCQWVWx5opcu9lhccyjt2i+UuXRKZ8XikPBmn7a1drujqFNLrjeKQ4AhtBmijWno
-         aE0XmqdeSkOiqgRlPVB1iHxj375ZFnNHHRwlW/uw79B0sL56qQ0qwjjgEvz0NZdSZqDa
-         N4fF4njzdCvgpvlIfmmVhbfI3yz2IMeZ8SXYtlc/fyBUO5L+fBYNjb0GqEEnxc/5Jrsg
-         e0v6ZIr0EZRoaqi0rgSG4+gwErJRcOFHpR4gLityQOXoD7ufGo1RhnPaWqdSkY8ZQqC2
-         miuZJ43Gw7nDAJu6lGGBsxbrn9YSBNkHF/+Cg3q7XsLRnWr0/q3IDl5viZyH8VghmHse
-         7LkA==
-X-Gm-Message-State: AOJu0Yxhg0fg9iuCZAJ4Zis2IW8s0zLNp5W3Nlkea4maXgL5o4sT5NqY
-        2jGnXMyPi+YdUbf1BFzLnVcePibTgI/T7Q==
-X-Google-Smtp-Source: AGHT+IFEdid6NvPaXtU1E9irJUJ6xGIbx+Lbxk6EPoOAssw561MiTIYyMo+82/38MFl99lKng8CvRw==
-X-Received: by 2002:a81:4e12:0:b0:5a1:d8df:c457 with SMTP id c18-20020a814e12000000b005a1d8dfc457mr8602044ywb.12.1696603880526;
-        Fri, 06 Oct 2023 07:51:20 -0700 (PDT)
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com. [209.85.128.169])
-        by smtp.gmail.com with ESMTPSA id k132-20020a816f8a000000b00598d67585d7sm1331399ywc.117.2023.10.06.07.51.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 06 Oct 2023 07:51:19 -0700 (PDT)
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-59f7f2b1036so26433907b3.3;
-        Fri, 06 Oct 2023 07:51:19 -0700 (PDT)
-X-Received: by 2002:a0d:e841:0:b0:589:f491:de9c with SMTP id
- r62-20020a0de841000000b00589f491de9cmr8896800ywe.28.1696603879221; Fri, 06
- Oct 2023 07:51:19 -0700 (PDT)
+        Mon, 9 Oct 2023 17:19:16 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3A78B6;
+        Mon,  9 Oct 2023 14:19:08 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1D85C433C8;
+        Mon,  9 Oct 2023 21:18:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1696886348;
+        bh=TSGItzmReuXxWm++8av4ew2EUzZA35IjrSGdiAa7ie8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=AR02btZ4mgp9dab3ACYI6igrBGiVFEQdmNWNcxHdD8UJq1EhYHaLIGjb3Cwv4s+g+
+         mmathlc5Veu0bcn46YVnxKQY9ABGfLimELcNw0klUlNtKHXpOmX5SgqRxTUCkLFS3o
+         ZS0Ueu7JemOZJOGzANL0FRGqVPg0BpVr9dfyhsQ5nDwbUv63LLomoFEIvX/7i3O4Bj
+         U55wVSdhQ8c2iMBNqigs0yUvbVUtg7hwnPp/Vnt3CUqJhGNKIVOsAVmLVPmdhMkwyJ
+         uLzJxnSI5zcAdgJpatcdE4e1r1jp90wyIblBOJG7uZmhXO5MwaO5T8h/WirbhImG9y
+         IaGxkq1DM1dMw==
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     Thomas Zimmermann <tzimmermann@suse.de>,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@quicinc.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Airlie <airlied@gmail.com>,
+        Deepak Rawat <drawat.floss@gmail.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guo Ren <guoren@kernel.org>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Khalid Aziz <khalid@gonehiking.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Matt Turner <mattst88@gmail.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        WANG Xuerui <kernel@xen0n.name>, Wei Liu <wei.liu@kernel.org>,
+        Will Deacon <will@kernel.org>, x86@kernel.org,
+        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-hyperv@vger.kernel.org
+Subject: [PATCH v3 0/9] video: screen_info cleanups
+Date:   Mon,  9 Oct 2023 23:18:36 +0200
+Message-Id: <20231009211845.3136536-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-References: <87edj64rj1.fsf@oracle.com> <CAHk-=wi0bXpgULVVLc2AdJcta-fvQP7yyFQ_JtaoHUiPrqf--A@mail.gmail.com>
- <87zg1u1h5t.fsf@oracle.com> <CAHk-=whMkp68vNxVn1H3qe_P7n=X2sWPL9kvW22dsvMFH8FcQQ@mail.gmail.com>
- <20230911150410.GC9098@noisy.programming.kicks-ass.net> <87h6o01w1a.fsf@oracle.com>
- <20230912082606.GB35261@noisy.programming.kicks-ass.net> <87cyyfxd4k.ffs@tglx>
- <CAHk-=whnwC01m_1f-gaM1xbvvwzwTiKitrWniA-ChZv+bM03dg@mail.gmail.com>
- <87led2wdj0.ffs@tglx> <ZQmbhoQIINs8rLHp@casper.infradead.org>
-In-Reply-To: <ZQmbhoQIINs8rLHp@casper.infradead.org>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Fri, 6 Oct 2023 16:51:07 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdV4qx3iQzqksfnvckk_PK9Zas0U=p-xv3pVwJ6hWLpejA@mail.gmail.com>
-Message-ID: <CAMuHMdV4qx3iQzqksfnvckk_PK9Zas0U=p-xv3pVwJ6hWLpejA@mail.gmail.com>
-Subject: Re: Arches that don't support PREEMPT
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ankur Arora <ankur.a.arora@oracle.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org,
-        akpm@linux-foundation.org, luto@kernel.org, bp@alien8.de,
-        dave.hansen@linux.intel.com, hpa@zytor.com, mingo@redhat.com,
-        juri.lelli@redhat.com, vincent.guittot@linaro.org, mgorman@suse.de,
-        rostedt@goodmis.org, jon.grimm@amd.com, bharata@amd.com,
-        raghavendra.kt@amd.com, boris.ostrovsky@oracle.com,
-        konrad.wilk@oracle.com, jgross@suse.com, andrew.cooper3@citrix.com,
-        linux-m68k@lists.linux-m68k.org,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        linux-um@lists.infradead.org, Brian Cain <bcain@quicinc.com>,
-        linux-hexagon@vger.kernel.org,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>, linux-alpha@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-hexagon.vger.kernel.org>
 X-Mailing-List: linux-hexagon@vger.kernel.org
 
-Hi Willy,
+From: Arnd Bergmann <arnd@arndb.de>
 
-On Tue, Sep 19, 2023 at 3:01 PM Matthew Wilcox <willy@infradead.org> wrote:
-> On Tue, Sep 19, 2023 at 02:30:59PM +0200, Thomas Gleixner wrote:
-> > Though it just occured to me that there are dragons lurking:
-> >
-> > arch/alpha/Kconfig:     select ARCH_NO_PREEMPT
-> > arch/hexagon/Kconfig:   select ARCH_NO_PREEMPT
-> > arch/m68k/Kconfig:      select ARCH_NO_PREEMPT if !COLDFIRE
-> > arch/um/Kconfig:        select ARCH_NO_PREEMPT
->
-> Sounds like three-and-a-half architectures which could be queued up for
-> removal right behind ia64 ...
->
-> I suspect none of these architecture maintainers have any idea there's a
-> problem.  Look at commit 87a4c375995e and the discussion in
-> https://lore.kernel.org/lkml/20180724175646.3621-1-hch@lst.de/
->
-> Let's cc those maintainers so they can remove this and fix whatever
-> breaks.
+v3 changelog
 
-Looks like your scare tactics are working ;-)
-[PATCH/RFC] m68k: Add full preempt support
-https://lore.kernel.org/all/7858a184cda66e0991fd295c711dfed7e4d1248c.1696603287.git.geert@linux-m68k.org
+No real changes, just rebased for context changes, and picked up the Acks.
 
-Gr{oetje,eeting}s,
+This now conflicts with the ia64 removal and introduces one new dependency
+on IA64, but that is harmless and trivial to deal with later.
 
-                        Geert
+Link: https://lore.kernel.org/lkml/20230719123944.3438363-1-arnd@kernel.org/
+---
+v2 changelog
+
+I refreshed the first four patches that I sent before with very minor
+updates, and then added some more to further disaggregate the use
+of screen_info:
+
+ - I found that powerpc wasn't using vga16fb any more
+
+ - vgacon can be almost entirely separated from the global
+   screen_info, except on x86
+
+ - similarly, the EFI framebuffer initialization can be
+   kept separate, except on x86.
+
+I did extensive build testing on arm/arm64/x86 and the normal built bot
+testing for the other architectures.
+
+Which tree should this get merged through?
+
+Link: https://lore.kernel.org/lkml/20230707095415.1449376-1-arnd@kernel.org/
+
+
+Arnd Bergmann (9):
+  vgacon: rework Kconfig dependencies
+  vgacon: rework screen_info #ifdef checks
+  dummycon: limit Arm console size hack to footbridge
+  vgacon, arch/*: remove unused screen_info definitions
+  vgacon: remove screen_info dependency
+  vgacon: clean up global screen_info instances
+  vga16fb: drop powerpc support
+  hyperv: avoid dependency on screen_info
+  efi: move screen_info into efi init code
+
+ arch/alpha/kernel/proto.h                     |  2 +
+ arch/alpha/kernel/setup.c                     |  8 +--
+ arch/alpha/kernel/sys_sio.c                   |  8 ++-
+ arch/arm/include/asm/setup.h                  |  5 ++
+ arch/arm/kernel/atags_parse.c                 | 20 +++---
+ arch/arm/kernel/efi.c                         |  6 --
+ arch/arm/kernel/setup.c                       | 11 +--
+ arch/arm64/kernel/efi.c                       |  4 --
+ arch/arm64/kernel/image-vars.h                |  2 +
+ arch/csky/kernel/setup.c                      | 12 ----
+ arch/hexagon/kernel/Makefile                  |  2 -
+ arch/hexagon/kernel/screen_info.c             |  3 -
+ arch/ia64/kernel/setup.c                      | 53 ++++++++-------
+ arch/loongarch/kernel/efi.c                   |  3 +-
+ arch/loongarch/kernel/image-vars.h            |  2 +
+ arch/loongarch/kernel/setup.c                 |  3 -
+ arch/mips/jazz/setup.c                        |  9 ---
+ arch/mips/kernel/setup.c                      | 11 ---
+ arch/mips/mti-malta/malta-setup.c             |  4 +-
+ arch/mips/sibyte/swarm/setup.c                | 26 ++++---
+ arch/mips/sni/setup.c                         | 18 ++---
+ arch/nios2/kernel/setup.c                     |  5 --
+ arch/powerpc/kernel/setup-common.c            | 16 -----
+ arch/riscv/kernel/image-vars.h                |  2 +
+ arch/riscv/kernel/setup.c                     | 12 ----
+ arch/sh/kernel/setup.c                        |  5 --
+ arch/sparc/kernel/setup_32.c                  | 13 ----
+ arch/sparc/kernel/setup_64.c                  | 13 ----
+ arch/x86/kernel/setup.c                       |  2 +-
+ arch/xtensa/kernel/setup.c                    | 12 ----
+ drivers/firmware/efi/efi-init.c               | 14 +++-
+ drivers/firmware/efi/libstub/efi-stub-entry.c |  8 ++-
+ drivers/firmware/pcdp.c                       |  1 -
+ drivers/gpu/drm/hyperv/hyperv_drm_drv.c       |  7 +-
+ drivers/hv/vmbus_drv.c                        |  6 +-
+ drivers/video/console/Kconfig                 | 11 +--
+ drivers/video/console/dummycon.c              |  2 +-
+ drivers/video/console/vgacon.c                | 68 +++++++++++--------
+ drivers/video/fbdev/Kconfig                   |  2 +-
+ drivers/video/fbdev/hyperv_fb.c               |  8 +--
+ drivers/video/fbdev/vga16fb.c                 |  9 +--
+ include/linux/console.h                       |  7 ++
+ 42 files changed, 183 insertions(+), 252 deletions(-)
+ delete mode 100644 arch/hexagon/kernel/screen_info.c
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.39.2
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brian Cain <bcain@quicinc.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: David Airlie <airlied@gmail.com>
+Cc: Deepak Rawat <drawat.floss@gmail.com>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: Dinh Nguyen <dinguyen@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Huacai Chen <chenhuacai@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Khalid Aziz <khalid@gonehiking.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: WANG Xuerui <kernel@xen0n.name>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: x86@kernel.org
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-efi@vger.kernel.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org
+Cc: loongarch@lists.linux.dev
+Cc: linux-mips@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-hyperv@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-fbdev@vger.kernel.org
+
