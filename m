@@ -2,65 +2,62 @@ Return-Path: <linux-hexagon-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3EF3C41513
-	for <linux-hexagon@archiver.kernel.org>; Thu, 12 Oct 2023 07:25:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C8DBCDB486
+	for <linux-hexagon@archiver.kernel.org>; Fri, 13 Oct 2023 21:03:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347107AbjJLHZw (ORCPT
+        id S232103AbjJMVD1 (ORCPT
         <rfc822;linux-hexagon@archiver.kernel.org>);
-        Thu, 12 Oct 2023 03:25:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42710 "EHLO
+        Fri, 13 Oct 2023 17:03:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347114AbjJLHZv (ORCPT
+        with ESMTP id S229679AbjJMVDZ (ORCPT
         <rfc822;linux-hexagon@vger.kernel.org>);
-        Thu, 12 Oct 2023 03:25:51 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 203B990;
-        Thu, 12 Oct 2023 00:25:50 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39C7JN7v017051;
-        Thu, 12 Oct 2023 07:25:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=5MqhUHWaw+1K2HvrJPqGawKne8YN3vxBSsQbSVm1zg8=;
- b=p50xijw8s91A2Q9ug3Gd49JWz4ZvgqA6Hy+zMLFDqVv4bzeNaYOveL4uET4RJOp3gesp
- DAwgrwHJ03HgF9eeEvp+eOO7qwrmg+XNvm8OUqoLNt7lJlDAVEqtjN8CiKqDMXhlLcky
- eKGNUZ1kMUtv/z8/kUcfCyEga3J/tdfvDxnt6ZfgS26CGMmztvCMkSoI1bmaVHklgkOD
- 4j0SuHSA9ruFRWECactW6nhgOGtTYpcc3OzdI19+LWOAFipwZEMmcg23yiLFkz2UiyBh
- lGMGaxZYCj+Q2PbNgyXx8ufLOeAMZwfSd+coiMBtiELvWv8yrxN+BKmJ1I/kFUJhuVnc VA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpca988bj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Oct 2023 07:25:11 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39C7JNSY017085;
-        Thu, 12 Oct 2023 07:25:10 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpca988ax-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Oct 2023 07:25:10 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39C4sB2E001239;
-        Thu, 12 Oct 2023 07:25:09 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tkkvk5hry-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Oct 2023 07:25:09 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39C7P7Zc27001390
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 12 Oct 2023 07:25:08 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DA71020065;
-        Thu, 12 Oct 2023 07:25:07 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8AAA920063;
-        Thu, 12 Oct 2023 07:25:07 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu, 12 Oct 2023 07:25:07 +0000 (GMT)
-Date:   Thu, 12 Oct 2023 09:25:05 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+        Fri, 13 Oct 2023 17:03:25 -0400
+Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15B3AB7;
+        Fri, 13 Oct 2023 14:03:21 -0700 (PDT)
+Received: by mail-yb1-xb31.google.com with SMTP id 3f1490d57ef6-d9ac43d3b71so2385538276.0;
+        Fri, 13 Oct 2023 14:03:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1697231000; x=1697835800; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JtiOVCn2uSsz0FoSYRDQt6Ad/oEEDkzUyvmWznVzlSA=;
+        b=azcdS5mk3fTak+nb/eug5AYpCwxC5kpdPWDxsTbKwRaTZsnLV+Lx6RGqcJnIyUdE7E
+         i8mcurTG2K1UAzdKUEP1S6mdqR+ibq2oLmQ3X9nYbM0kG2dZD3+5jy7tWcqTlQuPlXEn
+         YxekVNV3znDqK079lRSP9QXygD9u0NmyD1tg7EsKIgxZZ9rwNdXqbYT+ovXnVO/ci831
+         mgB/pG84f12ARASoT4IyPoOJNm6RHJASuCu6rXvY9sR+TJqwnt77yCRbkYhGzdUBrhXd
+         8X5ZM+bDS4cgt/tdAP3JdjHz4hcbnQ2wJko+oS911py/MlPJdtAAXbYPgvNL5+6cI/+s
+         ivbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697231000; x=1697835800;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JtiOVCn2uSsz0FoSYRDQt6Ad/oEEDkzUyvmWznVzlSA=;
+        b=EoOdS6t9q5onboOSajiihDPwrOvD9jjmmZ0TIdOI+n9UUe11Qay6YbTt3flkCOKUJQ
+         ARCPDnwSv6Bs3VDI5IxdZzbQJCIQeqxrf3xuzq1iuv5bwBBeLK+nEebUyPBjCUySqrIR
+         0J68695SPTegha0BBJICgKu6KzXmAdwngFFH/rOG0W2o+RGqynfvOSZaggW1LjGxFCjS
+         3yslMQT6PQGUZSF7jsbLXGalqj48rkF+6H8UV7eBkF7tvXblE7/vRwBvtycqMznRcLJh
+         3l7WnU9pim0Tk9jgbHQv0qJQYzmiG5GIStf3RfL1H0Tt/MyisN30fssYiGCIRgg/Takh
+         049g==
+X-Gm-Message-State: AOJu0YwuMAUa/Yms10yiEquu3Ujskw3v3j1JidWpHUt+4pt3l+aT8B3W
+        QwBTXNyvRLeShvHZLvHa5uEIsTYwQeSGzw8QLec=
+X-Google-Smtp-Source: AGHT+IHWHj9ILTPWExZ8ekeA0/ryyRW0ZV6k5VhEVnOo+k5EpZsvEbKt/nom23K7vTTS2zHZvjjk2tEmm58T8MLLm1U=
+X-Received: by 2002:a5b:64d:0:b0:d9b:3b3e:5a07 with SMTP id
+ o13-20020a5b064d000000b00d9b3b3e5a07mr2004058ybq.5.1697230999223; Fri, 13 Oct
+ 2023 14:03:19 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230807230513.102486-1-vishal.moola@gmail.com>
+ <20230807230513.102486-15-vishal.moola@gmail.com> <20231012072505.6160-A-hca@linux.ibm.com>
+In-Reply-To: <20231012072505.6160-A-hca@linux.ibm.com>
+From:   Vishal Moola <vishal.moola@gmail.com>
+Date:   Fri, 13 Oct 2023 14:03:08 -0700
+Message-ID: <CAOzc2px-SFSnmjcPriiB3cm1fNj3+YC8S0VSp4t1QvDR0f4E2A@mail.gmail.com>
+Subject: Re: [PATCH mm-unstable v9 14/31] s390: Convert various pgalloc
+ functions to use ptdescs
+To:     Heiko Carstens <hca@linux.ibm.com>
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
         linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
@@ -75,62 +72,60 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         David Hildenbrand <david@redhat.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH mm-unstable v9 14/31] s390: Convert various pgalloc
- functions to use ptdescs
-Message-ID: <20231012072505.6160-A-hca@linux.ibm.com>
-References: <20230807230513.102486-1-vishal.moola@gmail.com>
- <20230807230513.102486-15-vishal.moola@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230807230513.102486-15-vishal.moola@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: R9BBv1jP5we_uE3OHfXIw10GtOr53ihr
-X-Proofpoint-GUID: -0DchMoDG4gnKEi3H7t5YnEcLMTMxRGv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-12_02,2023-10-11_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- mlxscore=0 priorityscore=1501 suspectscore=0 adultscore=0 mlxlogscore=661
- impostorscore=0 clxscore=1011 lowpriorityscore=0 malwarescore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2310120061
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-hexagon.vger.kernel.org>
 X-Mailing-List: linux-hexagon@vger.kernel.org
 
-On Mon, Aug 07, 2023 at 04:04:56PM -0700, Vishal Moola (Oracle) wrote:
-> As part of the conversions to replace pgtable constructor/destructors with
-> ptdesc equivalents, convert various page table functions to use ptdescs.
-> 
-> Some of the functions use the *get*page*() helper functions. Convert
-> these to use pagetable_alloc() and ptdesc_address() instead to help
-> standardize page tables further.
-> 
-> Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
-> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> ---
->  arch/s390/include/asm/pgalloc.h |   4 +-
->  arch/s390/include/asm/tlb.h     |   4 +-
->  arch/s390/mm/pgalloc.c          | 128 ++++++++++++++++----------------
->  3 files changed, 69 insertions(+), 67 deletions(-)
-...
-> diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-> index d7374add7820..07fc660a24aa 100644
-> --- a/arch/s390/mm/pgalloc.c
-> +++ b/arch/s390/mm/pgalloc.c
-...
-> @@ -488,16 +486,20 @@ static void base_pgt_free(unsigned long *table)
->  static unsigned long *base_crst_alloc(unsigned long val)
->  {
->  	unsigned long *table;
-> +	struct ptdesc *ptdesc;
->  
-> -	table =	(unsigned long *)__get_free_pages(GFP_KERNEL, CRST_ALLOC_ORDER);
-> -	if (table)
-> -		crst_table_init(table, val);
-> +	ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, CRST_ALLOC_ORDER);
+On Thu, Oct 12, 2023 at 12:25=E2=80=AFAM Heiko Carstens <hca@linux.ibm.com>=
+ wrote:
+>
+> On Mon, Aug 07, 2023 at 04:04:56PM -0700, Vishal Moola (Oracle) wrote:
+> > As part of the conversions to replace pgtable constructor/destructors w=
+ith
+> > ptdesc equivalents, convert various page table functions to use ptdescs=
+.
+> >
+> > Some of the functions use the *get*page*() helper functions. Convert
+> > these to use pagetable_alloc() and ptdesc_address() instead to help
+> > standardize page tables further.
+> >
+> > Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
+> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> > ---
+> >  arch/s390/include/asm/pgalloc.h |   4 +-
+> >  arch/s390/include/asm/tlb.h     |   4 +-
+> >  arch/s390/mm/pgalloc.c          | 128 ++++++++++++++++----------------
+> >  3 files changed, 69 insertions(+), 67 deletions(-)
+> ...
+> > diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+> > index d7374add7820..07fc660a24aa 100644
+> > --- a/arch/s390/mm/pgalloc.c
+> > +++ b/arch/s390/mm/pgalloc.c
+> ...
+> > @@ -488,16 +486,20 @@ static void base_pgt_free(unsigned long *table)
+> >  static unsigned long *base_crst_alloc(unsigned long val)
+> >  {
+> >       unsigned long *table;
+> > +     struct ptdesc *ptdesc;
+> >
+> > -     table =3D (unsigned long *)__get_free_pages(GFP_KERNEL, CRST_ALLO=
+C_ORDER);
+> > -     if (table)
+> > -             crst_table_init(table, val);
+> > +     ptdesc =3D pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, CRST_ALLO=
+C_ORDER);
+>
+> I guess I must miss something, but what is the reason to mask out
+> __GFP_HIGHMEM here? It is not part of GFP_KERNEL, nor does s390 support
+> HIGHMEM.
 
-I guess I must miss something, but what is the reason to mask out
-__GFP_HIGHMEM here? It is not part of GFP_KERNEL, nor does s390 support
-HIGHMEM.
+You're not missing anything.
+
+This was replacing __get_free_pages() which also doesn't support HIGHMEM,
+so I had that in to ensure a non-HIGHMEM allocation in case a
+passed-in gfp_flags
+had it set. In hindsight since we're just passing in the GFP flags
+directly here, we don't
+actually need to mask out GFP_HIGHMEM.
