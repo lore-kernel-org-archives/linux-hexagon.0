@@ -2,130 +2,139 @@ Return-Path: <linux-hexagon-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C8DBCDB486
-	for <linux-hexagon@archiver.kernel.org>; Fri, 13 Oct 2023 21:03:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE254C0032E
+	for <linux-hexagon@archiver.kernel.org>; Wed, 25 Oct 2023 07:41:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232103AbjJMVD1 (ORCPT
+        id S233372AbjJYHlr (ORCPT
         <rfc822;linux-hexagon@archiver.kernel.org>);
-        Fri, 13 Oct 2023 17:03:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54378 "EHLO
+        Wed, 25 Oct 2023 03:41:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229679AbjJMVDZ (ORCPT
+        with ESMTP id S234308AbjJYHl3 (ORCPT
         <rfc822;linux-hexagon@vger.kernel.org>);
-        Fri, 13 Oct 2023 17:03:25 -0400
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15B3AB7;
-        Fri, 13 Oct 2023 14:03:21 -0700 (PDT)
-Received: by mail-yb1-xb31.google.com with SMTP id 3f1490d57ef6-d9ac43d3b71so2385538276.0;
-        Fri, 13 Oct 2023 14:03:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1697231000; x=1697835800; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JtiOVCn2uSsz0FoSYRDQt6Ad/oEEDkzUyvmWznVzlSA=;
-        b=azcdS5mk3fTak+nb/eug5AYpCwxC5kpdPWDxsTbKwRaTZsnLV+Lx6RGqcJnIyUdE7E
-         i8mcurTG2K1UAzdKUEP1S6mdqR+ibq2oLmQ3X9nYbM0kG2dZD3+5jy7tWcqTlQuPlXEn
-         YxekVNV3znDqK079lRSP9QXygD9u0NmyD1tg7EsKIgxZZ9rwNdXqbYT+ovXnVO/ci831
-         mgB/pG84f12ARASoT4IyPoOJNm6RHJASuCu6rXvY9sR+TJqwnt77yCRbkYhGzdUBrhXd
-         8X5ZM+bDS4cgt/tdAP3JdjHz4hcbnQ2wJko+oS911py/MlPJdtAAXbYPgvNL5+6cI/+s
-         ivbA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697231000; x=1697835800;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JtiOVCn2uSsz0FoSYRDQt6Ad/oEEDkzUyvmWznVzlSA=;
-        b=EoOdS6t9q5onboOSajiihDPwrOvD9jjmmZ0TIdOI+n9UUe11Qay6YbTt3flkCOKUJQ
-         ARCPDnwSv6Bs3VDI5IxdZzbQJCIQeqxrf3xuzq1iuv5bwBBeLK+nEebUyPBjCUySqrIR
-         0J68695SPTegha0BBJICgKu6KzXmAdwngFFH/rOG0W2o+RGqynfvOSZaggW1LjGxFCjS
-         3yslMQT6PQGUZSF7jsbLXGalqj48rkF+6H8UV7eBkF7tvXblE7/vRwBvtycqMznRcLJh
-         3l7WnU9pim0Tk9jgbHQv0qJQYzmiG5GIStf3RfL1H0Tt/MyisN30fssYiGCIRgg/Takh
-         049g==
-X-Gm-Message-State: AOJu0YwuMAUa/Yms10yiEquu3Ujskw3v3j1JidWpHUt+4pt3l+aT8B3W
-        QwBTXNyvRLeShvHZLvHa5uEIsTYwQeSGzw8QLec=
-X-Google-Smtp-Source: AGHT+IHWHj9ILTPWExZ8ekeA0/ryyRW0ZV6k5VhEVnOo+k5EpZsvEbKt/nom23K7vTTS2zHZvjjk2tEmm58T8MLLm1U=
-X-Received: by 2002:a5b:64d:0:b0:d9b:3b3e:5a07 with SMTP id
- o13-20020a5b064d000000b00d9b3b3e5a07mr2004058ybq.5.1697230999223; Fri, 13 Oct
- 2023 14:03:19 -0700 (PDT)
+        Wed, 25 Oct 2023 03:41:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2270559E
+        for <linux-hexagon@vger.kernel.org>; Wed, 25 Oct 2023 00:38:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1698219488;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=WPhN4WgWrFt8KJh56S1ds5IuWAdjP+nxTuZMp1+QSOI=;
+        b=h6uvDODAFlES7LRFtMUzTHgnQ4AXoq5j6xrcJZjwW2hmTJbmSkVTe3gDQQl3lNn2Y7IOG3
+        dNPSV7QL5MQ8HkIa3kkDw6Y/hL9ZIkRuvLDnkGE4/oXXRxPod/402pV5Y+lw5Z5217WC5Y
+        CZThRB1jdNemV8Qe3OQxj2roLu6f+uo=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-612-N3W1iORqM6arSQApGlt4PA-1; Wed,
+ 25 Oct 2023 03:38:05 -0400
+X-MC-Unique: N3W1iORqM6arSQApGlt4PA-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1CE1F3827978;
+        Wed, 25 Oct 2023 07:38:05 +0000 (UTC)
+Received: from thuth-p1g4.redhat.com (unknown [10.39.194.84])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B548A492BD9;
+        Wed, 25 Oct 2023 07:38:03 +0000 (UTC)
+From:   Thomas Huth <thuth@redhat.com>
+To:     Oleg Nesterov <oleg@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        linux-hexagon@vger.kernel.org, Brian Cain <bcain@quicinc.com>
+Cc:     linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>
+Subject: [PATCH] hexagon: Remove unusable symbols from the ptrace.h uapi
+Date:   Wed, 25 Oct 2023 09:38:02 +0200
+Message-ID: <20231025073802.117625-1-thuth@redhat.com>
 MIME-Version: 1.0
-References: <20230807230513.102486-1-vishal.moola@gmail.com>
- <20230807230513.102486-15-vishal.moola@gmail.com> <20231012072505.6160-A-hca@linux.ibm.com>
-In-Reply-To: <20231012072505.6160-A-hca@linux.ibm.com>
-From:   Vishal Moola <vishal.moola@gmail.com>
-Date:   Fri, 13 Oct 2023 14:03:08 -0700
-Message-ID: <CAOzc2px-SFSnmjcPriiB3cm1fNj3+YC8S0VSp4t1QvDR0f4E2A@mail.gmail.com>
-Subject: Re: [PATCH mm-unstable v9 14/31] s390: Convert various pgalloc
- functions to use ptdescs
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Mike Rapoport <rppt@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <linux-hexagon.vger.kernel.org>
 X-Mailing-List: linux-hexagon@vger.kernel.org
 
-On Thu, Oct 12, 2023 at 12:25=E2=80=AFAM Heiko Carstens <hca@linux.ibm.com>=
- wrote:
->
-> On Mon, Aug 07, 2023 at 04:04:56PM -0700, Vishal Moola (Oracle) wrote:
-> > As part of the conversions to replace pgtable constructor/destructors w=
-ith
-> > ptdesc equivalents, convert various page table functions to use ptdescs=
-.
-> >
-> > Some of the functions use the *get*page*() helper functions. Convert
-> > these to use pagetable_alloc() and ptdesc_address() instead to help
-> > standardize page tables further.
-> >
-> > Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
-> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> > ---
-> >  arch/s390/include/asm/pgalloc.h |   4 +-
-> >  arch/s390/include/asm/tlb.h     |   4 +-
-> >  arch/s390/mm/pgalloc.c          | 128 ++++++++++++++++----------------
-> >  3 files changed, 69 insertions(+), 67 deletions(-)
-> ...
-> > diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-> > index d7374add7820..07fc660a24aa 100644
-> > --- a/arch/s390/mm/pgalloc.c
-> > +++ b/arch/s390/mm/pgalloc.c
-> ...
-> > @@ -488,16 +486,20 @@ static void base_pgt_free(unsigned long *table)
-> >  static unsigned long *base_crst_alloc(unsigned long val)
-> >  {
-> >       unsigned long *table;
-> > +     struct ptdesc *ptdesc;
-> >
-> > -     table =3D (unsigned long *)__get_free_pages(GFP_KERNEL, CRST_ALLO=
-C_ORDER);
-> > -     if (table)
-> > -             crst_table_init(table, val);
-> > +     ptdesc =3D pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, CRST_ALLO=
-C_ORDER);
->
-> I guess I must miss something, but what is the reason to mask out
-> __GFP_HIGHMEM here? It is not part of GFP_KERNEL, nor does s390 support
-> HIGHMEM.
+Kernel-internal prototypes, references to current_thread_info()
+and code hidden behind a CONFIG_HEXAGON_ARCH_VERSION switch are
+certainly not usable in userspace, so this should not reside
+in a uapi header. Move the code into an internal version of
+ptrace.h instead.
 
-You're not missing anything.
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+---
+ I've compile tested it now with a hexagon cross-compiler and the kernel
+ compiles fine with this change, so I think this should be good to go.
 
-This was replacing __get_free_pages() which also doesn't support HIGHMEM,
-so I had that in to ensure a non-HIGHMEM allocation in case a
-passed-in gfp_flags
-had it set. In hindsight since we're just passing in the GFP flags
-directly here, we don't
-actually need to mask out GFP_HIGHMEM.
+ arch/hexagon/include/asm/ptrace.h      | 25 +++++++++++++++++++++++++
+ arch/hexagon/include/uapi/asm/ptrace.h | 13 -------------
+ scripts/headers_install.sh             |  1 -
+ 3 files changed, 25 insertions(+), 14 deletions(-)
+ create mode 100644 arch/hexagon/include/asm/ptrace.h
+
+diff --git a/arch/hexagon/include/asm/ptrace.h b/arch/hexagon/include/asm/ptrace.h
+new file mode 100644
+index 000000000000..ed35da1ee685
+--- /dev/null
++++ b/arch/hexagon/include/asm/ptrace.h
+@@ -0,0 +1,25 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Ptrace definitions for the Hexagon architecture
++ *
++ * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
++ */
++
++#ifndef _ASM_HEXAGON_PTRACE_H
++#define _ASM_HEXAGON_PTRACE_H
++
++#include <uapi/asm/ptrace.h>
++
++/* kprobe-based event tracer support */
++extern int regs_query_register_offset(const char *name);
++extern const char *regs_query_register_name(unsigned int offset);
++
++#define current_pt_regs() \
++	((struct pt_regs *) \
++	 ((unsigned long)current_thread_info() + THREAD_SIZE) - 1)
++
++#if CONFIG_HEXAGON_ARCH_VERSION >= 4
++#define arch_has_single_step()	(1)
++#endif
++
++#endif
+diff --git a/arch/hexagon/include/uapi/asm/ptrace.h b/arch/hexagon/include/uapi/asm/ptrace.h
+index f79de05b8689..2a3ea14ad9b9 100644
+--- a/arch/hexagon/include/uapi/asm/ptrace.h
++++ b/arch/hexagon/include/uapi/asm/ptrace.h
+@@ -29,17 +29,4 @@
+ 
+ #define profile_pc(regs) instruction_pointer(regs)
+ 
+-/* kprobe-based event tracer support */
+-extern int regs_query_register_offset(const char *name);
+-extern const char *regs_query_register_name(unsigned int offset);
+-
+-#define current_pt_regs() \
+-	((struct pt_regs *) \
+-	 ((unsigned long)current_thread_info() + THREAD_SIZE) - 1)
+-
+-#if CONFIG_HEXAGON_ARCH_VERSION >= 4
+-#define arch_has_single_step()	(1)
+-#endif
+-
+-
+ #endif
+diff --git a/scripts/headers_install.sh b/scripts/headers_install.sh
+index 56d3c338d91d..c3064ac31003 100755
+--- a/scripts/headers_install.sh
++++ b/scripts/headers_install.sh
+@@ -74,7 +74,6 @@ arch/arc/include/uapi/asm/page.h:CONFIG_ARC_PAGE_SIZE_16K
+ arch/arc/include/uapi/asm/page.h:CONFIG_ARC_PAGE_SIZE_4K
+ arch/arc/include/uapi/asm/swab.h:CONFIG_ARC_HAS_SWAPE
+ arch/arm/include/uapi/asm/ptrace.h:CONFIG_CPU_ENDIAN_BE8
+-arch/hexagon/include/uapi/asm/ptrace.h:CONFIG_HEXAGON_ARCH_VERSION
+ arch/hexagon/include/uapi/asm/user.h:CONFIG_HEXAGON_ARCH_VERSION
+ arch/m68k/include/uapi/asm/ptrace.h:CONFIG_COLDFIRE
+ arch/nios2/include/uapi/asm/swab.h:CONFIG_NIOS2_CI_SWAB_NO
+-- 
+2.41.0
+
