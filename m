@@ -2,139 +2,111 @@ Return-Path: <linux-hexagon-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE254C0032E
-	for <linux-hexagon@archiver.kernel.org>; Wed, 25 Oct 2023 07:41:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58FEEC07545
+	for <linux-hexagon@archiver.kernel.org>; Wed, 25 Oct 2023 14:00:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233372AbjJYHlr (ORCPT
+        id S1344702AbjJYOAg (ORCPT
         <rfc822;linux-hexagon@archiver.kernel.org>);
-        Wed, 25 Oct 2023 03:41:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45326 "EHLO
+        Wed, 25 Oct 2023 10:00:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234308AbjJYHl3 (ORCPT
+        with ESMTP id S234214AbjJYOAa (ORCPT
         <rfc822;linux-hexagon@vger.kernel.org>);
-        Wed, 25 Oct 2023 03:41:29 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2270559E
-        for <linux-hexagon@vger.kernel.org>; Wed, 25 Oct 2023 00:38:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1698219488;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=WPhN4WgWrFt8KJh56S1ds5IuWAdjP+nxTuZMp1+QSOI=;
-        b=h6uvDODAFlES7LRFtMUzTHgnQ4AXoq5j6xrcJZjwW2hmTJbmSkVTe3gDQQl3lNn2Y7IOG3
-        dNPSV7QL5MQ8HkIa3kkDw6Y/hL9ZIkRuvLDnkGE4/oXXRxPod/402pV5Y+lw5Z5217WC5Y
-        CZThRB1jdNemV8Qe3OQxj2roLu6f+uo=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-612-N3W1iORqM6arSQApGlt4PA-1; Wed,
- 25 Oct 2023 03:38:05 -0400
-X-MC-Unique: N3W1iORqM6arSQApGlt4PA-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1CE1F3827978;
-        Wed, 25 Oct 2023 07:38:05 +0000 (UTC)
-Received: from thuth-p1g4.redhat.com (unknown [10.39.194.84])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B548A492BD9;
-        Wed, 25 Oct 2023 07:38:03 +0000 (UTC)
-From:   Thomas Huth <thuth@redhat.com>
-To:     Oleg Nesterov <oleg@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        linux-hexagon@vger.kernel.org, Brian Cain <bcain@quicinc.com>
-Cc:     linux-kernel@vger.kernel.org, Richard Kuo <rkuo@codeaurora.org>
-Subject: [PATCH] hexagon: Remove unusable symbols from the ptrace.h uapi
-Date:   Wed, 25 Oct 2023 09:38:02 +0200
-Message-ID: <20231025073802.117625-1-thuth@redhat.com>
+        Wed, 25 Oct 2023 10:00:30 -0400
+Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8C2C18A;
+        Wed, 25 Oct 2023 07:00:25 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id B90105C03FA;
+        Wed, 25 Oct 2023 10:00:22 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+  by compute5.internal (MEProxy); Wed, 25 Oct 2023 10:00:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm2; t=1698242422; x=1698328822; bh=KI
+        5w58UTfABvjvptIvDrQdHkWsalGJQZedeBlycOud4=; b=jkIviQ9qbhFEllr47i
+        upP2prLGMngnNzPF2D3xx1Kp7VMPqdBmX8kdZeQ6L3BPIpiveh6M1/YjBa8yyPi4
+        Y8AvETg4AwRuq2KWdiM4UO40g2DYRTNsQfzLnteGmHe/sEexC3wsDMe3YT4LHeX+
+        5TwtL0cmArv4qkILCKL2+RZKU1wuMNAQ6NvSZ8IuiNhJSBCKfmMZI5ppvoIsAI8Z
+        Xpcn+5GdEm0cSwXTLPZglYEj91eT4oHL4BigzhV1nhrv/pL0YAcUFY3KroSEv0uB
+        34vcsNsW0NtlqFLyGP4CTCB9X3IRZSWJeo8NqPyeYeyTwlEvIyUTjbIcVZML+kWm
+        tzjQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; t=1698242422; x=1698328822; bh=KI5w58UTfABvj
+        vptIvDrQdHkWsalGJQZedeBlycOud4=; b=gOJs7LGImdiOAT4LGQkbRHYtNebd4
+        MQ0VH8jbq9fCFG/AVYgUocW8DY1Gjft6GBJ8TUWw7iSaonpCE72LPKuHNPfXeqPC
+        NT+ZnAjy3tmyovZLJkhGFOdIDKHy7XYbNLSMMaJIF8o1fO2CMyTzOtcR4SQaEhex
+        KevFlXZ7W5v0qHfnVPn95/jNhHWvx+SbXCO1lfxHyPCiZLNhk4XmcVDJNBJnlU1j
+        Eqo0N04yNM36bBDuwE78nnNWmi9t/1WtcTwz432gKV0/AVp7WZB7c2fP7uAYhI3R
+        v3o3WP79G+IerXIuw8CAjE52yEszmXEYvvq+IdDjaPjloEeGL0EHSRLgA==
+X-ME-Sender: <xms:dh85ZRZ7X1C2M74qCikQ0Ckt703A8xOJiS18i0DsPP8EOiCvTSggBg>
+    <xme:dh85ZYZIe9XUFQ37oPbKZ-_NGcJ8UHbDd3nUNr1hKGiBBPlNRElckC8TLlnuh4YZR
+    drUjta55n-VrPQY54s>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrledtgdejtdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhn
+    ugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtth
+    gvrhhnpeffheeugeetiefhgeethfejgfdtuefggeejleehjeeutefhfeeggefhkedtkeet
+    ffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrh
+    hnugesrghrnhgusgdruggv
+X-ME-Proxy: <xmx:dh85ZT-djq942ipU6diXlpgBtGg-Vo03bcbF58nnpesEKO1jvuNSrw>
+    <xmx:dh85Zfr59r33lMffZS1JAF4eyxiKuKvunjVgK9ETMV1lDZmb-mK3og>
+    <xmx:dh85ZcrPekFXq1OJVKIawG2Q9-ZbaLntwOgruiIyCddjAxDHnSyehQ>
+    <xmx:dh85ZXVNOiuo91JkYwkCZpJgW67PW-9t2NdUfz065iGbatzffxh86A>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 4884AB6008D; Wed, 25 Oct 2023 10:00:22 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.9.0-alpha0-1048-g9229b632c5-fm-20231019.001-g9229b632
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
+Message-Id: <5e5e3e9b-dc16-428c-bd7f-d723960beb3c@app.fastmail.com>
+In-Reply-To: <20231025073802.117625-1-thuth@redhat.com>
+References: <20231025073802.117625-1-thuth@redhat.com>
+Date:   Wed, 25 Oct 2023 15:59:44 +0200
+From:   "Arnd Bergmann" <arnd@arndb.de>
+To:     "Thomas Huth" <thuth@redhat.com>,
+        "Oleg Nesterov" <oleg@redhat.com>, linux-hexagon@vger.kernel.org,
+        "Brian Cain" <bcain@quicinc.com>
+Cc:     linux-kernel@vger.kernel.org, "Richard Kuo" <rkuo@codeaurora.org>
+Subject: Re: [PATCH] hexagon: Remove unusable symbols from the ptrace.h uapi
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-hexagon.vger.kernel.org>
 X-Mailing-List: linux-hexagon@vger.kernel.org
 
-Kernel-internal prototypes, references to current_thread_info()
-and code hidden behind a CONFIG_HEXAGON_ARCH_VERSION switch are
-certainly not usable in userspace, so this should not reside
-in a uapi header. Move the code into an internal version of
-ptrace.h instead.
+On Wed, Oct 25, 2023, at 09:38, Thomas Huth wrote:
+> Kernel-internal prototypes, references to current_thread_info()
+> and code hidden behind a CONFIG_HEXAGON_ARCH_VERSION switch are
+> certainly not usable in userspace, so this should not reside
+> in a uapi header. Move the code into an internal version of
+> ptrace.h instead.
+>
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  I've compile tested it now with a hexagon cross-compiler and the kernel
+>  compiles fine with this change, so I think this should be good to go.
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- I've compile tested it now with a hexagon cross-compiler and the kernel
- compiles fine with this change, so I think this should be good to go.
+I've applied this to the asm-generic tree, thanks for the
+patch.
 
- arch/hexagon/include/asm/ptrace.h      | 25 +++++++++++++++++++++++++
- arch/hexagon/include/uapi/asm/ptrace.h | 13 -------------
- scripts/headers_install.sh             |  1 -
- 3 files changed, 25 insertions(+), 14 deletions(-)
- create mode 100644 arch/hexagon/include/asm/ptrace.h
+> +++ b/scripts/headers_install.sh
+> @@ -74,7 +74,6 @@ arch/arc/include/uapi/asm/page.h:CONFIG_ARC_PAGE_SIZE_16K
+>  arch/arc/include/uapi/asm/page.h:CONFIG_ARC_PAGE_SIZE_4K
+>  arch/arc/include/uapi/asm/swab.h:CONFIG_ARC_HAS_SWAPE
+>  arch/arm/include/uapi/asm/ptrace.h:CONFIG_CPU_ENDIAN_BE8
+> -arch/hexagon/include/uapi/asm/ptrace.h:CONFIG_HEXAGON_ARCH_VERSION
+>  arch/hexagon/include/uapi/asm/user.h:CONFIG_HEXAGON_ARCH_VERSION
+>  arch/m68k/include/uapi/asm/ptrace.h:CONFIG_COLDFIRE
+>  arch/nios2/include/uapi/asm/swab.h:CONFIG_NIOS2_CI_SWAB_NO
 
-diff --git a/arch/hexagon/include/asm/ptrace.h b/arch/hexagon/include/asm/ptrace.h
-new file mode 100644
-index 000000000000..ed35da1ee685
---- /dev/null
-+++ b/arch/hexagon/include/asm/ptrace.h
-@@ -0,0 +1,25 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Ptrace definitions for the Hexagon architecture
-+ *
-+ * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
-+ */
-+
-+#ifndef _ASM_HEXAGON_PTRACE_H
-+#define _ASM_HEXAGON_PTRACE_H
-+
-+#include <uapi/asm/ptrace.h>
-+
-+/* kprobe-based event tracer support */
-+extern int regs_query_register_offset(const char *name);
-+extern const char *regs_query_register_name(unsigned int offset);
-+
-+#define current_pt_regs() \
-+	((struct pt_regs *) \
-+	 ((unsigned long)current_thread_info() + THREAD_SIZE) - 1)
-+
-+#if CONFIG_HEXAGON_ARCH_VERSION >= 4
-+#define arch_has_single_step()	(1)
-+#endif
-+
-+#endif
-diff --git a/arch/hexagon/include/uapi/asm/ptrace.h b/arch/hexagon/include/uapi/asm/ptrace.h
-index f79de05b8689..2a3ea14ad9b9 100644
---- a/arch/hexagon/include/uapi/asm/ptrace.h
-+++ b/arch/hexagon/include/uapi/asm/ptrace.h
-@@ -29,17 +29,4 @@
- 
- #define profile_pc(regs) instruction_pointer(regs)
- 
--/* kprobe-based event tracer support */
--extern int regs_query_register_offset(const char *name);
--extern const char *regs_query_register_name(unsigned int offset);
--
--#define current_pt_regs() \
--	((struct pt_regs *) \
--	 ((unsigned long)current_thread_info() + THREAD_SIZE) - 1)
--
--#if CONFIG_HEXAGON_ARCH_VERSION >= 4
--#define arch_has_single_step()	(1)
--#endif
--
--
- #endif
-diff --git a/scripts/headers_install.sh b/scripts/headers_install.sh
-index 56d3c338d91d..c3064ac31003 100755
---- a/scripts/headers_install.sh
-+++ b/scripts/headers_install.sh
-@@ -74,7 +74,6 @@ arch/arc/include/uapi/asm/page.h:CONFIG_ARC_PAGE_SIZE_16K
- arch/arc/include/uapi/asm/page.h:CONFIG_ARC_PAGE_SIZE_4K
- arch/arc/include/uapi/asm/swab.h:CONFIG_ARC_HAS_SWAPE
- arch/arm/include/uapi/asm/ptrace.h:CONFIG_CPU_ENDIAN_BE8
--arch/hexagon/include/uapi/asm/ptrace.h:CONFIG_HEXAGON_ARCH_VERSION
- arch/hexagon/include/uapi/asm/user.h:CONFIG_HEXAGON_ARCH_VERSION
- arch/m68k/include/uapi/asm/ptrace.h:CONFIG_COLDFIRE
- arch/nios2/include/uapi/asm/swab.h:CONFIG_NIOS2_CI_SWAB_NO
--- 
-2.41.0
+Would you like to send another patch for the other hexagon
+file? It looks trivial enough as we can just drop the #if
+portion there and keep the #else side.
 
+      Arnd
