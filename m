@@ -2,137 +2,131 @@ Return-Path: <linux-hexagon-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47871C25B48
-	for <linux-hexagon@archiver.kernel.org>; Thu, 26 Oct 2023 11:31:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F658C4332F
+	for <linux-hexagon@archiver.kernel.org>; Sat,  4 Nov 2023 09:16:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230146AbjJZLb7 (ORCPT
+        id S229475AbjKDJQk (ORCPT
         <rfc822;linux-hexagon@archiver.kernel.org>);
-        Thu, 26 Oct 2023 07:31:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33002 "EHLO
+        Sat, 4 Nov 2023 05:16:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229649AbjJZLb7 (ORCPT
+        with ESMTP id S229468AbjKDJQj (ORCPT
         <rfc822;linux-hexagon@vger.kernel.org>);
-        Thu, 26 Oct 2023 07:31:59 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E4A91A6
-        for <linux-hexagon@vger.kernel.org>; Thu, 26 Oct 2023 04:31:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1698319878;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=nJbwl958YvMAt8AOX88IKj5/m57DLKb+0w4F53bET/o=;
-        b=PR87l1YCbr8pwGbcPSwU01k9Gi1BwGhl5rM7HThg2CdRH9oW+6KuZzo8M2iaPc3TPvgCTE
-        +PwaA3A/TCRN02qsCiK3pceRmcz6HXDYmTiVE+JR9PjtUeoRcwb8rQ6qQdIVNajz4TzymL
-        Q4CLDVVdqLYapKac5TlNjBuwCzDbxyo=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-382-wxelN0EVNUeqOSyCIXCWMw-1; Thu, 26 Oct 2023 07:31:17 -0400
-X-MC-Unique: wxelN0EVNUeqOSyCIXCWMw-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DAC53811E7B;
-        Thu, 26 Oct 2023 11:31:16 +0000 (UTC)
-Received: from thuth-p1g4.redhat.com (unknown [10.39.195.56])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9DB75492BE7;
-        Thu, 26 Oct 2023 11:31:15 +0000 (UTC)
-From:   Thomas Huth <thuth@redhat.com>
-To:     Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org,
-        bcain@quicinc.com
-Cc:     linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>
-Subject: [PATCH] hexagon: Remove CONFIG_HEXAGON_ARCH_VERSION from uapi header
-Date:   Thu, 26 Oct 2023 13:31:14 +0200
-Message-ID: <20231026113114.195854-1-thuth@redhat.com>
+        Sat, 4 Nov 2023 05:16:39 -0400
+Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90AB9D47
+        for <linux-hexagon@vger.kernel.org>; Sat,  4 Nov 2023 02:16:35 -0700 (PDT)
+Received: by mail-qk1-x730.google.com with SMTP id af79cd13be357-7788db95652so185907185a.2
+        for <linux-hexagon@vger.kernel.org>; Sat, 04 Nov 2023 02:16:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1699089394; x=1699694194; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TZsOGiaArG1gPfWJWYyqQWKmeMDqaJOsSKH43M0pjNo=;
+        b=Q/U+dBHCPN+0cYxnzGDmOICtLzHegbWb2rExRSc9m0SSrRRG/7baJ4tiI/SuE1VeqH
+         qa04UYbzXRvAmHv4GrOQeX3yscLfaLpWQ2YJE1PGNR1RhnTWdLz2K5FtdR6LygDxgSKa
+         OCO/cQoCIsErOX7ebeTijU44VG1x7Xm8FEgn4okcW0i1cy/TJNSFy+k4mIcprYXnUg8E
+         DVIgD2k46XlA4PGlthjXDyoL0LcjTC0J0I5BEkmgDVLFUP0Whel+xniIuj6s7kLFQiPu
+         634TCks3uHSlEuW9w10j0rQ0kAkET7ZG3SO+JMLnafVcaH8zIzbmxo3KhPE3x/eGpOVS
+         wwfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699089394; x=1699694194;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TZsOGiaArG1gPfWJWYyqQWKmeMDqaJOsSKH43M0pjNo=;
+        b=gGEfzJqLjzYDGu9LS7Tq1N7MRq9oSvcI6NAHmwr4Ehp4e8rS6wVqpcAeo7beI+BHdn
+         qbcycbhyATOdtLcFNpu3d/2aUrjb9k3YP0vcZdT3+aX5/jUzP8RAZs3H3tbWi5k9u+wn
+         eGTkMN/kkZ7S/V+DkxEBDfFH5LU41/FMNlW3gSYtLGYPD4VNYaDIZx6DFlRnaEMu+/mE
+         jJVrH+R2pYDhAsUsadzV6Yla+EZUZcSCXLqAswaqXufBNSLHq7EYb1xHlmQ2pM7UBMst
+         w8dvw4efHYf88XuOZrORQnhsDDnkmXNUgkl6h11TUygi28lXh2JQCZ7RS2CeTOTiWiaS
+         rp1g==
+X-Gm-Message-State: AOJu0YxGKOY2ekaudSlNi+waoa7hAO7odeRbLi6L5FhYcFevh13QW0oY
+        9hjVy5h7SEN/m8b150XWaFDswQ==
+X-Google-Smtp-Source: AGHT+IGjAYKMZlAfEP3ECe1n3sw6IIECunrstOALu+CAcSUP9EdkfONAQy3WGvW0OrN94BxZJnCbWg==
+X-Received: by 2002:a05:620a:2588:b0:777:2767:6465 with SMTP id x8-20020a05620a258800b0077727676465mr27504451qko.40.1699089394700;
+        Sat, 04 Nov 2023 02:16:34 -0700 (PDT)
+Received: from devz1.bytedance.net ([203.208.167.147])
+        by smtp.gmail.com with ESMTPSA id d4-20020a170903230400b001cc54202429sm2585127plh.288.2023.11.04.02.16.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 04 Nov 2023 02:16:34 -0700 (PDT)
+From:   "wuqiang.matt" <wuqiang.matt@bytedance.com>
+To:     vgupta@kernel.org, bcain@quicinc.com, jonas@southpole.se,
+        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+        geert@linux-m68k.org, andi.shyti@linux.intel.com, mingo@kernel.org,
+        palmer@rivosinc.com, andrzej.hajda@intel.com, arnd@arndb.de,
+        peterz@infradead.orgm, mhiramat@kernel.org
+Cc:     linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linux-trace-kernel@vger.kernel.org, mattwu@163.com,
+        linux@roeck-us.ne, "wuqiang.matt" <wuqiang.matt@bytedance.com>
+Subject: [PATCH v2 1/4] locking/atomic: arc: data size checking in arch_cmpxchg
+Date:   Sat,  4 Nov 2023 17:16:12 +0800
+Message-Id: <20231104091615.4884-2-wuqiang.matt@bytedance.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20231104091615.4884-1-wuqiang.matt@bytedance.com>
+References: <20231104091615.4884-1-wuqiang.matt@bytedance.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <linux-hexagon.vger.kernel.org>
 X-Mailing-List: linux-hexagon@vger.kernel.org
 
-uapi headers should not expose CONFIG switches since they are not
-available in userspace. Fix it in arch/hexagon/include/uapi/asm/user.h
-by always defining the cs0 and cs1 entries instead of pad values.
+Macro __cmpxchg() renamed to __cmpxchg_32() to emphasize it's explicit
+support of 32bit data size, BUILD_BUG_ON() added to avoid any possible
+misuses with unsupported data types.
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Thomas Huth <thuth@redhat.com>
+In case CONFIG_ARC_HAS_LLSC is undefined, arch_cmpxchg() uses spinlock
+to accomplish SMP-safety, so the BUILD_BUG_ON checking is uncecessary.
+
+Signed-off-by: wuqiang.matt <wuqiang.matt@bytedance.com>
 ---
- Based-on: <20231025073802.117625-1-thuth@redhat.com>
+ arch/arc/include/asm/cmpxchg.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
- Compile tested only (with CONFIG_HEXAGON_ARCH_VERSION set to 2
- and with CONFIG_HEXAGON_ARCH_VERSION set to 4)
-
- arch/hexagon/include/uapi/asm/user.h | 7 +------
- arch/hexagon/kernel/ptrace.c         | 7 +++++--
- scripts/headers_install.sh           | 1 -
- 3 files changed, 6 insertions(+), 9 deletions(-)
-
-diff --git a/arch/hexagon/include/uapi/asm/user.h b/arch/hexagon/include/uapi/asm/user.h
-index 7327ec59b22f..abae6a4b5813 100644
---- a/arch/hexagon/include/uapi/asm/user.h
-+++ b/arch/hexagon/include/uapi/asm/user.h
-@@ -56,15 +56,10 @@ struct user_regs_struct {
- 	unsigned long pc;
- 	unsigned long cause;
- 	unsigned long badva;
--#if CONFIG_HEXAGON_ARCH_VERSION < 4
--	unsigned long pad1;  /* pad out to 48 words total */
--	unsigned long pad2;  /* pad out to 48 words total */
--	unsigned long pad3;  /* pad out to 48 words total */
--#else
-+	/* cs0 and cs1 are only available with HEXAGON_ARCH_VERSION >= 4 */
- 	unsigned long cs0;
- 	unsigned long cs1;
- 	unsigned long pad1;  /* pad out to 48 words total */
--#endif
- };
- 
- #endif
-diff --git a/arch/hexagon/kernel/ptrace.c b/arch/hexagon/kernel/ptrace.c
-index 125f19995b76..905b06790ab7 100644
---- a/arch/hexagon/kernel/ptrace.c
-+++ b/arch/hexagon/kernel/ptrace.c
-@@ -74,7 +74,7 @@ static int genregs_set(struct task_struct *target,
- 		   unsigned int pos, unsigned int count,
- 		   const void *kbuf, const void __user *ubuf)
- {
--	int ret;
-+	int ret, ignore_offset;
- 	unsigned long bucket;
- 	struct pt_regs *regs = task_pt_regs(target);
- 
-@@ -111,12 +111,15 @@ static int genregs_set(struct task_struct *target,
- #if CONFIG_HEXAGON_ARCH_VERSION >=4
- 	INEXT(&regs->cs0, cs0);
- 	INEXT(&regs->cs1, cs1);
-+	ignore_offset = offsetof(struct user_regs_struct, pad1);
-+#else
-+	ignore_offset = offsetof(struct user_regs_struct, cs0);
- #endif
- 
- 	/* Ignore the rest, if needed */
- 	if (!ret)
- 		user_regset_copyin_ignore(&pos, &count, &kbuf, &ubuf,
--			offsetof(struct user_regs_struct, pad1), -1);
-+					  ignore_offset, -1);
- 	else
- 		return ret;
- 
-diff --git a/scripts/headers_install.sh b/scripts/headers_install.sh
-index c3064ac31003..f7d9b114de8f 100755
---- a/scripts/headers_install.sh
-+++ b/scripts/headers_install.sh
-@@ -74,7 +74,6 @@ arch/arc/include/uapi/asm/page.h:CONFIG_ARC_PAGE_SIZE_16K
- arch/arc/include/uapi/asm/page.h:CONFIG_ARC_PAGE_SIZE_4K
- arch/arc/include/uapi/asm/swab.h:CONFIG_ARC_HAS_SWAPE
- arch/arm/include/uapi/asm/ptrace.h:CONFIG_CPU_ENDIAN_BE8
--arch/hexagon/include/uapi/asm/user.h:CONFIG_HEXAGON_ARCH_VERSION
- arch/m68k/include/uapi/asm/ptrace.h:CONFIG_COLDFIRE
- arch/nios2/include/uapi/asm/swab.h:CONFIG_NIOS2_CI_SWAB_NO
- arch/nios2/include/uapi/asm/swab.h:CONFIG_NIOS2_CI_SWAB_SUPPORT
+diff --git a/arch/arc/include/asm/cmpxchg.h b/arch/arc/include/asm/cmpxchg.h
+index e138fde067de..bf46514f6f12 100644
+--- a/arch/arc/include/asm/cmpxchg.h
++++ b/arch/arc/include/asm/cmpxchg.h
+@@ -18,14 +18,16 @@
+  * if (*ptr == @old)
+  *      *ptr = @new
+  */
+-#define __cmpxchg(ptr, old, new)					\
++#define __cmpxchg_32(ptr, old, new)					\
+ ({									\
+ 	__typeof__(*(ptr)) _prev;					\
+ 									\
++	BUILD_BUG_ON(sizeof(*(ptr)) != 4);				\
++									\
+ 	__asm__ __volatile__(						\
+-	"1:	llock  %0, [%1]	\n"					\
++	"1:	llock  %0, [%1]		\n"				\
+ 	"	brne   %0, %2, 2f	\n"				\
+-	"	scond  %3, [%1]	\n"					\
++	"	scond  %3, [%1]		\n"				\
+ 	"	bnz     1b		\n"				\
+ 	"2:				\n"				\
+ 	: "=&r"(_prev)	/* Early clobber prevent reg reuse */		\
+@@ -47,7 +49,7 @@
+ 									\
+ 	switch(sizeof((_p_))) {						\
+ 	case 4:								\
+-		_prev_ = __cmpxchg(_p_, _o_, _n_);			\
++		_prev_ = __cmpxchg_32(_p_, _o_, _n_);			\
+ 		break;							\
+ 	default:							\
+ 		BUILD_BUG();						\
+@@ -65,8 +67,6 @@
+ 	__typeof__(*(ptr)) _prev_;					\
+ 	unsigned long __flags;						\
+ 									\
+-	BUILD_BUG_ON(sizeof(_p_) != 4);					\
+-									\
+ 	/*								\
+ 	 * spin lock/unlock provide the needed smp_mb() before/after	\
+ 	 */								\
 -- 
-2.41.0
+2.40.1
 
