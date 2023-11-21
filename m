@@ -1,83 +1,104 @@
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D89DB3;
-	Sun, 19 Nov 2023 23:05:21 -0800 (PST)
-Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.55])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4SYdhg3CDpzsRJy;
-	Mon, 20 Nov 2023 15:01:23 +0800 (CST)
-Received: from [10.174.177.243] (10.174.177.243) by
- dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Mon, 20 Nov 2023 15:04:49 +0800
-Message-ID: <1f013eda-b82f-4ae0-99ad-0eec70d45146@huawei.com>
-Date: Mon, 20 Nov 2023 15:04:48 +0800
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="M/kuTVt8"
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2820D1A3
+	for <linux-hexagon@vger.kernel.org>; Tue, 21 Nov 2023 06:24:38 -0800 (PST)
+Received: by mail-pf1-x430.google.com with SMTP id d2e1a72fcca58-6c4d06b6ddaso4702016b3a.3
+        for <linux-hexagon@vger.kernel.org>; Tue, 21 Nov 2023 06:24:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1700576677; x=1701181477; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rO5gvBC9Yj9Gj9iwFUnYV9+FlJPZ82+bI2tRklE6bkQ=;
+        b=M/kuTVt87qu0ZVJhQdMlOZPBlWefKfiRPkds/vddzN4iL6j32QUXBT68wPQRj6qWuy
+         41gGIlSFf9+s0p8J+B+ZSNX+C+bBq66hdA9w71LyXK3/KFSMdXSI6FNZc35F3Vh9DvA7
+         J8JOOS2+GQE6CQkS92puHF/BaXzAcqCIfZD8aRimjqnw6Zy/SUHykh4b6t1KtVYvnAw5
+         3a6D3C7nh8z9qXxaWySLKMqqtFs+gQ1hVzdNnbDUL7odkMKyh65O03idtJrhAuW0uMHb
+         +s+ndXS4XblI6bQ6g6e7XNxgSBKBa0gB4I+Tq2hd/TbVl2iaoDm0u0QM1EyQG/JW5lgC
+         J5SQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700576677; x=1701181477;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rO5gvBC9Yj9Gj9iwFUnYV9+FlJPZ82+bI2tRklE6bkQ=;
+        b=eyS8UkPk0TeJcThLWcoC3T5tRjTKAX5rg9yrGS5guI/wHsFRrllji4MWEOe8khu7fH
+         0YEez+TTg5S+FgVSf59tpHqxY/BJwYGc5xmzNlSD+GUg+/BDJOjWycvsh2b/ej9XRZxk
+         1mJE0b+2kXP44dpzQjtd9BCMu1cNjdSb7v4NYP6IouD4EeUPyCHdhXMzuJQYGp9Zrntq
+         BR6dbAj6rIwvaBIOoNdnG5g/t2NVEnpjdtNxh5J8CB8q5sEkjycRsfCntzlps4e0uZCZ
+         +MuxGeffBVLlwOgxsrqVL65RIn5N+EIJVnTOOBOh6onXRgeqlt+o8JOOz6PGVufONLBj
+         VSxg==
+X-Gm-Message-State: AOJu0Yxm3B2OfDrhTSNBdTJSnamHbw4GNbsZBrdEGcegQt0PCgqKAr8W
+	dHndww7UfwIHStFAYSObY1p7Rw==
+X-Google-Smtp-Source: AGHT+IGZ0cj3qTxHGElldELTLLVk70f7H8QJHy0DgUxvrRtGVlmmImJxGtalz8fEj5aiHrvaElF8fg==
+X-Received: by 2002:a05:6a20:1591:b0:18a:716d:4ac with SMTP id h17-20020a056a20159100b0018a716d04acmr6231274pzj.47.1700576677576;
+        Tue, 21 Nov 2023 06:24:37 -0800 (PST)
+Received: from devz1.bytedance.net ([203.208.167.146])
+        by smtp.gmail.com with ESMTPSA id d13-20020a056a00244d00b0068842ebfd10sm7923193pfj.160.2023.11.21.06.24.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Nov 2023 06:24:36 -0800 (PST)
+From: "wuqiang.matt" <wuqiang.matt@bytedance.com>
+To: ubizjak@gmail.com,
+	mark.rutland@arm.com,
+	vgupta@kernel.org,
+	bcain@quicinc.com,
+	jonas@southpole.se,
+	stefan.kristiansson@saunalahti.fi,
+	shorne@gmail.com,
+	chris@zankel.net,
+	jcmvbkbc@gmail.com,
+	geert@linux-m68k.org,
+	andi.shyti@linux.intel.com,
+	mingo@kernel.org,
+	palmer@rivosinc.com,
+	andrzej.hajda@intel.com,
+	arnd@arndb.de,
+	peterz@infradead.org,
+	mhiramat@kernel.org
+Cc: linux-arch@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org,
+	mattwu@163.com,
+	linux@roeck-us.net,
+	"wuqiang.matt" <wuqiang.matt@bytedance.com>
+Subject: [PATCH v3 0/5] arch,locking/atomic: add arch_cmpxchg[64]_local
+Date: Tue, 21 Nov 2023 22:23:42 +0800
+Message-Id: <20231121142347.241356-1-wuqiang.matt@bytedance.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] asm/io: remove unnecessary xlate_dev_mem_ptr() and
- unxlate_dev_mem_ptr()
-Content-Language: en-US
-To: Arnd Bergmann <arnd@arndb.de>, Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Linux-Arch <linux-arch@vger.kernel.org>, <linux-alpha@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-hexagon@vger.kernel.org>,
-	<linux-m68k@lists.linux-m68k.org>, <linux-mips@vger.kernel.org>,
-	<linux-parisc@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-	<linux-sh@vger.kernel.org>, <sparclinux@vger.kernel.org>, Richard Henderson
-	<richard.henderson@linaro.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Russell King <linux@armlinux.org.uk>, Brian Cain <bcain@quicinc.com>, "James
- E . J . Bottomley" <James.Bottomley@hansenpartnership.com>, Nicholas Piggin
-	<npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
-	"David S . Miller" <davem@davemloft.net>, Stanislav Kinsburskii
-	<stanislav.kinsburskii@gmail.com>
-References: <20231118100827.1599422-1-wangkefeng.wang@huawei.com>
- <CAMuHMdU+MMiogx6TcBwxFL7AODZYhiAZpVHiafEBfnRsDaXTog@mail.gmail.com>
- <c441db4c-1851-4b09-a344-377a1684e9b5@huawei.com>
- <2a7bff92-8e25-4cf7-acf1-8ed054691fd8@app.fastmail.com>
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-In-Reply-To: <2a7bff92-8e25-4cf7-acf1-8ed054691fd8@app.fastmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.177.243]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpemm100001.china.huawei.com (7.185.36.93)
-X-CFilter-Loop: Reflected
 
+Archtectures arc, openrisc and hexagon haven't arch_cmpxchg_local()
+defined, so the usecase of try_cmpxchg_local() in lib/objpool.c can
+not pass kernel building by the kernel test robot.
 
+Patch 1 improves the data size checking logic for arc; Patches 2/3/4
+implement arch_cmpxchg[64]_local for arc/openrisc/hexagon. Patch 5
+defines arch_cmpxchg_local as existing __cmpxchg_local rather the
+generic variant.
 
-On 2023/11/20 14:40, Arnd Bergmann wrote:
-> On Mon, Nov 20, 2023, at 01:39, Kefeng Wang wrote:
->> On 2023/11/20 3:34, Geert Uytterhoeven wrote:
->>> On Sat, Nov 18, 2023 at 11:09 AM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
->>>>
->>>> -/*
->>>> - * Convert a physical pointer to a virtual kernel pointer for /dev/mem
->>>> - * access
->>>> - */
->>>> -#define xlate_dev_mem_ptr(p)   __va(p)
->>>> -#define unxlate_dev_mem_ptr(p, v) do { } while (0)
->>>> -
->>>>    void __ioread64_copy(void *to, const void __iomem *from, size_t count);
->>>
->>> Missing #include <asm-generic/io.h>, according to the build bot report.
->>
->> Will check the bot report.
-> 
-> I had planned to pick up the series from
-> 
-> https://lore.kernel.org/lkml/20230921110424.215592-3-bhe@redhat.com/
+wuqiang.matt (5):
+  arch,locking/atomic: arc: arch_cmpxchg should check data size
+  arch,locking/atomic: arc: add arch_cmpxchg[64]_local
+  arch,locking/atomic: openrisc: add arch_cmpxchg[64]_local
+  arch,locking/atomic: hexagon: add arch_cmpxchg[64]_local
+  arch,locking/atomic: xtensa: define arch_cmpxchg_local as
+    __cmpxchg_local
 
-Good to see it.
+ arch/arc/include/asm/cmpxchg.h      | 40 ++++++++++++++++++----
+ arch/hexagon/include/asm/cmpxchg.h  | 51 ++++++++++++++++++++++++++++-
+ arch/openrisc/include/asm/cmpxchg.h |  6 ++++
+ arch/xtensa/include/asm/cmpxchg.h   |  2 +-
+ 4 files changed, 91 insertions(+), 8 deletions(-)
 
-> 
-> for v6.7 but didn't make it in the end. I'll try to do it now
-> for v6.8 and apply your v1 patch with the Acks on top.
+-- 
+2.40.1
 
-Thanks.
-
-> 
->      Arnd
