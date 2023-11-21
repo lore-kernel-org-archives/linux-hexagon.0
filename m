@@ -1,43 +1,43 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="REfrDuQx"
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16725D6C
-	for <linux-hexagon@vger.kernel.org>; Tue, 21 Nov 2023 06:24:46 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id d2e1a72fcca58-6c4cf0aea06so5321982b3a.0
-        for <linux-hexagon@vger.kernel.org>; Tue, 21 Nov 2023 06:24:46 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="lK8s4WR4"
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A0441A3
+	for <linux-hexagon@vger.kernel.org>; Tue, 21 Nov 2023 06:24:54 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id d2e1a72fcca58-6cb66fbc63dso1968477b3a.0
+        for <linux-hexagon@vger.kernel.org>; Tue, 21 Nov 2023 06:24:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1700576685; x=1701181485; darn=vger.kernel.org;
+        d=bytedance.com; s=google; t=1700576694; x=1701181494; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BQYwJQjKhySUG7SsmpVBnxUpf+Jrz1ajgA6palaWrFM=;
-        b=REfrDuQxXQ+HzwB7FgCwmor5rAI71g2RCGGb46LBPw4XtSe8F78WA6gTNWd8Qh/0yh
-         5dIM3+q89dTSMA5EKwHdA9LTELAIXr1bmNuKewoK7vNWoV7oPtTj90ZMVt4QJ0cg8BKs
-         UrBha3hyPjeD+a6f3/p3n8HWV4lzc/c+Qk7LeJ97JMdC3nd0grAmX7cRgrWX6erZ+J7k
-         pgyWoVdF0S47lNBGdTU5tnr5vhIUhj9JXAyS+W5CCmFeZIZEvQT+yecS7QVbo4PwLwtY
-         qRoh7keGmiHRfLl1N55RnRoVTJiv31N2Rn/piXit5TvGZZIPAGpmY8Elq3Q2xJaMr2kR
-         3WSQ==
+        bh=KQzQ3hctuM1DrYXT+jmSwlcI1w3CAnf53zL9eOZco7c=;
+        b=lK8s4WR4D8qSeSl/wIndq3Y/ygX+TN/NIiGvIInZYS4yLgqoazrLYb8VAsi94YZzBI
+         Ewym/spIimpGTmNWO7w2DqPAQtRk0t8uGS52aH9pk/e/RSSPg1qPA0gv2iH456fXHf2N
+         ZXK1lnI6HFlp3OWOdl3g6XN8WYUSY3bAAdc0YJ4gN/FM4U+/ThowxrCYqtt3tszLtix3
+         WN7go69/Fj1hDOdBr+s/K9yYhCiYll4EMUahkrElleQ9rr0BwlPgUhSNNWEGXydRVBUK
+         Bu0F/GyJBqfWo6ozXYgA4xusqzgvnUHsanLlnxodjTMBnIVRIWOqkjX22HUiu1BXvR6Q
+         Anpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700576685; x=1701181485;
+        d=1e100.net; s=20230601; t=1700576694; x=1701181494;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=BQYwJQjKhySUG7SsmpVBnxUpf+Jrz1ajgA6palaWrFM=;
-        b=wBIM2PGRHSpyy+z47cFtZ4iasDBF1b9Clwu/ALoqF2TpYb9IcgcRaLx4E67aw4znB1
-         B/TxtelMl32Ik80K1kSmpgt/6tq2oks29HSSAXAeTdr0bURChe8V/sYlzCjuKvNjTMqb
-         vC4kJTbHUmyrDk9fZEinLVYKB0jo1ol4/A5mhwOcPZeSA+HoiKC6NZg+H1THacbic41l
-         TeS/GbQgXhD/nYE4PM8Be5PhSf+jGFSOsi6GJ+F2tM14GYyta4BKha2mYIKF14u5SId/
-         BqYAm6zP82gBka4qvHpaLoMcC3iUymMDy/Wz+Qo3p9rHceoCFiU5DI+HxtUbwBbxZyCl
-         GItQ==
-X-Gm-Message-State: AOJu0YwzIeOAtdI2ygd7f2E5jqVt8G7WKtGh24QC/hmVD0ALSuGWchOe
-	tExYjShMPYBX/SSsVlk11EDkaA==
-X-Google-Smtp-Source: AGHT+IEIjroP416LXBt6XlPHirqpf89r1vmzg9nVdVzS5F8PL+ZcqkvogWm5yXbuGxjX92apejfh4w==
-X-Received: by 2002:a05:6a00:80a:b0:6cb:a18b:2182 with SMTP id m10-20020a056a00080a00b006cba18b2182mr8114491pfk.1.1700576685502;
-        Tue, 21 Nov 2023 06:24:45 -0800 (PST)
+        bh=KQzQ3hctuM1DrYXT+jmSwlcI1w3CAnf53zL9eOZco7c=;
+        b=Yk888YM0O/7Xt4zrltUXiJNXYUdVzwNY69F9lpqVH1ofAYCGKhK8air2f+y3/70oJl
+         Hh4QX/tgaCBMJ20/udMKB+xxv3yHe91TaVKTfIQ3By6gdCixnd8d6xH6tSrZ0YK1ZZTL
+         7aECXhfN9DtAn96NvXAVDKy/KPTVHbKgpW/ZkB2ieGyAXtSli3N3vtE9FekyL9JtXn5Z
+         PBJGFKyVeIeP7YGMUZSLk+KrPjQb15HvJADFfd8PEW+U2Zli5SBPsKmNl07AhGvc72uw
+         30KUly3USPKx+IoZGHnuzP+M65/Al674IUrEsWL59PYjrZiHtVku1N4Fcyy5soGayD5n
+         yFGQ==
+X-Gm-Message-State: AOJu0YwZ+n76/KU5prh04KzRN36UQxHwEdc2ZhG69VdVbMDrjKnCQHyw
+	x0D4uP7jFVzTkqAM3thRs0jYGQ==
+X-Google-Smtp-Source: AGHT+IHbYu2jqbF7t8/wu/0pojkQUebMfIzAqIQeTS1oR0oKU5ESn/XV9iR5u5ULhgBjAJ/tpgr/hw==
+X-Received: by 2002:a05:6a00:228f:b0:6cb:8abd:39b5 with SMTP id f15-20020a056a00228f00b006cb8abd39b5mr4000172pfe.1.1700576693727;
+        Tue, 21 Nov 2023 06:24:53 -0800 (PST)
 Received: from devz1.bytedance.net ([203.208.167.146])
-        by smtp.gmail.com with ESMTPSA id d13-20020a056a00244d00b0068842ebfd10sm7923193pfj.160.2023.11.21.06.24.37
+        by smtp.gmail.com with ESMTPSA id d13-20020a056a00244d00b0068842ebfd10sm7923193pfj.160.2023.11.21.06.24.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Nov 2023 06:24:45 -0800 (PST)
+        Tue, 21 Nov 2023 06:24:53 -0800 (PST)
 From: "wuqiang.matt" <wuqiang.matt@bytedance.com>
 To: ubizjak@gmail.com,
 	mark.rutland@arm.com,
@@ -64,10 +64,11 @@ Cc: linux-arch@vger.kernel.org,
 	linux-trace-kernel@vger.kernel.org,
 	mattwu@163.com,
 	linux@roeck-us.net,
-	"wuqiang.matt" <wuqiang.matt@bytedance.com>
-Subject: [PATCH v3 1/5] arch,locking/atomic: arc: arch_cmpxchg should check data size
-Date: Tue, 21 Nov 2023 22:23:43 +0800
-Message-Id: <20231121142347.241356-2-wuqiang.matt@bytedance.com>
+	"wuqiang.matt" <wuqiang.matt@bytedance.com>,
+	kernel test robot <lkp@intel.com>
+Subject: [PATCH v3 2/5] arch,locking/atomic: arc: add arch_cmpxchg[64]_local
+Date: Tue, 21 Nov 2023 22:23:44 +0800
+Message-Id: <20231121142347.241356-3-wuqiang.matt@bytedance.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20231121142347.241356-1-wuqiang.matt@bytedance.com>
 References: <20231121142347.241356-1-wuqiang.matt@bytedance.com>
@@ -79,69 +80,62 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-arch_cmpxchg() should check data size rather than pointer size in case
-CONFIG_ARC_HAS_LLSC is defined. So rename __cmpxchg to __cmpxchg_32 to
-emphasize it's explicit support of 32bit data size with BUILD_BUG_ON()
-added to avoid any possible misuses with unsupported data types.
+arc doesn't have arch_cmpxhg_local implemented, which causes
+building failures for any references of try_cmpxchg_local,
+reported by the kernel test robot.
 
-In case CONFIG_ARC_HAS_LLSC is undefined, arch_cmpxchg() uses spinlock
-to accomplish SMP-safety, so the BUILD_BUG_ON checking is uncecessary.
+This patch implements arch_cmpxchg[64]_local with the native
+cmpxchg variant if the corresponding data size is supported,
+otherwise generci_cmpxchg[64]_local is to be used.
 
-v2 -> v3:
-  - Patches regrouped and has the improvement for xtensa included
-  - Comments refined to address why these changes are needed
-
-v1 -> v2:
-  - Try using native cmpxchg variants if avaialble, as Arnd advised
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202310272207.tLPflya4-lkp@intel.com/
 
 Signed-off-by: wuqiang.matt <wuqiang.matt@bytedance.com>
 Reviewed-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 ---
- arch/arc/include/asm/cmpxchg.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/arc/include/asm/cmpxchg.h | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
 diff --git a/arch/arc/include/asm/cmpxchg.h b/arch/arc/include/asm/cmpxchg.h
-index e138fde067de..bf46514f6f12 100644
+index bf46514f6f12..91429f2350df 100644
 --- a/arch/arc/include/asm/cmpxchg.h
 +++ b/arch/arc/include/asm/cmpxchg.h
-@@ -18,14 +18,16 @@
-  * if (*ptr == @old)
-  *      *ptr = @new
+@@ -80,6 +80,34 @@
+ 
+ #endif
+ 
++/*
++ * always make arch_cmpxchg[64]_local available, native cmpxchg
++ * will be used if available, then generic_cmpxchg[64]_local
++ */
++#include <asm-generic/cmpxchg-local.h>
++static inline unsigned long __cmpxchg_local(volatile void *ptr,
++				      unsigned long old,
++				      unsigned long new, int size)
++{
++	switch (size) {
++#ifdef CONFIG_ARC_HAS_LLSC
++	case 4:
++		return __cmpxchg_32((int32_t *)ptr, old, new);
++#endif
++	default:
++		return __generic_cmpxchg_local(ptr, old, new, size);
++	}
++
++	return old;
++}
++#define arch_cmpxchg_local(ptr, o, n) ({				\
++	(__typeof__(*ptr))__cmpxchg_local((ptr),			\
++					(unsigned long)(o),		\
++					(unsigned long)(n),		\
++					sizeof(*(ptr)));		\
++})
++#define arch_cmpxchg64_local(ptr, o, n) __generic_cmpxchg64_local((ptr), (o), (n))
++
+ /*
+  * xchg
   */
--#define __cmpxchg(ptr, old, new)					\
-+#define __cmpxchg_32(ptr, old, new)					\
- ({									\
- 	__typeof__(*(ptr)) _prev;					\
- 									\
-+	BUILD_BUG_ON(sizeof(*(ptr)) != 4);				\
-+									\
- 	__asm__ __volatile__(						\
--	"1:	llock  %0, [%1]	\n"					\
-+	"1:	llock  %0, [%1]		\n"				\
- 	"	brne   %0, %2, 2f	\n"				\
--	"	scond  %3, [%1]	\n"					\
-+	"	scond  %3, [%1]		\n"				\
- 	"	bnz     1b		\n"				\
- 	"2:				\n"				\
- 	: "=&r"(_prev)	/* Early clobber prevent reg reuse */		\
-@@ -47,7 +49,7 @@
- 									\
- 	switch(sizeof((_p_))) {						\
- 	case 4:								\
--		_prev_ = __cmpxchg(_p_, _o_, _n_);			\
-+		_prev_ = __cmpxchg_32(_p_, _o_, _n_);			\
- 		break;							\
- 	default:							\
- 		BUILD_BUG();						\
-@@ -65,8 +67,6 @@
- 	__typeof__(*(ptr)) _prev_;					\
- 	unsigned long __flags;						\
- 									\
--	BUILD_BUG_ON(sizeof(_p_) != 4);					\
--									\
- 	/*								\
- 	 * spin lock/unlock provide the needed smp_mb() before/after	\
- 	 */								\
 -- 
 2.40.1
 
