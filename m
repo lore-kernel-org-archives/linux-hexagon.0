@@ -1,43 +1,43 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="lK8s4WR4"
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A0441A3
-	for <linux-hexagon@vger.kernel.org>; Tue, 21 Nov 2023 06:24:54 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id d2e1a72fcca58-6cb66fbc63dso1968477b3a.0
-        for <linux-hexagon@vger.kernel.org>; Tue, 21 Nov 2023 06:24:54 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="UW9ckZHW"
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F75AD6C
+	for <linux-hexagon@vger.kernel.org>; Tue, 21 Nov 2023 06:25:02 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id d2e1a72fcca58-6b5af4662b7so4847849b3a.3
+        for <linux-hexagon@vger.kernel.org>; Tue, 21 Nov 2023 06:25:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1700576694; x=1701181494; darn=vger.kernel.org;
+        d=bytedance.com; s=google; t=1700576702; x=1701181502; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KQzQ3hctuM1DrYXT+jmSwlcI1w3CAnf53zL9eOZco7c=;
-        b=lK8s4WR4D8qSeSl/wIndq3Y/ygX+TN/NIiGvIInZYS4yLgqoazrLYb8VAsi94YZzBI
-         Ewym/spIimpGTmNWO7w2DqPAQtRk0t8uGS52aH9pk/e/RSSPg1qPA0gv2iH456fXHf2N
-         ZXK1lnI6HFlp3OWOdl3g6XN8WYUSY3bAAdc0YJ4gN/FM4U+/ThowxrCYqtt3tszLtix3
-         WN7go69/Fj1hDOdBr+s/K9yYhCiYll4EMUahkrElleQ9rr0BwlPgUhSNNWEGXydRVBUK
-         Bu0F/GyJBqfWo6ozXYgA4xusqzgvnUHsanLlnxodjTMBnIVRIWOqkjX22HUiu1BXvR6Q
-         Anpg==
+        bh=ma7hrIwqvDM4lCpBvbnn1WZG4yWufWgrZRtOwNFwz5Q=;
+        b=UW9ckZHW8W7pnYJbKIM/+E86k6AjyG3KWPYF7p1lDxUKXH63MHhA+pEmmILOd5OseX
+         /GuTXcmZE8r8mR6P9gc2dPF7z0271cbf+xlqjssqQZTX3MhZEQnHdSxlAvR9DbOwfu4j
+         orhpbXhuMorz+HTFrvwBu3WxCW1tZGC67GrwQVfNo3/qnYDzeYiSIm6f+P3vIZ30GvIQ
+         OrqlGqNXbOVV4CAI9o0q2jQrLPGIBRMDL6DeHVKUCKIlynjGqWuRE5HKG/5+I5ic/JTm
+         //TyEvFIbWPy8/+FpftXIq1N8VGOe8WYSGH4Zye8m8xwomMy1WN2/k9SX+asjr1tnnfr
+         OYVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700576694; x=1701181494;
+        d=1e100.net; s=20230601; t=1700576702; x=1701181502;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=KQzQ3hctuM1DrYXT+jmSwlcI1w3CAnf53zL9eOZco7c=;
-        b=Yk888YM0O/7Xt4zrltUXiJNXYUdVzwNY69F9lpqVH1ofAYCGKhK8air2f+y3/70oJl
-         Hh4QX/tgaCBMJ20/udMKB+xxv3yHe91TaVKTfIQ3By6gdCixnd8d6xH6tSrZ0YK1ZZTL
-         7aECXhfN9DtAn96NvXAVDKy/KPTVHbKgpW/ZkB2ieGyAXtSli3N3vtE9FekyL9JtXn5Z
-         PBJGFKyVeIeP7YGMUZSLk+KrPjQb15HvJADFfd8PEW+U2Zli5SBPsKmNl07AhGvc72uw
-         30KUly3USPKx+IoZGHnuzP+M65/Al674IUrEsWL59PYjrZiHtVku1N4Fcyy5soGayD5n
-         yFGQ==
-X-Gm-Message-State: AOJu0YwZ+n76/KU5prh04KzRN36UQxHwEdc2ZhG69VdVbMDrjKnCQHyw
-	x0D4uP7jFVzTkqAM3thRs0jYGQ==
-X-Google-Smtp-Source: AGHT+IHbYu2jqbF7t8/wu/0pojkQUebMfIzAqIQeTS1oR0oKU5ESn/XV9iR5u5ULhgBjAJ/tpgr/hw==
-X-Received: by 2002:a05:6a00:228f:b0:6cb:8abd:39b5 with SMTP id f15-20020a056a00228f00b006cb8abd39b5mr4000172pfe.1.1700576693727;
-        Tue, 21 Nov 2023 06:24:53 -0800 (PST)
+        bh=ma7hrIwqvDM4lCpBvbnn1WZG4yWufWgrZRtOwNFwz5Q=;
+        b=rwDBHFkWnhvY6A/XdeF0xz+KeTsCg76br/Rf1SZAsYiOLBVB00kNthue/V21TqQyco
+         dZozpNJYYdbw5Hx1VYZiApLcl03rxb6m+x0vF1rH+xqa02agq0HF3rMqCE7ZJc1qI8Da
+         z+2dLQzXbgKzCPq6Ao9+yfO5NLDGxPFlq3qmoPMCiTOrA8039201KnDTHYO4RbA47lxZ
+         uFbe8flVp8aLeC+XDJYyVQomJE+ZTqufq2zEY2O6w56EyYSE+r+YMoeCJ4Z096whUGv3
+         PXOgU7iQnY/LILucw0Sbo6+WI8yntoErubE2JdoAqkffKyhUUil7Je0H0LoSw1Bm/zrn
+         qLSw==
+X-Gm-Message-State: AOJu0Yym1XtRRsIsnv0MKvQ8qps3awpJuAnFxyYyZDl+dFavvrr2G3SA
+	5sh+St7ALs6z2IY1Mp8C32jtwA==
+X-Google-Smtp-Source: AGHT+IHISvT3HOK4Q8QdxNY25egV5B1w+H+S5nFIY6gWXptDkpevoMSwLQoow/dwb6Z7gSO9fV5N9w==
+X-Received: by 2002:a05:6a00:3923:b0:68e:3eab:9e18 with SMTP id fh35-20020a056a00392300b0068e3eab9e18mr9207536pfb.12.1700576701929;
+        Tue, 21 Nov 2023 06:25:01 -0800 (PST)
 Received: from devz1.bytedance.net ([203.208.167.146])
-        by smtp.gmail.com with ESMTPSA id d13-20020a056a00244d00b0068842ebfd10sm7923193pfj.160.2023.11.21.06.24.45
+        by smtp.gmail.com with ESMTPSA id d13-20020a056a00244d00b0068842ebfd10sm7923193pfj.160.2023.11.21.06.24.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Nov 2023 06:24:53 -0800 (PST)
+        Tue, 21 Nov 2023 06:25:01 -0800 (PST)
 From: "wuqiang.matt" <wuqiang.matt@bytedance.com>
 To: ubizjak@gmail.com,
 	mark.rutland@arm.com,
@@ -66,9 +66,9 @@ Cc: linux-arch@vger.kernel.org,
 	linux@roeck-us.net,
 	"wuqiang.matt" <wuqiang.matt@bytedance.com>,
 	kernel test robot <lkp@intel.com>
-Subject: [PATCH v3 2/5] arch,locking/atomic: arc: add arch_cmpxchg[64]_local
-Date: Tue, 21 Nov 2023 22:23:44 +0800
-Message-Id: <20231121142347.241356-3-wuqiang.matt@bytedance.com>
+Subject: [PATCH v3 3/5] arch,locking/atomic: openrisc: add arch_cmpxchg[64]_local
+Date: Tue, 21 Nov 2023 22:23:45 +0800
+Message-Id: <20231121142347.241356-4-wuqiang.matt@bytedance.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20231121142347.241356-1-wuqiang.matt@bytedance.com>
 References: <20231121142347.241356-1-wuqiang.matt@bytedance.com>
@@ -80,7 +80,7 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-arc doesn't have arch_cmpxhg_local implemented, which causes
+openrisc hasn't arch_cmpxhg_local implemented, which causes
 building failures for any references of try_cmpxchg_local,
 reported by the kernel test robot.
 
@@ -94,48 +94,26 @@ Closes: https://lore.kernel.org/oe-kbuild-all/202310272207.tLPflya4-lkp@intel.co
 Signed-off-by: wuqiang.matt <wuqiang.matt@bytedance.com>
 Reviewed-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 ---
- arch/arc/include/asm/cmpxchg.h | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ arch/openrisc/include/asm/cmpxchg.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arc/include/asm/cmpxchg.h b/arch/arc/include/asm/cmpxchg.h
-index bf46514f6f12..91429f2350df 100644
---- a/arch/arc/include/asm/cmpxchg.h
-+++ b/arch/arc/include/asm/cmpxchg.h
-@@ -80,6 +80,34 @@
- 
- #endif
- 
-+/*
-+ * always make arch_cmpxchg[64]_local available, native cmpxchg
-+ * will be used if available, then generic_cmpxchg[64]_local
-+ */
+diff --git a/arch/openrisc/include/asm/cmpxchg.h b/arch/openrisc/include/asm/cmpxchg.h
+index 8ee151c072e4..f1ffe8b6f5ef 100644
+--- a/arch/openrisc/include/asm/cmpxchg.h
++++ b/arch/openrisc/include/asm/cmpxchg.h
+@@ -139,6 +139,12 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+ 					       (unsigned long)(n),	\
+ 					       sizeof(*(ptr)));		\
+ 	})
++#define arch_cmpxchg_local arch_cmpxchg
++
++/* always make arch_cmpxchg64_local available for openrisc */
 +#include <asm-generic/cmpxchg-local.h>
-+static inline unsigned long __cmpxchg_local(volatile void *ptr,
-+				      unsigned long old,
-+				      unsigned long new, int size)
-+{
-+	switch (size) {
-+#ifdef CONFIG_ARC_HAS_LLSC
-+	case 4:
-+		return __cmpxchg_32((int32_t *)ptr, old, new);
-+#endif
-+	default:
-+		return __generic_cmpxchg_local(ptr, old, new, size);
-+	}
 +
-+	return old;
-+}
-+#define arch_cmpxchg_local(ptr, o, n) ({				\
-+	(__typeof__(*ptr))__cmpxchg_local((ptr),			\
-+					(unsigned long)(o),		\
-+					(unsigned long)(n),		\
-+					sizeof(*(ptr)));		\
-+})
 +#define arch_cmpxchg64_local(ptr, o, n) __generic_cmpxchg64_local((ptr), (o), (n))
-+
+ 
  /*
-  * xchg
-  */
+  * This function doesn't exist, so you'll get a linker error if
 -- 
 2.40.1
 
