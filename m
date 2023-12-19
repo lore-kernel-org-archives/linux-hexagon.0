@@ -1,34 +1,34 @@
-Received: from out-186.mta0.migadu.com (out-186.mta0.migadu.com [91.218.175.186])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B62F3B1A4
-	for <linux-hexagon@vger.kernel.org>; Tue, 19 Dec 2023 21:04:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5DA33A1B5;
+	Tue, 19 Dec 2023 21:04:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="SdyBwol3"
-Date: Tue, 19 Dec 2023 16:04:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1703019891;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qtSKyAckkxhjq+mnW87LkvbNUGR2ScfrAJFYbRib6nQ=;
-	b=SdyBwol3Kp/o1zBy6GYlx4AAwo9vgPVf8/cCA8HvevOKNZ5KL53mvtLDAihJ2FPy4GvpH/
-	hSm69+tqAGiBsdATfyy+GXkP+sexxdHHeM8VOGBhhPW6d2nP2VWWv2juCVSlloDuqgFYfV
-	v8l7XadMw/SY47RXX/HpFOwh0DhjmXo=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Kent Overstreet <kent.overstreet@linux.dev>
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: kernel test robot <lkp@intel.com>, llvm@lists.linux.dev,
-	oe-kbuild-all@lists.linux.dev, Brian Cain <bcain@quicinc.com>,
-	linux-hexagon@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lSeQljuc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE9F5C433C9;
+	Tue, 19 Dec 2023 21:04:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1703019897;
+	bh=WBbwVhDlfgpRlCFCY4cFurEjxND6ilp2x/EXW99qkKY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=lSeQljucbytZT3ID34ARglZRdLjfTFkvlmv+GpIWvM+MDWVpDgFjpDk4Mf+cP2VlD
+	 cl39hwC72DSuIOW+gEmc0SSJrp05GrSOH5YXyssVR0ARes0bdsGsg/0aSlClUbHGCv
+	 R45qTLQOUfNkeMNRgbkbIMNODQuMv+35Zf/SdiBR9YcEVd+G8SUOYCNTMZbWo4CD4M
+	 ofVSDB21zLePNCpAR3SHqwMbVv8FNGq3NAXnP3ryN0J4naG1TPMnk7wCBZIoFz6M3W
+	 DKsmAHviOBq2zkDBV2x8aCXvPGVvFtGMYXmrTvhxvF0ZWbAGx5ilu3Vps1BKd7Z7PG
+	 nbViAwOoTAU9A==
+Date: Tue, 19 Dec 2023 14:04:54 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Nick Desaulniers <ndesaulniers@google.com>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	kernel test robot <lkp@intel.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org
 Subject: Re: [bcachefs:header_cleanup 21/51] /bin/bash: line 1: 19420
  Segmentation fault LLVM_OBJCOPY="llvm-objcopy" pahole -J --btf_gen_floats -j
  --lang_exclude=rust --skip_encoding_btf_inconsistent_proto
  --btf_gen_optimized --btf_base vmlinux drivers/misc/eeprom/at24.ko
-Message-ID: <20231219210448.azc3fbex3z6nc5ky@moria.home.lan>
+Message-ID: <20231219210454.GA540439@dev-arch.thelio-3990X>
 References: <202312192107.wMIKiZWw-lkp@intel.com>
  <20231219205348.wvvxyicaatmljxm2@moria.home.lan>
  <CAKwvOdmrvwdbFrtzsOjoLJJZ1pDZOBWBiEb=Mx5bCHuKU2wPzQ@mail.gmail.com>
@@ -42,7 +42,6 @@ Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 In-Reply-To: <CAKwvOdmrvwdbFrtzsOjoLJJZ1pDZOBWBiEb=Mx5bCHuKU2wPzQ@mail.gmail.com>
-X-Migadu-Flow: FLOW_OUT
 
 On Tue, Dec 19, 2023 at 12:58:28PM -0800, Nick Desaulniers wrote:
 > On Tue, Dec 19, 2023 at 12:54 PM Kent Overstreet
@@ -78,8 +77,19 @@ On Tue, Dec 19, 2023 at 12:58:28PM -0800, Nick Desaulniers wrote:
 > > Not sure how likely a header cleanup is to cause a segfault in
 > > llvm-objcopy and I don't have the toolchain to repro this - could
 > > hexagon people take a look?
-> >
-> 
+
+For what it's worth in case you were not aware, I provide copies of LLVM
+on kernel.org that can be installed in some prefix and invoked with
+LLVM=<prefix>/bin/, which can make reproducing reports such as these
+relatively easy.
+
+https://mirrors.edge.kernel.org/pub/tools/llvm/
+
 > Is it a segfault in llvm-objcopy, or pahole?
 
-Whoops, I think you're right :)
+Should be pahole. I have not been able to reproduce these crashes in
+pahole v1.25 in the past when they come up every so often. 0day folks,
+what version of pahole are you testing with?
+
+Cheers,
+Nathan
