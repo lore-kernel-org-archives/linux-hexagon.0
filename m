@@ -1,162 +1,72 @@
-Received: from mail-oi1-f182.google.com (mail-oi1-f182.google.com [209.85.167.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-188.mta1.migadu.com (out-188.mta1.migadu.com [95.215.58.188])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2886EDDB2;
-	Sun, 17 Dec 2023 07:13:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=wanadoo.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F5239AEB
+	for <linux-hexagon@vger.kernel.org>; Tue, 19 Dec 2023 20:53:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TZMjzs+Q"
-Received: by mail-oi1-f182.google.com with SMTP id 5614622812f47-3ba2dd905f9so1376544b6e.2;
-        Sat, 16 Dec 2023 23:13:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1702797220; x=1703402020; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JsNa9K53QEIWDiiqOBuAFIxQwF1kCxA5oMZgz893y4w=;
-        b=TZMjzs+QukM7cdi3bcOcVsGeJQzJtJtG1caB1xo7KqHzvB87Q/fm93wYXls+4wPHah
-         fYPMe9AnnMnwumjHXT6v0s23V2I5r8dlfQ6KmACKnzKFBOQa89oHhGiSesu0d0fQLRK8
-         E+/PdAdpbptsaLXbtae3Ibqx+0icHll2HwRkxxs3KQSgBlZ8WiSMZ6br1lqEe9G+K2JA
-         NWYCe92BVaLRg5lzFBiJdN0PV7TwEuidHtG8Zn4P2nBRlCcqIyhziZ6tPtTegp7rnPQ7
-         tszJZjr30G++D1U6Ksf1eJ75FrxpVd50lEBFflmlRTrBBKgAZYG2+ExzFO3zRnrE/9VL
-         H6uQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702797220; x=1703402020;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:sender:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=JsNa9K53QEIWDiiqOBuAFIxQwF1kCxA5oMZgz893y4w=;
-        b=ZVS7MYyrvdYqCuajwLnS3dizNN7gFXrKEV2bgXfTs+YsN/G++WqMl4uAsAmESP6jz1
-         EI1NiJuZJfmDgBLxKV19f2l2iPbJEcFQKvlksUnA9erWOc/XNstEm9kLzRCvSOFlHeOJ
-         5xMStgGYbk1O3ZJ8n3DrBoj1NcFGGse4MOB3CHa/pDM65oj3xBQxe3yR1zGwK/0875aW
-         i4/3Pa1vSID3ZEDpx1QulOs5yII3PFPVax2x9KDZkmksB5iJJRymIvUyixFzCEyq4OeF
-         i3kCLnxrO0uWGIom9P2qlD180Xev12hqjGlUYdv2rRyJJAQG/8jUupLIEn2kdnmwV4Ub
-         ygPQ==
-X-Gm-Message-State: AOJu0Yy0q4NjnSFL6kSNXTQDgGVqvoBqIG6EFGaNiTXWpn4QlAHV4CVE
-	zxCATM+57u0IY1YZ5RhznF4=
-X-Google-Smtp-Source: AGHT+IGWwFqDW7XfFkRgyj/Gr80/LunbsYTvIMkNiVdagI90/MvOj3NipYqj2bpZF0ACp4FlPYnzLQ==
-X-Received: by 2002:a05:6808:1924:b0:3b9:f017:28f with SMTP id bf36-20020a056808192400b003b9f017028fmr18156464oib.67.1702797220239;
-        Sat, 16 Dec 2023 23:13:40 -0800 (PST)
-Received: from XH22050090-L.ad.ts.tri-ad.global ([103.175.111.222])
-        by smtp.gmail.com with ESMTPSA id b17-20020a056a000cd100b0068ffb8da107sm15740231pfv.212.2023.12.16.23.13.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 16 Dec 2023 23:13:39 -0800 (PST)
-Sender: Vincent Mailhol <vincent.mailhol@gmail.com>
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-To: Andrew Morton <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org,
-	Yury Norov <yury.norov@gmail.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>,
-	Douglas Anderson <dianders@chromium.org>,
-	Kees Cook <keescook@chromium.org>,
-	Petr Mladek <pmladek@suse.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Zhaoyang Huang <zhaoyang.huang@unisoc.com>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Marco Elver <elver@google.com>,
-	Brian Cain <bcain@quicinc.com>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Matthew Wilcox <willy@infradead.org>,
-	"Paul E . McKenney" <paulmck@kernel.org>,
-	linux-hexagon@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Subject: [PATCH v3 5/5] lib: test_bitops: add compile-time optimization/evaluations assertions
-Date: Sun, 17 Dec 2023 16:12:50 +0900
-Message-Id: <20231217071250.892867-6-mailhol.vincent@wanadoo.fr>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20231217071250.892867-1-mailhol.vincent@wanadoo.fr>
-References: <20221111081316.30373-1-mailhol.vincent@wanadoo.fr>
- <20231217071250.892867-1-mailhol.vincent@wanadoo.fr>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="IGPuO+St"
+Date: Tue, 19 Dec 2023 15:53:48 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1703019231;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ntiFmxoPgbCS45pJpQiVTLcJq0QEBGqCDVSJA8cKJRw=;
+	b=IGPuO+StI4mE8IkGUxfI1gvYNWUbGbI6LXbZMKUZFYmvwukD0veXjIrDMJanVpwXHnVf4Y
+	7yUngaE3IRQXw6p2TVs8173tot85BmrnL1mdxWtARsMyaFF3Gu6LZ3HJKRJgApa071+TfC
+	XFljQaX3fIM5hth/IUVYt8BW4hWdm94=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Kent Overstreet <kent.overstreet@linux.dev>
+To: kernel test robot <lkp@intel.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org
+Subject: Re: [bcachefs:header_cleanup 21/51] /bin/bash: line 1: 19420
+ Segmentation fault      LLVM_OBJCOPY="llvm-objcopy" pahole -J
+ --btf_gen_floats -j --lang_exclude=rust
+ --skip_encoding_btf_inconsistent_proto --btf_gen_optimized --btf_base
+ vmlinux drivers/misc/eeprom/at24.ko
+Message-ID: <20231219205348.wvvxyicaatmljxm2@moria.home.lan>
+References: <202312192107.wMIKiZWw-lkp@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <202312192107.wMIKiZWw-lkp@intel.com>
+X-Migadu-Flow: FLOW_OUT
 
-Add a function in the bitops test suite to assert that the bitops
-helper correctly fold constant expressions (or trigger a build bug
-otherwise). This should work on all the optimization levels supported
-by Kbuild.
+On Tue, Dec 19, 2023 at 09:40:09PM +0800, kernel test robot wrote:
+> tree:   https://evilpiepirate.org/git/bcachefs.git header_cleanup
+> head:   89188fceb7a49e3c4b0578d86f6f6e647f202821
+> commit: 1db61740aeb7d6b1c7bfb2a98708a65a6679d068 [21/51] locking/seqlock: Split out seqlock_types.h
+> config: hexagon-randconfig-r005-20220913 (https://download.01.org/0day-ci/archive/20231219/202312192107.wMIKiZWw-lkp@intel.com/config)
+> compiler: clang version 16.0.4 (https://github.com/llvm/llvm-project.git ae42196bc493ffe877a7e3dff8be32035dea4d07)
+> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231219/202312192107.wMIKiZWw-lkp@intel.com/reproduce)
+> 
+> If you fix the issue in a separate patch/commit (i.e. not just a new version of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202312192107.wMIKiZWw-lkp@intel.com/
+> 
+> All errors (new ones prefixed by >>):
+> 
+>    die__process_unit: DW_TAG_member (0xd) @ <0xc689> not handled!
+>    die__process_unit: tag not supported 0xd (member)!
+>    die__process_function: DW_TAG_compile_unit (0x11) @ <0xc697> not handled!
+>    die__process_function: tag not supported 0x11 (compile_unit)!
+>    die__process_function: DW_TAG_member (0xd) @ <0xc6db> not handled!
+>    die__process_function: DW_TAG_compile_unit (0x11) @ <0xc6e5> not handled!
+>    die__process_class: DW_TAG_compile_unit (0x11) @ <0xc778> not handled!
+>    namespace__recode_dwarf_types: couldn't find 0xc689 type for 0xc66b (member)!
+>    namespace__recode_dwarf_types: couldn't find 0xc638 type for 0xc674 (member)!
+>    namespace__recode_dwarf_types: couldn't find 0xc638 type for 0xc67e (member)!
+> >> /bin/bash: line 1: 19420 Segmentation fault      LLVM_OBJCOPY="llvm-objcopy" pahole -J --btf_gen_floats -j --lang_exclude=rust --skip_encoding_btf_inconsistent_proto --btf_gen_optimized --btf_base vmlinux drivers/misc/eeprom/at24.ko
 
-The added function doesn't perform any runtime tests and gets
-optimized out to nothing after passing the build assertions.
-
-Suggested-by: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
----
- lib/Kconfig.debug |  4 ++++
- lib/test_bitops.c | 32 ++++++++++++++++++++++++++++++++
- 2 files changed, 36 insertions(+)
-
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index cc7d53d9dc01..c97d818dbc30 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -2454,6 +2454,10 @@ config TEST_BITOPS
- 	  compilations. It has no dependencies and doesn't run or load unless
- 	  explicitly requested by name.  for example: modprobe test_bitops.
- 
-+	  In addition, check that the compiler is able to fold the bitops
-+	  function into a compile-time constant (given that the argument is also
-+	  a compile-time constant) and trigger a build bug otherwise.
-+
- 	  If unsure, say N.
- 
- config TEST_VMALLOC
-diff --git a/lib/test_bitops.c b/lib/test_bitops.c
-index 3b7bcbee84db..99b612515eb6 100644
---- a/lib/test_bitops.c
-+++ b/lib/test_bitops.c
-@@ -50,6 +50,34 @@ static unsigned long order_comb_long[][2] = {
- };
- #endif
- 
-+/* Assert that a boolean expression can be folded in a constant and is true. */
-+#define test_const_eval(test_expr)				\
-+({								\
-+	/* Evaluate once so that compiler can fold it. */	\
-+	bool __test_expr = test_expr;				\
-+								\
-+	BUILD_BUG_ON(!__builtin_constant_p(__test_expr));	\
-+	BUILD_BUG_ON(!__test_expr);				\
-+})
-+
-+/*
-+ * On any supported optimization level (-O2, -Os) and if invoked with
-+ * a compile-time constant argument, the compiler must be able to fold
-+ * into a constant expression all the bit find functions. Namely:
-+ * __ffs(), ffs(), ffz(), __fls(), fls() and fls64(). Otherwise,
-+ * trigger a build bug.
-+ */
-+static __always_inline void test_bitops_const_eval(unsigned int n)
-+{
-+	test_const_eval(__ffs(BIT(n)) == n);
-+	test_const_eval(ffs(BIT(n)) == n + 1);
-+	test_const_eval(ffz(~BIT(n)) == n);
-+	test_const_eval(__fls(BIT(n)) == n);
-+	test_const_eval(fls(BIT(n)) == n + 1);
-+	test_const_eval(fls64(BIT_ULL(n)) == n + 1);
-+	test_const_eval(fls64(BIT_ULL(n + 32)) == n + 33);
-+}
-+
- static int __init test_bitops_startup(void)
- {
- 	int i, bit_set;
-@@ -94,6 +122,10 @@ static int __init test_bitops_startup(void)
- 	if (bit_set != BITOPS_LAST)
- 		pr_err("ERROR: FOUND SET BIT %d\n", bit_set);
- 
-+	test_bitops_const_eval(0);
-+	test_bitops_const_eval(10);
-+	test_bitops_const_eval(31);
-+
- 	pr_info("Completed bitops test\n");
- 
- 	return 0;
--- 
-2.25.1
-
+Not sure how likely a header cleanup is to cause a segfault in
+llvm-objcopy and I don't have the toolchain to repro this - could
+hexagon people take a look?
