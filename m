@@ -1,38 +1,38 @@
-Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
+Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com [209.85.219.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0D2DD285;
-	Tue,  2 Jan 2024 10:28:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AAD0E545;
+	Tue,  2 Jan 2024 10:49:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-5edf3780534so40861667b3.0;
-        Tue, 02 Jan 2024 02:28:20 -0800 (PST)
+Received: by mail-yb1-f174.google.com with SMTP id 3f1490d57ef6-dbdb2433800so6217736276.3;
+        Tue, 02 Jan 2024 02:49:16 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704191300; x=1704796100;
+        d=1e100.net; s=20230601; t=1704192556; x=1704797356;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=SGUYue1hsQCNLrCF4HXCzjQx8nMIh5sStGYQ5m2PA10=;
-        b=IhF8XbFOtM2sbFIMTsvtFcYVn+ZhlUEbik3Am4co+9XxYgYZzesV+ymi3wrCx9/duu
-         nZRUzM/rHrRFKnetQZelKIczbYooxe2AWVbKPXNd6OMUddNChMF8EJ7+R15Geh8BzidH
-         xeaeQcuWjQ/aNSUZ/1YgVdf2sh7020PMsC/xcxHvlFyxd4gxVdYuCXzOmrKbkAgADQr5
-         YL2VZk9NQkU+9UTVwqAuRiGnUuAEAhZ48xKbQlgVgeDH3I4KPjFIUamLpYooWC0zb5LY
-         aOzJT//5uHPzUZpaaQSqaNEQBzlb0PETS+33zamkIkH3Ve+eeOEGMrt3GdlawiPfuIhl
-         1HXg==
-X-Gm-Message-State: AOJu0YwMwZSQ/i6EwHUH0Vu9X/dhihrDpwgUdAObBNsm5AOX65WSr8YY
-	7q1a1x9Dq36alrz9DPdMbugE95Wa3AVijA==
-X-Google-Smtp-Source: AGHT+IHjusxO/DvFDYCLHPOpP3POSSCoqWg5OhYM53rjTxnQmUEmkECOOX8mHPrS0QKALyCEfEBZ/Q==
-X-Received: by 2002:a05:690c:309:b0:5ef:91bd:f6f9 with SMTP id bg9-20020a05690c030900b005ef91bdf6f9mr4071978ywb.35.1704191299787;
-        Tue, 02 Jan 2024 02:28:19 -0800 (PST)
-Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com. [209.85.128.181])
-        by smtp.gmail.com with ESMTPSA id q2-20020a818002000000b005d3ba95d418sm11865738ywf.108.2024.01.02.02.28.19
+        bh=K0kwXnD1UP7IPHyIP7CHVuBK/DoK+f+8Bv02dDQmekQ=;
+        b=v7HU/KQSSztPX0lOTGinLhOF5hPSeGkTugbm9+ty+p2pkR8G5ZPGE7QOC4wWAh9Yiy
+         5/Lf6Q0EFH5nvK40/sIjkbmA9bAFQGUxxO+8hM4zDxCvfV2t09ETGqHr4ROp0UulnR10
+         eNFhL4dxiTtptCwzbrvdytN2JHHenq0FBNz9xv9Zbg5p+TH8lwyH+oPWC9ij8LxjHuX9
+         EZMYYpWi5n7V/ol8ZyVE0WQJD1EO4qdc7C/hFrjncY5KSV5Vn+B5LxCOw0D/ZAOnMmO6
+         dr6r9tQGqJ9S72YumtjsFl7OMkdoYBA69/Mu9wSQhJl0BZOKfSq4ac+1drwIJdBtXxsl
+         8Lbw==
+X-Gm-Message-State: AOJu0YyePsIYAqaaVHxYsTuEy6hhbrqnLcOXYWd4hy1zkK8tIx39IJ+b
+	qlxxAK/O50GjsdKTGuhI4n7I34f3MJnEww==
+X-Google-Smtp-Source: AGHT+IGGJ8zEAgXrPxZkflLvziParzRZ4satEEPv3pLGniGuQdp5sL/uFu8nspWnzoPMHX/s6K76Ig==
+X-Received: by 2002:a25:1609:0:b0:dbd:750a:e3af with SMTP id 9-20020a251609000000b00dbd750ae3afmr7044382ybw.26.1704192555941;
+        Tue, 02 Jan 2024 02:49:15 -0800 (PST)
+Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com. [209.85.128.177])
+        by smtp.gmail.com with ESMTPSA id e69-20020a256948000000b00dbd9ad556ccsm10128500ybc.52.2024.01.02.02.49.15
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Jan 2024 02:28:19 -0800 (PST)
-Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-5e7f0bf46a2so74147597b3.1;
-        Tue, 02 Jan 2024 02:28:19 -0800 (PST)
-X-Received: by 2002:a81:b661:0:b0:5f3:6024:53c with SMTP id
- h33-20020a81b661000000b005f36024053cmr393594ywk.32.1704191299465; Tue, 02 Jan
- 2024 02:28:19 -0800 (PST)
+        Tue, 02 Jan 2024 02:49:15 -0800 (PST)
+Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-5f0629e67f4so22890637b3.3;
+        Tue, 02 Jan 2024 02:49:15 -0800 (PST)
+X-Received: by 2002:a81:af49:0:b0:5e9:fa4a:fd32 with SMTP id
+ x9-20020a81af49000000b005e9fa4afd32mr10248043ywj.44.1704192555251; Tue, 02
+ Jan 2024 02:49:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
@@ -40,13 +40,14 @@ List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20221111081316.30373-1-mailhol.vincent@wanadoo.fr>
- <20231217071250.892867-1-mailhol.vincent@wanadoo.fr> <20231217071250.892867-2-mailhol.vincent@wanadoo.fr>
-In-Reply-To: <20231217071250.892867-2-mailhol.vincent@wanadoo.fr>
+ <20231217071250.892867-1-mailhol.vincent@wanadoo.fr> <20231217071250.892867-3-mailhol.vincent@wanadoo.fr>
+In-Reply-To: <20231217071250.892867-3-mailhol.vincent@wanadoo.fr>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 2 Jan 2024 11:28:08 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdUvqY4VLDS0mW2VbSzTmef9xt+F3FCpRj5-Mv+KeOqyXg@mail.gmail.com>
-Message-ID: <CAMuHMdUvqY4VLDS0mW2VbSzTmef9xt+F3FCpRj5-Mv+KeOqyXg@mail.gmail.com>
-Subject: Re: [PATCH v3 1/5] m68k/bitops: force inlining of all bitops functions
+Date: Tue, 2 Jan 2024 11:49:03 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdULzic+NC+PA7fOZzaXbJnmW+MfCv05j3xJdj1qxPeyQQ@mail.gmail.com>
+Message-ID: <CAMuHMdULzic+NC+PA7fOZzaXbJnmW+MfCv05j3xJdj1qxPeyQQ@mail.gmail.com>
+Subject: Re: [PATCH v3 2/5] m68k/bitops: use __builtin_{clz,ctzl,ffs} to
+ evaluate constant expressions
 To: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, 
 	Yury Norov <yury.norov@gmail.com>, Nick Desaulniers <ndesaulniers@google.com>, 
@@ -59,47 +60,51 @@ Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Vincent,
-
-Thanks for your patch!
-
 On Sun, Dec 17, 2023 at 8:13=E2=80=AFAM Vincent Mailhol
 <mailhol.vincent@wanadoo.fr> wrote:
-> The inline keyword actually does not guarantee that the compiler will
-> inline a functions. Whenever the goal is to actually inline a
-> function, __always_inline should always be preferred instead.
 >
-> On an allyesconfig, with GCC 13.2.1, it saves roughly 5 KB.
+> The compiler is not able to do constant folding on "asm volatile" code.
+>
+> Evaluate whether or not the function argument is a constant expression
+> and if this is the case, return an equivalent builtin expression.
+>
+> On an allyesconfig, with GCC 13.2.1, it saves roughly 8 KB.
 >
 >   $ size --format=3DGNU vmlinux.before vmlinux.after
 >         text       data        bss      total filename
->     60449738   70975612    2288988  133714338 vmlinux.before
->     60446534   70972412    2289596  133708542 vmlinux.after
+>     60446534   70972412    2289596  133708542 vmlinux.before
+>     60429746   70978876    2291676  133700298 vmlinux.after
 
-With gcc 9.5.0-1ubuntu1~22.04, the figures are completely different
-(i.e. a size increase):
+Still a win with gcc 9.5.0-1ubuntu1~22.04:
 
 allyesconfig:
 
       text       data        bss      total filename
-  58878600   72415994    2283652  133578246 vmlinux.before
-  58882250   72419706    2284004  133585960 vmlinux.after
+  58882250   72419706    2284004  133585960
+vmlinux-v6.7-rc8-1-m68k-bitops-force-inlining
+  58863570   72419546    2285860  133568976
+vmlinux-v6.7-rc8-2-m68k-bitops-use-__builtin_clz,ctzl,ffs
+
+So an even bigger win...
 
 atari_defconfig:
 
       text       data        bss      total filename
-   4112060    1579862     151680    5843602 vmlinux-v6.7-rc8
    4117008    1579350     151680    5848038
 vmlinux-v6.7-rc8-1-m68k-bitops-force-inlining
+   4116940    1579534     151712    5848186
+vmlinux-v6.7-rc8-2-m68k-bitops-use-__builtin_clz,ctzl,ffs
 
-The next patch offsets that for allyesconfig, but not for atari_defconfig.
+... but a small size increase here.
 
-> Reference: commit 8dd5032d9c54 ("x86/asm/bitops: Force inlining of
-> test_and_set_bit and friends")
+
+>
+> Reference: commit fdb6649ab7c1 ("x86/asm/bitops: Use __builtin_ctzl()
+> to evaluate constant expressions")
 
 Please don't split lines containing tags.
 
-> Link: https://git.kernel.org/torvalds/c/8dd5032d9c54
+> Link: https://git.kernel.org/torvalds/c/fdb6649ab7c1
 >
 > Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
