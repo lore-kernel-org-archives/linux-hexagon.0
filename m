@@ -1,94 +1,185 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E936F358AA;
-	Fri,  5 Jan 2024 19:13:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JrFWCUSW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0EB9C433C7;
-	Fri,  5 Jan 2024 19:13:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1704481996;
-	bh=TuxsHZPh+jbfgxImCTm71c5GyVdW17unYFAC6L4xxiI=;
-	h=From:Date:Subject:To:Cc:From;
-	b=JrFWCUSW2E4tRnzwwDquw1A+SwIN/7ErdY9UvtNhlpkhKwTNOBKtnqNmSn6JenF8i
-	 DPW1oPh8+jTyFCiC0b4IgljMTI4vFPBra0KQl7W0+i4y00vyK5lYMNhAjr5gmbD++O
-	 IX+16X3Lh3tdODgYB9jxIkOHwvfXTHJWtHp6Q/LAKSoj97YNWqw1mZs+HH0QnQImXQ
-	 6EtdPlLzRT2rieESyqbe+LmIf741E03rgundm0X3z4FTKue90lVW6Wwec05pjzS513
-	 asD4Axef+hrgUO3bz6XmY821dZaHQmAQcqHK15fmYBqSysUswWk5Mx8xblhDV3iDCC
-	 0KCFjNI01ACqQ==
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Fri, 05 Jan 2024 12:13:04 -0700
-Subject: [PATCH] lib/Kconfig.debug: Disable CONFIG_DEBUG_INFO_BTF for
- Hexagon
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99D7B12E54;
+	Sun,  7 Jan 2024 12:01:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=wanadoo.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-1d4c3393f99so7400865ad.0;
+        Sun, 07 Jan 2024 04:01:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1704628907; x=1705233707;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+QnGROJ1oWVw3/Pa8uoXPLukkVuGGFCJD+vSnZeWEEA=;
+        b=kZYQqnveL1wwDOGtzVN7svMP1ROQ/FSR5H3nypZSCcH7N+qPEQXwcxymIGxWmMWgb/
+         h5OaOY8++Wgk2MAcoNOm8jA9q906P8Hz9UNdwHFMPk3ZAgB6SVHgznla7JxsID8iu1ih
+         3/d8hjntz1ORkhAzbAg0t00mP9gxr3pnbaxA1vdOfmLwRu3ALFeeItPMdw2KvfuIUDL0
+         ZWsvrj3uQTef7zIwIIf1lmddGMak3lIGy+T3p83AGh6CWKkRMSS/vZz2jC1h2u6/Rwwa
+         9/ExXv8bHTAyftOS1Nob8m8+hLjLBdgz3qGZX5zUg9B6djKTYS9IHVSkoMlcL5zXV3s2
+         LKDw==
+X-Gm-Message-State: AOJu0YwRA2IUtsz9e1kxgwkXPbf7fQdVSk+N1Asc7x+raTuw9fAAZHBA
+	tdD7gN+oY4mvzO+2DSahO5RMpzqgwFPEfhXvyUc=
+X-Google-Smtp-Source: AGHT+IHLPAYIJC36BTu95hJWkiiM7l4wuMzpp++PtD979TuU3xLZ9t8ZJYI6QTGlSxDEqq4T5BatXjsFjWmrrB2CkY0=
+X-Received: by 2002:a17:903:41ce:b0:1d3:ec14:10f0 with SMTP id
+ u14-20020a17090341ce00b001d3ec1410f0mr2738441ple.52.1704628906763; Sun, 07
+ Jan 2024 04:01:46 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240105-hexagon-disable-btf-v1-1-ddab073e7f74@kernel.org>
-X-B4-Tracking: v=1; b=H4sIAL9UmGUC/x3MQQqAIBBG4avErBvQKIquEi00f2sgLDRCiO6et
- PwW7z2UEAWJxuqhiFuSHKFA1xUtmwkrWFwxNapplVYdb8hmPQI7ScbuYHt51kC/GNu7zg9UyjP
- CS/6v0/y+H4xK7h1lAAAA
-To: akpm@linux-foundation.org
-Cc: ndesaulniers@google.com, acme@kernel.org, dwarves@vger.kernel.org, 
- llvm@lists.linux.dev, linux-hexagon@vger.kernel.org, 
- linux-kernel@vger.kernel.org, patches@lists.linux.dev, 
- kernel test robot <lkp@intel.com>, Brian Cain <bcain@quicinc.com>, 
- Nathan Chancellor <nathan@kernel.org>
-X-Mailer: b4 0.13-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1657; i=nathan@kernel.org;
- h=from:subject:message-id; bh=TuxsHZPh+jbfgxImCTm71c5GyVdW17unYFAC6L4xxiI=;
- b=owGbwMvMwCUmm602sfCA1DTG02pJDKkzQk5HJ8ROCf97a3ar7/Tfrxy0Nt5e+fPP3jaWO4c+y
- vxXSlgk3VHKwiDGxSArpshS/Vj1uKHhnLOMN05NgpnDygQyhIGLUwAm4vyEkeGpa0zO3M1h7lek
- uvbtamWwNOt8mhnYHmizpnTu3D03WnMZ/goEafGf8ikQfrxT5HuggOF3V1sNSxtdW70Ck12ZW/b
- zsgAA
-X-Developer-Key: i=nathan@kernel.org; a=openpgp;
- fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+References: <20221111081316.30373-1-mailhol.vincent@wanadoo.fr>
+ <20231217071250.892867-1-mailhol.vincent@wanadoo.fr> <20231217071250.892867-2-mailhol.vincent@wanadoo.fr>
+ <CAMuHMdUvqY4VLDS0mW2VbSzTmef9xt+F3FCpRj5-Mv+KeOqyXg@mail.gmail.com>
+In-Reply-To: <CAMuHMdUvqY4VLDS0mW2VbSzTmef9xt+F3FCpRj5-Mv+KeOqyXg@mail.gmail.com>
+From: Vincent MAILHOL <mailhol.vincent@wanadoo.fr>
+Date: Sun, 7 Jan 2024 21:01:34 +0900
+Message-ID: <CAMZ6RqJyJsucRHnuwj87gC9H9hZm9UwC8vAxEJHEPvM-sY=5DA@mail.gmail.com>
+Subject: Re: [PATCH v3 1/5] m68k/bitops: force inlining of all bitops functions
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, 
+	Yury Norov <yury.norov@gmail.com>, Nick Desaulniers <ndesaulniers@google.com>, 
+	Douglas Anderson <dianders@chromium.org>, Kees Cook <keescook@chromium.org>, 
+	Petr Mladek <pmladek@suse.com>, Randy Dunlap <rdunlap@infradead.org>, 
+	Zhaoyang Huang <zhaoyang.huang@unisoc.com>, Geert Uytterhoeven <geert+renesas@glider.be>, 
+	Marco Elver <elver@google.com>, Brian Cain <bcain@quicinc.com>, 
+	Matthew Wilcox <willy@infradead.org>, "Paul E . McKenney" <paulmck@kernel.org>, linux-hexagon@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-pahole, which generates BTF, relies on elfutils to process DWARF debug
-info. Because kernel modules are relocatable files, elfutils needs to
-resolve relocations when processing the DWARF .debug sections.
+On Tue. 2 janv. 2024 at 19:28, Geert Uytterhoeven <geert@linux-m68k.org> wr=
+ote:
+>
+> Hi Vincent,
+>
+> Thanks for your patch!
 
-Hexagon is not supported in binutils or elfutils, so elfutils is unable
-to process relocations in kernel modules, causing pahole to crash during
-BTF generation.
+Thanks for the review and for running the benchmark.
 
-Do not allow CONFIG_DEBUG_INFO_BTF to be selected for Hexagon until it
-is supported in elfutils, so that there are no more cryptic build
-failures during BTF generation.
+> On Sun, Dec 17, 2023 at 8:13=E2=80=AFAM Vincent Mailhol
+> <mailhol.vincent@wanadoo.fr> wrote:
+> > The inline keyword actually does not guarantee that the compiler will
+> > inline a functions. Whenever the goal is to actually inline a
+> > function, __always_inline should always be preferred instead.
+> >
+> > On an allyesconfig, with GCC 13.2.1, it saves roughly 5 KB.
+> >
+> >   $ size --format=3DGNU vmlinux.before vmlinux.after
+> >         text       data        bss      total filename
+> >     60449738   70975612    2288988  133714338 vmlinux.before
+> >     60446534   70972412    2289596  133708542 vmlinux.after
+>
+> With gcc 9.5.0-1ubuntu1~22.04, the figures are completely different
+> (i.e. a size increase):
 
-Reported-by: kernel test robot <lkp@intel.com>
-Closes: https://lore.kernel.org/oe-kbuild-all/202312192107.wMIKiZWw-lkp@intel.com/
-Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Brian Cain <bcain@quicinc.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- lib/Kconfig.debug | 2 ++
- 1 file changed, 2 insertions(+)
+Those results are not normal, there should not be such a big
+discrepancy between two versions of the same compiler. I double
+checked everything and found out that I made a mistake when computing
+the figures: not sure what exactly, but at some point, the ASLR seeds
+(or other similar randomization feature) got reset and so, the
+decrease I witnessed was just a "lucky roll".
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 4405f81248fb..1b939f5583eb 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -378,6 +378,8 @@ config DEBUG_INFO_BTF
- 	depends on !GCC_PLUGIN_RANDSTRUCT || COMPILE_TEST
- 	depends on BPF_SYSCALL
- 	depends on !DEBUG_INFO_DWARF5 || PAHOLE_VERSION >= 121
-+	# pahole uses elfutils, which does not have support for Hexagon relocations
-+	depends on !HEXAGON
- 	help
- 	  Generate deduplicated BTF type information from DWARF debug info.
- 	  Turning this on expects presence of pahole tool, which will convert
+After rerunning the benchmark (making sure to keep every seeds), I got
+similar results as you:
 
----
-base-commit: 610a9b8f49fbcf1100716370d3b5f6f884a2835a
-change-id: 20240105-hexagon-disable-btf-1ee7cab7d5f8
+        text       data        bss      total filename
+    60449738   70975356    2288988  133714082
+vmlinux_allyesconfig.before_this_series
+    60446534   70979068    2289596  133715198
+vmlinux_allyesconfig.after_first_patch
+    60429746   70979132    2291676  133700554
+vmlinux_allyesconfig.final_second_patch
 
-Best regards,
--- 
-Nathan Chancellor <nathan@kernel.org>
+Note that there are still some kind of randomness on the data segment
+as shown in those other benchmarks I run:
 
+        text       data        bss      total filename
+    60449738   70976124    2288988  133714850
+vmlinux_allyesconfig.before_this_series
+    60446534   70980092    2289596  133716222
+vmlinux_allyesconfig.after_first_patch
+    60429746   70979388    2291676  133700810
+vmlinux_allyesconfig.after_second_patch
+
+        text       data        bss      total filename
+    60449738   70975612    2288988  133714338
+vmlinux_allyesconfig.before_this_series
+    60446534   70980348    2289596  133716478
+vmlinux_allyesconfig.after_first_patch
+    60429746   70979900    2291676  133701322
+vmlinux_allyesconfig.after_second_patch
+
+But the error margin is within 1K.
+
+So, in short, I inlined some functions which I shouldn't have. I am
+preparing a v4 in which I will only inline the bit-find functions
+(namely: __ffs(), ffs(), ffz(), __fls(), fls() and fls64()). Here are
+the new figures:
+
+        text       data        bss      total filename
+    60453552   70955485    2288620  133697657
+vmlinux_allyesconfig.before_this_series
+    60450304   70953085    2289260  133692649
+vmlinux_allyesconfig.after_first_patch
+    60433536   70952637    2291340  133677513
+vmlinux_allyesconfig.after_second_patch
+
+N.B. The new figures were after a rebase, so do not try to compare
+with the previous benchmarks. I will send the v4 soon, after I finish
+to update the patch comments and double check things.
+
+Concerning the other functions in bitops.h, there may be some other
+ones worth a __always_inline. But I will narrow the scope of this
+series only to the bit-find function. If a good samaritan wants to
+investigate the other functions, go ahead!
+
+Yours sincerely,
+Vincent Mailhol
+
+
+
+
+> allyesconfig:
+>
+>       text       data        bss      total filename
+>   58878600   72415994    2283652  133578246 vmlinux.before
+>   58882250   72419706    2284004  133585960 vmlinux.after
+>
+> atari_defconfig:
+>
+>       text       data        bss      total filename
+>    4112060    1579862     151680    5843602 vmlinux-v6.7-rc8
+>    4117008    1579350     151680    5848038
+> vmlinux-v6.7-rc8-1-m68k-bitops-force-inlining
+>
+> The next patch offsets that for allyesconfig, but not for atari_defconfig=
+.
+>
+> > Reference: commit 8dd5032d9c54 ("x86/asm/bitops: Force inlining of
+> > test_and_set_bit and friends")
+>
+> Please don't split lines containing tags.
+>
+> > Link: https://git.kernel.org/torvalds/c/8dd5032d9c54
+> >
+> > Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+>
+> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+>
+> Gr{oetje,eeting}s,
+>
+>                         Geert
+>
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m6=
+8k.org
+>
+> In personal conversations with technical people, I call myself a hacker. =
+But
+> when I'm talking to journalists I just say "programmer" or something like=
+ that.
+>                                 -- Linus Torvalds
