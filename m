@@ -1,22 +1,22 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 523282D03D;
-	Tue, 16 Jan 2024 01:08:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F40020B33;
+	Tue, 16 Jan 2024 01:08:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aCqzszs1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFD17C43390;
-	Tue, 16 Jan 2024 01:07:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GLzxMJ+G"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9127AC433F1;
+	Tue, 16 Jan 2024 01:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705367280;
-	bh=Xoyym8SbFaFTJhnzUgEkGRcabuTho3/U89WhI3ZWbn8=;
+	s=k20201202; t=1705367303;
+	bh=x3jxym4lIRpzNoP0ctkBN0XWggj9cHnUcUoNBoXllUY=;
 	h=From:To:Cc:Subject:Date:From;
-	b=aCqzszs19EHPTxNg5ALuU4R1ylvcM39mD0kJdX78ETEsWh/+SzsgtngVG5YcalL6p
-	 TIVgyNlcMGXSkjac3c1EzZPisblOvQtftucgDfgi0ydKqjtB2Q/AvVbulq8BtnXEPr
-	 QcaacK+CEeqE+/9asDCx7wfoAdHoSy9jgtmhD4qmCawo0dFrYtuccz5MvCR8L6sweg
-	 4aT1VqPyyUnEu8FU9ySAMhl9+zQVy83/XQ2MHfPIqklVmIByN6TxVGlJNBC+VeD7vr
-	 VaTtFyp3stnqHTg2FT/fQSI7ffpMIorYrB+pgHp9c0Jgi9P/5NlxaZLzE4OmL1vc8X
-	 OirP4/nxMQo0g==
+	b=GLzxMJ+G5E7xY+4svcvTqmH+l/XrMAz1tFL1W88SDAGbEKHVgaFrHh7tOLfoNRc5L
+	 rtiipZ428hs9gxKXdDquYf0fTYNcL2Vm9z8aW4m8I6k+n4DWz54U5+FYS5AyUAulA6
+	 WjFhg5CelNSIndyQXqA7JfuEYbhZtFlQr0/5zDCsXBkK06albdUZvtleYjfaYdQx0A
+	 tqBZ7RXbe4f20AJe5qyS4ENRTd4TdNpZ30viHnpX0Usf8vF8nLgWUzI09ruMT+bvMS
+	 hK1x5vlEEk8V7ONMaud2IdfEKmL0pbPSse9jeK+KijEYwS13SLj3l9/B57x4erFI7n
+	 B/XF+6M7PAyHA==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -24,13 +24,15 @@ Cc: Linus Walleij <linus.walleij@linaro.org>,
 	Brian Cain <bcain@quicinc.com>,
 	Arnd Bergmann <arnd@arndb.de>,
 	Sasha Levin <sashal@kernel.org>,
+	chenhuacai@kernel.org,
+	david@redhat.com,
+	mpe@ellerman.id.au,
 	guoren@kernel.org,
 	rppt@kernel.org,
-	shorne@gmail.com,
 	linux-hexagon@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 1/9] Hexagon: Make pfn accessors statics inlines
-Date: Mon, 15 Jan 2024 20:07:45 -0500
-Message-ID: <20240116010757.219495-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 1/9] Hexagon: Make pfn accessors statics inlines
+Date: Mon, 15 Jan 2024 20:08:07 -0500
+Message-ID: <20240116010819.219701-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
@@ -40,7 +42,7 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.10.208
+X-stable-base: Linux 5.4.267
 Content-Transfer-Encoding: 8bit
 
 From: Linus Walleij <linus.walleij@linaro.org>
@@ -71,7 +73,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 13 insertions(+), 2 deletions(-)
 
 diff --git a/arch/hexagon/include/asm/page.h b/arch/hexagon/include/asm/page.h
-index 7cbf719c578e..2d8c681c3469 100644
+index ee31f36f48f3..62976e38a963 100644
 --- a/arch/hexagon/include/asm/page.h
 +++ b/arch/hexagon/include/asm/page.h
 @@ -78,6 +78,9 @@ typedef struct page *pgtable_t;
@@ -84,7 +86,7 @@ index 7cbf719c578e..2d8c681c3469 100644
  /*
   * We need a __pa and a __va routine for kernel space.
   * MIPS says they're only used during mem_init.
-@@ -126,8 +129,16 @@ static inline void clear_page(void *page)
+@@ -127,8 +130,16 @@ static inline void clear_page(void *page)
   */
  #define page_to_phys(page)      (page_to_pfn(page) << PAGE_SHIFT)
  
