@@ -1,22 +1,22 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC714125AE;
-	Tue, 16 Jan 2024 01:04:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 930271CD31;
+	Tue, 16 Jan 2024 01:05:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aY19VV8Z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF21AC433F1;
-	Tue, 16 Jan 2024 01:04:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gFzP6wVF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08660C433C7;
+	Tue, 16 Jan 2024 01:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705367086;
+	s=k20201202; t=1705367151;
 	bh=bHmHzXMQuQaQ1dfueZo4EHk2ecWS1Z3I2SB+GQETulY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=aY19VV8ZW3XM84VYSf3RtjRMgnldWlXaBrv/P5yBir1T2GrAsQVi+4Q2nNWrasMpN
-	 AizNTt9Q3svUUbsNQq/v3HAIPbH88OW39mNdj6HNtpTOr/OwJ9Bd4+RyHs3Lkd88Du
-	 sJpkCPUbn+vGf3FJO5syvzj/P/DyV6mdlHFWxf2GycLdcoF1ZTy3HpIepoBrdOBn0e
-	 cFsL78neasMHHN5CHQvkp9ri311jaFY82FWujatc7YXZuV+9gxueZnzKbSf8NhV7ha
-	 2OQE05V6bLQG5x2FzRPuSJ0Z3N7FUtNR/ejKuedyMbwUP0/vKvKDxfsaMHOGESDWjO
-	 rvtNBPdQWBL6A==
+	b=gFzP6wVFRt7fe9T+CN2IhguwcHmlPqvMeiFP9soSOg+zC9oK3M4EfWJJx8ma430Vp
+	 ytNGRVjmj+/S/sF1CmGjk3R/hqUNcFssDDr+ITYP/I95iB98ItnWvmfK4whHtWZp/v
+	 E+Y5b09ydUPG5PgWvN+9ytPFtxk9dXoOLOfiWTDe3/ekF6dz3dHsNpXXE00Bc82VHe
+	 CGdvENAA8D46tN40GBUT7qzQSLbDSDWmezXMWgDTIsJPtuq1aWh9Kx18D7yFfiw7Xw
+	 i5DKl5iEwris05OFXGuVK8p03SI1eAjb/bEKLpnTeP82D8+9h1iloLNpNloQHqWFyo
+	 PqLmixARBnDHg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -24,18 +24,16 @@ Cc: Linus Walleij <linus.walleij@linaro.org>,
 	Brian Cain <bcain@quicinc.com>,
 	Arnd Bergmann <arnd@arndb.de>,
 	Sasha Levin <sashal@kernel.org>,
+	rppt@kernel.org,
 	shorne@gmail.com,
 	guoren@kernel.org,
-	mpe@ellerman.id.au,
-	akpm@linux-foundation.org,
-	rppt@kernel.org,
 	linux-hexagon@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.7 05/21] Hexagon: Make pfn accessors statics inlines
-Date: Mon, 15 Jan 2024 20:03:42 -0500
-Message-ID: <20240116010422.217925-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 04/19] Hexagon: Make pfn accessors statics inlines
+Date: Mon, 15 Jan 2024 20:04:59 -0500
+Message-ID: <20240116010532.218428-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240116010422.217925-1-sashal@kernel.org>
-References: <20240116010422.217925-1-sashal@kernel.org>
+In-Reply-To: <20240116010532.218428-1-sashal@kernel.org>
+References: <20240116010532.218428-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
@@ -44,7 +42,7 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.7
+X-stable-base: Linux 6.6.12
 Content-Transfer-Encoding: 8bit
 
 From: Linus Walleij <linus.walleij@linaro.org>
