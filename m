@@ -1,185 +1,112 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99D7B12E54;
-	Sun,  7 Jan 2024 12:01:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=wanadoo.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-1d4c3393f99so7400865ad.0;
-        Sun, 07 Jan 2024 04:01:47 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704628907; x=1705233707;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+QnGROJ1oWVw3/Pa8uoXPLukkVuGGFCJD+vSnZeWEEA=;
-        b=kZYQqnveL1wwDOGtzVN7svMP1ROQ/FSR5H3nypZSCcH7N+qPEQXwcxymIGxWmMWgb/
-         h5OaOY8++Wgk2MAcoNOm8jA9q906P8Hz9UNdwHFMPk3ZAgB6SVHgznla7JxsID8iu1ih
-         3/d8hjntz1ORkhAzbAg0t00mP9gxr3pnbaxA1vdOfmLwRu3ALFeeItPMdw2KvfuIUDL0
-         ZWsvrj3uQTef7zIwIIf1lmddGMak3lIGy+T3p83AGh6CWKkRMSS/vZz2jC1h2u6/Rwwa
-         9/ExXv8bHTAyftOS1Nob8m8+hLjLBdgz3qGZX5zUg9B6djKTYS9IHVSkoMlcL5zXV3s2
-         LKDw==
-X-Gm-Message-State: AOJu0YwRA2IUtsz9e1kxgwkXPbf7fQdVSk+N1Asc7x+raTuw9fAAZHBA
-	tdD7gN+oY4mvzO+2DSahO5RMpzqgwFPEfhXvyUc=
-X-Google-Smtp-Source: AGHT+IHLPAYIJC36BTu95hJWkiiM7l4wuMzpp++PtD979TuU3xLZ9t8ZJYI6QTGlSxDEqq4T5BatXjsFjWmrrB2CkY0=
-X-Received: by 2002:a17:903:41ce:b0:1d3:ec14:10f0 with SMTP id
- u14-20020a17090341ce00b001d3ec1410f0mr2738441ple.52.1704628906763; Sun, 07
- Jan 2024 04:01:46 -0800 (PST)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC714125AE;
+	Tue, 16 Jan 2024 01:04:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aY19VV8Z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF21AC433F1;
+	Tue, 16 Jan 2024 01:04:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1705367086;
+	bh=bHmHzXMQuQaQ1dfueZo4EHk2ecWS1Z3I2SB+GQETulY=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=aY19VV8ZW3XM84VYSf3RtjRMgnldWlXaBrv/P5yBir1T2GrAsQVi+4Q2nNWrasMpN
+	 AizNTt9Q3svUUbsNQq/v3HAIPbH88OW39mNdj6HNtpTOr/OwJ9Bd4+RyHs3Lkd88Du
+	 sJpkCPUbn+vGf3FJO5syvzj/P/DyV6mdlHFWxf2GycLdcoF1ZTy3HpIepoBrdOBn0e
+	 cFsL78neasMHHN5CHQvkp9ri311jaFY82FWujatc7YXZuV+9gxueZnzKbSf8NhV7ha
+	 2OQE05V6bLQG5x2FzRPuSJ0Z3N7FUtNR/ejKuedyMbwUP0/vKvKDxfsaMHOGESDWjO
+	 rvtNBPdQWBL6A==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Linus Walleij <linus.walleij@linaro.org>,
+	Brian Cain <bcain@quicinc.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Sasha Levin <sashal@kernel.org>,
+	shorne@gmail.com,
+	guoren@kernel.org,
+	mpe@ellerman.id.au,
+	akpm@linux-foundation.org,
+	rppt@kernel.org,
+	linux-hexagon@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.7 05/21] Hexagon: Make pfn accessors statics inlines
+Date: Mon, 15 Jan 2024 20:03:42 -0500
+Message-ID: <20240116010422.217925-5-sashal@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240116010422.217925-1-sashal@kernel.org>
+References: <20240116010422.217925-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20221111081316.30373-1-mailhol.vincent@wanadoo.fr>
- <20231217071250.892867-1-mailhol.vincent@wanadoo.fr> <20231217071250.892867-2-mailhol.vincent@wanadoo.fr>
- <CAMuHMdUvqY4VLDS0mW2VbSzTmef9xt+F3FCpRj5-Mv+KeOqyXg@mail.gmail.com>
-In-Reply-To: <CAMuHMdUvqY4VLDS0mW2VbSzTmef9xt+F3FCpRj5-Mv+KeOqyXg@mail.gmail.com>
-From: Vincent MAILHOL <mailhol.vincent@wanadoo.fr>
-Date: Sun, 7 Jan 2024 21:01:34 +0900
-Message-ID: <CAMZ6RqJyJsucRHnuwj87gC9H9hZm9UwC8vAxEJHEPvM-sY=5DA@mail.gmail.com>
-Subject: Re: [PATCH v3 1/5] m68k/bitops: force inlining of all bitops functions
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, 
-	Yury Norov <yury.norov@gmail.com>, Nick Desaulniers <ndesaulniers@google.com>, 
-	Douglas Anderson <dianders@chromium.org>, Kees Cook <keescook@chromium.org>, 
-	Petr Mladek <pmladek@suse.com>, Randy Dunlap <rdunlap@infradead.org>, 
-	Zhaoyang Huang <zhaoyang.huang@unisoc.com>, Geert Uytterhoeven <geert+renesas@glider.be>, 
-	Marco Elver <elver@google.com>, Brian Cain <bcain@quicinc.com>, 
-	Matthew Wilcox <willy@infradead.org>, "Paul E . McKenney" <paulmck@kernel.org>, linux-hexagon@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.7
+Content-Transfer-Encoding: 8bit
 
-On Tue. 2 janv. 2024 at 19:28, Geert Uytterhoeven <geert@linux-m68k.org> wr=
-ote:
->
-> Hi Vincent,
->
-> Thanks for your patch!
+From: Linus Walleij <linus.walleij@linaro.org>
 
-Thanks for the review and for running the benchmark.
+[ Upstream commit d6e81532b10d8deb2bc30f7b44f09534876893e3 ]
 
-> On Sun, Dec 17, 2023 at 8:13=E2=80=AFAM Vincent Mailhol
-> <mailhol.vincent@wanadoo.fr> wrote:
-> > The inline keyword actually does not guarantee that the compiler will
-> > inline a functions. Whenever the goal is to actually inline a
-> > function, __always_inline should always be preferred instead.
-> >
-> > On an allyesconfig, with GCC 13.2.1, it saves roughly 5 KB.
-> >
-> >   $ size --format=3DGNU vmlinux.before vmlinux.after
-> >         text       data        bss      total filename
-> >     60449738   70975612    2288988  133714338 vmlinux.before
-> >     60446534   70972412    2289596  133708542 vmlinux.after
->
-> With gcc 9.5.0-1ubuntu1~22.04, the figures are completely different
-> (i.e. a size increase):
+Making virt_to_pfn() a static inline taking a strongly typed
+(const void *) makes the contract of a passing a pointer of that
+type to the function explicit and exposes any misuse of the
+macro virt_to_pfn() acting polymorphic and accepting many types
+such as (void *), (unitptr_t) or (unsigned long) as arguments
+without warnings.
 
-Those results are not normal, there should not be such a big
-discrepancy between two versions of the same compiler. I double
-checked everything and found out that I made a mistake when computing
-the figures: not sure what exactly, but at some point, the ASLR seeds
-(or other similar randomization feature) got reset and so, the
-decrease I witnessed was just a "lucky roll".
+For symmetry do the same with pfn_to_virt().
 
-After rerunning the benchmark (making sure to keep every seeds), I got
-similar results as you:
+For compiletime resolution of __pa() we need PAGE_OFFSET which
+was not available to __pa() and resolved by the preprocessor
+wherever __pa() was used. Fix this by explicitly including
+<asm/mem-layout.h> where required, following the pattern of the
+architectures page.h file.
 
-        text       data        bss      total filename
-    60449738   70975356    2288988  133714082
-vmlinux_allyesconfig.before_this_series
-    60446534   70979068    2289596  133715198
-vmlinux_allyesconfig.after_first_patch
-    60429746   70979132    2291676  133700554
-vmlinux_allyesconfig.final_second_patch
+Acked-by: Brian Cain <bcain@quicinc.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/hexagon/include/asm/page.h | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-Note that there are still some kind of randomness on the data segment
-as shown in those other benchmarks I run:
+diff --git a/arch/hexagon/include/asm/page.h b/arch/hexagon/include/asm/page.h
+index 9c03b9965f07..10f1bc07423c 100644
+--- a/arch/hexagon/include/asm/page.h
++++ b/arch/hexagon/include/asm/page.h
+@@ -78,6 +78,9 @@ typedef struct page *pgtable_t;
+ #define __pgd(x)       ((pgd_t) { (x) })
+ #define __pgprot(x)    ((pgprot_t) { (x) })
+ 
++/* Needed for PAGE_OFFSET used in the macro right below */
++#include <asm/mem-layout.h>
++
+ /*
+  * We need a __pa and a __va routine for kernel space.
+  * MIPS says they're only used during mem_init.
+@@ -125,8 +128,16 @@ static inline void clear_page(void *page)
+  */
+ #define page_to_phys(page)      (page_to_pfn(page) << PAGE_SHIFT)
+ 
+-#define virt_to_pfn(kaddr)      (__pa(kaddr) >> PAGE_SHIFT)
+-#define pfn_to_virt(pfn)        __va((pfn) << PAGE_SHIFT)
++static inline unsigned long virt_to_pfn(const void *kaddr)
++{
++	return __pa(kaddr) >> PAGE_SHIFT;
++}
++
++static inline void *pfn_to_virt(unsigned long pfn)
++{
++	return (void *)((unsigned long)__va(pfn) << PAGE_SHIFT);
++}
++
+ 
+ #define page_to_virt(page)	__va(page_to_phys(page))
+ 
+-- 
+2.43.0
 
-        text       data        bss      total filename
-    60449738   70976124    2288988  133714850
-vmlinux_allyesconfig.before_this_series
-    60446534   70980092    2289596  133716222
-vmlinux_allyesconfig.after_first_patch
-    60429746   70979388    2291676  133700810
-vmlinux_allyesconfig.after_second_patch
-
-        text       data        bss      total filename
-    60449738   70975612    2288988  133714338
-vmlinux_allyesconfig.before_this_series
-    60446534   70980348    2289596  133716478
-vmlinux_allyesconfig.after_first_patch
-    60429746   70979900    2291676  133701322
-vmlinux_allyesconfig.after_second_patch
-
-But the error margin is within 1K.
-
-So, in short, I inlined some functions which I shouldn't have. I am
-preparing a v4 in which I will only inline the bit-find functions
-(namely: __ffs(), ffs(), ffz(), __fls(), fls() and fls64()). Here are
-the new figures:
-
-        text       data        bss      total filename
-    60453552   70955485    2288620  133697657
-vmlinux_allyesconfig.before_this_series
-    60450304   70953085    2289260  133692649
-vmlinux_allyesconfig.after_first_patch
-    60433536   70952637    2291340  133677513
-vmlinux_allyesconfig.after_second_patch
-
-N.B. The new figures were after a rebase, so do not try to compare
-with the previous benchmarks. I will send the v4 soon, after I finish
-to update the patch comments and double check things.
-
-Concerning the other functions in bitops.h, there may be some other
-ones worth a __always_inline. But I will narrow the scope of this
-series only to the bit-find function. If a good samaritan wants to
-investigate the other functions, go ahead!
-
-Yours sincerely,
-Vincent Mailhol
-
-
-
-
-> allyesconfig:
->
->       text       data        bss      total filename
->   58878600   72415994    2283652  133578246 vmlinux.before
->   58882250   72419706    2284004  133585960 vmlinux.after
->
-> atari_defconfig:
->
->       text       data        bss      total filename
->    4112060    1579862     151680    5843602 vmlinux-v6.7-rc8
->    4117008    1579350     151680    5848038
-> vmlinux-v6.7-rc8-1-m68k-bitops-force-inlining
->
-> The next patch offsets that for allyesconfig, but not for atari_defconfig=
-.
->
-> > Reference: commit 8dd5032d9c54 ("x86/asm/bitops: Force inlining of
-> > test_and_set_bit and friends")
->
-> Please don't split lines containing tags.
->
-> > Link: https://git.kernel.org/torvalds/c/8dd5032d9c54
-> >
-> > Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
->
-> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
->
-> Gr{oetje,eeting}s,
->
->                         Geert
->
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m6=
-8k.org
->
-> In personal conversations with technical people, I call myself a hacker. =
-But
-> when I'm talking to journalists I just say "programmer" or something like=
- that.
->                                 -- Linus Torvalds
