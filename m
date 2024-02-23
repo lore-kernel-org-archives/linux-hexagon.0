@@ -1,143 +1,100 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB1A5F9DF;
-	Fri, 16 Feb 2024 02:03:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C77E5C911;
+	Fri, 23 Feb 2024 11:26:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708049034; cv=none; b=dKiZrzgf9hUPY3cgVcOeXGEi39AJWXF5YSXFKwciyL8Scn3q9hWtrjio7/mmuBAqvj2Ic6EH+glCL9dabk2Soy5rd6O1D6jOgCcZp6L43B0Xjt16ViBD2zblGY4TsjvySYkudF9BwWyDAmeOnSKHdxoTcbaHu/sDC46it4fgSQA=
+	t=1708687583; cv=none; b=DFmwvEOIzqSrOaUSgGMJPfE+jMYPFJ3lOKKWUwxHAvQ2wPfa1CsWctgsBWRac8cyuIytoENgXKiUHljC7nFMP4N5pRRtpsnugq0mWq8PSWx84H5EASb2VWgejBxXoAmPF9li7bBIw2VV3EE95AoWw7R/PjTOu0LF47SJZdjh+tY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708049034; c=relaxed/simple;
-	bh=zZaD1DQycFB65TM7xKRjoMdSvkrFobBCViMK6WOS2lQ=;
+	s=arc-20240116; t=1708687583; c=relaxed/simple;
+	bh=ji5uTzd+emC2HMjDnotwfaplzIY/lJhoKEGU/JoWfzQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Xg8YpW2V4OAQIE8Z/BkgFq3i+FT2DTboQU9Y5+V4aEcHqGrhHenivmRMYWer8qARyFS3hykSAFrBzCHpIx7YdCfULewhD9ivSt3s3r6OkJG3d9YglLHucnKADinVIiQeXIbFSLnVTAON9zGIIIntNjW8Xg9SgBN8OFYSPxiXE5I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mIXCHqQz; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=YxcUxSzlqcnnkuH+56tC9RIf+8AozNZ614qKKHkX9rFz5uGxFlTLFGknk/0m1r3GCU/mYvoqEuEIovs3G/BsoMscnQ9K3gjRrVmgXUz00p27zEV1zZ8KHAYheU9u6bdewTebom2J8ZXlalkLEg2S8uTstW8Do5aboVzLgAE8pvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UuFagqGZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mIXCHqQz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 164F3C43390;
-	Fri, 16 Feb 2024 02:03:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UuFagqGZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEA34C43399;
+	Fri, 23 Feb 2024 11:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1708049034;
-	bh=zZaD1DQycFB65TM7xKRjoMdSvkrFobBCViMK6WOS2lQ=;
+	s=k20201202; t=1708687582;
+	bh=ji5uTzd+emC2HMjDnotwfaplzIY/lJhoKEGU/JoWfzQ=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=mIXCHqQzDxqn0Um7LrIFtGQJjtjvXMydV+W69oaujBbBHxHscTErAb6Oh3avrOt6K
-	 Gma3SCrWLN6EhwULeQatyh/DHuzE785Y8TmgDuxg35LCKsDoXuAkst3Hh6aQQfdXQs
-	 Gb5NvaqjUx/Vr3QzXBHjh/V/zo62w+y0SoXZVxZuOdWfS0I9FYGKzkTGQXjO18KWh7
-	 j8iF2HhpAQUhR6lnLNOWU/Lnngg4eHHX0PYFyZe2Zmlb8IZV+EzRMmOQrETJ8xkBdu
-	 A+UoHLG1o7oF3lm63uschL9pT20ko4dTWfKhnbeb4w8mYvpA9n0F4PiHyBkIVCIVhb
-	 bwJ8DwBXxKGpg==
-Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-2d090c83d45so20109951fa.3;
-        Thu, 15 Feb 2024 18:03:53 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCXC4M4FE0VNrbVhAglpnvXiEFAiqQ2GAgUIzM2uVRO4kNYdzlQ3j8wMQdrIRpkEXf3bOBq+emXTB259I8bv9/Bfd6azbADrjJAVRlSuCkDR6fe3sckw2KHstlujOoT6vFYK9SGxSZlOSqzNlw==
-X-Gm-Message-State: AOJu0YyZ50sqyl2XuqnI51U70D3e+via8UP/ekAf1LAf/+NQIIZWq371
-	aG8zUFdv60i8yfpCLnIgJAnfZdjH5b1B6X5IntO5x+NySUVov2FRGqIrNL569cu8oIWWIKHuFSg
-	ZZPCXmnxAa8yXSNxLDiaiDfgCHKs=
-X-Google-Smtp-Source: AGHT+IHQuLKl/l9vBwoEumGHJNvCqyy1jzTcMZYaf4it0rVhXjn2KAy6TtnlKgFPS8f+stMJVplBWHyTYk8uI6rd1to=
-X-Received: by 2002:ac2:5478:0:b0:511:6f43:b5d with SMTP id
- e24-20020ac25478000000b005116f430b5dmr2423134lfn.17.1708049032560; Thu, 15
- Feb 2024 18:03:52 -0800 (PST)
+	b=UuFagqGZtViV3iPl3qBCXD+2UPA/O44aOk65OgbuW5jyv/U9QQr+sGZtFPzpfWLbQ
+	 tREm1+Y7Aye8jyCKSid0Xy64AmhFYAjSrRggV2vnJuvz163mHXR68yq3HUttIWHq71
+	 cPNj/b29DGzKAEDyYHcGxDMhAtW7Za62ZqAyOV9PDfvpMQzf6GIOCI4KDDzcJ0bK/Z
+	 KRpmkIc4BIEPk2Wo4V7p5KFtpGnFFoszIBvlTRLbI8A6ezTxz+N6VG/9adQovsuNLm
+	 EP45PK/9pU1MdIqwczRjlIXASPmhqzowcIgNxyZPawbso8e3V8VTt+27bBF4216AV+
+	 OwIt85pim3m4A==
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-563c0f13cabso329258a12.3;
+        Fri, 23 Feb 2024 03:26:22 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCWrbMQ1CZ14kWMu2HIphIQTPcTZOXbLodFm/BRakIwTpUQHvmG2qBdmD4tBlFFCLX2eXgJrjz8b01UcbPxiR3yj6jgIpdTdXvXZbcTsrPJx3L6nouD7NF72Y9miE/QG3Ogs2/STzajoLZBuGcAGp/So1s5eiNWHtRnrR6HZHhcp7OYlWV59IMguL4N7Jyy1n66xRYaEK0f5j4ebJ6oR1UvCmE4dWvrVzZ4FIDLQbpNfp8CgO+yGSypI7ycfCKF1seHJzs0=
+X-Gm-Message-State: AOJu0YwjTV+nMFEUIipf1MvHt0YxcHpr7ZKYVdZm4ge9diEM8nGYIjY1
+	iMdrBYjdS0gfvk3bVjjFPwEWVtSMz391h6eYXI7Z/0+fSRAS98jO7jt7ifHJZfj/fdCYxVlBRty
+	rLlC8u6Fns1CYXuxHh8PNppRst3U=
+X-Google-Smtp-Source: AGHT+IE9uvJvCn7L0PhyRqMkyMRsnG/MzuLImMvhZ8F8J7qYEpE68QRfN2+IQzVgaRNo6pzxYl7OuOd7GkbSaCQ8b9g=
+X-Received: by 2002:aa7:d316:0:b0:565:85c8:2352 with SMTP id
+ p22-20020aa7d316000000b0056585c82352mr191517edq.7.1708687581160; Fri, 23 Feb
+ 2024 03:26:21 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240215140819.1910705-1-masahiroy@kernel.org> <CH3PR02MB1024753D597A02B754FEE1D85B84D2@CH3PR02MB10247.namprd02.prod.outlook.com>
-In-Reply-To: <CH3PR02MB1024753D597A02B754FEE1D85B84D2@CH3PR02MB10247.namprd02.prod.outlook.com>
-From: Masahiro Yamada <masahiroy@kernel.org>
-Date: Fri, 16 Feb 2024 11:03:16 +0900
-X-Gmail-Original-Message-ID: <CAK7LNATt+0nBzO+UBOZhdkjmyYyzgU+VfG4eNxMCYvFmB-z2Sw@mail.gmail.com>
-Message-ID: <CAK7LNATt+0nBzO+UBOZhdkjmyYyzgU+VfG4eNxMCYvFmB-z2Sw@mail.gmail.com>
-Subject: Re: [PATCH] hexagon: select GENERIC_IRQ_PROBE instead of redefining it
-To: Brian Cain <bcain@quicinc.com>
-Cc: "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>, 
-	"linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20240131055159.2506-1-yan.y.zhao@intel.com> <20240131055740.2579-1-yan.y.zhao@intel.com>
+In-Reply-To: <20240131055740.2579-1-yan.y.zhao@intel.com>
+From: Guo Ren <guoren@kernel.org>
+Date: Fri, 23 Feb 2024 19:26:09 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTTEaTnUCJhyU-bw=em_fo9ZW6bK=eaahUVsHcXuwaM8rw@mail.gmail.com>
+Message-ID: <CAJF2gTTEaTnUCJhyU-bw=em_fo9ZW6bK=eaahUVsHcXuwaM8rw@mail.gmail.com>
+Subject: Re: [PATCH 1/4] asm-generic/page.h: apply page shift to PFN instead
+ of VA in pfn_to_virt
+To: Yan Zhao <yan.y.zhao@intel.com>
+Cc: arnd@arndb.de, linus.walleij@linaro.org, bcain@quicinc.com, 
+	jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, 
+	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 16, 2024 at 4:12=E2=80=AFAM Brian Cain <bcain@quicinc.com> wrot=
-e:
+On Wed, Jan 31, 2024 at 2:27=E2=80=AFPM Yan Zhao <yan.y.zhao@intel.com> wro=
+te:
 >
+> Apply the page shift to PFN to get physical address for final VA.
+> The macro __va should take physical address instead of PFN as input.
 >
+> Fixes: 2d78057f0dd4 ("asm-generic/page.h: Make pfn accessors static inlin=
+es")
+> Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
+> ---
+>  include/asm-generic/page.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> > -----Original Message-----
-> > From: Masahiro Yamada <masahiroy@kernel.org>
-> > Sent: Thursday, February 15, 2024 8:08 AM
-> > To: linux-kbuild@vger.kernel.org
-> > Cc: Masahiro Yamada <masahiroy@kernel.org>; Brian Cain
-> > <bcain@quicinc.com>; linux-hexagon@vger.kernel.org; linux-
-> > kernel@vger.kernel.org
-> > Subject: [PATCH] hexagon: select GENERIC_IRQ_PROBE instead of redefinin=
-g it
-> >
-> > WARNING: This email originated from outside of Qualcomm. Please be wary=
- of
-> > any links or attachments, and do not enable macros.
-> >
-> > Select GENERIC_IRQ_PROBE, as the other architectures do.
-> >
-> > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> > ---
-> >
-> >  arch/hexagon/Kconfig | 4 +---
-> >  1 file changed, 1 insertion(+), 3 deletions(-)
-> >
-> > diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-> > index e922026fef09..a8dd2501f39f 100644
-> > --- a/arch/hexagon/Kconfig
-> > +++ b/arch/hexagon/Kconfig
-> > @@ -21,6 +21,7 @@ config HEXAGON
-> >         select HAVE_PERF_EVENTS
-> >         # GENERIC_ALLOCATOR is used by dma_alloc_coherent()
-> >         select GENERIC_ALLOCATOR
-> > +       select GENERIC_IRQ_PROBE
-> >         select GENERIC_IRQ_SHOW
-> >         select HAVE_ARCH_KGDB
-> >         select HAVE_ARCH_TRACEHOOK
-> > @@ -60,9 +61,6 @@ config GENERIC_CSUM
-> >  #
-> >  # Use the generic interrupt handling code in kernel/irq/:
-> >  #
-> > -config GENERIC_IRQ_PROBE
-> > -       def_bool y
-> > -
-> >  config GENERIC_HWEIGHT
-> >         def_bool y
-> >
-> > --
-> > 2.40.1
+> diff --git a/include/asm-generic/page.h b/include/asm-generic/page.h
+> index 9773582fd96e..4f1265207b9a 100644
+> --- a/include/asm-generic/page.h
+> +++ b/include/asm-generic/page.h
+> @@ -81,7 +81,7 @@ static inline unsigned long virt_to_pfn(const void *kad=
+dr)
+>  #define virt_to_pfn virt_to_pfn
+>  static inline void *pfn_to_virt(unsigned long pfn)
+>  {
+> -       return __va(pfn) << PAGE_SHIFT;
+> +       return __va(pfn << PAGE_SHIFT);
+Oh, that's a terrible bug; Thx for fixing it.
+
+Reviewed-by: Guo Ren <guoren@kernel.org>
+
+>  }
+>  #define pfn_to_virt pfn_to_virt
 >
-> Acked-by: Brian Cain <bcain@quicinc.com>
+> --
+> 2.17.1
 >
-
-
-
-Thanks for the ack.
-
-
-
-
-I will also delete the comment lines above:
-
-#
-# Use the generic interrupt handling code in kernel/irq/:
-#
-
-
-
-
-
-BTW, the reason why I submitted this to linux-kbuild ML
-is I did not see any hexagon pull requests
-in the past few years.
-
-(I am doing the same for sparc, alpha as well)
-
-
-
 
 
 --=20
 Best Regards
-Masahiro Yamada
+ Guo Ren
