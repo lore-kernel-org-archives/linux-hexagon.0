@@ -1,97 +1,95 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id A63562C198;
-	Fri,  8 Mar 2024 16:28:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1FD1A32;
+	Wed, 20 Mar 2024 00:37:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709915314; cv=none; b=dGNoNm+Fb2RVz2shwpsXDhrYqb1eBDOalIi9U7cOQkQxGpDmOc6rETVC5NeBBfcOQNVw2lDAPKq2czVxxq7S4poDqoykpZ6FqtJCDv5jlG/a2hiO/Q5G4ldnoyJaf7FUPkzYRoNGPKrUBAj/Ich5HQUDaz0feyVHEHM+jiiWsx4=
+	t=1710895074; cv=none; b=ufXcPva+KerS0QstXdOF26GnybgnswU1maGbkQuz/+srxDjce2xVLfC8G8hSwov/bsYIaHZiYlZBTpC/RtpDUzECKzdCCQdRryKsmRJ/cXv/9V6Gh2hZncq2ysmO/M/MIXqbJmHp5lK4rIJRjjJW81kDLFhyB2XNaJlWUnvXtuA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709915314; c=relaxed/simple;
-	bh=9j/NHJuOnCijcSwAMnGxtR70JgvZ3zyScIi+TGHHdhc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EZ0BKZg9HeENGwvy/UPk8m6UlPIZHSqbwbUOX/3nt9fQww3uRmh7pS3t2Jk6Zc2nufm95HSVDytp1URYNcz+6j4QRXt7FB0Rzp82qxEcIuIwlZGJ4RwXfOtJO2OscYfBXkaponLlDSddEafECXOFsTBb9Q8vXUqaLswhmEK+tRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 86262C15;
-	Fri,  8 Mar 2024 08:29:08 -0800 (PST)
-Received: from [10.1.196.72] (e119884-lin.cambridge.arm.com [10.1.196.72])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F2D0F3F73F;
-	Fri,  8 Mar 2024 08:28:25 -0800 (PST)
-Message-ID: <5b2d7341-553d-42f0-977b-404f2da411e9@arm.com>
-Date: Fri, 8 Mar 2024 16:28:23 +0000
+	s=arc-20240116; t=1710895074; c=relaxed/simple;
+	bh=H5PLorY6Ln0claIexaNlOnDQb1/MD6u9Cfxdq4YBk4g=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=sjdj+5Rn680c0DcJPLVOHtI6W0/wGQiihw7MLqredST4RDIqaHUelc8/MLRGcT8PuG0bkAUf8jVPj1AvsL722aTtlDrz8wLNts2L8PQu9JeihRVpMzoH5E0kXsOSJ7ljOhEZi8+c8XMFJKIDVjVAPhsB8cp6Y657NiV+02zVZOk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ka1sC+6a; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ka1sC+6a"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EAF7C433F1;
+	Wed, 20 Mar 2024 00:37:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1710895074;
+	bh=H5PLorY6Ln0claIexaNlOnDQb1/MD6u9Cfxdq4YBk4g=;
+	h=From:Date:Subject:To:Cc:From;
+	b=Ka1sC+6a7uyb7+Ow9StGXtuG0370Lf55eX7kC7fEzCN+KIHfNRe9oTjCK7HXSdPCx
+	 ZH5pcBQszzqBXWCdnM3xuFUIJ52XIFYc+ROhO6he9e+EqT4j3hRf9u/BisgQqPq38J
+	 nq4R5/+UB7UzE2edwxuf3pe9Tgl0/5e+kgkbch/5OzmxvzAlychGgH9hq+gMUwy10b
+	 FkOysl1OywhTpmFeklZDw5iWOXD2TSEFFQzOeMfBMlSyj/HsIzx6M7F7d292dbfgJX
+	 +NY6Ej8ZdD2o05ed+Xsxu24ZxYumUOECxPpBYIUg4If8RV+TGPkMYt0vzD6fy/qhbz
+	 qKxUjiDaSFIaw==
+From: Nathan Chancellor <nathan@kernel.org>
+Date: Tue, 19 Mar 2024 17:37:46 -0700
+Subject: [PATCH] hexagon: vmlinux.lds.S: Handle attributes section
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [v2 PATCH 0/3] arch: mm, vdso: consolidate PAGE_SIZE definition
-To: Arnd Bergmann <arnd@kernel.org>,
- Anna-Maria Behnsen <anna-maria@linutronix.de>,
- Thomas Gleixner <tglx@linutronix.de>, Kees Cook <keescook@chromium.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>,
- Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>,
- Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
- Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller
- <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Palmer Dabbelt <palmer@dabbelt.com>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Andreas Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>,
- x86@kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
- Andy Lutomirski <luto@kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>,
- Kieran Bingham <kbingham@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
- linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-um@lists.infradead.org
-References: <20240306141453.3900574-1-arnd@kernel.org>
-Content-Language: en-US
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
-In-Reply-To: <20240306141453.3900574-1-arnd@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20240319-hexagon-handle-attributes-section-vmlinux-lds-s-v1-1-59855dab8872@kernel.org>
+X-B4-Tracking: v=1; b=H4sIANkv+mUC/x2NwQrDIBBEfyXsuQtqhGB/pfRgdJMsWFPUBCHk3
+ 7v0+GZ4MxdUKkwVnsMFhU6uvGcB/RggbD6vhByFwShj1agdbtT9umeUMiZC31rh+WhUsVJoYuP
+ 5SZyPjilKhsZrO2s7ORcUyOq30ML9//h63/cPfZ1W8IEAAAA=
+To: akpm@linux-foundation.org, bcain@quicinc.com
+Cc: ndesaulniers@google.com, morbo@google.com, justinstitt@google.com, 
+ linux-hexagon@vger.kernel.org, llvm@lists.linux.dev, 
+ patches@lists.linux.dev, stable@vger.kernel.org, 
+ Nathan Chancellor <nathan@kernel.org>
+X-Mailer: b4 0.14-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1276; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=H5PLorY6Ln0claIexaNlOnDQb1/MD6u9Cfxdq4YBk4g=;
+ b=owGbwMvMwCUmm602sfCA1DTG02pJDKm/9B9qsb+p+SRtGH/n8z8rPsHpTIs9dQSYs5QechR1y
+ JxwijzWUcrCIMbFICumyFL9WPW4oeGcs4w3Tk2CmcPKBDKEgYtTACZi+ZThf46n9RW10IRX21T2
+ v3um8tm76yHLDVWnjs3ffNgFs7tf7GD4KxoWdrBDi1s1r25pW7GwhUTWcm6mlR+5T5/b/OSPwuQ
+ pLAA=
+X-Developer-Key: i=nathan@kernel.org; a=openpgp;
+ fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 
+After the linked LLVM change, the build fails with
+CONFIG_LD_ORPHAN_WARN_LEVEL="error", which happens with allmodconfig:
 
+  ld.lld: error: vmlinux.a(init/main.o):(.hexagon.attributes) is being placed in '.hexagon.attributes'
 
-On 06/03/2024 14:14, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> Naresh noticed that the newly added usage of the PAGE_SIZE macro in
-> include/vdso/datapage.h introduced a build regression. I had an older
-> patch that I revived to have this defined through Kconfig rather than
-> through including asm/page.h, which is not allowed in vdso code.
-> 
-> The vdso patch series now has a temporary workaround, but I still want to
-> get this into v6.9 so we can place the hack with CONFIG_PAGE_SIZE
-> in the vdso.
-> 
-> I've applied this to the asm-generic tree already, please let me know if
-> there are still remaining issues. It's really close to the merge window
-> already, so I'd probably give this a few more days before I send a pull
-> request, or defer it to v6.10 if anything goes wrong.
-> 
-> Sorry for the delay, I was still waiting to resolve the m68k question,
-> but there were no further replies in the end, so I kept my original
-> version.
-> 
-> Changes from v1:
-> 
->  - improve Kconfig help texts
->  - remove an extraneous line in hexagon
-> 
->       Arnd
->
+Handle the attributes section in a similar manner as arm and riscv by
+adding it after the primary ELF_DETAILS grouping in vmlinux.lds.S, which
+fixes the error.
 
-Thanks Arnd, looks good to me.
+Cc: stable@vger.kernel.org
+Fixes: 113616ec5b64 ("hexagon: select ARCH_WANT_LD_ORPHAN_WARN")
+Link: https://github.com/llvm/llvm-project/commit/31f4b329c8234fab9afa59494d7f8bdaeaefeaad
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ arch/hexagon/kernel/vmlinux.lds.S | 1 +
+ 1 file changed, 1 insertion(+)
 
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
+index 1140051a0c45..1150b77fa281 100644
+--- a/arch/hexagon/kernel/vmlinux.lds.S
++++ b/arch/hexagon/kernel/vmlinux.lds.S
+@@ -63,6 +63,7 @@ SECTIONS
+ 	STABS_DEBUG
+ 	DWARF_DEBUG
+ 	ELF_DETAILS
++	.hexagon.attributes 0 : { *(.hexagon.attributes) }
+ 
+ 	DISCARDS
+ }
+
+---
+base-commit: e8f897f4afef0031fe618a8e94127a0934896aba
+change-id: 20240319-hexagon-handle-attributes-section-vmlinux-lds-s-2a14b14799c0
+
+Best regards,
+-- 
+Nathan Chancellor <nathan@kernel.org>
+
