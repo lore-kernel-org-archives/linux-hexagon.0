@@ -1,159 +1,164 @@
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+Received: from fout8-smtp.messagingengine.com (fout8-smtp.messagingengine.com [103.168.172.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AAEE1B806;
-	Tue, 25 Jun 2024 06:12:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.133.4.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BF9822EF2;
+	Thu, 27 Jun 2024 15:48:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719295934; cv=none; b=oony8bf1leb2i0a+rNk6DQBSKtXGz5DNI6IYKC2ur6Z0/jWqci1KKN5JPWas++U85XX9rmVPepcek2j2AmnaHe8cN4yYTlriplgQJwJ8yat6h5Uul+K2Rb+kyl2n954h0/hzHOkvXqCxJGAfqD5TUzISTEMLygF8IyIFn00caSk=
+	t=1719503289; cv=none; b=cuhQsLBBgSY+8mtZZp4pDo3LIZEt5qMpEtkr/5NQoF44C3zWLgO8vw86TXzsXDEHWFGLcgGkcbp4tAsUU7p21q9gv3j+ATHY+HQs4QJjDSRTMneNlqxYYgJqBbAksl9r92rIxBB7vJR00CnM+Onho50Cr06MmZJz30FVvmkNXF0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719295934; c=relaxed/simple;
-	bh=A9l5QJ5wVUxN0j1TWgVqhhHFCdASWZMj33PGqLt6VA0=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=b4nabD8O1g8vM98AvMhvOhz9h+88q3ljAqTLSNGcMKUVfZvwrT25sAMFwvZwokWMEEwu5NHB8R3oMFQUWmMg+4WqsLCLCEn3ELvLin/syKK1hX3DLGjwCByhaavGQqf0BCBl/tyofMvFe5XU4qFkW5Z2uOzpZxy5SDfGe8tRDLU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de; spf=pass smtp.mailfrom=zedat.fu-berlin.de; dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b=kMKIkUXC; arc=none smtp.client-ip=130.133.4.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zedat.fu-berlin.de
+	s=arc-20240116; t=1719503289; c=relaxed/simple;
+	bh=mgnSZbv9s1UDrPgwquXpFaPaJbetPkHMpZpbhSy4sdQ=;
+	h=MIME-Version:Message-Id:Date:From:To:Cc:Subject:Content-Type; b=oSVNr7q9tDVk9iBtX3D0N+IldT75RZ39XfTjs8KmX0uLtT3g4e04hykEIrqQAod6ZtCFYFGayOQlj+bXymkJw2suUq3xLN7Qus6UjklxrNI/iQO+rRtGVJ7l+9kkFZMWtCJdD8vUCXNHORv+U2XdjTLReK90w3owpeni+HFQovM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=xt9vYmew; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YVOA5dyh; arc=none smtp.client-ip=103.168.172.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b="kMKIkUXC"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=fu-berlin.de; s=fub01; h=MIME-Version:Content-Transfer-Encoding:
-	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=QR3y2Y/czPDzz8uhrOTX+qZKGKnv9qtlOLRYnVuIPwY=; t=1719295930; x=1719900730; 
-	b=kMKIkUXCpW4k/lh4bfIHLQJ7yXaQaua42W5My0YpiNHiilmaG69pdb5IiE9StEvH36UYTlg2wfF
-	Tdb/CPgfLOpILqYOWYZS7k0EvxHiB4Yz6K+AIaa5OtXhE9YR5RjGJ4STuCmmYTd8HRVm+pACcRawL
-	EVS4LdZZkx88lnlVGO7hwGqOdh0gF+Kg22Ipn2MdidppsNRFw/yqNvlnXtamDkZEYlONN/1b8Vl0s
-	oPBAMYWW7go097qgb9r16qmHKOvCsm2PLjS56KL1M/z+bU8T/eKUNkYZNAKl9ItLFseIrud1TmZ9t
-	Ci3ZLg7RBgLYlLuJny8/YueTY14197NeyvAA==;
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.97)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1sLzPJ-00000002pcY-2WGY; Tue, 25 Jun 2024 08:11:58 +0200
-Received: from p5b13a475.dip0.t-ipconnect.de ([91.19.164.117] helo=[192.168.178.20])
-          by inpost2.zedat.fu-berlin.de (Exim 4.97)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1sLzPJ-00000001jTk-3HF5; Tue, 25 Jun 2024 08:11:57 +0200
-Message-ID: <b7e20a2dbf5bad8cae0227644b2f78531dd6ef5a.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH v2 08/13] sh: rework sync_file_range ABI
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To: Arnd Bergmann <arnd@kernel.org>, linux-arch@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Bogendoerfer
- <tsbogend@alpha.franken.de>, linux-mips@vger.kernel.org, Helge Deller
- <deller@gmx.de>, linux-parisc@vger.kernel.org, "David S. Miller"
- <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
- sparclinux@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Nicholas
- Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
- "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
- linuxppc-dev@lists.ozlabs.org, Brian Cain <bcain@quicinc.com>,
- linux-hexagon@vger.kernel.org, Guo Ren <guoren@kernel.org>, 
- linux-csky@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
- linux-s390@vger.kernel.org, Rich Felker <dalias@libc.org>, 
- linux-sh@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Alexander Viro
- <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, 
- linux-fsdevel@vger.kernel.org, libc-alpha@sourceware.org, 
- musl@lists.openwall.com, stable@vger.kernel.org
-Date: Tue, 25 Jun 2024 08:11:56 +0200
-In-Reply-To: <20240624163707.299494-9-arnd@kernel.org>
-References: <20240624163707.299494-1-arnd@kernel.org>
-	 <20240624163707.299494-9-arnd@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.2 
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="xt9vYmew";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YVOA5dyh"
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+	by mailfout.nyi.internal (Postfix) with ESMTP id 8F2CE1380123;
+	Thu, 27 Jun 2024 11:48:06 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+  by compute5.internal (MEProxy); Thu, 27 Jun 2024 11:48:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:message-id:mime-version:reply-to:subject:subject:to:to; s=fm1;
+	 t=1719503286; x=1719589686; bh=RXNn8CughpYiNE0XVk1z0mrQSBSu7ZpL
+	KF+Sxmfz0CU=; b=xt9vYmewSr+NwSDUc+2CrGcP6bPKEmWaYer2QYQd56mIKAVn
+	OxFCZJS0ycsqOEFNPQ/IJd0A1YqqLqPNSADmscRvFnS53/tbI1+L7CjhBXxGjzhw
+	THk4gKXAoQ1+MymvsO6iCoutR98fl4XllsYzvlGnAd2kmpTjNkH5KnBddCNKDYLY
+	beuiPARE+A588jFxyzb4+qNbNfYhk6j2+nKMReuEtJ40nUMQey3NDC4S2OLPEAl4
+	WzBU1SNqYOC1g82kpTA57vNxR41anVee33qiSh0d/hs1VoLRIm9vVUX1ToHM2jQW
+	rZrZWdtFmzG0g7ydHMv+NuH6BQLUi/JzvT3fQg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:message-id
+	:mime-version:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+	1719503286; x=1719589686; bh=RXNn8CughpYiNE0XVk1z0mrQSBSu7ZpLKF+
+	Sxmfz0CU=; b=YVOA5dyhSCrVm//0hOmdTknULSD6RPRVKQjm+6txFYH2olLmNrQ
+	6tXpXxGNWg68lwkHmSErIE+OozGSpd4RvqZHJopjUpwSBY2YqKyjzVyNt7O/NsPA
+	sGHnjF1D1ZpV1uDUHH9eTj8TAe4Fv7FpywWM0d27u9r/NNGGbe6cqxvgQc7m+vWD
+	sWuslLsxcjNE5Y5PJFTEsrSH39UDYTWdI/fPqudvZl5fCVV3bBcspNrkKSYShxeZ
+	AHhcffU/uvgjD0FXoM5AZg2ewdVyQ6JQOoqPKC5Rh9+ZdaYEA7UEawnmeOy88hkf
+	Bi1sJGJFlOiB05ThGWpa/L5d7gouyUtxKRQ==
+X-ME-Sender: <xms:tol9ZkqGq6cd9_2Tg1g6LzY7UKwAiLDD28T6qTso1B-IDkhG6bdqzQ>
+    <xme:tol9ZqrF3L4qbsb0Sf7WjgfmS7lyhhG6PiwaYGAs2H-PfMPDL_-lhbNLbuymBqYwZ
+    aZxWgYZ4gzGPCHV4NU>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrtdeggdelgecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhnugcu
+    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
+    hnpeeffeeuhfekjeevtddvtdelledttddtjeegvdfhtdduvdfhueekudeihfejtefgieen
+    ucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:tol9ZpM9rzkYHDkx1M6X3OfNI_3ikYsicE4trIKleiUJ1khDevYL5A>
+    <xmx:tol9Zr61VoNNWVA0Q5UGt62pVtyCqFjnpQ-H6tAQ1lFEnLnDhFfYHQ>
+    <xmx:tol9Zj7an15US46HuBwzI1smRuKExv4ERCHg3YVtkig_5te4neAc5Q>
+    <xmx:tol9Zrg8Ml5nJeftkhqBNa3d6wpSBuLFa41K5XAyiUvvFchqYx--yg>
+    <xmx:tol9ZtuwREKpO17UDq7Xg-BdX-mcekpDWyqEcU7UnMDTybcRRzXdvZqk>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+	id 385DFB6008D; Thu, 27 Jun 2024 11:48:06 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.11.0-alpha0-538-g1508afaa2-fm-20240616.001-g1508afaa
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-ZEDAT-Hint: PO
+Message-Id: <cdf46f76-ee89-4c20-afd8-94a629d06e70@app.fastmail.com>
+Date: Thu, 27 Jun 2024 17:47:32 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Linus Torvalds" <torvalds@linux-foundation.org>
+Cc: Linux-Arch <linux-arch@vger.kernel.org>, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-sh@vger.kernel.org,
+ "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+ linux-hexagon@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] asm-generic fixes for 6.10
+Content-Type: text/plain
 
-On Mon, 2024-06-24 at 18:37 +0200, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
->=20
-> The unusual function calling conventions on SuperH ended up causing
-> sync_file_range to have the wrong argument order, with the 'flags'
-> argument getting sorted before 'nbytes' by the compiler.
->=20
-> In userspace, I found that musl, glibc, uclibc and strace all expect the
-> normal calling conventions with 'nbytes' last, so changing the kernel
-> to match them should make all of those work.
->=20
-> In order to be able to also fix libc implementations to work with existin=
-g
-> kernels, they need to be able to tell which ABI is used. An easy way
-> to do this is to add yet another system call using the sync_file_range2
-> ABI that works the same on all architectures.
->=20
-> Old user binaries can now work on new kernels, and new binaries can
-> try the new sync_file_range2() to work with new kernels or fall back
-> to the old sync_file_range() version if that doesn't exist.
->=20
-> Cc: stable@vger.kernel.org
-> Fixes: 75c92acdd5b1 ("sh: Wire up new syscalls.")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  arch/sh/kernel/sys_sh32.c           | 11 +++++++++++
->  arch/sh/kernel/syscalls/syscall.tbl |  3 ++-
->  2 files changed, 13 insertions(+), 1 deletion(-)
->=20
-> diff --git a/arch/sh/kernel/sys_sh32.c b/arch/sh/kernel/sys_sh32.c
-> index 9dca568509a5..d6f4afcb0e87 100644
-> --- a/arch/sh/kernel/sys_sh32.c
-> +++ b/arch/sh/kernel/sys_sh32.c
-> @@ -59,3 +59,14 @@ asmlinkage int sys_fadvise64_64_wrapper(int fd, u32 of=
-fset0, u32 offset1,
->  				 (u64)len0 << 32 | len1, advice);
->  #endif
->  }
-> +
-> +/*
-> + * swap the arguments the way that libc wants them instead of
-> + * moving flags ahead of the 64-bit nbytes argument
-> + */
-> +SYSCALL_DEFINE6(sh_sync_file_range6, int, fd, SC_ARG64(offset),
-> +                SC_ARG64(nbytes), unsigned int, flags)
-> +{
-> +        return ksys_sync_file_range(fd, SC_VAL64(loff_t, offset),
-> +                                    SC_VAL64(loff_t, nbytes), flags);
-> +}
-> diff --git a/arch/sh/kernel/syscalls/syscall.tbl b/arch/sh/kernel/syscall=
-s/syscall.tbl
-> index bbf83a2db986..c55fd7696d40 100644
-> --- a/arch/sh/kernel/syscalls/syscall.tbl
-> +++ b/arch/sh/kernel/syscalls/syscall.tbl
-> @@ -321,7 +321,7 @@
->  311	common	set_robust_list			sys_set_robust_list
->  312	common	get_robust_list			sys_get_robust_list
->  313	common	splice				sys_splice
-> -314	common	sync_file_range			sys_sync_file_range
-> +314	common	sync_file_range			sys_sh_sync_file_range6
->  315	common	tee				sys_tee
->  316	common	vmsplice			sys_vmsplice
->  317	common	move_pages			sys_move_pages
-> @@ -395,6 +395,7 @@
->  385	common	pkey_alloc			sys_pkey_alloc
->  386	common	pkey_free			sys_pkey_free
->  387	common	rseq				sys_rseq
-> +388	common	sync_file_range2		sys_sync_file_range2
->  # room for arch specific syscalls
->  393	common	semget				sys_semget
->  394	common	semctl				sys_semctl
+The following changes since commit f2661062f16b2de5d7b6a5c42a9a5c96326b8454:
 
-Acked-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+  Linux 6.10-rc5 (2024-06-23 17:08:54 -0400)
 
-Adrian
+are available in the Git repository at:
 
---=20
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+  https://git.kernel.org/pub/scm/linux/kernel/git/arnd/asm-generic.git tags/asm-generic-fixes-6.10
+
+for you to fetch changes up to 7e1f4eb9a60d40dd17a97d9b76818682a024a127:
+
+  kallsyms: rework symbol lookup return codes (2024-06-27 17:43:40 +0200)
+
+----------------------------------------------------------------
+asm-generic fixes for 6.10
+
+These are some bugfixes for system call ABI issues I found while
+working on a cleanup series. None of these are urgent since these
+bugs have gone unnoticed for many years, but I think we probably
+want to backport them all to stable kernels, so it makes sense
+to have the fixes included as early as possible.
+
+One more fix addresses a compile-time warning in kallsyms that was
+uncovered by a patch I did to enable additional warnings in 6.10. I had
+mistakenly thought that this fix was already merged through the module
+tree, but as Geert pointed out it was still missing.
+
+----------------------------------------------------------------
+Arnd Bergmann (14):
+      ftruncate: pass a signed offset
+      syscalls: fix compat_sys_io_pgetevents_time64 usage
+      sparc: fix old compat_sys_select()
+      sparc: fix compat recv/recvfrom syscalls
+      parisc: use correct compat recv/recvfrom syscalls
+      parisc: use generic sys_fanotify_mark implementation
+      powerpc: restore some missing spu syscalls
+      sh: rework sync_file_range ABI
+      csky, hexagon: fix broken sys_sync_file_range
+      hexagon: fix fadvise64_64 calling conventions
+      s390: remove native mmap2() syscall
+      syscalls: mmap(): use unsigned offset type consistently
+      linux/syscalls.h: add missing __user annotations
+      kallsyms: rework symbol lookup return codes
+
+ arch/arm64/include/asm/unistd32.h         |   2 +-
+ arch/csky/include/uapi/asm/unistd.h       |   1 +
+ arch/csky/kernel/syscall.c                |   2 +-
+ arch/hexagon/include/asm/syscalls.h       |   6 +
+ arch/hexagon/include/uapi/asm/unistd.h    |   1 +
+ arch/hexagon/kernel/syscalltab.c          |   7 +
+ arch/loongarch/kernel/syscall.c           |   2 +-
+ arch/microblaze/kernel/sys_microblaze.c   |   2 +-
+ arch/mips/kernel/syscalls/syscall_n32.tbl |   2 +-
+ arch/mips/kernel/syscalls/syscall_o32.tbl |   2 +-
+ arch/parisc/Kconfig                       |   1 +
+ arch/parisc/kernel/sys_parisc32.c         |   9 --
+ arch/parisc/kernel/syscalls/syscall.tbl   |   6 +-
+ arch/powerpc/kernel/syscalls/syscall.tbl  |   6 +-
+ arch/riscv/kernel/sys_riscv.c             |   4 +-
+ arch/s390/kernel/syscall.c                |  27 ----
+ arch/s390/kernel/syscalls/syscall.tbl     |   2 +-
+ arch/sh/kernel/sys_sh32.c                 |  11 ++
+ arch/sh/kernel/syscalls/syscall.tbl       |   3 +-
+ arch/sparc/kernel/sys32.S                 | 221 ------------------------------
+ arch/sparc/kernel/syscalls/syscall.tbl    |   8 +-
+ arch/x86/entry/syscalls/syscall_32.tbl    |   2 +-
+ fs/open.c                                 |   4 +-
+ include/asm-generic/syscalls.h            |   2 +-
+ include/linux/compat.h                    |   2 +-
+ include/linux/filter.h                    |  14 +-
+ include/linux/ftrace.h                    |   6 +-
+ include/linux/module.h                    |  14 +-
+ include/linux/syscalls.h                  |  20 +--
+ include/uapi/asm-generic/unistd.h         |   2 +-
+ kernel/bpf/core.c                         |   7 +-
+ kernel/kallsyms.c                         |  23 ++--
+ kernel/module/kallsyms.c                  |  25 ++--
+ kernel/sys_ni.c                           |   2 +-
+ kernel/trace/ftrace.c                     |  13 +-
+ 35 files changed, 116 insertions(+), 345 deletions(-)
+ create mode 100644 arch/hexagon/include/asm/syscalls.h
