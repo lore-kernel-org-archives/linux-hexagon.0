@@ -1,117 +1,214 @@
-Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A242978C63;
-	Mon, 29 Jul 2024 10:08:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB2F62563;
+	Tue, 30 Jul 2024 06:42:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722247683; cv=none; b=YArqHhvNT9m7Z1OkMjKzvlsQDnq63VAxSkid1P4HtfUg78ry5LUlY/v7eWiVZFIFCjxSFzmW/WZN90t7Nv4iQ8aDduRn4h11oayFqOEos/SBIqXczEDSdU8Cwb03WqHSXA/dbdTA4I6ZF2x1b5bfX3Ioh37INnVq3RUuNZmS5/g=
+	t=1722321766; cv=none; b=sCmKX56khpAIFVt9kq+6STsLRLyjsoQGPuKNKzsq0IhFsj5Itt/lMM/asCbCN6ZKyYYvC+SjYh3uowA1i+ojnLEWP4zIT04B1pcSycLWftzc+M6EzlNAjgV+VGDW81/6V62DvvDpDxX8aO3WMaJElymCXFvo41xqrOLuYgfKqcs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722247683; c=relaxed/simple;
-	bh=0Tuyx2oDUruZZ6uxuzgbNaLiuh970dbec3fFyh+TDOM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hd2kkqvc3zwL0N88c3xdW++HGQzE165OTvi2fslj/0xItcob/92qOO7hvcS0oyxs+qBMLqjgwiqEId7ZSIxHFCv74+O0vZDjXnwnpzXo1qYZSoHShhRsvsbRAIOMw+Ug8IloJ+HEfZQDZehfmdYrYrxf2RRNfmJR/AK2fb8NkRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.128.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-66a1842b452so12816527b3.3;
-        Mon, 29 Jul 2024 03:08:01 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722247680; x=1722852480;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jwTfVYSGl0qov4UkTwnmIUGjC6ZGnXwHCwIWbd4QwcU=;
-        b=n2yE8Fd7AatJR97GcdM/s5N4WzI7eG4qIXN7W9VkJjgNeaZYZR3ifvz/7cwtXdQro7
-         WtIGyLdzR4s3/etYoCHGwGpwBTupIPTTlNvaoHfdx8wfIVoI3sLcpwAhRq6o//7JrUZG
-         Zv19vhz/oE4g0tm4B4Xgx9+BsZVxARLcvScq4jdkyzws/xYHP3OmBW+5bGrswNQpmSDl
-         87fGvaRIQpttmuxsFMf7dnxA1xICmUkK52km32Qmdau6rL4gIDwV7xHXV/HpbZ38oWvs
-         OttWSmubbKwwmQmucIO62+VlOCSjCgQez3+Q1olv3yhhoXD2nikgFwgWZfiRUhRiFkKq
-         YbiQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX733nCqTYGy5SY5baNpVqIWnI25OOsE6pT5Qw0nFPJ0lc8MClONyusvZ11r1ptBBtb+EQr+6jgcaYL13OxTWLq7CoXLt2EvOFxK7XRuBvksEwTN9il+//FHF9aJYFVn21qn+zrJ2hkfOKsDKpQhdpUR5A1e7OdFmmgqtY06bW2RMr0vgm/ReacFbcoAADKcd4TiV+UPxoT5CndsevcDPGv3M+RvO01v1dKIGvg2CvNrBfZXabarIw4aDiKOw==
-X-Gm-Message-State: AOJu0YwMUnpeo3QZaSOeU6CAxjhBPheLRmLFYJ8kozym10X2BQTdFqwK
-	I5/APySoHgyDnkGblk2653Kr0MKfYvMHH5AWP8u+H4bDLSkAZK+nACQG4e06
-X-Google-Smtp-Source: AGHT+IHuGIFdF4MYQWkuPVYvjNmXA34CxX7/h08kyuYp4PshcrVBeg1jQOj218EjBLyE+qiDy9jP7Q==
-X-Received: by 2002:a05:690c:6892:b0:64a:7040:2d8e with SMTP id 00721157ae682-67a0978408emr86609937b3.33.1722247679623;
-        Mon, 29 Jul 2024 03:07:59 -0700 (PDT)
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com. [209.85.128.175])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-6756b024a32sm19886107b3.97.2024.07.29.03.07.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Jul 2024 03:07:58 -0700 (PDT)
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-65faa0614dbso19023387b3.2;
-        Mon, 29 Jul 2024 03:07:58 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUcnm/9IO1kqhZRdCVjnJC2nzipnZmsCp0x2VIwIAShY6LgfbU2x52hDtoQR4mi2bJwt29dg2g3VBko+fLQNuIsPPXN6bOdRRIBhq57Xaq07zN9tMRD3a85xzWrTt4QdriTDVPsNfhOOLtqSdBaNqAjh6iL7PXy703Or00vVH1rIyicl+FZDQVVArT9Mvlcl+vezXhNcv/TTFScYu79pCFJb1TQZw2h3k4wt+S87lzJkJjlkN1CAuzR1LgPiQ==
-X-Received: by 2002:a05:690c:6203:b0:664:7b3d:a53f with SMTP id
- 00721157ae682-67a0a7fba7cmr91084297b3.45.1722247678607; Mon, 29 Jul 2024
- 03:07:58 -0700 (PDT)
+	s=arc-20240116; t=1722321766; c=relaxed/simple;
+	bh=9fMo0SqZ7mOf+MpuDKzR6wBE4n9v1usaMOUOV+GRiz8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dIuB1fdosAG5jpKQbQqNLIO1sLBhaS/dYfiDHW76mu2IHyyeLV1RC/ate5ei5a+VDVNlKmSX5tywcSPeetSAj1ChvrAds+R5kT80qZGydk8yLpSbcK/F9P+iRhIQU9hUIIQ8QZuqsi0AiEzZYxxkcBMs2Zpjuzq5vM8YAgp3Vu0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=odNyHSwO; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="odNyHSwO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B562C32782;
+	Tue, 30 Jul 2024 06:42:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722321766;
+	bh=9fMo0SqZ7mOf+MpuDKzR6wBE4n9v1usaMOUOV+GRiz8=;
+	h=From:To:Cc:Subject:Date:From;
+	b=odNyHSwOlBtV2oqVtExlin1GDO7kYlIOx8pVUXrIJUKZbGYwA4WqDas0/GxrcEr55
+	 U96WNS8VFoK93eKlrMoYeKy3Hx5hYk7u0MHfPCvnoc4pMqeCyLihL2sOgCRB2BK0LQ
+	 L8992A0T1NOO7inaUSioa2w4g0sAStq/hkXExqTSsAXodpT6mGb0xRWKuDd+nH2N+A
+	 BTsDqxMoTTjSETReBcCKjEeWWC7pCscYpqZJszwilu2vcMmxr/pCQlNwRRubPXHBaB
+	 JADt14YJLrGWRmg/Gsmy3mjRBjVlp6DBpI92v1G7zStat5RwD14Iv/xZapDPo4c7xq
+	 lwWpWj2GOPung==
+From: alexs@kernel.org
+To: Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K . V" <aneesh.kumar@kernel.org>,
+	Nick Piggin <npiggin@gmail.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Brian Cain <bcain@quicinc.com>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Naveen N Rao <naveen@kernel.org>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Bibo Mao <maobibo@loongson.cn>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org,
+	linux-openrisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Qi Zheng <zhengqi.arch@bytedance.com>,
+	Vishal Moola <vishal.moola@gmail.com>,
+	"Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Lance Yang <ioworker0@gmail.com>,
+	Peter Xu <peterx@redhat.com>,
+	Barry Song <baohua@kernel.org>,
+	linux-s390@vger.kernel.org
+Cc: Guo Ren <guoren@kernel.org>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	Oscar Salvador <osalvador@suse.de>,
+	Alexandre Ghiti <alexghiti@rivosinc.com>,
+	Jisheng Zhang <jszhang@kernel.org>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Anup Patel <anup@brainfault.org>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Breno Leitao <leitao@debian.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Hugh Dickins <hughd@google.com>,
+	David Hildenbrand <david@redhat.com>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Alex Shi <alexs@kernel.org>
+Subject: [RFC PATCH 00/18] use struct ptdesc to replace pgtable_t 
+Date: Tue, 30 Jul 2024 14:46:54 +0800
+Message-ID: <20240730064712.3714387-1-alexs@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAHk-=wiyNokz0d3b=GRORij=mGvwoYHy=+bv6m2Hu_VqNdg66g@mail.gmail.com>
- <20240729092807.2235937-1-geert@linux-m68k.org> <bd4e9928-17b3-9257-8ba7-6b7f9bbb639a@linux-m68k.org>
- <502ee081-8e09-422a-a1f9-be40aeaa84fb@app.fastmail.com>
-In-Reply-To: <502ee081-8e09-422a-a1f9-be40aeaa84fb@app.fastmail.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 29 Jul 2024 12:07:46 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdUUepTM9v7Oyakv6XQg9iw7t08ggGX=K90zRXxm4Ffpjg@mail.gmail.com>
-Message-ID: <CAMuHMdUUepTM9v7Oyakv6XQg9iw7t08ggGX=K90zRXxm4Ffpjg@mail.gmail.com>
-Subject: Re: Build regressions/improvements in v6.11-rc1
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-mips@vger.kernel.org, 
-	dm-devel@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-btrfs@vger.kernel.org, intel-xe@lists.freedesktop.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-hexagon@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi Arnd,
+From: Alex Shi <alexs@kernel.org>
 
-On Mon, Jul 29, 2024 at 11:55=E2=80=AFAM Arnd Bergmann <arnd@arndb.de> wrot=
-e:
-> On Mon, Jul 29, 2024, at 11:35, Geert Uytterhoeven wrote:
-> >>  + /kisskb/src/kernel/fork.c: error: #warning clone3() entry point is =
-missing, please fix [-Werror=3Dcpp]:  =3D> 3072:2
-> >
-> > sh4-gcc13/se{7619,7750}_defconfig
-> > sh4-gcc13/sh-all{mod,no,yes}config
-> > sh4-gcc13/sh-defconfig
-> > sparc64-gcc5/sparc-allnoconfig
-> > sparc64-gcc{5,13}/sparc32_defconfig
-> > sparc64-gcc{5,13}/sparc64-{allno,def}config
-> > sparc64-gcc13/sparc-all{mod,no}config
-> > sparc64-gcc13/sparc64-allmodconfig
->
-> Hexagon and NIOS2 as well, but this is expected. I really just
-> moved the warning into the actual implementation, the warning
-> is the same as before. hexagon and sh look like they should be
-> trivial, it's just that nobody seems to care. I'm sure the
-> patches were posted before and never applied.
->
-> sparc and nios2 do need some real work to write and test
-> the wrappers.
->
-> It does look like CONFIG_WERROR did not fail the build before
-> 505d66d1abfb ("clone3: drop __ARCH_WANT_SYS_CLONE3 macro")
-> as it probably was intended.
+We have struct ptdesc for page table descriptor a year ago, but it
+has no much usages in kernel, while pgtable_t is used widely.
 
-Indeed. The actual regression is that this turned into a fatal error
-with -Werror.
+The pgtable_t is typedefed as 'pte_t *' in sparc, s390, powerpc and m68k
+except SUN3, others archs are all same as 'struct page *'.
 
-Gr{oetje,eeting}s,
+These blocks the conception and code update for page table descriptor to
+struct ptdesc.
 
-                        Geert
+So, the simple idea to push the ptdesc conception forward is to update
+all pgtable_t by ptdesc or pte_t pointer. But this needs widely
+knowledges for most all of different archs. Common code change is easy
+for include/ and mm/ directory, but it's hard in all archs.
 
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
+Thanks for intel LKP framework, I fixed most all of build issues except
+a bug on powerpc which reports a "struct ptdesc *" incompatible with 
+struct ptdesc *' pointer issue...
 
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+Another trouble is pmd_pgtable() conversion in the last patch.
+Maybe some of arch need define theirself own pmd_ptdesc()?
+
+This patchset is immature, even except above 2 issues, I just tested
+virutal machine booting and kselftest mm on x86 and arm64.
+
+Anyway any input are appreciated!
+
+Thanks
+Alex
+
+Alex Shi (18):
+  mm/pgtable: use ptdesc in pte_free_now/pte_free_defer
+  mm/pgtable: convert ptdesc.pmd_huge_pte to ptdesc pointer
+  fs/dax: use ptdesc in dax_pmd_load_hole
+  mm/thp: use ptdesc pointer in __do_huge_pmd_anonymous_page
+  mm/thp: use ptdesc in do_huge_pmd_anonymous_page
+  mm/thp: convert insert_pfn_pmd and its caller to use ptdesc
+  mm/thp: use ptdesc in copy_huge_pmd
+  mm/memory: use ptdesc in __pte_alloc
+  mm/pgtable: fully use ptdesc in pte_alloc_one series functions
+  mm/pgtable: pass ptdesc to pte_free()
+  mm/pgtable: introduce ptdesc_pfn and use ptdesc in free_pte_range()
+  mm/thp: pass ptdesc to set_huge_zero_folio function
+  mm/pgtable: return ptdesc pointer in pgtable_trans_huge_withdraw
+  mm/pgtable: use ptdesc in pgtable_trans_huge_deposit
+  mm/pgtable: pass ptdesc to pmd_populate
+  mm/pgtable: pass ptdesc to pmd_install
+  mm: convert vmf.prealloc_pte to struct ptdesc pointer
+  mm/pgtable: pass ptdesc in pte_free_defer
+
+ arch/alpha/include/asm/pgalloc.h              |   4 +-
+ arch/arc/include/asm/pgalloc.h                |   4 +-
+ arch/arm/include/asm/pgalloc.h                |  13 +--
+ arch/arm/include/asm/tlb.h                    |   4 +-
+ arch/arm/mm/pgd.c                             |   2 +-
+ arch/arm64/include/asm/pgalloc.h              |   4 +-
+ arch/arm64/include/asm/tlb.h                  |   4 +-
+ arch/csky/include/asm/pgalloc.h               |   4 +-
+ arch/hexagon/include/asm/pgalloc.h            |   8 +-
+ arch/loongarch/include/asm/pgalloc.h          |   8 +-
+ arch/m68k/include/asm/motorola_pgalloc.h      |  12 +-
+ arch/m68k/include/asm/sun3_pgalloc.h          |   4 +-
+ arch/microblaze/include/asm/pgalloc.h         |   2 +-
+ arch/mips/include/asm/pgalloc.h               |   4 +-
+ arch/nios2/include/asm/pgalloc.h              |   4 +-
+ arch/openrisc/include/asm/pgalloc.h           |   8 +-
+ arch/parisc/include/asm/pgalloc.h             |   2 +-
+ arch/powerpc/include/asm/book3s/32/pgalloc.h  |   4 +-
+ arch/powerpc/include/asm/book3s/64/hash-4k.h  |   4 +-
+ arch/powerpc/include/asm/book3s/64/hash-64k.h |   4 +-
+ arch/powerpc/include/asm/book3s/64/pgalloc.h  |   4 +-
+ arch/powerpc/include/asm/book3s/64/pgtable.h  |   8 +-
+ arch/powerpc/include/asm/book3s/64/radix.h    |   4 +-
+ arch/powerpc/include/asm/pgalloc.h            |   8 +-
+ arch/powerpc/mm/book3s64/hash_pgtable.c       |  10 +-
+ arch/powerpc/mm/book3s64/radix_pgtable.c      |  10 +-
+ arch/riscv/include/asm/pgalloc.h              |   8 +-
+ arch/s390/include/asm/pgalloc.h               |   4 +-
+ arch/s390/include/asm/pgtable.h               |   4 +-
+ arch/s390/mm/pgalloc.c                        |   2 +-
+ arch/s390/mm/pgtable.c                        |  14 +--
+ arch/sh/include/asm/pgalloc.h                 |   4 +-
+ arch/sparc/include/asm/pgalloc_32.h           |   6 +-
+ arch/sparc/include/asm/pgalloc_64.h           |   2 +-
+ arch/sparc/include/asm/pgtable_64.h           |   4 +-
+ arch/sparc/mm/init_64.c                       |   2 +-
+ arch/sparc/mm/srmmu.c                         |   6 +-
+ arch/sparc/mm/tlb.c                           |  14 +--
+ arch/x86/include/asm/pgalloc.h                |  10 +-
+ arch/x86/mm/pgtable.c                         |   8 +-
+ arch/xtensa/include/asm/pgalloc.h             |  12 +-
+ fs/dax.c                                      |  14 +--
+ include/asm-generic/pgalloc.h                 |  10 +-
+ include/linux/mm.h                            |  16 ++-
+ include/linux/mm_types.h                      |   4 +-
+ include/linux/pgtable.h                       |   6 +-
+ mm/debug_vm_pgtable.c                         |   6 +-
+ mm/huge_memory.c                              | 103 +++++++++---------
+ mm/internal.h                                 |   2 +-
+ mm/khugepaged.c                               |  14 +--
+ mm/memory.c                                   |  15 +--
+ mm/mremap.c                                   |   2 +-
+ mm/pgtable-generic.c                          |  37 +++----
+ 53 files changed, 240 insertions(+), 236 deletions(-)
+
+-- 
+2.43.0
+
