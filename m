@@ -1,219 +1,185 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A2A118732A;
-	Tue, 30 Jul 2024 08:10:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7598C14B097;
+	Thu,  1 Aug 2024 22:14:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722327038; cv=none; b=ozxobXcjqNONM+aZTk4ceC3Cb71lKxX6h5JYtuSLYuBAHkAcx2T1nawGDVb+BYGYs1ffkZdHz49l8SFpH1qui+B3Rndj8OhHiJXnY+Q7fpiPYBISFDOYa401PzmZ1zVBCKFHd4owRTCQawWFaOLjXNpyte9Cgucy3BATQKfcSq0=
+	t=1722550470; cv=none; b=APOXoTrSkO32rquRuRHnts1ICWbOS7iOTZ9n7fXtJ/Gyx/ODxswfLbfHJixMF0Mc8V04DYzcwosMXrawwpdPHOt+5cAoUpOwsAaizBTNu1l8ZGgddZNtmiUPxA75dRpShGs5mLsrdk1iDEfeZQBbSSHN4Oged5ZRE7fV+auhz7E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722327038; c=relaxed/simple;
-	bh=my3L8G0O16Q8jX9sqyOmzVO7D6UraxN07D2CKn52GqY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=o+pRza2eQCjhHsRnw8d6tD8QZkss4EIh7vvq7Mwk0Y9a5qf5aL1Fa3uFl3rIYwuJK7nHwDwWBzm1mPu/CJhyw6sGA12KbEf2hzM5FMp4aiTgajwR5UdJSK+e8Tz4Y5EvEY9KB55mL3rGg+CZuIel1ZkFB5lSDGQxV2U+iqiwNz8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K92aQQ6E; arc=none smtp.client-ip=209.85.216.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1722550470; c=relaxed/simple;
+	bh=CeR3LVp7OW0w7GTxNWNq2oLZvH6C4PKoEL3irC/Eq+s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Xnydi05IE7cpnDK5cqlOnlxqrmGec0SYXDsgigyP28MG9rM9nzmLkLiueHHHLJL0nRkGTv6sj2AKWQVZr32++/VMALXTyGwjyBVx7WWqL5tl06qUplEUy/oBOpyJBodtLqi3uoykaWKSOWYpCHNJm2BKfvOHdpGTEVQpEfYrs2c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BOxaEvCf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K92aQQ6E"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-2cdadce1a57so2686988a91.2;
-        Tue, 30 Jul 2024 01:10:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722327037; x=1722931837; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=4/S17o3ryXO92fKPDsd+20QrVlSG6ehQAGuA4AgUnAA=;
-        b=K92aQQ6EToRphSoApSUrNv9TcWAV00giqy1FKYcc1rNgbn0WatSVSzbN4RYgvXfPLq
-         RDNSxMnejnatQ+v3Jb2c7c+G00c+62oUN//O7u5Sm/wdlW3iGuCO3+ZApgAw6q6BHnQT
-         I9PYQdUkhmBpuYHkpYQ7/GCippVWIxS3g8fPKMK+/fM6DrO3fAvC6vyRkKWPhRFuwrTH
-         h7i8tkHlhJlHFO3LqVOFNi3ofLsU6dws3lfmHy7xKUUcqw2BlD8Um4/cTiRMq/0L9IzZ
-         zYbdLl0zDM8przMPBOOU5+rn7atr+JZQt0jxz0G9/Pc0KGXmvgwf3cKxpoxhBln7tgPb
-         Xh+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722327037; x=1722931837;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4/S17o3ryXO92fKPDsd+20QrVlSG6ehQAGuA4AgUnAA=;
-        b=WL7HLqmNI0TNsGFXuyLR/X8gBJv8vsrf8poOC2KQDUnkfrHfrg0bfpllsVeOyUPiKX
-         buY8xgk8GV77qyLbcbjIHKlKrAQZnGgPabrZktAkaTw7NE9EKoaASjOe8/GYgExRYw6T
-         dkpHAeWFeXo/MpzY0F7JKIWuQTZD7nFrsj02w4ONJocyEmWBgnzLoUt2RXsAEkVEaLl6
-         EfAcdz9ZCYIjorPPTwwbXePMXLorIFYI0rdoSSWSZOM1MhTjc02LpDcGPrLHlc1bgTXl
-         gO6Oedl8ydH6fhopBLeFTXds27+vwPVzItVabXGsGEVB+VnGoOewZqZaH1RX4ivmeE+0
-         V1PA==
-X-Forwarded-Encrypted: i=1; AJvYcCVv9iHeTMP658fDH9SRkKQYheq3K3XX3u93uITJn3A+Y2LSFpHsTkCwEsoG0CfZzbuibn7cCZOwqyagORAkW4YSL4ztQL4C7ptW4qbnzSc+cAkRO/Q51KRF8eTe0pAfp0ahgiCziMSmszp/3z8u/dCzPCRttl0VC7lxOzAOuT3Nt+caJHSeJWFiEhKU1G9vACaMkJZOiQWV6GygOhzccOGHnsAPijVafygMOg00rptdLr36MiZKGC2I61r2gU/7y6kzKvNc1uTqCLA2EkAcvc/LNXZ9SmWW8hvxbVfYnW3G
-X-Gm-Message-State: AOJu0Ywp2yza0NY2+Qoe8YLoIiSWhxeerinpvm6KLJQxfEEYDYD4GztN
-	xHsNEsN95MWG5Br/8C9IUX/OgTuLWIHUAP6ATca8UQ6C3hKzQJoS
-X-Google-Smtp-Source: AGHT+IHd+8idtSf9No9KXFiHPkFqgsgm8Dqu198TXfzlUpyaNdqot/AMDpkwkaetathdKfNuieqdfQ==
-X-Received: by 2002:a17:90b:3a90:b0:2c9:9fdf:f72e with SMTP id 98e67ed59e1d1-2cf7e606d04mr8262857a91.26.1722327036447;
-        Tue, 30 Jul 2024 01:10:36 -0700 (PDT)
-Received: from [192.168.255.10] ([43.132.141.24])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2cf28e3cbaasm9886868a91.51.2024.07.30.01.10.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 30 Jul 2024 01:10:35 -0700 (PDT)
-Message-ID: <c2accb5d-33f6-404b-9298-6b9e8bf24a9b@gmail.com>
-Date: Tue, 30 Jul 2024 16:10:23 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BOxaEvCf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 804F8C32786;
+	Thu,  1 Aug 2024 22:14:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722550470;
+	bh=CeR3LVp7OW0w7GTxNWNq2oLZvH6C4PKoEL3irC/Eq+s=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=BOxaEvCfLBUq2g9e5M/sEp9MLVwZGW4FFDb/IudJEWOggIs5c7Q9suLcMrpWZq9HM
+	 gTycS/5aBkGnIrwi3NrvhmWT9D6sD1Lx+NhuX/XQ+6OddW06eJ/9u5RPodw3nnvnNF
+	 zrLWY8aTLqq8YEo4Y9jS1g+bxKDGhNGoz9gDUmR3DtTOsfup1HupE9lDdVYH3LQ3Uo
+	 TxXLks/lbabFdDt6ddk/s8Hn3rWzIOpZy22ynVx0uTKvnvqAL0ruDLFcpJjwd37UqY
+	 62eLmaLCN+Jf10gmZQw9DgLfWtT8dBT8+UakKmq7WIWijPKISYad3L2MQ9Xa6y2Zr6
+	 e24jsPf0nHmww==
+Date: Thu, 1 Aug 2024 15:14:27 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: kernel test robot <lkp@intel.com>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>, llvm@lists.linux.dev,
+	oe-kbuild-all@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
+	Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org
+Subject: Re: [gustavoars:testing/wfamnae-next20240729-cbc-2 11/18]
+ include/rdma/uverbs_ioctl.h:643:15: error: static assertion failed due to
+ requirement '__builtin_offsetof(struct uverbs_attr_bundle, attrs) ==
+ sizeof(struct uverbs_attr_bundle_hdr)': struct member likely outside of
+ struct_group_tagged()
+Message-ID: <20240801221427.GA3773553@thelio-3990X>
+References: <202408011956.wscyBwq6-lkp@intel.com>
+ <138da3e5-0e24-41a6-bb35-df5d07045eb3@embeddedor.com>
+ <20240801190813.GC122261@thelio-3990X>
+ <f40160aa-7cbd-4264-be44-45396b09574f@embeddedor.com>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 00/18] use struct ptdesc to replace pgtable_t
-To: alexs@kernel.org, Will Deacon <will@kernel.org>,
- "Aneesh Kumar K . V" <aneesh.kumar@kernel.org>,
- Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Brian Cain <bcain@quicinc.com>,
- WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>,
- Jonas Bonn <jonas@southpole.se>,
- Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
- Stafford Horne <shorne@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Naveen N Rao <naveen@kernel.org>, Paul Walmsley <paul.walmsley@sifive.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Thomas Gleixner <tglx@linutronix.de>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
- Andy Lutomirski <luto@kernel.org>, Bibo Mao <maobibo@loongson.cn>,
- Baolin Wang <baolin.wang@linux.alibaba.com>, linux-arch@vger.kernel.org,
- linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Qi Zheng <zhengqi.arch@bytedance.com>,
- Vishal Moola <vishal.moola@gmail.com>,
- "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
- Kemeng Shi <shikemeng@huaweicloud.com>, Lance Yang <ioworker0@gmail.com>,
- Peter Xu <peterx@redhat.com>, Barry Song <baohua@kernel.org>,
- linux-s390@vger.kernel.org
-Cc: Guo Ren <guoren@kernel.org>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Palmer Dabbelt <palmer@dabbelt.com>, Mike Rapoport <rppt@kernel.org>,
- Oscar Salvador <osalvador@suse.de>, Alexandre Ghiti
- <alexghiti@rivosinc.com>, Jisheng Zhang <jszhang@kernel.org>,
- Samuel Holland <samuel.holland@sifive.com>, Anup Patel
- <anup@brainfault.org>, Josh Poimboeuf <jpoimboe@kernel.org>,
- Breno Leitao <leitao@debian.org>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Hugh Dickins <hughd@google.com>, David Hildenbrand <david@redhat.com>,
- Ryan Roberts <ryan.roberts@arm.com>, Matthew Wilcox <willy@infradead.org>
-References: <20240730064712.3714387-1-alexs@kernel.org>
-Content-Language: en-US
-From: Alex Shi <seakeel@gmail.com>
-In-Reply-To: <20240730064712.3714387-1-alexs@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f40160aa-7cbd-4264-be44-45396b09574f@embeddedor.com>
 
-BTW, the patchset based on the latest git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm mm-unstable branch.
+On Thu, Aug 01, 2024 at 02:17:50PM -0600, Gustavo A. R. Silva wrote:
+> 
+> 
+> On 01/08/24 13:08, Nathan Chancellor wrote:
+> > On Thu, Aug 01, 2024 at 06:47:58AM -0600, Gustavo A. R. Silva wrote:
+> > > 
+> > > 
+> > > On 01/08/24 05:35, kernel test robot wrote:
+> > > > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/gustavoars/linux.git testing/wfamnae-next20240729-cbc-2
+> > > > head:   df15c862c1b93b6e1f6c90b0d7971f7a6ad66751
+> > > > commit: e7cd9f429a852fb7e37a706c7d08fc36e7863e06 [11/18] RDMA/uverbs: Use static_assert() to check struct sizes
+> > > > config: hexagon-randconfig-001-20240801 (https://download.01.org/0day-ci/archive/20240801/202408011956.wscyBwq6-lkp@intel.com/config)
+> > > > compiler: clang version 20.0.0git (https://github.com/llvm/llvm-project 430b90f04533b099d788db2668176038be38c53b)
+> > > 
+> > > 
+> > > Clang 20.0.0?? (thinkingface)
+> > 
+> > Indeed, Clang 19 branched and main is now 20 :)
+> > 
+> > https://github.com/llvm/llvm-project/commit/8f701b5df0adb3a2960d78ca2ad9cf53f39ba2fe
+> 
+> Yeah, but is that a stable release?
 
-On 7/30/24 2:46 PM, alexs@kernel.org wrote:
-> From: Alex Shi <alexs@kernel.org>
-> 
-> We have struct ptdesc for page table descriptor a year ago, but it
-> has no much usages in kernel, while pgtable_t is used widely.
-> 
-> The pgtable_t is typedefed as 'pte_t *' in sparc, s390, powerpc and m68k
-> except SUN3, others archs are all same as 'struct page *'.
-> 
-> These blocks the conception and code update for page table descriptor to
-> struct ptdesc.
-> 
-> So, the simple idea to push the ptdesc conception forward is to update
-> all pgtable_t by ptdesc or pte_t pointer. But this needs widely
-> knowledges for most all of different archs. Common code change is easy
-> for include/ and mm/ directory, but it's hard in all archs.
-> 
-> Thanks for intel LKP framework, I fixed most all of build issues except
-> a bug on powerpc which reports a "struct ptdesc *" incompatible with 
-> struct ptdesc *' pointer issue...
-> 
-> Another trouble is pmd_pgtable() conversion in the last patch.
-> Maybe some of arch need define theirself own pmd_ptdesc()?
-> 
-> This patchset is immature, even except above 2 issues, I just tested
-> virutal machine booting and kselftest mm on x86 and arm64.
-> 
-> Anyway any input are appreciated!
+No, but the Intel folks have tested tip of tree LLVM against the kernel
+for us for a few years now to try and catch issues such as this.
+
+> BTW, I don't see GCC reporting the same problem below:
+
+Hexagon does not have a GCC backend anymore so it is not going to be
+possible to do an exact A/B comparison with this configuration but...
+
+> > > > > > include/rdma/uverbs_ioctl.h:643:15: error: static assertion failed due to requirement '__builtin_offsetof(struct uverbs_attr_bundle, attrs) == sizeof(struct uverbs_attr_bundle_hdr)': struct member likely outside of struct_group_tagged()
+> > > >        643 | static_assert(offsetof(struct uverbs_attr_bundle, attrs) == sizeof(struct uverbs_attr_bundle_hdr),
+> > > >            | ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > >        644 |               "struct member likely outside of struct_group_tagged()");
+> > > >            |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > >      include/linux/stddef.h:16:32: note: expanded from macro 'offsetof'
+> > > >         16 | #define offsetof(TYPE, MEMBER)  __builtin_offsetof(TYPE, MEMBER)
+> > > >            |                                 ^
+> > > >      include/linux/build_bug.h:77:50: note: expanded from macro 'static_assert'
+> > > >         77 | #define static_assert(expr, ...) __static_assert(expr, ##__VA_ARGS__, #expr)
+> > > >            |                                  ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > >      include/linux/build_bug.h:78:56: note: expanded from macro '__static_assert'
+> > > >         78 | #define __static_assert(expr, msg, ...) _Static_assert(expr, msg)
+> > > >            |                                                        ^~~~
+> > > >      include/rdma/uverbs_ioctl.h:643:58: note: expression evaluates to '56 == 52'
+
+This seems to give some indication that perhaps there may be some
+architecture specific here with padding maybe? I seem to recall ARM OABI
+having something similar. Adding the Hexagon folks/list to get some more
+clarification. Full warning and context:
+
+https://lore.kernel.org/202408011956.wscyBwq6-lkp@intel.com/
+
+The problematic section preprocessed since sometimes the macros
+obfuscate things:
+
+struct uverbs_attr_bundle {
+        union {
+                struct {
+                        struct ib_udata driver_udata;
+                        struct ib_udata ucore;
+                        struct ib_uverbs_file *ufile;
+                        struct ib_ucontext *context;
+                        struct ib_uobject *uobject;
+                        unsigned long attr_present[(((UVERBS_API_ATTR_BKEY_LEN) +
+                                                     ((sizeof(long) * 8)) - 1) /
+                                                    ((sizeof(long) * 8)))];
+                };
+                struct uverbs_attr_bundle_hdr {
+                        struct ib_udata driver_udata;
+                        struct ib_udata ucore;
+                        struct ib_uverbs_file *ufile;
+                        struct ib_ucontext *context;
+                        struct ib_uobject *uobject;
+                        unsigned long attr_present[(((UVERBS_API_ATTR_BKEY_LEN) +
+                                                     ((sizeof(long) * 8)) - 1) /
+                                                    ((sizeof(long) * 8)))];
+                } hdr;
+        };
+
+        struct uverbs_attr attrs[];
+};
+_Static_assert(__builtin_offsetof(struct uverbs_attr_bundle, attrs) ==
+                       sizeof(struct uverbs_attr_bundle_hdr),
+               "struct member likely outside of struct_group_tagged()");
+
+FWIW, I see this with all versions of Clang that the kernel supports
+with this configuration.
+
+Cheers,
+Nathan
+
+> > > >        643 | static_assert(offsetof(struct uverbs_attr_bundle, attrs) == sizeof(struct uverbs_attr_bundle_hdr),
+> > > >            | ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > >        644 |               "struct member likely outside of struct_group_tagged()");
+> > > >            |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > >      include/linux/build_bug.h:77:50: note: expanded from macro 'static_assert'
+> > > >         77 | #define static_assert(expr, ...) __static_assert(expr, ##__VA_ARGS__, #expr)
+> > > >            |                                  ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > >      include/linux/build_bug.h:78:56: note: expanded from macro '__static_assert'
+> > > >         78 | #define __static_assert(expr, msg, ...) _Static_assert(expr, msg)
+> > > >            |                                                        ^~~~
+> > > >      7 warnings and 1 error generated.
+> > > > 
+> > > > 
+> > > > vim +643 include/rdma/uverbs_ioctl.h
+> > > > 
+> > > >      630	
+> > > >      631	struct uverbs_attr_bundle {
+> > > >      632		/* New members MUST be added within the struct_group() macro below. */
+> > > >      633		struct_group_tagged(uverbs_attr_bundle_hdr, hdr,
+> > > >      634			struct ib_udata driver_udata;
+> > > >      635			struct ib_udata ucore;
+> > > >      636			struct ib_uverbs_file *ufile;
+> > > >      637			struct ib_ucontext *context;
+> > > >      638			struct ib_uobject *uobject;
+> > > >      639			DECLARE_BITMAP(attr_present, UVERBS_API_ATTR_BKEY_LEN);
+> > > >      640		);
+> > > >      641		struct uverbs_attr attrs[];
+> > > >      642	};
+> > > >    > 643	static_assert(offsetof(struct uverbs_attr_bundle, attrs) == sizeof(struct uverbs_attr_bundle_hdr),
+> > > >      644		      "struct member likely outside of struct_group_tagged()");
+> > > >      645	
+> > > > 
+> > > 
 > 
 > Thanks
-> Alex
-> 
-> Alex Shi (18):
->   mm/pgtable: use ptdesc in pte_free_now/pte_free_defer
->   mm/pgtable: convert ptdesc.pmd_huge_pte to ptdesc pointer
->   fs/dax: use ptdesc in dax_pmd_load_hole
->   mm/thp: use ptdesc pointer in __do_huge_pmd_anonymous_page
->   mm/thp: use ptdesc in do_huge_pmd_anonymous_page
->   mm/thp: convert insert_pfn_pmd and its caller to use ptdesc
->   mm/thp: use ptdesc in copy_huge_pmd
->   mm/memory: use ptdesc in __pte_alloc
->   mm/pgtable: fully use ptdesc in pte_alloc_one series functions
->   mm/pgtable: pass ptdesc to pte_free()
->   mm/pgtable: introduce ptdesc_pfn and use ptdesc in free_pte_range()
->   mm/thp: pass ptdesc to set_huge_zero_folio function
->   mm/pgtable: return ptdesc pointer in pgtable_trans_huge_withdraw
->   mm/pgtable: use ptdesc in pgtable_trans_huge_deposit
->   mm/pgtable: pass ptdesc to pmd_populate
->   mm/pgtable: pass ptdesc to pmd_install
->   mm: convert vmf.prealloc_pte to struct ptdesc pointer
->   mm/pgtable: pass ptdesc in pte_free_defer
-> 
->  arch/alpha/include/asm/pgalloc.h              |   4 +-
->  arch/arc/include/asm/pgalloc.h                |   4 +-
->  arch/arm/include/asm/pgalloc.h                |  13 +--
->  arch/arm/include/asm/tlb.h                    |   4 +-
->  arch/arm/mm/pgd.c                             |   2 +-
->  arch/arm64/include/asm/pgalloc.h              |   4 +-
->  arch/arm64/include/asm/tlb.h                  |   4 +-
->  arch/csky/include/asm/pgalloc.h               |   4 +-
->  arch/hexagon/include/asm/pgalloc.h            |   8 +-
->  arch/loongarch/include/asm/pgalloc.h          |   8 +-
->  arch/m68k/include/asm/motorola_pgalloc.h      |  12 +-
->  arch/m68k/include/asm/sun3_pgalloc.h          |   4 +-
->  arch/microblaze/include/asm/pgalloc.h         |   2 +-
->  arch/mips/include/asm/pgalloc.h               |   4 +-
->  arch/nios2/include/asm/pgalloc.h              |   4 +-
->  arch/openrisc/include/asm/pgalloc.h           |   8 +-
->  arch/parisc/include/asm/pgalloc.h             |   2 +-
->  arch/powerpc/include/asm/book3s/32/pgalloc.h  |   4 +-
->  arch/powerpc/include/asm/book3s/64/hash-4k.h  |   4 +-
->  arch/powerpc/include/asm/book3s/64/hash-64k.h |   4 +-
->  arch/powerpc/include/asm/book3s/64/pgalloc.h  |   4 +-
->  arch/powerpc/include/asm/book3s/64/pgtable.h  |   8 +-
->  arch/powerpc/include/asm/book3s/64/radix.h    |   4 +-
->  arch/powerpc/include/asm/pgalloc.h            |   8 +-
->  arch/powerpc/mm/book3s64/hash_pgtable.c       |  10 +-
->  arch/powerpc/mm/book3s64/radix_pgtable.c      |  10 +-
->  arch/riscv/include/asm/pgalloc.h              |   8 +-
->  arch/s390/include/asm/pgalloc.h               |   4 +-
->  arch/s390/include/asm/pgtable.h               |   4 +-
->  arch/s390/mm/pgalloc.c                        |   2 +-
->  arch/s390/mm/pgtable.c                        |  14 +--
->  arch/sh/include/asm/pgalloc.h                 |   4 +-
->  arch/sparc/include/asm/pgalloc_32.h           |   6 +-
->  arch/sparc/include/asm/pgalloc_64.h           |   2 +-
->  arch/sparc/include/asm/pgtable_64.h           |   4 +-
->  arch/sparc/mm/init_64.c                       |   2 +-
->  arch/sparc/mm/srmmu.c                         |   6 +-
->  arch/sparc/mm/tlb.c                           |  14 +--
->  arch/x86/include/asm/pgalloc.h                |  10 +-
->  arch/x86/mm/pgtable.c                         |   8 +-
->  arch/xtensa/include/asm/pgalloc.h             |  12 +-
->  fs/dax.c                                      |  14 +--
->  include/asm-generic/pgalloc.h                 |  10 +-
->  include/linux/mm.h                            |  16 ++-
->  include/linux/mm_types.h                      |   4 +-
->  include/linux/pgtable.h                       |   6 +-
->  mm/debug_vm_pgtable.c                         |   6 +-
->  mm/huge_memory.c                              | 103 +++++++++---------
->  mm/internal.h                                 |   2 +-
->  mm/khugepaged.c                               |  14 +--
->  mm/memory.c                                   |  15 +--
->  mm/mremap.c                                   |   2 +-
->  mm/pgtable-generic.c                          |  37 +++----
->  53 files changed, 240 insertions(+), 236 deletions(-)
-> 
+> --
+> Gustavo
