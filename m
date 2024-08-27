@@ -1,49 +1,81 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01C001C3F2A;
-	Tue, 27 Aug 2024 14:14:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AA3A1C5792;
+	Tue, 27 Aug 2024 15:43:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724768087; cv=none; b=oise7PE9US0rkuEy7dy8T7yFc50BUu4rYE/CfPNmkMKmrKL/P12aDUWaXOBM2lmmDn9WLwogMjllFDm32jn3FriO+JvHd6FezFCIlEd+567pcQ2gSKYtKjqntKTWixLRMRwK2svdv718MkOtCqzrAehJsczWD8mWidN4WtQlr14=
+	t=1724773409; cv=none; b=YZKizRVOkzZX5ds3msz1Z6gczEMA4tLMXkoZpKfXZQDPLCJnnkiHAuAetuszhW599cDH4z+B0bQqRJmtgqpiVm1fNEOBWfvpXF5rr4Rj8GF3XK+8a7Xh+LBl8AMz2aoif5kFr+YM+bcYYhSk6rkesG2IFQdv/m7jayKpd6BmP3o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724768087; c=relaxed/simple;
-	bh=a/qNXotiee3mkDBZtw/MwodPcn0+Q7aIdor21E4Jwx0=;
+	s=arc-20240116; t=1724773409; c=relaxed/simple;
+	bh=gLN6XrXPe8lnOYBY+qE6Br7q9z15uQyViI2cYvrjDUQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SoCumYt26yYd49qtozPBEPgZOnw+wOCn0TrKLlInF42+Reh05XoFkzP1f3jDOrpjlhxgnBGlbPyaqsNq4ZrP4KiYRGpCb1eANniVEMHYX4zDnzkIkVBWL3lX/B3C08H3QMGJNvREOjNcFzU52s15D0tRbNf56v3zc9PZb+DfQZo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n5U8Ac7n; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=Od33bOhcw1GpRXUEH88TvMilofZpTVAkWCKcAPdYK8wv/VqJrhchShe8pqCo19CVmveCY7goFnVNymTMihw6msAlyZXjuHiEkPIxR49duSk9PgU9+SnMPabgm7rfAluJtcVTXEYP2OGTAcEeJBmDDCEms8GXOA1tz4UayaH0Gz4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pJjeZGdR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n5U8Ac7n"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E84C4C581AA;
-	Tue, 27 Aug 2024 14:14:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pJjeZGdR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0C93C4DE0D;
+	Tue, 27 Aug 2024 15:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1724768085;
-	bh=a/qNXotiee3mkDBZtw/MwodPcn0+Q7aIdor21E4Jwx0=;
+	s=k20201202; t=1724773408;
+	bh=gLN6XrXPe8lnOYBY+qE6Br7q9z15uQyViI2cYvrjDUQ=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=n5U8Ac7nJsSEAL/6CjdNIlaFXssAx54V5VxtygP7756BZV/TOl4j+46zr7y5WbX7I
-	 A/440w6Jxobevbl63n9NL6cu2UIejOB/gBmN/7PZJMPmPpLgfFBHkKFXPnRlI7oTB3
-	 ez2rHZ0V7mt1vEf+0wK2pMgTWe0buH8YDBeSPSul3+F8/KFWTvdbkBOOKkKgCMcUmO
-	 jvXQCuOiqftj+ouhkTTy9g+tx20NxtxGj81SJJIw0M9pe3SWgT784z8VBlVIoYuzfB
-	 w2sY/ZU7YYBPC6tDnbSfPKYLE8EWivvzlwikrO/CbJG9iHB8709U3YOmVcn9uQDnsZ
-	 +0AV272x6BBBg==
-Date: Tue, 27 Aug 2024 15:14:40 +0100
-From: Simon Horman <horms@kernel.org>
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: kernel test robot <lkp@intel.com>, netdev@vger.kernel.org,
-	oe-kbuild-all@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Madhu Chittim <madhu.chittim@intel.com>,
-	Sridhar Samudrala <sridhar.samudrala@intel.com>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Sunil Kovvuri Goutham <sgoutham@marvell.com>,
-	Jamal Hadi Salim <jhs@mojatatu.com>,
-	Donald Hunter <donald.hunter@gmail.com>,
-	Brian Cain <bcain@quicinc.com>, linux-hexagon@vger.kernel.org
-Subject: Re: [PATCH v4 net-next 09/12] testing: net-drv: add basic shaper test
-Message-ID: <20240827141440.GC1368797@kernel.org>
-References: <4cf74f285fa5f07be546cb83ef96775f86aa0dbf.1724165948.git.pabeni@redhat.com>
- <202408220027.kA3pRF6J-lkp@intel.com>
- <3b1ca110-d1e7-47c5-af31-360a233cb4aa@redhat.com>
+	b=pJjeZGdRlRZciwiSds7ncOoFJeP+wPAbVUVeY1LlTa56La6oD/XycPb3ju2I/Si6N
+	 bNsP9pfRPVziKGgn/Q7CZW62Bt7rl9iXHC+NkqAHxIdvlozlUPOn7DKQtQl24SAAKo
+	 NVAJkyrxO3xLQShBOmpHzZcPcSpDnuVLQLFIjp6TCSAVJcQE/Q6oni4wO6fU4ZsrHD
+	 4ovVIvkGw6loTWaFlHze4az9iCCc+TXdBuzKzGsuhZ4ATm4q785T8iPGoGLrAdyrZK
+	 3tUYk2k2P5uZy+/qiIPItAj2gx6xlt89fXh5S1kblIuw6KS4FNa+7dzFK9H80hz+VW
+	 wYQnWN9qfNMIA==
+Date: Tue, 27 Aug 2024 18:40:35 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@quicinc.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Simek <monstr@monstr.eu>, Oleg Nesterov <oleg@redhat.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
+	Stafford Horne <shorne@gmail.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-mm@kvack.org,
+	linux-modules@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+	linux-trace-kernel@vger.kernel.org, linux-um@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v2 5/8] ftrace: Add swap_func to ftrace_process_locs()
+Message-ID: <Zs3zcwyygUk4_X8y@kernel.org>
+References: <20240826065532.2618273-1-rppt@kernel.org>
+ <20240826065532.2618273-6-rppt@kernel.org>
+ <20240826132909.306b08fc@gandalf.local.home>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
@@ -52,82 +84,78 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3b1ca110-d1e7-47c5-af31-360a233cb4aa@redhat.com>
+In-Reply-To: <20240826132909.306b08fc@gandalf.local.home>
 
-Cc: Brian Cain, linux-hexagon
-
-On Thu, Aug 22, 2024 at 09:53:22AM +0200, Paolo Abeni wrote:
+On Mon, Aug 26, 2024 at 01:29:09PM -0400, Steven Rostedt wrote:
+> On Mon, 26 Aug 2024 09:55:29 +0300
+> Mike Rapoport <rppt@kernel.org> wrote:
 > 
+> > From: Song Liu <song@kernel.org>
+> > 
+> > ftrace_process_locs sorts module mcount, which is inside RO memory. Add a
+> > ftrace_swap_func so that archs can use RO-memory-poke function to do the
+> > sorting.
 > 
-> On 8/21/24 18:52, kernel test robot wrote:
-> > Hi Paolo,
-> > 
-> > kernel test robot noticed the following build warnings:
-> > 
-> > [auto build test WARNING on net-next/main]
-> > 
-> > url:    https://github.com/intel-lab-lkp/linux/commits/Paolo-Abeni/tools-ynl-lift-an-assumption-about-spec-file-name/20240820-231626
-> > base:   net-next/main
-> > patch link:    https://lore.kernel.org/r/4cf74f285fa5f07be546cb83ef96775f86aa0dbf.1724165948.git.pabeni%40redhat.com
-> > patch subject: [PATCH v4 net-next 09/12] testing: net-drv: add basic shaper test
-> > config: hexagon-randconfig-r112-20240821 (https://download.01.org/0day-ci/archive/20240822/202408220027.kA3pRF6J-lkp@intel.com/config)
-> > compiler: clang version 16.0.6 (https://github.com/llvm/llvm-project 7cbf1a2591520c2491aa35339f227775f4d3adf6)
-> > reproduce: (https://download.01.org/0day-ci/archive/20240822/202408220027.kA3pRF6J-lkp@intel.com/reproduce)
-> > 
-> > If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> > the same patch/commit), kindly add following tags
-> > | Reported-by: kernel test robot <lkp@intel.com>
-> > | Closes: https://lore.kernel.org/oe-kbuild-all/202408220027.kA3pRF6J-lkp@intel.com/
-> > 
-> > sparse warnings: (new ones prefixed by >>)
-> > > > net/shaper/shaper.c:227:24: sparse: sparse: Using plain integer as NULL pointer
-> 
-> AFAICS this warning comes directly from/is due to the hexgon cmpxchg
-> implementation:
-> 
-> #define arch_cmpxchg(ptr, old, new)                             \
-> ({                                                              \
->         __typeof__(ptr) __ptr = (ptr);                          \
->         __typeof__(*(ptr)) __old = (old);                       \
->         __typeof__(*(ptr)) __new = (new);                       \
->         __typeof__(*(ptr)) __oldval = 0;                        \
-> 				^^^^^^^ here.
+> Can you add the above as a comment above the ftrace_swap_func() function?
 
-FWIIW, I agree.
-
-It seems that arch_cmpxchg, as implemented above, expects ptr to
-be an integer. And indeed it is used in that way from
-include/linux/atomic/atomic-arch-fallback.h:raw_atomic_cmpxchg_acquire().
-
-https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/tree/include/linux/atomic/atomic-arch-fallback.h?id=f8fdda9e4f988c210b1e4519a28ddbf7d29b0038#n2055
-
-As a hack, I allowed the function to handle either int or any type of
-pointer. With this in place Sparse no longer flags the problem described
-above in shaper.c.
-
-Perhaps someone has a suggestion of how to fix this properly.
-
-diff --git a/arch/hexagon/include/asm/cmpxchg.h b/arch/hexagon/include/asm/cmpxchg.h
-index bf6cf5579cf4..d8decb8fb456 100644
---- a/arch/hexagon/include/asm/cmpxchg.h
-+++ b/arch/hexagon/include/asm/cmpxchg.h
-@@ -51,12 +51,18 @@ __arch_xchg(unsigned long x, volatile void *ptr, int size)
-  *  variable casting.
-  */
+Sure.
  
-+#define arch_cmpxchg_zero(ptr)					\
-+	(__typeof__(*(ptr)))					\
-+		_Generic(*(ptr),				\
-+			 int:		0,			\
-+			 default:	NULL)
-+
- #define arch_cmpxchg(ptr, old, new)				\
- ({								\
- 	__typeof__(ptr) __ptr = (ptr);				\
- 	__typeof__(*(ptr)) __old = (old);			\
- 	__typeof__(*(ptr)) __new = (new);			\
--	__typeof__(*(ptr)) __oldval = 0;			\
-+	__typeof__(*(ptr)) __oldval = arch_cmpxchg_zero(ptr);	\
- 								\
- 	asm volatile(						\
- 		"1:	%0 = memw_locked(%1);\n"		\
+> Thanks,
+> 
+> -- Steve
+> 
+> > 
+> > Signed-off-by: Song Liu <song@kernel.org>
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> > ---
+> >  include/linux/ftrace.h |  2 ++
+> >  kernel/trace/ftrace.c  | 13 ++++++++++++-
+> >  2 files changed, 14 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
+> > index fd5e84d0ec47..b794dcb7cae8 100644
+> > --- a/include/linux/ftrace.h
+> > +++ b/include/linux/ftrace.h
+> > @@ -1188,4 +1188,6 @@ unsigned long arch_syscall_addr(int nr);
+> >  
+> >  #endif /* CONFIG_FTRACE_SYSCALLS */
+> >  
+> > +void ftrace_swap_func(void *a, void *b, int n);
+> > +
+> >  #endif /* _LINUX_FTRACE_H */
+> > diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+> > index 4c28dd177ca6..9829979f3a46 100644
+> > --- a/kernel/trace/ftrace.c
+> > +++ b/kernel/trace/ftrace.c
+> > @@ -6989,6 +6989,17 @@ static void test_is_sorted(unsigned long *start,
+> > unsigned long count) }
+> >  #endif
+> >  
+> > +void __weak ftrace_swap_func(void *a, void *b, int n)
+> > +{
+> > +	unsigned long t;
+> > +
+> > +	WARN_ON_ONCE(n != sizeof(t));
+> > +
+> > +	t = *((unsigned long *)a);
+> > +	*(unsigned long *)a = *(unsigned long *)b;
+> > +	*(unsigned long *)b = t;
+> > +}
+> > +
+> >  static int ftrace_process_locs(struct module *mod,
+> >  			       unsigned long *start,
+> >  			       unsigned long *end)
+> > @@ -7016,7 +7027,7 @@ static int ftrace_process_locs(struct module *mod,
+> >  	 */
+> >  	if (!IS_ENABLED(CONFIG_BUILDTIME_MCOUNT_SORT) || mod) {
+> >  		sort(start, count, sizeof(*start),
+> > -		     ftrace_cmp_ips, NULL);
+> > +		     ftrace_cmp_ips, ftrace_swap_func);
+> >  	} else {
+> >  		test_is_sorted(start, count);
+> >  	}
+> 
+
+-- 
+Sincerely yours,
+Mike.
