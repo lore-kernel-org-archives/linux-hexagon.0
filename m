@@ -1,161 +1,123 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AA3A1C5792;
-	Tue, 27 Aug 2024 15:43:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD0221C86F2;
+	Fri,  6 Sep 2024 09:37:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724773409; cv=none; b=YZKizRVOkzZX5ds3msz1Z6gczEMA4tLMXkoZpKfXZQDPLCJnnkiHAuAetuszhW599cDH4z+B0bQqRJmtgqpiVm1fNEOBWfvpXF5rr4Rj8GF3XK+8a7Xh+LBl8AMz2aoif5kFr+YM+bcYYhSk6rkesG2IFQdv/m7jayKpd6BmP3o=
+	t=1725615460; cv=none; b=TqWFp7PopKEOViisL0VfWxRsAGqEJXAJjvXBTBKQg9mnu5RULl+mQanWlSpvxbZq6t1NHjmEBNhs1QlvJNAkVMHfS3lwNlvV83bPmGC9LIVcrWjIDpFVtAhm87V+9kD77OTcDH4Yv2F7DMv3YDN/w5y4zdV78TWexpnWF4fE904=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724773409; c=relaxed/simple;
-	bh=gLN6XrXPe8lnOYBY+qE6Br7q9z15uQyViI2cYvrjDUQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Od33bOhcw1GpRXUEH88TvMilofZpTVAkWCKcAPdYK8wv/VqJrhchShe8pqCo19CVmveCY7goFnVNymTMihw6msAlyZXjuHiEkPIxR49duSk9PgU9+SnMPabgm7rfAluJtcVTXEYP2OGTAcEeJBmDDCEms8GXOA1tz4UayaH0Gz4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pJjeZGdR; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pJjeZGdR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0C93C4DE0D;
-	Tue, 27 Aug 2024 15:43:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1724773408;
-	bh=gLN6XrXPe8lnOYBY+qE6Br7q9z15uQyViI2cYvrjDUQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=pJjeZGdRlRZciwiSds7ncOoFJeP+wPAbVUVeY1LlTa56La6oD/XycPb3ju2I/Si6N
-	 bNsP9pfRPVziKGgn/Q7CZW62Bt7rl9iXHC+NkqAHxIdvlozlUPOn7DKQtQl24SAAKo
-	 NVAJkyrxO3xLQShBOmpHzZcPcSpDnuVLQLFIjp6TCSAVJcQE/Q6oni4wO6fU4ZsrHD
-	 4ovVIvkGw6loTWaFlHze4az9iCCc+TXdBuzKzGsuhZ4ATm4q785T8iPGoGLrAdyrZK
-	 3tUYk2k2P5uZy+/qiIPItAj2gx6xlt89fXh5S1kblIuw6KS4FNa+7dzFK9H80hz+VW
-	 wYQnWN9qfNMIA==
-Date: Tue, 27 Aug 2024 18:40:35 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@quicinc.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michal Simek <monstr@monstr.eu>, Oleg Nesterov <oleg@redhat.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Richard Weinberger <richard@nod.at>,
-	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
-	Stafford Horne <shorne@gmail.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org, linux-mm@kvack.org,
-	linux-modules@vger.kernel.org, linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-trace-kernel@vger.kernel.org, linux-um@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v2 5/8] ftrace: Add swap_func to ftrace_process_locs()
-Message-ID: <Zs3zcwyygUk4_X8y@kernel.org>
-References: <20240826065532.2618273-1-rppt@kernel.org>
- <20240826065532.2618273-6-rppt@kernel.org>
- <20240826132909.306b08fc@gandalf.local.home>
+	s=arc-20240116; t=1725615460; c=relaxed/simple;
+	bh=A27GPoNCqeEblNkD35Q5FEOM7mXI18FF4Q+F+Be5xBs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VUewNUUR02UlTsm7n0nMW5gUDqhOFq1y8/YO/zA/t/u8f7lWvmzO5Lg/GGk8OXkDwxwKD0RPMiNgRtjIGFTMJswyM/DPzfrd/Cz+GfYqdW0Jbl4PPypunXvAGzvRRLaETTm6DtXFqaalVhOiiM3Z/9MAJjSdrgh1EXDeehkkwVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+	by localhost (Postfix) with ESMTP id 4X0WNd0KqCz9sS7;
+	Fri,  6 Sep 2024 11:37:37 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Tb5_IXnVVz6o; Fri,  6 Sep 2024 11:37:36 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+	by pegase2.c-s.fr (Postfix) with ESMTP id 4X0WNc6BLsz9sRs;
+	Fri,  6 Sep 2024 11:37:36 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id C01C28B778;
+	Fri,  6 Sep 2024 11:37:36 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+	with ESMTP id LWSbpxzkChqf; Fri,  6 Sep 2024 11:37:36 +0200 (CEST)
+Received: from [192.168.235.70] (unknown [192.168.235.70])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id 65D348B764;
+	Fri,  6 Sep 2024 11:37:34 +0200 (CEST)
+Message-ID: <7c3720ff-b763-44b0-9b57-a2fbff3c7f56@csgroup.eu>
+Date: Fri, 6 Sep 2024 11:37:34 +0200
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240826132909.306b08fc@gandalf.local.home>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 7/8] execmem: add support for cache of large ROX pages
+To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+ Brian Cain <bcain@quicinc.com>, Catalin Marinas <catalin.marinas@arm.com>,
+ Christoph Hellwig <hch@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Dinh Nguyen
+ <dinguyen@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
+ Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
+ Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Kent Overstreet <kent.overstreet@linux.dev>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Luis Chamberlain <mcgrof@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Masami Hiramatsu <mhiramat@kernel.org>, Matt Turner <mattst88@gmail.com>,
+ Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Michal Simek <monstr@monstr.eu>, Oleg Nesterov <oleg@redhat.com>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Peter Zijlstra <peterz@infradead.org>,
+ Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>,
+ Song Liu <song@kernel.org>, Stafford Horne <shorne@gmail.com>,
+ Steven Rostedt <rostedt@goodmis.org>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Thomas Gleixner <tglx@linutronix.de>, Uladzislau Rezki <urezki@gmail.com>,
+ Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
+ bpf@vger.kernel.org, linux-alpha@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-mm@kvack.org,
+ linux-modules@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-trace-kernel@vger.kernel.org, linux-um@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+ sparclinux@vger.kernel.org, x86@kernel.org
+References: <20240826065532.2618273-1-rppt@kernel.org>
+ <20240826065532.2618273-8-rppt@kernel.org>
+Content-Language: fr-FR
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+In-Reply-To: <20240826065532.2618273-8-rppt@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 26, 2024 at 01:29:09PM -0400, Steven Rostedt wrote:
-> On Mon, 26 Aug 2024 09:55:29 +0300
-> Mike Rapoport <rppt@kernel.org> wrote:
-> 
-> > From: Song Liu <song@kernel.org>
-> > 
-> > ftrace_process_locs sorts module mcount, which is inside RO memory. Add a
-> > ftrace_swap_func so that archs can use RO-memory-poke function to do the
-> > sorting.
-> 
-> Can you add the above as a comment above the ftrace_swap_func() function?
 
-Sure.
- 
-> Thanks,
+
+Le 26/08/2024 à 08:55, Mike Rapoport a écrit :
+> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 > 
-> -- Steve
+> Using large pages to map text areas reduces iTLB pressure and improves
+> performance.
 > 
-> > 
-> > Signed-off-by: Song Liu <song@kernel.org>
-> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> > ---
-> >  include/linux/ftrace.h |  2 ++
-> >  kernel/trace/ftrace.c  | 13 ++++++++++++-
-> >  2 files changed, 14 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
-> > index fd5e84d0ec47..b794dcb7cae8 100644
-> > --- a/include/linux/ftrace.h
-> > +++ b/include/linux/ftrace.h
-> > @@ -1188,4 +1188,6 @@ unsigned long arch_syscall_addr(int nr);
-> >  
-> >  #endif /* CONFIG_FTRACE_SYSCALLS */
-> >  
-> > +void ftrace_swap_func(void *a, void *b, int n);
-> > +
-> >  #endif /* _LINUX_FTRACE_H */
-> > diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-> > index 4c28dd177ca6..9829979f3a46 100644
-> > --- a/kernel/trace/ftrace.c
-> > +++ b/kernel/trace/ftrace.c
-> > @@ -6989,6 +6989,17 @@ static void test_is_sorted(unsigned long *start,
-> > unsigned long count) }
-> >  #endif
-> >  
-> > +void __weak ftrace_swap_func(void *a, void *b, int n)
-> > +{
-> > +	unsigned long t;
-> > +
-> > +	WARN_ON_ONCE(n != sizeof(t));
-> > +
-> > +	t = *((unsigned long *)a);
-> > +	*(unsigned long *)a = *(unsigned long *)b;
-> > +	*(unsigned long *)b = t;
-> > +}
-> > +
-> >  static int ftrace_process_locs(struct module *mod,
-> >  			       unsigned long *start,
-> >  			       unsigned long *end)
-> > @@ -7016,7 +7027,7 @@ static int ftrace_process_locs(struct module *mod,
-> >  	 */
-> >  	if (!IS_ENABLED(CONFIG_BUILDTIME_MCOUNT_SORT) || mod) {
-> >  		sort(start, count, sizeof(*start),
-> > -		     ftrace_cmp_ips, NULL);
-> > +		     ftrace_cmp_ips, ftrace_swap_func);
-> >  	} else {
-> >  		test_is_sorted(start, count);
-> >  	}
+> Extend execmem_alloc() with an ability to use PMD_SIZE'ed pages with ROX
+> permissions as a cache for smaller allocations.
+
+Why only PMD_SIZE ?
+
+On power 8xx, PMD_SIZE is 4M and the 8xx doesn't have such a page size. 
+When you call vmalloc() with VM_ALLOW_HUGE_VMAP you get 16k pages or 
+512k pages depending on the size you ask for, see function 
+arch_vmap_pte_supported_shift()
+
+> 
+> To populate the cache, a writable large page is allocated from vmalloc with
+> VM_ALLOW_HUGE_VMAP, filled with invalid instructions and then remapped as
+> ROX.
+> 
+> Portions of that large page are handed out to execmem_alloc() callers
+> without any changes to the permissions.
+> 
+> When the memory is freed with execmem_free() it is invalidated again so
+> that it won't contain stale instructions.
+> 
+> The cache is enabled when an architecture sets EXECMEM_ROX_CACHE flag in
+> definition of an execmem_range.
 > 
 
--- 
-Sincerely yours,
-Mike.
+Christophe
