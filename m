@@ -1,220 +1,232 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1374619E985;
-	Mon, 23 Sep 2024 15:14:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.168.131
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727104467; cv=fail; b=MggOAWJqZdsP2HbATFdyrf25yw8g8HnUvcstkLWLdGadbW6NgjWpECOt27FiV6PwLI3K0bQXMiA9YSjv7gbs45/79I+uDF5lo+6A+DNLliEAEccEzcWHnySZX4l8qpNY40ubEJQERhnTTRoPNdOk5zBDjPZkH324eIrNc29FvY4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727104467; c=relaxed/simple;
-	bh=rsykFz4qFSCLZxRBKGy6PH+d9MVb1awJdla4w9/W97A=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Ys7sbsQ4fg9+Df9VGDuUWj67QXxzjTUPbo0ATBaFD3p4O9kqCysrOwhGrggaBUutS0U0IzjRoTsKE7GCpZOD/gJullF09LZkSWm64wVJypzVrrFQbR9Wb16MZQJ7lyXa8/U3tcR5hkO9SvKwUSQ5vVfGTR5kwpGmaenaO/gXG2I=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=DIWK7bwu; arc=fail smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAD7B189BAC;
+	Mon, 30 Sep 2024 15:50:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1727711456; cv=none; b=H8OLYM8Yt9jtfHnAMHFdiR+/2zxlQnHgCriSgJCF14ir3kma8ll/ndV1KJ9Apm1x3RQVewESoWLPyI4PSFIfZvWV/nmsAPcrpWQi8GBc2+d6uRGXqalckgJZBg0VL4zjZIxxS0woMSzWDx7to3mrDZC0+zEljyPEUr4mSMY5hqo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1727711456; c=relaxed/simple;
+	bh=38/1vLRS7rCKVRWaB84+o3nuFBsPMC371LzQmWzOxSg=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=SJWo3Jk4CucqPyjCyJCChZcVw2RyiCoPTNkIgcWaS9GE4WmlCMboJOoPsAxm0v23HQyzvE5S89OJQ+TJMeTadyhos9QtSOgbCenKCIpjOhJiGwx66wPPiMBk0DGPB50BE3twW5XnL0n9rnJTJgWhmErUERZBOtVqgsY42F1fGr8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C/1rtQ3H; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="DIWK7bwu"
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48NBAH4H011416;
-	Mon, 23 Sep 2024 15:14:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	RyBq6IHimVmaNJBEtioa9nrREmNMIe9ltriKKtbXa0U=; b=DIWK7bwuqFAXRVVM
-	nqrasrrXgWZx3X4XdnY3dbwxjOahmivTxE0ajKoM/iqDxB6axWejNlMFhjEpRWY6
-	bbCKPA4nBJqCZv4RN4v/O8Sk7g/pzYJY296/sfPaWZZYsp+C97+aGv2UUd897D/U
-	Sb4+t6yyXX4ut2aQUTg6MLWmmIfh5tacgnLV3JeeajDwMpdhF6ffA5VCsl8SYojP
-	PXwRZBB5Ei+HA+O8cRiHqwkxKwyXJY0WUEb0ZnK99vIpBbwOFPjAGxvIouXLpOCd
-	6uIdZ/Gvatlg4T/M5dl5FfUZo/ZHSxdki+DA9kxiVwrdRbvuCuzNhZX5lrQB0EeD
-	dycE5A==
-Received: from sj2pr03cu001.outbound.protection.outlook.com (mail-westusazlp17012032.outbound.protection.outlook.com [40.93.1.32])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 41skuen9ck-1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C/1rtQ3H"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48UEu6m3003494;
+	Mon, 30 Sep 2024 15:50:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	message-id:subject:from:to:cc:date:in-reply-to:references
+	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
+	LXQ8PrKWtR6B/UWG6A7R2z1jwOQF+2mpJDAe/vDg6aA=; b=C/1rtQ3HkTkZjQUb
+	XBt/TJEAUbCJyBvyjGp+gnSjgHREKoMFOZysXPt6Xu5nbLaB+JUWJiVOA8hEDtdz
+	jT5Udli5BnIlHiBGS8b3KqRCW8vYZIWuA4hPk9FcmwARSgIUTr0lCB/cvl2iT9xF
+	poKvo1EkmV1KVAUO32ZFSUdAPQ82/BEUwB5IjdxF52lMmE7BOZG5ntYfnIMlMaHu
+	y3IZhjihYTnNJOaYE1OckCVvEnnsJbcH96rbmzjijxqzn4c7SicyyAz6fVRHfFK8
+	bDpXvc+jWTZvjQ7YhTMCBFptwrwBTuvmR3NOmCP8oLEk6+uIrlbyNOzgroDgTc4N
+	WXxqAg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 41x9fwtsfe-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 23 Sep 2024 15:14:09 +0000 (GMT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=JOdEE92J4qLPuJlRe2sNgw1vgumdSItASpS5cQWPmzELTy2mdx0epiQSFu6+B+9k5zEdbMBAqiHoNZu9VXc2MTYvlWlvnBFYBMSKEKeVnGh3U1/BCti6CimUMbSofAhJssgKr3GZdB7ODLah2UGNlZltskEm1SDlHRIf+V3APt/O7833w3qzl0BGOLYhEH7MitzMe6smmKTOO8uDK5DOx83NpmoGrbDeB+iFQa7qodMFTMyuH21rUj4L0gB6Jh7TgjJjuz2alAwHjVapBvc2qNOj6N7bXo/+As6pJL4t907MwMmaYhVbLCbnzwiyMd35ll0Odq3frFotXjwmIUc6vg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=RyBq6IHimVmaNJBEtioa9nrREmNMIe9ltriKKtbXa0U=;
- b=Y/Ugrl+8U6ifTvnxosXo8kNBbl+Z7moia5ZHvZGUyZD8NE9Ep4UccqeetCtxKCXUeGXZpBq1OmqSxswUDH3bzCnwbiO0ma5Xo4HAQ5GG844bo9+2z8TaTHTrbhi8Nk4jxaBHuvxw9ctJGw1IyXOGGBo02cMQVo6oTxX4M5qLXOUnQMQfnNmntHow4eM/pOL0qqxHeYTquyqtxuz/FL4lEN+VWOHr+f+KCFagVFQWHYBmV0KXaXucssJ6qzdf1tW8Td2Mu5b2xjNBhD6XoqlXgVkTCk5SzsZAMZPtg8C0X0MfuyGhNekV/Zp2Pd+JeiT9BeMoi6l7XJfZ7BSQ4zaCFA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=quicinc.com; dmarc=pass action=none header.from=quicinc.com;
- dkim=pass header.d=quicinc.com; arc=none
-Received: from CH3PR02MB10247.namprd02.prod.outlook.com
- (2603:10b6:610:1c2::10) by LV8PR02MB10019.namprd02.prod.outlook.com
- (2603:10b6:408:183::5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7982.25; Mon, 23 Sep
- 2024 15:14:07 +0000
-Received: from CH3PR02MB10247.namprd02.prod.outlook.com
- ([fe80::2980:17c4:6e92:2b11]) by CH3PR02MB10247.namprd02.prod.outlook.com
- ([fe80::2980:17c4:6e92:2b11%4]) with mapi id 15.20.7982.022; Mon, 23 Sep 2024
- 15:14:07 +0000
-From: Brian Cain <bcain@quicinc.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Linus Torvalds
-	<torvalds@linux-foundation.org>,
-        Sid Manning <sidneym@quicinc.com>,
-        Nathan
- Chancellor <nathan@kernel.org>
-Subject: RE: [PATCH] hexagon: vdso: Fix build failure
-Thread-Topic: [PATCH] hexagon: vdso: Fix build failure
-Thread-Index: AQHbDb/gMIsFA8eSkEy1bE3del2LGLJlepuQ
-Date: Mon, 23 Sep 2024 15:14:06 +0000
-Message-ID:
- <CH3PR02MB10247D71B45A21D9785091A6BB86F2@CH3PR02MB10247.namprd02.prod.outlook.com>
-References: <20240923135235.1159314-1-linux@roeck-us.net>
-In-Reply-To: <20240923135235.1159314-1-linux@roeck-us.net>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CH3PR02MB10247:EE_|LV8PR02MB10019:EE_
-x-ms-office365-filtering-correlation-id: a0a54019-d99d-4c7b-c236-08dcdbe25e4b
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|366016|376014|38070700018;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?pUQfxgZJVb5s1/OFlkdRj5Fnn+QcRGM2bDHwPmU+SxmLJ5hoclP/9uplS+tu?=
- =?us-ascii?Q?8aSArhKJ8OsdwhlnJdnaEsEX6QP/EY8W6NmVeoZ1x2V57qFgCy3g6jPyRd93?=
- =?us-ascii?Q?fDNtlGGCFXyjwWyB3AeHcQCN5o2JwJTCUQmpMsFw+UTaJ/oYIynV01iQVBtp?=
- =?us-ascii?Q?aI/8LPTI5xv0ng0u/M/84JjiZG1o5XKoOc1//WN2+FzETFsZ1UujMnkPk1J6?=
- =?us-ascii?Q?Levra0ceQoFl7jV/Ff7NfungAE/Ie0Z0eeMCWLqRgixTA1YDK+4eS4ddB63x?=
- =?us-ascii?Q?vHhMh7NFklJz5GL0NhUxhsJWdQPOAzmJ5M9f+CAfI/KF3HnZpbGgTfETspvx?=
- =?us-ascii?Q?NxOym488TtFMK8KDxu6DcJaKfl7zHOt5BFW3aoQQU6s/usy4by8xxcIJbzuX?=
- =?us-ascii?Q?crdh8mMBpvnBdxhgZ7YjS4yoQitgBTIYX1I31CC91UBNaY0jHWEqumd8xMwq?=
- =?us-ascii?Q?Qh5RIISMtatixn5UYRa1g6ZExuUvWQ2qHACMefzhXFzo66gCMfxVs7mTQZzq?=
- =?us-ascii?Q?CvBhaOislhF0tcK6VryLOmutYKrhf5lIU+f38MsOBiBd96bwrQOtCgpImVcJ?=
- =?us-ascii?Q?J1DpUBcujDqEwPQTLznXdPT/RxteeDCVTcn7tsLqLfQ6rGp3EhG+cknO5NBC?=
- =?us-ascii?Q?S0pk/LffZHa9qxFrgaalXdEDYlakNr97uZGnaZ2TYpNae1k82a3lVPpzaQ83?=
- =?us-ascii?Q?UgUflMEmulRZ9oAMrx9dVSHKy+p7A3nZi80zrHybX7pvdc5WfcTVZSOeXPFF?=
- =?us-ascii?Q?cS/96ThGDTYK1SC4rOYcQpq4q5Vp7QNjtmChgZWWH+qsVS6jDmMqW00cZkS3?=
- =?us-ascii?Q?PirVP2s3Z3zVwY5rRGXiyAr2vd7c+AdtzroSX7LSZJOuB5pNtw6cJzZD5lt/?=
- =?us-ascii?Q?MLLVFV2iHytpfIxPG21Lqyg48Qv/O8I3igl0eNJ2VkCzryhVsQ7NZugy0GPV?=
- =?us-ascii?Q?d0sQ0s2MOFsN4HgxlBqf6J919Fo0xLTLOh5wh8ryLfhDglTBDsjTooifIyME?=
- =?us-ascii?Q?y9EPwdkCiwSvyiFoCG74KGC6Z5Eu+k5D61DRMmv+EfTM7HyYkSedtKp8aBIt?=
- =?us-ascii?Q?eWEwJlCg5bZmnDSxNgl6VFxaTD+N1gLpKz5Eml+iUmuFbMFhvj2UKkCvrres?=
- =?us-ascii?Q?INj9Y0pCc485KneP3pZ3wCQwxgZY0MMaOJBo09XSz/DsTQksi0EppXz64IRX?=
- =?us-ascii?Q?AnhXwrin7gMj5h/ZcN7T80n6IaZMF4xCM9yCslD9unzK4dK9sfDx0n/oLS4g?=
- =?us-ascii?Q?vHlagxeaYZ4RiMoJbL3hj1PlI88gmGhk6hSNKk6Ba7TTko1oMM0ug1rJfa7B?=
- =?us-ascii?Q?ZO0fXagrxpOcWVYW9K8+BX5ROQP5MF4HnNc8uTytF5Omle1fEMj211j6odiq?=
- =?us-ascii?Q?nAJDofwn6e01ZlAik34GS7uqGxC4iyDXY7Vd2W9NN4BpPH1Khg=3D=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR02MB10247.namprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(38070700018);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?Jgq22b6IdYQqg+xCXQnR87ONhbLProrHWp0PNPKBcytHb+MKIVBeQJ8w6sii?=
- =?us-ascii?Q?lMULl+zUKjTUw5deYsa2YvbiLobLyjnM+QpnUfOKeH6IYZRw3VtP1gmN2hBW?=
- =?us-ascii?Q?gjmqtmEP5ej+TNJ/2ElYc0SaHm0bWHezBNWi3ECU3+1EIGP3oA+9PdXWpeb9?=
- =?us-ascii?Q?Saw6AvD92dXK4pIqVaRc40Af4YKHOw2c17wSLj8rSGWYsX4Anzuqqr551ZF2?=
- =?us-ascii?Q?ZvL4PdymY2yPN7HmLX+xPBdWqku57/xz0VIHc1jarxJ5tBgHx0JUi0Osv9SA?=
- =?us-ascii?Q?hXZLPl7TJWAOjStM8GGEbHgQb/oykKG9TagBd9ntZayS5jOSPrv710dDRmCm?=
- =?us-ascii?Q?QtyrIB3I6/svtIWFN5dch97XxPQnWEGv+67lI0D8tDYu9Ate5+g9l4HAtmuf?=
- =?us-ascii?Q?pQKGA1nycNvIxyOEMezLbJxjhU/oqAfov2pPyqp/VdOfavZyaeJw7dqdSY64?=
- =?us-ascii?Q?QI4r4doKEiUZJZ06WB4KbP80Awoqu3c1bSXnKGDvkt49S13e4vU6jlD8E0QD?=
- =?us-ascii?Q?KyDF8dvmVnBVcS2yQFdhZoCv2D47m+PI45Z519BF/NDbV7wWEABgh7UUPTX0?=
- =?us-ascii?Q?cj26ZgH/ENfQ4R7sZOpnqoD0TArSWYS56jbRjUP/hH9TFINRhhPDtFGis5Bl?=
- =?us-ascii?Q?NLBx09/i9GFNADDYnsT1ZIV8omcLoH6dj2Vbc0W63lcgHy79ryNS77jGTjCY?=
- =?us-ascii?Q?C1nebgK4GvRIosmwaICStIAZRupLuWmlYXnxNvLZW+RcipFOfTq5AOQseVoP?=
- =?us-ascii?Q?cKs/1HOEGqqkkOtOqQBhLzxNzCfKgDBzQpYBNcCDjAx2KTinDeacsaBwI8Q7?=
- =?us-ascii?Q?U5DBXI2NSeiPCls6NP/p4jC/M2a0o7nexBi3rhzVqi1TY2h4Wp757lOTGteG?=
- =?us-ascii?Q?AhIoGMUW/GEkvDK5orE6cJMWWEnXL8d6w24VcJIZSKFClavljBJRe6uKzmad?=
- =?us-ascii?Q?jQEwsY0EZRM8+mVh5/oWgnZVMvw68IHQJWqFbhgx0phb+rDnukCZNM+hLfzb?=
- =?us-ascii?Q?zm+v337BsPxokqoNP1f+4XM4kPHDYI4J+Y5hJRegp5uI2V/b/YUJS5ppazHC?=
- =?us-ascii?Q?4Gy2qCf/6hJPEDxi3Cau0uyXDtP8b9Qq8eSAhLykvR0kwsqC9tHxqmGl/zDa?=
- =?us-ascii?Q?R0amv/n+PgCtJ2lJiexDJ0N/Mmnpq0Ap+MZ3U9sGUrrIDi8+wD/bRouXesfo?=
- =?us-ascii?Q?NoDo4hZSIH50uhphYxP1udJCWiVrpCIMsLGbsNLcXZF0rezThySQAfV5Mkim?=
- =?us-ascii?Q?pno5BdtbFBHCAtVtdpAE3ZW1Cw9nFVuElIkPfbJ7qFhPquWNFBWvFO9CUIdB?=
- =?us-ascii?Q?x1dx5wXcTMZRyaqILc9v3IWVM6nc8NfqGQa7Wsn+xOkamFw5FYRDn8BWWSyh?=
- =?us-ascii?Q?sU86UF2Kov/uhN6ImtYf6h6RlgD9ECbUA1THSbaGKb7RBEcCE4R+Eyle91d5?=
- =?us-ascii?Q?irl7SCADGQa5B6gPNZCOyFcdYanuhJ/UNRNdrnlKw/ck/NnTm17jocphw0c+?=
- =?us-ascii?Q?AGECVapiHAFZdeaW1kj3Og/EeoxGPgqf6DaKWNtWHPBgVVQrhOBOfSRZTaMj?=
- =?us-ascii?Q?NLYWuQ57BvW7hrk2FQ/hpVH2v/vF284ACNaSIad2?=
-Content-Type: text/plain; charset="us-ascii"
+	Mon, 30 Sep 2024 15:50:48 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 48UEdpvb017905;
+	Mon, 30 Sep 2024 15:50:47 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41xw4mqc3x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 30 Sep 2024 15:50:47 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 48UFokqb47907322
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 30 Sep 2024 15:50:46 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8F94E58053;
+	Mon, 30 Sep 2024 15:50:46 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 57AB85805F;
+	Mon, 30 Sep 2024 15:50:45 +0000 (GMT)
+Received: from [9.179.7.149] (unknown [9.179.7.149])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 30 Sep 2024 15:50:45 +0000 (GMT)
+Message-ID: <6c8daef875f9981c59fc5ce9c81eb8c3c2618b5c.camel@linux.ibm.com>
+Subject: Re: [PATCH 1/1] hexagon: Don't select GENERIC_IOMAP without
+ HAS_IOPORT support
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Brian Cain <bcain@quicinc.com>
+Cc: "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
+        Arnd
+ Bergmann <arnd@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Mon, 30 Sep 2024 17:50:44 +0200
+In-Reply-To: <CH3PR02MB10247A45A17F7D8104D1922A8B83D2@CH3PR02MB10247.namprd02.prod.outlook.com>
+References: <20240403132447.719833-1-schnelle@linux.ibm.com>
+	 <20240403132447.719833-2-schnelle@linux.ibm.com>
+	 <CH3PR02MB10247296630FC062F4E3DE2FDB83D2@CH3PR02MB10247.namprd02.prod.outlook.com>
+	 <c04ed601dbd0a8053e034fef1c05ce2ca6e95392.camel@linux.ibm.com>
+	 <CH3PR02MB10247A45A17F7D8104D1922A8B83D2@CH3PR02MB10247.namprd02.prod.outlook.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
+ /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
+ 3/1pjpNlSaX/qg3ZM8+/EiSGc7uEPklLYu3gRGxcWV/944HdUyLcnjrZwCn2+gg9ncVJjsimS0ro/
+ 2wU2RPE4ju6NMBn5Go26sAj1owdYQQv9t0d71CmZS9Bh+2+cLjC7HvyTHKFxVGOznUL+j1a45VrVS
+ XQ+nhTVjvgvXR84z10bOvLiwxJZ/00pwNi7uCdSYnZFLQ4S/JGMs4lhOiCGJhJ/9FR7JVw/1t1G9a
+ UlqVp23AXwzbcoV2fxyE/CsVpHcyOWGDahGLcH7QeitN6cjltf9ymw2spBzpRnfFn80nVxgSYVG1d
+ w75ksBAuQ/3e+oTQk4GAa2ShoNVsvR9GYn7rnsDN5pVILDhdPO3J2PGIXa5ipQnvwb3EHvPXyzakY
+ tK50fBUPKk3XnkRwRYEbbPEB7YT+ccF/HioCryqDPWUivXF8qf6Jw5T1mhwukUV1i+QyJzJxGPh19
+ /N2/GK7/yS5wrt0Lwxzevc5g+jX8RyjzywOZGHTVu9KIQiG8Pqx33UxZvykjaqTMjo7kaAdGEkrHZ
+ dVHqoPZwhCsgQARAQABtChOaWtsYXMgU2NobmVsbGUgPHNjaG5lbGxlQGxpbnV4LmlibS5jb20+iQ
+ JXBBMBCABBAhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAhkBFiEEnbAAstJ1IDCl9y3cr+Q/Fej
+ CYJAFAmWVooIFCQWP+TMACgkQr+Q/FejCYJCmLg/+OgZD6wTjooE77/ZHmW6Egb5nUH6DU+2nMHMH
+ UupkE3dKuLcuzI4aEf/6wGG2xF/LigMRrbb1iKRVk/VG/swyLh/OBOTh8cJnhdmURnj3jhaefzslA
+ 1wTHcxeH4wMGJWVRAhOfDUpMMYV2J5XoroiA1+acSuppelmKAK5voVn9/fNtrVr6mgBXT5RUnmW60
+ UUq5z6a1zTMOe8lofwHLVvyG9zMgv6Z9IQJc/oVnjR9PWYDUX4jqFL3yO6DDt5iIQCN8WKaodlNP6
+ 1lFKAYujV8JY4Ln+IbMIV2h34cGpIJ7f76OYt2XR4RANbOd41+qvlYgpYSvIBDml/fT2vWEjmncm7
+ zzpVyPtCZlijV3npsTVerGbh0Ts/xC6ERQrB+rkUqN/fx+dGnTT9I7FLUQFBhK2pIuD+U1K+A+Egw
+ UiTyiGtyRMqz12RdWzerRmWFo5Mmi8N1jhZRTs0yAUn3MSCdRHP1Nu3SMk/0oE+pVeni3ysdJ69Sl
+ kCAZoaf1TMRdSlF71oT/fNgSnd90wkCHUK9pUJGRTUxgV9NjafZy7sx1Gz11s4QzJE6JBelClBUiF
+ 6QD4a+MzFh9TkUcpG0cPNsFfEGyxtGzuoeE86sL1tk3yO6ThJSLZyqFFLrZBIJvYK2UiD+6E7VWRW
+ 9y1OmPyyFBPBosOvmrkLlDtAtyfYInO0KU5pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNjaG5lbGxlQ
+ GlibS5jb20+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAAstJ1IDCl9y
+ 3cr+Q/FejCYJAFAmWVoosFCQWP+TMACgkQr+Q/FejCYJB7oxAAksHYU+myhSZD0YSuYZl3oLDUEFP
+ 3fm9m6N9zgtiOg/GGI0jHc+Tt8qiQaLEtVeP/waWKgQnje/emHJOEDZTb0AdeXZk+T5/ydrKRLmYC
+ 6rPge3ue1yQUCiA+T72O3WfjZILI2yOstNwd1f0epQ32YaAvM+QbKDloJSmKhGWZlvdVUDXWkS6/m
+ aUtUwZpddFY8InXBxsYCbJsqiKF3kPVD515/6keIZmZh1cTIFQ+Kc+UZaz0MxkhiCyWC4cH6HZGKR
+ fiXLhPlmmAyW9FiZK9pwDocTLemfgMR6QXOiB0uisdoFnjhXNfp6OHSy7w7LTIHzCsJoHk+vsyvSp
+ +fxkjCXgFzGRQaJkoX33QZwQj1mxeWl594QUfR4DIZ2KERRNI0OMYjJVEtB5jQjnD/04qcTrSCpJ5
+ ZPtiQ6Umsb1c9tBRIJnL7gIslo/OXBe/4q5yBCtCZOoD6d683XaMPGhi/F6+fnGvzsi6a9qDBgVvt
+ arI8ybayhXDuS6/StR8qZKCyzZ/1CUofxGVIdgkseDhts0dZ4AYwRVCUFQULeRtyoT4dKfEot7hPE
+ /4wjm9qZf2mDPRvJOqss6jObTNuw1YzGlpe9OvDYtGeEfHgcZqEmHbiMirwfGLaTG2xKDx4g2jd2z
+ Ocf83TCERFKJEhvZxB3tRiUQTd3dZ1TIaisv/o+y0K05pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNj
+ aG5lbGxlQGdtYWlsLmNvbT6JAlQEEwEIAD4CGwEFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AWIQSds
+ ACy0nUgMKX3Ldyv5D8V6MJgkAUCZZWiiwUJBY/5MwAKCRCv5D8V6MJgkNVuEACo12niyoKhnXLQFt
+ NaqxNZ+8p/MGA7g2XcVJ1bYMPoZ2Wh8zwX0sKX/dLlXVHIAeqelL5hIv6GoTykNqQGUN2Kqf0h/z7
+ b85o3tHiqMAQV0dAB0y6qdIwdiB69SjpPNK5KKS1+AodLzosdIVKb+LiOyqUFKhLnablni1hiKlqY
+ yDeD4k5hePeQdpFixf1YZclGZLFbKlF/A/0Q13USOHuAMYoA/iSgJQDMSUWkuC0mNxdhfVt/gVJnu
+ Kq+uKUghcHflhK+yodqezlxmmRxg6HrPVqRG4pZ6YNYO7YXuEWy9JiEH7MmFYcjNdgjn+kxx4IoYU
+ O0MJ+DjLpVCV1QP1ZvMy8qQxScyEn7pMpQ0aW6zfJBsvoV3EHCR1emwKYO6rJOfvtu1rElGCTe3sn
+ sScV9Z1oXlvo8pVNH5a2SlnsuEBQe0RXNXNJ4RAls8VraGdNSHi4MxcsYEgAVHVaAdTLfJcXZNCIU
+ cZejkOE+U2talW2n5sMvx+yURAEVsT/50whYcvomt0y81ImvCgUz4xN1axZ3PCjkgyhNiqLe+vzge
+ xq7B2Kx2++hxIBDCKLUTn8JUAtQ1iGBZL9RuDrBy2rR7xbHcU2424iSbP0zmnpav5KUg4F1JVYG12
+ vDCi5tq5lORCL28rjOQqE0aLHU1M1D2v51kjkmNuc2pgLDFzpvgLQhTmlrbGFzIFNjaG5lbGxlIDx
+ uaWtzQGtlcm5lbC5vcmc+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAA
+ stJ1IDCl9y3cr+Q/FejCYJAFAmWVoosFCQWP+TMACgkQr+Q/FejCYJAglRAAihbDxiGLOWhJed5cF
+ kOwdTZz6MyYgazbr+2sFrfAhX3hxPFoG4ogY/BzsjkN0cevWpSigb2I8Y1sQD7BFWJ2OjpEpVQd0D
+ sk5VbJBXEWIVDBQ4VMoACLUKgfrb0xiwMRg9C2h6KlwrPBlfgctfvrWWLBq7+oqx73CgxqTcGpfFy
+ tD87R4ovR9W1doZbh7pjsH5Ae9xX5PnQFHruib3y35zC8+tvSgvYWv3Eg/8H4QWlrjLHHy2AfZDVl
+ 9F5t5RfGL8NRsiTdVg9VFYg/GDdck9WPEgdO3L/qoq3Iuk0SZccGl+Nj8vtWYPKNlu2UvgYEbB8cl
+ UoWhg+SjjYQka7/p6tc+CCPZ8JUpkgkAdt7yXt6370wP1gct2VztS6SEGcmAE1qxtGhi5Kuln4ZJ/
+ UO2yxhPHgoW99OuZw3IRHe0+mNR67JbIpSuFWDFNjZ0nckQcU1taSEUi0euWs7i4MEkm0NsOsVhbs
+ 4D2vMiC6kO/FqWOPmWZeAjyJw/KRUG4PaJAr5zJUx57nhKWgeTniW712n4DwCUh77D/PHY0nqBTG/
+ B+QQCR/FYGpTFkO4DRVfapT8njDrsWyVpP9o64VNZP42S+DuRGWfUKCMAXsM/wPzRiDEVfnZMcUR9
+ vwLSHeoV7MiIFC0xIrp5ES9R00t4UFgqtGc36DV71qjR+66Im0=
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.4 (3.52.4-1.fc40) 
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	wY2fK7MjAEPo5i9VqT7s8bJAwTQ0VwJp5RmGijcVor49xUpX+0SK9PYNh1iMlZfX4qwQXF0pgE3+BQ6RDmp5VTzw4+F0mHqcdd+0AgYaJNEuI4RIAiZP9SMWc9wA2v3XyVOX20L+EO1/B5EVjnVIXmLhBpajy3QbZMJarw9msB7mEZbHgOZdMh1rmz+WQhpRwk8yn/l3nVeNUdQp/81alZOc3ihVs4G8ImdaIowpEN9/bYAKtCpkQ0Wfkv9ahQKq+NIDsUz/Ln+Ubi70oPUXDW0woQVfjaAdFx+GBzvCziokj0E0PQ76gWpubSvdczgyIuE+PJqPJw2AKSf+OaL7syizAiPsJKKmitHX+G+4GNguapyuaZt4bDi+6a3Wi2Td6e56FuHiGCLaHvqz6SAW+swmq77urX9UGo6FY4Ui5uSV57wmVVmM4OxwE3wF47zVqWQGB+sLr3CgkPtuf6jGCD8OkUYlsYrVC8SMqxHyBOB/EIfjANwFFywN/YOuIUcEKm/1yPuxmIY21JrSsrxjj1Y5HHGfawSpfJQxFLRo4ExjE7j8ZFV8uHGpYOQvOx2LKJEpIVTMlSfDuD2/X8gpqrQtQ4qz8jHU3nWchG2OwYKCZg06LukxS0uhSd2xAh+3
-X-OriginatorOrg: quicinc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR02MB10247.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a0a54019-d99d-4c7b-c236-08dcdbe25e4b
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Sep 2024 15:14:07.0340
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 98e9ba89-e1a1-4e38-9007-8bdabc25de1d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 0tXWQp6Kv6HCUcrQZ4Zk9PD46tthgbq1vGB4SGNyYQq1kc85sj55Yy7kEVLGhL3NMTJQsDVZhy/8U3lI/YlUjg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR02MB10019
-X-Proofpoint-GUID: rxCXiz_1fkDbGUQy2D96EsQXtTu_Wd8F
-X-Proofpoint-ORIG-GUID: rxCXiz_1fkDbGUQy2D96EsQXtTu_Wd8F
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: lrXFTQXdstessQdWIf6ryTeVl5zMskgb
+X-Proofpoint-GUID: lrXFTQXdstessQdWIf6ryTeVl5zMskgb
 X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- adultscore=0 clxscore=1011 lowpriorityscore=0 suspectscore=0
- malwarescore=0 impostorscore=0 mlxlogscore=569 bulkscore=0 mlxscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2408220000 definitions=main-2409230113
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-09-30_15,2024-09-30_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1011 malwarescore=0 adultscore=0 spamscore=0 impostorscore=0
+ mlxscore=0 mlxlogscore=451 bulkscore=0 suspectscore=0 lowpriorityscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409300113
 
-> -----Original Message-----
-> From: Guenter Roeck <groeck7@gmail.com> On Behalf Of Guenter Roeck
-> Sent: Monday, September 23, 2024 8:53 AM
-> To: Brian Cain <bcain@quicinc.com>
-> Cc: linux-hexagon@vger.kernel.org; linux-kernel@vger.kernel.org; Guenter
-> Roeck <linux@roeck-us.net>; Linus Torvalds <torvalds@linux-foundation.org=
->
-> Subject: [PATCH] hexagon: vdso: Fix build failure
+On Wed, 2024-04-03 at 15:37 +0000, Brian Cain wrote:
 >=20
-> WARNING: This email originated from outside of Qualcomm. Please be wary o=
-f
-> any links or attachments, and do not enable macros.
+> > -----Original Message-----
+> > From: Niklas Schnelle <schnelle@linux.ibm.com>
+> > Sent: Wednesday, April 3, 2024 10:22 AM
+> > To: Brian Cain <bcain@quicinc.com>
+> > Cc: linux-hexagon@vger.kernel.org; Arnd Bergmann <arnd@kernel.org>;
+> > Heiko Carstens <hca@linux.ibm.com>; linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH 1/1] hexagon: Don't select GENERIC_IOMAP without
+> > HAS_IOPORT support
+> >=20
+> > WARNING: This email originated from outside of Qualcomm. Please be wary
+> > of any links or attachments, and do not enable macros.
+> >=20
+> > On Wed, 2024-04-03 at 14:51 +0000, Brian Cain wrote:
+> > >=20
+> > > > -----Original Message-----
+> > > > From: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > > Sent: Wednesday, April 3, 2024 8:25 AM
+> > > > To: Brian Cain <bcain@quicinc.com>
+> > > > Cc: linux-hexagon@vger.kernel.org; Arnd Bergmann <arnd@kernel.org>;
+> > > > Heiko Carstens <hca@linux.ibm.com>; linux-kernel@vger.kernel.org;
+> > Niklas
+> > > > Schnelle <schnelle@linux.ibm.com>
+> > > > Subject: [PATCH 1/1] hexagon: Don't select GENERIC_IOMAP without
+> > > > HAS_IOPORT support
+> > > >=20
+> > > > WARNING: This email originated from outside of Qualcomm. Please be
+> > wary
+> > > > of any links or attachments, and do not enable macros.
+> > > >=20
+> > > > In a future patch HAS_IOPORT=3Dn will disable inb()/outb() and frie=
+nds at
+> > > > compile time. As hexagon does not support I/O port access it also
+> > > > the GENERIC_IOMAP mechanism of dynamically choosing between I/O
+> > port
+> > > > and
+> > > > MMIO access doesn't work so don't select it.
+> > > >=20
+> > > > Co-developed-by: Arnd Bergmann <arnd@kernel.org>
+> > > > Signed-off-by: Arnd Bergmann <arnd@kernel.org>
+> > > > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > > ---
+> > > >  arch/hexagon/Kconfig | 1 -
+> > > >  1 file changed, 1 deletion(-)
+> > > >=20
+> > > > diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+> > > > index e233b5efa276..5ea1bf4b7d4f 100644
+> > > > --- a/arch/hexagon/Kconfig
+> > > > +++ b/arch/hexagon/Kconfig
+> > > > @@ -31,7 +31,6 @@ config HEXAGON
+> > > >         select HAVE_ARCH_TRACEHOOK
+> > > >         select NEED_SG_DMA_LENGTH
+> > > >         select NO_IOPORT_MAP
+> > > > -       select GENERIC_IOMAP
+> > > >         select GENERIC_IOREMAP
+> > > >         select GENERIC_SMP_IDLE_THREAD
+> > > >         select STACKTRACE_SUPPORT
+> > >=20
+> > > Reviewed-by: Brian Cain <bcain@quicinc.com>
+> > >=20
+> >=20
+> > Thanks for the R-b, which tree should take this? If you have other
+> > hexagon changes for v6.10 I think it would be easiest to take this
+> > together with those. As mentioned in the cover letter the per-subsystem
 >=20
-> Hexagon images fail to build with the following error.
+> I don't have other changes planned for v6.10 but I'm happy to take the ch=
+ange in my tree.
 >=20
-> arch/hexagon/kernel/vdso.c:57:3: error: use of undeclared identifier 'nam=
-e'
->                 name =3D "[vdso]",
->                 ^
->=20
-> Add the missing '.' to fix the problem.
->=20
-> Fixes: 497258dfafcc ("mm: remove legacy install_special_mapping() code")
-> Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
+> > changes are all independent until HAS_IOPORT=3Dn actually disables
+> > inb()/outb() which Arnd will take once all the subsystems are covered.
+> >=20
+> > Thanks,
+> > Niklas
 
-Reviewed-by: Brian Cain <bcain@quicinc.com>
+Hi Brian,
 
->  arch/hexagon/kernel/vdso.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/arch/hexagon/kernel/vdso.c b/arch/hexagon/kernel/vdso.c
-> index 6fd27ff1df73..8119084dc519 100644
-> --- a/arch/hexagon/kernel/vdso.c
-> +++ b/arch/hexagon/kernel/vdso.c
-> @@ -54,7 +54,7 @@ int arch_setup_additional_pages(struct linux_binprm
-> *bprm, int uses_interp)
->         struct vm_area_struct *vma;
->         struct mm_struct *mm =3D current->mm;
->         static struct vm_special_mapping vdso_mapping =3D {
-> -               name =3D "[vdso]",
-> +               .name =3D "[vdso]",
->         };
->=20
->         if (mmap_write_lock_killable(mm))
-> --
-> 2.45.2
->=20
+With 2 more of my HAS_IOPORT patches having gone into v6.12-rc1 I just
+noticed that this one seems to have fallen into the cracks. This is
+probably my fault for not properly confirming that I'd be happy for you
+to take it. Do you want me to resend a new version rebased on v6.12-
+rc1?
 
+Thanks,
+Niklas
