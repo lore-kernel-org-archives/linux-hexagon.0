@@ -1,202 +1,297 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28B6F1CC178;
-	Wed,  2 Oct 2024 11:54:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E59C140E5F;
+	Mon,  7 Oct 2024 06:29:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727870084; cv=none; b=OWHFTeUWAVRSrq61KZ+I104BXC71bpN/gTbugHE5ocfIdHFqPMJM3gWxb7jzNkt1tryZiXhfS9Ef5Alu54pTLbx9UTaoWvSmogrJ8A3DwkmSrfFNpGkvOIcR952F+VbywMxKBlybf1AOyZAP0v0R4ot3eDXGrnOQZ1Htd42Vzao=
+	t=1728282563; cv=none; b=qHoo3qCajQqLJ6MFDjZrXAMk0jjtT5g5IqJcUlgMUBmarNuhY/ba4u3g7WdSZVxZ92X3yR6zoMYUC5N/751usyCfWCj+zhfUayQtr08H7E4JzewUBL5g6hWd+Q8bZlVf8k4hX07bkT0KIlE+5uqg3c+QHXdRGsNtqL/vnSUn81Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727870084; c=relaxed/simple;
-	bh=e6+impYpmTCb2a4OvMgHDLlwX0umslEYRt6jshNNsic=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=O90f3pGHeQduMEDOAoCb0CYFWY18t4qp8nfznF3HDIzcj2urHBH4jREwx9ZLFGizlOc9jItvZM3Rnltye/RJ7hglPCN72FUp9NJ2khlIdUKtjNHd+7J7LxFxc7ajtBTHixno9sM4KfStMH1+DJE29N5aCJNKiRFQ3zaMfOm0x+4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pMIQIawA; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1728282563; c=relaxed/simple;
+	bh=GYz9jJeJwdTzMuunM08gf0B0slcAjxJN/5ca8sCoryM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sSKSOTFzGVZreXKIr2jEC4Qv0hGdflchS8jFTCHNDLTCvQE+ctWoWv30NXZNBoFPmXed88iWJcxNWUzODWxcMc1PmiX6BHuuGVyiT1JE+h6Dg0Prl35S2OvA2jLVLV8CKcGRey6ybnWowehtd62EKvveQ6PAkSRwIqIC7JfbSTU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mAvpd3li; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pMIQIawA"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 492BMGSR030693;
-	Wed, 2 Oct 2024 11:54:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	message-id:subject:from:to:cc:date:in-reply-to:references
-	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
-	joBqZTnL/17ornHbc9paDT7+70bYGLb29N/zXcPpkFw=; b=pMIQIawAIdmu/gCE
-	Q6iAhXTjKnhmYlQKLWVE4/n/ChgyuPnCx0DJOW8tjfht2c2csnM99x9tkT/ZRpPu
-	K7h6KlCEyIodXgPyoBGguHw5rBCpfEKAF9ZzatDwbXgA2nl9sZI7di7pAEctUgj8
-	0iFZof5dMC3nClCnbuF/H0UITR5G68i+Z3G+Go61ZOvtDLnA0LIMEKIFQmRGq7za
-	vfkPjhqLFRy0KxkaJrZ8sTg5mDj90V7yf6rpXAVj97g1Lp1ROQZL3beoMOgcvyd0
-	ydFKDxoYVh/15IBAZaWC+Ojs8D0x6VKLOVOn9Z4ws5v45CjcR6vbULUV2D8UNoGD
-	uaEyxg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 421585g75q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 11:54:30 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 492AUKmr013975;
-	Wed, 2 Oct 2024 11:54:29 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 41xwmk9wqp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 02 Oct 2024 11:54:29 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 492BsSUP44827106
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 2 Oct 2024 11:54:29 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 94E4458059;
-	Wed,  2 Oct 2024 11:54:28 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 986535804B;
-	Wed,  2 Oct 2024 11:54:27 +0000 (GMT)
-Received: from oc-fedora.boeblingen.de.ibm.com (unknown [9.152.212.119])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  2 Oct 2024 11:54:27 +0000 (GMT)
-Message-ID: <60294f0b70dc1f5f04cd32e43c7c13ccb2ff4374.camel@linux.ibm.com>
-Subject: Re: [PATCH 1/1] hexagon: Don't select GENERIC_IOMAP without
- HAS_IOPORT support
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Arnd Bergmann <arnd@kernel.org>, Brian Cain <bcain@quicinc.com>
-Cc: "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
-        Heiko
- Carstens <hca@linux.ibm.com>,
-        "linux-kernel@vger.kernel.org"
- <linux-kernel@vger.kernel.org>
-Date: Wed, 02 Oct 2024 13:54:26 +0200
-In-Reply-To: <75ea0839-1489-4f49-abcd-104e657a42c5@app.fastmail.com>
-References: <20240403132447.719833-1-schnelle@linux.ibm.com>
-	 <20240403132447.719833-2-schnelle@linux.ibm.com>
-	 <CH3PR02MB10247296630FC062F4E3DE2FDB83D2@CH3PR02MB10247.namprd02.prod.outlook.com>
-	 <c04ed601dbd0a8053e034fef1c05ce2ca6e95392.camel@linux.ibm.com>
-	 <CH3PR02MB10247A45A17F7D8104D1922A8B83D2@CH3PR02MB10247.namprd02.prod.outlook.com>
-	 <6c8daef875f9981c59fc5ce9c81eb8c3c2618b5c.camel@linux.ibm.com>
-	 <CH3PR02MB1024732DF7A1A1FF81535A7D0B8762@CH3PR02MB10247.namprd02.prod.outlook.com>
-	 <72bafe6a2520b976ee99250dd2548a74082796b6.camel@linux.ibm.com>
-	 <75ea0839-1489-4f49-abcd-104e657a42c5@app.fastmail.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40) 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mAvpd3li"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3B94C4CEC6;
+	Mon,  7 Oct 2024 06:29:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1728282562;
+	bh=GYz9jJeJwdTzMuunM08gf0B0slcAjxJN/5ca8sCoryM=;
+	h=From:To:Cc:Subject:Date:From;
+	b=mAvpd3li61HdTUdxFJIe7eyvRfePLEvKecXQdexCLVpbBEa8HxHGH4u3IK8jVju4x
+	 ZXgoWx2/G65gU8/jWAV0QcRmBNwVxuebK3LnO7N6jsJxAiKtM3WlATwassj9ysIxRf
+	 JMkkeWiqetONDupxedDcqAYSK6K+hWFncl2o2LE1/LXb6kyCjzd2wzXgw7Yk9EJGAz
+	 bMWr/AwedePV7iVNtLs5+ErNIgVz90TWToU4sfjPGxTZUPTZwiKvYcEPtVhBTKYZL0
+	 nHAhBcqyxEcAbP8TanB1vMyYdueNcpnycESXgCpWvBxKeH9MKkSWS4f/IP5DbcrXTz
+	 xYawM/9Xr6WPA==
+From: Mike Rapoport <rppt@kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andreas Larsson <andreas@gaisler.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Borislav Petkov <bp@alien8.de>,
+	Brian Cain <bcain@quicinc.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>,
+	Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Simek <monstr@monstr.eu>,
+	Mike Rapoport <rppt@kernel.org>,
+	Oleg Nesterov <oleg@redhat.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>,
+	Song Liu <song@kernel.org>,
+	Stafford Horne <shorne@gmail.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Vineet Gupta <vgupta@kernel.org>,
+	Will Deacon <will@kernel.org>,
+	bpf@vger.kernel.org,
+	linux-alpha@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-modules@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-sh@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-trace-kernel@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	loongarch@lists.linux.dev,
+	sparclinux@vger.kernel.org,
+	x86@kernel.org
+Subject: [PATCH v4 0/8] x86/module: use large ROX pages for text allocations
+Date: Mon,  7 Oct 2024 09:28:50 +0300
+Message-ID: <20241007062858.44248-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: BAd8N10v1539KJK5PsGfNj8lSDKFO_7-
-X-Proofpoint-ORIG-GUID: BAd8N10v1539KJK5PsGfNj8lSDKFO_7-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-02_11,2024-09-30_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
- bulkscore=0 adultscore=0 mlxlogscore=876 spamscore=0 priorityscore=1501
- lowpriorityscore=0 suspectscore=0 impostorscore=0 mlxscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
- definitions=main-2410020087
+Content-Transfer-Encoding: 8bit
 
-On Wed, 2024-10-02 at 09:34 +0000, Arnd Bergmann wrote:
-> On Tue, Oct 1, 2024, at 08:04, Niklas Schnelle wrote:
-> > On Mon, 2024-09-30 at 16:35 +0000, Brian Cain wrote:
-> > > >=20
-> > > > With 2 more of my HAS_IOPORT patches having gone into v6.12-rc1 I j=
-ust
-> > > > noticed that this one seems to have fallen into the cracks. This is
-> > > > probably my fault for not properly confirming that I'd be happy for=
- you
-> > > > to take it. Do you want me to resend a new version rebased on v6.12=
--
-> > > > rc1?
-> > >=20
-> > > Oh, sorry!  Yes, if you could resend a rebased one I'll make sure I a=
-m able to land it.
-> > >=20
-> > > -Brian
-> >=20
-> > Hi Brian,
-> >=20
-> > I just tried with
-> >=20
-> >    b4 shazam '<20240403132447.719833-2-schnelle@linux.ibm.com>'
-> >=20
-> > and this patch actually still applies cleanly and matches the result I
-> > got rebasing the whole series[0]. So on second thought taking it from
-> > here directly might still be the easiest. That said I'll have to send
-> > out the other 4 outstanding patches required for the final inb()
-> > compile time switch, so if you prefer I can still resend too.
->=20
-> Hi Niklas,
->=20
-> For simplicity I would suggest you keep all the remaining patches
-> as a series now and I'll take them through the asm-generic
-> tree in order to get them in more easily along with the final patch.
->=20
->       Arnd
+From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 
-Hi Arnd,
+Hi,
 
-Works for me. So, I think apart from this one that was simply missed
-and has an Ack the Bluetooth patch hasn't seen any feedback, for the
-drm one I have a few minor todos and then there is the tty/serial one.
+These patches add support for using large ROX pages for allocations of
+executable memory on x86.
 
-So maybe I can just sent a version of all the remaining ones and add
-all the remaining maintainers for the whole series. I'll include a note
-that we plan on taking this through asm-generic.
+They address Andy's comments [1] about having executable mappings for code
+that was not completely formed.
 
-Thanks,
-Niklas
+The approach taken is to allocate ROX memory along with writable but not
+executable memory and use the writable copy to perform relocations and
+alternatives patching. After the module text gets into its final shape, the
+contents of the writable memory is copied into the actual ROX location
+using text poking.
+
+The allocations of the ROX memory use vmalloc(VMAP_ALLOW_HUGE_MAP) to
+allocate PMD aligned memory, fill that memory with invalid instructions and
+in the end remap it as ROX. Portions of these large pages are handed out to
+execmem_alloc() callers without any changes to the permissions. When the
+memory is freed with execmem_free() it is invalidated again so that it
+won't contain stale instructions.
+
+The module memory allocation, x86 code dealing with relocations and
+alternatives patching take into account the existence of the two copies,
+the writable memory and the ROX memory at the actual allocated virtual
+address.
+
+The patches are available at git:
+https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git/log/?h=execmem/x86-rox/v2
+
+[1] https://lore.kernel.org/all/a17c65c6-863f-4026-9c6f-a04b659e9ab4@app.fastmail.com
+
+v3: https://lore.kernel.org/all/20240909064730.3290724-1-rppt@kernel.org
+* Drop ftrace_swap_func(). It is not needed because mcount array lives
+  in a data section (Peter)
+* Update maple_tree usage (Liam)
+* Set ->fill_trapping_insns pointer on init (Ard)
+* Instead of using VM_FLUSH_RESET_PERMS for execmem cache, completely
+  remove it from the direct map
+
+v2: https://lore.kernel.org/all/20240826065532.2618273-1-rppt@kernel.org
+* add comment why ftrace_swap_func() is needed (Steve)
+
+Since RFC: https://lore.kernel.org/all/20240411160526.2093408-1-rppt@kernel.org
+* update changelog about HUGE_VMAP allocations (Christophe) 
+* move module_writable_address() from x86 to modules core (Ingo)
+* rename execmem_invalidate() to execmem_fill_trapping_insns() (Peter)
+* call alternatives_smp_unlock() after module text in-place is up to
+  date (Nadav)
+
+Mike Rapoport (Microsoft) (8):
+  mm: vmalloc: group declarations depending on CONFIG_MMU together
+  mm: vmalloc: don't account for number of nodes for HUGE_VMAP allocations
+  asm-generic: introduce text-patching.h
+  module: prepare to handle ROX allocations for text
+  arch: introduce set_direct_map_valid_noflush()
+  x86/module: perpare module loading for ROX allocations of text
+  execmem: add support for cache of large ROX pages
+  x86/module: enable ROX caches for module text
+
+ arch/alpha/include/asm/Kbuild                 |   1 +
+ arch/arc/include/asm/Kbuild                   |   1 +
+ .../include/asm/{patch.h => text-patching.h}  |   0
+ arch/arm/kernel/ftrace.c                      |   2 +-
+ arch/arm/kernel/jump_label.c                  |   2 +-
+ arch/arm/kernel/kgdb.c                        |   2 +-
+ arch/arm/kernel/patch.c                       |   2 +-
+ arch/arm/probes/kprobes/core.c                |   2 +-
+ arch/arm/probes/kprobes/opt-arm.c             |   2 +-
+ arch/arm64/include/asm/set_memory.h           |   1 +
+ .../asm/{patching.h => text-patching.h}       |   0
+ arch/arm64/kernel/ftrace.c                    |   2 +-
+ arch/arm64/kernel/jump_label.c                |   2 +-
+ arch/arm64/kernel/kgdb.c                      |   2 +-
+ arch/arm64/kernel/patching.c                  |   2 +-
+ arch/arm64/kernel/probes/kprobes.c            |   2 +-
+ arch/arm64/kernel/traps.c                     |   2 +-
+ arch/arm64/mm/pageattr.c                      |  10 +
+ arch/arm64/net/bpf_jit_comp.c                 |   2 +-
+ arch/csky/include/asm/Kbuild                  |   1 +
+ arch/hexagon/include/asm/Kbuild               |   1 +
+ arch/loongarch/include/asm/Kbuild             |   1 +
+ arch/loongarch/include/asm/set_memory.h       |   1 +
+ arch/loongarch/mm/pageattr.c                  |  21 ++
+ arch/m68k/include/asm/Kbuild                  |   1 +
+ arch/microblaze/include/asm/Kbuild            |   1 +
+ arch/mips/include/asm/Kbuild                  |   1 +
+ arch/nios2/include/asm/Kbuild                 |   1 +
+ arch/openrisc/include/asm/Kbuild              |   1 +
+ .../include/asm/{patch.h => text-patching.h}  |   0
+ arch/parisc/kernel/ftrace.c                   |   2 +-
+ arch/parisc/kernel/jump_label.c               |   2 +-
+ arch/parisc/kernel/kgdb.c                     |   2 +-
+ arch/parisc/kernel/kprobes.c                  |   2 +-
+ arch/parisc/kernel/patch.c                    |   2 +-
+ arch/powerpc/include/asm/kprobes.h            |   2 +-
+ .../asm/{code-patching.h => text-patching.h}  |   0
+ arch/powerpc/kernel/crash_dump.c              |   2 +-
+ arch/powerpc/kernel/epapr_paravirt.c          |   2 +-
+ arch/powerpc/kernel/jump_label.c              |   2 +-
+ arch/powerpc/kernel/kgdb.c                    |   2 +-
+ arch/powerpc/kernel/kprobes.c                 |   2 +-
+ arch/powerpc/kernel/module_32.c               |   2 +-
+ arch/powerpc/kernel/module_64.c               |   2 +-
+ arch/powerpc/kernel/optprobes.c               |   2 +-
+ arch/powerpc/kernel/process.c                 |   2 +-
+ arch/powerpc/kernel/security.c                |   2 +-
+ arch/powerpc/kernel/setup_32.c                |   2 +-
+ arch/powerpc/kernel/setup_64.c                |   2 +-
+ arch/powerpc/kernel/static_call.c             |   2 +-
+ arch/powerpc/kernel/trace/ftrace.c            |   2 +-
+ arch/powerpc/kernel/trace/ftrace_64_pg.c      |   2 +-
+ arch/powerpc/lib/code-patching.c              |   2 +-
+ arch/powerpc/lib/feature-fixups.c             |   2 +-
+ arch/powerpc/lib/test-code-patching.c         |   2 +-
+ arch/powerpc/lib/test_emulate_step.c          |   2 +-
+ arch/powerpc/mm/book3s32/mmu.c                |   2 +-
+ arch/powerpc/mm/book3s64/hash_utils.c         |   2 +-
+ arch/powerpc/mm/book3s64/slb.c                |   2 +-
+ arch/powerpc/mm/kasan/init_32.c               |   2 +-
+ arch/powerpc/mm/mem.c                         |   2 +-
+ arch/powerpc/mm/nohash/44x.c                  |   2 +-
+ arch/powerpc/mm/nohash/book3e_pgtable.c       |   2 +-
+ arch/powerpc/mm/nohash/tlb.c                  |   2 +-
+ arch/powerpc/mm/nohash/tlb_64e.c              |   2 +-
+ arch/powerpc/net/bpf_jit_comp.c               |   2 +-
+ arch/powerpc/perf/8xx-pmu.c                   |   2 +-
+ arch/powerpc/perf/core-book3s.c               |   2 +-
+ arch/powerpc/platforms/85xx/smp.c             |   2 +-
+ arch/powerpc/platforms/86xx/mpc86xx_smp.c     |   2 +-
+ arch/powerpc/platforms/cell/smp.c             |   2 +-
+ arch/powerpc/platforms/powermac/smp.c         |   2 +-
+ arch/powerpc/platforms/powernv/idle.c         |   2 +-
+ arch/powerpc/platforms/powernv/smp.c          |   2 +-
+ arch/powerpc/platforms/pseries/smp.c          |   2 +-
+ arch/powerpc/xmon/xmon.c                      |   2 +-
+ arch/riscv/errata/andes/errata.c              |   2 +-
+ arch/riscv/errata/sifive/errata.c             |   2 +-
+ arch/riscv/errata/thead/errata.c              |   2 +-
+ arch/riscv/include/asm/set_memory.h           |   1 +
+ .../include/asm/{patch.h => text-patching.h}  |   0
+ arch/riscv/include/asm/uprobes.h              |   2 +-
+ arch/riscv/kernel/alternative.c               |   2 +-
+ arch/riscv/kernel/cpufeature.c                |   3 +-
+ arch/riscv/kernel/ftrace.c                    |   2 +-
+ arch/riscv/kernel/jump_label.c                |   2 +-
+ arch/riscv/kernel/patch.c                     |   2 +-
+ arch/riscv/kernel/probes/kprobes.c            |   2 +-
+ arch/riscv/mm/pageattr.c                      |  15 +
+ arch/riscv/net/bpf_jit_comp64.c               |   2 +-
+ arch/riscv/net/bpf_jit_core.c                 |   2 +-
+ arch/s390/include/asm/set_memory.h            |   1 +
+ arch/s390/mm/pageattr.c                       |  11 +
+ arch/sh/include/asm/Kbuild                    |   1 +
+ arch/sparc/include/asm/Kbuild                 |   1 +
+ arch/um/kernel/um_arch.c                      |  16 +-
+ arch/x86/entry/vdso/vma.c                     |   3 +-
+ arch/x86/include/asm/alternative.h            |  14 +-
+ arch/x86/include/asm/set_memory.h             |   1 +
+ arch/x86/include/asm/text-patching.h          |   1 +
+ arch/x86/kernel/alternative.c                 | 160 +++++----
+ arch/x86/kernel/ftrace.c                      |  30 +-
+ arch/x86/kernel/module.c                      |  45 ++-
+ arch/x86/mm/init.c                            |  26 +-
+ arch/x86/mm/pat/set_memory.c                  |   8 +
+ arch/xtensa/include/asm/Kbuild                |   1 +
+ include/asm-generic/text-patching.h           |   5 +
+ include/linux/execmem.h                       |  25 ++
+ include/linux/module.h                        |   9 +
+ include/linux/moduleloader.h                  |   4 +
+ include/linux/set_memory.h                    |   6 +
+ include/linux/text-patching.h                 |  15 +
+ include/linux/vmalloc.h                       |  60 ++--
+ kernel/module/main.c                          |  77 +++-
+ kernel/module/strict_rwx.c                    |   3 +
+ mm/execmem.c                                  | 328 +++++++++++++++++-
+ mm/internal.h                                 |   1 +
+ mm/vmalloc.c                                  |  14 +-
+ 118 files changed, 831 insertions(+), 235 deletions(-)
+ rename arch/arm/include/asm/{patch.h => text-patching.h} (100%)
+ rename arch/arm64/include/asm/{patching.h => text-patching.h} (100%)
+ rename arch/parisc/include/asm/{patch.h => text-patching.h} (100%)
+ rename arch/powerpc/include/asm/{code-patching.h => text-patching.h} (100%)
+ rename arch/riscv/include/asm/{patch.h => text-patching.h} (100%)
+ create mode 100644 include/asm-generic/text-patching.h
+ create mode 100644 include/linux/text-patching.h
+
+
+base-commit: 9852d85ec9d492ebef56dc5f229416c925758edc
+-- 
+2.43.0
+
