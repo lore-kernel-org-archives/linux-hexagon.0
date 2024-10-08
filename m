@@ -1,66 +1,66 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF1EB42AB1;
-	Tue,  8 Oct 2024 08:16:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FBC22574B;
+	Tue,  8 Oct 2024 08:56:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728375417; cv=none; b=TW+GIueYyEjvtgnEkSCIEx20Fbu1w2/NFwSVoP401avJy+56r/fqHjcD1ipzN31sbpae1CVjaS3FAAD9WBigF26pRBvcUTOqy+SXece5ER1tb1EYIaK38hlVCKWJIzMojdyNQ1vDXbMcJL8WReIlFe3BhAQCnX/k+VsLIC1IFVQ=
+	t=1728377791; cv=none; b=iGPtTcDxVpGG4Nehk6pk1f9rkH+ta9cudxcR1+B4mz85ZcuBQMABw6uSN+tertD010arrBlJiabItaEaJ/UWoYq/mAEnshi3YzEqmIpAObNCfwBRdzwYdTIxQTl1wSaPErqbVP95mBazgctpzl4NQOYt3DwRDxrp2HBclJ0OcXc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728375417; c=relaxed/simple;
-	bh=5q8CuvYmRN2mTkCNyu36VRINnt4vc3iLD6wxwxK1Q28=;
+	s=arc-20240116; t=1728377791; c=relaxed/simple;
+	bh=jvc5K12XvKCfKQFnWF3Htb0h43W04M3XwAn1tsSmNt0=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=mnvqPAFQNR9XAdBYkI+7D6vWCjcb/b7InlZl+MqGqvzDIsDPeXkHAKgovAqesmWlo3ydaK5RyyCpa2oUKmjasupnJsao+fhO/Q8hugNFaLTq/EymDYr8bvydAhrTrH4zL8nXAQmtf2AT6xGIDsvHVSrmOnFuNBe/pZ4oT44GT4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sHo4fQUn; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:MIME-Version; b=V/iGOokBVSR+GHrvAlIhq8ign68M8UGnK67wUg43ILO+XwUnGHYnSPMrJMZu7EabVPlfTy58x4GzKAyytyUPkdVFS5byui8p2DOXsNbATprua698q/HXgK0k7vDZGAuIIo17+AChfuQ77k3RC1lID1/yQ96eiEsJU6DuoWJZijI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dya/+vhH; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sHo4fQUn"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dya/+vhH"
 Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4987rMsl004958;
-	Tue, 8 Oct 2024 08:16:33 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4987s1e0006077;
+	Tue, 8 Oct 2024 08:56:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
 	message-id:subject:from:to:cc:date:in-reply-to:references
 	:content-type:content-transfer-encoding:mime-version; s=pp1; bh=
-	voeEqfxsFd+/77zpL5D+y4gMqcRDIhp51epNuVuJ7ZY=; b=sHo4fQUndC+aATfq
-	x6FtjA95IrCiTWSM6Yr7QeMxglakVe5pbc2Lny9bHH3w2g60v/FUJFod3LKkW2t3
-	N9Pi7SjUPHgcQWGBIf4w2QGfe4makFe056rO1xayTZCnOlROqwylWhMPwFioQyHW
-	KGuC4s5rETTg2OY0uX29prBMNt5LcxufaLfNaAx8+FfqefBKIJORu1HCscCuGS+9
-	fkOyY0qB6TGhps22fVYWALcULALv0kGbxz3ffFjMzsQvjkesCv/Ad5QJbE4DuBg1
-	04ZUnfmws0Y/Zv/r7uv2uJiWCjDAKB3VId3NfJpujjWTcwpOZKbDD7B/x1jktc6G
-	VelTPA==
+	Q1rhxmAMPF6tuZk1rHkwVpIsRGMb6BkMZde6sBfIN8w=; b=dya/+vhHkPT//9U3
+	aKocyF3WVN5OD7GzkvxTb7vvT9SA4TZMMY7vb+nA9yOx1SLgQN288ZJpLnk+c9BU
+	HaSzzajrIlBr/jGFIjvF4CmT/AQYgQjtD8F++K5nmAb/L+VQJaRrJaKLwrXnoi5U
+	/HyP6EPaARp4MeuXML1fBNo0H1w5PspWH0YdMBVTVGkKpsYs1/pTPOii4vUwvcHn
+	ARo8GIVQR0XfcAf67ZG2dfy1bXUieyJFEPwwSghePPGfZZDaKTtIWSen1rvsaVVE
+	j9D+5TI+QfnE2H6M9/8dmQrdO8UX1OGyc5kzoYSNNShXRVSbj2yxkg2bQ2Vt2AzJ
+	uaknpw==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4250r104aj-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4250r10bgc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 08:16:33 +0000 (GMT)
+	Tue, 08 Oct 2024 08:56:11 +0000 (GMT)
 Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4988GW4P030718;
-	Tue, 8 Oct 2024 08:16:32 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4250r104a6-1
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4988uAmQ005960;
+	Tue, 8 Oct 2024 08:56:10 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4250r10bg9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 08:16:32 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4985aeJf011598;
-	Tue, 8 Oct 2024 08:16:31 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 423g5xk6ec-1
+	Tue, 08 Oct 2024 08:56:10 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4987Q9EZ010696;
+	Tue, 8 Oct 2024 08:56:09 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 423j0jb0cd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Oct 2024 08:16:31 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4988GUNT36765958
+	Tue, 08 Oct 2024 08:56:09 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4988u9dj40370530
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 8 Oct 2024 08:16:30 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 94E565805E;
-	Tue,  8 Oct 2024 08:16:30 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 782595805A;
-	Tue,  8 Oct 2024 08:16:26 +0000 (GMT)
+	Tue, 8 Oct 2024 08:56:09 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F236A5805A;
+	Tue,  8 Oct 2024 08:56:08 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6B3355805C;
+	Tue,  8 Oct 2024 08:56:04 +0000 (GMT)
 Received: from oc-fedora.boeblingen.de.ibm.com (unknown [9.152.212.119])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  8 Oct 2024 08:16:26 +0000 (GMT)
-Message-ID: <46d81b40dda20ada3b5847353a866172b419c811.camel@linux.ibm.com>
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  8 Oct 2024 08:56:04 +0000 (GMT)
+Message-ID: <64505dc349caa6304506e271293095366ecb6d95.camel@linux.ibm.com>
 Subject: Re: [PATCH v6 4/5] tty: serial: handle HAS_IOPORT dependencies
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 To: "Maciej W. Rozycki" <macro@orcam.me.uk>
@@ -88,11 +88,12 @@ Cc: Brian Cain <bcain@quicinc.com>, Marcel Holtmann <marcel@holtmann.org>,
         spice-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
         linux-serial@vger.kernel.org, linux-arch@vger.kernel.org,
         Arnd Bergmann <arnd@kernel.org>
-Date: Tue, 08 Oct 2024 10:16:25 +0200
-In-Reply-To: <alpine.DEB.2.21.2410072109130.30973@angie.orcam.me.uk>
+Date: Tue, 08 Oct 2024 10:56:03 +0200
+In-Reply-To: <46d81b40dda20ada3b5847353a866172b419c811.camel@linux.ibm.com>
 References: <20241007-b4-has_ioport-v6-0-03f7240da6e5@linux.ibm.com>
 	 <20241007-b4-has_ioport-v6-4-03f7240da6e5@linux.ibm.com>
 	 <alpine.DEB.2.21.2410072109130.30973@angie.orcam.me.uk>
+	 <46d81b40dda20ada3b5847353a866172b419c811.camel@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -149,161 +150,92 @@ Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  B+QQCR/FYGpTFkO4DRVfapT8njDrsWyVpP9o64VNZP42S+DuRGWfUKCMAXsM/wPzRiDEVfnZMcUR9
  vwLSHeoV7MiIFC0xIrp5ES9R00t4UFgqtGc36DV71qjR+66Im0=
 Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: lJvN_sQ-aLNDSuNh0LDS6vl7xXhIFy-h
-X-Proofpoint-ORIG-GUID: 7DRb96EpW2B3fOngjvAD841iHZjNSk_4
 Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+User-Agent: Evolution 3.52.4 (3.52.4-1.fc40) 
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: qIMioW5q3Mahl1KJ04F9fKhsNix9uZzR
+X-Proofpoint-ORIG-GUID: GkJJHirZNOqaGxqDAjmSdCfRvIEM_njJ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-08_05,2024-10-08_01,2024-09-30_01
+ definitions=2024-10-08_06,2024-10-08_01,2024-09-30_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 bulkscore=0 suspectscore=0 mlxlogscore=999 adultscore=0
+ priorityscore=1501 bulkscore=0 suspectscore=0 mlxlogscore=987 adultscore=0
  clxscore=1015 impostorscore=0 mlxscore=0 phishscore=0 malwarescore=0
  lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410080050
+ engine=8.19.0-2409260000 definitions=main-2410080053
 
-On Mon, 2024-10-07 at 22:09 +0100, Maciej W. Rozycki wrote:
-> On Mon, 7 Oct 2024, Niklas Schnelle wrote:
->=20
-> > diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/82=
-50/8250_pci.c
-> > index 6709b6a5f3011db38acc58dc7223158fe4fcf72e..6a638feb44e443a1998980d=
-d037748f227ec1bc8 100644
-> > --- a/drivers/tty/serial/8250/8250_pci.c
-> > +++ b/drivers/tty/serial/8250/8250_pci.c
-> [...]
-> >  	iobase =3D pci_resource_start(dev, 0);
-> >  	outb(0x0, iobase + CH384_XINT_ENABLE_REG);
-> >  }
-> > =20
-> > -
-> >  static int
-> >  pci_sunix_setup(struct serial_private *priv,
-> >  		const struct pciserial_board *board,
->=20
->  Gratuitous change here.
->=20
-> > diff --git a/drivers/tty/serial/8250/8250_pcilib.c b/drivers/tty/serial=
-/8250/8250_pcilib.c
-> > index ea906d721b2c3eac15c9e8d62cc6fa56c3ef6150..fc1882d7515b5814ff1240f=
-fdbe1009ab908ad6b 100644
-> > --- a/drivers/tty/serial/8250/8250_pcilib.c
-> > +++ b/drivers/tty/serial/8250/8250_pcilib.c
-> > @@ -28,6 +28,10 @@ int serial8250_pci_setup_port(struct pci_dev *dev, s=
-truct uart_8250_port *port,
-> >  		port->port.membase =3D pcim_iomap_table(dev)[bar] + offset;
-> >  		port->port.regshift =3D regshift;
-> >  	} else {
-> > +		if (!IS_ENABLED(CONFIG_HAS_IOPORT)) {
-> > +			pr_err("Serial port %lx requires I/O port support\n", port->port.io=
-base);
-> > +			return -EINVAL;
-> > +		}
-> >  		port->port.iotype =3D UPIO_PORT;
-> >  		port->port.iobase =3D pci_resource_start(dev, bar) + offset;
-> >  		port->port.mapbase =3D 0;
->=20
->  Can we please flatten this conditional and get rid of the negation, and=
-=20
-> also use `pci_err' for clear identification (`port->port.iobase' may not=
-=20
-> even have been set to anything meaningful if this triggers)?  I.e.:
->=20
-> 		/* ... */
-> 	} else if (IS_ENABLED(CONFIG_HAS_IOPORT)) {
-> 		/* ... */
-> 	} else {
-> 		pci_err(dev, "serial port requires I/O port support\n");
-> 		return -EINVAL;
-> 	}
->=20
-> I'd also say "port I/O" (by analogy to "memory-mapped I/O") rather than=20
-> "I/O port", but I can imagine it might be debatable.
-
-Agree this looks better, will change it.
-
->=20
-> > +static __always_inline bool is_upf_fourport(struct uart_port *port)
-> > +{
-> > +	if (!IS_ENABLED(CONFIG_HAS_IOPORT))
-> > +		return false;
-> > +
-> > +	return port->flags & UPF_FOURPORT;
-> > +}
->=20
->  Can we perhaps avoid adding this helper and then tweaking code throughou=
+On Tue, 2024-10-08 at 10:16 +0200, Niklas Schnelle wrote:
+> On Mon, 2024-10-07 at 22:09 +0100, Maciej W. Rozycki wrote:
+> > On Mon, 7 Oct 2024, Niklas Schnelle wrote:
+> >=20
+> > > diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/=
+8250/8250_pci.c
+> > > index 6709b6a5f3011db38acc58dc7223158fe4fcf72e..6a638feb44e443a199898=
+0dd037748f227ec1bc8 100644
+> > > --- a/drivers/tty/serial/8250/8250_pci.c
+> > > +++ b/drivers/tty/serial/8250/8250_pci.c
+> > [...]
+> > >  	iobase =3D pci_resource_start(dev, 0);
+> > >  	outb(0x0, iobase + CH384_XINT_ENABLE_REG);
+> > >  }
+> > > =20
+> > > -
+> > >  static int
+> > >  pci_sunix_setup(struct serial_private *priv,
+> > >  		const struct pciserial_board *board,
+> >=20
+> >  Gratuitous change here.
+> >=20
+> > > diff --git a/drivers/tty/serial/8250/8250_pcilib.c b/drivers/tty/seri=
+al/8250/8250_pcilib.c
+> > > index ea906d721b2c3eac15c9e8d62cc6fa56c3ef6150..fc1882d7515b5814ff124=
+0ffdbe1009ab908ad6b 100644
+> > > --- a/drivers/tty/serial/8250/8250_pcilib.c
+> > > +++ b/drivers/tty/serial/8250/8250_pcilib.c
+> > > @@ -28,6 +28,10 @@ int serial8250_pci_setup_port(struct pci_dev *dev,=
+ struct uart_8250_port *port,
+> > >  		port->port.membase =3D pcim_iomap_table(dev)[bar] + offset;
+> > >  		port->port.regshift =3D regshift;
+> > >  	} else {
+> > > +		if (!IS_ENABLED(CONFIG_HAS_IOPORT)) {
+> > > +			pr_err("Serial port %lx requires I/O port support\n", port->port.=
+iobase);
+> > > +			return -EINVAL;
+> > > +		}
+> > >  		port->port.iotype =3D UPIO_PORT;
+> > >  		port->port.iobase =3D pci_resource_start(dev, bar) + offset;
+> > >  		port->port.mapbase =3D 0;
+> >=20
+> >  Can we please flatten this conditional and get rid of the negation, an=
+d=20
+> > also use `pci_err' for clear identification (`port->port.iobase' may no=
 t=20
-> by having:
->=20
-> #ifdef CONFIG_SERIAL_8250_FOURPORT
-> #define UPF_FOURPORT		((__force upf_t) ASYNC_FOURPORT       /* 1  */ )
-> #else
-> #define UPF_FOURPORT		0
-> #endif
->=20
-> in include/linux/serial_core.h instead?  I can see the flag is reused by=
+> > even have been set to anything meaningful if this triggers)?  I.e.:
+> >=20
+> > 		/* ... */
+> > 	} else if (IS_ENABLED(CONFIG_HAS_IOPORT)) {
+> > 		/* ... */
+> > 	} else {
+> > 		pci_err(dev, "serial port requires I/O port support\n");
+> > 		return -EINVAL;
+> > 	}
+> >=20
+> > I'd also say "port I/O" (by analogy to "memory-mapped I/O") rather than=
 =20
-> drivers/tty/serial/sunsu.c, but from a glance over it seems rubbish to me=
-=20
-> and such a change won't hurt the driver anyway.
+> > "I/O port", but I can imagine it might be debatable.
+>=20
+> Agree this looks better, will change it.
 
-I'll look at this, do you think this is okay regarding matching the
-user-space definitions in include/uapi/linux/tty_flags.h?
+While changing this I noticed that this isn't aligned with the other
+print. There we use dev_warn() and -ENXIO vs -EINVAL. How about we move
+serial_8250_need_ioport() to 8250_pcilib.c and use it here too? Then we
+also only have a single place for the message.
 
->=20
-> > @@ -1174,7 +1201,7 @@ static void autoconfig(struct uart_8250_port *up)
-> >  		 */
-> >  		scratch =3D serial_in(up, UART_IER);
-> >  		serial_out(up, UART_IER, 0);
-> > -#ifdef __i386__
-> > +#if defined(__i386__) && defined(CONFIG_HAS_IOPORT)
-> >  		outb(0xff, 0x080);
-> >  #endif
-> >  		/*
-> > @@ -1183,7 +1210,7 @@ static void autoconfig(struct uart_8250_port *up)
-> >  		 */
-> >  		scratch2 =3D serial_in(up, UART_IER) & UART_IER_ALL_INTR;
-> >  		serial_out(up, UART_IER, UART_IER_ALL_INTR);
-> > -#ifdef __i386__
-> > +#if defined(__i386__) && defined(CONFIG_HAS_IOPORT)
-> >  		outb(0, 0x080);
-> >  #endif
-> >  		scratch3 =3D serial_in(up, UART_IER) & UART_IER_ALL_INTR;
->=20
->  Nah, i386 does have machine OUTB instructions, it has the port I/O=20
-> address space in the ISA, so these two changes make no sense to me. =20
->=20
->  Though this #ifdef should likely be converted to CONFIG_X86_32 via a=20
-> separate change.
-
-This is needed for Usermode Linux (UM) which sets __i386__ but also
-doesn't have CONFIG_HAS_IOPORT. This was spotted by the kernel test bot
-here: https://lore.kernel.org/all/202410031712.BwfGjrQY-lkp@intel.com/
-
->=20
-> > @@ -1306,12 +1333,12 @@ static void autoconfig_irq(struct uart_8250_por=
-t *up)
-> >  {
-> >  	struct uart_port *port =3D &up->port;
-> >  	unsigned char save_mcr, save_ier;
-> > +	unsigned long irqs;
-> >  	unsigned char save_ICP =3D 0;
-> >  	unsigned int ICP =3D 0;
-> > -	unsigned long irqs;
-> >  	int irq;
->=20
->  Gratuitous change here (also breaking the reverse Christmas tree order).
->=20
->  Thanks for making the clean-ups we discussed.
->=20
->   Maciej
-
-WIll drop this hunk
+Thanks,
+Niklas
