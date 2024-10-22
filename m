@@ -1,226 +1,193 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 787F7DDAB;
-	Mon, 21 Oct 2024 22:15:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7336E1C9DF7
+	for <linux-hexagon@vger.kernel.org>; Tue, 22 Oct 2024 18:43:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729548925; cv=none; b=MgbWGtFLDMUmClwnXX7j2mKNf7I7vdBCZMsPOt/smm6b8YO20tmth+ZjjUQj4+tWy7Y9csjjLYyc8M3tvnx6eQV8Yuxwsz1iJc5H+gkgHSMSHYldRqIS52UKGUGOyXgi/3gruikk5fAiig05Gw6udBNwjSb4JSbZYkVi8VX9Qbc=
+	t=1729622627; cv=none; b=LNs3g9gyTB9TZTlC7ZP2numZyBvuCyZF89akrKvkYzZSv7OvOEmPAURVJ84E25JkY0BU2npYWEmOW9SPkAYxk3ZgVFVCFcujZdD2qi+iHokQgxtrwMW+LBH0fmazI+yfHjxpYGaOmu6zn1mPLxQOgInnsskuq6m4JuR623E50z0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729548925; c=relaxed/simple;
-	bh=nr4SQhjz8iRqm7fWu6EyPspEDoVFW8dZkY8u5n/cvOE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gzOVIrz8JmfJ/3NmiyQbVIV9q/qQzy1iDpnAGi7G+HaRWkIzj/TZx8o1KiWFQmo9MNPJAQT65eQ/KMwpM/sw4MMngK0r+P+dPrborAIXgtp8nPC72Hz2OsUsirXqDsFhRP7NhqNEnVJwvNBRFvfI3qhGszZ30RY5D0+MGE6qNMA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UqHMUSCL; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1729622627; c=relaxed/simple;
+	bh=RH2Ku6mP7nFuCD6W4uDKjQlzj/bGbQJSMLTCqceTPJg=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=LHzfUXnzGWBgSHtqkpqe0nYGK3m1//M3qFRMN0oroOxlzKSEoFQ2xebnCIMrtwgg7//znmMZE/leU5XA0pQCh+JjkGtnQBVEBkNJRJz6WS/ggT6OWAYfdpjKB4fSEoHvqAX/lLZ/NyZ4K+TcS+8Xig3zCCks9LWJ+RY//M7FNnA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QaOjtgbv; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UqHMUSCL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91177C4CEC3;
-	Mon, 21 Oct 2024 22:15:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1729548925;
-	bh=nr4SQhjz8iRqm7fWu6EyPspEDoVFW8dZkY8u5n/cvOE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=UqHMUSCLwVxzlGpI9phuMaWtT4LpFLgZX104j8vbRbB0PK34TjkC6DduYQTzY3Rkp
-	 qhAjiMqUP172WHiMdA08kI1DJ3rcZ+4owNgLhc61KedWuItpKExrEZgRLPfuaefqkA
-	 07rFAVDEAYq2asNDOHbWGl9qfVXh+LaAFAjwbXuuNt7R90uYlQa9A2+XQ+lCN7vZ2C
-	 8UCcc8qjTdshezrndiH7V/gY9BJnyE1QlEG0Rcoa4R6nBZ3t1QovUDdwig+Ld0vt2p
-	 lYxEUOw8seK7CCOV6EqDbIngn3voo6t4zsgG7iHME5PqmkQBQ4holzWy2COAHqSvx2
-	 EqtKMp56I5j3Q==
-Date: Mon, 21 Oct 2024 15:15:19 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-	Brian Cain <bcain@quicinc.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michal Simek <monstr@monstr.eu>, Oleg Nesterov <oleg@redhat.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Richard Weinberger <richard@nod.at>,
-	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
-	Stafford Horne <shorne@gmail.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org, linux-mm@kvack.org,
-	linux-modules@vger.kernel.org, linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-trace-kernel@vger.kernel.org, linux-um@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v6 6/8] x86/module: prepare module loading for ROX
- allocations of text
-Message-ID: <20241021221519.GA3567210@thelio-3990X>
-References: <20241016122424.1655560-1-rppt@kernel.org>
- <20241016122424.1655560-7-rppt@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QaOjtgbv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729622623;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=9AEvrlOO5dp2WqlHWZRSpco8mcCd4ymRTcjk9/3f/Ok=;
+	b=QaOjtgbvhKZDUMbqxh6bBTH5wHQ8xoKAH8BeXfQF3/4ZdGkE9+liSy5DZvPjvCv+8yd5Ge
+	8lWeMneEqlJLzRO1rSAranipVZXK8JQP5P53NQRSjnaWRcAQT8LnGDc1Gbw238d33gzi4L
+	7wVGJYwcrkal1tXWnzIwskiDo55OQYg=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-125-5bzu2k-vOZ2kp-E0JUczhA-1; Tue, 22 Oct 2024 14:43:42 -0400
+X-MC-Unique: 5bzu2k-vOZ2kp-E0JUczhA-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4315af466d9so41272315e9.3
+        for <linux-hexagon@vger.kernel.org>; Tue, 22 Oct 2024 11:43:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729622621; x=1730227421;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :references:cc:to:from:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9AEvrlOO5dp2WqlHWZRSpco8mcCd4ymRTcjk9/3f/Ok=;
+        b=BwP0or+ZAnsND8z4+wGWYcrR8+hg27RqAHDtk1qvYaShkmzL9P5Y0yG4pF48i9woAB
+         4CcsFF6Q6tQc51MsV8p0KsI/+sc8ZifJ85uadntXhPPZp50Q30iq3HlUUg4OS9EYHVlc
+         TxD8RZWW2UuE3j+iqPOwno0ZbroMTQP4Z2YsmVxnrRdQfFhUwPJPZweHJZZKHXm8e3h7
+         BqsE7acP9SsKxJt4sWQM2bbVx/KETOAeBofxsWlxeLR1Kh8L/KcBzBd5DwW4IYzEjvBD
+         AgL7bFAHxack+mDQ97SElySN79BATlouI8StKbeCvAR8m77/qeuFJ5zey5Af/UtXsH6A
+         0mkw==
+X-Forwarded-Encrypted: i=1; AJvYcCU0A3fiCAEsAHKB4Fa/D+m8qpEO5hq0czSwglG9q+uo0/2httKmcSA6YQu8g6SWU3Q57dzKInsBmuuIeuqO@vger.kernel.org
+X-Gm-Message-State: AOJu0YzuXUkvUHUDSdorifGz23x+cInWrnx1V64raoro2FKIZ0anBat0
+	JyZp0xYi2d10fL5vfwVsQ7lP/okNmd2D4QRG7pDopz9cFdxZLJvf+ZM3R+V9Vhwm2IjwJRtrXPD
+	bG9pBC/XgB9B0eGE4TLTdUzd8881G9pCsAX0iCtvLX7qDA0kLjxB+cdK5wgrUS/Y=
+X-Received: by 2002:a05:600c:46d0:b0:431:57e5:b251 with SMTP id 5b1f17b1804b1-4318424ea03mr1093085e9.28.1729622620970;
+        Tue, 22 Oct 2024 11:43:40 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHSwRO3kXDdah/XTLL3po6/+T5YX6LneczxVS1SqFXwRJeZWJFqERrHWHyJw/nPnXTkTa+KTQ==
+X-Received: by 2002:a05:600c:46d0:b0:431:57e5:b251 with SMTP id 5b1f17b1804b1-4318424ea03mr1092955e9.28.1729622620596;
+        Tue, 22 Oct 2024 11:43:40 -0700 (PDT)
+Received: from [192.168.0.7] (ip-109-40-241-30.web.vodafone.de. [109.40.241.30])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4316f58f0efsm96392775e9.26.2024.10.22.11.43.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 22 Oct 2024 11:43:40 -0700 (PDT)
+Message-ID: <3e80f240-e95c-47ed-80a5-18a722dbb2c6@redhat.com>
+Date: Tue, 22 Oct 2024 20:43:38 +0200
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241016122424.1655560-7-rppt@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] hexagon: Move kernel prototypes out of uapi/asm/setup.h
+ header
+From: Thomas Huth <thuth@redhat.com>
+To: Brian Cain <bcain@quicinc.com>
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+ linux-arch@vger.kernel.org, linux-hexagon@vger.kernel.org
+References: <20240502173818.58152-1-thuth@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=thuth@redhat.com; keydata=
+ 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
+In-Reply-To: <20240502173818.58152-1-thuth@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Mike,
-
-On Wed, Oct 16, 2024 at 03:24:22PM +0300, Mike Rapoport wrote:
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+On 02/05/2024 19.38, Thomas Huth wrote:
+> The kernel function prototypes are of no use for userspace and
+> shouldn't get exposed in an uapi header, so let's move them into
+> an internal header instead.
 > 
-> When module text memory will be allocated with ROX permissions, the
-> memory at the actual address where the module will live will contain
-> invalid instructions and there will be a writable copy that contains the
-> actual module code.
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> ---
+>   arch/hexagon/include/asm/setup.h      | 20 ++++++++++++++++++++
+>   arch/hexagon/include/uapi/asm/setup.h | 14 ++------------
+>   2 files changed, 22 insertions(+), 12 deletions(-)
+>   create mode 100644 arch/hexagon/include/asm/setup.h
 > 
-> Update relocations and alternatives patching to deal with it.
-> 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> diff --git a/arch/hexagon/include/asm/setup.h b/arch/hexagon/include/asm/setup.h
+> new file mode 100644
+> index 000000000000..9f2749cd4052
+> --- /dev/null
+> +++ b/arch/hexagon/include/asm/setup.h
+> @@ -0,0 +1,20 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 and
+> + * only version 2 as published by the Free Software Foundation.
+> + */
+> +
+> +#ifndef _ASM_HEXAGON_SETUP_H
+> +#define _ASM_HEXAGON_SETUP_H
+> +
+> +#include <linux/init.h>
+> +#include <uapi/asm/setup.h>
+> +
+> +extern char external_cmdline_buffer;
+> +
+> +void __init setup_arch_memory(void);
+> +
+> +#endif
+> diff --git a/arch/hexagon/include/uapi/asm/setup.h b/arch/hexagon/include/uapi/asm/setup.h
+> index 8ce9428b1583..598f74f671f6 100644
+> --- a/arch/hexagon/include/uapi/asm/setup.h
+> +++ b/arch/hexagon/include/uapi/asm/setup.h
+> @@ -17,19 +17,9 @@
+>    * 02110-1301, USA.
+>    */
+>   
+> -#ifndef _ASM_SETUP_H
+> -#define _ASM_SETUP_H
+> -
+> -#ifdef __KERNEL__
+> -#include <linux/init.h>
+> -#else
+> -#define __init
+> -#endif
+> +#ifndef _UAPI_ASM_HEXAGON_SETUP_H
+> +#define _UAPI_ASM_HEXAGON_SETUP_H
+>   
+>   #include <asm-generic/setup.h>
+>   
+> -extern char external_cmdline_buffer;
+> -
+> -void __init setup_arch_memory(void);
+> -
+>   #endif
 
-Sorry that you have to hear from me again :) It seems that module
-loading is still broken with this version of the patch, which is
-something that I missed in my earlier testing since I only test a
-monolithic kernel with my regular virtual machine testing. If I build
-and install the kernel and modules in the VM via a distribution package,
-I get the following splat at boot:
+Ping?
 
-  Starting systemd-udevd version 256.7-1-arch
-  [    0.882312] SMP alternatives: Something went horribly wrong trying to rewrite the CFI implementation.
-  [    0.883526] CFI failure at do_one_initcall+0x128/0x380 (target: init_module+0x0/0xff0 [crc32c_intel]; expected type: 0x0c7a3a22)
-  [    0.884802] Oops: invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-  [    0.885434] CPU: 3 UID: 0 PID: 157 Comm: modprobe Tainted: G        W          6.12.0-rc3-debug-next-20241021-06324-g63b3ff03d91a #1 291f0fd70f293827edec681d3c5304f5807a3c7b
-  [    0.887084] Tainted: [W]=WARN
-  [    0.887409] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS unknown 2/2/2022
-  [    0.888241] RIP: 0010:do_one_initcall+0x128/0x380
-  [    0.888720] Code: f3 0f 1e fa 41 be ff ff ff ff e9 0f 01 00 00 0f 1f 44 00 00 41 81 e7 ff ff ff 7f 49 89 db 41 ba de c5 85 f3 45 03 53 f1 74 02 <0f> 0b 41 ff d3 0f 1f 00 41 89 c6 0f 1f 44 00 00 c6 04 24 00 65 8b
-  [    0.890598] RSP: 0018:ff3f93e5c052f970 EFLAGS: 00010217
-  [    0.891129] RAX: ffffffffb4c105b8 RBX: ffffffffc0602010 RCX: 0000000000000000
-  [    0.891850] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffc0602010
-  [    0.892588] RBP: ff3f93e5c052fc88 R08: 0000000000000020 R09: 0000000000000000
-  [    0.893305] R10: 000000002a378b84 R11: ffffffffc0602010 R12: 00000000000069c6
-  [    0.894003] R13: ff1f0090c5596900 R14: ff1f0090c15a55c0 R15: 0000000000000000
-  [    0.894693] FS:  00007ffb712c0740(0000) GS:ff1f00942fb80000(0000) knlGS:0000000000000000
-  [    0.895453] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [    0.896020] CR2: 00007ffffc4424c8 CR3: 0000000100af4002 CR4: 0000000000771ef0
-  [    0.896698] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [    0.897391] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [    0.898077] PKRU: 55555554
-  [    0.898337] Call Trace:
-  [    0.898577]  <TASK>
-  [    0.898784]  ? __die_body+0x6a/0xb0
-  [    0.899132]  ? die+0xa4/0xd0
-  [    0.899413]  ? do_trap+0xa6/0x180
-  [    0.899740]  ? do_one_initcall+0x128/0x380
-  [    0.900130]  ? do_one_initcall+0x128/0x380
-  [    0.900523]  ? handle_invalid_op+0x6a/0x90
-  [    0.900917]  ? do_one_initcall+0x128/0x380
-  [    0.901311]  ? exc_invalid_op+0x38/0x60
-  [    0.901679]  ? asm_exc_invalid_op+0x1a/0x20
-  [    0.902081]  ? __cfi_init_module+0x10/0x10 [crc32c_intel 5331566c5540f82df397056699bc4ddac8be1306]
-  [    0.902933]  ? __cfi_init_module+0x10/0x10 [crc32c_intel 5331566c5540f82df397056699bc4ddac8be1306]
-  [    0.903781]  ? __cfi_init_module+0x10/0x10 [crc32c_intel 5331566c5540f82df397056699bc4ddac8be1306]
-  [    0.904634]  ? do_one_initcall+0x128/0x380
-  [    0.905028]  ? idr_alloc_cyclic+0x139/0x1d0
-  [    0.905437]  ? security_kernfs_init_security+0x54/0x190
-  [    0.905958]  ? __kernfs_new_node+0x1ba/0x240
-  [    0.906377]  ? sysfs_create_dir_ns+0x8f/0x140
-  [    0.906795]  ? kernfs_link_sibling+0xf2/0x110
-  [    0.907211]  ? kernfs_activate+0x2c/0x110
-  [    0.907599]  ? kernfs_add_one+0x108/0x150
-  [    0.907981]  ? __kernfs_create_file+0x75/0xa0
-  [    0.908407]  ? sysfs_create_bin_file+0xc6/0x120
-  [    0.908853]  ? __vunmap_range_noflush+0x347/0x420
-  [    0.909313]  ? _raw_spin_unlock+0xe/0x30
-  [    0.909692]  ? free_unref_page+0x22c/0x4c0
-  [    0.910097]  ? __kmalloc_cache_noprof+0x1a8/0x360
-  [    0.910546]  do_init_module+0x60/0x250
-  [    0.910910]  __se_sys_finit_module+0x316/0x420
-  [    0.911351]  do_syscall_64+0x88/0x170
-  [    0.911699]  ? __x64_sys_lseek+0x68/0xb0
-  [    0.912077]  ? syscall_exit_to_user_mode+0x97/0xc0
-  [    0.912538]  ? do_syscall_64+0x94/0x170
-  [    0.912902]  ? syscall_exit_to_user_mode+0x97/0xc0
-  [    0.913353]  ? do_syscall_64+0x94/0x170
-  [    0.913709]  ? clear_bhb_loop+0x45/0xa0
-  [    0.914071]  ? clear_bhb_loop+0x45/0xa0
-  [    0.914428]  ? clear_bhb_loop+0x45/0xa0
-  [    0.914767]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
-  [    0.915089] RIP: 0033:0x7ffb713dc1fd
-  [    0.915316] Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d e3 fa 0c 00 f7 d8 64 89 01 48
-  [    0.916491] RSP: 002b:00007ffffc4454a8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-  [    0.916964] RAX: ffffffffffffffda RBX: 000055f28c6a5420 RCX: 00007ffb713dc1fd
-  [    0.917413] RDX: 0000000000000000 RSI: 000055f26c40cc03 RDI: 0000000000000003
-  [    0.917858] RBP: 00007ffffc445560 R08: 0000000000000001 R09: 00007ffffc4454f0
-  [    0.918302] R10: 0000000000000040 R11: 0000000000000246 R12: 000055f26c40cc03
-  [    0.918748] R13: 0000000000060000 R14: 000055f28c6a4b50 R15: 000055f28c6ac5b0
-  [    0.919211]  </TASK>
-  [    0.919356] Modules linked in: crc32c_intel(+)
-  [    0.919661] ---[ end trace 0000000000000000 ]---
+  Thomas
 
-I also see some other WARNs interleaved along the lines of
-
-  [    0.982759] no CFI hash found at: 0xffffffffc0608000 ffffffffc0608000 cc cc cc cc cc
-  [    0.982767] WARNING: CPU: 5 PID: 170 at arch/x86/kernel/alternative.c:1204 __apply_fineibt+0xa6d/0xab0
-
-The console appears to be a bit of a mess after that initial message.
-
-If there is any more information I can provide or patches I can test, I
-am more than happy to do so.
-
-Cheers,
-Nathan
-
-# bad: [f2493655d2d3d5c6958ed996b043c821c23ae8d3] Add linux-next specific files for 20241018
-# good: [6efbea77b390604a7be7364583e19cd2d6a1291b] Merge tag 'arm64-fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux
-git bisect start 'f2493655d2d3d5c6958ed996b043c821c23ae8d3' '6efbea77b390604a7be7364583e19cd2d6a1291b'
-# bad: [7ed02555e105b27b9a680fe6a7c7bcec77ad8e82] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/ath/ath.git
-git bisect bad 7ed02555e105b27b9a680fe6a7c7bcec77ad8e82
-# bad: [fbf07148fc8b9810d1cd5d3c5bdf187b6cbc39fd] Merge branch 'next' of git://git.kernel.org/pub/scm/linux/kernel/git/uml/linux.git
-git bisect bad fbf07148fc8b9810d1cd5d3c5bdf187b6cbc39fd
-# bad: [b725ac161a1c9cd9fe33d1bd4e390342afff8b01] Merge branch 'for-next/core' of git://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux
-git bisect bad b725ac161a1c9cd9fe33d1bd4e390342afff8b01
-# good: [e38329e4c0ed720219784fe16862e0916424e381] Merge branch 'pwrseq/for-current' of git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git
-git bisect good e38329e4c0ed720219784fe16862e0916424e381
-# bad: [f3752abeb12e52516d84935581f8fc30faf171cb] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild.git
-git bisect bad f3752abeb12e52516d84935581f8fc30faf171cb
-# good: [70d0db56c123833f540fe8efa0b6eb1ae847aacb] mm: renovate page_address_in_vma()
-git bisect good 70d0db56c123833f540fe8efa0b6eb1ae847aacb
-# good: [43b0021d7e0cdad81c83a9e6f2d0b3ebddca9cc1] mm: vmalloc: don't account for number of nodes for HUGE_VMAP allocations
-git bisect good 43b0021d7e0cdad81c83a9e6f2d0b3ebddca9cc1
-# good: [7d0120380249b87b339b9160c2af6bcaa936e007] tools: fix -Wunused-result in linux.c
-git bisect good 7d0120380249b87b339b9160c2af6bcaa936e007
-# bad: [31ad3c5c341be24425db3eb5779caca447ba0a83] mm: optimization on page allocation when CMA enabled
-git bisect bad 31ad3c5c341be24425db3eb5779caca447ba0a83
-# bad: [bbec4231f196b70a4c29c106b7f065d751fba394] x86/module: prepare module loading for ROX allocations of text
-git bisect bad bbec4231f196b70a4c29c106b7f065d751fba394
-# good: [d0ce166108ced86f2114c34ddf1794f2188b80ab] module: prepare to handle ROX allocations for text
-git bisect good d0ce166108ced86f2114c34ddf1794f2188b80ab
-# good: [dbfc5522bcf6d64bce8872c9b6d46c34569f655e] arch: introduce set_direct_map_valid_noflush()
-git bisect good dbfc5522bcf6d64bce8872c9b6d46c34569f655e
-# first bad commit: [bbec4231f196b70a4c29c106b7f065d751fba394] x86/module: prepare module loading for ROX allocations of text
