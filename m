@@ -1,226 +1,525 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79742217452;
-	Fri, 25 Oct 2024 15:12:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25C6518FC75;
+	Mon, 28 Oct 2024 21:12:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729869160; cv=none; b=NlzpUO/vi05XtLuNSIUG/bW9UCJL9o1CRe2MBRuguP5SAa9LZ4M0sJdbcO9BfUClq0aKMgL/9LFJcwpUp1BbG2Pepndsua+EBM6si0mGq2KCIpln0XUOd9ma+t31q6E8JZV9zCs8qA7qeS8zTWE8zIHUy2z0vJeszboAcROHxlY=
+	t=1730149957; cv=none; b=TXHta0fBLPEuJ7O1SXvoTR3MrJl41MySCi/ud/3fO/RNME7JBQg3h3Hc4QPmUxizj3LaBRY8ssRFdtek4uiO5IQd4xzcmws8CtOEtFdzF3Q25p0bpLJ4Bb3aSnr4Q8Aexl/kBvVZCfBzFRReZdz+trSwRwTCKzKhUsMjTRi+M1c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729869160; c=relaxed/simple;
-	bh=U5XCcEF5XLs/X/F1G9Vtw8oTRVMVa5jZydxRQ5begIM=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=jaPITfvRVn23H8BphwwH6DwWysM9rmLpKq/78H0DFyzr4Ew+iupvfXzoTxVG8hID6LJNLE7gbcla/hr26UqNJzkPIXSdlusbXmI0qzXJRe1HgTmlrXP6ZuNN458eA4jBWydikMEXsCQGN88g5F/Al1tr7IfgtFD19NY3o3dNCsk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gGQZIIm+; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1730149957; c=relaxed/simple;
+	bh=7vCr84x2AXd3twwPgs0aq4d+w7w8USJk6QglSiPPE+M=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=gYl6EXFd4GIfU300MUeVrSXfGI0vMNRHW5xKnkx9kFqNXmC/SHXzQk5lzDf7J6E4jA//bU/OdNXip5T5CGFcBDju3JKMXIGSBZyxBKied4+ZgEm0BcVhiWDcgfEvyDkafrZxqjYw22v10YSd4OdFK0NkSfI46VXDsdgN5gp2WG0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ayhiQMB+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gGQZIIm+"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49P5tWvG003118;
-	Fri, 25 Oct 2024 15:12:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=CNoupa
-	qRZoqspI2s9XTJ5wvSIB28jbpBWhCey039E+o=; b=gGQZIIm+mtx4tV3rnt0Pqj
-	i8f712e11oZOsooj/2uEu0bkbBmxRGeBXrQLlLKF8k8+KQX1e7g67Ospqcwaz824
-	kBneAjAdaLzW+JhwkDbaAmBvfOc4o6mr5TubO5A/tRwlGp60hK7JYPLT6V7aJfkq
-	Vc0mzV6QYQVTudIBG18wGdQUHSQtE2vpHS9E+LM2JBYeJcgHV7nibV/rO9ldagIp
-	IjuJV0Rd578OF0kbYh78TW1q1CXXbIuOfzbzjZG3mM2XAK1VRafktm9EQgAkxG3l
-	HGe8NFs5FRtI/D5zX5Uae5jElPP5amWzV05yf0FOwhbByEZVkjbR2WwARZEOZFyw
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42g5kxjj98-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Oct 2024 15:12:06 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 49PFC5F4024991;
-	Fri, 25 Oct 2024 15:12:05 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 42g5kxjj92-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Oct 2024 15:12:05 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 49PEWj6t014325;
-	Fri, 25 Oct 2024 15:12:04 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 42emhfx8cr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Oct 2024 15:12:04 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 49PFC3nf43385122
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 25 Oct 2024 15:12:03 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 557A15805E;
-	Fri, 25 Oct 2024 15:12:03 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 454145805D;
-	Fri, 25 Oct 2024 15:11:57 +0000 (GMT)
-Received: from oc-fedora.boeblingen.de.ibm.com (unknown [9.152.212.119])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 25 Oct 2024 15:11:57 +0000 (GMT)
-Message-ID: <5321f536893fd99ffe43bd49c9d26dec1c745193.camel@linux.ibm.com>
-Subject: Re: [PATCH v9 0/5] treewide: Remove I/O port accessors for
- HAS_IOPORT=n
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Arnd Bergmann <arnd@arndb.de>, Brian Cain <bcain@quicinc.com>,
-        Marcel
- Holtmann <marcel@holtmann.org>,
-        Luiz Augusto von Dentz
- <luiz.dentz@gmail.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard
- <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Dave Airlie
- <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-        Dave Airlie
- <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
-        Lucas De Marchi
- <lucas.demarchi@intel.com>,
-        Thomas =?ISO-8859-1?Q?Hellstr=F6m?=
- <thomas.hellstrom@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby
- <jirislaby@kernel.org>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Heiko
- Carstens <hca@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-bluetooth@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
-        intel-xe@lists.freedesktop.org, linux-serial@vger.kernel.org,
-        Linux-Arch
-	 <linux-arch@vger.kernel.org>,
-        Arnd Bergmann <arnd@kernel.org>
-Date: Fri, 25 Oct 2024 17:11:56 +0200
-In-Reply-To: <72b75acf-743d-4fe7-9246-aa5a4efabb58@app.fastmail.com>
-References: <20241024-b4-has_ioport-v9-0-6a6668593f71@linux.ibm.com>
-	 <72b75acf-743d-4fe7-9246-aa5a4efabb58@app.fastmail.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.4 (3.52.4-1.fc40) 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ayhiQMB+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04B89C4CEC3;
+	Mon, 28 Oct 2024 21:12:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1730149956;
+	bh=7vCr84x2AXd3twwPgs0aq4d+w7w8USJk6QglSiPPE+M=;
+	h=From:To:Cc:Subject:Date:From;
+	b=ayhiQMB+JHNBvGXrTPu/rbRAY60U5F5spMjiE59t0810MWp/2E+5Wtlan39RiVEY0
+	 w198fX9aeT+XvzUqYEseL7EgVPzyDs1xCFVvOCcAHSw0eeJk54GgVpmTZW7CZzDSRN
+	 6usWy3MIhcn0QRSC1vcPQTKz6R5I+kkLWg95q3bHKj+GKnDU34uecASpUUKWCTaVzU
+	 2qyVbXqsB2Z4JsVwfFK8ul03wzki6kVYyqfYEaB3DnOPNPY0/2p4i7V+nTtsO1k9/o
+	 VEoXduY9CnQzjLSyFTfJSVv75ExN86sl2Ey6F+aGsURlcN9Xg7iiQAqqeqHIxF2fN2
+	 zFJUhbm+c820w==
+From: Arnd Bergmann <arnd@kernel.org>
+To: Brian Cain <bcain@quicinc.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Masahiro Yamada <masahiroy@kernel.org>,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	linux-hexagon@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] hexagon: simplify asm/io.h for !HAS_IOPORT
+Date: Mon, 28 Oct 2024 21:12:03 +0000
+Message-Id: <20241028211227.2294887-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: o-2P43DkpjzVooDT6zZJkQd463bBz0Qa
-X-Proofpoint-GUID: Eo_HVSAU11wlfAmnIHCCIw-ydI3dRvVf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- malwarescore=0 spamscore=0 bulkscore=0 priorityscore=1501 impostorscore=0
- suspectscore=0 phishscore=0 mlxscore=0 lowpriorityscore=0 adultscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410250118
+Content-Transfer-Encoding: 8bit
 
-On Fri, 2024-10-25 at 13:41 +0000, Arnd Bergmann wrote:
-> On Thu, Oct 24, 2024, at 17:54, Niklas Schnelle wrote:
-> > Hi All,
-> >=20
-> > This is a follow up in my long running effort of making inb()/outb() an=
-d
-> > similar I/O port accessors compile-time optional. After initially
-> > sending this as a treewide series with the latest revision at[0]
-> > we switched to per subsystem series. Now though as we're left with only
-> > 5 patches left I'm going back to a single series with Arnd planning
-> > to take this via the the asm-generic tree.
-> >=20
-> > This series may also be viewed for your convenience on my git.kernel.or=
-g
-> > tree[1] under the b4/has_ioport branch. As for compile-time vs runtime
-> > see Linus' reply to my first attempt[2].
->=20
-> Hi Niklas,
->=20
-> Thanks for your endless work on this. I have now pulled it into
-> the asm-generic tree as I want to ensure we get enough time to
-> test this as part of linux-next before the merge window.
->=20
-> If minor issues still come up, I would try to fix those as
-> add-on patches to avoid rebasing my tree.
->=20
-> I also expect that we will continue with add-on patches in
-> the future, in particular I hope to make HAS_IOPORT optional
-> on arm, arm64 and powerpc, and only enabled for
-> configurations that actually want it.
->=20
->      Arnd
->=20
+From: Arnd Bergmann <arnd@arndb.de>
 
-Thanks for taking it and sticking by my side through this! Now let's
-just hope there won't be too much fallout but I will be here to help if
-needed. As for arm, arm64, and powerpc I like it, having more
-!HAS_IOPORT targets will help to share the load of new inb()/outb()
-which "worked for me on x86". I definitely learned a lot in the
-process. Of course I wished and originally expected it to go a lot
-faster but hey looks like we might persevere in the end. And yes, I
-will pour myself a drink when this finally made it into Linus' tree :-)
-And then when we meet at some conference in the future we can laugh
-about how this turned from a 5 line patch into at least 53 commits over
-3 years.
+Hexagon fails to build after the final patch that makes CONFIG_HAS_IOPORT
+optional:
 
-Thanks,
-Niklas
+In file included from arch/hexagon/include/asm/io.h:328:
+include/asm-generic/io.h:854:18: error: static declaration of 'ioread8' follows non-static declaration
+  854 | static inline u8 ioread8(const volatile void __iomem *addr)
+      |                  ^
+include/asm-generic/io.h:853:17: note: expanded from macro 'ioread8'
+  853 | #define ioread8 ioread8
+      |                 ^
+include/asm-generic/iomap.h:29:21: note: previous declaration is here
+   29 | extern unsigned int ioread8(const void __iomem *);
+      |                     ^
+
+As it turns out, most of its asm/io.h and lib/io.c files is redundant now,
+and just removing all that makes it build again.
+
+As with the other architectures, defining the __raw_readl()/__raw_writel()
+type functions instead of the non-__raw ones is better here for consistency.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+I've applied this in the asm-generic tree on top of the HAS_IOPORT series
+as a fixup, let me know if I should change anything.
+
+ arch/hexagon/Kconfig          |   4 +-
+ arch/hexagon/include/asm/io.h | 223 ++--------------------------------
+ arch/hexagon/lib/Makefile     |   2 +-
+ arch/hexagon/lib/io.c         |  82 -------------
+ 4 files changed, 16 insertions(+), 295 deletions(-)
+ delete mode 100644 arch/hexagon/lib/io.c
+
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index 5ea1bf4b7d4f..3eb51fbe804e 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -30,7 +30,6 @@ config HEXAGON
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_TRACEHOOK
+ 	select NEED_SG_DMA_LENGTH
+-	select NO_IOPORT_MAP
+ 	select GENERIC_IOREMAP
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select STACKTRACE_SUPPORT
+@@ -58,6 +57,9 @@ config EARLY_PRINTK
+ config MMU
+ 	def_bool y
+ 
++config NO_IOPORT_MAP
++	def_bool y
++
+ config GENERIC_CSUM
+ 	def_bool y
+ 
+diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
+index 522d321ea85a..83b2eb5de60c 100644
+--- a/arch/hexagon/include/asm/io.h
++++ b/arch/hexagon/include/asm/io.h
+@@ -8,38 +8,13 @@
+ #ifndef _ASM_IO_H
+ #define _ASM_IO_H
+ 
+-#ifdef __KERNEL__
+-
+ #include <linux/types.h>
+-#include <asm/iomap.h>
+ #include <asm/page.h>
+ #include <asm/cacheflush.h>
+ 
+-/*
+- * We don't have PCI yet.
+- * _IO_BASE is pointing at what should be unused virtual space.
+- */
+-#define IO_SPACE_LIMIT 0xffff
+-#define _IO_BASE ((void __iomem *)0xfe000000)
+-
+-#define IOMEM(x)        ((void __force __iomem *)(x))
+-
+ extern int remap_area_pages(unsigned long start, unsigned long phys_addr,
+ 				unsigned long end, unsigned long flags);
+ 
+-/* Defined in lib/io.c, needed for smc91x driver. */
+-extern void __raw_readsw(const void __iomem *addr, void *data, int wordlen);
+-extern void __raw_writesw(void __iomem *addr, const void *data, int wordlen);
+-
+-extern void __raw_readsl(const void __iomem *addr, void *data, int wordlen);
+-extern void __raw_writesl(void __iomem *addr, const void *data, int wordlen);
+-
+-#define readsw(p, d, l)	__raw_readsw(p, d, l)
+-#define writesw(p, d, l) __raw_writesw(p, d, l)
+-
+-#define readsl(p, d, l)   __raw_readsl(p, d, l)
+-#define writesl(p, d, l)  __raw_writesl(p, d, l)
+-
+ /*
+  * virt_to_phys - map virtual address to physical
+  * @address:  address to map
+@@ -58,21 +33,12 @@ static inline void *phys_to_virt(unsigned long address)
+ 	return __va(address);
+ }
+ 
+-/*
+- * IO port access primitives.  Hexagon doesn't have special IO access
+- * instructions; all I/O is memory mapped.
+- *
+- * in/out are used for "ports", but we don't have "port instructions",
+- * so these are really just memory mapped too.
+- */
+-
+ /*
+  * readb - read byte from memory mapped device
+  * @addr:  pointer to memory
+  *
+- * Operates on "I/O bus memory space"
+  */
+-static inline u8 readb(const volatile void __iomem *addr)
++static inline u8 __raw_readb(const volatile void __iomem *addr)
+ {
+ 	u8 val;
+ 	asm volatile(
+@@ -82,8 +48,9 @@ static inline u8 readb(const volatile void __iomem *addr)
+ 	);
+ 	return val;
+ }
++#define __raw_readb __raw_readb
+ 
+-static inline u16 readw(const volatile void __iomem *addr)
++static inline u16 __raw_readw(const volatile void __iomem *addr)
+ {
+ 	u16 val;
+ 	asm volatile(
+@@ -93,8 +60,9 @@ static inline u16 readw(const volatile void __iomem *addr)
+ 	);
+ 	return val;
+ }
++#define __raw_readw __raw_readw
+ 
+-static inline u32 readl(const volatile void __iomem *addr)
++static inline u32 __raw_readl(const volatile void __iomem *addr)
+ {
+ 	u32 val;
+ 	asm volatile(
+@@ -104,6 +72,7 @@ static inline u32 readl(const volatile void __iomem *addr)
+ 	);
+ 	return val;
+ }
++#define __raw_readl __raw_readl
+ 
+ /*
+  * writeb - write a byte to a memory location
+@@ -111,7 +80,7 @@ static inline u32 readl(const volatile void __iomem *addr)
+  * @addr:  pointer to memory
+  *
+  */
+-static inline void writeb(u8 data, volatile void __iomem *addr)
++static inline void __raw_writeb(u8 data, volatile void __iomem *addr)
+ {
+ 	asm volatile(
+ 		"memb(%0) = %1;"
+@@ -120,8 +89,9 @@ static inline void writeb(u8 data, volatile void __iomem *addr)
+ 		: "memory"
+ 	);
+ }
++#define __raw_writeb __raw_writeb
+ 
+-static inline void writew(u16 data, volatile void __iomem *addr)
++static inline void __raw_writew(u16 data, volatile void __iomem *addr)
+ {
+ 	asm volatile(
+ 		"memh(%0) = %1;"
+@@ -131,8 +101,9 @@ static inline void writew(u16 data, volatile void __iomem *addr)
+ 	);
+ 
+ }
++#define __raw_writew __raw_writew
+ 
+-static inline void writel(u32 data, volatile void __iomem *addr)
++static inline void __raw_writel(u32 data, volatile void __iomem *addr)
+ {
+ 	asm volatile(
+ 		"memw(%0) = %1;"
+@@ -141,26 +112,7 @@ static inline void writel(u32 data, volatile void __iomem *addr)
+ 		: "memory"
+ 	);
+ }
+-
+-#define __raw_writeb writeb
+-#define __raw_writew writew
+-#define __raw_writel writel
+-
+-#define __raw_readb readb
+-#define __raw_readw readw
+-#define __raw_readl readl
+-
+-/*
+- * http://comments.gmane.org/gmane.linux.ports.arm.kernel/117626
+- */
+-
+-#define readb_relaxed __raw_readb
+-#define readw_relaxed __raw_readw
+-#define readl_relaxed __raw_readl
+-
+-#define writeb_relaxed __raw_writeb
+-#define writew_relaxed __raw_writew
+-#define writel_relaxed __raw_writel
++#define __raw_writel __raw_writel
+ 
+ /*
+  * I/O memory mapping functions.
+@@ -168,140 +120,6 @@ static inline void writel(u32 data, volatile void __iomem *addr)
+ #define _PAGE_IOREMAP (_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
+ 		       (__HEXAGON_C_DEV << 6))
+ 
+-#define __raw_writel writel
+-
+-static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
+-	int count)
+-{
+-	memcpy(dst, (void *) src, count);
+-}
+-
+-static inline void memcpy_toio(volatile void __iomem *dst, const void *src,
+-	int count)
+-{
+-	memcpy((void *) dst, src, count);
+-}
+-
+-static inline void memset_io(volatile void __iomem *addr, int value,
+-			     size_t size)
+-{
+-	memset((void __force *)addr, value, size);
+-}
+-
+-#define PCI_IO_ADDR	(volatile void __iomem *)
+-
+-/*
+- * inb - read byte from I/O port or something
+- * @port:  address in I/O space
+- *
+- * Operates on "I/O bus I/O space"
+- */
+-static inline u8 inb(unsigned long port)
+-{
+-	return readb(_IO_BASE + (port & IO_SPACE_LIMIT));
+-}
+-
+-static inline u16 inw(unsigned long port)
+-{
+-	return readw(_IO_BASE + (port & IO_SPACE_LIMIT));
+-}
+-
+-static inline u32 inl(unsigned long port)
+-{
+-	return readl(_IO_BASE + (port & IO_SPACE_LIMIT));
+-}
+-
+-/*
+- * outb - write a byte to a memory location
+- * @data: data to write to
+- * @addr:  address in I/O space
+- */
+-static inline void outb(u8 data, unsigned long port)
+-{
+-	writeb(data, _IO_BASE + (port & IO_SPACE_LIMIT));
+-}
+-
+-static inline void outw(u16 data, unsigned long port)
+-{
+-	writew(data, _IO_BASE + (port & IO_SPACE_LIMIT));
+-}
+-
+-static inline void outl(u32 data, unsigned long port)
+-{
+-	writel(data, _IO_BASE + (port & IO_SPACE_LIMIT));
+-}
+-
+-#define outb_p outb
+-#define outw_p outw
+-#define outl_p outl
+-
+-#define inb_p inb
+-#define inw_p inw
+-#define inl_p inl
+-
+-static inline void insb(unsigned long port, void *buffer, int count)
+-{
+-	if (count) {
+-		u8 *buf = buffer;
+-		do {
+-			u8 x = inb(port);
+-			*buf++ = x;
+-		} while (--count);
+-	}
+-}
+-
+-static inline void insw(unsigned long port, void *buffer, int count)
+-{
+-	if (count) {
+-		u16 *buf = buffer;
+-		do {
+-			u16 x = inw(port);
+-			*buf++ = x;
+-		} while (--count);
+-	}
+-}
+-
+-static inline void insl(unsigned long port, void *buffer, int count)
+-{
+-	if (count) {
+-		u32 *buf = buffer;
+-		do {
+-			u32 x = inw(port);
+-			*buf++ = x;
+-		} while (--count);
+-	}
+-}
+-
+-static inline void outsb(unsigned long port, const void *buffer, int count)
+-{
+-	if (count) {
+-		const u8 *buf = buffer;
+-		do {
+-			outb(*buf++, port);
+-		} while (--count);
+-	}
+-}
+-
+-static inline void outsw(unsigned long port, const void *buffer, int count)
+-{
+-	if (count) {
+-		const u16 *buf = buffer;
+-		do {
+-			outw(*buf++, port);
+-		} while (--count);
+-	}
+-}
+-
+-static inline void outsl(unsigned long port, const void *buffer, int count)
+-{
+-	if (count) {
+-		const u32 *buf = buffer;
+-		do {
+-			outl(*buf++, port);
+-		} while (--count);
+-	}
+-}
+-
+ /*
+  * These defines are necessary to use the generic io.h for filling in
+  * the missing parts of the API contract. This is because the platform
+@@ -310,23 +128,6 @@ static inline void outsl(unsigned long port, const void *buffer, int count)
+  */
+ #define virt_to_phys virt_to_phys
+ #define phys_to_virt phys_to_virt
+-#define memset_io memset_io
+-#define memcpy_fromio memcpy_fromio
+-#define memcpy_toio memcpy_toio
+-#define readb readb
+-#define readw readw
+-#define readl readl
+-#define writeb writeb
+-#define writew writew
+-#define writel writel
+-#define insb insb
+-#define insw insw
+-#define insl insl
+-#define outsb outsb
+-#define outsw outsw
+-#define outsl outsl
+ #include <asm-generic/io.h>
+ 
+-#endif /* __KERNEL__ */
+-
+ #endif
+diff --git a/arch/hexagon/lib/Makefile b/arch/hexagon/lib/Makefile
+index a64641e89d5f..107894c0910e 100644
+--- a/arch/hexagon/lib/Makefile
++++ b/arch/hexagon/lib/Makefile
+@@ -2,5 +2,5 @@
+ #
+ # Makefile for hexagon-specific library files.
+ #
+-obj-y = checksum.o io.o memcpy.o memset.o memcpy_likely_aligned.o \
++obj-y = checksum.o memcpy.o memset.o memcpy_likely_aligned.o \
+          divsi3.o modsi3.o udivsi3.o  umodsi3.o
+diff --git a/arch/hexagon/lib/io.c b/arch/hexagon/lib/io.c
+deleted file mode 100644
+index 55f75392857b..000000000000
+--- a/arch/hexagon/lib/io.c
++++ /dev/null
+@@ -1,82 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * I/O access functions for Hexagon
+- *
+- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+- */
+-
+-#include <asm/io.h>
+-
+-/*  These are all FIFO routines!  */
+-
+-/*
+- * __raw_readsw - read words a short at a time
+- * @addr:  source address
+- * @data:  data address
+- * @len: number of shorts to read
+- */
+-void __raw_readsw(const void __iomem *addr, void *data, int len)
+-{
+-	const volatile short int *src = (short int *) addr;
+-	short int *dst = (short int *) data;
+-
+-	if ((u32)data & 0x1)
+-		panic("unaligned pointer to readsw");
+-
+-	while (len-- > 0)
+-		*dst++ = *src;
+-
+-}
+-EXPORT_SYMBOL(__raw_readsw);
+-
+-/*
+- * __raw_writesw - read words a short at a time
+- * @addr:  source address
+- * @data:  data address
+- * @len: number of shorts to read
+- */
+-void __raw_writesw(void __iomem *addr, const void *data, int len)
+-{
+-	const short int *src = (short int *)data;
+-	volatile short int *dst = (short int *)addr;
+-
+-	if ((u32)data & 0x1)
+-		panic("unaligned pointer to writesw");
+-
+-	while (len-- > 0)
+-		*dst = *src++;
+-
+-
+-}
+-EXPORT_SYMBOL(__raw_writesw);
+-
+-/*  Pretty sure len is pre-adjusted for the length of the access already */
+-void __raw_readsl(const void __iomem *addr, void *data, int len)
+-{
+-	const volatile long *src = (long *) addr;
+-	long *dst = (long *) data;
+-
+-	if ((u32)data & 0x3)
+-		panic("unaligned pointer to readsl");
+-
+-	while (len-- > 0)
+-		*dst++ = *src;
+-
+-
+-}
+-EXPORT_SYMBOL(__raw_readsl);
+-
+-void __raw_writesl(void __iomem *addr, const void *data, int len)
+-{
+-	const long *src = (long *)data;
+-	volatile long *dst = (long *)addr;
+-
+-	if ((u32)data & 0x3)
+-		panic("unaligned pointer to writesl");
+-
+-	while (len-- > 0)
+-		*dst = *src++;
+-
+-
+-}
+-EXPORT_SYMBOL(__raw_writesl);
+-- 
+2.39.5
+
