@@ -1,81 +1,102 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0A86262A3;
-	Thu, 14 Nov 2024 17:18:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81E9E1DFDA5;
+	Mon, 18 Nov 2024 18:24:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731604716; cv=none; b=jHUo+2ADbO8DID+23WXE1/iEiC3lD8tvQWjs94ZL0g0+5iZ7MMGmpDOpVV8jF0LClXuBAiIlbvE5CMFhaJ46GpRvVD7zgJl1P5rPxHRQMP8ZkqwHFRv+zoP9NgeZQZwny9AdYif8uC9ZSJQI+hrMLKCM53rWpmZJni6FPlh5Cu8=
+	t=1731954279; cv=none; b=gQfUq8IVWK2EbRx91uyRHDMpB3vq867GnQgodRsC/jdO/PrV89zIR2wMPzkxL5Sco8NJm7ObA9jOv33+xl31Qo3qw7rNZKICHihHaroVLcSxGd/zn8RVygW4giBP2ItjCVGqRxfwxPyUlw4FyNBtfxZAuQV6BiEQbfI5IbPgLr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731604716; c=relaxed/simple;
-	bh=tBxxWmfOqYr/kDobeGFGIMoT6xPlx0njLqyX8nov6mQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mU/yZvax5dZ1i/JQjD3dfTXb+Hsn0aR6+VWydAmwS/C2h0EzNZsqW6WD5+tzL8KQ7ZoAYvKthB6GY1mE5rU9aL4miT2vT/e8Tssz1lLTMdxDPn99jWVeZMr+/rrU03siRXD2ZZnvB8N6ny6eLqpFhK4koSzeDMtTy/v6B2y1XAw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DJpOeS3V; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DJpOeS3V"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0DEDC4CECD;
-	Thu, 14 Nov 2024 17:18:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1731604716;
-	bh=tBxxWmfOqYr/kDobeGFGIMoT6xPlx0njLqyX8nov6mQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=DJpOeS3VW1PLkb92B/Q9r/tPvobq7ErytAqjFC4lr0Z2i5uVXWsyKYKtZZObKuR5C
-	 8GqaimQeoxK3tGKvxJ/sJyRDTuvv2UpMKKHqmbUgPILhS0fpmAvs/V+5HTgO3oiJ3p
-	 HK13s/zUj28FJxhgZselNl43FQyjEXTe3qIkqYNdBDeWbEKhtrN3DvxOiOjQ2u1EzK
-	 hdTL+b7PwqoRdqU3M++qTFHP/4tm0nMT9vpOFCYM8ZDiG2HFBGnHj0e2OaUKJHQOjA
-	 H9Ksl3elfJIpgsFaD/IuvOc67zksVYW1JY4Ei1pnJh5fcT6lNwL/J7E04ySSKsp6yK
-	 ZxHGWOkNNRbgw==
-Date: Thu, 14 Nov 2024 10:18:34 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Brian Cain <bcain@quicinc.com>
-Cc: "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
-	"llvm@lists.linux.dev" <llvm@lists.linux.dev>,
-	Alexey Karyakin <akaryaki@quicinc.com>,
-	Sid Manning <sidneym@quicinc.com>,
-	Sundeep Kushwaha <sundeepk@quicinc.com>,
-	Shankar Kalpathi Easwaran <seaswara@quicinc.com>
-Subject: Re: allmodconfig link failure on -next (relocation R_HEX_B22_PCREL
- out of range)
-Message-ID: <20241114171834.GA1956005@thelio-3990X>
-References: <20241113041319.GA158543@thelio-3990X>
- <DS0PR02MB1025072B87B225A4A8F0953F5B85A2@DS0PR02MB10250.namprd02.prod.outlook.com>
- <20241113182523.GA2701299@thelio-3990X>
- <DS0PR02MB102504C35F7F82A71261B9381B85A2@DS0PR02MB10250.namprd02.prod.outlook.com>
+	s=arc-20240116; t=1731954279; c=relaxed/simple;
+	bh=QTNu1OGAPgNOZxJIMvW3IuS7XmGuX4ZDJPj5EOOKtxU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=TFmFNszOSjbsxDOFsE/Zc6FhpTeXtyaJk0uTJdlnoM4mnBW4LQ7ZTYaZgL1ThGYTHZcyfcW9mJd0ohmWAQWHk3Vwe0223YODAjO4hrZGbE9nS3YIWiKETr1LJIsUs9NWP2K17XHd0t4iyhsPuUBifz6VdQd9642wl/DlUubWT5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA4F3C4CECC;
+	Mon, 18 Nov 2024 18:24:30 +0000 (UTC)
+Date: Mon, 18 Nov 2024 13:25:01 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Luis Chamberlain
+ <mcgrof@kernel.org>, Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski
+ <luto@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Arnd Bergmann
+ <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Brian Cain
+ <bcain@quicinc.com>, Catalin Marinas <catalin.marinas@arm.com>, Christoph
+ Hellwig <hch@infradead.org>, Christophe Leroy
+ <christophe.leroy@csgroup.eu>, Dave Hansen <dave.hansen@linux.intel.com>,
+ Dinh Nguyen <dinguyen@kernel.org>, Geert Uytterhoeven
+ <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, Helge Deller
+ <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar
+ <mingo@redhat.com>, Johannes Berg <johannes@sipsolutions.net>, John Paul
+ Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Kent Overstreet
+ <kent.overstreet@linux.dev>, "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Mark Rutland <mark.rutland@arm.com>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Matt Turner <mattst88@gmail.com>, Max Filippov
+ <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek
+ <monstr@monstr.eu>, Oleg Nesterov <oleg@redhat.com>, Palmer Dabbelt
+ <palmer@dabbelt.com>, Peter Zijlstra <peterz@infradead.org>, Richard
+ Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, Song Liu
+ <song@kernel.org>, Stafford Horne <shorne@gmail.com>, Suren Baghdasaryan
+ <surenb@google.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Thomas Gleixner <tglx@linutronix.de>, Uladzislau Rezki <urezki@gmail.com>,
+ Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
+ bpf@vger.kernel.org, linux-alpha@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-mm@kvack.org,
+ linux-modules@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-trace-kernel@vger.kernel.org, linux-um@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+ sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v7 0/8] x86/module: use large ROX pages for text
+ allocations
+Message-ID: <20241118132501.4eddb46c@gandalf.local.home>
+In-Reply-To: <20241023162711.2579610-1-rppt@kernel.org>
+References: <20241023162711.2579610-1-rppt@kernel.org>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DS0PR02MB102504C35F7F82A71261B9381B85A2@DS0PR02MB10250.namprd02.prod.outlook.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Nov 13, 2024 at 06:34:15PM +0000, Brian Cain wrote:
-> > > This error seems to be due to an incorrect range calculation for this
-> > > and other relocations.  Alexey has a PR for lld under review
-> > > https://github.com/llvm/llvm-project/pull/115925
-> > 
-> > Thanks! This does appear to resolve this particular problem for me. Will
-> > that need to be backported?
+On Wed, 23 Oct 2024 19:27:03 +0300
+Mike Rapoport <rppt@kernel.org> wrote:
+
+> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 > 
-> I was hoping/planning to request it to be cherry-picked to 19.1.x once
+> Hi,
+> 
+> This is an updated version of execmem ROX caches.
+> 
 
-Sounds good!
+FYI, I booted a kernel before and after applying these patches with my
+change:
 
-> it lands on main - are you asking for branches older than that too?
+  https://lore.kernel.org/20241017113105.1edfa943@gandalf.local.home
 
-No, I am aware that the older branches are not supported, so we will
-just take what we can get :)
+Before these patches:
 
-> This linker problem has been there "forever" but I suppose the
-> compiler only recently made a change that makes it more apparent.
+ # cat /sys/kernel/tracing/dyn_ftrace_total_info
+57695 pages:231 groups: 9
+ftrace boot update time = 14733459 (ns)
+ftrace module total update time = 449016 (ns)
 
-Right, if this becomes more prevalent, then we will just stop building
-allmodconfig with older versions of LLVM. For now, I think ensuring the
-fix lands in main and gets backported to 19.1.x should be enough to
-avoid any issues.
+After:
 
-Cheers,
-Nathan
+ # cat /sys/kernel/tracing/dyn_ftrace_total_info
+57708 pages:231 groups: 9
+ftrace boot update time = 47195374 (ns)
+ftrace module total update time = 592080 (ns)
+
+Which caused boot time to slowdown by over 30ms. That may not seem like
+much, but we are very concerned about boot time and are fighting every ms
+we can get.
+
+-- Steve
