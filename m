@@ -1,183 +1,122 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA1811DFD90;
-	Mon, 18 Nov 2024 18:40:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E57F19DF66;
+	Thu, 21 Nov 2024 18:22:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731955230; cv=none; b=C65iEmiUVNqCwMaoI0xEolVaaDqIyPk+QR/WbrMk2gxMvPF1NsvExIAEOKa25Bkenyqnc0u+JwtDI56pzF6fQF4fxUEMdPpKR9GP6sx8bLEHjI5oVgQYOs4/6Z2OnpXFrzS/A2Dk7piVDjvhotJBUPuMcSKMnUOmkcgTmEI2W1E=
+	t=1732213352; cv=none; b=Y191Co3VsHAtq11a41eceYrTpvVvHrwO+pbAmjmZ9L5quIT7C6oqI+SBrec7NlqWNjX2Am5NYfobpNebBt4T38dH6kxSLWBq1vxkXEhK/Wv6v81M81P09lK9iX1a+BZ3ycvNtjwbBH10bipgkW7YY+a/U8y2oUaFA028WyZ75I8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731955230; c=relaxed/simple;
-	bh=PgWfk6zhBX25rXxPAwmwUJeghk+GajLkQHlk+OfGUQc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dUl06Od+kI3Nql2XFM4vsiJo7mK/t6pCi3zKmH/5DldJo9ZraThxrfbpDIvVtVlgZhhXsbn9AS6MLXdjGkmGPVJli7kgfLza/gkK9cBktTW4FYe9EBidYJiAGHvbmSy//lz+zv7VthyoC2689Pzlf/7FSmly5M+R+KDM4FEUzpg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GeOY29sz; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1732213352; c=relaxed/simple;
+	bh=NlOGgKbYlSPT5mGVg0Vqrr2RjMPYarQpOk/xs/FSmYk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=S8GlCDEdNcqVaZLdBVlID97tSY/uV+Gx/oZlUYzNiKOEqI0BQbxnElH53fpHa3222TNiWb9ydMFn98cKXFr8dMKfoM1o7QQeSm7muOQekJcTWWdqvjkAGg1qBRbux+7k/RVymT0Rdf6+6qPCoPRvn3bZGBt/Klyk5Te32m3iFeE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=atvUalK/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GeOY29sz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A5AEC4CECC;
-	Mon, 18 Nov 2024 18:40:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="atvUalK/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B671C4CECC;
+	Thu, 21 Nov 2024 18:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1731955229;
-	bh=PgWfk6zhBX25rXxPAwmwUJeghk+GajLkQHlk+OfGUQc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=GeOY29szPjdxa0xm+vV9DTg2e5TPlxk7huuBMuJbtT+hTn5kPCdRWZ2oKgkC8UpSt
-	 VKEpF1/SK1ceIDW9rYbK4e2lrKnmmaewrajrem/5hOE+eL2aJiJwe2Mq1uUh3lhZ50
-	 bF8KJonZOhyM89MpbuLHVivYouTUSuZbDmGNuIIUU6Sz4PBRF7AffgUgRIMQ22WWof
-	 8/hSFdkboAANibLeqfLmV82IhRXIdNitXrU+lzbag6jN3GbbRMHw4voatyzJmOaEVn
-	 LYCc2cjDCBvkB/fCKjeR1Y3G/eBzyCxZ8foJEVKOfJ+JG689X8AaWtSJSKfiAkucWY
-	 LfgB8UgFNVmrQ==
-Date: Mon, 18 Nov 2024 10:40:26 -0800
-From: Mike Rapoport <rppt@kernel.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-	Brian Cain <bcain@quicinc.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michal Simek <monstr@monstr.eu>, Oleg Nesterov <oleg@redhat.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Richard Weinberger <richard@nod.at>,
-	Russell King <linux@armlinux.org.uk>, Song Liu <song@kernel.org>,
-	Stafford Horne <shorne@gmail.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
-	bpf@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org, linux-mm@kvack.org,
-	linux-modules@vger.kernel.org, linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-trace-kernel@vger.kernel.org, linux-um@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v7 0/8] x86/module: use large ROX pages for text
- allocations
-Message-ID: <ZzuKGoj99rIuMaBE@kernel.org>
-References: <20241023162711.2579610-1-rppt@kernel.org>
- <20241118132501.4eddb46c@gandalf.local.home>
+	s=k20201202; t=1732213351;
+	bh=NlOGgKbYlSPT5mGVg0Vqrr2RjMPYarQpOk/xs/FSmYk=;
+	h=From:Date:Subject:To:Cc:From;
+	b=atvUalK/cG6ylxLiD0a+I5dn9F7g0pAOH0QaU3bxPk0lUB0cdKxKoerXOF+bAlaYT
+	 XA7F75fFoRHiYd1i7XPk06BpZWPBuBSWL8iq2kNJJLMpRrBu17+30fuSclDF7GT2nL
+	 jyNOS14kQ39ciM+QmJSRv8jkIgYBt5vy/c9EUbc6xd+UZlPOkZq+aFwWObfxvtzxsX
+	 hlU4pEkrKUkZxQzSi4ybrPNOJx+hPBhvOnxzC1dP0Ny9LIDGg5AemNI8NNn/aaWJkf
+	 nJ4oopgOA5gRBo33SCnPHsWIVy5i6CkBH+mzrxs97GEOLuRXgyEma7zgd7XZW2i+YX
+	 xQT9e6eX47lIA==
+From: Nathan Chancellor <nathan@kernel.org>
+Date: Thu, 21 Nov 2024 11:22:18 -0700
+Subject: [PATCH v2] hexagon: Disable constant extender optimization for
+ LLVM prior to 19.1.0
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241118132501.4eddb46c@gandalf.local.home>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20241121-hexagon-disable-constant-expander-pass-v2-1-1a92e9afb0f4@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAFl6P2cC/43NQQ6CMBCF4auQrh1DCxZw5T0MiykdoJG0pEMIh
+ nB3K/EALv+3eN8umKIjFvdsF5FWxy74FOqSiW5EPxA4m1qoXJV5nSsYacMheLCO0UwEXfC8oF+
+ Athm9pQgzMkNttNHSGo19J9LZHKl32wk929Sj4yXE9+mu8rv+CNn8S6wSJBQaq6Kk5qYq+3hR9
+ DRdQxxEexzHB6moz63dAAAA
+X-Change-ID: 20240802-hexagon-disable-constant-expander-pass-8b6b61db6afc
+To: Brian Cain <bcain@quicinc.com>, 
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-hexagon@vger.kernel.org, patches@lists.linux.dev, 
+ llvm@lists.linux.dev, stable@vger.kernel.org, 
+ Nathan Chancellor <nathan@kernel.org>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2848; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=NlOGgKbYlSPT5mGVg0Vqrr2RjMPYarQpOk/xs/FSmYk=;
+ b=owGbwMvMwCUmm602sfCA1DTG02pJDOn2Ven3w17GXkmtbC9WKHRauz/9Quh2o8WPX8dJlzif1
+ d398OqjjlIWBjEuBlkxRZbqx6rHDQ3nnGW8cWoSzBxWJpAhDFycAjARBzuG/yGLl5ltCfJbwbhN
+ 8Hjmp7bIyXs9zEQN52Y95nZnfF76roCRYVfnuSqFRb/1vJa0n3vFsFcqLnLDttzsrPKPWd/Ytoq
+ /YQYA
+X-Developer-Key: i=nathan@kernel.org; a=openpgp;
+ fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 
-On Mon, Nov 18, 2024 at 01:25:01PM -0500, Steven Rostedt wrote:
-> On Wed, 23 Oct 2024 19:27:03 +0300
-> Mike Rapoport <rppt@kernel.org> wrote:
-> 
-> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-> > 
-> > Hi,
-> > 
-> > This is an updated version of execmem ROX caches.
-> > 
-> 
-> FYI, I booted a kernel before and after applying these patches with my
-> change:
-> 
->   https://lore.kernel.org/20241017113105.1edfa943@gandalf.local.home
-> 
-> Before these patches:
-> 
->  # cat /sys/kernel/tracing/dyn_ftrace_total_info
-> 57695 pages:231 groups: 9
-> ftrace boot update time = 14733459 (ns)
-> ftrace module total update time = 449016 (ns)
-> 
-> After:
-> 
->  # cat /sys/kernel/tracing/dyn_ftrace_total_info
-> 57708 pages:231 groups: 9
-> ftrace boot update time = 47195374 (ns)
-> ftrace module total update time = 592080 (ns)
-> 
-> Which caused boot time to slowdown by over 30ms. That may not seem like
-> much, but we are very concerned about boot time and are fighting every ms
-> we can get.
+The Hexagon-specific constant extender optimization in LLVM may crash on
+Linux kernel code [1], such as fs/bcache/btree_io.c after
+commit 32ed4a620c54 ("bcachefs: Btree path tracepoints") in 6.12:
 
-Hmm, looks like this change was lost in rebase :/
+  clang: llvm/lib/Target/Hexagon/HexagonConstExtenders.cpp:745: bool (anonymous namespace)::HexagonConstExtenders::ExtRoot::operator<(const HCE::ExtRoot &) const: Assertion `ThisB->getParent() == OtherB->getParent()' failed.
+  Stack dump:
+  0.      Program arguments: clang --target=hexagon-linux-musl ... fs/bcachefs/btree_io.c
+  1.      <eof> parser at end of file
+  2.      Code generation
+  3.      Running pass 'Function Pass Manager' on module 'fs/bcachefs/btree_io.c'.
+  4.      Running pass 'Hexagon constant-extender optimization' on function '@__btree_node_lock_nopath'
 
-@Andrew, should I send it as a patch on top of mm-stable?
+Without assertions enabled, there is just a hang during compilation.
 
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 8da0e66ca22d..859902dd06fc 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -111,17 +111,22 @@ static int ftrace_verify_code(unsigned long ip, const char *old_code)
-  */
- static int __ref
- ftrace_modify_code_direct(unsigned long ip, const char *old_code,
--			  const char *new_code)
-+			  const char *new_code, struct module *mod)
- {
- 	int ret = ftrace_verify_code(ip, old_code);
- 	if (ret)
- 		return ret;
- 
- 	/* replace the text with the new text */
--	if (ftrace_poke_late)
-+	if (ftrace_poke_late) {
- 		text_poke_queue((void *)ip, new_code, MCOUNT_INSN_SIZE, NULL);
--	else
-+	} else if (!mod) {
- 		text_poke_early((void *)ip, new_code, MCOUNT_INSN_SIZE);
-+	} else {
-+		mutex_lock(&text_mutex);
-+		text_poke((void *)ip, new_code, MCOUNT_INSN_SIZE);
-+		mutex_unlock(&text_mutex);
-+	}
- 	return 0;
- }
- 
-@@ -142,7 +147,7 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec, unsigned long ad
- 	 * just modify the code directly.
- 	 */
- 	if (addr == MCOUNT_ADDR)
--		return ftrace_modify_code_direct(ip, old, new);
-+		return ftrace_modify_code_direct(ip, old, new, mod);
- 
- 	/*
- 	 * x86 overrides ftrace_replace_code -- this function will never be used
-@@ -161,7 +166,7 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
- 	new = ftrace_call_replace(ip, addr);
- 
- 	/* Should only be called when module is loaded */
--	return ftrace_modify_code_direct(rec->ip, old, new);
-+	return ftrace_modify_code_direct(rec->ip, old, new, NULL);
- }
- 
- /*
+This has been resolved in LLVM main (20.0.0) [2] and backported to LLVM
+19.1.0 but the kernel supports LLVM 13.0.1 and newer, so disable the
+constant expander optimization using the '-mllvm' option when using a
+toolchain that is not fixed.
 
+Cc: stable@vger.kernel.org
+Link: https://github.com/llvm/llvm-project/issues/99714 [1]
+Link: https://github.com/llvm/llvm-project/commit/68df06a0b2998765cb0a41353fcf0919bbf57ddb [2]
+Link: https://github.com/llvm/llvm-project/commit/2ab8d93061581edad3501561722ebd5632d73892 [3]
+Reviewed-by: Brian Cain <bcain@quicinc.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+Andrew, can you please take this for 6.13? Our CI continues to hit this.
 
-> -- Steve
+Changes in v2:
+- Rebase on 6.12 to make sure it is still applicable
+- Name exact bcachefs commit that introduces crash now that it is
+  merged
+- Add 'Cc: stable' as this is now visible in a stable release
+- Carry forward Brian's reviewed-by
+- Link to v1: https://lore.kernel.org/r/20240819-hexagon-disable-constant-expander-pass-v1-1-36a734e9527d@kernel.org
+---
+ arch/hexagon/Makefile | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
+diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile
+index 92d005958dfb232d48a4ca843b46262a84a08eb4..ff172cbe5881a074f9d9430c37071992a4c8beac 100644
+--- a/arch/hexagon/Makefile
++++ b/arch/hexagon/Makefile
+@@ -32,3 +32,9 @@ KBUILD_LDFLAGS += $(ldflags-y)
+ TIR_NAME := r19
+ KBUILD_CFLAGS += -ffixed-$(TIR_NAME) -DTHREADINFO_REG=$(TIR_NAME) -D__linux__
+ KBUILD_AFLAGS += -DTHREADINFO_REG=$(TIR_NAME)
++
++# Disable HexagonConstExtenders pass for LLVM versions prior to 19.1.0
++# https://github.com/llvm/llvm-project/issues/99714
++ifneq ($(call clang-min-version, 190100),y)
++KBUILD_CFLAGS += -mllvm -hexagon-cext=false
++endif
+
+---
+base-commit: adc218676eef25575469234709c2d87185ca223a
+change-id: 20240802-hexagon-disable-constant-expander-pass-8b6b61db6afc
+
+Best regards,
 -- 
-Sincerely yours,
-Mike.
+Nathan Chancellor <nathan@kernel.org>
+
