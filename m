@@ -1,122 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E57F19DF66;
-	Thu, 21 Nov 2024 18:22:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F19191DDA3D;
+	Tue,  3 Dec 2024 22:17:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732213352; cv=none; b=Y191Co3VsHAtq11a41eceYrTpvVvHrwO+pbAmjmZ9L5quIT7C6oqI+SBrec7NlqWNjX2Am5NYfobpNebBt4T38dH6kxSLWBq1vxkXEhK/Wv6v81M81P09lK9iX1a+BZ3ycvNtjwbBH10bipgkW7YY+a/U8y2oUaFA028WyZ75I8=
+	t=1733264262; cv=none; b=oZ+Lz3OPmUYEagLtOIzRVCwlnVX9MWWfKzOaXBj5GO4Ib/okrUrrpy9ehahld4ISzi2oOvr2C8O3ZkG1nrAKI0gQEFs9PGcJcEVemK97yogJvY66GgaYMt9E6J7ESmhkUFUaa5YbeO/wZcZbtIC0bpmMcxUqhv3fFr1yjkBL6Bk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732213352; c=relaxed/simple;
-	bh=NlOGgKbYlSPT5mGVg0Vqrr2RjMPYarQpOk/xs/FSmYk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=S8GlCDEdNcqVaZLdBVlID97tSY/uV+Gx/oZlUYzNiKOEqI0BQbxnElH53fpHa3222TNiWb9ydMFn98cKXFr8dMKfoM1o7QQeSm7muOQekJcTWWdqvjkAGg1qBRbux+7k/RVymT0Rdf6+6qPCoPRvn3bZGBt/Klyk5Te32m3iFeE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=atvUalK/; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1733264262; c=relaxed/simple;
+	bh=83ZFVAL6rI26mNFtdBIhNwOZiIQYVo3JP+Cf9wzBjEY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fURn8yyCaYI0UieY099xrlAEbHrUD97nMxPBU+tsbJSlQyGFXjOYmSyHsVCywFRiCq/tQxuPRd7ACn5w86nPRxDazRI0cSqAaTAhO+/1lGXrIGdz+wke6+3O4CdjA9hYToeSqWZBjw0CIqyfZ78XvxKz5Xwj0WNFDCktP01sVSs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HIBEiE8k; arc=none smtp.client-ip=209.85.222.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="atvUalK/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B671C4CECC;
-	Thu, 21 Nov 2024 18:22:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1732213351;
-	bh=NlOGgKbYlSPT5mGVg0Vqrr2RjMPYarQpOk/xs/FSmYk=;
-	h=From:Date:Subject:To:Cc:From;
-	b=atvUalK/cG6ylxLiD0a+I5dn9F7g0pAOH0QaU3bxPk0lUB0cdKxKoerXOF+bAlaYT
-	 XA7F75fFoRHiYd1i7XPk06BpZWPBuBSWL8iq2kNJJLMpRrBu17+30fuSclDF7GT2nL
-	 jyNOS14kQ39ciM+QmJSRv8jkIgYBt5vy/c9EUbc6xd+UZlPOkZq+aFwWObfxvtzxsX
-	 hlU4pEkrKUkZxQzSi4ybrPNOJx+hPBhvOnxzC1dP0Ny9LIDGg5AemNI8NNn/aaWJkf
-	 nJ4oopgOA5gRBo33SCnPHsWIVy5i6CkBH+mzrxs97GEOLuRXgyEma7zgd7XZW2i+YX
-	 xQT9e6eX47lIA==
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Thu, 21 Nov 2024 11:22:18 -0700
-Subject: [PATCH v2] hexagon: Disable constant extender optimization for
- LLVM prior to 19.1.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HIBEiE8k"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-7b673cb2708so405378585a.2;
+        Tue, 03 Dec 2024 14:17:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1733264260; x=1733869060; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=zx6S/CQb0tqcpFEmYEJYTrZg4ruix/9Kcwctkpw9FSA=;
+        b=HIBEiE8kiBeyqXpNMk+fJC4L0tzsFeK+znuCtdFWH/U8zPrSGGr5DdfmAdlR0siJs/
+         cM9L6M8F3HfgH+XUfoaVYQ0du3IL56dxef4fDK/8Id5YkKFg5CNnnqPEbOr0JFRlbFX4
+         uZA0foA2tSGTQJZQYLeQ1HtjqTKsnzl3ZqFzWN5jDPV9W4C6v/BanHB2rZPZHp34EMdJ
+         lOQerFYafbJk02R6HQvfQBvNh0abrBfFiegpAibOw1t0xAc2CVRC7mPiF/aaV5Oe/QqQ
+         NMGogwN91b9xcrH0YBQYFWJ/hciJj7Men9s/NfQzq/okekIaIDcm8qLOgrB6shwbwxC3
+         hkrw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733264260; x=1733869060;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zx6S/CQb0tqcpFEmYEJYTrZg4ruix/9Kcwctkpw9FSA=;
+        b=Xadc2ZhxoHWvvMHZAzdiesZEUfn6meaUrjLYk6yqGXkvubyPBMncJ4Rh/YIEEiDnKQ
+         VAzZqpjUm6lDHimgnwKBQLqaYsNNO0rdTn3p5ldY3XNy8WMonwY0//FLNTtoMsdyt1h8
+         ZCa+cMgRNdD6NuqNaUnk88Rrtj72cPPA3b4r3cQaJQ8atkfTKWrqFLQyVvmN8OdyPd5B
+         kCcS6phpT/yBL+y0zdTM/3Lp46aLgu6sTkx83UHo98/s1SUZ+5qDXzWhFMVSTKxgob6Z
+         f9E341pavo9yb41vuxE3rQ8EY7RtG4pXB2yPF8tRF/Pa2G0G6hKI6k2/SwdO8MjT8weu
+         baXw==
+X-Forwarded-Encrypted: i=1; AJvYcCWhdjIMq7Jt1ngTgbH94mezwndYaj6y+DmecPVKr5sG/iyCz9bOvgIQDr/6CiQ7DV9ZholRhJbvA70YvFg=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzKmXzwwjh5D9cx3L71DK6ESGGJiPUGy32z1zwqouwnoPtaYrP/
+	NnbCU1lU1cN00zJU/j1SoaZqfvNSLPEc72W38yqc9Ur3G0UuGuAaxrTQTA==
+X-Gm-Gg: ASbGncs3oZodrz+XUHmh1u8AvQNI+qZ2H1c6TX1fnSaYi3fAeYvEnYtmMmvVMkl3Kv+
+	FyLCe5yviEBF0BZzQbyewZeb7fsLw/b6Mw0E0IvlenJEot4uqDvf11BuPygzdPpVRUXHx/ARAt+
+	bGnWwVKbEK+JfG0MBXvfNIxTIlluzocZs6yj2hGzSuZzHOGisnQMolWazPsY9GI86uWjuzcBzee
+	/Rx82TeXcJbY02HmOWznzOun0Flz/pbrBs3Z41WI5FKTI4dRYN1cjRbCXvrVsn8SWKpwBMvdt5b
+	Z+0eX+Tm3DNcAvxOhjrjJzDee7NvMhpiVbIaNHvdbhjP
+X-Google-Smtp-Source: AGHT+IGeCAxgKWes426gFVAzXXMZbzwEVVnZXx8PQ542h2Kmit/6Mex1h0PEefAqKA9aQrmXmE/oAQ==
+X-Received: by 2002:a05:620a:4486:b0:7b1:11f4:d0af with SMTP id af79cd13be357-7b6a5d7bb10mr384571885a.29.1733264259850;
+        Tue, 03 Dec 2024 14:17:39 -0800 (PST)
+Received: from willemb.c.googlers.com.com (250.4.48.34.bc.googleusercontent.com. [34.48.4.250])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7b6849aac1asm552035185a.85.2024.12.03.14.17.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Dec 2024 14:17:39 -0800 (PST)
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: linux-hexagon@vger.kernel.org
+Cc: bcain@quicinc.com,
+	linux-kernel@vger.kernel.org,
+	dhowells@redhat.com,
+	edumazet@google.com,
+	Willem de Bruijn <willemb@google.com>,
+	kernel test robot <lkp@intel.com>
+Subject: [PATCH] hexagon: fix using plain integer as NULL pointer warning in cmpxchg
+Date: Tue,  3 Dec 2024 17:17:34 -0500
+Message-ID: <20241203221736.282020-1-willemdebruijn.kernel@gmail.com>
+X-Mailer: git-send-email 2.47.0.338.g60cca15819-goog
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20241121-hexagon-disable-constant-expander-pass-v2-1-1a92e9afb0f4@kernel.org>
-X-B4-Tracking: v=1; b=H4sIAFl6P2cC/43NQQ6CMBCF4auQrh1DCxZw5T0MiykdoJG0pEMIh
- nB3K/EALv+3eN8umKIjFvdsF5FWxy74FOqSiW5EPxA4m1qoXJV5nSsYacMheLCO0UwEXfC8oF+
- Athm9pQgzMkNttNHSGo19J9LZHKl32wk929Sj4yXE9+mu8rv+CNn8S6wSJBQaq6Kk5qYq+3hR9
- DRdQxxEexzHB6moz63dAAAA
-X-Change-ID: 20240802-hexagon-disable-constant-expander-pass-8b6b61db6afc
-To: Brian Cain <bcain@quicinc.com>, 
- Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-hexagon@vger.kernel.org, patches@lists.linux.dev, 
- llvm@lists.linux.dev, stable@vger.kernel.org, 
- Nathan Chancellor <nathan@kernel.org>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2848; i=nathan@kernel.org;
- h=from:subject:message-id; bh=NlOGgKbYlSPT5mGVg0Vqrr2RjMPYarQpOk/xs/FSmYk=;
- b=owGbwMvMwCUmm602sfCA1DTG02pJDOn2Ven3w17GXkmtbC9WKHRauz/9Quh2o8WPX8dJlzif1
- d398OqjjlIWBjEuBlkxRZbqx6rHDQ3nnGW8cWoSzBxWJpAhDFycAjARBzuG/yGLl5ltCfJbwbhN
- 8Hjmp7bIyXs9zEQN52Y95nZnfF76roCRYVfnuSqFRb/1vJa0n3vFsFcqLnLDttzsrPKPWd/Ytoq
- /YQYA
-X-Developer-Key: i=nathan@kernel.org; a=openpgp;
- fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+Content-Transfer-Encoding: 8bit
 
-The Hexagon-specific constant extender optimization in LLVM may crash on
-Linux kernel code [1], such as fs/bcache/btree_io.c after
-commit 32ed4a620c54 ("bcachefs: Btree path tracepoints") in 6.12:
+From: Willem de Bruijn <willemb@google.com>
 
-  clang: llvm/lib/Target/Hexagon/HexagonConstExtenders.cpp:745: bool (anonymous namespace)::HexagonConstExtenders::ExtRoot::operator<(const HCE::ExtRoot &) const: Assertion `ThisB->getParent() == OtherB->getParent()' failed.
-  Stack dump:
-  0.      Program arguments: clang --target=hexagon-linux-musl ... fs/bcachefs/btree_io.c
-  1.      <eof> parser at end of file
-  2.      Code generation
-  3.      Running pass 'Function Pass Manager' on module 'fs/bcachefs/btree_io.c'.
-  4.      Running pass 'Hexagon constant-extender optimization' on function '@__btree_node_lock_nopath'
+Sparse reports
 
-Without assertions enabled, there is just a hang during compilation.
+    net/ipv4/inet_diag.c:1511:17: sparse: sparse: Using plain integer as NULL pointer
 
-This has been resolved in LLVM main (20.0.0) [2] and backported to LLVM
-19.1.0 but the kernel supports LLVM 13.0.1 and newer, so disable the
-constant expander optimization using the '-mllvm' option when using a
-toolchain that is not fixed.
+Due to this code calling cmpxchg on a non-integer type
+struct inet_diag_handler *
 
-Cc: stable@vger.kernel.org
-Link: https://github.com/llvm/llvm-project/issues/99714 [1]
-Link: https://github.com/llvm/llvm-project/commit/68df06a0b2998765cb0a41353fcf0919bbf57ddb [2]
-Link: https://github.com/llvm/llvm-project/commit/2ab8d93061581edad3501561722ebd5632d73892 [3]
-Reviewed-by: Brian Cain <bcain@quicinc.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+    return !cmpxchg((const struct inet_diag_handler**)&inet_diag_table[type],
+                    NULL, h) ? 0 : -EEXIST;
+
+While hexagon's cmpxchg assigns an integer value to a variable of this
+type.
+
+    __typeof__(*(ptr)) __oldval = 0;
+
+Update this assignment to cast 0 to the correct type.
+
+The original issue is easily reproduced at head with the below block,
+and is absent after this change.
+
+    make LLVM=1 ARCH=hexagon defconfig
+    make C=1 LLVM=1 ARCH=hexagon net/ipv4/inet_diag.o
+
+Fixes: 99a70aa051d2 ("Hexagon: Add processor and system headers")
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202411091538.PGSTqUBi-lkp@intel.com/
+Signed-off-by: Willem de Bruijn <willemb@google.com>
 ---
-Andrew, can you please take this for 6.13? Our CI continues to hit this.
+ arch/hexagon/include/asm/cmpxchg.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Changes in v2:
-- Rebase on 6.12 to make sure it is still applicable
-- Name exact bcachefs commit that introduces crash now that it is
-  merged
-- Add 'Cc: stable' as this is now visible in a stable release
-- Carry forward Brian's reviewed-by
-- Link to v1: https://lore.kernel.org/r/20240819-hexagon-disable-constant-expander-pass-v1-1-36a734e9527d@kernel.org
----
- arch/hexagon/Makefile | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile
-index 92d005958dfb232d48a4ca843b46262a84a08eb4..ff172cbe5881a074f9d9430c37071992a4c8beac 100644
---- a/arch/hexagon/Makefile
-+++ b/arch/hexagon/Makefile
-@@ -32,3 +32,9 @@ KBUILD_LDFLAGS += $(ldflags-y)
- TIR_NAME := r19
- KBUILD_CFLAGS += -ffixed-$(TIR_NAME) -DTHREADINFO_REG=$(TIR_NAME) -D__linux__
- KBUILD_AFLAGS += -DTHREADINFO_REG=$(TIR_NAME)
-+
-+# Disable HexagonConstExtenders pass for LLVM versions prior to 19.1.0
-+# https://github.com/llvm/llvm-project/issues/99714
-+ifneq ($(call clang-min-version, 190100),y)
-+KBUILD_CFLAGS += -mllvm -hexagon-cext=false
-+endif
-
----
-base-commit: adc218676eef25575469234709c2d87185ca223a
-change-id: 20240802-hexagon-disable-constant-expander-pass-8b6b61db6afc
-
-Best regards,
+diff --git a/arch/hexagon/include/asm/cmpxchg.h b/arch/hexagon/include/asm/cmpxchg.h
+index bf6cf5579cf4..9c58fb81f7fd 100644
+--- a/arch/hexagon/include/asm/cmpxchg.h
++++ b/arch/hexagon/include/asm/cmpxchg.h
+@@ -56,7 +56,7 @@ __arch_xchg(unsigned long x, volatile void *ptr, int size)
+ 	__typeof__(ptr) __ptr = (ptr);				\
+ 	__typeof__(*(ptr)) __old = (old);			\
+ 	__typeof__(*(ptr)) __new = (new);			\
+-	__typeof__(*(ptr)) __oldval = 0;			\
++	__typeof__(*(ptr)) __oldval = (__typeof__(*(ptr))) 0;	\
+ 								\
+ 	asm volatile(						\
+ 		"1:	%0 = memw_locked(%1);\n"		\
 -- 
-Nathan Chancellor <nathan@kernel.org>
+2.47.0.338.g60cca15819-goog
 
