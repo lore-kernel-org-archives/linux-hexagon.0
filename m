@@ -1,88 +1,71 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from arara2.ipen.br (arara2.ipen.br [200.136.52.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5FF31FA8FF;
-	Wed, 11 Dec 2024 22:32:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 579391632CA
+	for <linux-hexagon@vger.kernel.org>; Fri, 13 Dec 2024 07:22:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=200.136.52.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733956349; cv=none; b=VLo7clw6Ql40dWKU/1ZFpIqMTBrTBa6w4fUdcbcKAV/UbtUEoovZojBT5o3anAEPjcGtYF7c6uoodQ4/gEENp/rh0rGedligKeaBsqTY0JekttdToUFddTjM9HJVTtqALH1O9SkLXb7ZtyRHY92tfXpPWBFwTL10KrDjdydl8Gc=
+	t=1734074552; cv=none; b=YVAXFhAHC7ELUsdrtmBFCAwcH2buAgAlwfllLHps/cb+F5iFYt6KUqX73VsQw2s6eUa0Ow45Ah5z2u+5XnzmBjEEF6eZqJcIHeCcvZ0dhV5q7xT0UN3J2yblpPeWrQ5IX/wuLDynWG5TzoPOshSsw+bxHLSjAEbqev8VlFqiJJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733956349; c=relaxed/simple;
-	bh=BsLL13WVfc3NzEKIjd52mjnoMrC/Et1GCt0kRWiLCQo=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=bPth9QcmsZNdlBbPF7WHBbwtm8uYLNUDlciBjNkTVzk3utk+02KTIJPJEzhisp4M/zntbH7im217JL2FN6IPsvdGHmbOGqs8pApGIs8pLHyXwqBYHzzN0RU7b1Wb/iMM9m2gI2BmwS6PwAzwXjEmdHdotnbk9I+Hd/Bm1LoC7ho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qv6gvZPd; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qv6gvZPd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2AB6C4CED2;
-	Wed, 11 Dec 2024 22:32:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1733956348;
-	bh=BsLL13WVfc3NzEKIjd52mjnoMrC/Et1GCt0kRWiLCQo=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=qv6gvZPdDzbdVPybtFSPx8+F0xql/LHjAUoa61PxHbq7BiNILQmSVN3xV/Fk+jm3l
-	 eRj2euKpGQwhzha10D0yvWpJ5jdjr8+V1iYsps4/RL/90xpWyAoPlqxLTgT8H2p1Qr
-	 znxHE8HzGGVb3bxCyQgvVT/2hoGKZW56OU+GylgAoSP4eq7TpXB3MZRt3VoyD522af
-	 qGwcNNMDDsGqYKHkYodSX7oguHOLk4TTwi/8Q8fATZ6k5VUR9Dw7CkfxIhk8aSQAz0
-	 q46lv24Cq5nGqzFQZkxa8IXK7+L/Hgf8e5dM0N1jW5ubxUNiav+to559ZbObo4j7v8
-	 24oLtA9z8Jf7w==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAFBE380A965;
-	Wed, 11 Dec 2024 22:32:45 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1734074552; c=relaxed/simple;
+	bh=Cgr97JBiSX1QIcd2ZZZsKVChGTY1ZlWJ/4AhaVFA7Wc=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ZRHrighxxulCWk63KETuZY7V1MtcDw7ofdqsufrQDIPP7rWCxxNgNJq0OX5Rh4tzAyBdXF8vhU67Q5A3Qb0uEVauLE6LdHZg+tD3eQZB1ULdhDpmhN/aiq5r0P50XTd1SK7ODnefbwgexeg2JDBLaHvKImh07+TivkBywcA0Sls=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ipen.br; spf=pass smtp.mailfrom=ipen.br; arc=none smtp.client-ip=200.136.52.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ipen.br
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ipen.br
+X-ASG-Debug-ID: 1734074486-055fc729ec1490f2000e-zgJvNy
+Received: from arara.ipen.br (webmail.ip.ipen.br [10.0.10.11]) by arara2.ipen.br with ESMTP id tu41072R6VEfmQxJ for <linux-hexagon@vger.kernel.org>; Fri, 13 Dec 2024 04:22:24 -0300 (BRT)
+X-Barracuda-Envelope-From: TCWM179864@ipen.br
+X-Barracuda-RBL-Trusted-Forwarder: 10.0.10.11
+Received: from ipen.br (unknown [102.129.145.191])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by arara.ipen.br (Postfix) with ESMTPSA id 8307DFB272B
+	for <linux-hexagon@vger.kernel.org>; Fri, 13 Dec 2024 01:26:10 -0300 (-03)
+Reply-To: t.mazowieckie@mazowieckie.org
+X-Barracuda-Effective-Source-IP: UNKNOWN[102.129.145.191]
+X-Barracuda-Apparent-Source-IP: 102.129.145.191
+X-Barracuda-RBL-IP: 102.129.145.191
+From: <TCWM179864@ipen.br>
+To: linux-hexagon@vger.kernel.org
+Subject:  I urge you to understand my viewpoint accurately.
+Date: 13 Dec 2024 12:26:09 +0800
+X-ASG-Orig-Subj: I urge you to understand my viewpoint accurately.
+Message-ID: <20241213122609.91B63419FC424483@ipen.br>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 1/2] asm-generic: provide generic page_to_phys and
- phys_to_page implementations
-From: patchwork-bot+linux-riscv@kernel.org
-Message-Id: 
- <173395636448.1729195.13128530873311699126.git-patchwork-notify@kernel.org>
-Date: Wed, 11 Dec 2024 22:32:44 +0000
-References: <20241023053644.311692-2-hch@lst.de>
-In-Reply-To: <20241023053644.311692-2-hch@lst.de>
-To: Christoph Hellwig <hch@lst.de>
-Cc: linux-riscv@lists.infradead.org, arnd@arndb.de,
- linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
- linux-arch@vger.kernel.org
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Barracuda-Connect: webmail.ip.ipen.br[10.0.10.11]
+X-Barracuda-Start-Time: 1734074544
+X-Barracuda-URL: https://10.40.40.18:443/cgi-mod/mark.cgi
+X-Barracuda-Scan-Msg-Size: 512
+X-Virus-Scanned: by bsmtpd at ipen.br
+X-Barracuda-BRTS-Status: 1
+X-Barracuda-BRTS-Evidence: 34fbb5788938ad5710ad28835fd12206-499-txt
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=1000.0 tests=NO_REAL_NAME
+X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.45577
+	Rule breakdown below
+	 pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.00 NO_REAL_NAME           From: does not include a real name
 
-Hello:
+I am Tomasz Chmielewski, a Portfolio Manager and Chartered=20
+Financial Analyst affiliated with Iwoca Poland Sp. Z OO in=20
+Poland. I have the privilege of working with distinguished=20
+investors who are eager to support your company's current=20
+initiatives, thereby broadening their investment portfolios. If=20
+this proposal aligns with your interests, I invite you to=20
+respond, and I will gladly share more information to assist you.
 
-This series was applied to riscv/linux.git (fixes)
-by Arnd Bergmann <arnd@arndb.de>:
-
-On Wed, 23 Oct 2024 07:36:36 +0200 you wrote:
-> page_to_phys is duplicated by all architectures, and from some strange
-> reason placed in <asm/io.h> where it doesn't fit at all.
-> 
-> phys_to_page is only provided by a few architectures despite having a lot
-> of open coded users.
-> 
-> Provide generic versions in <asm-generic/memory_model.h> to make these
-> helpers more easily usable.
-> 
-> [...]
-
-Here is the summary with links:
-  - [1/2] asm-generic: provide generic page_to_phys and phys_to_page implementations
-    https://git.kernel.org/riscv/c/c5c3238d9b8c
-  - [2/2] asm-generic: add an optional pfn_valid check to page_to_phys
-    https://git.kernel.org/riscv/c/3e25d5a49f99
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+=20
+Yours sincerely,=20
+Tomasz Chmielewski Warsaw, Mazowieckie,
+=20
+Poland.
