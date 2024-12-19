@@ -1,81 +1,87 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx1.emlix.com (mx1.emlix.com [178.63.209.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C591D1F37A9;
-	Wed, 18 Dec 2024 18:23:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E8A538F9C;
+	Thu, 19 Dec 2024 08:34:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.63.209.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734546217; cv=none; b=n20im3O+8O9j959IJbjRX3gozyk/R/gQ19POQz7FTY/FhVhaCr+J22/H88Wae70sAnwWnIEfmgsvoh2v/kv6e98oaLnzWP+ap+38KDV6hkIf3n5Zfa0BRMvRQIumCa6JoAsX3CiAE1fOwGaHYZML4R8CTT7ixB3oRE7ucpHbH/k=
+	t=1734597246; cv=none; b=pRIF8GSY1qRoVHkWsyXRyKFhaIl7BegqSGas5okZgMAf7hdmJhw/j5qYiEAQ5ROSvG0XKkQqAzqLo+/rc6BWel26KdIBbsAuBFmrhMlIk0c5BFXRpWQPzEMEVXt/kXgt4kA0hVbJKF5iFZS4NkiOvYkZQ91It5T2Dm3UH9E4M48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734546217; c=relaxed/simple;
-	bh=c6eelvsTAfT5X3Bvf7o8FkL3v/cSWYPHNIXU0zEvr9o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tl6SBxQHM8q7GEm2MiYPJa7ohhzuvBD9W95f2aOg5Il3kjnm2jXs59aGsdqos/YZuuIaYuzULuQgwehpdHCiBk9Iu7dTmJOonOmJMe6ZFeCJDstMY+NcMjDL8HIm2IAknSdtFg7JnV6uchMaeBlO25IDpUpugqUpJwQ4dQk+CEI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SAy9W0Bg; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SAy9W0Bg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C2E3C4CECD;
-	Wed, 18 Dec 2024 18:23:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1734546217;
-	bh=c6eelvsTAfT5X3Bvf7o8FkL3v/cSWYPHNIXU0zEvr9o=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=SAy9W0Bg4qqIUGVmO1nEwLMRKyEcrXkH3PUeZvy9IZDboYxSh/bp4NiBnqWnDcdRB
-	 AGNmGwzolzSEWZN5k5hwKp50KiN7KoplZcI8soIdh62MJCTGmh0P/deU89A0HP988m
-	 1ONgti1RI5X/DsaDF0rmHimjGOk+QvFmRxYV5IelT7H34Uw0GkSg67fRecJF/h2HE3
-	 ZVaLdRtq4WxNK2YnN1j/UWl6R1xz1NbNvlpwN/gdp+h+laPdumshxGmf9LfSubjl7n
-	 eMBtJ+rOI/9Kd4WeBdwg0iRdbSB9+kUNro5hQIO+7MNfgux+ovJhY4V5V5984UN35j
-	 YKmQV2JlPnv/w==
-Date: Wed, 18 Dec 2024 11:23:33 -0700
-From: Nathan Chancellor <nathan@kernel.org>
+	s=arc-20240116; t=1734597246; c=relaxed/simple;
+	bh=QbbGdoHztjxtZpBAK+NNRsPFwDUYwkSh0nDASnOo8II=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=TyxKw1ZwqeZP3ix53MVaNAyX528tLEbiBqudnQIbCQunshh/uPIhJADls7kIk/r6bZjjrTnlgBiQqYEshfC5nYhvsVjpYJjw026fp8+w3QKQWtZb18GHDQHblFQqBq5etiwx6bJp98q0e6SanCU7Aip38sTuuVbwShnjuusNSbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=emlix.com; spf=pass smtp.mailfrom=emlix.com; arc=none smtp.client-ip=178.63.209.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=emlix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=emlix.com
+Received: from mailer.emlix.com (p5098be52.dip0.t-ipconnect.de [80.152.190.82])
+	(using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.emlix.com (Postfix) with ESMTPS id D4B9C5F880;
+	Thu, 19 Dec 2024 09:34:00 +0100 (CET)
+From: Rolf Eike Beer <eb@emlix.com>
 To: Brian Cain <bcain@quicinc.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	"linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
-	"patches@lists.linux.dev" <patches@lists.linux.dev>,
-	"llvm@lists.linux.dev" <llvm@lists.linux.dev>,
-	"stable@vger.kernel.org" <stable@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] hexagon: Disable constant extender optimization for
- LLVM prior to 19.1.0
-Message-ID: <20241218182333.GB2948182@ax162>
-References: <20241121-hexagon-disable-constant-expander-pass-v2-1-1a92e9afb0f4@kernel.org>
- <20241217174425.GA2651946@ax162>
- <DS0PR02MB102502302B8074AFA8BB1BAFEB8052@DS0PR02MB10250.namprd02.prod.outlook.com>
- <CH3SPRMB000129CE377EDA52BF102593B8052@CH3SPRMB0001.namprd02.prod.outlook.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Will Deacon <will@kernel.org>,
+ Waiman Long <longman@redhat.com>, Boqun Feng <boqun.feng@gmail.com>,
+ linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org
+Subject: [PATCH] hexagon: make arch_spin_trylock() return signed int
+Date: Thu, 19 Dec 2024 09:34:00 +0100
+Message-ID: <8464681.T7Z3S40VBb@devpool47.emlix.com>
+Organization: emlix GmbH
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CH3SPRMB000129CE377EDA52BF102593B8052@CH3SPRMB0001.namprd02.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
 
-Hi Brian,
+In contrast to all other architectures this was using an unsigned int while=
+ the
+variable used to hold the return value inside the function is signed as wel=
+l.
 
-On Wed, Dec 18, 2024 at 04:19:23AM +0000, Brian Cain wrote:
-> > I'm sorry.  You should not have to send these changes to Linus. I should have
-> > carried it in my tree and proposed it to Linus.
-> > 
-> > I'll do that, if you don't mind.
-> 
-> I see it's landed.  Sorry, all.  I'll resolve to do a better job here.
+Signed-off-by: Rolf Eike Beer <eb@emlix.com>
+=2D--
+Not tested in any way, but what could possibly go wrong when fiddling with =
+low
+level locking? ;)
 
-As Nick said, no worries, these things happen. If going straight to
-Linus gave the impression that you did something wrong or inadequate, I
-apologize, as that was not the intention. I seem to recall even recently
-him saying that he does not mind applying patches directly from the
-mailing list and bypassing the maintainer/subsystem when it fixes an
-issue (cannot find the exact message I am thinking of but [1] is also
-good). Since this patch is small and limited in scope, I figured it was
-not worth any more pings.
+ arch/hexagon/include/asm/spinlock.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-That said, consistent ownership of arch/hexagon patches would not be a
-bad thing going forward :)
+diff --git a/arch/hexagon/include/asm/spinlock.h b/arch/hexagon/include/asm=
+/spinlock.h
+index ef103b73bec8..4394b660a12d 100644
+=2D-- a/arch/hexagon/include/asm/spinlock.h
++++ b/arch/hexagon/include/asm/spinlock.h
+@@ -133,7 +133,7 @@ static inline void arch_spin_unlock(arch_spinlock_t *lo=
+ck)
+ 	lock->lock =3D 0;
+ }
+=20
+=2Dstatic inline unsigned int arch_spin_trylock(arch_spinlock_t *lock)
++static inline int arch_spin_trylock(arch_spinlock_t *lock)
+ {
+ 	int temp;
+ 	__asm__ __volatile__(
+=2D-=20
+2.47.1
 
-[1]: https://lore.kernel.org/CAHk-=wgQhFPvneqAVXjUZDq=ahpATdgfg6LZ9n07MSSUGkQWuA@mail.gmail.com/
 
-Cheers,
-Nathan
+=2D-=20
+Rolf Eike Beer
+
+emlix GmbH
+Headquarters: Berliner Str. 12, 37073 G=C3=B6ttingen, Germany
+Phone +49 (0)551 30664-0, e-mail info@emlix.com
+District Court of G=C3=B6ttingen, Registry Number HR B 3160
+Managing Directors: Heike Jordan, Dr. Uwe Kracke
+VAT ID No. DE 205 198 055
+Office Berlin: Panoramastr. 1, 10178 Berlin, Germany
+Office Bonn: Bachstr. 6, 53115 Bonn, Germany
+http://www.emlix.com
+
+emlix - your embedded Linux partner
+
+
