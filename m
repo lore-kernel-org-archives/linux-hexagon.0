@@ -1,83 +1,94 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 725E2155757;
-	Thu, 19 Dec 2024 17:19:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id DC0EB1C4A0D;
+	Fri, 20 Dec 2024 10:49:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734628769; cv=none; b=X/uiR87Q6heJS7DuV/hn3mYgWqXMz+Zx/9rTr8WdubBIH2OhqJqZTnvynW3+UvslcwY/UDvHcTVhgZEzxGrMyr+jPpLA26mboLapJVB8fuqlaS5MGH6DBj+4XX1pQsVq2Flk+XcC7GDjrX1iEbAEyNL+D/ihKIsqmYfr1oMiIME=
+	t=1734691792; cv=none; b=X+zCPk7xcGiNteuuGbaJw1QLRS6TjqqKIHLL5sfG0Kz2yi5ccfYAF1Ma5b/fhstrri7xTf4SaybjrKKHY0Sm3KYR0j5aDxVe6B7+zxreLfYWETjmOieqCMdQM/d9oJq/qWRnJcpTsy5cD+FtHSEf7PYGFXKNueQXj+i+uITvk1A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734628769; c=relaxed/simple;
-	bh=FiaWtTZMT6EBgr6mSaSJNXidWoMiFzrTlU10rNSdw/o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uyF5wEg090khXg5ZWfVZGChbQ4TNrWz4UclAJ96f6cWnV5ZeMzLrcpnsgeyaNtedhExKL6aKETRRU4We9NDszjA613su+bTgYZ6mQDHEOg6uicSowdngcrx1PsfN28NWS3F85DoQhiqgf7N5sOgMqHNhTZhc8oKAdoP/MJ3T4IQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=jMA8lMwS; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="jMA8lMwS"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=hD4px1JE4Hs8C37Ywe2qi4X3aSr37zS1Mt6jQs2kxto=; b=jMA8lMwSy3+bHUFP+4fZVh7IPx
-	FyB8T3nnJ+VnT7ZEnXN4F5h9lorBeRxAcY4z9Maf9ZBSgXjPacaS/BsCuz4mxMNgmCy3EixkzWxA8
-	9nBGzEYRwL6XhZtK8PGvIXWpbtgGjKa8UuZdrgNUr1gstWSzlDEZ4zghJ4X+5rUW+ExR2CzI8b/1g
-	YgjbYJKE2JG9e/5b3h6i12Q8gw4+bdp4OGw8Yz1qz6fCcq72C9V4mGlNHIwG/Qn1QQ04br8S23m9g
-	PMS2zOscxtTixVnQcYQzt7oYvJcMlPkATcO7LstZ0mhOYVVLul4cf4Ep3YiuOjwMWaSE7gfJig0Rg
-	0p7Jj9wg==;
-Received: from 77-249-17-89.cable.dynamic.v4.ziggo.nl ([77.249.17.89] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
-	id 1tOKBE-00000004Vjs-3SFX;
-	Thu, 19 Dec 2024 17:19:21 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 0A1A23004DE; Thu, 19 Dec 2024 18:19:21 +0100 (CET)
-Date: Thu, 19 Dec 2024 18:19:20 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: Kevin Brodsky <kevin.brodsky@arm.com>
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Andy Lutomirski <luto@kernel.org>,
-	"Mike Rapoport (IBM)" <rppt@kernel.org>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
-	Matthew Wilcox <willy@infradead.org>, linux-alpha@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-um@lists.infradead.org, loongarch@lists.linux.dev,
-	x86@kernel.org
-Subject: Re: [PATCH 01/10] mm: Move common parts of pagetable_*_[cd]tor to
- helpers
-Message-ID: <20241219171920.GB26279@noisy.programming.kicks-ass.net>
-References: <20241219164425.2277022-1-kevin.brodsky@arm.com>
- <20241219164425.2277022-2-kevin.brodsky@arm.com>
+	s=arc-20240116; t=1734691792; c=relaxed/simple;
+	bh=+YoPJYCVW+iqFgfJaBJhg6jUs924rEbw4ZmRIr4ZZOw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Di5gGRo4iWxvq01nfGqNlUoBbolKL0iQAdAXrqSmYxV8DBMBEzLGLttOCIH0q/d6UgXS4IeF6tp2vC0wiHMRznq35V7VEmiQEUjMEx1HpvD8ExyXRIXx5UjdErWg/UYhlz59pjxFebbkkkNEb5CC9KjN63e9CooYmBhyPwqYsL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8D0A81480;
+	Fri, 20 Dec 2024 02:50:18 -0800 (PST)
+Received: from [10.57.72.191] (unknown [10.57.72.191])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8254C3F58B;
+	Fri, 20 Dec 2024 02:49:44 -0800 (PST)
+Message-ID: <75cb4ff8-eb0c-4519-a30a-f8be717ba278@arm.com>
+Date: Fri, 20 Dec 2024 11:49:38 +0100
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241219164425.2277022-2-kevin.brodsky@arm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 01/10] mm: Move common parts of pagetable_*_[cd]tor to
+ helpers
+To: Peter Zijlstra <peterz@infradead.org>,
+ Qi Zheng <zhengqi.arch@bytedance.com>
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Andy Lutomirski <luto@kernel.org>,
+ "Mike Rapoport (IBM)" <rppt@kernel.org>, Ryan Roberts
+ <ryan.roberts@arm.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Will Deacon <will@kernel.org>, Matthew Wilcox <willy@infradead.org>,
+ linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+ loongarch@lists.linux.dev, x86@kernel.org,
+ Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20241219164425.2277022-1-kevin.brodsky@arm.com>
+ <20241219164425.2277022-2-kevin.brodsky@arm.com>
+ <20241219171920.GB26279@noisy.programming.kicks-ass.net>
+Content-Language: en-GB
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+In-Reply-To: <20241219171920.GB26279@noisy.programming.kicks-ass.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, Dec 19, 2024 at 04:44:16PM +0000, Kevin Brodsky wrote:
-> Besides the ptlock management at PTE/PMD level, all the
-> pagetable_*_[cd]tor have the same implementation. Introduce common
-> helpers for all levels to reduce the duplication.
+Hi Peter, Qi,
 
-Uff, I forgot to Cc you on the discussion here, sorry!:
+On 19/12/2024 18:19, Peter Zijlstra wrote:
+> On Thu, Dec 19, 2024 at 04:44:16PM +0000, Kevin Brodsky wrote:
+>> Besides the ptlock management at PTE/PMD level, all the
+>> pagetable_*_[cd]tor have the same implementation. Introduce common
+>> helpers for all levels to reduce the duplication.
+> Uff, I forgot to Cc you on the discussion here, sorry!:
+>
+>   https://lkml.kernel.org/r/cover.1734526570.git.zhengqi.arch@bytedance.com
+>
+> we now have two series doing more or less overlapping things :/
+>
+> You can in fact trivially merge the all the implementations -- the
+> apparent non-common bit (ptlock_free) is a no-op for all those other
+> levels because they'll be having ptdesc->lock == NULL.
 
-  https://lkml.kernel.org/r/cover.1734526570.git.zhengqi.arch@bytedance.com
+Ah that is good to know, thanks for letting me know about that and Qi's
+series! Fortunately there isn't that much overlap between our series - I
+think we can easily sort this out.
 
-we now have two series doing more or less overlapping things :/
+Qi, shall we collaborate to make our series complementary? I believe my
+series covers patch 2 and 4 of your series, but it goes further by
+covering all levels and all architectures, and patches introducing
+ctor/dtor are already split as Alexander suggested on your series. So my
+suggestion would be:
 
-You can in fact trivially merge the all the implementations -- the
-apparent non-common bit (ptlock_free) is a no-op for all those other
-levels because they'll be having ptdesc->lock == NULL.
+* Remove patch 1 in my series - I'd just introduce
+pagetable_{p4d,pgd}_[cd]tor with the same implementation as
+pagetable_pud_[cd]tor.
+* Remove patch 2 and 4 from your series and rebase it on mine.
+
+Let me know if that makes sense, if so I'll post a v2.
+
+Cheers,
+- Kevin
