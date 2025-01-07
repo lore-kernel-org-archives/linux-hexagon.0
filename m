@@ -1,127 +1,138 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B1EC97081E;
-	Tue,  7 Jan 2025 09:58:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B8CD16CD1D;
+	Tue,  7 Jan 2025 10:17:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736243891; cv=none; b=N5P3xGbFMitG/jv2nuI5MrsVQm0iw/E97SjclsQI0sj2j22CWGeW/Fzd4zQobT0AvksPPTIfIKH+hRCUzrH96zDY3tsXgY7x9DIX5j3qBIgdp0J+QUI518AtXehRAOCaqioM7ReLtLvsEERWnTCFxlc+fnFZ51s5OD8IGsmOgZg=
+	t=1736245040; cv=none; b=koRuLc3U9XM/xFCUJKqNgIV9DgSIZe/GCMxZda43KrHSRvk/iEBVcOWQXrMce9qeb+Vhv1f0DBwkHyOQZVzxQf58HDFH6ofPzoOMXoLBC0h8TLapFPzEFQPL9LbwomNPS3HI8hgM4sAsGTRqHAXWc8w4oShBlU6oX9I0QtbhWL8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736243891; c=relaxed/simple;
-	bh=zdmYeT6nirJQQeULEz/Mx26Ga9KASAi8ohiMId5QGl8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JyZ05x7LizVYQhRJsTBoR5p2pLU9xhDsiOYoHxo7Hvh3vqOhxJRVFL7xOzsDCFlAcHlCGTviQZPPbCAIQZn11fgh4CnM30ugX5xYYGZHA7CXWByXK8d6QI78NOwK6dtqrPPG3d9zHHZfsAEOYr9l6D07v6O2eWJC7ynqcEVTWnM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3D1D0143D;
-	Tue,  7 Jan 2025 01:58:37 -0800 (PST)
-Received: from [10.44.160.93] (e126510-lin.lund.arm.com [10.44.160.93])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 46B0F3F673;
-	Tue,  7 Jan 2025 01:58:01 -0800 (PST)
-Message-ID: <ee393a7f-d01e-4e5d-9bf8-779795613af1@arm.com>
-Date: Tue, 7 Jan 2025 10:57:59 +0100
+	s=arc-20240116; t=1736245040; c=relaxed/simple;
+	bh=sB6ibKWqooV4TrO24wyTEhncE2JH+iI+C47w05RjPzc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YZ5NxHvwOESMqYEClfHWoEWwCr1xKcIHWuCSJ+lIJXlX+MLVgVvlhinaBgPeMqqI9MVx+ub+Q+6b0JA8uYS8Zw6F+U0Ri3DdF601OOwNxNlZTWqhu0JyrSL/ut7R4sbkmjQsb0UsKLjb+15579JWiRNV4S4Qyh/9AlcDhzvHWt4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dLn9exHU; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dLn9exHU"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2163dc5155fso220217215ad.0;
+        Tue, 07 Jan 2025 02:17:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1736245036; x=1736849836; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=pMzQ6Q3lA1IoUF0MYLdAQ+qNWyHW+mV0tesj2qqggOE=;
+        b=dLn9exHUNjZ9Q5C2smZURSKRWdzu+n5dvZt32L4vjROKb4HSYdLX2ScPMNgfht/ZdG
+         5WAd1hLABaERMXPHK6fdKO+MITVr38umPU+RDetkZmpY6zTem02um/6Nw2JtVzuK+9Be
+         l61x/2qUoYnvWBehoJj+jaOGScjsOiDJvViy7NRktsbNspyCXe5AmxnEcGEujkauadm3
+         RuYfYHWq7mPeqZ2H/wW3DdNgLRxYjAP0/Lxog8lSIyR+Sl/DZsCj152tCTDbS6GktWXM
+         E0Tf0xjs1GMlncaYYH0Uw39iKnJybN5g1+l9eKGrr4uDaF1KzGLF0Uuesd83Y99Oeu87
+         eupw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736245036; x=1736849836;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=pMzQ6Q3lA1IoUF0MYLdAQ+qNWyHW+mV0tesj2qqggOE=;
+        b=O3/II4hq+Q7Ww9qRcJ5Jjz9Zo7ZSihZG/PswhG5G6QKQETJqy/M3ACNCX+V2Yd4zNT
+         AP2awZU/4DVOE+nFxDq1L5gG95nicQqn0LMxXb398Fh4gOV71Jzyeej5CNdQcxdS8uFm
+         RMCW6W1tKOBBDOcvw7SXpVaUDxzZx+ropmVIrpwOEsPAVjd57tlzTrwIjP0RXg+F5gme
+         a0835uoCK+OC5RJTDOQJkHdngs4JFF8S9YViBU0F67GPBSRh7cVSo+n0fB2KcPzwEqTz
+         2oVpc2R1hxS4N/lhn23A1xJvdwm7vwpu+OC/TPC5FUKu/YBskSpt+R+ZZWrh3UCLQptl
+         Bhvw==
+X-Forwarded-Encrypted: i=1; AJvYcCVz8nFz16b8ITHm7S3q5ihbWztDj25RX/eEt6CIlh3vASd18XS5Eu95dt94t+tWe9SsYVG5KwhQxxrYkog=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx+lP92YO+fInhhWnsUHWald4zskesu6XStZ8FIiTlxn5JBnhiM
+	XBEGL5+mLsssIOlwtFY/mqF5OyhxnbB4x6GcBsZ++EfWEGzHu/xVApurqM8qZVSJRDdDuOwqCaT
+	MHPdkhNyHMA2k6GSfRv1UQwrRMD5qBCNB
+X-Gm-Gg: ASbGncs6+Tr1zbBdbxNKV+RFlk2uomee8wE1uvchm3IEynQ2KjK1yasl32KHD61b4FX
+	TDR1iBKh8DZV3vWFaTwaYR+znhWaCh8GMhZCd
+X-Google-Smtp-Source: AGHT+IHll4tyc6RZ7e02wN1kdQnkXSpdRVZJJwvbbY1teESSc17pOqadXOFSQImkyAaJoroAdpFU0FT5N9QwM67q1hU=
+X-Received: by 2002:a05:6a00:6c88:b0:729:cc5:fa42 with SMTP id
+ d2e1a72fcca58-72abdeac3d1mr99127976b3a.20.1736245036403; Tue, 07 Jan 2025
+ 02:17:16 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 10/15] riscv: pgtable: move pagetable_dtor() to
- __tlb_remove_table()
-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Cc: agordeev@linux.ibm.com, palmer@dabbelt.com, tglx@linutronix.de,
- david@redhat.com, jannh@google.com, hughd@google.com, yuzhao@google.com,
- willy@infradead.org, muchun.song@linux.dev, vbabka@kernel.org,
- lorenzo.stoakes@oracle.com, rientjes@google.com, vishal.moola@gmail.com,
- arnd@arndb.de, will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
- dave.hansen@linux.intel.com, rppt@kernel.org, ryan.roberts@arm.com,
- linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-kernel@vger.kernel.org, x86@kernel.org, linux-arch@vger.kernel.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
- peterz@infradead.org, akpm@linux-foundation.org
-References: <cover.1735549103.git.zhengqi.arch@bytedance.com>
- <0e8f0b3835c15e99145e0006ac1020ae45a2b166.1735549103.git.zhengqi.arch@bytedance.com>
- <1b09335c-f0b6-4ccb-9800-5fb22f7e8083@arm.com>
- <ebce5e05-5e46-4c6e-94a0-bcf3655a862b@bytedance.com>
- <7e2c26c8-f5df-4833-a93f-3409b00b58fd@arm.com>
- <e9fe97d4-99d5-443e-b722-43903655a76e@bytedance.com>
- <31e1a033-00a7-4953-81e7-0caedd0227a9@bytedance.com>
- <d9a14211-4bbd-4fb6-ba87-a555a40bb67a@arm.com>
- <de8756aa-dbf7-4f6f-91f0-934270397192@bytedance.com>
-Content-Language: en-GB
-From: Kevin Brodsky <kevin.brodsky@arm.com>
-In-Reply-To: <de8756aa-dbf7-4f6f-91f0-934270397192@bytedance.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20241203221736.282020-1-willemdebruijn.kernel@gmail.com>
+In-Reply-To: <20241203221736.282020-1-willemdebruijn.kernel@gmail.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Date: Tue, 7 Jan 2025 11:17:04 +0100
+X-Gm-Features: AbW1kvYM8FZ8prh6MwGP5ae8XSjDcClN_njbi_-kMJzEFCtbpkLV2BHLJ0ACdSI
+Message-ID: <CAH9NwWdODq0GXWJb_4jQNhgWjjAYfZccGLLLe7a=LVC95ew2tQ@mail.gmail.com>
+Subject: Re: [PATCH] hexagon: fix using plain integer as NULL pointer warning
+ in cmpxchg
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: linux-hexagon@vger.kernel.org, bcain@quicinc.com, 
+	linux-kernel@vger.kernel.org, dhowells@redhat.com, edumazet@google.com, 
+	Willem de Bruijn <willemb@google.com>, kernel test robot <lkp@intel.com>, =?UTF-8?B?TWHDrXJhIENhbmFs?= <mcanal@igalia.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On 06/01/2025 04:49, Qi Zheng wrote:
-> [...]
->
->> Once this is done, we should be able to replace all those confusing
->> calls to tlb_remove_page() on PTPs with tlb_remove_table() and remove
->> the explicit call to pagetable_dtor(). AIUI this is essentially what
->> Peter suggested on v3 [2].
->
-> Since this patch series is mainly for bug fix, I think that these things
-> can be done in separate patch series later.
-
-Sure that's fair.
+Hi Willem,
 
 >
->>
->> [...]
->>
->>> Or can we just not let tlb_remove_table() fall back to
->>> tlb_remove_page()? Like the following:
->>>
->>> diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
->>> index a59205863f431..354ffaa4bd120 100644
->>> --- a/include/asm-generic/tlb.h
->>> +++ b/include/asm-generic/tlb.h
->>> @@ -195,8 +195,6 @@
->>>    *  various ptep_get_and_clear() functions.
->>>    */
->>>
->>> -#ifdef CONFIG_MMU_GATHER_TABLE_FREE
->>> -
->>>   struct mmu_table_batch {
->>>   #ifdef CONFIG_MMU_GATHER_RCU_TABLE_FREE
->>>          struct rcu_head         rcu;
->>> @@ -219,16 +217,6 @@ static inline void __tlb_remove_table(void *table)
->>>
->>>   extern void tlb_remove_table(struct mmu_gather *tlb, void *table);
->>>
->>> -#else /* !CONFIG_MMU_GATHER_HAVE_TABLE_FREE */
->>> -
->>> -/*
->>> - * Without MMU_GATHER_TABLE_FREE the architecture is assumed to have
->>> page based
->>> - * page directories and we can use the normal page batching to free
->>> them.
->>> - */
->>> -#define tlb_remove_table(tlb, page) tlb_remove_page((tlb), (page))
->>
->> We still need a different implementation of tlb_remove_table() in this
->> case. We could define it inline here:
->>
->> static inline void tlb_remove_table(struct mmu_gather *tlb, void *table)
->> {
->>      struct page *page = table;
->>
->>      pagetable_dtor(page_ptdesc(page));
->>      tlb_remove_page(page);
->> }
+> From: Willem de Bruijn <willemb@google.com>
 >
-> Right. As I said above, will add this to the updated patch #8.
+> Sparse reports
+>
+>     net/ipv4/inet_diag.c:1511:17: sparse: sparse: Using plain integer as NULL pointer
+>
+> Due to this code calling cmpxchg on a non-integer type
+> struct inet_diag_handler *
+>
+>     return !cmpxchg((const struct inet_diag_handler**)&inet_diag_table[type],
+>                     NULL, h) ? 0 : -EEXIST;
+>
+> While hexagon's cmpxchg assigns an integer value to a variable of this
+> type.
+>
+>     __typeof__(*(ptr)) __oldval = 0;
+>
+> Update this assignment to cast 0 to the correct type.
+>
+> The original issue is easily reproduced at head with the below block,
+> and is absent after this change.
+>
+>     make LLVM=1 ARCH=hexagon defconfig
+>     make C=1 LLVM=1 ARCH=hexagon net/ipv4/inet_diag.o
+>
+> Fixes: 99a70aa051d2 ("Hexagon: Add processor and system headers")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Closes: https://lore.kernel.org/oe-kbuild-all/202411091538.PGSTqUBi-lkp@intel.com/
+> Signed-off-by: Willem de Bruijn <willemb@google.com>
 
-I think it would be preferable to make it a standalone patch, because
-this is a change to generic code that could in principle impact other
-arch's too.
+Closes: https://lore.kernel.org/oe-kbuild-all/202501031246.AD8Jjze0-lkp@intel.com/
+Tested-by: Christian Gmeiner <cgmeiner@igalia.com>
 
-- Kevin
+> ---
+>  arch/hexagon/include/asm/cmpxchg.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/arch/hexagon/include/asm/cmpxchg.h b/arch/hexagon/include/asm/cmpxchg.h
+> index bf6cf5579cf4..9c58fb81f7fd 100644
+> --- a/arch/hexagon/include/asm/cmpxchg.h
+> +++ b/arch/hexagon/include/asm/cmpxchg.h
+> @@ -56,7 +56,7 @@ __arch_xchg(unsigned long x, volatile void *ptr, int size)
+>         __typeof__(ptr) __ptr = (ptr);                          \
+>         __typeof__(*(ptr)) __old = (old);                       \
+>         __typeof__(*(ptr)) __new = (new);                       \
+> -       __typeof__(*(ptr)) __oldval = 0;                        \
+> +       __typeof__(*(ptr)) __oldval = (__typeof__(*(ptr))) 0;   \
+>                                                                 \
+>         asm volatile(                                           \
+>                 "1:     %0 = memw_locked(%1);\n"                \
+> --
+> 2.47.0.338.g60cca15819-goog
+>
+>
+
+
+-- 
+greets
+--
+Christian Gmeiner, MSc
+
+https://christian-gmeiner.info/privacypolicy
