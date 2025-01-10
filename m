@@ -1,55 +1,55 @@
-Received: from mail-ed1-f73.google.com (mail-ed1-f73.google.com [209.85.208.73])
+Received: from mail-lj1-f202.google.com (mail-lj1-f202.google.com [209.85.208.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91D0428EC82
-	for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 18:47:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E99B24B226
+	for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 18:48:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736534843; cv=none; b=oIPogTgjaI0Wm5t3hsSM7Wll45v1o5Av0Lwi+CSdZxKRcl+TiDiD1lsqzgSyaw2MsVBt175ojNArAjj7I43w/PCJmz64t9IDRXZMxxw0m2DVVWyI5QSwuy6tgrcNwWi6Ozn/zJTWoFAArJDRESHqr868WwCFloppMAYAvFTXKaM=
+	t=1736534927; cv=none; b=GNHroZZdMitRj1+khFNZp532HeLywJPuarGhCdd8vxgi84vRe7XDOvL3w5oQS/bCFhRqSHS9c+t7T8KJbOG8le5p2dNxRpkHev1SE7YXEJO/JFrV7t8r/dIm8l5UE1Iu+10hGnzqx87vsmsaTThcT5kePGIGzJSiuLcJmJtkeVc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736534843; c=relaxed/simple;
-	bh=32Fq3qjx4GlhpQdGQFZHoMDpyKy3qYAHjbWT86t6fjI=;
+	s=arc-20240116; t=1736534927; c=relaxed/simple;
+	bh=Ua0Eznh6vBIqJokkBKNt1xiE4aA9cS4fZDm05XjqWbo=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=Z4Id5mxW+WIgn3b30xnaRCZTWNFNwGJ2xV4QVEm2pNrCkU+hA9+2jNdhF1quseFTwuJ0kMRAjBQ+VGoreJpyDqVKEnqVybTBx+8kxIPnwEAQHryArD8+FcqUj8e7RZwytntQ+70k18ueqXuctttrqRTvxfOVaCQLWkZT777P3rg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Jntkf+ae; arc=none smtp.client-ip=209.85.208.73
+	 To:Cc:Content-Type; b=ZUlY9le6QuecnRYBgXkUXun9d2itUtPI0Nev1NEOHjT/cYafQGTL5HgR5fQhhJJ2MfcPBP+7zQXpMxtVVCoMQWY9YK8VM3J2B8ieNFWa9xSNdvLnzkiBeLDjORRlY8bzH5OwwDDAgbtlazX1CEua8YbHGjQzJWbR2rhMsQwBAR4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=VNRNoxRl; arc=none smtp.client-ip=209.85.208.202
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Jntkf+ae"
-Received: by mail-ed1-f73.google.com with SMTP id 4fb4d7f45d1cf-5d3ff3c1b34so2952297a12.1
-        for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 10:47:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="VNRNoxRl"
+Received: by mail-lj1-f202.google.com with SMTP id 38308e7fff4ca-30221227ec8so11916071fa.0
+        for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 10:48:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1736534840; x=1737139640; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1736534924; x=1737139724; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=aGIlyFkOxdGIUAlLSc7B7HeTqLb/6yPSKg6NF5x4oeg=;
-        b=Jntkf+aeoM9jOn7caYZsZCqlY2xEOz3XJFXALprY+8G4c7v8J5EcSDz7AAdIuYmkjo
-         sfb3CQUUPXjnMtV8cl1c6vMTDd8XEXQNZkP0wxuVyMXIkcPMRdkZ40/I00qxyJoFvC/D
-         JEsJdGZYIMQeaP9QP8fjlCO+ECl9UIzVafquN7AhOJf6q2GZ6YR1pRUzhmdZe+pCZF8n
-         0+vxVhKjWzw7qBB9lIdXj7ABDzyZLjkxvfNXdW7wsiWq5VOukcQG2hDTG3ZfnGLm8THI
-         YJzoqYv+gew7AE9S4UPAAWCDciNbCTZc2zL/sPtvcrfd2iHfoNb23iCXwDYBEtKhGzCZ
-         e3Vw==
+        bh=YGrdWVEeU4Ptbj/O5LlMCmxq+nbCGI8+4U1HKBQ0dew=;
+        b=VNRNoxRlWjGojqIQZWnZDT7vm+h4LccMSkeJfVyIda85F4w+066BvU7urPOalv/Ia3
+         d3X67q8jkBMPIvPU7LVGJ0+P5jgVJvL+GgBZ58BbdPwlsv6nXvoMr8FEVYyxyXFyQEZY
+         BAupIh8JNOlJa7IPzuUFAq43CvT0EfN6Aed6Ldo59cEMIGSA25s7FKrr/3pqhSv2jSw8
+         587CCCOX6ffT3Ihuud5WaRGJmhaO6GQaDzPg8H2G+/E8fyWHp/PvGw/3ToS1wEddO6rz
+         QkSRGxFsHOw6yS1/1d0CeoM1gvilgR1gDmL4HzG/I0OUMVLRHmGshEaqVAQaVPz8WrZe
+         +Y2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736534840; x=1737139640;
+        d=1e100.net; s=20230601; t=1736534924; x=1737139724;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=aGIlyFkOxdGIUAlLSc7B7HeTqLb/6yPSKg6NF5x4oeg=;
-        b=NRJojzaU2zZC2tpnXMThdNcjn3Xd4UyHpAtwIGhkBGxa4uPzaN13wWOW2QDrwXTlcT
-         HbHOX3BvR81TlINA76TuuaMaeIX9Mz9jhDTCzSajOEUjsNaQ0wG7ZQEyyfnkCKHmnJ2m
-         vm36HXtCjjoD+EiWHoARNSMnWrFBO5h0KHqIxT7Zu2vvnPbhHTluyALIlh4eSLvBs0rx
-         Pc0CSiVGNWzDofAiYrf6ard/Oouluj11NpsltJC1iAQFYLgyOx+jfTdjRfuFs5nuDE4t
-         ExBGsqBkBu514Se1dLUKtAQgh2oNcihLyRXZyPV57lsBedna9Z1kjWQCSjlmcVe6XzYg
-         CiaA==
-X-Forwarded-Encrypted: i=1; AJvYcCWrvDIPKDhxKWB7x/EL0Q8iTEBBzzwU7pLXcplTG2y9s0U9hBJkhPw6R4wYGthLJ5Sykjh+kJxGbhv4wzK9@vger.kernel.org
-X-Gm-Message-State: AOJu0YyfMWXO7CUwlQNNpNvYjUAd7N+FXGxfwashOmMLQNjKPaX1pDnW
-	950evBV90+QZF1sA1S/+Jbh/rR5SmP0KwteaMBhPYYVld2U/zSlS7VrUSlyf9eX/fVsGt8PC+9C
-	+bnz+vJ+FXg==
-X-Google-Smtp-Source: AGHT+IFRy9/+C5CnBm/ma6a3ETfEwH3prKyhyhclEMfLJAYKbacCY4ZfacRZW3At4TIIMxUaqY38zEy/zVSAnQ==
-X-Received: from wmdn10.prod.google.com ([2002:a05:600c:294a:b0:436:d819:e4eb])
+        bh=YGrdWVEeU4Ptbj/O5LlMCmxq+nbCGI8+4U1HKBQ0dew=;
+        b=suqUQ1YRHg8E0oG5IqzRrCw4YQ4MxCJsEsY3lseX9ZMFHPs4wVy3tgvPifLxOZp+Kf
+         biELte4kdFTensJvwmJmTeaO777+xiaNleaCxk0Z0+MqWvTdmp9EN/9Ew9HRN+x9ORvV
+         3o3ZjfNemcNMSI54gWYfOsqHoHYzkKE08fnK0JwfBqbRuY5tG6Jveaw2/Prblm7yC5of
+         orG0adAL/euMoK2SjVZdDzDLA6LPbezjjqO22CV5NmaawjTcVs0luv8RR7AqRrbQqJIN
+         BSU8R4KTYXb15dhFPsHeOWGRWbgXIJgDUHo7PROsFDB8ZDe3gD5DE/1iVYAsMw8bxgwH
+         ALvA==
+X-Forwarded-Encrypted: i=1; AJvYcCWPLSDZVti1sYx3YjdOWL53u6B7akxiQpqgGPrUG2pTX2d05zQF71n+YN9HOi1LeXZdkoCcl1gwo3RncYVW@vger.kernel.org
+X-Gm-Message-State: AOJu0YzpDRFHYZrjhIhgu9mO2jOvTlsmrzKqWm9Oo5/VD5kMhagMcb3R
+	vrd3o6G8paBXDjLi3c4IhewyhXa/HBQsS/jjTqMAn4ZZN5/+cGjg3VuJmxTTZ5XBu5kxINU+6Q+
+	nc2c2SYx4ig==
+X-Google-Smtp-Source: AGHT+IEgsXbDoolH8oLFMalWBy0djT9uJM60zMy+Lo0ErgHawFZLEGOSZUiE5P0d6bxzOZZfpK4Vh92Jd6K16A==
+X-Received: from wmrn43.prod.google.com ([2002:a05:600c:502b:b0:434:a9bd:e68c])
  (user=jackmanb job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:600c:5848:b0:436:f3f6:9582 with SMTP id 5b1f17b1804b1-436f3f695dfmr6272215e9.8.1736534497408;
- Fri, 10 Jan 2025 10:41:37 -0800 (PST)
-Date: Fri, 10 Jan 2025 18:40:49 +0000
+ 2002:a05:600c:4f81:b0:434:f1d5:1453 with SMTP id 5b1f17b1804b1-436e2531ec8mr120237105e9.0.1736534506703;
+ Fri, 10 Jan 2025 10:41:46 -0800 (PST)
+Date: Fri, 10 Jan 2025 18:40:53 +0000
 In-Reply-To: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
@@ -59,8 +59,8 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 X-Mailer: b4 0.15-dev
-Message-ID: <20250110-asi-rfc-v2-v2-23-8419288bc805@google.com>
-Subject: [PATCH RFC v2 23/29] mm: asi: exit ASI before suspend-like operations
+Message-ID: <20250110-asi-rfc-v2-v2-27-8419288bc805@google.com>
+Subject: [PATCH RFC v2 27/29] mm: asi: Add some mitigations on address space transitions
 From: Brendan Jackman <jackmanb@google.com>
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
 	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
@@ -111,112 +111,156 @@ Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
 	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
 	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
 	kvm@vger.kernel.org, linux-efi@vger.kernel.org, 
-	Brendan Jackman <jackmanb@google.com>, Yosry Ahmed <yosryahmed@google.com>
+	Brendan Jackman <jackmanb@google.com>
 Content-Type: text/plain; charset="utf-8"
 
-From: Yosry Ahmed <yosryahmed@google.com>
+Here we ASI actually starts becoming a real exploit mitigation,
 
-During suspend-like operations (suspend, hibernate, kexec w/
-preserve_context), the processor state (including CR3) is usually saved
-and restored later.
+On CPUs with L1TF, flush L1D when the ASI data taints say so.
 
-In the kexec case, this only happens when KEXEC_PRESERVE_CONTEXT is
-used to jump back to the original kernel. In relocate_kernel(), some
-registers including CR3 are stored in VA_CONTROL_PAGE. If
-preserve_context is set (passed into relocate_kernel() in RCX), after
-running the new kernel the code under 'virtual_mapped' restores these
-registers. This is similar to what happens in suspend and hibernate.
+On all CPUs, do some general branch predictor clearing
+whenever the control taints say so.
 
-Note that even when KEXEC_PRESERVE_CONTEXT is not set, relocate_kernel()
-still accesses CR3. It mainly reads and writes it to flush the TLB. This
-could be problematic and cause improper ASI enters (see below), but it
-is assumed to be safe because the kernel will essentially reboot in this
-case anyway.
+This policy is very much just a starting point for discussion.
+Primarily it's a vague gesture at the fact that there is leeway
+in how ASI is used: it can be used to target CPU-specific issues (as
+is the case for L1TF here), or it can be used as a fairly broad
+mitigation (asi_maybe_flush_control() mitigates several known
+Spectre-style attacks and very likely also some unknown ones).
 
-Saving and restoring CR3 in this fashion can cause a problem if the
-suspend/hibernate/kexec is performed within an ASI domain. A restricted
-CR3 will be saved, and later restored after ASI had potentially already
-exited (e.g. from an NMI after CR3 is stored). This will cause an
-_improper_ ASI enter, where code starts executing in a restricted
-address space, yet ASI metadata (especially curr_asi) says otherwise.
-
-Exit ASI early in all these paths by registering a syscore_suspend()
-callback. syscore_suspend() is called in all the above paths (for kexec,
-only with KEXEC_PRESERVE_CONTEXT) after IRQs are finally disabled before
-the operation. This is not currently strictly required but is convenient
-because when ASI gains the ability to persist across context switching,
-there will be additional synchronization requirements simplified by
-this.
-
-Note: If the CR3 accesses in relocate_kernel() when
-KEXEC_PRESERVE_CONTEXT is not set are concerning, they could be handled
-by registering a syscore_shutdown() callback to exit ASI.
-syscore_shutdown() is called in the kexec path where
-KEXEC_PRESERVE_CONTEXT is not set starting commit 7bb943806ff6 ("kexec:
-do syscore_shutdown() in kernel_kexec").
-
-Signed-off-by: Yosry Ahmed <yosryahmed@google.com>
 Signed-off-by: Brendan Jackman <jackmanb@google.com>
 ---
- arch/x86/mm/asi.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+ arch/x86/include/asm/nospec-branch.h |  2 ++
+ arch/x86/kvm/vmx/vmx.c               |  1 +
+ arch/x86/lib/l1tf.c                  |  2 ++
+ arch/x86/lib/retpoline.S             | 10 ++++++++++
+ arch/x86/mm/asi.c                    | 29 +++++++++++++++++++++--------
+ 5 files changed, 36 insertions(+), 8 deletions(-)
 
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index 96b410b1d4e841eb02f53a4691ee794ceee4ad2c..4582fb1fb42f6fd226534012d969ed13085e943a 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -614,6 +614,8 @@ static __always_inline void mds_idle_clear_cpu_buffers(void)
+ 		mds_clear_cpu_buffers();
+ }
+ 
++extern void fill_return_buffer(void);
++
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* _ASM_X86_NOSPEC_BRANCH_H_ */
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index b1a02f27b3abce0ef6ac448b66bef2c653a52eef..a532783caaea97291cd92a2e2cac617f74f76c7e 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6635,6 +6635,7 @@ int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
+ 	return ret;
+ }
+ 
++/* Must be reentrant, for use by vmx_post_asi_enter. */
+ static noinstr void vmx_l1d_flush(struct kvm_vcpu *vcpu)
+ {
+ 	/*
+diff --git a/arch/x86/lib/l1tf.c b/arch/x86/lib/l1tf.c
+index c474f18ae331c8dfa7a029c457dd3cf75bebf808..ffe1c3d0ef43ff8f1781f2e446aed041f4ce3179 100644
+--- a/arch/x86/lib/l1tf.c
++++ b/arch/x86/lib/l1tf.c
+@@ -46,6 +46,8 @@ EXPORT_SYMBOL(l1tf_flush_setup);
+  *  - may or may not work on other CPUs.
+  *
+  * Don't call unless l1tf_flush_setup() has returned successfully.
++ *
++ * Must be reentrant, for use by ASI.
+  */
+ noinstr void l1tf_flush(void)
+ {
+diff --git a/arch/x86/lib/retpoline.S b/arch/x86/lib/retpoline.S
+index 391059b2c6fbc4a571f0582c7c4654147a930cef..6d126fff6bf839889086fe21464d8af07316d7e5 100644
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -396,3 +396,13 @@ SYM_CODE_END(__x86_return_thunk)
+ EXPORT_SYMBOL(__x86_return_thunk)
+ 
+ #endif /* CONFIG_MITIGATION_RETHUNK */
++
++.pushsection .noinstr.text, "ax"
++SYM_CODE_START(fill_return_buffer)
++	UNWIND_HINT_FUNC
++	ENDBR
++	__FILL_RETURN_BUFFER(%_ASM_AX,RSB_CLEAR_LOOPS)
++	RET
++SYM_CODE_END(fill_return_buffer)
++__EXPORT_THUNK(fill_return_buffer)
++.popsection
 diff --git a/arch/x86/mm/asi.c b/arch/x86/mm/asi.c
-index a9f9bfbf85eb47d16ef8d0bfbc7713f07052d3ed..c5073af1a82ded1c6fc467cd7a5d29a39d676bb4 100644
+index 1e9dc568e79e8686a4dbf47f765f2c2535d025ec..f10f6614b26148e5ba423d8a44f640674573ee40 100644
 --- a/arch/x86/mm/asi.c
 +++ b/arch/x86/mm/asi.c
-@@ -6,6 +6,7 @@
- 
- #include <linux/init.h>
- #include <linux/pgtable.h>
-+#include <linux/syscore_ops.h>
+@@ -10,6 +10,7 @@
  
  #include <asm/cmdline.h>
  #include <asm/cpufeature.h>
-@@ -243,6 +244,32 @@ static int asi_map_percpu(struct asi *asi, void *percpu_addr, size_t len)
- 	return 0;
- }
++#include <asm/l1tf.h>
+ #include <asm/page.h>
+ #include <asm/pgalloc.h>
+ #include <asm/mmu_context.h>
+@@ -38,6 +39,8 @@ struct asi __asi_global_nonsensitive = {
+ 	.mm = &init_mm,
+ };
  
-+#ifdef CONFIG_PM_SLEEP
-+static int asi_suspend(void)
-+{
-+	/*
-+	 * Must be called after IRQs are disabled and rescheduling is no longer
-+	 * possible (so that we cannot re-enter ASI before suspending.
-+	 */
-+	lockdep_assert_irqs_disabled();
++static bool do_l1tf_flush __ro_after_init;
 +
-+	/*
-+	 * Suspend operations sometimes save CR3 as part of the saved state,
-+	 * which is restored later (e.g. do_suspend_lowlevel() in the suspend
-+	 * path, swsusp_arch_suspend() in the hibernate path, relocate_kernel()
-+	 * in the kexec path). Saving a restricted CR3 and restoring it later
-+	 * could leave to improperly entering ASI. Exit ASI before such
-+	 * operations.
-+	 */
-+	asi_exit();
-+	return 0;
-+}
-+
-+static struct syscore_ops asi_syscore_ops = {
-+	.suspend = asi_suspend,
-+};
-+#endif /* CONFIG_PM_SLEEP */
-+
- static int __init asi_global_init(void)
+ static inline bool asi_class_id_valid(enum asi_class_id class_id)
  {
- 	int err;
-@@ -306,6 +333,10 @@ static int __init asi_global_init(void)
+ 	return class_id >= 0 && class_id < ASI_MAX_NUM_CLASSES;
+@@ -361,6 +364,15 @@ static int __init asi_global_init(void)
  	asi_clone_pgd(asi_global_nonsensitive_pgd, init_mm.pgd,
  		      VMEMMAP_START + (1UL << PGDIR_SHIFT));
  
-+#ifdef CONFIG_PM_SLEEP
-+	register_syscore_ops(&asi_syscore_ops);
-+#endif
++	if (boot_cpu_has_bug(X86_BUG_L1TF)) {
++		int err = l1tf_flush_setup();
 +
- 	return 0;
++		if (err)
++			pr_warn("Failed to setup L1TF flushing for ASI (%pe)", ERR_PTR(err));
++		else
++			do_l1tf_flush = true;
++	}
++
+ #ifdef CONFIG_PM_SLEEP
+ 	register_syscore_ops(&asi_syscore_ops);
+ #endif
+@@ -512,10 +524,12 @@ static __always_inline void maybe_flush_control(struct asi *next_asi)
+ 	if (!taints)
+ 		return;
+ 
+-	/*
+-	 * This is where we'll do the actual dirty work of clearing uarch state.
+-	 * For now we just pretend, clear the taints.
+-	 */
++	/* Clear normal indirect branch predictions, if we haven't */
++	if (cpu_feature_enabled(X86_FEATURE_IBPB))
++		__wrmsr(MSR_IA32_PRED_CMD, PRED_CMD_IBPB, 0);
++
++	fill_return_buffer();
++
+ 	this_cpu_and(asi_taints, ~ASI_TAINTS_CONTROL_MASK);
  }
- subsys_initcall(asi_global_init)
+ 
+@@ -536,10 +550,9 @@ static __always_inline void maybe_flush_data(struct asi *next_asi)
+ 	if (!taints)
+ 		return;
+ 
+-	/*
+-	 * This is where we'll do the actual dirty work of clearing uarch state.
+-	 * For now we just pretend, clear the taints.
+-	 */
++	if (do_l1tf_flush)
++		l1tf_flush();
++
+ 	this_cpu_and(asi_taints, ~ASI_TAINTS_DATA_MASK);
+ }
+ 
 
 -- 
 2.47.1.613.gc27f4b7a9f-goog
