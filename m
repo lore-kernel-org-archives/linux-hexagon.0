@@ -1,55 +1,55 @@
 Received: from mail-wr1-f73.google.com (mail-wr1-f73.google.com [209.85.221.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB909215192
-	for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 18:41:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A7382253F6
+	for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 18:41:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736534529; cv=none; b=DzpgR9UxGjytRm5wLo42AAOqXFqGee1DvgrFnT+Muei4mAm3M/IGFDZHr5fWUMZbDLUHYPTINyWtiuWlfWNawOFjqKtMwe8a0wAruaSrMsopuB5dvOAmh5+YlwOAhgpVMBpavf+giMmuDAqBm86zzGQtB/tpdrMphQWECXuXNvM=
+	t=1736534528; cv=none; b=Y0EDMTQgwoZl81gTkB7p8EM0kln1NG8f6tbGRAvPJp/jT8eq1o+cvlwPPw/d5kFszbU2oGtWImLyBhxkiGIA9r4HGQp8GwdwCndjywSaGl9VA0Z0LdXEwOdiD12SerIONQNNG+n7/VQpWKLeYU1LqdQ/k2jc8TpE1yuO5+yS3P0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736534529; c=relaxed/simple;
-	bh=8oJWV2blYGjdlDquSZFlq/fzMSlPhCK7jJm0Q6N72yc=;
+	s=arc-20240116; t=1736534528; c=relaxed/simple;
+	bh=4d7pidGbvdIp8iHsT7YACeXpM+11EgA5LY+ovyRSffk=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=i9xTMG0p8OlLwnLaY8n4gUDF76jzmcj74Ypa4gpamKohS/fecNh0HqAuAgAzxorDhEQPASPxjU4xES4l6S4bRuVD5anop1S2nY2PPO1WLr0pCdlHYPt69eUtXZgNmGzgiSxi5ZYPCrJUrX4UoxvkU6bekRF2faia62T+EKuoECE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=VMDZoReE; arc=none smtp.client-ip=209.85.221.73
+	 To:Cc:Content-Type; b=fycuv7GSmKep7TqVH6D68NjRMHJBeaDS9ZdfFvPl/epNebYt03UfxMLy+SYiaBrhGcBIzrU2AdQq36xA/JGEHkrNx8ZbheHSgwlaq1xfkVGheJNus9FRczDy2wVcDWIDlCbrIDt12jS938JAYA7wNMVhkk1+6vryu5L+X7m1llA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=x/fetZE9; arc=none smtp.client-ip=209.85.221.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="VMDZoReE"
-Received: by mail-wr1-f73.google.com with SMTP id ffacd0b85a97d-385e03f54d0so1006226f8f.3
-        for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 10:41:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="x/fetZE9"
+Received: by mail-wr1-f73.google.com with SMTP id ffacd0b85a97d-385e49efd59so941632f8f.0
+        for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 10:41:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1736534500; x=1737139300; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1736534486; x=1737139286; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=P63tWziIl5MLfOevD/STQnofaJPDmGipUyDaNTwON8A=;
-        b=VMDZoReEmbRd6SfxfQE1Tf6oe9uDWo76m9vFsAb2idQb6ZZi3IRtPKALOZ9sQedaK6
-         yGT46FG+SJyIlZWG+Jo0sD/qyGTiJcOtWD5vKZNMhVw3/f9Q6pOlw5DIvMlUik4iYr+u
-         shg4QqHvrLxxTDHdKEKQHf2fy6HSKZYdBJL+AeWPKZ5NYx35s7FpVt9Iv975FsqGe0sN
-         CVeH9eu4hJLIjPeu8XtwmIehgLlh36G2jch/YIxvQnx5FiYpkTkZX/R88TqvoSEPPsQh
-         JXYB1pLX5+gqS+xfydkLUG7v7XIv3VelqIJvnv1oW6VCDEzMJjfwHryjQqSxeYZmZ/aU
-         V+pA==
+        bh=+fqV4f6s/Eo+EZ+PE2OCyE0kBm/vfnsLcFKRz+1otrE=;
+        b=x/fetZE9fqENNHA/TK7J3oNSgvGr+mTjENc36PJ4rqxoixGMSS2It48gQWpx5s1gLQ
+         Q1bsI0nE5oPMsCrnK07kvVUSVDiVdcnQz0NDggu7QBOA49tfKncNEEKcZ+tcwl35q1iB
+         ZW7Tq5/dKeWJMGEMwbIsEwh8eqNEPfjCaU15NIF/lDZc/wXJB2vS5oM+kKLEbmWg4eTH
+         FDOIZ8zuvDv/Sit/wd2xrxF+AyAShMGCcD3ko6RY2pPVMsItRF+lXGxNuvVyg5XVlQBO
+         8Nlrte9RJKZ5VdXMsskcV/p46JPYnucaAu8MnqMqBS0QbQzJ2h+yOejkpfafbu2lbMQe
+         STZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736534500; x=1737139300;
+        d=1e100.net; s=20230601; t=1736534486; x=1737139286;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=P63tWziIl5MLfOevD/STQnofaJPDmGipUyDaNTwON8A=;
-        b=ZKabzCIvHiX8FH+0IVF7A0oDFNucJPx3Ge6n7XhkUhwlxKHLuTOdKnR2/sqWyhnmoT
-         n/NOQP1hBOegaqdLX7nhFQGgC4q9gepxTtn7YkIGcjvZaVinKJbOwROxITgr5+Cn4vez
-         qauEICnDNaH3Ko+0QRBbvKRIKnNIXJKYgjD6i1dh/GN8GHSsNukZr9OiXQDIgbXtHgoY
-         Kpjj34gsP0LcS+C9bsxtz2KlHXXqmO6k1Rg6iaRVTVgIAsiC7ySgtY96Xec5hpRDzGLy
-         HDyN7MrLZqVRBSMAbXYzf1OIjIPqf+43PDbM6lSZ5FWCyUgloaIReXgUq2rbwi3ipRca
-         pDxg==
-X-Forwarded-Encrypted: i=1; AJvYcCUhZuQjWjbBQNuoT96gfpu+30ywmDJA+F2/hsSK3v0UZde2NrEOMOFONNbRLvjKTjYZNw+J1fTWCyfOQ7Vq@vger.kernel.org
-X-Gm-Message-State: AOJu0YxjNhGK4huHABblhE25s8H1hS7FPzY5pdYkbaBa22TWlWFzPxSr
-	CNfrSkJAtu5L6QiFdoQZ7j7w+pL3VWeLH2Vj2/NtmkKINnuC+/IYr/wBuYc3wyeP/2xcxHs7rrQ
-	tiyMXYFJmPg==
-X-Google-Smtp-Source: AGHT+IFpLRoJ7ZhWq6f6CfOMCmb66msRmVLu03/rxTgeCGcpzkKTsEslMdO3oeVqCUER7+YbrfuCetVYZstiXQ==
-X-Received: from wmbew14.prod.google.com ([2002:a05:600c:808e:b0:436:16c6:831])
+        bh=+fqV4f6s/Eo+EZ+PE2OCyE0kBm/vfnsLcFKRz+1otrE=;
+        b=kSvWZfOY2UGEpxONLDc9aEB94Z8HAt/9AIlsTJUtqxqqCJPLtNY781MzQxVlY9GU3a
+         Vttnf5NP99QxzxnfRux8DzlHl7lazV/hMR1401K1+42dKmPpMfu8wVxG75QJhSwIHw1s
+         vB4oKySgVC7HiNi1LXKgbMhNIL71RIsR3OcKhGfm9lBV7VOCXX7dlRHTnEks1lNdS5nY
+         4cUoTi9BPRm4bBcRisoMbgCjoRCRhZYMxHbdIZZJxJGOyKWThbR4OYJkkXObTcCPqaNT
+         X9jMdbz8YOG/n/RUaoiESceyk2SDhNj+S0HoJdOXxf3fM/OC56yihFSf7BsDoaVZOhaA
+         BQtg==
+X-Forwarded-Encrypted: i=1; AJvYcCXzwMJUt/j+jKE+f3newLtLJNkyhEKc04opCnn14DqIqMMKdQsTnz+7Mu6y4lET2DUcBsv6MM6REHn/HcD1@vger.kernel.org
+X-Gm-Message-State: AOJu0YyZ17/ltzTXh3LJgeutH1fxmcdUng64FM6fUd4Ckz7VtXIOMuQ3
+	Ue6YLqsUVpktfQQHYVyjHRrnCZViJn9Ggbml5Wmf/bB5OLvi1GcktW1lHtUpYDpBNEP9cX1ZUGc
+	dTVAOa1Fxjg==
+X-Google-Smtp-Source: AGHT+IFgJUpClA++DtJe4xQ45Yc9kKsVSyJCXKqF0cxpPlCBfuMButRzIe/JLM7ynzshFcOsnG5hhjluySNsEA==
+X-Received: from wrbeh5.prod.google.com ([2002:a05:6000:4105:b0:382:4235:c487])
  (user=jackmanb job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:6000:156c:b0:385:e3c5:61ae with SMTP id ffacd0b85a97d-38a873125c3mr11343217f8f.31.1736534499784;
- Fri, 10 Jan 2025 10:41:39 -0800 (PST)
-Date: Fri, 10 Jan 2025 18:40:50 +0000
+ 2002:adf:8b5b:0:b0:38a:88bc:aea4 with SMTP id ffacd0b85a97d-38a88bcaebfmr7355114f8f.30.1736534486264;
+ Fri, 10 Jan 2025 10:41:26 -0800 (PST)
+Date: Fri, 10 Jan 2025 18:40:44 +0000
 In-Reply-To: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
@@ -59,9 +59,8 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 X-Mailer: b4 0.15-dev
-Message-ID: <20250110-asi-rfc-v2-v2-24-8419288bc805@google.com>
-Subject: [PATCH RFC v2 24/29] mm: asi: Add infrastructure for mapping
- userspace addresses
+Message-ID: <20250110-asi-rfc-v2-v2-18-8419288bc805@google.com>
+Subject: [PATCH RFC v2 18/29] mm: asi: Map dynamic percpu memory as nonsensitive
 From: Brendan Jackman <jackmanb@google.com>
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
 	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
@@ -112,300 +111,160 @@ Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
 	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
 	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
 	kvm@vger.kernel.org, linux-efi@vger.kernel.org, 
-	Brendan Jackman <jackmanb@google.com>, Junaid Shahid <junaids@google.com>, 
-	Reiji Watanabe <reijiw@google.com>
+	Brendan Jackman <jackmanb@google.com>, Reiji Watanabe <reijiw@google.com>, 
+	Junaid Shahid <junaids@google.com>
 Content-Type: text/plain; charset="utf-8"
 
-In preparation for sandboxing bare-metal processes, teach ASI to map
-userspace addresses into the restricted address space.
+From: Reiji Watanabe <reijiw@google.com>
 
-Add a new policy helper to determine based on the class whether to do
-this. If the helper returns true, mirror userspace mappings into the ASI
-pagetables.
+Currently, all dynamic percpu memory is implicitly (and
+unintentionally) treated as sensitive memory.
 
-Later, it will be possible for users who do not have a significant
-security boundary between KVM guests and their VMM process, to take
-advantage of this to reduce mitigation costs when switching between
-those two domains - to illustrate this idea, it's now reflected in the
-KVM taint policy, although the KVM class is still hard-coded not to map
-userspace addresses.
+Unconditionally map pages for dynamically allocated percpu
+memory as global nonsensitive memory, other than pages that
+are allocated for pcpu_{first,reserved}_chunk during early
+boot via memblock allocator (these will be taken care by the
+following patch).
+
+We don't support sensitive percpu memory allocation yet.
 
 Co-developed-by: Junaid Shahid <junaids@google.com>
 Signed-off-by: Junaid Shahid <junaids@google.com>
-Co-developed-by: Reiji Watanabe <reijiw@google.com>
 Signed-off-by: Reiji Watanabe <reijiw@google.com>
 Signed-off-by: Brendan Jackman <jackmanb@google.com>
----
- arch/x86/include/asm/asi.h        | 11 +++++
- arch/x86/include/asm/pgalloc.h    |  6 +++
- arch/x86/include/asm/pgtable_64.h |  4 ++
- arch/x86/kvm/x86.c                | 12 +++--
- arch/x86/mm/asi.c                 | 92 +++++++++++++++++++++++++++++++++++++++
- include/asm-generic/asi.h         |  4 ++
- 6 files changed, 125 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/include/asm/asi.h b/arch/x86/include/asm/asi.h
-index 555edb5f292e4d6baba782f51d014aa48dc850b6..e925d7d2cfc85bca8480c837548654e7a5a7009e 100644
---- a/arch/x86/include/asm/asi.h
-+++ b/arch/x86/include/asm/asi.h
-@@ -133,6 +133,7 @@ struct asi {
- 	struct mm_struct *mm;
- 	int64_t ref_count;
- 	enum asi_class_id class_id;
-+	spinlock_t pgd_lock;
- };
+WIP: Drop VM_SENSITIVE checks from percpu code
+---
+ mm/percpu-vm.c | 50 ++++++++++++++++++++++++++++++++++++++++++++------
+ mm/percpu.c    |  4 ++--
+ 2 files changed, 46 insertions(+), 8 deletions(-)
+
+diff --git a/mm/percpu-vm.c b/mm/percpu-vm.c
+index cd69caf6aa8d8eded2395eb4bc4051b78ec6aa33..2935d7fbac41548819a94dcc60566bd18cde819a 100644
+--- a/mm/percpu-vm.c
++++ b/mm/percpu-vm.c
+@@ -132,11 +132,20 @@ static void pcpu_pre_unmap_flush(struct pcpu_chunk *chunk,
+ 		pcpu_chunk_addr(chunk, pcpu_high_unit_cpu, page_end));
+ }
  
- DECLARE_PER_CPU_ALIGNED(struct asi *, curr_asi);
-@@ -147,6 +148,7 @@ const char *asi_class_name(enum asi_class_id class_id);
+-static void __pcpu_unmap_pages(unsigned long addr, int nr_pages)
++static void ___pcpu_unmap_pages(unsigned long addr, int nr_pages)
+ {
+ 	vunmap_range_noflush(addr, addr + (nr_pages << PAGE_SHIFT));
+ }
  
- int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_asi);
- void asi_destroy(struct asi *asi);
-+void asi_clone_user_pgtbl(struct mm_struct *mm, pgd_t *pgdp);
++static void __pcpu_unmap_pages(unsigned long addr, int nr_pages,
++			       unsigned long vm_flags)
++{
++	unsigned long size = nr_pages << PAGE_SHIFT;
++
++	asi_unmap(ASI_GLOBAL_NONSENSITIVE, (void *)addr, size);
++	___pcpu_unmap_pages(addr, nr_pages);
++}
++
+ /**
+  * pcpu_unmap_pages - unmap pages out of a pcpu_chunk
+  * @chunk: chunk of interest
+@@ -153,6 +162,8 @@ static void __pcpu_unmap_pages(unsigned long addr, int nr_pages)
+ static void pcpu_unmap_pages(struct pcpu_chunk *chunk,
+ 			     struct page **pages, int page_start, int page_end)
+ {
++	struct vm_struct **vms = (struct vm_struct **)chunk->data;
++	unsigned long vm_flags = vms ? vms[0]->flags : VM_ALLOC;
+ 	unsigned int cpu;
+ 	int i;
  
- /* Enter an ASI domain (restricted address space) and begin the critical section. */
- void asi_enter(struct asi *asi);
-@@ -286,6 +288,15 @@ static __always_inline bool asi_in_critical_section(void)
+@@ -165,7 +176,7 @@ static void pcpu_unmap_pages(struct pcpu_chunk *chunk,
+ 			pages[pcpu_page_idx(cpu, i)] = page;
+ 		}
+ 		__pcpu_unmap_pages(pcpu_chunk_addr(chunk, cpu, page_start),
+-				   page_end - page_start);
++				   page_end - page_start, vm_flags);
+ 	}
+ }
  
- void asi_handle_switch_mm(void);
+@@ -190,13 +201,38 @@ static void pcpu_post_unmap_tlb_flush(struct pcpu_chunk *chunk,
+ 		pcpu_chunk_addr(chunk, pcpu_high_unit_cpu, page_end));
+ }
  
+-static int __pcpu_map_pages(unsigned long addr, struct page **pages,
+-			    int nr_pages)
 +/*
-+ * This function returns true when we would like to map userspace addresses
-+ * in the restricted address space.
++ * __pcpu_map_pages() should not be called during the percpu initialization,
++ * as asi_map() depends on the page allocator (which isn't available yet
++ * during percpu initialization).  Instead, ___pcpu_map_pages() can be used
++ * during the percpu initialization. But, any pages that are mapped with
++ * ___pcpu_map_pages() will be treated as sensitive memory, unless
++ * they are explicitly mapped with asi_map() later.
 + */
-+static inline bool asi_maps_user_addr(enum asi_class_id class_id)
++static int ___pcpu_map_pages(unsigned long addr, struct page **pages,
++			     int nr_pages)
+ {
+ 	return vmap_pages_range_noflush(addr, addr + (nr_pages << PAGE_SHIFT),
+ 					PAGE_KERNEL, pages, PAGE_SHIFT);
+ }
+ 
++static int __pcpu_map_pages(unsigned long addr, struct page **pages,
++			    int nr_pages, unsigned long vm_flags)
 +{
-+	return false;
++	unsigned long size = nr_pages << PAGE_SHIFT;
++	int err;
++
++	err = ___pcpu_map_pages(addr, pages, nr_pages);
++	if (err)
++		return err;
++
++	/*
++	 * If this fails, pcpu_map_pages()->__pcpu_unmap_pages() will call
++	 * asi_unmap() and clean up any partial mappings.
++	 */
++	return asi_map(ASI_GLOBAL_NONSENSITIVE, (void *)addr, size);
 +}
 +
- #endif /* CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
- 
- #endif
-diff --git a/arch/x86/include/asm/pgalloc.h b/arch/x86/include/asm/pgalloc.h
-index dcd836b59bebd329c3d265b98e48ef6eb4c9e6fc..edf9fe76c53369eefcd5bf14a09cbf802cf1ea21 100644
---- a/arch/x86/include/asm/pgalloc.h
-+++ b/arch/x86/include/asm/pgalloc.h
-@@ -114,12 +114,16 @@ static inline void p4d_populate(struct mm_struct *mm, p4d_t *p4d, pud_t *pud)
+ /**
+  * pcpu_map_pages - map pages into a pcpu_chunk
+  * @chunk: chunk of interest
+@@ -214,13 +250,15 @@ static int __pcpu_map_pages(unsigned long addr, struct page **pages,
+ static int pcpu_map_pages(struct pcpu_chunk *chunk,
+ 			  struct page **pages, int page_start, int page_end)
  {
- 	paravirt_alloc_pud(mm, __pa(pud) >> PAGE_SHIFT);
- 	set_p4d(p4d, __p4d(_PAGE_TABLE | __pa(pud)));
-+	if (!pgtable_l5_enabled())
-+		asi_clone_user_pgtbl(mm, (pgd_t *)p4d);
- }
++	struct vm_struct **vms = (struct vm_struct **)chunk->data;
++	unsigned long vm_flags = vms ? vms[0]->flags : VM_ALLOC;
+ 	unsigned int cpu, tcpu;
+ 	int i, err;
  
- static inline void p4d_populate_safe(struct mm_struct *mm, p4d_t *p4d, pud_t *pud)
- {
- 	paravirt_alloc_pud(mm, __pa(pud) >> PAGE_SHIFT);
- 	set_p4d_safe(p4d, __p4d(_PAGE_TABLE | __pa(pud)));
-+	if (!pgtable_l5_enabled())
-+		asi_clone_user_pgtbl(mm, (pgd_t *)p4d);
- }
+ 	for_each_possible_cpu(cpu) {
+ 		err = __pcpu_map_pages(pcpu_chunk_addr(chunk, cpu, page_start),
+ 				       &pages[pcpu_page_idx(cpu, page_start)],
+-				       page_end - page_start);
++				       page_end - page_start, vm_flags);
+ 		if (err < 0)
+ 			goto err;
  
- extern void ___pud_free_tlb(struct mmu_gather *tlb, pud_t *pud);
-@@ -137,6 +141,7 @@ static inline void pgd_populate(struct mm_struct *mm, pgd_t *pgd, p4d_t *p4d)
- 		return;
- 	paravirt_alloc_p4d(mm, __pa(p4d) >> PAGE_SHIFT);
- 	set_pgd(pgd, __pgd(_PAGE_TABLE | __pa(p4d)));
-+	asi_clone_user_pgtbl(mm, pgd);
- }
+@@ -232,7 +270,7 @@ static int pcpu_map_pages(struct pcpu_chunk *chunk,
+ err:
+ 	for_each_possible_cpu(tcpu) {
+ 		__pcpu_unmap_pages(pcpu_chunk_addr(chunk, tcpu, page_start),
+-				   page_end - page_start);
++				   page_end - page_start, vm_flags);
+ 		if (tcpu == cpu)
+ 			break;
+ 	}
+diff --git a/mm/percpu.c b/mm/percpu.c
+index da21680ff294cb53dfb42bf0d3b3bbd2654d2cfa..c2d913c579bf07892957ac7f601a6a71defadc4b 100644
+--- a/mm/percpu.c
++++ b/mm/percpu.c
+@@ -3273,8 +3273,8 @@ int __init pcpu_page_first_chunk(size_t reserved_size, pcpu_fc_cpu_to_node_fn_t
+ 			pcpu_populate_pte(unit_addr + (i << PAGE_SHIFT));
  
- static inline void pgd_populate_safe(struct mm_struct *mm, pgd_t *pgd, p4d_t *p4d)
-@@ -145,6 +150,7 @@ static inline void pgd_populate_safe(struct mm_struct *mm, pgd_t *pgd, p4d_t *p4
- 		return;
- 	paravirt_alloc_p4d(mm, __pa(p4d) >> PAGE_SHIFT);
- 	set_pgd_safe(pgd, __pgd(_PAGE_TABLE | __pa(p4d)));
-+	asi_clone_user_pgtbl(mm, pgd);
- }
+ 		/* pte already populated, the following shouldn't fail */
+-		rc = __pcpu_map_pages(unit_addr, &pages[unit * unit_pages],
+-				      unit_pages);
++		rc = ___pcpu_map_pages(unit_addr, &pages[unit * unit_pages],
++				       unit_pages);
+ 		if (rc < 0)
+ 			panic("failed to map percpu area, err=%d\n", rc);
  
- static inline p4d_t *p4d_alloc_one(struct mm_struct *mm, unsigned long addr)
-diff --git a/arch/x86/include/asm/pgtable_64.h b/arch/x86/include/asm/pgtable_64.h
-index d1426b64c1b9715cd9e4d1d7451ae4feadd8b2f5..fe6d83ec632a6894527784f2ebdbd013161c6f09 100644
---- a/arch/x86/include/asm/pgtable_64.h
-+++ b/arch/x86/include/asm/pgtable_64.h
-@@ -157,6 +157,8 @@ static inline void native_set_p4d(p4d_t *p4dp, p4d_t p4d)
- static inline void native_p4d_clear(p4d_t *p4d)
- {
- 	native_set_p4d(p4d, native_make_p4d(0));
-+	if (!pgtable_l5_enabled())
-+		asi_clone_user_pgtbl(NULL, (pgd_t *)p4d);
- }
- 
- static inline void native_set_pgd(pgd_t *pgdp, pgd_t pgd)
-@@ -167,6 +169,8 @@ static inline void native_set_pgd(pgd_t *pgdp, pgd_t pgd)
- static inline void native_pgd_clear(pgd_t *pgd)
- {
- 	native_set_pgd(pgd, native_make_pgd(0));
-+	if (pgtable_l5_enabled())
-+		asi_clone_user_pgtbl(NULL, pgd);
- }
- 
- /*
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 3e0811eb510650abc601e4adce1ce4189835a730..920475fe014f6503dd88c7bbdb6b2707c084a689 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9712,11 +9712,15 @@ static inline int kvm_x86_init_asi_class(void)
- 	/*
- 	 * And the same for data left behind by code in the userspace domain
- 	 * (i.e. the VMM itself, plus kernel code serving its syscalls etc).
--	 * This should eventually be configurable: users whose VMMs contain
--	 * no secrets can disable it to avoid paying a mitigation cost on
--	 * transition between their guest and userspace.
-+	 *
-+	 *
-+	 * If we decided to map userspace into the guest's restricted address
-+	 * space then we don't bother with this since we assume either no bugs
-+	 * allow the guest to leak that data, or the user doesn't care about
-+	 * that security boundary.
- 	 */
--	policy.protect_data |= ASI_TAINT_USER_DATA;
-+	if (!asi_maps_user_addr(ASI_CLASS_KVM))
-+		policy.protect_data |= ASI_TAINT_USER_DATA;
- 
- 	return asi_init_class(ASI_CLASS_KVM, &policy);
- }
-diff --git a/arch/x86/mm/asi.c b/arch/x86/mm/asi.c
-index c5073af1a82ded1c6fc467cd7a5d29a39d676bb4..093103c1bc2677c81d68008aca064fab53b73a62 100644
---- a/arch/x86/mm/asi.c
-+++ b/arch/x86/mm/asi.c
-@@ -14,6 +14,7 @@
- #include <asm/pgalloc.h>
- #include <asm/mmu_context.h>
- #include <asm/traps.h>
-+#include <asm/pgtable.h>
- 
- #include "mm_internal.h"
- #include "../../../mm/internal.h"
-@@ -351,6 +352,33 @@ static void __asi_destroy(struct asi *asi)
- 	memset(asi, 0, sizeof(struct asi));
- }
- 
-+static void __asi_init_user_pgds(struct mm_struct *mm, struct asi *asi)
-+{
-+	int i;
-+
-+	if (!asi_maps_user_addr(asi->class_id))
-+		return;
-+
-+	/*
-+	 * The code below must be executed only after the given asi is
-+	 * available in mm->asi[index] to ensure at least either this
-+	 * function or __asi_clone_user_pgd() will copy entries in the
-+	 * unrestricted pgd to the restricted pgd.
-+	 */
-+	if (WARN_ON_ONCE(&mm->asi[asi->class_id] != asi))
-+		return;
-+
-+	/*
-+	 * See the comment for __asi_clone_user_pgd() why we hold the lock here.
-+	 */
-+	spin_lock(&asi->pgd_lock);
-+
-+	for (i = 0; i < KERNEL_PGD_BOUNDARY; i++)
-+		set_pgd(asi->pgd + i, READ_ONCE(*(mm->pgd + i)));
-+
-+	spin_unlock(&asi->pgd_lock);
-+}
-+
- int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_asi)
- {
- 	struct asi *asi;
-@@ -388,6 +416,7 @@ int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_
- 
- 	asi->mm = mm;
- 	asi->class_id = class_id;
-+	spin_lock_init(&asi->pgd_lock);
- 
- 	for (i = KERNEL_PGD_BOUNDARY; i < PTRS_PER_PGD; i++)
- 		set_pgd(asi->pgd + i, asi_global_nonsensitive_pgd[i]);
-@@ -398,6 +427,7 @@ int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_
- 	else
- 		*out_asi = asi;
- 
-+	__asi_init_user_pgds(mm, asi);
- 	mutex_unlock(&mm->asi_init_lock);
- 
- 	return err;
-@@ -891,3 +921,65 @@ void asi_unmap(struct asi *asi, void *addr, size_t len)
- 
- 	asi_flush_tlb_range(asi, addr, len);
- }
-+
-+/*
-+ * This function is to copy the given unrestricted pgd entry for
-+ * userspace addresses to the corresponding restricted pgd entries.
-+ * It means that the unrestricted pgd entry must be updated before
-+ * this function is called.
-+ * We map entire userspace addresses to the restricted address spaces
-+ * by copying unrestricted pgd entries to the restricted page tables
-+ * so that we don't need to maintain consistency of lower level PTEs
-+ * between the unrestricted page table and the restricted page tables.
-+ */
-+void asi_clone_user_pgtbl(struct mm_struct *mm, pgd_t *pgdp)
-+{
-+	unsigned long pgd_idx;
-+	struct asi *asi;
-+	int i;
-+
-+	if (!static_asi_enabled())
-+		return;
-+
-+	/* We shouldn't need to take care non-userspace mapping. */
-+	if (!pgdp_maps_userspace(pgdp))
-+		return;
-+
-+	/*
-+	 * The mm will be NULL for p{4,g}d_clear(). We need to get
-+	 * the owner mm for this pgd in this case. The pgd page has
-+	 * a valid pt_mm only when SHARED_KERNEL_PMD == 0.
-+	 */
-+	BUILD_BUG_ON(SHARED_KERNEL_PMD);
-+	if (!mm) {
-+		mm = pgd_page_get_mm(virt_to_page(pgdp));
-+		if (WARN_ON_ONCE(!mm))
-+			return;
-+	}
-+
-+	/*
-+	 * Compute a PGD index of the given pgd entry. This will be the
-+	 * index of the ASI PGD entry to be updated.
-+	 */
-+	pgd_idx = pgdp - PTR_ALIGN_DOWN(pgdp, PAGE_SIZE);
-+
-+	for (i = 0; i < ARRAY_SIZE(mm->asi); i++) {
-+		asi = mm->asi + i;
-+
-+		if (!asi_pgd(asi) || !asi_maps_user_addr(asi->class_id))
-+			continue;
-+
-+		/*
-+		 * We need to synchronize concurrent callers of
-+		 * __asi_clone_user_pgd() among themselves, as well as
-+		 * __asi_init_user_pgds(). The lock makes sure that reading
-+		 * the unrestricted pgd and updating the corresponding
-+		 * ASI pgd are not interleaved by concurrent calls.
-+		 * We cannot rely on mm->page_table_lock here because it
-+		 * is not always held when pgd/p4d_clear_bad() is called.
-+		 */
-+		spin_lock(&asi->pgd_lock);
-+		set_pgd(asi_pgd(asi) + pgd_idx, READ_ONCE(*pgdp));
-+		spin_unlock(&asi->pgd_lock);
-+	}
-+}
-diff --git a/include/asm-generic/asi.h b/include/asm-generic/asi.h
-index 4f033d3ef5929707fd280f74fc800193e45143c1..d103343292fad567dcd73e45e986fb3974e59898 100644
---- a/include/asm-generic/asi.h
-+++ b/include/asm-generic/asi.h
-@@ -95,6 +95,10 @@ void asi_flush_tlb_range(struct asi *asi, void *addr, size_t len) { }
- 
- static inline void asi_check_boottime_disable(void) { }
- 
-+static inline void asi_clone_user_pgtbl(struct mm_struct *mm, pgd_t *pgdp) { };
-+
-+static inline bool asi_maps_user_addr(enum asi_class_id class_id) { return false; }
-+
- #endif /* !CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
- 
- #endif  /* !_ASSEMBLY_ */
 
 -- 
 2.47.1.613.gc27f4b7a9f-goog
