@@ -1,55 +1,55 @@
-Received: from mail-wr1-f73.google.com (mail-wr1-f73.google.com [209.85.221.73])
+Received: from mail-wr1-f74.google.com (mail-wr1-f74.google.com [209.85.221.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A7382253F6
-	for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 18:41:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 504B6226520
+	for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 18:41:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736534528; cv=none; b=Y0EDMTQgwoZl81gTkB7p8EM0kln1NG8f6tbGRAvPJp/jT8eq1o+cvlwPPw/d5kFszbU2oGtWImLyBhxkiGIA9r4HGQp8GwdwCndjywSaGl9VA0Z0LdXEwOdiD12SerIONQNNG+n7/VQpWKLeYU1LqdQ/k2jc8TpE1yuO5+yS3P0=
+	t=1736534529; cv=none; b=CdwDZA76j5f+hL2XtVPNV3QHl55IZiYridm4tYkRbXYmeY3W8GlJPfFr41iP1LyQOPsAnOZQTZ60fIH/pwLJbZkRX1XCnO1yO1oR09ethKQUGx8ERvxUlzVIZRtBZLES2i8wkCsIqQSItbVZrPklrxNDSnj3VSqFQ8In7WJ+NyM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736534528; c=relaxed/simple;
-	bh=4d7pidGbvdIp8iHsT7YACeXpM+11EgA5LY+ovyRSffk=;
+	s=arc-20240116; t=1736534529; c=relaxed/simple;
+	bh=uCTXszcaDTGYzLr/kSqhdNILKspgekzqD7024slk2Ug=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=fycuv7GSmKep7TqVH6D68NjRMHJBeaDS9ZdfFvPl/epNebYt03UfxMLy+SYiaBrhGcBIzrU2AdQq36xA/JGEHkrNx8ZbheHSgwlaq1xfkVGheJNus9FRczDy2wVcDWIDlCbrIDt12jS938JAYA7wNMVhkk1+6vryu5L+X7m1llA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=x/fetZE9; arc=none smtp.client-ip=209.85.221.73
+	 To:Cc:Content-Type; b=uVB5Ci7SrfC43dWFP1Z4Ue8AaU+PaStwTZ9JB9O80Zr4/cyObBbmb6QeezjyQUFwGBeVU5LDVH0BMhnsmsEOSVKYmZu4B8HpcV0a+HhIWkVPF//WEsCZwGD+yVniwTwNSrGR03BNnBV5twJAWGzx9nsVBDWdTQPI+I+hRjtDXnY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=NcaQ/3Sd; arc=none smtp.client-ip=209.85.221.74
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="x/fetZE9"
-Received: by mail-wr1-f73.google.com with SMTP id ffacd0b85a97d-385e49efd59so941632f8f.0
-        for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 10:41:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="NcaQ/3Sd"
+Received: by mail-wr1-f74.google.com with SMTP id ffacd0b85a97d-385e00ebb16so962954f8f.3
+        for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 10:41:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1736534486; x=1737139286; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1736534502; x=1737139302; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=+fqV4f6s/Eo+EZ+PE2OCyE0kBm/vfnsLcFKRz+1otrE=;
-        b=x/fetZE9fqENNHA/TK7J3oNSgvGr+mTjENc36PJ4rqxoixGMSS2It48gQWpx5s1gLQ
-         Q1bsI0nE5oPMsCrnK07kvVUSVDiVdcnQz0NDggu7QBOA49tfKncNEEKcZ+tcwl35q1iB
-         ZW7Tq5/dKeWJMGEMwbIsEwh8eqNEPfjCaU15NIF/lDZc/wXJB2vS5oM+kKLEbmWg4eTH
-         FDOIZ8zuvDv/Sit/wd2xrxF+AyAShMGCcD3ko6RY2pPVMsItRF+lXGxNuvVyg5XVlQBO
-         8Nlrte9RJKZ5VdXMsskcV/p46JPYnucaAu8MnqMqBS0QbQzJ2h+yOejkpfafbu2lbMQe
-         STZA==
+        bh=lGjVOQFY6aPZLutIkt8TLO/unqgXoc0/gnPdxCEE5wQ=;
+        b=NcaQ/3Sd0xjN43ePalum7sUbzGNq/jMReWRMsUokZ6+WVjess7wYWQe9SqGm0VQPbL
+         BglYsRBvpK2UHmemJAxkPSXlik+bCfbEBGxRKYX9QotSbsWbF3M2+gQEmht77rGxoRoz
+         X0kivdKAk4XHOF04R3oBHPtSvRebADGncMcQDFwLjCIJ+8OAh1EKEkVZ/qXjHuj5sLnP
+         YnR0KWV+xWF8t/AFye0t+ArgyNIY5Q5N61CRrjGXKzMI+KHfHk5K7cJ/+JJuz/+q/YIp
+         36aWD8MeDoy5bnqSsImH7QB8HYcKeP7/mEOebRWdkea79t9iXfRi0ZrU7ENVQRdTOWex
+         N0ng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736534486; x=1737139286;
+        d=1e100.net; s=20230601; t=1736534502; x=1737139302;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+fqV4f6s/Eo+EZ+PE2OCyE0kBm/vfnsLcFKRz+1otrE=;
-        b=kSvWZfOY2UGEpxONLDc9aEB94Z8HAt/9AIlsTJUtqxqqCJPLtNY781MzQxVlY9GU3a
-         Vttnf5NP99QxzxnfRux8DzlHl7lazV/hMR1401K1+42dKmPpMfu8wVxG75QJhSwIHw1s
-         vB4oKySgVC7HiNi1LXKgbMhNIL71RIsR3OcKhGfm9lBV7VOCXX7dlRHTnEks1lNdS5nY
-         4cUoTi9BPRm4bBcRisoMbgCjoRCRhZYMxHbdIZZJxJGOyKWThbR4OYJkkXObTcCPqaNT
-         X9jMdbz8YOG/n/RUaoiESceyk2SDhNj+S0HoJdOXxf3fM/OC56yihFSf7BsDoaVZOhaA
-         BQtg==
-X-Forwarded-Encrypted: i=1; AJvYcCXzwMJUt/j+jKE+f3newLtLJNkyhEKc04opCnn14DqIqMMKdQsTnz+7Mu6y4lET2DUcBsv6MM6REHn/HcD1@vger.kernel.org
-X-Gm-Message-State: AOJu0YyZ17/ltzTXh3LJgeutH1fxmcdUng64FM6fUd4Ckz7VtXIOMuQ3
-	Ue6YLqsUVpktfQQHYVyjHRrnCZViJn9Ggbml5Wmf/bB5OLvi1GcktW1lHtUpYDpBNEP9cX1ZUGc
-	dTVAOa1Fxjg==
-X-Google-Smtp-Source: AGHT+IFgJUpClA++DtJe4xQ45Yc9kKsVSyJCXKqF0cxpPlCBfuMButRzIe/JLM7ynzshFcOsnG5hhjluySNsEA==
-X-Received: from wrbeh5.prod.google.com ([2002:a05:6000:4105:b0:382:4235:c487])
+        bh=lGjVOQFY6aPZLutIkt8TLO/unqgXoc0/gnPdxCEE5wQ=;
+        b=vQak6OR9LBLtkmIwfOIV73xUiHb41K0LoL4iSDAGpS3ch5BB5DfI3I0lFFqftQ1BOK
+         dWEsCm0odjBNjNu637toH5fKCdG3RGPQELGztyX9+wtDUyjN/+yFtKn+/SGKPl7PeCCC
+         AnoyudIaLsGtNGHFmmTxCuXtLtJSsKl5jywGRh0vONrantYNUY0gguYkSzUS86OiVc5G
+         0swji+wrDz06px3z6g7QjqLbmfgwDU7MKYa32DnXN+xQb4h46DLsopC1e5lvOWNJZKE/
+         B5j2Lb2I1fK2KA+X+G6DD3sVrcxhQuWdXpKanu17WuIrJ9C0p0EFRv+9XJLNbNeg8lyv
+         VR5w==
+X-Forwarded-Encrypted: i=1; AJvYcCVghiMbxmLDWCrjFmTIJ++iV/leeEbx+w03hdfRx+4IIWOtVnFHHgcj75rH28cYxd2r0BkXTwHwlYeJDi+I@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzy0ZPglfFU6cqpDAF7dAAp0P+Ybjxj6nhx/wF1Q1LzlFIRCCNt
+	ImQntGvi0jEb/8XCPrzpKtmVHuLzGTzlMO+jj8h9AP+GJJp5SGX/d2hVfBZDbcLNq+c5NfnO1Dh
+	QE6wEV5q12A==
+X-Google-Smtp-Source: AGHT+IEWN36a0RhRoQNfORq+2yO51X6txHS1Rw2POezO/cSMdMR6AN2SOjOPPnxrT0b5W7xr5QSy1CVP6p9cPA==
+X-Received: from wmqa1.prod.google.com ([2002:a05:600c:3481:b0:436:1995:1888])
  (user=jackmanb job=prod-delivery.src-stubby-dispatcher) by
- 2002:adf:8b5b:0:b0:38a:88bc:aea4 with SMTP id ffacd0b85a97d-38a88bcaebfmr7355114f8f.30.1736534486264;
- Fri, 10 Jan 2025 10:41:26 -0800 (PST)
-Date: Fri, 10 Jan 2025 18:40:44 +0000
+ 2002:a5d:588b:0:b0:385:df84:8496 with SMTP id ffacd0b85a97d-38a872c9432mr10863969f8f.3.1736534502226;
+ Fri, 10 Jan 2025 10:41:42 -0800 (PST)
+Date: Fri, 10 Jan 2025 18:40:51 +0000
 In-Reply-To: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
@@ -59,8 +59,8 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 X-Mailer: b4 0.15-dev
-Message-ID: <20250110-asi-rfc-v2-v2-18-8419288bc805@google.com>
-Subject: [PATCH RFC v2 18/29] mm: asi: Map dynamic percpu memory as nonsensitive
+Message-ID: <20250110-asi-rfc-v2-v2-25-8419288bc805@google.com>
+Subject: [PATCH RFC v2 25/29] mm: asi: Restricted execution fore bare-metal processes
 From: Brendan Jackman <jackmanb@google.com>
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
 	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
@@ -111,160 +111,301 @@ Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
 	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
 	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
 	kvm@vger.kernel.org, linux-efi@vger.kernel.org, 
-	Brendan Jackman <jackmanb@google.com>, Reiji Watanabe <reijiw@google.com>, 
-	Junaid Shahid <junaids@google.com>
+	Brendan Jackman <jackmanb@google.com>
 Content-Type: text/plain; charset="utf-8"
 
-From: Reiji Watanabe <reijiw@google.com>
+Now userspace gets a restricted address space too. The critical section
+begins on exit to userspace and ends when it makes a system call.
+Other entries from userspace just interrupt the critical section via
+asi_intr_enter().
 
-Currently, all dynamic percpu memory is implicitly (and
-unintentionally) treated as sensitive memory.
+The reason why system calls have to actually asi_relax() (i.e. fully
+terminate the critical section instead of just interrupting it) is that
+system calls are the type of kernel entry that can lead to transition
+into a _different_ ASI domain, namely the KVM one: it is not supported
+to transition into a different domain while a critical section exists
+(i.e. while asi_state.target is not NULL), even if it has been paused by
+asi_intr_enter() (i.e. even if asi_state.intr_nest_depth is nonzero) -
+there must be an asi_relax() between any two asi_enter()s.
 
-Unconditionally map pages for dynamically allocated percpu
-memory as global nonsensitive memory, other than pages that
-are allocated for pcpu_{first,reserved}_chunk during early
-boot via memblock allocator (these will be taken care by the
-following patch).
+The restricted address space for bare-metal tasks naturally contains the
+entire userspace address region, although the task's own memory is still
+missing from the direct map.
 
-We don't support sensitive percpu memory allocation yet.
+This implementation creates new userspace-specific APIs for asi_init(),
+asi_destroy() and asi_enter(), which seems a little ugly, maybe this
+suggest a general rework of these APIs given that the "generic" version
+only has one caller. For RFC code this seems good enough though.
 
-Co-developed-by: Junaid Shahid <junaids@google.com>
-Signed-off-by: Junaid Shahid <junaids@google.com>
-Signed-off-by: Reiji Watanabe <reijiw@google.com>
 Signed-off-by: Brendan Jackman <jackmanb@google.com>
-
-WIP: Drop VM_SENSITIVE checks from percpu code
 ---
- mm/percpu-vm.c | 50 ++++++++++++++++++++++++++++++++++++++++++++------
- mm/percpu.c    |  4 ++--
- 2 files changed, 46 insertions(+), 8 deletions(-)
+ arch/x86/include/asm/asi.h   |  8 ++++++--
+ arch/x86/mm/asi.c            | 49 ++++++++++++++++++++++++++++++++++++++++----
+ include/asm-generic/asi.h    |  9 +++++++-
+ include/linux/entry-common.h | 11 ++++++++++
+ init/main.c                  |  2 ++
+ kernel/entry/common.c        |  1 +
+ kernel/fork.c                |  4 +++-
+ 7 files changed, 76 insertions(+), 8 deletions(-)
 
-diff --git a/mm/percpu-vm.c b/mm/percpu-vm.c
-index cd69caf6aa8d8eded2395eb4bc4051b78ec6aa33..2935d7fbac41548819a94dcc60566bd18cde819a 100644
---- a/mm/percpu-vm.c
-+++ b/mm/percpu-vm.c
-@@ -132,11 +132,20 @@ static void pcpu_pre_unmap_flush(struct pcpu_chunk *chunk,
- 		pcpu_chunk_addr(chunk, pcpu_high_unit_cpu, page_end));
- }
+diff --git a/arch/x86/include/asm/asi.h b/arch/x86/include/asm/asi.h
+index e925d7d2cfc85bca8480c837548654e7a5a7009e..c3c1a57f0147ae9bd11d89c8bf7c8a4477728f51 100644
+--- a/arch/x86/include/asm/asi.h
++++ b/arch/x86/include/asm/asi.h
+@@ -140,19 +140,23 @@ DECLARE_PER_CPU_ALIGNED(struct asi *, curr_asi);
  
--static void __pcpu_unmap_pages(unsigned long addr, int nr_pages)
-+static void ___pcpu_unmap_pages(unsigned long addr, int nr_pages)
- {
- 	vunmap_range_noflush(addr, addr + (nr_pages << PAGE_SHIFT));
- }
+ void asi_check_boottime_disable(void);
  
-+static void __pcpu_unmap_pages(unsigned long addr, int nr_pages,
-+			       unsigned long vm_flags)
-+{
-+	unsigned long size = nr_pages << PAGE_SHIFT;
+-void asi_init_mm_state(struct mm_struct *mm);
++int asi_init_mm_state(struct mm_struct *mm);
+ 
+ int asi_init_class(enum asi_class_id class_id, struct asi_taint_policy *taint_policy);
++void asi_init_userspace_class(void);
+ void asi_uninit_class(enum asi_class_id class_id);
+ const char *asi_class_name(enum asi_class_id class_id);
+ 
+ int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_asi);
+ void asi_destroy(struct asi *asi);
++void asi_destroy_userspace(struct mm_struct *mm);
+ void asi_clone_user_pgtbl(struct mm_struct *mm, pgd_t *pgdp);
+ 
+ /* Enter an ASI domain (restricted address space) and begin the critical section. */
+ void asi_enter(struct asi *asi);
+ 
++void asi_enter_userspace(void);
 +
-+	asi_unmap(ASI_GLOBAL_NONSENSITIVE, (void *)addr, size);
-+	___pcpu_unmap_pages(addr, nr_pages);
+ /*
+  * Leave the "tense" state if we are in it, i.e. end the critical section. We
+  * will stay relaxed until the next asi_enter.
+@@ -294,7 +298,7 @@ void asi_handle_switch_mm(void);
+  */
+ static inline bool asi_maps_user_addr(enum asi_class_id class_id)
+ {
+-	return false;
++	return class_id == ASI_CLASS_USERSPACE;
+ }
+ 
+ #endif /* CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
+diff --git a/arch/x86/mm/asi.c b/arch/x86/mm/asi.c
+index 093103c1bc2677c81d68008aca064fab53b73a62..1e9dc568e79e8686a4dbf47f765f2c2535d025ec 100644
+--- a/arch/x86/mm/asi.c
++++ b/arch/x86/mm/asi.c
+@@ -25,6 +25,7 @@ const char *asi_class_names[] = {
+ #if IS_ENABLED(CONFIG_KVM)
+ 	[ASI_CLASS_KVM] = "KVM",
+ #endif
++	[ASI_CLASS_USERSPACE] = "userspace",
+ };
+ 
+ DEFINE_PER_CPU_ALIGNED(struct asi *, curr_asi);
+@@ -67,6 +68,32 @@ int asi_init_class(enum asi_class_id class_id, struct asi_taint_policy *taint_po
+ }
+ EXPORT_SYMBOL_GPL(asi_init_class);
+ 
++void __init asi_init_userspace_class(void)
++{
++	static struct asi_taint_policy policy = {
++		/*
++		 * Prevent going to userspace with sensitive data potentially
++		 * left in sidechannels by code running in the unrestricted
++		 * address space, or another MM. Note we don't check for guest
++		 * data here. This reflects the assumption that the guest trusts
++		 * its VMM (absent fancy HW features, which are orthogonal).
++		 */
++		.protect_data = ASI_TAINT_KERNEL_DATA | ASI_TAINT_OTHER_MM_DATA,
++		/*
++		 * Don't go into userspace with control flow state controlled by
++		 * other processes, or any KVM guest the process is running.
++		 * Note this bit is about protecting userspace from other parts
++		 * of the system, while data_taints is about protecting other
++		 * parts of the system from the guest.
++		 */
++		.prevent_control = ASI_TAINT_GUEST_CONTROL | ASI_TAINT_OTHER_MM_CONTROL,
++		.set = ASI_TAINT_USER_CONTROL | ASI_TAINT_USER_DATA,
++	};
++	int err = asi_init_class(ASI_CLASS_USERSPACE, &policy);
++
++	WARN_ON(err);
 +}
 +
- /**
-  * pcpu_unmap_pages - unmap pages out of a pcpu_chunk
-  * @chunk: chunk of interest
-@@ -153,6 +162,8 @@ static void __pcpu_unmap_pages(unsigned long addr, int nr_pages)
- static void pcpu_unmap_pages(struct pcpu_chunk *chunk,
- 			     struct page **pages, int page_start, int page_end)
+ void asi_uninit_class(enum asi_class_id class_id)
  {
-+	struct vm_struct **vms = (struct vm_struct **)chunk->data;
-+	unsigned long vm_flags = vms ? vms[0]->flags : VM_ALLOC;
- 	unsigned int cpu;
- 	int i;
+ 	if (!boot_cpu_has(X86_FEATURE_ASI))
+@@ -385,7 +412,8 @@ int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_
+ 	int err = 0;
+ 	uint i;
  
-@@ -165,7 +176,7 @@ static void pcpu_unmap_pages(struct pcpu_chunk *chunk,
- 			pages[pcpu_page_idx(cpu, i)] = page;
- 		}
- 		__pcpu_unmap_pages(pcpu_chunk_addr(chunk, cpu, page_start),
--				   page_end - page_start);
-+				   page_end - page_start, vm_flags);
- 	}
+-	*out_asi = NULL;
++	if (out_asi)
++		*out_asi = NULL;
+ 
+ 	if (!boot_cpu_has(X86_FEATURE_ASI))
+ 		return 0;
+@@ -424,7 +452,7 @@ int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_
+ exit_unlock:
+ 	if (err)
+ 		__asi_destroy(asi);
+-	else
++	else if (out_asi)
+ 		*out_asi = asi;
+ 
+ 	__asi_init_user_pgds(mm, asi);
+@@ -515,6 +543,12 @@ static __always_inline void maybe_flush_data(struct asi *next_asi)
+ 	this_cpu_and(asi_taints, ~ASI_TAINTS_DATA_MASK);
  }
  
-@@ -190,13 +201,38 @@ static void pcpu_post_unmap_tlb_flush(struct pcpu_chunk *chunk,
- 		pcpu_chunk_addr(chunk, pcpu_high_unit_cpu, page_end));
- }
- 
--static int __pcpu_map_pages(unsigned long addr, struct page **pages,
--			    int nr_pages)
-+/*
-+ * __pcpu_map_pages() should not be called during the percpu initialization,
-+ * as asi_map() depends on the page allocator (which isn't available yet
-+ * during percpu initialization).  Instead, ___pcpu_map_pages() can be used
-+ * during the percpu initialization. But, any pages that are mapped with
-+ * ___pcpu_map_pages() will be treated as sensitive memory, unless
-+ * they are explicitly mapped with asi_map() later.
-+ */
-+static int ___pcpu_map_pages(unsigned long addr, struct page **pages,
-+			     int nr_pages)
- {
- 	return vmap_pages_range_noflush(addr, addr + (nr_pages << PAGE_SHIFT),
- 					PAGE_KERNEL, pages, PAGE_SHIFT);
- }
- 
-+static int __pcpu_map_pages(unsigned long addr, struct page **pages,
-+			    int nr_pages, unsigned long vm_flags)
++void asi_destroy_userspace(struct mm_struct *mm)
 +{
-+	unsigned long size = nr_pages << PAGE_SHIFT;
-+	int err;
++	VM_BUG_ON(!asi_class_initialized(ASI_CLASS_USERSPACE));
++	asi_destroy(&mm->asi[ASI_CLASS_USERSPACE]);
++}
 +
-+	err = ___pcpu_map_pages(addr, pages, nr_pages);
-+	if (err)
-+		return err;
+ noinstr void __asi_enter(void)
+ {
+ 	u64 asi_cr3;
+@@ -584,6 +618,11 @@ noinstr void asi_enter(struct asi *asi)
+ }
+ EXPORT_SYMBOL_GPL(asi_enter);
+ 
++noinstr void asi_enter_userspace(void)
++{
++	asi_enter(&current->mm->asi[ASI_CLASS_USERSPACE]);
++}
 +
+ noinstr void asi_relax(void)
+ {
+ 	if (static_asi_enabled()) {
+@@ -633,13 +672,15 @@ noinstr void asi_exit(void)
+ }
+ EXPORT_SYMBOL_GPL(asi_exit);
+ 
+-void asi_init_mm_state(struct mm_struct *mm)
++int asi_init_mm_state(struct mm_struct *mm)
+ {
+ 	if (!boot_cpu_has(X86_FEATURE_ASI))
+-		return;
++		return 0;
+ 
+ 	memset(mm->asi, 0, sizeof(mm->asi));
+ 	mutex_init(&mm->asi_init_lock);
++
++	return asi_init(mm, ASI_CLASS_USERSPACE, NULL);
+ }
+ 
+ void asi_handle_switch_mm(void)
+diff --git a/include/asm-generic/asi.h b/include/asm-generic/asi.h
+index d103343292fad567dcd73e45e986fb3974e59898..c93f9e779ce1fa61e3df7835f5ab744cce7d667b 100644
+--- a/include/asm-generic/asi.h
++++ b/include/asm-generic/asi.h
+@@ -15,6 +15,7 @@ enum asi_class_id {
+ #if IS_ENABLED(CONFIG_KVM)
+ 	ASI_CLASS_KVM,
+ #endif
++	ASI_CLASS_USERSPACE,
+ 	ASI_MAX_NUM_CLASSES,
+ };
+ static_assert(order_base_2(X86_CR3_ASI_PCID_BITS) <= ASI_MAX_NUM_CLASSES);
+@@ -37,8 +38,10 @@ int asi_init_class(enum asi_class_id class_id,
+ 
+ static inline void asi_uninit_class(enum asi_class_id class_id) { }
+ 
++static inline void asi_init_userspace_class(void) { }
++
+ struct mm_struct;
+-static inline void asi_init_mm_state(struct mm_struct *mm) { }
++static inline int asi_init_mm_state(struct mm_struct *mm) { return 0; }
+ 
+ static inline int asi_init(struct mm_struct *mm, enum asi_class_id class_id,
+ 			   struct asi **out_asi)
+@@ -48,8 +51,12 @@ static inline int asi_init(struct mm_struct *mm, enum asi_class_id class_id,
+ 
+ static inline void asi_destroy(struct asi *asi) { }
+ 
++static inline void asi_destroy_userspace(struct mm_struct *mm) { }
++
+ static inline void asi_enter(struct asi *asi) { }
+ 
++static inline void asi_enter_userspace(void) { }
++
+ static inline void asi_relax(void) { }
+ 
+ static inline bool asi_is_relaxed(void) { return true; }
+diff --git a/include/linux/entry-common.h b/include/linux/entry-common.h
+index 1e50cdb83ae501467ecc30ee52f1379d409f962e..f04c4c038556f84ddf3bc09b6c1dd22a9dbd2f6b 100644
+--- a/include/linux/entry-common.h
++++ b/include/linux/entry-common.h
+@@ -191,6 +191,16 @@ static __always_inline long syscall_enter_from_user_mode(struct pt_regs *regs, l
+ {
+ 	long ret;
+ 
 +	/*
-+	 * If this fails, pcpu_map_pages()->__pcpu_unmap_pages() will call
-+	 * asi_unmap() and clean up any partial mappings.
++	 * End the ASI critical section for userspace. Syscalls are the only
++	 * place this happens - all other entry from userspace is handled via
++	 * ASI's interrupt-tracking. The reason syscalls are special is that's
++	 * where it's possible to switch to another ASI domain within the same
++	 * task (i.e. KVM_RUN), an asi_relax() is required here in case of an
++	 * upcoming asi_enter().
 +	 */
-+	return asi_map(ASI_GLOBAL_NONSENSITIVE, (void *)addr, size);
-+}
++	asi_relax();
 +
- /**
-  * pcpu_map_pages - map pages into a pcpu_chunk
-  * @chunk: chunk of interest
-@@ -214,13 +250,15 @@ static int __pcpu_map_pages(unsigned long addr, struct page **pages,
- static int pcpu_map_pages(struct pcpu_chunk *chunk,
- 			  struct page **pages, int page_start, int page_end)
+ 	enter_from_user_mode(regs);
+ 
+ 	instrumentation_begin();
+@@ -355,6 +365,7 @@ static __always_inline void exit_to_user_mode_prepare(struct pt_regs *regs)
+  */
+ static __always_inline void exit_to_user_mode(void)
  {
-+	struct vm_struct **vms = (struct vm_struct **)chunk->data;
-+	unsigned long vm_flags = vms ? vms[0]->flags : VM_ALLOC;
- 	unsigned int cpu, tcpu;
- 	int i, err;
++
+ 	instrumentation_begin();
+ 	trace_hardirqs_on_prepare();
+ 	lockdep_hardirqs_on_prepare();
+diff --git a/init/main.c b/init/main.c
+index c4778edae7972f512d5eefe8400075ac35a70d1c..d19e149d385e8321d2f3e7c28aa75802af62d09c 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -953,6 +953,8 @@ void start_kernel(void)
+ 	/* Architectural and non-timekeeping rng init, before allocator init */
+ 	random_init_early(command_line);
  
- 	for_each_possible_cpu(cpu) {
- 		err = __pcpu_map_pages(pcpu_chunk_addr(chunk, cpu, page_start),
- 				       &pages[pcpu_page_idx(cpu, page_start)],
--				       page_end - page_start);
-+				       page_end - page_start, vm_flags);
- 		if (err < 0)
- 			goto err;
++	asi_init_userspace_class();
++
+ 	/*
+ 	 * These use large bootmem allocations and must precede
+ 	 * initalization of page allocator
+diff --git a/kernel/entry/common.c b/kernel/entry/common.c
+index 5b6934e23c21d36a3238dc03e391eb9e3beb4cfb..874254ed5958d62eaeaef4fe3e8c02e56deaf5ed 100644
+--- a/kernel/entry/common.c
++++ b/kernel/entry/common.c
+@@ -218,6 +218,7 @@ __visible noinstr void syscall_exit_to_user_mode(struct pt_regs *regs)
+ 	__syscall_exit_to_user_mode_work(regs);
+ 	instrumentation_end();
+ 	exit_to_user_mode();
++	asi_enter_userspace();
+ }
  
-@@ -232,7 +270,7 @@ static int pcpu_map_pages(struct pcpu_chunk *chunk,
- err:
- 	for_each_possible_cpu(tcpu) {
- 		__pcpu_unmap_pages(pcpu_chunk_addr(chunk, tcpu, page_start),
--				   page_end - page_start);
-+				   page_end - page_start, vm_flags);
- 		if (tcpu == cpu)
- 			break;
- 	}
-diff --git a/mm/percpu.c b/mm/percpu.c
-index da21680ff294cb53dfb42bf0d3b3bbd2654d2cfa..c2d913c579bf07892957ac7f601a6a71defadc4b 100644
---- a/mm/percpu.c
-+++ b/mm/percpu.c
-@@ -3273,8 +3273,8 @@ int __init pcpu_page_first_chunk(size_t reserved_size, pcpu_fc_cpu_to_node_fn_t
- 			pcpu_populate_pte(unit_addr + (i << PAGE_SHIFT));
+ noinstr void irqentry_enter_from_user_mode(struct pt_regs *regs)
+diff --git a/kernel/fork.c b/kernel/fork.c
+index bb73758790d08112265d398b16902ff9a4c2b8fe..54068d2415939b92409ca8a45111176783c6acbd 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -917,6 +917,7 @@ void __mmdrop(struct mm_struct *mm)
+ 	/* Ensure no CPUs are using this as their lazy tlb mm */
+ 	cleanup_lazy_tlbs(mm);
  
- 		/* pte already populated, the following shouldn't fail */
--		rc = __pcpu_map_pages(unit_addr, &pages[unit * unit_pages],
--				      unit_pages);
-+		rc = ___pcpu_map_pages(unit_addr, &pages[unit * unit_pages],
-+				       unit_pages);
- 		if (rc < 0)
- 			panic("failed to map percpu area, err=%d\n", rc);
++	asi_destroy_userspace(mm);
+ 	WARN_ON_ONCE(mm == current->active_mm);
+ 	mm_free_pgd(mm);
+ 	destroy_context(mm);
+@@ -1297,7 +1298,8 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
+ 	if (mm_alloc_pgd(mm))
+ 		goto fail_nopgd;
  
+-	asi_init_mm_state(mm);
++	if (asi_init_mm_state(mm))
++		goto fail_nocontext;
+ 
+ 	if (init_new_context(p, mm))
+ 		goto fail_nocontext;
 
 -- 
 2.47.1.613.gc27f4b7a9f-goog
