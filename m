@@ -1,209 +1,145 @@
-Received: from mail-lj1-f201.google.com (mail-lj1-f201.google.com [209.85.208.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC40224B226
-	for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 18:49:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.201
+Received: from vmicros1.altlinux.org (vmicros1.altlinux.org [194.107.17.57])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 196C94C83;
+	Sat, 11 Jan 2025 01:16:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.107.17.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736534983; cv=none; b=EGuGYN113P1q9t+EwtI3kNPaYwVjIvXo2AxjB3e/RhGJC4XZcU7GAcUhRU7GFDXfQposCdPtyKMqaeii6laeFeEGb5RfUgifHvvZF0/fQyya5jdaCPbAh9E2h5FwS0D+BVCzpwcsej5hjHE90iPvn7Hj1Kdj9khBh4so3XF+EBQ=
+	t=1736558201; cv=none; b=H4XhUnXAFdTPj9Azb1xOQHQ1+bvOUSXSmi3b9Isl5v53gxRo6tW9EgpfBQb+UToeAFv3Nd6muRRP70kiG7l5llciW0YGEDUPXWcgFxyjFuRS2sztCw/X4AU0Ak2QXAtAheg49FcDa0PQLfo+gORS06XGJ7AIfR3omnr5otksU9Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736534983; c=relaxed/simple;
-	bh=gGBo/k79fltK/LiW8yEcfC3C6FkuDBayaBiJeug/v8c=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=OpUAbfgVJgUKGdLIa9F6cdkhCyt2U+Twh6bGjeuJMefQRG9fDb0KeFIRmYxymuV/O8HsEjjOlzyYaD5xv+2A5mphbwYPTbNjr9usNitwlCuF+7OsNA1vLOgDx6Hg9F/6/nhNaCDaBnFw1ChSpXS4mjUwI/mi5yzLuVh+L0TCyW4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=0r+NCUiP; arc=none smtp.client-ip=209.85.208.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="0r+NCUiP"
-Received: by mail-lj1-f201.google.com with SMTP id 38308e7fff4ca-30033ad0158so17949271fa.0
-        for <linux-hexagon@vger.kernel.org>; Fri, 10 Jan 2025 10:49:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1736534980; x=1737139780; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=49F9KmkByYRspQkaSYzsGBFq+GnQYA+RnfOGnAD1TNs=;
-        b=0r+NCUiPh/PHkYX+UYk0OPj6Msh63lAKKilxSnpsh9mLyExeDyNj2W3q7af1B/pRo7
-         jDRm6GBb/EJx4nDYW1sItXuaEeaMVtet7B7329uzotdwEH60wPKLtcq9FUetcb7r5qGl
-         jQMZTR/MTyImkPK5aUN1SICOXHcSjuzwGgw8366enBiLTdYevHKE/VPjAuu43hwo80k/
-         pis4mv52bXHKggnQNNY0ufWK/fH+12eRChB0+9HXA6G10Gi6Gjuk5hPKxgvoE9JhvKIX
-         cReM3PUiQwXbd4GeSorurIjI/KPqahxLTdmRxn0jmE2eowiIJDGqFG8apsl0+JtJ9aO7
-         BEdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736534980; x=1737139780;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=49F9KmkByYRspQkaSYzsGBFq+GnQYA+RnfOGnAD1TNs=;
-        b=smSTYkB3SN9vXyaXMjlBFRABZDHhL5QYMpAKzkknYyQiNbcUB3kdkf/U3qqVMcyJE6
-         ZYzELeU3vQKxMMQpiB6+kBwWqujAC06vpW9vAQ0qPNxhXLAaLdUOklh3BsgHqFE4C7fm
-         rYejfRl2mGE88kjMPNPyvVsOq3yl83sQCu5eoAOjtv+jkzeZJBYI2CmvDczJi8DyIv6X
-         O5rpPXbNFGLYiJw+SFtNmKTy7lvCDD2W6cZcCQUZ1bD+9sDrWmjlONDSYFsg8Vy1e/6R
-         otGNhkUxWqK2dG1GmHrWKwDl12N7+ODOJexaI5+aIq39yXX/JoRRZvMyBDCqVS7CiWUe
-         V4OQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUi79RiLPbmsNVKwbj+PV3k81bzubKfilkqkTteZdU5ixYIiY4KTZOfbeMFfK7wiUihS5PB+ShJg6hszt2H@vger.kernel.org
-X-Gm-Message-State: AOJu0YxXDSc4GijMLtCpCwBfbJ4rLmEroG8g5MYCCeWd3vpQFVsfIrHP
-	/ANgVT3BSGFD9be+Ydn2xQTwzaAhcLnPoWEowQern+l4quFTdqrHYHZiYNYH1Y1QC98hLTKxeUG
-	jjUrQsbeFLg==
-X-Google-Smtp-Source: AGHT+IFKWz0raFavEVPdqLi0m3c/SgK/uJNRKjAz6M2EuA2Ei6coxzOA0we1XFhGSIskVPMsumh+r4On/rf0kg==
-X-Received: from wmrn35.prod.google.com ([2002:a05:600c:5023:b0:434:f2eb:aa72])
- (user=jackmanb job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:600c:1d07:b0:434:fa73:a907 with SMTP id 5b1f17b1804b1-436e269a5f5mr112362055e9.13.1736534508901;
- Fri, 10 Jan 2025 10:41:48 -0800 (PST)
-Date: Fri, 10 Jan 2025 18:40:54 +0000
-In-Reply-To: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
+	s=arc-20240116; t=1736558201; c=relaxed/simple;
+	bh=sQ0hKscqgkFbQlYbywE8EkWkGZ06l86yKwob99Aviyk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SUR2hGFDLTEiNTvLBamVMhQScwC1jkMv6ZS/+BGzNawd6+eb1mK1L7TtZzVWcY6vSEyToM/Yz8zNpBIhC5JR9K4ZzBxg7iNABGmymxVx2MCOcggFDcr2K37NQZUbpCtIO5aPKoqoPnJJtR/kIGLEhOiapCddIRbptKuO41VJQls=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strace.io; spf=pass smtp.mailfrom=altlinux.org; arc=none smtp.client-ip=194.107.17.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strace.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altlinux.org
+Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
+	by vmicros1.altlinux.org (Postfix) with ESMTP id 3DA2E72C97D;
+	Sat, 11 Jan 2025 04:16:32 +0300 (MSK)
+Received: by mua.local.altlinux.org (Postfix, from userid 508)
+	id 2736C7CCB3A; Sat, 11 Jan 2025 03:16:32 +0200 (IST)
+Date: Sat, 11 Jan 2025 03:16:32 +0200
+From: "Dmitry V. Levin" <ldv@strace.io>
+To: Sven Schnelle <svens@linux.ibm.com>
+Cc: Oleg Nesterov <oleg@redhat.com>,
+	Eugene Syromyatnikov <evgsyr@gmail.com>,
+	Mike Frysinger <vapier@gentoo.org>,
+	Renzo Davoli <renzo@cs.unibo.it>,
+	Davide Berardi <berardi.dav@gmail.com>,
+	strace-devel@lists.strace.io, Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Brian Cain <bcain@quicinc.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+	Max Filippov <jcmvbkbc@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
+	linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
+	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+	linux-um@lists.infradead.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 3/6] syscall.h: introduce syscall_set_nr()
+Message-ID: <20250111011632.GA1724@strace.io>
+References: <20250107230438.GC30633@strace.io>
+ <yt9dzfjz6rw5.fsf@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
-X-Mailer: b4 0.15-dev
-Message-ID: <20250110-asi-rfc-v2-v2-28-8419288bc805@google.com>
-Subject: [PATCH RFC v2 28/29] x86/pti: Disable PTI when ASI is on
-From: Brendan Jackman <jackmanb@google.com>
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
-	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, 
-	Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, 
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, 
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
-	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, Chris Zankel <chris@zankel.net>, 
-	Max Filippov <jcmvbkbc@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Andrew Morton <akpm@linux-foundation.org>, Juri Lelli <juri.lelli@redhat.com>, 
-	Vincent Guittot <vincent.guittot@linaro.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>, 
-	Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, 
-	Valentin Schneider <vschneid@redhat.com>, Uladzislau Rezki <urezki@gmail.com>, 
-	Christoph Hellwig <hch@infradead.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Mike Rapoport <rppt@kernel.org>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>, 
-	Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Ard Biesheuvel <ardb@kernel.org>, Josh Poimboeuf <jpoimboe@kernel.org>, 
-	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
-	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
-	kvm@vger.kernel.org, linux-efi@vger.kernel.org, 
-	Brendan Jackman <jackmanb@google.com>
-Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yt9dzfjz6rw5.fsf@linux.ibm.com>
 
-Now that ASI has support for sandboxing userspace, although userspace
-now has much more mapped than it would under KPTI, in theory none of
-that data is important to protect.
+On Fri, Jan 10, 2025 at 08:37:46AM +0100, Sven Schnelle wrote:
+> "Dmitry V. Levin" <ldv@strace.io> writes:
+> 
+> > Similar to syscall_set_arguments() that complements
+> > syscall_get_arguments(), introduce syscall_set_nr()
+> > that complements syscall_get_nr().
+> >
+> > syscall_set_nr() is going to be needed along with
+> > syscall_set_arguments() on all HAVE_ARCH_TRACEHOOK
+> > architectures to implement PTRACE_SET_SYSCALL_INFO API.
+[...]
+> > diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
+> > index b3dd883699e7..1c0e349fd5c9 100644
+> > --- a/arch/s390/include/asm/syscall.h
+> > +++ b/arch/s390/include/asm/syscall.h
+> > @@ -24,6 +24,13 @@ static inline long syscall_get_nr(struct task_struct *task,
+> >  		(regs->int_code & 0xffff) : -1;
+> >  }
+> >  
+> > +static inline void syscall_set_nr(struct task_struct *task,
+> > +				  struct pt_regs *regs,
+> > +				  int nr)
+> > +{
+> 
+> I think there should be a
+> 
+> 	if (!test_pt_regs_flags(regs, PIF_SYSCALL))
+> 		return;
+> 
+> before the modification so a user can't accidentally change int_code
+> when ptrace stopped in a non-syscall path.
 
-Note that one particular impact of this is it makes locally defeating
-KASLR easier. I don't think this is a great loss given [1] etc.
+The reason why syscall_get_nr() has this check on s390 (and similar checks
+on arc, powerpc, and sparc) is that syscall_get_nr() can be called while
+the target task is not in syscall.
 
-Why do we pass in an argument instead of just having
-pti_check_boottime_disable() check boot_cpu_has(X86_FEATURE_ASI)? Just
-for clarity: I wanted it to be at least _sort of_ visible that it would
-break if you reordered asi_check_boottime_disable() afterwards.
+Unlike syscall_get_nr(), syscall_set_nr() can be called only when the
+target task is stopped for tracing on entering syscall: the description in
+include/asm-generic/syscall.h explicitly states that, and the follow-up
+patch that introduces PTRACE_SET_SYSCALL_INFO adds a syscall_set_nr() call
+when the tracee is stopped on entering syscall in either
+PTRACE_SYSCALL_INFO_ENTRY or PTRACE_SYSCALL_INFO_SECCOMP state.
 
-[1]:  https://gruss.cc/files/prefetch.pdf
-      and https://dl.acm.org/doi/pdf/10.1145/3623652.3623669
+I don't mind adding a check, but syscall_set_nr() invocation while the
+target task is not in syscall wouldn't be a result of user actions but
+a kernel programing error, and in that case WARN_ON_ONCE() would be more
+appropriate.
 
-Signed-off-by: Brendan Jackman <jackmanb@google.com>
----
- arch/x86/include/asm/pti.h |  6 ++++--
- arch/x86/mm/init.c         |  2 +-
- arch/x86/mm/pti.c          | 14 +++++++++++++-
- 3 files changed, 18 insertions(+), 4 deletions(-)
+If calling syscall_set_nr() while the target task is not in syscall was
+legal, then syscall_set_nr() would have been designed to return a value
+indicating the status of operation.
 
-diff --git a/arch/x86/include/asm/pti.h b/arch/x86/include/asm/pti.h
-index ab167c96b9ab474b33d778453db0bb550f42b0ac..79b9ba927db9b76ac3cc72cdda6f8b5fc413d352 100644
---- a/arch/x86/include/asm/pti.h
-+++ b/arch/x86/include/asm/pti.h
-@@ -3,12 +3,14 @@
- #define _ASM_X86_PTI_H
- #ifndef __ASSEMBLY__
- 
-+#include <linux/types.h>
-+
- #ifdef CONFIG_MITIGATION_PAGE_TABLE_ISOLATION
- extern void pti_init(void);
--extern void pti_check_boottime_disable(void);
-+extern void pti_check_boottime_disable(bool asi_enabled);
- extern void pti_finalize(void);
- #else
--static inline void pti_check_boottime_disable(void) { }
-+static inline void pti_check_boottime_disable(bool asi_enabled) { }
- #endif
- 
- #endif /* __ASSEMBLY__ */
-diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-index ded3a47f2a9c1f554824d4ad19f3b48bce271274..4ccf6d60705652805342abefc5e71cd00c563207 100644
---- a/arch/x86/mm/init.c
-+++ b/arch/x86/mm/init.c
-@@ -754,8 +754,8 @@ void __init init_mem_mapping(void)
- {
- 	unsigned long end;
- 
--	pti_check_boottime_disable();
- 	asi_check_boottime_disable();
-+	pti_check_boottime_disable(boot_cpu_has(X86_FEATURE_ASI));
- 	probe_page_size_mask();
- 	setup_pcid();
- 
-diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
-index 851ec8f1363a8b389ea4579cc68bf3300a4df27c..b7132080d3c9b6962a0252383190335e171bafa6 100644
---- a/arch/x86/mm/pti.c
-+++ b/arch/x86/mm/pti.c
-@@ -76,7 +76,7 @@ static enum pti_mode {
- 	PTI_FORCE_ON
- } pti_mode;
- 
--void __init pti_check_boottime_disable(void)
-+void __init pti_check_boottime_disable(bool asi_enabled)
- {
- 	if (hypervisor_is_type(X86_HYPER_XEN_PV)) {
- 		pti_mode = PTI_FORCE_OFF;
-@@ -91,6 +91,18 @@ void __init pti_check_boottime_disable(void)
- 		return;
- 	}
- 
-+	if (asi_enabled) {
-+		/*
-+		 * Having both ASI and PTI enabled is not a totally ridiculous
-+		 * thing to do; if you want ASI but you are not confident in the
-+		 * sensitivity annotations then it provides useful
-+		 * defence-in-depth. But, the implementation doesn't support it.
-+		 */
-+		if (pti_mode != PTI_FORCE_OFF)
-+			pti_print_if_insecure("disabled by ASI");
-+		return;
-+	}
-+
- 	if (pti_mode == PTI_FORCE_ON)
- 		pti_print_if_secure("force enabled on command line.");
- 
+Anyway, I'll add an explanatory comment to syscall_set_nr() on all
+architectures where syscall_get_nr() has a check.
+
 
 -- 
-2.47.1.613.gc27f4b7a9f-goog
-
+ldv
