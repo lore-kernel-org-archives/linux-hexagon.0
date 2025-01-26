@@ -1,65 +1,39 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7676CA64
-	for <linux-hexagon@vger.kernel.org>; Fri, 24 Jan 2025 13:04:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21A535672;
+	Sun, 26 Jan 2025 22:59:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.60.130.6
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737723857; cv=none; b=dwOlam579rv1rOb16NrTTYwf15fwHtPKq8GydC5ek+bigBAzVGaLyji7PW3gcKaG2slR/NjDIfkrqGGD0RgIfNbGMulee0lAtlIC3Q2TUvuuWneTPMWaLSIJDeFHzXQDOy3AO14sK+9rKJIR9zyem3hL3c0lW/JnWptV3EJ7JwE=
+	t=1737932358; cv=none; b=qcCWY3gMQtEOG3WhjcYRh3S7LOoIsLrbYfT1WgBMKx1cnRJ4oHQ/QLl6mE2z1amWqmrCJL8amw76lU9TFouFcZ2PK8gtLo2bnliBYTDLlXqXS1ZGFqa+v2tGlUhLhEbUL9igdRKwDQp2sJEOktMaZdEwv1YNYRy1waZZA7V8U/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737723857; c=relaxed/simple;
-	bh=6DUwB+hCjWKh6+gmJpLDb9ZpCQfqoZDHN+wZTg6VGKo=;
+	s=arc-20240116; t=1737932358; c=relaxed/simple;
+	bh=SWG77j8HWBRxd/IScgzSiQx7pcj3Ype7K3Jn/Lv8DAU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QPG1UPtT19vlKkkMet/tVPYYy9i9mdyuG5jxt/fgOzfuG2Sjt6859CHIqmy6kWfoS3XUU+VrUte0QiHW3bQZpfUIXYc5ORVNvYPaT9c/xCmbx2MCSxtD/+jW03SWFicuu1HmyuAGBuD67MiwKEdWutEjFiRWci/vTfST/3wVC7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=WcolCWBh; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	 In-Reply-To:Content-Type; b=Wtqb1qaor0Vpv+HkaRFHCFkQLOD1WEsgDS65Yu6aipJWzh4YgI13vwYkcfHr4OPbSurW/f5ohYQlHC/PSVS/QvN81WnqGMzg4V6T1tUMhUlEy63/B21S7ZEH+pUCUtSOOs2KdQPCUFtNcMEwX8Pq2VkWIA0PPWFHtDMSxf5BRcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=oNfp7CtG; arc=none smtp.client-ip=178.60.130.6
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="WcolCWBh"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-2ee67e9287fso3755018a91.0
-        for <linux-hexagon@vger.kernel.org>; Fri, 24 Jan 2025 05:04:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1737723855; x=1738328655; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=dId7b4yz8t9ytNzoIMZDzDyU9S5trP6VQ+ykZ7MFw3k=;
-        b=WcolCWBh+lB0KK8J6dDDEpKKfAjF2Cm6vBH1qSPgHiLw2VU81OIi3krrtfSEFWD9yO
-         AqbnVBZZnFSp0SPjfB+kIjYMWdslGMdkpPA8S5gjdvQI0f3VZiAJxhLNERNL31UgWYG1
-         guI1Xi3e/gDfb11BNupzOJ66yAMX1m75bZ2tUhpWXuVS99UyoZF3GgEiASJS8eG+qVcR
-         pXuFs342QbpqHYxe6z9BMnhI2d+BMUx/R6mfINhNwZUur1HPSJBAvu4z16axZqcOpgqq
-         xgHgWHkOffIZbVLnZWBABUNqZkmDgkdZw0TrtFP+pM+6syIFaocruvc2yOk22b7S+9Pu
-         8P0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737723855; x=1738328655;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=dId7b4yz8t9ytNzoIMZDzDyU9S5trP6VQ+ykZ7MFw3k=;
-        b=Gz+zRehYRKovLwp0c5mu3OMmVu3nFUltqzsaZTPHaEcAbviXzEIqArWriXVAq5zehF
-         UDCCChBbgTi55ojVdRrnnPOFQnG/cXpdJ2MNh0tHvogDCSAQOqmwMCx8SXzudqEHsCNw
-         YHR0WeHPr+7583IBs7xsBYZyWFL9aEimdshvYyPNIeTPH8M53Qlo4MpxgfRkuxalS3mC
-         RKeVx1WINU5USVTvyD6H9J9cuaDGU57nAGESic2wM/Xb83o7RTddanCArnvsTSHZuh2z
-         s7KLkMHrA3je6+47XygBcgBmqOat0FPhZFGSooqaUNOtlJkvEzNpDy5pYMizkHVjjBVi
-         AufQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWJZQ60x6Msq7yQ1vp0pkxyvDMyQy/zY1j+Qryno/UHMzKDW/lFAUxeScublIqXvBt9SD+8n+lv75Bd65qz@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw6nJc7rRJ30OJgaofUxJojhY43tRzQ0/ZZn7WfOJ8NPzilnkIB
-	Pl2hpbqW1Yi9e17tEMoKtmRUMk5gF17iR9A1ylvtORG833RU2SUQx2NAbimQMxM=
-X-Gm-Gg: ASbGnct6Rg/rOv2Tee4xlg1sKCPuIdG4PmadhUc9zJV5K9QqUJwpyi3bUnZKoor4SzM
-	ow96TrwlDn1gYqpigblDk1JJCdNeKGCT2ayhNZ+ab3vJwUU0WcTy9DuYdpG2eBx7sxJDPCcy+ka
-	vd5gttNke7HUwwE7JFZRrAp10OdjltN0pehfQgExf9Ew/RB8RZI00nZnRHF+kf8RAaRQKm1Q/Kh
-	0vpx3EyY77RPedB3e147+SP7vSh+7ttygcO/5dVnd9J/eDznf6ieJwoPOUWlJcICjIRHtH1iyJ0
-	JJnsNPMd3wJ03aRzL4u6ZxkcUFqW6SzJMcnDGDbJPnPq6wIEtGKbRbB+pJQH5/ejAyf3OtzhGS7
-	y5+dn
-X-Google-Smtp-Source: AGHT+IGZTgGY31e/1k/dTmcJmo/YDWxdXL7RglCap7bUypXHuwXLFHjK5+LGZw2OAN+HVTY4hEX3Xw==
-X-Received: by 2002:a17:90b:2d88:b0:2f2:a664:df1a with SMTP id 98e67ed59e1d1-2f782c628bbmr47170073a91.2.1737723854887;
-        Fri, 24 Jan 2025 05:04:14 -0800 (PST)
-Received: from ?IPV6:240e:370:8b13:5250:f0b9:2326:6cb0:b423? ([240e:370:8b13:5250:f0b9:2326:6cb0:b423])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2f7ffa5a975sm1776638a91.15.2025.01.24.05.04.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 24 Jan 2025 05:04:13 -0800 (PST)
-Message-ID: <65710478-4ee0-499e-9f66-dff81e226042@bytedance.com>
-Date: Fri, 24 Jan 2025 21:04:02 +0800
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="oNfp7CtG"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=R/+wUpWmjSp0M779ri14bonWhWmXh5PhcHk3XOpjzyA=; b=oNfp7CtGe9xGPIIV4Szf28WnKY
+	HnU3HVTKToB5IxUwfkjLc0hMeN88Cp+Kd/P8iBS38obNe80sCaT/8GpzqJ2FvkG1X+6BxHjpEs5BH
+	6mbhS5lfY4D6c42iS8hxsUlVsxjt5G1gji7+fOM4CD52nNkBIQHsJ5oUFSIayabJFw2YbGkIFKZOi
+	UQVHepDGcFANQpev7l9Hwz6g3YbNX/7MG9/aEuqJ3yegvkUdolrqeTNYPl17PE8LnSB9zh4uSzqFi
+	TmaIslM96lZaG6NQKeWRdLBkP3uXKhk9MdAUw8skOShqukfjzVROD1s9lTE+8iWWe8u/BX0OgkBFB
+	ZpGO3cjQ==;
+Received: from [187.36.213.55] (helo=[192.168.1.103])
+	by fanzine2.igalia.com with esmtpsa 
+	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+	id 1tcBav-0032bW-EZ; Sun, 26 Jan 2025 23:59:09 +0100
+Message-ID: <b0504158-e9e2-4f00-8a9a-a653a6a0e313@igalia.com>
+Date: Sun, 26 Jan 2025 19:59:00 -0300
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
@@ -67,70 +41,91 @@ List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/5] remove tlb_remove_page_ptdesc()
+Subject: Re: [PATCH] hexagon: fix using plain integer as NULL pointer warning
+ in cmpxchg
+To: Christian Gmeiner <christian.gmeiner@gmail.com>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: linux-hexagon@vger.kernel.org, bcain@quicinc.com,
+ linux-kernel@vger.kernel.org, dhowells@redhat.com, edumazet@google.com,
+ Willem de Bruijn <willemb@google.com>, kernel test robot <lkp@intel.com>,
+ mcanal@igalia.com
+References: <20241203221736.282020-1-willemdebruijn.kernel@gmail.com>
+ <CAH9NwWdODq0GXWJb_4jQNhgWjjAYfZccGLLLe7a=LVC95ew2tQ@mail.gmail.com>
 Content-Language: en-US
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: kevin.brodsky@arm.com, riel@surriel.com, vishal.moola@gmail.com,
- david@redhat.com, jannh@google.com, hughd@google.com, willy@infradead.org,
- yuzhao@google.com, muchun.song@linux.dev, akpm@linux-foundation.org,
- will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com, arnd@arndb.de,
- dave.hansen@linux.intel.com, rppt@kernel.org, alexghiti@rivosinc.com,
- linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-um@lists.infradead.org, x86@kernel.org,
- linux-riscv@lists.infradead.org
-References: <cover.1737637631.git.zhengqi.arch@bytedance.com>
- <20250124114759.GB15996@noisy.programming.kicks-ass.net>
-From: Qi Zheng <zhengqi.arch@bytedance.com>
-In-Reply-To: <20250124114759.GB15996@noisy.programming.kicks-ass.net>
+From: =?UTF-8?Q?Ma=C3=ADra_Canal?= <mcanal@igalia.com>
+In-Reply-To: <CAH9NwWdODq0GXWJb_4jQNhgWjjAYfZccGLLLe7a=LVC95ew2tQ@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+Hi Brian,
 
+Do you have an estimate for when this patch will be picked? We are 
+getting build reports from Hexagon in the V3D GPU driver [1].
 
-On 2025/1/24 19:47, Peter Zijlstra wrote:
-> On Thu, Jan 23, 2025 at 09:26:13PM +0800, Qi Zheng wrote:
->> Hi all,
->>
->> As suggested by Peter Zijlstra below [1], this series aims to remove
->> tlb_remove_page_ptdesc().
->>
->> : Fundamentally tlb_remove_page() is about removing *pages* as from a PTE,
->> : there should not be a page-table anywhere near here *ever*.
->> :
->> : Yes, some architectures use tlb_remove_page() for page-tables too, but
->> : that is more or less an implementation detail that can be fixed.
->>
->> After this series, all architectures use tlb_remove_table() or tlb_remove_ptdesc()
->> to remove the page table pages. In the future, once all architectures using
->> tlb_remove_table() have also converted to using struct ptdesc (eg. powerpc), it
->> may be possible to use only tlb_remove_ptdesc().
+[1] 
+https://lore.kernel.org/oe-kbuild-all/202501031246.AD8Jjze0-lkp@intel.com/
+
+Best Regards,
+- Maíra
+
+On 07/01/25 07:17, Christian Gmeiner wrote:
+> Hi Willem,
 > 
-> Right, so I don't think Sparc and Power care to use ptdesc, they're
-> using non page page-tables.
+>>
+>> From: Willem de Bruijn <willemb@google.com>
+>>
+>> Sparse reports
+>>
+>>      net/ipv4/inet_diag.c:1511:17: sparse: sparse: Using plain integer as NULL pointer
+>>
+>> Due to this code calling cmpxchg on a non-integer type
+>> struct inet_diag_handler *
+>>
+>>      return !cmpxchg((const struct inet_diag_handler**)&inet_diag_table[type],
+>>                      NULL, h) ? 0 : -EEXIST;
+>>
+>> While hexagon's cmpxchg assigns an integer value to a variable of this
+>> type.
+>>
+>>      __typeof__(*(ptr)) __oldval = 0;
+>>
+>> Update this assignment to cast 0 to the correct type.
+>>
+>> The original issue is easily reproduced at head with the below block,
+>> and is absent after this change.
+>>
+>>      make LLVM=1 ARCH=hexagon defconfig
+>>      make C=1 LLVM=1 ARCH=hexagon net/ipv4/inet_diag.o
+>>
+>> Fixes: 99a70aa051d2 ("Hexagon: Add processor and system headers")
+>> Reported-by: kernel test robot <lkp@intel.com>
+>> Closes: https://lore.kernel.org/oe-kbuild-all/202411091538.PGSTqUBi-lkp@intel.com/
+>> Signed-off-by: Willem de Bruijn <willemb@google.com>
 > 
-> At the very least we should do something like this, the only point of
-> having tlb_remove_ptdesc() is type safety, there really is no benefit
-> from it in any other way.
+> Closes: https://lore.kernel.org/oe-kbuild-all/202501031246.AD8Jjze0-lkp@intel.com/
+> Tested-by: Christian Gmeiner <cgmeiner@igalia.com>
 > 
-> ---
-> diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-> index dec030cb1210..a6731328db6f 100644
-> --- a/include/asm-generic/tlb.h
-> +++ b/include/asm-generic/tlb.h
-> @@ -504,7 +504,7 @@ static inline void tlb_remove_page(struct mmu_gather *tlb, struct page *page)
->   	return tlb_remove_page_size(tlb, page, PAGE_SIZE);
->   }
->   
-> -static inline void tlb_remove_ptdesc(struct mmu_gather *tlb, void *pt)
-> +static inline void tlb_remove_ptdesc(struct mmu_gather *tlb, struct ptdesc *pt)
->   {
->   	tlb_remove_table(tlb, pt);
->   }
-
-Ah, make sense. I think this can be added to the patch #1.
-
-Thanks!
+>> ---
+>>   arch/hexagon/include/asm/cmpxchg.h | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/arch/hexagon/include/asm/cmpxchg.h b/arch/hexagon/include/asm/cmpxchg.h
+>> index bf6cf5579cf4..9c58fb81f7fd 100644
+>> --- a/arch/hexagon/include/asm/cmpxchg.h
+>> +++ b/arch/hexagon/include/asm/cmpxchg.h
+>> @@ -56,7 +56,7 @@ __arch_xchg(unsigned long x, volatile void *ptr, int size)
+>>          __typeof__(ptr) __ptr = (ptr);                          \
+>>          __typeof__(*(ptr)) __old = (old);                       \
+>>          __typeof__(*(ptr)) __new = (new);                       \
+>> -       __typeof__(*(ptr)) __oldval = 0;                        \
+>> +       __typeof__(*(ptr)) __oldval = (__typeof__(*(ptr))) 0;   \
+>>                                                                  \
+>>          asm volatile(                                           \
+>>                  "1:     %0 = memw_locked(%1);\n"                \
+>> --
+>> 2.47.0.338.g60cca15819-goog
+>>
+>>
+> 
+> 
 
