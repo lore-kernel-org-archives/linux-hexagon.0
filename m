@@ -1,131 +1,86 @@
-Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21A535672;
-	Sun, 26 Jan 2025 22:59:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.60.130.6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 426152AD21;
+	Mon, 27 Jan 2025 16:02:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737932358; cv=none; b=qcCWY3gMQtEOG3WhjcYRh3S7LOoIsLrbYfT1WgBMKx1cnRJ4oHQ/QLl6mE2z1amWqmrCJL8amw76lU9TFouFcZ2PK8gtLo2bnliBYTDLlXqXS1ZGFqa+v2tGlUhLhEbUL9igdRKwDQp2sJEOktMaZdEwv1YNYRy1waZZA7V8U/M=
+	t=1737993773; cv=none; b=C2L4TApDzRPPIta5M3F4uVy9Ai5rCIVefUu7uhQxJNwqJt0pb5SQ3mGUAAwbJJYwiVOtMaCVxZUsXZZobHMHAQbU3EWW1ZG+0YXnc2f7X/kCWc3tKMJaMXqaZQKG9CJps6ssdPEFtcyNeu0iCoVipYhHBMf45RT4oeXY+6f7OOs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737932358; c=relaxed/simple;
-	bh=SWG77j8HWBRxd/IScgzSiQx7pcj3Ype7K3Jn/Lv8DAU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Wtqb1qaor0Vpv+HkaRFHCFkQLOD1WEsgDS65Yu6aipJWzh4YgI13vwYkcfHr4OPbSurW/f5ohYQlHC/PSVS/QvN81WnqGMzg4V6T1tUMhUlEy63/B21S7ZEH+pUCUtSOOs2KdQPCUFtNcMEwX8Pq2VkWIA0PPWFHtDMSxf5BRcg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=oNfp7CtG; arc=none smtp.client-ip=178.60.130.6
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	s=arc-20240116; t=1737993773; c=relaxed/simple;
+	bh=kcQe7aG2j2Myj05tFg2s8RbzUcJCMxaTNaK+Rxg8E4s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=n2ldUt5ivyupnRZYkw92QppkH6VYnKFHWOWZjwcw9Ol/vp/awhIQ5GupZdyBrfUUWLSqjiQxkUqi5bWmc45s2yhMF6HXaASagFHfIVE4p4xznCc1iFUk2UELSa0lQIt/Q2UCBHasTMiM1OnDJjKSFghldc5AAbxe5p3NMwxQRE0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=an/mRK4i; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="oNfp7CtG"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=R/+wUpWmjSp0M779ri14bonWhWmXh5PhcHk3XOpjzyA=; b=oNfp7CtGe9xGPIIV4Szf28WnKY
-	HnU3HVTKToB5IxUwfkjLc0hMeN88Cp+Kd/P8iBS38obNe80sCaT/8GpzqJ2FvkG1X+6BxHjpEs5BH
-	6mbhS5lfY4D6c42iS8hxsUlVsxjt5G1gji7+fOM4CD52nNkBIQHsJ5oUFSIayabJFw2YbGkIFKZOi
-	UQVHepDGcFANQpev7l9Hwz6g3YbNX/7MG9/aEuqJ3yegvkUdolrqeTNYPl17PE8LnSB9zh4uSzqFi
-	TmaIslM96lZaG6NQKeWRdLBkP3uXKhk9MdAUw8skOShqukfjzVROD1s9lTE+8iWWe8u/BX0OgkBFB
-	ZpGO3cjQ==;
-Received: from [187.36.213.55] (helo=[192.168.1.103])
-	by fanzine2.igalia.com with esmtpsa 
-	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
-	id 1tcBav-0032bW-EZ; Sun, 26 Jan 2025 23:59:09 +0100
-Message-ID: <b0504158-e9e2-4f00-8a9a-a653a6a0e313@igalia.com>
-Date: Sun, 26 Jan 2025 19:59:00 -0300
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="an/mRK4i"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=SXnX6yfCJ4lo25sKBuf0Jih5OsMg7kJt7yHBT/wi2JQ=; b=an/mRK4icZzCqPPHMN609Ff0wL
+	Qs2pgoOW69THhWB5T5gY6nH/4fK6Y72Gx049NYy4Jjyug2T3/ZqGxinuzmLsukap/98K7qe6Bqwy6
+	7MFOHakKvuHQ9yFf/ZaTeVhJH7QQNtJt3R+A5YsNVDHyFh2+dFXHFqOqCuLPafjvgw/Ko394Ybr25
+	5i168RQSG388+3kPTU4tUR6sth73mFYsatyAk065qko7xleaRiAMsQW6PIOD1KtmnXAMGvNjM/h8P
+	qmlTj2NGgL7VPHXjuGCxbahpRIiTN3LvPQJXH47YXPZraFzPsPy0cSXa1hMT4QUnZnKtVWB2tSt2P
+	1b8AU+gg==;
+Received: from 77-249-17-89.cable.dynamic.v4.ziggo.nl ([77.249.17.89] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1tcRZN-0000000Eiwv-24hm;
+	Mon, 27 Jan 2025 16:02:37 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 145F93004DE; Mon, 27 Jan 2025 17:02:37 +0100 (CET)
+Date: Mon, 27 Jan 2025 17:02:36 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: Qi Zheng <zhengqi.arch@bytedance.com>
+Cc: kevin.brodsky@arm.com, riel@surriel.com, vishal.moola@gmail.com,
+	david@redhat.com, jannh@google.com, hughd@google.com,
+	willy@infradead.org, yuzhao@google.com, muchun.song@linux.dev,
+	akpm@linux-foundation.org, will@kernel.org, aneesh.kumar@kernel.org,
+	npiggin@gmail.com, arnd@arndb.de, dave.hansen@linux.intel.com,
+	rppt@kernel.org, alexghiti@rivosinc.com, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-um@lists.infradead.org, x86@kernel.org,
+	linux-riscv@lists.infradead.org
+Subject: Re: [PATCH 4/5] x86: pgtable: unconditionally use tlb_remove_table()
+Message-ID: <20250127160236.GJ16742@noisy.programming.kicks-ass.net>
+References: <cover.1737637631.git.zhengqi.arch@bytedance.com>
+ <00bf7935d65826eee547ac195d7854b1c946dbc5.1737637631.git.zhengqi.arch@bytedance.com>
+ <20250124113854.GA15996@noisy.programming.kicks-ass.net>
+ <45651097-c056-49e3-9cc8-c289c1c0030d@bytedance.com>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] hexagon: fix using plain integer as NULL pointer warning
- in cmpxchg
-To: Christian Gmeiner <christian.gmeiner@gmail.com>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: linux-hexagon@vger.kernel.org, bcain@quicinc.com,
- linux-kernel@vger.kernel.org, dhowells@redhat.com, edumazet@google.com,
- Willem de Bruijn <willemb@google.com>, kernel test robot <lkp@intel.com>,
- mcanal@igalia.com
-References: <20241203221736.282020-1-willemdebruijn.kernel@gmail.com>
- <CAH9NwWdODq0GXWJb_4jQNhgWjjAYfZccGLLLe7a=LVC95ew2tQ@mail.gmail.com>
-Content-Language: en-US
-From: =?UTF-8?Q?Ma=C3=ADra_Canal?= <mcanal@igalia.com>
-In-Reply-To: <CAH9NwWdODq0GXWJb_4jQNhgWjjAYfZccGLLLe7a=LVC95ew2tQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45651097-c056-49e3-9cc8-c289c1c0030d@bytedance.com>
 
-Hi Brian,
-
-Do you have an estimate for when this patch will be picked? We are 
-getting build reports from Hexagon in the V3D GPU driver [1].
-
-[1] 
-https://lore.kernel.org/oe-kbuild-all/202501031246.AD8Jjze0-lkp@intel.com/
-
-Best Regards,
-- Maíra
-
-On 07/01/25 07:17, Christian Gmeiner wrote:
-> Hi Willem,
-> 
->>
->> From: Willem de Bruijn <willemb@google.com>
->>
->> Sparse reports
->>
->>      net/ipv4/inet_diag.c:1511:17: sparse: sparse: Using plain integer as NULL pointer
->>
->> Due to this code calling cmpxchg on a non-integer type
->> struct inet_diag_handler *
->>
->>      return !cmpxchg((const struct inet_diag_handler**)&inet_diag_table[type],
->>                      NULL, h) ? 0 : -EEXIST;
->>
->> While hexagon's cmpxchg assigns an integer value to a variable of this
->> type.
->>
->>      __typeof__(*(ptr)) __oldval = 0;
->>
->> Update this assignment to cast 0 to the correct type.
->>
->> The original issue is easily reproduced at head with the below block,
->> and is absent after this change.
->>
->>      make LLVM=1 ARCH=hexagon defconfig
->>      make C=1 LLVM=1 ARCH=hexagon net/ipv4/inet_diag.o
->>
->> Fixes: 99a70aa051d2 ("Hexagon: Add processor and system headers")
->> Reported-by: kernel test robot <lkp@intel.com>
->> Closes: https://lore.kernel.org/oe-kbuild-all/202411091538.PGSTqUBi-lkp@intel.com/
->> Signed-off-by: Willem de Bruijn <willemb@google.com>
-> 
-> Closes: https://lore.kernel.org/oe-kbuild-all/202501031246.AD8Jjze0-lkp@intel.com/
-> Tested-by: Christian Gmeiner <cgmeiner@igalia.com>
-> 
->> ---
->>   arch/hexagon/include/asm/cmpxchg.h | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/arch/hexagon/include/asm/cmpxchg.h b/arch/hexagon/include/asm/cmpxchg.h
->> index bf6cf5579cf4..9c58fb81f7fd 100644
->> --- a/arch/hexagon/include/asm/cmpxchg.h
->> +++ b/arch/hexagon/include/asm/cmpxchg.h
->> @@ -56,7 +56,7 @@ __arch_xchg(unsigned long x, volatile void *ptr, int size)
->>          __typeof__(ptr) __ptr = (ptr);                          \
->>          __typeof__(*(ptr)) __old = (old);                       \
->>          __typeof__(*(ptr)) __new = (new);                       \
->> -       __typeof__(*(ptr)) __oldval = 0;                        \
->> +       __typeof__(*(ptr)) __oldval = (__typeof__(*(ptr))) 0;   \
->>                                                                  \
->>          asm volatile(                                           \
->>                  "1:     %0 = memw_locked(%1);\n"                \
->> --
->> 2.47.0.338.g60cca15819-goog
->>
->>
+On Fri, Jan 24, 2025 at 09:00:58PM +0800, Qi Zheng wrote:
 > 
 > 
+> On 2025/1/24 19:38, Peter Zijlstra wrote:
+> > On Thu, Jan 23, 2025 at 09:26:17PM +0800, Qi Zheng wrote:
+> > > If the CONFIG_MMU_GATHER_TABLE_FREE is disabled, the tlb_remove_table()
+> > > will fall back to pagetable_dtor() + tlb_remove_page(). So let's use
+> > > tlb_remove_table() unconditionally to free page table pages.
+> > > 
+> > > Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+> > > Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > 
+> > I think we can clean up more :-)
+> 
+> Yes, but Rik van Riel has already done the same thing in his patch series
+> [1], so I was originally planning to wait for his patch to be
+> merged into the linux-next branch, and then rebase this series onto his
+> patch.
 
+Duh, yeah, I've actually seen those patches and totally forgot he did
+that... -ETOOMUCHEMAIL :/
