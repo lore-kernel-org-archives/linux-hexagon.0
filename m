@@ -1,91 +1,121 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D52A7193402
-	for <linux-hexagon@vger.kernel.org>; Sat, 15 Mar 2025 14:55:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF2DF18BC3D;
+	Mon, 17 Mar 2025 12:40:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742050545; cv=none; b=QW3yKNlTo1oON2Y0bS0VXQPe9S9xsBoFTvOJr/ZN6trvJg2hBHmGXq8uH/zWpEogCDrJ/NFIbHE5gYHbYNY756XcEuxv78fwAHvXZCLepSmsxel4bnZfq+uP2t2pTTv7WoyRq4xOt0Z2LTE7tVSjNKqgVxc9l2YVMkvDeVFTgHI=
+	t=1742215226; cv=none; b=J3E9sKDuBUf4wzyXx272Izo7ldHZ5D6rxLBG4sEc3xoZU+bEy1yUBBxDUWVQqoHbfHUKe3hauj9XCNEtvu0E5z4LNuTh+wTyXNStQvjWj97pPu7/mao0bt03pmwv/ET48+yF58GERfkbPDHtpg7UWNnn1maXp4gL4mVY0D96yX0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742050545; c=relaxed/simple;
-	bh=XA99tfLBp8bXT73QYWUaMhUBMUYYGtyNQMBwQmFvmFg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 Cc:Content-Type; b=aK6J8SL0vjQXG2E/2aLL0s6rWlMOxXFj5IeOu8aVYjYCUvqsFZyDOIqDGbAZpPXRkh6qvZFktxp5rih3fBGZgdJp8F6qejdu34XMI2eFAzzbUa/f2ZoSVohZotc2iiYTCept0Nfozuu1Q/ZV9oQmFSMLODX0KdR4e30VvK1cWNU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PmSjBQ9i; arc=none smtp.client-ip=209.85.216.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1742215226; c=relaxed/simple;
+	bh=Qm34pbxAa6RjHCc2A1aXJ4qBOugE70Km6ONzqhDGMKA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NbXfT+CrxcTqYHciP/HJrGLlKbDsA3OTDjozsfD7Ji2ELgjvAKzTnsJeMnz5Y4+bMi596LHbuef/j0E1RoTNTyEHDan+1tyTfxC8twSQ/IBmsD97aOu3y+BnGpXGuEtHplNIs0iXOaLzF4sbe2aS/eVzPrppEFWVoCpwPOLWSs8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E7Ar7yyZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PmSjBQ9i"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-30155bbbeaeso769092a91.2
-        for <linux-hexagon@vger.kernel.org>; Sat, 15 Mar 2025 07:55:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742050543; x=1742655343; darn=vger.kernel.org;
-        h=cc:subject:message-id:date:from:in-reply-to:references:mime-version
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=XA99tfLBp8bXT73QYWUaMhUBMUYYGtyNQMBwQmFvmFg=;
-        b=PmSjBQ9iXnLJUW2idUj4k2rryQQVbg/u4JfQq9Z7sOLQAWkwBeOXLDdObkRKX/YwA5
-         VZKXGNshnwN3FzHVih5sE5LsjfahwEYo8mTxY+LFfphTknebNzB/lfuO8AgeHLHwztzw
-         hsQclR4CmM2Swg9TQqh+7yBxVTAaMFPsWwwstd/omtTWD9gRwkFkiw3zLoYoHumY5V1+
-         OGK3MYKiA74blXWHYoH8LmYf767Z13BBpm0aBv2/F0xio5h/xsfr2n+3+iVpbq4gm1iX
-         bEVfjWwVFbRAM9csDsJGmDcIdCcvalQvxWekpf6eq4XRcvLFvrtmew58O7LnVVFdwxXC
-         yFzw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742050543; x=1742655343;
-        h=cc:subject:message-id:date:from:in-reply-to:references:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=XA99tfLBp8bXT73QYWUaMhUBMUYYGtyNQMBwQmFvmFg=;
-        b=ct9dR4T036X/COz/btaIKxII8RoARESsXWOdT20R3+tp55fckP2bAPxBP80qzkk7Hw
-         ktqdJZqDPahPa+lJZTlxV2orS+UW4h4BZ646yMdAAwSauNc3dRkph8xvROomXrOtW0uh
-         bfpCeiDgeI6c02JCFsXmA4XF0BHNsDjhvNSu2kv852gb+k16Ehd1r5ArbHFJvOPPCrA8
-         ckqfGlGA+VLZ5kUaaKhfvumHZoxtTO/SA1whcO9l8EIuAi3l8zFwbp3qtqU0PnNl6DRL
-         PLvaIXRJI/exijiDzaiqbKNtFNep1w6ow2mUHwRJ0Ie8M30QrpfdCNBNZC2Fl4t1J7JM
-         Q19Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUGnyP1+FMt0QAlWUlFLUAG/+e+bEEqMhmALRP+I3jtdBXfJlzEk48CPttDPHwEN4m24mdgDlX3aJgCYN2p@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxa9iPdbLxIHxh6GN7eoG/NHy0JjzI/5aH0+98Hb3t+195A6RKw
-	r0vTdrVoewgchC5Uz5Z1OSlWvpxetJIM4itoKxddoyf7hfo8Ri3cLeWIZf02jfrFx2EKH2q0iiz
-	zLK9D7SbxcSYDBkNqsrQQrTJ2Rtc=
-X-Gm-Gg: ASbGnct1OfrlYjX609KuwXZ0egwxScCRk4zim6Yd1QxDg/2zgajUdsMzC3lNWBMP5tk
-	AZCRz1SauOHEKb71oHAxbLdeHds4xLxhFFfRchdk2oQdwUhbK8vA2hNEsqhQoiBGsDr3VS3uqcn
-	+/b5DB/R8QF+FogZN+ImdmqmE=
-X-Received: by 2002:a17:90b:2e44:b0:2f9:d9fe:e72e with SMTP id
- 98e67ed59e1d1-30151cc2490mt7920210a91.16.1742050543260; Sat, 15 Mar 2025
- 07:55:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E7Ar7yyZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A338C4CEE9;
+	Mon, 17 Mar 2025 12:40:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1742215225;
+	bh=Qm34pbxAa6RjHCc2A1aXJ4qBOugE70Km6ONzqhDGMKA=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=E7Ar7yyZci/sFoCidNgE8WXrHkJCdBUtC5+SBI7ElJU6LgZqLiSvRPlv1xqMCdR+2
+	 JdSknt+r47jh4J64JDHOV3bC2f8CCEHU9CwoE9ISsT1r2OFEQaCkooFpGyY2cq0AUS
+	 8BJqKWvVNVKmYaiENoybfTCks4OV2Hujobg04vepdZYEAJYEHgTYSVQtuBbCiU49Wg
+	 w4Y7etNdGOWGUdqy5s7jSxyR/7rnszsVQfJoCdbVmwcu/WQyL4uucGKWINrXNoVXHO
+	 5i4vQUYMXA8gu7KzsUBsrs+oDW3h+voixjT+nCGjato5WHQworTVVXnwjAQoo5sK7c
+	 ZdFal0K6UlYKw==
+Message-ID: <e3dfe753-fb5f-4f2f-9d24-da8a4f01be19@kernel.org>
+Date: Mon, 17 Mar 2025 07:40:20 -0500
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250306185124.3147510-1-rppt@kernel.org> <20250306185124.3147510-11-rppt@kernel.org>
- <cee346ec-5fa5-4d0b-987b-413ee585dbaa@sirena.org.uk> <Z9CyRHewqfZlmgIo@shell.armlinux.org.uk>
- <Z9ErEBuMMvd6i2n9@kernel.org>
-In-Reply-To: <Z9ErEBuMMvd6i2n9@kernel.org>
-From: DiTBho Down in The Bunny hole <downinthebunnyhole@gmail.com>
-Date: Sat, 15 Mar 2025 15:55:33 +0100
-X-Gm-Features: AQ5f1Jrmv7KQRCuWBIo_vXTI9aIDRsZr_EQ5uQHAURWeudjXpiSlHPWiANvw4jg
-Message-ID: <CAAZ8i80e6CsD1Y36-sVrVs4QPB-82J1gPOeDvHa_+sQtfUpMtQ@mail.gmail.com>
-Subject: Soekris crypto 1411, where to find ?
-Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
-	linux-parisc <linux-parisc@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
-	x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 06/13] nios2: move pr_debug() about memory start and
+ end to setup_arch()
+To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+ Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>,
+ Ard Biesheuvel <ardb@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+ Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Geert Uytterhoeven <geert@linux-m68k.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Guo Ren
+ <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>, Mark Brown <broonie@kernel.org>,
+ Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Peter Zijlstra <peterz@infradead.org>,
+ Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>,
+ Stafford Horne <shorne@gmail.com>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>,
+ Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
+ linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-um@lists.infradead.org, linux-arch@vger.kernel.org,
+ linux-mm@kvack.org, x86@kernel.org
+References: <20250313135003.836600-1-rppt@kernel.org>
+ <20250313135003.836600-7-rppt@kernel.org>
+Content-Language: en-US
+From: Dinh Nguyen <dinguyen@kernel.org>
+In-Reply-To: <20250313135003.836600-7-rppt@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-hi
-this is probably not the right place to ask, but I've been searching
-eBay and similar places for 2 years and haven't found one yet.
-I support older MIPS hardware and need to find a Soekris crypto 1411
-miniPCI module or two, to add VPN acceleration.
+On 3/13/25 08:49, Mike Rapoport wrote:
+> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> 
+> This will help with pulling out memblock_free_all() to the generic
+> code and reducing code duplication in arch::mem_init().
+> 
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> ---
+>   arch/nios2/kernel/setup.c | 2 ++
+>   arch/nios2/mm/init.c      | 2 --
+>   2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/nios2/kernel/setup.c b/arch/nios2/kernel/setup.c
+> index da122a5fa43b..a4cffbfc1399 100644
+> --- a/arch/nios2/kernel/setup.c
+> +++ b/arch/nios2/kernel/setup.c
+> @@ -149,6 +149,8 @@ void __init setup_arch(char **cmdline_p)
+>   	memory_start = memblock_start_of_DRAM();
+>   	memory_end = memblock_end_of_DRAM();
+>   
+> +	pr_debug("%s: start=%lx, end=%lx\n", __func__, memory_start, memory_end);
+> +
+>   	setup_initial_init_mm(_stext, _etext, _edata, _end);
+>   	init_task.thread.kregs = &fake_regs;
+>   
+> diff --git a/arch/nios2/mm/init.c b/arch/nios2/mm/init.c
+> index a2278485de19..aa692ad30044 100644
+> --- a/arch/nios2/mm/init.c
+> +++ b/arch/nios2/mm/init.c
+> @@ -65,8 +65,6 @@ void __init mem_init(void)
+>   	unsigned long end_mem   = memory_end; /* this must not include
+>   						kernel stack at top */
+>   
+> -	pr_debug("mem_init: start=%lx, end=%lx\n", memory_start, memory_end);
+> -
+>   	end_mem &= PAGE_MASK;
+>   	high_memory = __va(end_mem);
+>   
 
-Anyone have an idea where to buy it?
-
-Soekris company went out of business years ago.
-
-Let me know.
-D.
+Acked-By: Dinh Nguyen <dinguyen@kernel.org>
