@@ -1,430 +1,267 @@
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-fw-80009.amazon.com (smtp-fw-80009.amazon.com [99.78.197.220])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD5BA42AA9;
-	Tue,  6 May 2025 19:49:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A161526AF3;
+	Fri, 16 May 2025 15:28:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=99.78.197.220
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746560957; cv=none; b=YhgsTNLQcEB6Z6omsFFCVNF5mBEhBKPR6TMEjKjuaFFTbHtH1Tq+8LaRkKMUqnZPhTiN8ztXu4Ipxy5TtrkyVpEmrT3/63b5TxQxymj4MhDitiIzoapTa6pY0gqOYROQYp/mg6t1QNYQTJFFjZoHWej5vrv76Gu3XacFpuajq7I=
+	t=1747409309; cv=none; b=u4uxtwKI6oITiwih+wVp1a9yyuNcbV2zgExs6wWo6RiGouBlGqGocGOrlmuFx8Qxmu07BWXa1WCma20NbdDrfJCa9PHik9eQf+v7HG6mltIzwMS64fqc4wjdJUAxfefGtKZm/HdWg0HD1nEDpPn7diKYG+vY0gQim5n1cUjBgeg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746560957; c=relaxed/simple;
-	bh=N1ft1MCs11AqOF3ScLkba3Ks9VBNPAuD5bz4Yit63z0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kM/Yr8s9BzsdUBfqdfx7B0uZilcL/xDHiM2X5riiaNKZRh3MAs2SrTQKjJ9mztilq8/BWxZm0Pjn8eKq9zimfdExojsDflUw+HIwS85rL4NOeVWFfNEqeN3nWNNhB8IoRkIuDzHDDseaDcYMYSnRlRB+93TlbGDXPtnSlhvLzFE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DzXuxoQN; arc=none smtp.client-ip=209.85.210.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1747409309; c=relaxed/simple;
+	bh=KS18mCmBwG/oVexqoftqFNnI2Pv+d2v1jXLpreeKDCY=;
+	h=From:To:CC:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=ih/86XbS3vXjD6IVim48diR750ka/SbiPF/gIIcF/kZpkUob0vAXiQG4oLfJEI2PbhC/8Olz3ALt8fR6/aPgWuH+us4+uv7dEF6RvtD6Q/Pjy9N94ae+L5cZ/8woH2Ob2B7YKocCpy2K+GsU9rtBy/7hQGWvb19i6ycriiLalko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.de; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.de header.i=@amazon.de header.b=FeIM8Z8K; arc=none smtp.client-ip=99.78.197.220
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DzXuxoQN"
-Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-7390d21bb1cso6484412b3a.2;
-        Tue, 06 May 2025 12:49:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=amazon.de header.i=@amazon.de header.b="FeIM8Z8K"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1746560955; x=1747165755; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=dZ5089g5fcxDtK8RW4HG6ld5BJ4Ih76RBmbnYmG1YBs=;
-        b=DzXuxoQNtZHRRY+suKdAptrBjnxHUDc9X1FjX/689c8Le00dk6XzRWV2Vk8hW2dOOR
-         1rvGBVwoNOSWyJgRluFWIXndbt5tAQK9AxZ4VhJUOHMANd0+FmsKIXRZEijGFzpATCA/
-         MNGnxTv5RcuFvOzuplf1oYPiTa/GK09gZr0FCAZxelsJAcCvbqXoXNWetDJ1kU7SSGm1
-         K5Yj1asFkzUovcEgBeMg+WSgaZh4iXrIGlCWN3pRvg6CdZAG7Mg3XH8/A1ljz04NbjLz
-         kXCrqjwNYJ/d7dM3rz/dnrivnYketAuWfJ09LdUEOBxa8fpJk5ombvGbVqWZKszZQwCP
-         fI6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746560955; x=1747165755;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=dZ5089g5fcxDtK8RW4HG6ld5BJ4Ih76RBmbnYmG1YBs=;
-        b=h6H6+3J20nY69NMVKLT6QXQOiPeBn/4TZUgftXyjQ8zGGXA9zH29zyVIU87ZAn74nP
-         tpE1/m0/a7CIki+e2jdWErlUWmufrgPOx1g6X2Oil0zl0TnO3i9JAW+eN1TqS1Kuacl1
-         rU23cJlhJX4OjLH52YPfrXBCIeW2YqWTLwAvolV3RvjEONALNnkVXIhQQGaiBbXpBuFZ
-         0LUPf7UlfaDmFIUvRHxf5EtpdOKLIMyIvA+gKjVMbU9g7YRwZ9fGROv8HorIrJ1DUAfN
-         XQsJhuhhbHpLdThd4yJd3tHzT3/NRyHYeIwM5oWGP+nWPOfLzlXdFVxxG2Bm2w/M43dr
-         xjTQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUSSFo3rUtPzDmpp+ZfBFSZJHkQyWVLy2Hw0JmpPtnhj2vgWqpmjejX9FkNccjLxcSCrhImDaBEeC+wH0AY5g==@vger.kernel.org, AJvYcCVafwDrYuwKtKmRUOE70ysFVEAqSxhG+DE9vwjU0fWHngaa5fteGpG1CfWZlt7um6eVgGrQ2m3HDWzpJ7gT8Xg=@vger.kernel.org, AJvYcCWHEAIS8Bhhq30rz3CnI61dZe0OXcsTyPmCqbsK7lAER7vutc8WfuRxpst4/cA6jiFc/JioABIst3FU@vger.kernel.org, AJvYcCWKTkJkGvKy40QhN2MxfUt6IWrKJxERwZVF5yqHAp4OJS352b34tcPAnaWNYNRbxmebcxE2KGiYKWMz@vger.kernel.org, AJvYcCWS3lCx0BceEG8wpGwPiNJThxhyDz4OKCdv2dgDNyov2DUJwitLBiN+vaT9v6V56KjBYxLLmNg7aZXC@vger.kernel.org, AJvYcCWfqnjmWGWATE6i4ru90Jt3CQdGavkJAqcX8NVR8sHtpovNU/i614y6a/O0rySd0JvBUnvv0tYdK5visA1K@vger.kernel.org
-X-Gm-Message-State: AOJu0YwYtsa66y/f02EUo0qQuO0Rdin9kZP2ccHiBV2HrRH59clLv3kq
-	I8KHdjqpWr5Q1I3eAqOFYRwwzbRhqQF9Y2XrmW2cI3MD7suzi6WM
-X-Gm-Gg: ASbGnctnRT7LKYhCLKXyrXM50+vLI+Cgpxa0+pSzibgBzLaQo/+OZd44KWBNGI/ib1y
-	yjthTG/2p1HNVkR1EseXpmUwk6fsuLO+Lr7zOSbRLZ/Y9Sg92t3oA7d/O5GtVhmLk6jf9DyQwHH
-	JnTXKRz8PxxZ15z8Fw9u+2vYc8tZijjuNVYCz39rWLdn7+RhMJIqa6nTx1/3tjj86+xHswb22RB
-	kCBrBZm9AcKK7+bNy2LzlsCI6PhDjrxUtzzw2bcPl90IChqIeEKR2Tcw+cHOhxukpmyaeIjGad0
-	YL7T2IaIAz8lzb/CcIeDmHgrouSS2qzJ2folbCqcc0ap1oQEy34Y
-X-Google-Smtp-Source: AGHT+IF5NliMgAkD005uOw+1owSmpP0uGKxfxNXpPz2R7hfi06C85Yyah/G4yQkzTWZpYJUeU1a68w==
-X-Received: by 2002:a05:6a20:6f87:b0:203:c461:dd36 with SMTP id adf61e73a8af0-2148b113868mr730085637.6.1746560954804;
-        Tue, 06 May 2025 12:49:14 -0700 (PDT)
-Received: from localhost.localdomain ([104.28.249.218])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74058d7a473sm9686059b3a.18.2025.05.06.12.49.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 May 2025 12:49:14 -0700 (PDT)
-From: Jesung Yang <y.j3ms.n@gmail.com>
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: Vineet Gupta <vgupta@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Guo Ren <guoren@kernel.org>,
-	Brian Cain <bcain@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexandre Ghiti <alex@ghiti.fr>,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-openrisc@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	workflows@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Jesung Yang <y.j3ms.n@gmail.com>
-Subject: [PATCH] docs: align with scripts/syscall.tbl migration
-Date: Wed,  7 May 2025 04:48:41 +0900
-Message-ID: <20250506194841.1567737-1-y.j3ms.n@gmail.com>
-X-Mailer: git-send-email 2.43.0
+  d=amazon.de; i=@amazon.de; q=dns/txt; s=amazoncorp2;
+  t=1747409306; x=1778945306;
+  h=from:to:cc:subject:in-reply-to:references:date:
+   message-id:mime-version;
+  bh=/YGeJfXKIquYSt90tYMJ+el7wnECiC9xpMwa6JMR6os=;
+  b=FeIM8Z8KuDAPcndq66uQEdPjn33Y0ubbuJDxci9SWbN/isGE9HAWsRPl
+   YrgLTNX69DPbSddR+GOFTQT+H3sjcjy+1C3chTy+rFEHZsQltlbepszi9
+   hSvuzQVkT3Es9RKKeoKLDy39yU5Chrqll5eflmae1RQRHQu5yZ5uy9juK
+   c1VarOclAca951HhniU0ltYeL1SV9U5aedUJ9Phihk5uFU/FD3rmlu0Hf
+   8fkxRXUGREVku0pmmr32GDaxxWAgs9zSm6ZcH/DuAi6l7xkvgTxgMpqgY
+   VVy099TelrAdRRCY5BfSoBYumBYDhUtqcdCfCGMdalVk4Fk/vrCuNR3UO
+   g==;
+X-IronPort-AV: E=Sophos;i="6.15,294,1739836800"; 
+   d="scan'208";a="201345194"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.210])
+  by smtp-border-fw-80009.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 May 2025 15:28:22 +0000
+Received: from EX19MTAUWB001.ant.amazon.com [10.0.38.20:47743]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.49.20:2525] with esmtp (Farcaster)
+ id 1137334b-40d1-491e-811e-d1ae65cd81a3; Fri, 16 May 2025 15:28:22 +0000 (UTC)
+X-Farcaster-Flow-ID: 1137334b-40d1-491e-811e-d1ae65cd81a3
+Received: from EX19EXOUWA001.ant.amazon.com (10.250.64.209) by
+ EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
+ Fri, 16 May 2025 15:28:20 +0000
+Received: from EX19MTAUWC001.ant.amazon.com (10.250.64.145) by
+ EX19EXOUWA001.ant.amazon.com (10.250.64.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
+ Fri, 16 May 2025 15:28:18 +0000
+Received: from email-imr-corp-prod-pdx-all-2b-5ec155c2.us-west-2.amazon.com
+ (10.25.36.210) by mail-relay.amazon.com (10.250.64.145) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id
+ 15.2.1544.14 via Frontend Transport; Fri, 16 May 2025 15:28:18 +0000
+Received: from dev-dsk-ptyadav-1c-43206220.eu-west-1.amazon.com (dev-dsk-ptyadav-1c-43206220.eu-west-1.amazon.com [172.19.91.144])
+	by email-imr-corp-prod-pdx-all-2b-5ec155c2.us-west-2.amazon.com (Postfix) with ESMTP id 00E5840281;
+	Fri, 16 May 2025 15:28:18 +0000 (UTC)
+Received: by dev-dsk-ptyadav-1c-43206220.eu-west-1.amazon.com (Postfix, from userid 23027615)
+	id 89B166204; Fri, 16 May 2025 17:28:17 +0200 (CEST)
+From: Pratyush Yadav <ptyadav@amazon.de>
+To: Mike Rapoport <rppt@kernel.org>
+CC: Andrew Morton <akpm@linux-foundation.org>, Alexander Gordeev
+	<agordeev@linux.ibm.com>, Andreas Larsson <andreas@gaisler.com>, "Andy
+ Lutomirski" <luto@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, "Arnd
+ Bergmann" <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Brian Cain
+	<bcain@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen
+	<dave.hansen@linux.intel.com>, "David S. Miller" <davem@davemloft.net>, "Dinh
+ Nguyen" <dinguyen@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Guo Ren <guoren@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, "Huacai
+ Chen" <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>, Jiaxun Yang
+	<jiaxun.yang@flygoat.com>, Johannes Berg <johannes@sipsolutions.net>, "John
+ Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>, Madhavan Srinivasan
+	<maddy@linux.ibm.com>, Mark Brown <broonie@kernel.org>, Matt Turner
+	<mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman
+	<mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Palmer Dabbelt
+	<palmer@dabbelt.com>, Peter Zijlstra <peterz@infradead.org>, "Richard
+ Weinberger" <richard@nod.at>, Russell King <linux@armlinux.org.uk>, "Stafford
+ Horne" <shorne@gmail.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>,
+	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>, "Praveen
+ Kumar" <pravkmr@amazon.de>, <linux-alpha@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-snps-arc@lists.infradead.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-csky@vger.kernel.org>,
+	<linux-hexagon@vger.kernel.org>, <loongarch@lists.linux.dev>,
+	<linux-m68k@lists.linux-m68k.org>, <linux-mips@vger.kernel.org>,
+	<linux-openrisc@vger.kernel.org>, <linux-parisc@vger.kernel.org>,
+	<linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
+	<linux-s390@vger.kernel.org>, <linux-sh@vger.kernel.org>,
+	<sparclinux@vger.kernel.org>, <linux-um@lists.infradead.org>,
+	<linux-arch@vger.kernel.org>, <linux-mm@kvack.org>, <x86@kernel.org>
+Subject: Re: [PATCH v2 10/13] arch, mm: set high_memory in free_area_init()
+In-Reply-To: <20250313135003.836600-11-rppt@kernel.org>
+References: <20250313135003.836600-1-rppt@kernel.org>
+	<20250313135003.836600-11-rppt@kernel.org>
+Date: Fri, 16 May 2025 17:28:17 +0200
+Message-ID: <mafs05xi0o9ri.fsf@amazon.de>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 
-Update the documentation to reflect the migration of the following
-architectures to the centralized syscall table format:
+Hi Mike, Andrew,
 
-  arc, arm64, csky, hexagon, loongarch, nios2, openrisc, riscv
+On Thu, Mar 13 2025, Mike Rapoport wrote:
 
-As of commit 3db80c999debbad ("riscv: convert to generic syscall table"),
-these architectures no longer rely on include/uapi/asm-generic/unistd.h.
-Instead, syscall table headers (syscall_table_{32,64}.h) are generated by
-scripts/syscalltbl.sh based on entries in scripts/syscall.tbl, with ABIs
-specified in arch/*/kernel/Makefile.syscalls.
+> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+>
+> high_memory defines upper bound on the directly mapped memory.
+> This bound is defined by the beginning of ZONE_HIGHMEM when a system has
+> high memory and by the end of memory otherwise.
+>
+> All this is known to generic memory management initialization code that
+> can set high_memory while initializing core mm structures.
+>
+> Add a generic calculation of high_memory to free_area_init() and remove
+> per-architecture calculation except for the architectures that set and
+> use high_memory earlier than that.
+>
+> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>	# x86
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> ---
+>  arch/alpha/mm/init.c         |  1 -
+>  arch/arc/mm/init.c           |  2 --
+>  arch/arm64/mm/init.c         |  2 --
+>  arch/csky/mm/init.c          |  1 -
+>  arch/hexagon/mm/init.c       |  6 ------
+>  arch/loongarch/kernel/numa.c |  1 -
+>  arch/loongarch/mm/init.c     |  2 --
+>  arch/microblaze/mm/init.c    |  2 --
+>  arch/mips/mm/init.c          |  2 --
+>  arch/nios2/mm/init.c         |  6 ------
+>  arch/openrisc/mm/init.c      |  2 --
+>  arch/parisc/mm/init.c        |  1 -
+>  arch/riscv/mm/init.c         |  1 -
+>  arch/s390/mm/init.c          |  2 --
+>  arch/sh/mm/init.c            |  7 -------
+>  arch/sparc/mm/init_32.c      |  1 -
+>  arch/sparc/mm/init_64.c      |  2 --
+>  arch/um/kernel/um_arch.c     |  1 -
+>  arch/x86/kernel/setup.c      |  2 --
+>  arch/x86/mm/init_32.c        |  3 ---
+>  arch/x86/mm/numa_32.c        |  3 ---
+>  arch/xtensa/mm/init.c        |  2 --
+>  mm/memory.c                  |  8 --------
+>  mm/mm_init.c                 | 30 ++++++++++++++++++++++++++++++
+>  mm/nommu.c                   |  2 --
+>  25 files changed, 30 insertions(+), 62 deletions(-)
 
-For the convenience of developers working with older kernel versions, the
-original documentation is fully retained, with new sections added to
-cover the scripts/syscall.tbl approach.
+This patch causes a BUG() when built with CONFIG_DEBUG_VIRTUAL and
+passing in the cma= commandline parameter:
 
-Verified with `make htmldocs`.
+    ------------[ cut here ]------------
+    kernel BUG at arch/x86/mm/physaddr.c:23!
+    ception 0x06 IP 10:ffffffff812ebbf8 error 0 cr2 0xffff88903ffff000
+    CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.15.0-rc6+ #231 PREEMPT(undef)
+    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Arch Linux 1.16.3-1-1 04/01/2014
+    RIP: 0010:__phys_addr+0x58/0x60
+    Code: 01 48 89 c2 48 d3 ea 48 85 d2 75 05 e9 91 52 cf 00 0f 0b 48 3d ff ff ff 1f 77 0f 48 8b 05 20 54 55 01 48 01 d0 e9 78 52 cf 00 <0f> 0b 90 0f 1f 44 00 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90
+    RSP: 0000:ffffffff82803dd8 EFLAGS: 00010006 ORIG_RAX: 0000000000000000
+    RAX: 000000007fffffff RBX: 00000000ffffffff RCX: 0000000000000000
+    RDX: 000000007fffffff RSI: 0000000280000000 RDI: ffffffffffffffff
+    RBP: ffffffff82803e68 R08: 0000000000000000 R09: 0000000000000000
+    R10: ffffffff83153180 R11: ffffffff82803e48 R12: ffffffff83c9aed0
+    R13: 0000000000000000 R14: 0000001040000000 R15: 0000000000000000
+    FS:  0000000000000000(0000) GS:0000000000000000(0000) knlGS:0000000000000000
+    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    CR2: ffff88903ffff000 CR3: 0000000002838000 CR4: 00000000000000b0
+    Call Trace:
+     <TASK>
+     ? __cma_declare_contiguous_nid+0x6e/0x340
+     ? cma_declare_contiguous_nid+0x33/0x70
+     ? dma_contiguous_reserve_area+0x2f/0x70
+     ? setup_arch+0x6f1/0x870
+     ? start_kernel+0x52/0x4b0
+     ? x86_64_start_reservations+0x29/0x30
+     ? x86_64_start_kernel+0x7c/0x80
+     ? common_startup_64+0x13e/0x141
 
-Signed-off-by: Jesung Yang <y.j3ms.n@gmail.com>
-Link: https://lore.kernel.org/lkml/20240704143611.2979589-1-arnd@kernel.org
----
+The reason is that __cma_declare_contiguous_nid() does:
 
-I have tested all the listed architectures except hexagon and nios2.
+    	highmem_start = __pa(high_memory - 1) + 1;
 
-Hexagon was skipped because no system-level emulator appears to be
-available.
+If dma_contiguous_reserve_area() (or any other CMA declaration) is
+called before free_area_init(), high_memory is uninitialized. Without
+CONFIG_DEBUG_VIRTUAL, it will likely work but use the wrong value for
+highmem_start.
 
-For nios2, QEMU removed support for both user and system emulation as of
-version 9.1. With older versions (9.0.4 and 5.2.0), the kernel appears to
-boot but gets stuck alternating between `get_cycles` and `__const_udelay`
-during execution. Additionally, I could not find sufficient documentation
-to enable runtime testing for nios2.
+Among the architectures this patch touches, the below call
+dma_contiguous_reserve_area() _before_ free_area_init():
 
-Any guidance on how to proceed with testing for hexagon or nios2 would be
-appreciated.
+- x86
+- s390
+- mips
+- riscv
+- xtensa
+- loongarch
+- csky
 
-Testing Summary:
+The below call it _after_ free_area_init():
+- arm64
 
-- Linux kernel: 6.15.0-rc4-next-20250501
-- System call number: 468
-- System call name: xyzzy
-- System call implementation:
-    SYSCALL_DEFINE1(xyzzy, u64, d)
-    {
-    	printk("Hi, SYSCALL_DEFINE1\n");
-    	return d;
-    }
+And the below don't call it at all:
+- sparc
+- nios2
+- openrisc
+- hexagon
+- sh
+- um
+- alpha
 
-    COMPAT_SYSCALL_DEFINE2(xyzzy, compat_arg_u64_dual(d))
-    {
-    	printk("Hi, COMPAT_SYSCALL_DEFINE2\n");
-    	return compat_arg_u64_glue(d);
-    }
-- Test userspace program:
-    #include <unistd.h>
-    int main(void) {
-        long r = syscall(468, 17, 39);
-        return 0;
-    }
+One possible fix would be to move the calls to
+dma_contiguous_reserve_area() after free_area_init(). On x86, it would
+look like the diff below. The obvious downside is that moving the call
+later increases the chances of allocation failure. I'm not sure how much
+that actually matters, but at least on x86, that means crash kernel and
+hugetlb reservations go before DMA reservation. Also, adding a patch
+like that at rc7 is a bit risky.
 
-Each architecture was tested using the following steps:
-  - Add the following entry to scripts/syscall.tbl:
-      468	common	xyzzy			sys_xyzzy		compat_sys_xyzzy
-  - Compile the kernel with the new syscall implementation
-  - Verify that arch/*/include/generated/uapi/asm/unistd_*.h contains:
-      #define __NR_xyzzy 468
-  - Verify that arch/*/include/generated/asm/syscall_table_*.h contains:
-      __SYSCALL_WITH_COMPAT(468, sys_xyzzy, compat_sys_xyzzy)
-  - Boot the kernel under QEMU
-  - Invoke sys_xyzzy() using the test program
+The other option would be to revert this. I tried a revert, but it isn't
+trivial. It runs into merge conflicts in pretty much all of the arch
+files. Maybe reverting patches 11, 12, and 13 as well would make it
+easier but I didn't try that.
 
-Detailed Results:
+Which option should we take? If we want to move
+dma_contiguous_reserve_area() a bit further down the line then I can
+send a patch doing that on the rest of the architectures. Otherwise I
+can try my hand at the revert.
 
-1. arc
-  - Kernel config: haps_hs_defconfig
-  - QEMU target: qemu-system-arc -M virt -cpu archs
-    - Src: https://github.com/foss-for-synopsys-dwc-arc-processors/qemu
-    - Commit hash: 76e0fa9053b4184a29c9077959d484047eefe521
-    - Version: 7.0.0
-  - Result:
-    - The following files were correctly generated
-      - arch/arc/include/generated/asm/syscall_table_32.h
-      - arch/arc/include/generated/uapi/asm/unistd_32.h
-    - The system call was successfully invoked with output:
-        "Hi, SYSCALL_DEFINE1\n"
-    - The above output is expected due to a macro override in
-      arch/arc/kernel/sys.c:
-        #define __SYSCALL_WITH_COMPAT(nr, native, compat) \
-                __SYSCALL(nr, native)
-  - Notes:
-    - Modified arch/arc/Makefile:
-        - tune-mcpu-def-$(CONFIG_ISA_ARCV2)	:= -mcpu=hs38
-        + tune-mcpu-def-$(CONFIG_ISA_ARCV2)	:= -mcpu=archs
-
-2. arm64
-  - Kernel config: defconfig
-  - QEMU target: qemu-system-aarch64 -M virt -cpu cortex-a53
-    - Src: https://github.com/qemu/qemu
-    - Commit hash: a17976b04f2117e1bab64358f873b36fe4561520
-    - Version: 9.0.4
-  - Result:
-    - The following files were correctly generated
-      - arch/arm64/include/generated/asm/syscall_table_32.h
-      - arch/arm64/include/generated/asm/syscall_table_64.h
-      - arch/arm64/include/generated/asm/unistd_32.h
-      - arch/arm64/include/generated/asm/unistd_compat_32.h
-        - contains #define __NR_compat32_xyzzy 468
-      - arch/arm64/include/generated/uapi/asm/unistd_64.h
-    - 32-bit userspace process successfully invoked the system call with
-      output:
-        "Hi, COMPAT_SYSCALL_DEFINE2\n"
-    - 64-bit userspace process successfully invoked the system call with
-      output:
-        "Hi, SYSCALL_DEFINE1\n"
-
-3. csky
-  - Kernel config: defconfig
-  - QEMU target: qemu-system-cskyv2 -M virt -cpu ck807
-    - Src: https://github.com/XUANTIE-RV/qemu/tree/xuantie-qemu-9.0
-    - Commit hash: e0ace167effcd36d1f82c7ccb4522b3126011479
-    - Version: 8.2.94
-  - Result:
-    - The following files were correctly generated
-      - arch/csky/include/generated/asm/syscall_table_32.h
-      - arch/csky/include/generated/uapi/asm/unistd_32.h
-    - The system call was successfully invoked with output:
-        "Hi, SYSCALL_DEFINE1\n"
-    - The above output is expected due to a macro override in
-      arch/csky/kernel/syscall_table.c:
-        #define __SYSCALL_WITH_COMPAT(nr, native, compat) \
-                __SYSCALL(nr, native)
-
-4. hexagon
-  - Kernel config: defconfig
-  - QEMU target: N/A
-  - Result:
-    - The following files were correctly generated
-      - arch/hexagon/include/generated/asm/syscall_table_32.h
-      - arch/hexagon/include/generated/uapi/asm/unistd_32.h
-
-5. loongarch
-  - Kernel config: loongson3_defconfig
-  - QEMU target: qemu-system-loongarch64 -machine virt -cpu la464
-    - Src: https://github.com/qemu/qemu
-    - Commit hash: a17976b04f2117e1bab64358f873b36fe4561520
-    - Version: 9.0.4
-  - Result:
-    - The following files were correctly generated
-      - arch/loongarch/include/generated/asm/syscall_table_64.h
-      - arch/loongarch/include/generated/uapi/asm/unistd_64.h
-    - The system call was successfully invoked with output:
-        "Hi, SYSCALL_DEFINE1\n"
-    - The above output is expected due to a macro override in
-      arch/loongarch/kernel/syscall.c:
-        #define __SYSCALL_WITH_COMPAT(nr, native, compat) \
-                __SYSCALL(nr, native)
-
-6. nios2
-  - Kernel config: 10m50_defconfig
-  - QEMU target: qemu-system-nios2 -machine 10m50-ghrd
-    - Src: https://github.com/qemu/qemu
-    - Commit hash (9.0.4): a17976b04f2117e1bab64358f873b36fe4561520
-    - Commit hash (5.2.0): 553032db17440f8de011390e5a1cfddd13751b0b
-    - Version: 9.0.4, 5.2.0
-  - Result:
-    - The following files were correctly generated
-      - arch/nios2/include/generated/asm/syscall_table_32.h
-      - arch/nios2/include/generated/uapi/asm/unistd_32.h
-
-7. openrisc
-  - Kernel config: virt_defconfig
-  - QEMU target: qemu-system-or1k -machine virt -cpu or1200
-    - Src: https://github.com/qemu/qemu
-    - Commit hash: a17976b04f2117e1bab64358f873b36fe4561520
-    - Version: 9.0.4
-  - Result:
-    - The following files were correctly generated
-      - arch/openrisc/include/generated/asm/syscall_table_32.h
-      - arch/openrisc/include/generated/uapi/asm/unistd_32.h
-    - The system call was successfully invoked with output:
-        "Hi, SYSCALL_DEFINE1\n"
-    - The above output is expected due to a macro override in
-      arch/openrisc/kernel/sys_call_table.c:
-        #define __SYSCALL_WITH_COMPAT(nr, native, compat) \
-                __SYSCALL(nr, native)
-
-8. riscv (32-bit)
-  - Kernel config: defconfig + 32-bit.config
-  - QEMU target: qemu-system-riscv32 -M virt -cpu rv32
-    - Src: https://github.com/qemu/qemu
-    - Commit hash: a17976b04f2117e1bab64358f873b36fe4561520
-    - Version: 9.0.4
-  - Result:
-    - The following files were correctly generated
-      - arch/riscv/include/generated/asm/syscall_table_32.h
-      - arch/riscv/include/generated/uapi/asm/unistd_32.h
-    - The system call was successfully invoked with output:
-        "Hi, SYSCALL_DEFINE1\n"
-    - The above output is expected due to a macro override in
-      arch/riscv/kernel/syscall_table.c:
-        #define __SYSCALL_WITH_COMPAT(nr, native, compat) \
-                __SYSCALL(nr, native)
-
-9. riscv (64-bit)
-  - Kernel config: defconfig + 64-bit.config
-  - QEMU target: qemu-system-riscv64 -M virt -cpu rv64
-    - Src: https://github.com/qemu/qemu
-    - Commit hash: a17976b04f2117e1bab64358f873b36fe4561520
-    - Version: 9.0.4
-  - Result:
-    - The following files were correctly generated
-      - arch/riscv/include/generated/asm/syscall_table_32.h
-      - arch/riscv/include/generated/asm/syscall_table_64.h
-      - arch/riscv/include/generated/uapi/asm/unistd_32.h
-      - arch/riscv/include/generated/uapi/asm/unistd_64.h
-    - 32-bit userspace process successfully invoked the system call with
-      output:
-        "Hi, COMPAT_SYSCALL_DEFINE2\n"
-    - 64-bit userspace process successfully invoked the system call with
-      output:
-        "Hi, SYSCALL_DEFINE1\n"
-
- Documentation/process/adding-syscalls.rst | 84 +++++++++++++++++++++++
- 1 file changed, 84 insertions(+)
-
-diff --git a/Documentation/process/adding-syscalls.rst b/Documentation/process/adding-syscalls.rst
-index 906c47f1a9e5..fc0b0bbcd34d 100644
---- a/Documentation/process/adding-syscalls.rst
-+++ b/Documentation/process/adding-syscalls.rst
-@@ -248,6 +248,52 @@ To summarize, you need a commit that includes:
-  - fallback stub in ``kernel/sys_ni.c``
+--- 8< ---
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index 9d2a13b37833..ca6928dde0c9 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -1160,7 +1160,6 @@ void __init setup_arch(char **cmdline_p)
+ 	x86_flattree_get_config();
  
+ 	initmem_init();
+-	dma_contiguous_reserve(max_pfn_mapped << PAGE_SHIFT);
  
-+.. _syscall_generic_6_11:
-+
-+Since 6.11
-+~~~~~~~~~~
-+
-+Starting with kernel version 6.11, general system call implementation for the
-+following architectures no longer requires modifications to
-+``include/uapi/asm-generic/unistd.h``:
-+
-+ - arc
-+ - arm64
-+ - csky
-+ - hexagon
-+ - loongarch
-+ - nios2
-+ - openrisc
-+ - riscv
-+
-+Instead, you need to update ``scripts/syscall.tbl`` and, if applicable, adjust
-+``arch/*/kernel/Makefile.syscalls``.
-+
-+As ``scripts/syscall.tbl`` serves as a common syscall table across multiple
-+architectures, a new entry is required in this table::
-+
-+    468   common   xyzzy     sys_xyzzy
-+
-+Note that adding an entry to ``scripts/syscall.tbl`` with the "common" ABI
-+also affects all architectures that share this table. For more limited or
-+architecture-specific changes, consider using an architecture-specific ABI or
-+defining a new one.
-+
-+If a new ABI, say ``xyz``, is introduced, the corresponding updates should be
-+made to ``arch/*/kernel/Makefile.syscalls`` as well::
-+
-+    syscall_abis_{32,64} += xyz (...)
-+
-+To summarize, you need a commit that includes:
-+
-+ - ``CONFIG`` option for the new function, normally in ``init/Kconfig``
-+ - ``SYSCALL_DEFINEn(xyzzy, ...)`` for the entry point
-+ - corresponding prototype in ``include/linux/syscalls.h``
-+ - new entry in ``scripts/syscall.tbl``
-+ - (if needed) Makefile updates in ``arch/*/kernel/Makefile.syscalls``
-+ - fallback stub in ``kernel/sys_ni.c``
-+
-+
- x86 System Call Implementation
- ------------------------------
+ 	if (boot_cpu_has(X86_FEATURE_GBPAGES)) {
+ 		hugetlb_cma_reserve(PUD_SHIFT - PAGE_SHIFT);
+@@ -1178,6 +1177,8 @@ void __init setup_arch(char **cmdline_p)
  
-@@ -353,6 +399,41 @@ To summarize, you need:
-    ``include/uapi/asm-generic/unistd.h``
+ 	x86_init.paging.pagetable_init();
  
++	dma_contiguous_reserve(max_pfn_mapped << PAGE_SHIFT);
++
+ 	kasan_init();
  
-+Since 6.11
-+~~~~~~~~~~
-+
-+This applies to all the architectures listed in :ref:`Since 6.11<syscall_generic_6_11>`
-+under "Generic System Call Implementation", except arm64. See
-+:ref:`Compatibility System Calls (arm64)<compat_arm64>` for more information.
-+
-+You need to extend the entry in ``scripts/syscall.tbl`` with an extra column
-+to indicate that a 32-bit userspace program running on a 64-bit kernel should
-+hit the compat entry point::
-+
-+    468   common     xyzzy     sys_xyzzy    compat_sys_xyzzy
-+
-+To summarize, you need:
-+
-+ - ``COMPAT_SYSCALL_DEFINEn(xyzzy, ...)`` for the compat entry point
-+ - corresponding prototype in ``include/linux/compat.h``
-+ - modification of the entry in ``scripts/syscall.tbl`` to include an extra
-+   "compat" column
-+ - (if needed) 32-bit mapping struct in ``include/linux/compat.h``
-+
-+
-+.. _compat_arm64:
-+
-+Compatibility System Calls (arm64)
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
-+On arm64, there is a dedicated syscall table for compatibility system calls
-+targeting 32-bit (AArch32) userspace: ``arch/arm64/tools/syscall_32.tbl``.
-+You need to add an additional line to this table specifying the compat
-+entry point::
-+
-+    468   common     xyzzy     sys_xyzzy    compat_sys_xyzzy
-+
-+
- Compatibility System Calls (x86)
- --------------------------------
- 
-@@ -575,3 +656,6 @@ References and Sources
-  - Recommendation from Linus Torvalds that x32 system calls should prefer
-    compatibility with 64-bit versions rather than 32-bit versions:
-    https://lore.kernel.org/r/CA+55aFxfmwfB7jbbrXxa=K7VBYPfAvmu3XOkGrLbB1UFjX1+Ew@mail.gmail.com
-+ - Patch series revising system call table infrastructure to use
-+   scripts/syscall.tbl across multiple architectures:
-+   https://lore.kernel.org/lkml/20240704143611.2979589-1-arnd@kernel.org
+ 	/*
+
 -- 
-2.43.0
+Regards,
+Pratyush Yadav
+
+
+
+Amazon Web Services Development Center Germany GmbH
+Tamara-Danz-Str. 13
+10243 Berlin
+Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
+Eingetragen am Amtsgericht Charlottenburg unter HRB 257764 B
+Sitz: Berlin
+Ust-ID: DE 365 538 597
 
