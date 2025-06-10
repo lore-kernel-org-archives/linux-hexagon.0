@@ -1,96 +1,89 @@
-Received: from out-180.mta0.migadu.com (out-180.mta0.migadu.com [91.218.175.180])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB35E22F767
-	for <linux-hexagon@vger.kernel.org>; Tue,  3 Jun 2025 12:59:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3B8024166B;
+	Tue, 10 Jun 2025 16:28:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748955549; cv=none; b=cimR0KVqVm+XGHhFXMVhiubHj7i5b8BZRSCyP2zNJKIfkhq4EpoNZEbbqnvofttqPzg36iRiZJKFf5OPcw8UmPShvfomi5NrkDJDhoBDqvK0ybK+TtQ25Ky5JtjUmSb6CyGFJP3pLLhJiv9of3sunaPpk5pwTCdTYTahOL8zfWc=
+	t=1749572889; cv=none; b=N3/2lJnIY02UVZgxjMqRzEHCY+RY4TTJ3LN+XhfnP3S6109zEamIbWOLmlfdmGgC7M2tm+VyPR60PazJpE83t2366uh0FwYVV2Xdt+3uLoVtd2AjAlaO4MNTTjYXB5C6lLkChM/mThOv2YabC1duX18SVSKS0ItHXSADx+jZydw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748955549; c=relaxed/simple;
-	bh=R4dEvgMMsnUImiTBlzNqM2oBdPJWnn0ayqCrhC76cXY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OEeVSwH70yOmhH76HI+jveZsF+Ot6wdBWyCAifI7YITxZLcWSghLIiNUHYWJIgc3q50XCKlov3QiCXl3NQQQzhVKTKONjD6Ev0MXIHaaS0QnYuY7+NNVCgbT5pnpI0ty6bzAeHik9os4X6hgNUz1q4I6s8AKnSOVBXDShfuFtqI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=avm.de; spf=pass smtp.mailfrom=linux.dev; arc=none smtp.client-ip=91.218.175.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=avm.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
-Date: Tue, 3 Jun 2025 14:58:47 +0200
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Nicolas Schier <n.schier@avm.de>
-To: Masahiro Yamada <masahiroy@kernel.org>
-Cc: linux-kbuild@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Alexandre Ghiti <alex@ghiti.fr>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Chris Zankel <chris@zankel.net>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Jonas Bonn <jonas@southpole.se>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michal Simek <monstr@monstr.eu>, Naveen N Rao <naveen@kernel.org>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Rich Felker <dalias@libc.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Richard Weinberger <richard@nod.at>,
-	Russell King <linux@armlinux.org.uk>,
-	Stafford Horne <shorne@gmail.com>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH 2/2] arch: use always-$(KBUILD_BUILTIN) for vmlinux.lds
-Message-ID: <20250603-sturdy-gaur-of-security-7effbb@l-nschier-aarch64>
-References: <20250602181256.529033-1-masahiroy@kernel.org>
- <20250602181256.529033-2-masahiroy@kernel.org>
+	s=arc-20240116; t=1749572889; c=relaxed/simple;
+	bh=VGaA2UjcATw5usDRARWAGHoyvA3nRCcXodZF/+d4fPQ=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=cRL7VOGtrA/8IooI67lQAjAprtTkDPiTx4O/41+GvUl8+VEw7vM6ER/AI6HbVFIkTa2jxIllHPB2aNTZ4Ce/JFppjOd657tuePT1QPUl+aBL1ETTcqyYKXnJxawLT859Tzm16ccrs0zdCq5AFXKKEHhbBfeuxuqSrqTm4YHYfZ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JJ1f2Y7N; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JJ1f2Y7N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E19C4CEF0;
+	Tue, 10 Jun 2025 16:28:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1749572889;
+	bh=VGaA2UjcATw5usDRARWAGHoyvA3nRCcXodZF/+d4fPQ=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=JJ1f2Y7NQSd54tSszQLRiQIl7dD277rRFw5CD03cct8JsOIa9MeckGxwgeTNERJbY
+	 /Aq7k/QdxMobJHlLVMWLaBVYiO7WUz7b5oZF8aZHHmpn5SGMFxfrabCx4zi/NelVA7
+	 9tpmie/ZR7eRtm/GQUxR12kWA/MXW8KxThnLlIuGSON9FK96/TttZtzzrp91aMtCTf
+	 nkrgxszvlyVUm0gGo8/i60pLDKogQxJCIy6qqOtv6fYwtbh3P8fqWAcjVqLwJncDb0
+	 2wdFJTUv8YDSR+ksvQyqg1NCDe5af7sVQqmJb6cWow02fsajDICno0naOHZ+D1dFYd
+	 UMToThilj3zfw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33D5B39D6540;
+	Tue, 10 Jun 2025 16:28:41 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH 2/2] arch: use always-$(KBUILD_BUILTIN) for vmlinux.lds
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <174957291974.2454024.16546912662876416180.git-patchwork-notify@kernel.org>
+Date: Tue, 10 Jun 2025 16:28:39 +0000
+References: <20250602181256.529033-2-masahiroy@kernel.org>
 In-Reply-To: <20250602181256.529033-2-masahiroy@kernel.org>
-Organization: AVM GmbH
-X-Migadu-Flow: FLOW_OUT
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: linux-riscv@lists.infradead.org, linux-kbuild@vger.kernel.org,
+ aou@eecs.berkeley.edu, agordeev@linux.ibm.com, alex@ghiti.fr,
+ andreas@gaisler.com, anton.ivanov@cambridgegreys.com, bp@alien8.de,
+ bcain@kernel.org, catalin.marinas@arm.com, chris@zankel.net,
+ borntraeger@linux.ibm.com, christophe.leroy@csgroup.eu,
+ dave.hansen@linux.intel.com, davem@davemloft.net, dinguyen@kernel.org,
+ geert@linux-m68k.org, guoren@kernel.org, hpa@zytor.com, hca@linux.ibm.com,
+ deller@gmx.de, chenhuacai@kernel.org, mingo@redhat.com,
+ James.Bottomley@HansenPartnership.com, johannes@sipsolutions.net,
+ glaubitz@physik.fu-berlin.de, jonas@southpole.se, maddy@linux.ibm.com,
+ mattst88@gmail.com, jcmvbkbc@gmail.com, mpe@ellerman.id.au, monstr@monstr.eu,
+ naveen@kernel.org, npiggin@gmail.com, palmer@dabbelt.com,
+ paul.walmsley@sifive.com, dalias@libc.org, richard.henderson@linaro.org,
+ richard@nod.at, linux@armlinux.org.uk, shorne@gmail.com,
+ stefan.kristiansson@saunalahti.fi, svens@linux.ibm.com,
+ tsbogend@alpha.franken.de, tglx@linutronix.de, gor@linux.ibm.com,
+ vgupta@kernel.org, kernel@xen0n.name, will@kernel.org,
+ ysato@users.sourceforge.jp, linux-alpha@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+ sparclinux@vger.kernel.org, x86@kernel.org
 
-On Tue, Jun 03, 2025 at 03:12:54AM +0900, Masahiro Yamada wrote:
+Hello:
+
+This patch was applied to riscv/linux.git (fixes)
+by Masahiro Yamada <masahiroy@kernel.org>:
+
+On Tue,  3 Jun 2025 03:12:54 +0900 you wrote:
 > The extra-y syntax is deprecated. Instead, use always-$(KBUILD_BUILTIN),
 > which behaves equivalently.
->=20
+> 
 > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 > ---
->=20
+> 
 >  arch/alpha/kernel/Makefile      | 2 +-
 >  arch/arc/kernel/Makefile        | 2 +-
 >  arch/arm/kernel/Makefile        | 2 +-
@@ -113,6 +106,14 @@ On Tue, Jun 03, 2025 at 03:12:54AM +0900, Masahiro Yamada wrote:
 >  arch/x86/kernel/Makefile        | 2 +-
 >  arch/xtensa/kernel/Makefile     | 2 +-
 >  21 files changed, 21 insertions(+), 21 deletions(-)
->=20
 
-Reviewed-by: Nicolas Schier <n.schier@avm.de>
+Here is the summary with links:
+  - [2/2] arch: use always-$(KBUILD_BUILTIN) for vmlinux.lds
+    https://git.kernel.org/riscv/c/e21efe833eae
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
