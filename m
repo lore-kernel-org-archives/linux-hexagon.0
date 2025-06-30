@@ -1,119 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh-b1-smtp.messagingengine.com (fhigh-b1-smtp.messagingengine.com [202.12.124.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3B8024166B;
-	Tue, 10 Jun 2025 16:28:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E31F522339;
+	Mon, 30 Jun 2025 06:17:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749572889; cv=none; b=N3/2lJnIY02UVZgxjMqRzEHCY+RY4TTJ3LN+XhfnP3S6109zEamIbWOLmlfdmGgC7M2tm+VyPR60PazJpE83t2366uh0FwYVV2Xdt+3uLoVtd2AjAlaO4MNTTjYXB5C6lLkChM/mThOv2YabC1duX18SVSKS0ItHXSADx+jZydw=
+	t=1751264227; cv=none; b=SApwF03abhZGO0ZOkU6ZClX0eTjhE2nAm3zXAlMZZvx8r3Res67ialNJvK27nOWGEFtC0JBPOKIcDMI4KNVn0zkt/ezO2X5Caz21Xib7LFTGCBk9y0JttaPQPTEv/NcsTeWb8mOj6Jipi8IUJj/KoCDwQvC+nWjqM5RAoUinIuM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749572889; c=relaxed/simple;
-	bh=VGaA2UjcATw5usDRARWAGHoyvA3nRCcXodZF/+d4fPQ=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=cRL7VOGtrA/8IooI67lQAjAprtTkDPiTx4O/41+GvUl8+VEw7vM6ER/AI6HbVFIkTa2jxIllHPB2aNTZ4Ce/JFppjOd657tuePT1QPUl+aBL1ETTcqyYKXnJxawLT859Tzm16ccrs0zdCq5AFXKKEHhbBfeuxuqSrqTm4YHYfZ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JJ1f2Y7N; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1751264227; c=relaxed/simple;
+	bh=lI9JS1gMGaYeV8rykN9upjkXqvv+KcVhPNHtn1XXOBU=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=H2OKcooYhAe9YY72v8sClzIofmW8aQZ9UJL2eghFgTNovLKTOgzsP/1JlklrmdsUxfWSJ0viubbDSDBaOFwr38UyZ8PAPMQQj6kb3kixfe9Z7Z0QH1BQ5IPqmQVlLoo5ZBFlpVOTIbUxkmO11/J0XualiT33lI86mCk6HEP4HFM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=NhPvakrK; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=T7dbN3V5; arc=none smtp.client-ip=202.12.124.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JJ1f2Y7N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E19C4CEF0;
-	Tue, 10 Jun 2025 16:28:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749572889;
-	bh=VGaA2UjcATw5usDRARWAGHoyvA3nRCcXodZF/+d4fPQ=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=JJ1f2Y7NQSd54tSszQLRiQIl7dD277rRFw5CD03cct8JsOIa9MeckGxwgeTNERJbY
-	 /Aq7k/QdxMobJHlLVMWLaBVYiO7WUz7b5oZF8aZHHmpn5SGMFxfrabCx4zi/NelVA7
-	 9tpmie/ZR7eRtm/GQUxR12kWA/MXW8KxThnLlIuGSON9FK96/TttZtzzrp91aMtCTf
-	 nkrgxszvlyVUm0gGo8/i60pLDKogQxJCIy6qqOtv6fYwtbh3P8fqWAcjVqLwJncDb0
-	 2wdFJTUv8YDSR+ksvQyqg1NCDe5af7sVQqmJb6cWow02fsajDICno0naOHZ+D1dFYd
-	 UMToThilj3zfw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33D5B39D6540;
-	Tue, 10 Jun 2025 16:28:41 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="NhPvakrK";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="T7dbN3V5"
+Received: from phl-compute-05.internal (phl-compute-05.phl.internal [10.202.2.45])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id BAAE47A0077;
+	Mon, 30 Jun 2025 02:17:03 -0400 (EDT)
+Received: from phl-imap-02 ([10.202.2.81])
+  by phl-compute-05.internal (MEProxy); Mon, 30 Jun 2025 02:17:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1751264223;
+	 x=1751350623; bh=m/dWKz6R2q5LBHWZz6c4+WXnk+qQgVD9l1+vH4Khp5M=; b=
+	NhPvakrK+wlR1TDob+AprINwNyDs9Q4TUUHF4IqhQVcj56b/89RHdsS3ModuoQnR
+	Sfwd0ZaJiQQzGEVgwrMsMetZ/kFb9J6yBOtvfKyf+vUp9E76X+Zalg52NCE35pE3
+	7rdWis2u+DYwZPu7a+ln5SgueTI4lQyvvqwgSNUR/3GGqTp6ymVuetgUbv1InCz0
+	+P0q2s/x0Lslz7fZ4TV+Ec92N2+WuvIRLAI0vnZCWhLubuz/NYWAUIifeCnZ9Vii
+	nRxaQur9Whpt+iViedPUYxwHlfseiVKAykEQwHqltAka0/T8mW0FoRbDc4Fwp5MZ
+	wPpMCHBBzioDOy8rHF/RRA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1751264223; x=
+	1751350623; bh=m/dWKz6R2q5LBHWZz6c4+WXnk+qQgVD9l1+vH4Khp5M=; b=T
+	7dbN3V5k+0QpOsPbHvr8XUBKUKwoSQDDQwDVakEXhdCPYcz6O3NM0c02zqPe8vQ8
+	qVoQ4jb583PGUmo2GohsAefXu25wWdfBH+pXNn5tLI4llakDQGxIy7GpZJ8nnorO
+	YbZG2okNGb5BKg4znCUtMGxQAsc7OWSBtzLXH+f9TjJoj/4WTP1JYZeKmJzdnpw3
+	fcwETnw4xAGGrf8X/DiAGzXvJ3Cu3xL8xNhioiW3thDANgtyGw8uRSxJzWYixTCa
+	S/TfTyFgnAd/swfPcNf+hIEuYbZrSxxmARmFV4XvbhPSdjbYfFN7FrrpB0TjnW03
+	JY5e4JnuQrBijcPkPjMzg==
+X-ME-Sender: <xms:3ytiaN810t-GGqP0vJWrQHi7kj4OJkk4sMV1rFfm_h1F0Hv4KTtEwg>
+    <xme:3ytiaBtmcXzxeNssk37Ukjy4U81IqJE6uwnVr_F6AkaEQsLxxLPfgMIAwnEuugFYR
+    ghthl3MsxILGLGtAqA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgddutdeliecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpefoggffhffvvefkjghfufgtgfesthejredtredttdenucfhrhhomhepfdetrhhnugcu
+    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
+    hnpeehhedtgfefffevvdevkedttddtvdetjeefffduheevieefvedvffeitdffffffjeen
+    ucffohhmrghinheptddurdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrg
+    hmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohep
+    uddupdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehlkhhpsehinhhtvghlrdgtoh
+    hmpdhrtghpthhtohepsghrrghunhgvrheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohep
+    ughinhhguhihvghnsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehllhhvmheslhhish
+    htshdrlhhinhhugidruggvvhdprhgtphhtthhopehovgdqkhgsuhhilhguqdgrlhhlsehl
+    ihhsthhsrdhlihhnuhigrdguvghvpdhrtghpthhtohepshgthhhushhtvghrrdhsihhmoh
+    hnodgsihhnuhhtihhlshesshhivghmvghnshdqvghnvghrghihrdgtohhmpdhrtghpthht
+    oheplhhinhhugidqrghrtghhsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoh
+    eplhhinhhugidqhhgvgigrghhonhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphht
+    thhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrgh
+X-ME-Proxy: <xmx:3ytiaLATSWByEb9pmvJ3N1OEyY3hyKXAZGEUjufVnfu5zdivIa-5GQ>
+    <xmx:3ytiaBfu8LHVX1MikKoTRlTp8KmufSaB07iNP7thq51plUx-8F_1Kg>
+    <xmx:3ytiaCPO9eRS_Tx4FmkHcDeqvypebKmeKA6VBLSIpV302S3RTVBuVw>
+    <xmx:3ytiaDnTBjdAn4L57hWevSjKHjsEkyB66WZhERhg4YG0WnL6fBTKkw>
+    <xmx:3ytiaLsCD79bWbxav7fHF975-ZFpMKr9FGKXt9yD8HtLKKcz7jR-QNj0>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 3B964700063; Mon, 30 Jun 2025 02:17:03 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 2/2] arch: use always-$(KBUILD_BUILTIN) for vmlinux.lds
-From: patchwork-bot+linux-riscv@kernel.org
-Message-Id: 
- <174957291974.2454024.16546912662876416180.git-patchwork-notify@kernel.org>
-Date: Tue, 10 Jun 2025 16:28:39 +0000
-References: <20250602181256.529033-2-masahiroy@kernel.org>
-In-Reply-To: <20250602181256.529033-2-masahiroy@kernel.org>
-To: Masahiro Yamada <masahiroy@kernel.org>
-Cc: linux-riscv@lists.infradead.org, linux-kbuild@vger.kernel.org,
- aou@eecs.berkeley.edu, agordeev@linux.ibm.com, alex@ghiti.fr,
- andreas@gaisler.com, anton.ivanov@cambridgegreys.com, bp@alien8.de,
- bcain@kernel.org, catalin.marinas@arm.com, chris@zankel.net,
- borntraeger@linux.ibm.com, christophe.leroy@csgroup.eu,
- dave.hansen@linux.intel.com, davem@davemloft.net, dinguyen@kernel.org,
- geert@linux-m68k.org, guoren@kernel.org, hpa@zytor.com, hca@linux.ibm.com,
- deller@gmx.de, chenhuacai@kernel.org, mingo@redhat.com,
- James.Bottomley@HansenPartnership.com, johannes@sipsolutions.net,
- glaubitz@physik.fu-berlin.de, jonas@southpole.se, maddy@linux.ibm.com,
- mattst88@gmail.com, jcmvbkbc@gmail.com, mpe@ellerman.id.au, monstr@monstr.eu,
- naveen@kernel.org, npiggin@gmail.com, palmer@dabbelt.com,
- paul.walmsley@sifive.com, dalias@libc.org, richard.henderson@linaro.org,
- richard@nod.at, linux@armlinux.org.uk, shorne@gmail.com,
- stefan.kristiansson@saunalahti.fi, svens@linux.ibm.com,
- tsbogend@alpha.franken.de, tglx@linutronix.de, gor@linux.ibm.com,
- vgupta@kernel.org, kernel@xen0n.name, will@kernel.org,
- ysato@users.sourceforge.jp, linux-alpha@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- sparclinux@vger.kernel.org, x86@kernel.org
+X-ThreadId: T9274589f850a4c5d
+Date: Mon, 30 Jun 2025 08:14:16 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "kernel test robot" <lkp@intel.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-sh@vger.kernel.org,
+ "Dinh Nguyen" <dinguyen@kernel.org>,
+ "Simon Schuster" <schuster.simon+binutils@siemens-energy.com>,
+ Linux-Arch <linux-arch@vger.kernel.org>, linux-kernel@vger.kernel.org,
+ "Christian Brauner" <brauner@kernel.org>
+Message-Id: <2ef5bc91-f56d-4c76-b12e-2797999cba72@app.fastmail.com>
+In-Reply-To: <202506282120.6vRwodm3-lkp@intel.com>
+References: <202506282120.6vRwodm3-lkp@intel.com>
+Subject: Re: kernel/fork.c:3088:2: warning: clone3() entry point is missing, please fix
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Hello:
+On Sat, Jun 28, 2025, at 21:59, kernel test robot wrote:
+> Hi Arnd,
+>
+> FYI, the error/warning still remains.
+>
+> date:   12 months ago
+> config: hexagon-randconfig-2002-20250626 
+> (https://download.01.org/0day-ci/archive/20250628/202506282120.6vRwodm3-lkp@intel.com/config)
+> commit: 505d66d1abfb90853e24ab6cbdf83b611473d6fc clone3: drop __ARCH_WANT_SYS_CLONE3 macro
+>> kernel/fork.c:3088:2: warning: clone3() entry point is missing, please fix [-W#warnings]
 
-This patch was applied to riscv/linux.git (fixes)
-by Masahiro Yamada <masahiroy@kernel.org>:
+My patch only moved the warning about the four broken architectures
+(hexagon, sparc, sh, nios2) that have never implemented the clone3
+syscall from commit 7f192e3cd316 ("fork: add clone3"), over six years
+ago.
 
-On Tue,  3 Jun 2025 03:12:54 +0900 you wrote:
-> The extra-y syntax is deprecated. Instead, use always-$(KBUILD_BUILTIN),
-> which behaves equivalently.
-> 
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> ---
-> 
->  arch/alpha/kernel/Makefile      | 2 +-
->  arch/arc/kernel/Makefile        | 2 +-
->  arch/arm/kernel/Makefile        | 2 +-
->  arch/arm64/kernel/Makefile      | 2 +-
->  arch/csky/kernel/Makefile       | 2 +-
->  arch/hexagon/kernel/Makefile    | 2 +-
->  arch/loongarch/kernel/Makefile  | 2 +-
->  arch/m68k/kernel/Makefile       | 2 +-
->  arch/microblaze/kernel/Makefile | 2 +-
->  arch/mips/kernel/Makefile       | 2 +-
->  arch/nios2/kernel/Makefile      | 2 +-
->  arch/openrisc/kernel/Makefile   | 2 +-
->  arch/parisc/kernel/Makefile     | 2 +-
->  arch/powerpc/kernel/Makefile    | 2 +-
->  arch/riscv/kernel/Makefile      | 2 +-
->  arch/s390/kernel/Makefile       | 2 +-
->  arch/sh/kernel/Makefile         | 2 +-
->  arch/sparc/kernel/Makefile      | 2 +-
->  arch/um/kernel/Makefile         | 2 +-
->  arch/x86/kernel/Makefile        | 2 +-
->  arch/xtensa/kernel/Makefile     | 2 +-
->  21 files changed, 21 insertions(+), 21 deletions(-)
+I usually try to fix warnings when I get them, but the entire point
+why these still exist is that they require someone to add the
+syscall with the correct calling conventions for the respective
+architecture and make sure this actually works correctly.
 
-Here is the summary with links:
-  - [2/2] arch: use always-$(KBUILD_BUILTIN) for vmlinux.lds
-    https://git.kernel.org/riscv/c/e21efe833eae
+I don't think any of those architecture maintainers are paying
+attention to the build warnings or the lkp reports, and they are
+clearly not trying to fix them any more, so maybe it's better to
+just stop testing them in lkp.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+    Arnd
