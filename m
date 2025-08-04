@@ -1,65 +1,134 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ACF21A3179;
-	Tue, 29 Jul 2025 01:11:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CF90285CB4;
+	Mon,  4 Aug 2025 16:44:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753751496; cv=none; b=RVpD+xGwXaZxurLmjchsBAqEqWExB29AytC+MKATHC3dkrWJfm+XLk8hquTlGPVQrzm8ez3C/PAOfOWiSghsacnHXw70RFlcBKY1e6FO+fhcIeI1rKCGCubn5Puh04Od3Wyuhnb7oBLlukmN8xrqV8qqHgmD5P95WYT4tyUtIS0=
+	t=1754325858; cv=none; b=WSNq1mC/KDvlcmwHxDw8FCOgDF0aaA15hB5yFvjdPgCO5OlPQcaE6FgH38E9mkf7Fnj0oFngUamQh+ANJX87bjh3aDeFcp2ghnCxxnrHb8/OeeHgmbNi/7hpjs8Avf7sosUZDn5kWVz+Yf5vaDdZcBcX81FElnXmRBCy9KoWRhs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753751496; c=relaxed/simple;
-	bh=8ZaxoHBTEhVL12axKf/WX+LwUM3Y/BFGh5lAMOgD5zg=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=UTZZzhhFFmnHGy8MNxOlmms2pMURZYHdtKvwv0UpDYQU9lfj91GU3qIo4VDYcJfmG7+q2m2wUqDlVojK1TpJEpnTKKEb0HGqAlcx6jaBYhXwgwTaadWEtTRJRkhB8dzbDVX+NLY4i40IC+gcGsZ92xznkGXwsdEYHgAT+pMfZ24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VYacduDB; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1754325858; c=relaxed/simple;
+	bh=r2v62d4bVt9owj808SKHRzdSx9oLY8KjiUCy34x/12Y=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=WQVQ2nnyYT+7/wID2RgApF7nwkD5Xigec+azBHEQl736z6Vt3hMFF9209D7lTbsTFRUfaYWm1zfOS4dg9zsUY3xw1ayJC+9RqBqNRXrCq84Y81twEFa8DwdetY2cNfZ5GtqdfBbE+CLLrpL19nuppZKHHMjawe1+lOJZbjBWAUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qoDkY9It; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VYacduDB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A163C4CEE7;
-	Tue, 29 Jul 2025 01:11:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qoDkY9It"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE13C4CEE7;
+	Mon,  4 Aug 2025 16:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1753751496;
-	bh=8ZaxoHBTEhVL12axKf/WX+LwUM3Y/BFGh5lAMOgD5zg=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=VYacduDBsz15Xg+SgB5nuf2LLCwR/ZQLnHAeY89QssQwJkwueQk+gOc3P9X3M8ERc
-	 StQHaCIjU+ApLe7jJ1kkQ1SZSrlnoE0XfZBTw8Yh+roL1ES9ZIfl3oMlPK7Nd5vIme
-	 keZEIUjTWzO7k+Xn5laz3kmccx4u/wXUQCxvKazPAkCcbgCoN5asGQOK49wsxNUWzg
-	 4V8Tr4vXYS3H1wOaKUIe57TRZzvYstxc8p2ZRo6fWA+RbWlSndzB3fEL4aGd9Fgn3b
-	 ZBNnQvFR6RJKhSTgEfjDhuJgvmCxPS2qK55MY85inxik6zCKjNO7RH2cHI8IhVIhst
-	 yOtThARlrGBsA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 34A0C383BF5F;
-	Tue, 29 Jul 2025 01:11:54 +0000 (UTC)
-Subject: Re: [GIT PULL] execve updates for v6.17
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <202507261437.F2079B3B7@keescook>
-References: <202507261437.F2079B3B7@keescook>
-X-PR-Tracked-List-Id: <linux-sh.vger.kernel.org>
-X-PR-Tracked-Message-Id: <202507261437.F2079B3B7@keescook>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git tags/execve-v6.17
-X-PR-Tracked-Commit-Id: 7f71195c15dcf5f34c4c7f056603659374e3a525
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: d900c4ce638d707f09c7e5c2afa71e035c0bb33d
-Message-Id: <175375151288.918485.7118599213274098690.pr-tracker-bot@kernel.org>
-Date: Tue, 29 Jul 2025 01:11:52 +0000
-To: Kees Cook <kees@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Akihiko Odaki <akihiko.odaki@daynix.com>, Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>, Albert Ou <aou@eecs.berkeley.edu>, Alexander Gordeev <agordeev@linux.ibm.com>, Alexandre Ghiti <alex@ghiti.fr>, Andreas Larsson <andreas@gaisler.com>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, Chris Zankel <chris@zankel.net>, Dave Hansen <dave.hansen@linux.intel.com>, Dave Martin <Dave.Martin@arm.com>, David Hildenbrand <david@redhat.com>, "David S. Miller" <davem@davemloft.net>, Dinh Nguyen <dinguyen@kernel.org>, Dishank Jogi <dishank.jogi@siqol.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, "H. Peter Anvin" <hpa@
- zytor.com>, Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Johannes Berg <johannes@sipsolutions.net>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Jonas Bonn <jonas@southpole.se>, Kees Cook <kees@kernel.org>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, loongarch@lists.linux.dev, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Madhavan Srinivasan <maddy@linux.ibm.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Oleg Nesterov
-  <oleg@redhat.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>, Richard Weinberger <richard@nod.at>, Rich Felker <dalias@libc.org>, Russell King <linux@armlinux.org.uk>, sparclinux@vger.kernel.org, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Sven Schnelle <svens@linux.ibm.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>, x86@kernel.org, Yin Fengwei <fengwei_yin@linux.alibaba.com>, Yoshinori Sato <ysato@users.sourceforge.jp>
+	s=k20201202; t=1754325857;
+	bh=r2v62d4bVt9owj808SKHRzdSx9oLY8KjiUCy34x/12Y=;
+	h=From:To:Cc:Subject:Date:From;
+	b=qoDkY9It5/lqR9fbX6g8iGg/nmmtCv14BOgAwhkb5uNiClyFaMkiukY7Oc+J1MaKh
+	 dZnz4X/S3ajFCt76duYJHDx0quVZH6oSu/c0vStSRzaSzbCcMKFV4L18ye0ZTJoXPN
+	 i3oURUhH5BvGFLUiBhUMaVt9LAqwPNrH4pyC8RyKbvz3yMn0pqcXcQS+g91j40QHjM
+	 lNQCmlS8pNR7LcsmFHjuc2AbEWdFGnRvWbhlC/VB8DAo2fUatOIF7DscYokL7FpXgy
+	 l5z39sJCmL4o5lHPcQDJdF9jtn/jsrC9WDmDQnvKWCYKZ26XpAxSx9TjSBv7Ns52lt
+	 j7UHemkdNe4Mg==
+From: Kees Cook <kees@kernel.org>
+To: linux-arch@vger.kernel.org
+Cc: Kees Cook <kees@kernel.org>,
+	linux-kernel@vger.kernel.org,
+	x86@kernel.org,
+	linux-alpha@vger.kernel.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	llvm@lists.linux.dev,
+	linux-hardening@vger.kernel.org
+Subject: [PATCH 00/17] Add __attribute_const__ to ffs()-family implementations
+Date: Mon,  4 Aug 2025 09:43:56 -0700
+Message-Id: <20250804163910.work.929-kees@kernel.org>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3619; i=kees@kernel.org; h=from:subject:message-id; bh=r2v62d4bVt9owj808SKHRzdSx9oLY8KjiUCy34x/12Y=; b=owGbwMvMwCVmps19z/KJym7G02pJDBkTHofFXgjp7KzykhVPcF48Q+LLy7qNn3Wc38x5WLbt/ 44z4VPWdZSyMIhxMciKKbIE2bnHuXi8bQ93n6sIM4eVCWQIAxenAEzERo7hf8kiKe0FSd8l7Cv7 We7uUrdPYDs+m0lg/c5Dkx57tW49XMrwT2vS53lTDZ/v/XEnZcFFsaM9CXKfOL49eCxys3TZx5i tytwA
+X-Developer-Key: i=kees@kernel.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
+Content-Transfer-Encoding: 8bit
 
-The pull request you sent on Sat, 26 Jul 2025 14:39:20 -0700:
+Hi,
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git tags/execve-v6.17
+While tracking down a problem where constant expressions used by
+BUILD_BUG_ON() suddenly stopped working[1], we found that an added static
+initializer was convincing the compiler that it couldn't track the state
+of the prior statically initialized value. Tracing this down found that
+ffs() was used in the initializer macro, but since it wasn't marked with
+__attribute_const__, the compiler had to assume the function might
+change variable states as a side-effect (which is not true for ffs(),
+which provides deterministic math results).
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/d900c4ce638d707f09c7e5c2afa71e035c0bb33d
+Add KUnit tests for the family of functions and then add __attribute_const__
+to all architecture implementations and wrappers.
 
-Thank you!
+-Kees
+
+[1] https://github.com/KSPP/linux/issues/364
+
+Kees Cook (17):
+  KUnit: Introduce ffs()-family tests
+  bitops: Add __attribute_const__ to generic ffs()-family
+    implementations
+  csky: Add __attribute_const__ to ffs()-family implementations
+  x86: Add __attribute_const__ to ffs()-family implementations
+  powerpc: Add __attribute_const__ to ffs()-family implementations
+  sh: Add __attribute_const__ to ffs()-family implementations
+  alpha: Add __attribute_const__ to ffs()-family implementations
+  hexagon: Add __attribute_const__ to ffs()-family implementations
+  riscv: Add __attribute_const__ to ffs()-family implementations
+  openrisc: Add __attribute_const__ to ffs()-family implementations
+  m68k: Add __attribute_const__ to ffs()-family implementations
+  mips: Add __attribute_const__ to ffs()-family implementations
+  parisc: Add __attribute_const__ to ffs()-family implementations
+  s390: Add __attribute_const__ to ffs()-family implementations
+  xtensa: Add __attribute_const__ to ffs()-family implementations
+  sparc: Add __attribute_const__ to ffs()-family implementations
+  KUnit: ffs: Validate all the __attribute_const__ annotations
+
+ lib/Kconfig.debug                          |  14 +
+ lib/tests/Makefile                         |   1 +
+ arch/alpha/include/asm/bitops.h            |  14 +-
+ arch/csky/include/asm/bitops.h             |   8 +-
+ arch/hexagon/include/asm/bitops.h          |  10 +-
+ arch/m68k/include/asm/bitops.h             |  14 +-
+ arch/mips/include/asm/bitops.h             |   8 +-
+ arch/openrisc/include/asm/bitops/__ffs.h   |   2 +-
+ arch/openrisc/include/asm/bitops/__fls.h   |   2 +-
+ arch/openrisc/include/asm/bitops/ffs.h     |   2 +-
+ arch/openrisc/include/asm/bitops/fls.h     |   2 +-
+ arch/parisc/include/asm/bitops.h           |   6 +-
+ arch/powerpc/include/asm/bitops.h          |   4 +-
+ arch/riscv/include/asm/bitops.h            |   6 +-
+ arch/s390/include/asm/bitops.h             |  10 +-
+ arch/sh/include/asm/bitops.h               |   4 +-
+ arch/sparc/include/asm/bitops_64.h         |   8 +-
+ arch/x86/include/asm/bitops.h              |  12 +-
+ arch/xtensa/include/asm/bitops.h           |  10 +-
+ include/asm-generic/bitops/__ffs.h         |   2 +-
+ include/asm-generic/bitops/__fls.h         |   2 +-
+ include/asm-generic/bitops/builtin-__ffs.h |   2 +-
+ include/asm-generic/bitops/builtin-__fls.h |   2 +-
+ include/asm-generic/bitops/builtin-fls.h   |   2 +-
+ include/asm-generic/bitops/ffs.h           |   2 +-
+ include/asm-generic/bitops/fls.h           |   2 +-
+ include/asm-generic/bitops/fls64.h         |   4 +-
+ include/linux/bitops.h                     |   2 +-
+ lib/clz_ctz.c                              |   8 +-
+ lib/tests/ffs_kunit.c                      | 566 +++++++++++++++++++++
+ 30 files changed, 656 insertions(+), 75 deletions(-)
+ create mode 100644 lib/tests/ffs_kunit.c
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.34.1
+
