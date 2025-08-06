@@ -1,91 +1,107 @@
-Received: from mail-vs1-f41.google.com (mail-vs1-f41.google.com [209.85.217.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7191124502D;
-	Tue,  5 Aug 2025 08:13:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEA591FDD;
+	Wed,  6 Aug 2025 10:33:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754381593; cv=none; b=AtyHyoOcrJBdJbfs9gVtraV6zIyw2T2EJN87nkBuAVfHYQvzX0/RRi88ykLK2s8mpmnfyJPdjKKMS7IqxYN+6AUDTvE2hzjsGscx0Hwgp9DQp7XAg2itZxHYxhketsRfixLPxLH06RO8TTsVovK2vSjwzNuNnmfsYWmgktGsm2U=
+	t=1754476399; cv=none; b=qQndD/3Z08iXRGfJwRi84C0p9IObQGvU9COeefF30/i91WFuPpYiFXA0rkOYhC1MZnYgd0/2WVXWPuMU6ePPSpa3wHT5ZnYDUQs375pHjQZro2Z8EFmJmnSM/X/AVubf8J1PPCwlw3h9Sc2rMRPGFye8Ru8ES0+pYu+4bi0ie/E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754381593; c=relaxed/simple;
-	bh=XY5X8rTqj6KCB7z+WOowtTK7MrFk016Y1kqMLEFIi1Q=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=E0h7DJK0xgp290RvVwaOAmVZiHicoP+4EMXQQxkSGYiVtBv+1S78+XK8kuzoeJTPO76IwebepqXdOXlETV9D0HX+GuS/Mq6cGneanRGYeAMT9hWfoTMknx/Dgk6Vegedfz4yVzZvUl3TO370asMz5M2DZfhoawH4H041VsPgJOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs1-f41.google.com with SMTP id ada2fe7eead31-4fc18de8e1bso1597728137.0;
-        Tue, 05 Aug 2025 01:13:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754381589; x=1754986389;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=FYbREyEF6GDi+6BqzkUaervyY8mSRtfMj7JERduR6Tc=;
-        b=obqFiUzJ2OPsKkHd0eqTl3a3iv5hfIiUxuCpyjCe/m0Jm0RbWDoMx8Tvx24TjGGopD
-         bh6aT16071W7O0SWwPDOar9xtihYS8bJtfBlrszDuo0aJOBFhjLwq2/HbIUqso40Rh75
-         H97pP8R8amKfQr43DSwZWs5LPcnC+9ZgQFP24BjB6XcwV1Zq6CKSS+sKOITjuknnzTja
-         7cpO+E2jNYIxK01Qys5+8d300u8dN7EA4o5ylOO/OF8/mbeXopzX7nSvcRws1ouWk4UK
-         Ufx7Jbn3yzHpk2PrOP54RV4D1iBYa34EkR2zok/KcI28FTM1IY9+EHvaJwz84FI7H1qc
-         IjuQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU7VXLaRmS9abg7Bp2VG8ACV21ytilyLmvSxoJA1QPkk1rhSWNiDPHKszYrLNuPaAZVp3KdChlMtQxyDg==@vger.kernel.org, AJvYcCUFd8DZl9/8VZ33zhxmpqdBShGS/kznRF7qwx/XG+18AyVDA8UPJV8tKzXHkJvfyOjgKINZsFphTI9QZg==@vger.kernel.org, AJvYcCUrq2ay9MJs0o522tTld/NBRUE5wkWEGYVe38ZR0vVL0U50jAQjF8PuTRc5iUBtydcOWEe9OeEMg0NXQNmL@vger.kernel.org, AJvYcCVhU5tJRl6ifN0WMd5qlx2qM+C+IYPH7zTwh+F05q6fKiqdHq+tiDU4JlIodweE7RSfKrunFkmjhIYfUw==@vger.kernel.org, AJvYcCVlsDVrc3elU6LwNlte/z1r9+75FvCAf7401WmJQ4/t65YzDnRj+s3dTdaregTn+Ip09MEz1BVnfCr5NqAl@vger.kernel.org, AJvYcCWUFzlnMUMFuxWoIssTZ3uoOG2J0cWMFUuuS2SW7p3RThnfPha2LaBJT6mkymMk1LbsGbpPK/G2hNI=@vger.kernel.org, AJvYcCWUM17ywiUSewmsi6e9mWpDjpAtjTTKIhv1U9El1HiEM28iKZWPEVdswVEzPYEO3aq4qVT2Hx8ZTCx+wA==@vger.kernel.org, AJvYcCX/DMi7GixA3rz58ntY9BJyEgDC6Wb+humsIllUOyL1Id3JnYoTxMCjvGW42WkdI4/kz6J724VidcnCPGeIDA==@vger.kernel.org, AJvYcCXRGoxkZVoirASvhObE6uODdKwiFtho6jHLh/jGscZD8pcvoox4xpBTuPA+mNfMq9IBa4FXsArjvJjc+Q==@vger.kernel.org, AJvYcCXZ2zlYcIlo2ke1JnWD5puPRnUeZc9GxMTnZ7Tnnuwm4gGpXM1V7BWWSfSZlptf6c6vc7hnA7AlnMHegGd6WvO9@vger.kernel.org, AJvYcCXjBtlSaqBN4rrAnhmuLIPy0Hq4fuv9p4kp72s3WNVlkwPyxZa7NUtCRY6/ohB8AT9e55Pk6w9iH4LBxSpRl30=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz1Uplx/rjI1GwQN3tLF+QP5AaqwiAXKoGUDQixv2wS6Eo9lK+f
-	KmPfJDwQqNFdp3EYq88fKEtaZRX8IzLaJtnkx5xNBw15MmxsTqkrj6VUpXTASBWd
-X-Gm-Gg: ASbGncvzB1ek0gQb8B52vu9wO0P0ByoequieyX+O5BL0HqnkH96QYKMLZIG/5dWgLpr
-	JUlOqWQTBSUztykQP4V11G0WwZ6fGFxZUiZTuwYqcivzRd+z8OxtB8cLjiAwNMykT8DyZ8Eaphk
-	1C53YForWLfj3n4zXe0rd6aIgwn7SV78jBrhQEEqUJnap0wRkBhMnsDNx50ARsUfan0CR9bq92p
-	F+RaAzHNIuK5UNSZfb+aP74FKkwKfC04AE3LOm1gR6HSin2PgDBjVis1j+54HOJsGOnWBcMgJKq
-	UpCj5Tl4mDYL9peaGkzUEFYn+ss21o1kW17cosB/KQYn8V97EJ7utCzO3bVT+CfT/rsT6IvrtaD
-	Athc1TCBUyHpg7sqMHoYNbQjWGey3j0lEYRhaTOPLSNLTNhcnmKKC90gRHrWKv+De7oF1uPE=
-X-Google-Smtp-Source: AGHT+IFdOe61nFJIUOcSEnlYcSchsWN/94QrRyWLlS24zFBUOfKImNT6AdVPffIk52sInJJy1DiPRg==
-X-Received: by 2002:a05:6102:6cc:b0:4e5:9426:f9e6 with SMTP id ada2fe7eead31-4fdc480e1cbmr4690428137.23.1754381588930;
-        Tue, 05 Aug 2025 01:13:08 -0700 (PDT)
-Received: from mail-ua1-f44.google.com (mail-ua1-f44.google.com. [209.85.222.44])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-88d8f3f016dsm2687418241.15.2025.08.05.01.13.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Aug 2025 01:13:08 -0700 (PDT)
-Received: by mail-ua1-f44.google.com with SMTP id a1e0cc1a2514c-88bbfe763ecso1192580241.3;
-        Tue, 05 Aug 2025 01:13:07 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCU3qh6UCKMGE7jnkUHkVkzHp4TN4Wfv2ZGwkNTduyZHYnn4utOUPisL0iK0G8QhknqhZ+6zQ9C1l6SgYg==@vger.kernel.org,
- AJvYcCUL4a4H1opxEDW1HuK6XpL8gNKGsMhuWHDKu71TjooXNzA8UuzcrYDTw2mI/a7OwMjpqkpLIuZaad32XkPC8g==@vger.kernel.org,
- AJvYcCUnQjrQVqx1urB49quzXXxpEgU0cwa4XPBQB38Z5e/OcIwrnSUBfwf/uO3ay/8NxNXYns7BNbR2UGvAD4kaX5s=@vger.kernel.org,
- AJvYcCUx40Oiprm67hf9rZSqss4NPrLnptaoZx/jRQQ3UWhbEhrRl0AzoystuV56RnIxGzS2KRoDisEVvJ8=@vger.kernel.org,
- AJvYcCV9WkuIaaPAdVumcqLOVtZcZUWYtOCr99IOZ2vnggBt3srZHb0lVmtd6MugieQwltYxvIQlVzpcsDNBDg==@vger.kernel.org,
- AJvYcCVQPy0vnqWfFSMztPIJJdDhA3RcWX79I9OrNOB/NFm+U6lXmGfbnwT9aAl0z8oy28UCvKV6LU/J4Swk+Q==@vger.kernel.org,
- AJvYcCWdroWswvftkvg8FTzX+tfXLXSO3Vm0WDM7fVmmzQJHqE5f5AxR4k83hYwnzT5IoWOAP0/25qrcGkfjAUmk@vger.kernel.org,
- AJvYcCWgyPjJLJwMAxIJcq8Hqmnwe+2UliWdvG/gLBEg+W7axJ21fU7r/NxTIbh9PU7F/T6l6vDVk5CT60IRMA==@vger.kernel.org,
- AJvYcCWj9H2OperikDSa80G76TUkt4FxIVqEQ99k+B4ckW012p6G2gxEiBp9gWTizDxUvMcCfo5W3e7V6pNMFjjr@vger.kernel.org,
- AJvYcCXOVbbF3haTd6plu5a/9/jHhttGkwXNF43NMhgnwQaGr5LMXDS7nvWTlyQPyE4kJueRUeUTajoK8QLdpQ==@vger.kernel.org,
- AJvYcCXTAUjwr3JWn203O4e3bPaLB1UAVXFJ+13HzLJt/y8CfLELYC0WjISTK9vYJL4PTDOY2MxNXBdrrQKY3Z5CW326@vger.kernel.org
-X-Received: by 2002:a05:6102:3a0b:b0:4d7:11d1:c24e with SMTP id
- ada2fe7eead31-4fdc480dc77mr4806207137.21.1754381587163; Tue, 05 Aug 2025
- 01:13:07 -0700 (PDT)
+	s=arc-20240116; t=1754476399; c=relaxed/simple;
+	bh=4ONmXejy9qRChYD8YFLgNZvQakZuFN0pKogdmn9BB7A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lECl74WgiAuBMxhS2Zvk7JkLFiWwgT0MYCLCaX7z3cYlsOr9bY+xIxtfIIHTgMVRTao6UMwhfGw8XIh05roYWoZzY8Yl83s0yvFbsYWlSYlMTmruUr1Wa68XFMGHzPgy+bMGFlM4n12ve7tuFH8Pbix6X+LIkGoEY9Pe9syjCMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bXCsUiIU; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bXCsUiIU"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57692NPP018065;
+	Wed, 6 Aug 2025 10:33:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=3wBoqQwRkSBaQEVLP0xWuNtEXTupVT
+	vuJMqQFfbbBMk=; b=bXCsUiIUGuNdsnpstSK7KJ+EHWCL6u+flAEgHfLhazaMGZ
+	A2cOEBmYWln1FbP2qTEczCBjdPo+RtNzcIMRJ19xPazntSu2S12gUFaaHfuo/nQU
+	jHyAcBmYwm3yQi2lpywOWKhy9UgshrQmFDKiqSYdN0lvR6LteIeMno5fOYwy2N+1
+	SS8FrDWGFapdZMQYu8BDyoEf+invbVP0dQ13P+dm0meAwlmfJ5hGZ1W3Ffuv22RH
+	rVF7zho8Jk2fTvPROq5h3F2/8QA/aNNZQNOFLxnMzJDGjimVoQCGH45+KR3bmLfS
+	0wlyA9YB8dI+vXNZ7cjWcVN308jpV5LOdVcXGSzA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq633jar-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 Aug 2025 10:33:04 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57683Fvx020612;
+	Wed, 6 Aug 2025 10:33:04 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48bpwmu5p9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 Aug 2025 10:33:03 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 576AX2qq32703150
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 6 Aug 2025 10:33:02 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0C7912005A;
+	Wed,  6 Aug 2025 10:33:02 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C7A652004B;
+	Wed,  6 Aug 2025 10:33:01 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.133])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  6 Aug 2025 10:33:01 +0000 (GMT)
+Date: Wed, 6 Aug 2025 12:33:00 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Kees Cook <kees@kernel.org>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org,
+        linux-alpha@vger.kernel.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        llvm@lists.linux.dev, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH 14/17] s390: Add __attribute_const__ to ffs()-family
+ implementations
+Message-ID: <20250806103300.11925Cbe-hca@linux.ibm.com>
+References: <20250804163910.work.929-kees@kernel.org>
+ <20250804164417.1612371-14-kees@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250804163910.work.929-kees@kernel.org> <20250804164417.1612371-11-kees@kernel.org>
-In-Reply-To: <20250804164417.1612371-11-kees@kernel.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 5 Aug 2025 10:12:55 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdWRAxGqLxPY0eZkrg4zMr4qY5KUcTqPjNXEKOTeNYGc8A@mail.gmail.com>
-X-Gm-Features: Ac12FXxoASDmKZziFEtov1BZOWBk9xds-hH6z1CBqhINtQO4YVRNUk0c1YQzJUM
-Message-ID: <CAMuHMdWRAxGqLxPY0eZkrg4zMr4qY5KUcTqPjNXEKOTeNYGc8A@mail.gmail.com>
-Subject: Re: [PATCH 11/17] m68k: Add __attribute_const__ to ffs()-family implementations
-To: Kees Cook <kees@kernel.org>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, 
-	linux-alpha@vger.kernel.org, linux-csky@vger.kernel.org, 
-	linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, llvm@lists.linux.dev, 
-	linux-hardening@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250804164417.1612371-14-kees@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA2MDA2NCBTYWx0ZWRfX1ElbkHLwop5M
+ nPtrgbB752LU1pfAwNBDgIAJaBFi6LdxUXlVN+CUECGityjOLd34EGE9Toa3cseKpijmOYkbMrT
+ aNwZhYK7iA/bCymHo9U7IaM/O7Xot0VGlpwnnhV1aXHyUVrek/1n8npVMb07MiX+K+TDGIg0AO4
+ ihzZswvna0t8psGTcbnxJracRM2oTHbAzHtGyMCKd3aNtNi66J9AADNlixjxITc6ZJ7TjnULCHk
+ P4T4ObjAhkO8s+SveY8dJN1qu9r4TUmsgwFAOb96zQD69cH4RtCGyQz1GCIcyhMWlhz5kn2Ucc+
+ LWbDbC/Jrwgoq+v6/0pZM6yn2Dx13ovRiSUZITmIvPptutFSJZ1mNsE00D5CNG/6vkJ4UDgYu3T
+ wIBBzpQWWdbv/iQCNo1U4G1hbBeBXZZlCO1Mqsl7bXq7JJnmf6ZyHAANHSil8agH6h4bvtmd
+X-Proofpoint-GUID: eM8kqSdm0FroOEI9WgdEMMtevU6pWRX4
+X-Authority-Analysis: v=2.4 cv=PoCTbxM3 c=1 sm=1 tr=0 ts=68932f60 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=2OwXVqhp2XgA:10 a=NEAV23lmAAAA:8 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=La76t7K_3jgqz9qSpcQA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: eM8kqSdm0FroOEI9WgdEMMtevU6pWRX4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-06_02,2025-08-04_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 malwarescore=0 adultscore=0 clxscore=1011 bulkscore=0
+ priorityscore=1501 impostorscore=0 mlxlogscore=896 mlxscore=0 phishscore=0
+ lowpriorityscore=0 spamscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2507300000
+ definitions=main-2508060064
 
-On Mon, 4 Aug 2025 at 18:44, Kees Cook <kees@kernel.org> wrote:
+On Mon, Aug 04, 2025 at 09:44:10AM -0700, Kees Cook wrote:
 > While tracking down a problem where constant expressions used by
 > BUILD_BUG_ON() suddenly stopped working[1], we found that an added static
 > initializer was convincing the compiler that it couldn't track the state
@@ -94,30 +110,18 @@ On Mon, 4 Aug 2025 at 18:44, Kees Cook <kees@kernel.org> wrote:
 > __attribute__const__, the compiler had to assume the function might
 > change variable states as a side-effect (which is not true for ffs(),
 > which provides deterministic math results).
->
-> Add missing __attribute_const__ annotations to M68K's implementations
-> of ffs(), __ffs(), fls(), __fls(), and ffz() functions. These are
-> pure mathematical functions that always return the same result for
-> the same input with no side effects, making them eligible for compiler
-> optimization.
->
-> Build tested ARCH=m68k defconfig with GCC m68k-linux-gnu 14.2.0.
->
+> 
+> Add missing __attribute_const__ annotations to S390's implementations of
+> ffs(), __ffs(), fls(), and __fls() functions. These are pure mathematical
+> functions that always return the same result for the same input with no
+> side effects, making them eligible for compiler optimization.
+> 
+> Build tested ARCH=s390 defconfig with GCC s390x-linux-gnu 14.2.0.
+> 
 > Link: https://github.com/KSPP/linux/issues/364 [1]
 > Signed-off-by: Kees Cook <kees@kernel.org>
+> ---
+>  arch/s390/include/asm/bitops.h | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-# ffs: pass:9 fail:0 skip:0 total:9
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
