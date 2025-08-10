@@ -1,117 +1,101 @@
-Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FCE8262FF8;
-	Thu,  7 Aug 2025 14:43:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3ED827BF7E;
+	Sun, 10 Aug 2025 21:12:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754577803; cv=none; b=dEED8LkZu/EpkzJXBhwRQ8b99IAGOmNEfhBW5EY7xE8EO6oxmaS62Dwu7UdMjSvtHW00HVRRjWRVV81REiNj9KzpzLx4JdPV5uXIsPl54a0Lk4/VV38uk9b9mopdXJqb3j2bet5qeU1x5WbmigJTdaqrUxnySV60J3AwB6tKAKo=
+	t=1754860351; cv=none; b=aYhCmA1wcMmdwi4LMrSPG+ppKTdybylLhkYs4Jb7QOLy8yD5XWGE62tfWDuN4YZ6SGUk11tr8esAdxNyKMxPW6A2cmfqD0s3rScas9vvbBpAxJXSk9D/IiMyp8zBnHrNveWJBznjFcxs4bGf3DaDtABWeLU4uPIFmMAdUIukylU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754577803; c=relaxed/simple;
-	bh=y//IMsBANN67YjgRvFs1TqJNvAqanY/RR7wYOqvwarQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=j072cA7J2Xq6pyO2GSQS4o81rGlMfPRyEpUD/o+fZ6v5th8youJk50D4N1/pqeXoYf2GRFgN6dyqDKS8k5gGp2ioh2Mp1N7PBMFwkTpZ9l1wP37Cn1gt7Q1Wo7I33uBjniH3qTRT63NDXNymUAvGo3QqPjH5D/tIrUgmxkph27k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ghiti.fr; spf=pass smtp.mailfrom=ghiti.fr; arc=none smtp.client-ip=217.70.183.193
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ghiti.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ghiti.fr
-Received: by mail.gandi.net (Postfix) with ESMTPSA id D90BA4432A;
-	Thu,  7 Aug 2025 14:43:12 +0000 (UTC)
-Message-ID: <53b98e1e-4f7e-4320-8d04-d84dd2c4092d@ghiti.fr>
-Date: Thu, 7 Aug 2025 16:43:09 +0200
+	s=arc-20240116; t=1754860351; c=relaxed/simple;
+	bh=+EPDIqigYF0dLwDVKm4n7P07Soa8UCdwgsSbIhQglhg=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=oyUgp3qRB2j4IMdggGxG2kfr9C3Dp9FbXnN2SAJV4dQgskndKgIrP57GITai/O90fWuVpif9A9ruVSCtGy7JSHrqy4KYKpSVlfz1Naco4FfKvprxsZz4qCP/YZ/fCzlEvmBjjzjAC6lyNFc1oJ437rv4W/K3oZIPDFW8mzvZuUo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PRWX9qby; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PRWX9qby"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E2A6C4CEF1;
+	Sun, 10 Aug 2025 21:12:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1754860351;
+	bh=+EPDIqigYF0dLwDVKm4n7P07Soa8UCdwgsSbIhQglhg=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=PRWX9qbyv9u6FbnKrFjePyfsaZ737MOhr4mO7TsZ7R+GzU8zlYvZAYf8JD/OXtEUT
+	 hA9ZGe4MgMB70B1Zw0njMIw4A2/fhOmu8/xlsiHxmIUZJvNyZW6a8uiunB9JTjc62k
+	 WQvCcnsGvL3edUrU5mU3msfwtOhFXOborJRekZFipn3fdTQKLp1K+FdaZrtWvHMoCG
+	 BjGMfqHcgkkIzLtrpEo6cyj4t26pG93hr2845rzETZe270MpglUmq+wxcG1OLi+DB/
+	 81Kg/BR1SiRTfzYt5r1OrTvGUw8lrqFdyiU9Eqy8LtRG2Wu0knKnUQq5VbApAR7XFV
+	 wpBAVMLGZQIKw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33BB739D0C2B;
+	Sun, 10 Aug 2025 21:12:45 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 09/17] riscv: Add __attribute_const__ to ffs()-family
- implementations
-To: Kees Cook <kees@kernel.org>, linux-arch@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
- linux-alpha@vger.kernel.org, linux-csky@vger.kernel.org,
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH 00/23] binfmt_elf,arch/*: Use elf.h for coredump note
+ names
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <175486036374.1221929.319441619761028585.git-patchwork-notify@kernel.org>
+Date: Sun, 10 Aug 2025 21:12:43 +0000
+References: <20250701135616.29630-1-Dave.Martin@arm.com>
+In-Reply-To: <20250701135616.29630-1-Dave.Martin@arm.com>
+To: Dave Martin <Dave.Martin@arm.com>
+Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+ davem@davemloft.net, hpa@zytor.com, James.Bottomley@HansenPartnership.com,
+ akihiko.odaki@daynix.com, aou@eecs.berkeley.edu, agordeev@linux.ibm.com,
+ alex@ghiti.fr, andreas@gaisler.com, anton.ivanov@cambridgegreys.com,
+ bp@alien8.de, bcain@kernel.org, catalin.marinas@arm.com, chris@zankel.net,
+ borntraeger@linux.ibm.com, christophe.leroy@csgroup.eu,
+ dave.hansen@linux.intel.com, dinguyen@kernel.org, geert@linux-m68k.org,
+ guoren@kernel.org, hca@linux.ibm.com, deller@gmx.de, chenhuacai@kernel.org,
+ mingo@redhat.com, johannes@sipsolutions.net, glaubitz@physik.fu-berlin.de,
+ jonas@southpole.se, kees@kernel.org, maddy@linux.ibm.com, jcmvbkbc@gmail.com,
+ mpe@ellerman.id.au, npiggin@gmail.com, oleg@redhat.com, palmer@dabbelt.com,
+ paul.walmsley@sifive.com, dalias@libc.org, richard@nod.at,
+ linux@armlinux.org.uk, shorne@gmail.com, stefan.kristiansson@saunalahti.fi,
+ svens@linux.ibm.com, tsbogend@alpha.franken.de, tglx@linutronix.de,
+ gor@linux.ibm.com, vgupta@kernel.org, kernel@xen0n.name, will@kernel.org,
+ ysato@users.sourceforge.jp, linux-arch@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
  linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
  linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, llvm@lists.linux.dev,
- linux-hardening@vger.kernel.org
-References: <20250804163910.work.929-kees@kernel.org>
- <20250804164417.1612371-9-kees@kernel.org>
-Content-Language: en-US
-From: Alexandre Ghiti <alex@ghiti.fr>
-In-Reply-To: <20250804164417.1612371-9-kees@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-GND-State: clean
-X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgdduvdduudelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkffggfgfuvfevfhfhjggtgfesthejredttddvjeenucfhrhhomheptehlvgigrghnughrvgcuifhhihhtihcuoegrlhgvgiesghhhihhtihdrfhhrqeenucggtffrrghtthgvrhhnpeehiefhuddtuddukeetkeehhedtffduhfevfeeftdefveffgfeuffejjeejfeekueenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhppedvtddtudemkeeiudemfeefkedvmegvfheltdemlehftghfmeeksghfleemleeludgumeekrggrfhenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvtddtudemkeeiudemfeefkedvmegvfheltdemlehftghfmeeksghfleemleeludgumeekrggrfhdphhgvlhhopeglkffrggeimedvtddtudemkeeiudemfeefkedvmegvfheltdemlehftghfmeeksghfleemleeludgumeekrggrfhgnpdhmrghilhhfrhhomheprghlvgigsehghhhithhirdhfrhdpnhgspghrtghpthhtohepudekpdhrtghpthhtohepkhgvvghssehkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdgrrhgthhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehli
- hhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopeigkeeisehkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdgrlhhphhgrsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqtghskhihsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqhhgvgigrghhonhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhmieekkheslhhishhtshdrlhhinhhugidqmheikehkrdhorhhg
-X-GND-Sasl: alex@ghiti.fr
+ linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ loongarch@lists.linux.dev, sparclinux@vger.kernel.org, x86@kernel.org
 
-Hi Kees,
+Hello:
 
-On 8/4/25 18:44, Kees Cook wrote:
-> While tracking down a problem where constant expressions used by
-> BUILD_BUG_ON() suddenly stopped working[1], we found that an added static
-> initializer was convincing the compiler that it couldn't track the state
-> of the prior statically initialized value. Tracing this down found that
-> ffs() was used in the initializer macro, but since it wasn't marked with
-> __attribute__const__, the compiler had to assume the function might
-> change variable states as a side-effect (which is not true for ffs(),
-> which provides deterministic math results).
->
-> Add missing __attribute_const__ annotations to RISC-V's implementations of
-> variable__ffs(), variable__fls(), and variable_ffs() functions. These are pure
-> mathematical functions that always return the same result for the same
-> input with no side effects, making them eligible for compiler optimization.
->
-> Build tested ARCH=riscv defconfig with GCC riscv64-linux-gnu 14.2.0.
->
-> Link: https://github.com/KSPP/linux/issues/364 [1]
-> Signed-off-by: Kees Cook <kees@kernel.org>
-> ---
->   arch/riscv/include/asm/bitops.h | 6 +++---
->   1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/arch/riscv/include/asm/bitops.h b/arch/riscv/include/asm/bitops.h
-> index d59310f74c2b..77880677b06e 100644
-> --- a/arch/riscv/include/asm/bitops.h
-> +++ b/arch/riscv/include/asm/bitops.h
-> @@ -45,7 +45,7 @@
->   #error "Unexpected BITS_PER_LONG"
->   #endif
->   
-> -static __always_inline unsigned long variable__ffs(unsigned long word)
-> +static __always_inline __attribute_const__ unsigned long variable__ffs(unsigned long word)
->   {
->   	asm goto(ALTERNATIVE("j %l[legacy]", "nop", 0,
->   				      RISCV_ISA_EXT_ZBB, 1)
-> @@ -74,7 +74,7 @@ static __always_inline unsigned long variable__ffs(unsigned long word)
->   	 (unsigned long)__builtin_ctzl(word) :	\
->   	 variable__ffs(word))
->   
-> -static __always_inline unsigned long variable__fls(unsigned long word)
-> +static __always_inline __attribute_const__ unsigned long variable__fls(unsigned long word)
->   {
->   	asm goto(ALTERNATIVE("j %l[legacy]", "nop", 0,
->   				      RISCV_ISA_EXT_ZBB, 1)
-> @@ -103,7 +103,7 @@ static __always_inline unsigned long variable__fls(unsigned long word)
->   	 (unsigned long)(BITS_PER_LONG - 1 - __builtin_clzl(word)) :	\
->   	 variable__fls(word))
->   
-> -static __always_inline int variable_ffs(int x)
-> +static __always_inline __attribute_const__ int variable_ffs(int x)
->   {
->   	asm goto(ALTERNATIVE("j %l[legacy]", "nop", 0,
->   				      RISCV_ISA_EXT_ZBB, 1)
+This patch was applied to riscv/linux.git (fixes)
+by Kees Cook <kees@kernel.org>:
 
+On Tue,  1 Jul 2025 14:55:53 +0100 you wrote:
+> This series aims to clean up an aspect of coredump generation:
+> 
+> ELF coredumps contain a set of notes describing the state of machine
+> registers and other information about the dumped process.
+> 
+> Notes are identified by a numeric identifier n_type and a "name"
+> string, although this terminology is somewhat misleading.  Officially,
+> the "name" of a note is really an "originator" or namespace identifier
+> that indicates how to interpret n_type [1], although in practice it is
+> often used more loosely.
+> 
+> [...]
 
-Tested-by: Alexandre Ghiti <alexghiti@rivosinc.com>
-Acked-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+Here is the summary with links:
+  - [16/23] riscv: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+    https://git.kernel.org/riscv/c/c9502cc7bef5
 
-Thanks,
-
-Alex
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
