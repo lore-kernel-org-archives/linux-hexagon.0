@@ -1,62 +1,62 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E512B270569;
-	Thu,  4 Sep 2025 06:23:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03546277011
+	for <linux-hexagon@vger.kernel.org>; Thu,  4 Sep 2025 06:23:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756967016; cv=none; b=m9GjmwZBW41JEmSEQ9vdKRBPs6jRCo8NVLCRtdKjQTjF6H9SDsG9/FFiBNR6MLwKHvrkFt1pmUoJAF3BbVXh25GiDdEaoJCpwtcJvFRrfMWuyHE0z1Au78kCgrTH+OtbdDbtj25Sri/zJ/Vsc7TJz4MlCJMWEqJhyahupmBSuTI=
+	t=1756967019; cv=none; b=WfCfslcgt2h3xCDMemrIfkHW+I4KhUVXsC9LMbpEFInlWSqTVowHaG86nDrQnyx3rwOLQt2EMnB8Q9ulY1pF424DO+BCT4v20oPCBao3pChgVD1J4MBIca9v4qG4g5dZDe9kF5sKUD4SzcOtrQMG5EkKAx0lulrzu1UVd/GX8Ag=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756967016; c=relaxed/simple;
-	bh=FtQO0Dbm2SXH3uBf0VSsa5xSivK0rkA6x4x2tRu/40I=;
+	s=arc-20240116; t=1756967019; c=relaxed/simple;
+	bh=/EnJgE7OJBZX59ejos7JhFpHDpm1x9yOWxaC8UYxIp0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kFi+zNwv3S+h58nGvWFxW730615RhEyNHF8K48QTxPbLUmnqAUHKvrftVdWHyi45LQ5Rs7yGwJCFyGxEGwmVOotTFhHHcHbJhj6jbbl7HfJWlBcoiRNQo9HvxXu0U559bx921Fsmticm+LxIltkRgEKQTYzaf84Jg3Ni7OeLgGg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Cpd54IMD; arc=none smtp.client-ip=209.85.210.182
+	 MIME-Version; b=cdjWv+K4PTM8/ew2B434TSGRkV/A537bgJYvFKHSQSiunDoJzG+9GEDZnGFu93SklZLjresVXLh+Uyk9g79lCzUq2u8wws2SQPU+uZqR7xpbAKh0edIdYj0Q3GGm14t7g0e8qHl8jmjcThIe/HkG/STUCcjhOYPga2+hXdbSOBI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nEDX2+/3; arc=none smtp.client-ip=209.85.210.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Cpd54IMD"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-7725d367d44so78377b3a.0;
-        Wed, 03 Sep 2025 23:23:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nEDX2+/3"
+Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-7724ddbcdaeso43744b3a.1
+        for <linux-hexagon@vger.kernel.org>; Wed, 03 Sep 2025 23:23:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756967014; x=1757571814; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1756967016; x=1757571816; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gqScMWwsIOO4FF9xXYpH5H8Qrvhh65CN828Ff85nqcY=;
-        b=Cpd54IMDkueiz3SvEJIrjKOXdj7SPykNZoSVYE1aR6uKA2qWMG4+iAVVyzUz0ppRh/
-         5hH4NlURFclk5linauPyZOOFfcbc8BFD9PkVBF/4LKn8Z5mevdwPkTiiC2dj7Cqe1yrW
-         DXbMeutOEL4rXmDRwQXntTxH6ot1WSjRkewsxykrtjWvn68PksnHpaHG1aoohBkL0qRq
-         cFQLMbxuAzo9b3bcJkp0FFCr4XVKDwFKRg+S/mql+24+zomlTtNQD7QCSv4WtIZ+5qHM
-         1ec1Av+7oIC/PCVpS9eQhAUikfX3AgKsdRpkt79vThSlA2Lc/FO2yhwbe+klNI42W0qm
-         0EeQ==
+        bh=MpJy0SmFfEmeoeaFkzFs+WVa2Vc5JdK+bPJTBjQhA74=;
+        b=nEDX2+/3w6o88I1/2zC/XpxuU2gaC6xdL+klCPa6s70Zht9mP/9n7kqxkl7DbutD33
+         TrSwS5rWj5xfHS8Pdts01JTrn3IpXmeMGGdO9AaGp/Bdybxo2pfQ793UaZzYPqSgRJM8
+         3WYxy9KlJhsWbBu2smAVKGGt4RsPfxBZgO9nppnJacrAaih0K0cFWxIkdtZKwtl+VbvL
+         jelQregH5bqPNh6OePYtBzl0hUF8o59mrhyX0rKEb3V+q4uOQdgsUxyDBhnsfDi7EOKj
+         4bqAa6mFx919+1sqcHfRAo8Amwqe1LOdBGXi6ZiXMBI2EO986C2PHuR9WfzyfjLbw21R
+         9iYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756967014; x=1757571814;
+        d=1e100.net; s=20230601; t=1756967016; x=1757571816;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=gqScMWwsIOO4FF9xXYpH5H8Qrvhh65CN828Ff85nqcY=;
-        b=pPEfUMC5HM21UJYkfT73TdnKa4hs34yZyvoaY3akhVengNS2FTrEm7c0+g+nNsNWRy
-         XLCR2JKK5cHlYdS9aPqeEdaTBtzrUfeRskewueJ+a8H3Wpi9jaPTkV4cW2iewsf1Noc1
-         1AU2ZTEpjoOP8Qe0z6fOtuz4b4ZMIhDOX6GJbJTXR5e39Tr4eea/Jg8rLni7fg27Pbo2
-         1u5AuxHxN8QuyGAEDZxCf+iIiHaTAYKtvxb0hxJ88pOn7PzNYeWqSrdIZt3e0ew4TY1n
-         9ORpAHFdcfIHBLpfSCIcnpWo32GIk2yO+dGJow4nNs3O5ziYtnlkekUERGJMXt7q9Mry
-         tpxA==
-X-Gm-Message-State: AOJu0Yy5b0ohraK7+RVcqeSRxia2UZyM/dVvNWnXQ00Zj2BdNQcaN7xj
-	dp92mhYZh/AeyAclx3PHVWExC64eOnSHTZcov0a2TbmGrE9t4UKmjSpOY5oxUFpy
-X-Gm-Gg: ASbGncsHCUoqHm8mnrscgEEJR8w/rw6D0g9P41V/N2hKSTY50C/0FNJwWUZELJZEvzf
-	X164lCr9Ku1RCSx2gLeY87f5gKIUu02kjefTGRyUNHfFRWnWnT5v4GEyjXw7iNnUZDo2zgRyRfc
-	qfXip34eBoKUsj8rM94DPDmVrcL1GNQrOCupDRgGnsuLEAvghRrRjvpeMm6rew2QEbVHdteGKjb
-	UvoW9yMpwh8VvVKB/OVGIpoxhHooz+BFJDqf+vy9kP3KloxnxxQopQgLiFTKsv3Asj+LuOKNXt0
-	+nGcNWM3DwJ0cLZI8jWhqKMizKYY3Yh8BOtASeCP7j2cVoZ1eHdsQ3jsRQuSDeLtCYEuuaKvkPW
-	Gkd3c9zgmid+Jh+xbtLiCAgQakVJA8hAIa35dVw==
-X-Google-Smtp-Source: AGHT+IE3MI26sAwnImiGvLQXuXNemBNftGP4w8LXCGks2pKBnCEqIde5OjlQ7uQs5W6tzYw0B9IWqA==
-X-Received: by 2002:a05:6a00:2290:b0:772:c3e:58ef with SMTP id d2e1a72fcca58-7723289dc3fmr13880730b3a.6.1756967013538;
-        Wed, 03 Sep 2025 23:23:33 -0700 (PDT)
+        bh=MpJy0SmFfEmeoeaFkzFs+WVa2Vc5JdK+bPJTBjQhA74=;
+        b=t5uPqV6OzmIeeCHKSQhgOOB/GZmNSa8pe3GDthj6RgfsZypfKtZDurNlxYWot/UTZv
+         YCqOPSSU8gAxasrLbWumIt4B1TxXPE2xa2zQpS1JrTNP088JjWnlD73WAN/dkXPj+6xV
+         HT/HGP64cuLrPDVB58w4D5EDmxqPnFcXu1Ns8sz5nsC4CksMg/milKqDo4CdS28DMdsa
+         zMeRPqnrB1ISBKTpZFQDVkU/Uv4N9B319BQD1/zyyF+AJlt7J3YeBcmQ6wGb8Non4Wi3
+         MHaomeFb7lIDc0S9oFfVdemD4WusIQtYfpRbFeBRbJWneFJp1jZRqLqECpuBw2uSXmiC
+         COJw==
+X-Gm-Message-State: AOJu0Yy81JYQQzMFUzbZDQAWIm6dBrcdc9lbRdR18FMPdq9WLEI1Sxsz
+	FKFe9bLZq66memmugAZnp0OKkje5b/yv2ps8S7nbFKylPCrRRH2ARz5E
+X-Gm-Gg: ASbGncshw1POxwRviDx0hZwM1hpo5KCzKWEfRLM3AZZocOYB64SAAmscTjo+WLekkym
+	qw/s1PP/lLjWCxrx8DLbw/ARrAsqgK7UjYuQBClrZhfEu8dG7YBb8YI3nrwkq1AYz0UtaGceSVJ
+	GQwb+ZFw0SNh2Scm+HvM7vBZ7UYMbUEmNek8oqsx4OA8k7ih1EtzAggGh98WYyDVb/VJF1u89OF
+	PitcVsS5n5GNTQtXwX9afFsy3FEQB3s62CInXobuQN5J++S54MzGG6KY2L2Ki3BSCGqmz6ilBrn
+	xCZ9jXhPpqCWe+mO9Cr07/V+bs4Vw/5I78eZANwftg/fTIjFowAo5QhBDmP/1pnPuJYNZnR2zEG
+	7/jtIK/FxxdxL2jqVU1XZJIwDWD1tH3WStvTYCsiFyY3Pleh/
+X-Google-Smtp-Source: AGHT+IEBJZvQVehY2sHFoniuE6A9P1WB/bX16Yql21Kl7/uCiWvYj5gVnHq0ENPDwr3ALXi69eZlZA==
+X-Received: by 2002:a05:6a00:1c:b0:772:39db:fa09 with SMTP id d2e1a72fcca58-77239dbfb77mr9444420b3a.5.1756967016264;
+        Wed, 03 Sep 2025 23:23:36 -0700 (PDT)
 Received: from hobbes.T-mobile.com ([2600:70ff:f833:0:8e07:c9e8:902c:6ffa])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7725f0c4008sm10198397b3a.35.2025.09.03.23.23.31
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7725f0c4008sm10198397b3a.35.2025.09.03.23.23.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Sep 2025 23:23:32 -0700 (PDT)
+        Wed, 03 Sep 2025 23:23:35 -0700 (PDT)
 From: Joey Pabalinas <joeypabalinas@gmail.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-hexagon@vger.kernel.org,
@@ -64,9 +64,9 @@ Cc: linux-hexagon@vger.kernel.org,
 	Brian Cain <bcain@kernel.org>,
 	Kees Cook <kees@kernel.org>,
 	Joey Pabalinas <joeypabalinas@gmail.com>
-Subject: [PATCH 1/2] Hexagon: change "a mm_struct" to "an mm_struct" in comment
-Date: Wed,  3 Sep 2025 20:23:25 -1000
-Message-ID: <4c3812e5903e4e91587eff3c37b7aee4b35ddf20.1756966290.git.joeypabalinas@gmail.com>
+Subject: [PATCH 2/2] fork: change "a mm_struct" to "an mm_struct" in comment
+Date: Wed,  3 Sep 2025 20:23:26 -1000
+Message-ID: <1c468cd846ba6839fea08df36d8d6e9718625661.1756966290.git.joeypabalinas@gmail.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <cover.1756966290.git.joeypabalinas@gmail.com>
 References: <cover.1756966290.git.joeypabalinas@gmail.com>
@@ -83,26 +83,35 @@ in the kernel.
 
 Signed-off-by: Joey Pabalinas <joeypabalinas@gmail.com>
 ---
- arch/hexagon/include/asm/mmu.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/fork.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/hexagon/include/asm/mmu.h b/arch/hexagon/include/asm/mmu.h
-index dfa46660d695bb65b4..ce784218dc67c92a94 100644
---- a/arch/hexagon/include/asm/mmu.h
-+++ b/arch/hexagon/include/asm/mmu.h
-@@ -7,11 +7,11 @@
- #define _ASM_MMU_H
+diff --git a/kernel/fork.c b/kernel/fork.c
+index af673856499dcaa35e..9a783cd46d097a2d68 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1397,18 +1397,18 @@ static int wait_for_vfork_done(struct task_struct *child,
+ 	put_task_struct(child);
+ 	return killed;
+ }
  
- #include <asm/vdso.h>
- 
- /*
-- * Architecture-specific state for a mm_struct.
-+ * Architecture-specific state for an mm_struct.
-  * For the Hexagon Virtual Machine, it can be a copy
-  * of the pointer to the page table base.
+ /* Please note the differences between mmput and mm_release.
+- * mmput is called whenever we stop holding onto a mm_struct,
++ * mmput is called whenever we stop holding onto an mm_struct,
+  * error success whatever.
+  *
+- * mm_release is called after a mm_struct has been removed
++ * mm_release is called after an mm_struct has been removed
+  * from the current process.
+  *
+  * This difference is important for error handling, when we
+- * only half set up a mm_struct for a new process and need to restore
++ * only half set up an mm_struct for a new process and need to restore
+  * the old one.  Because we mmput the new mm_struct before
+  * restoring the old one. . .
+  * Eric Biederman 10 January 1998
   */
- struct mm_context {
- 	unsigned long long generation;
+ static void mm_release(struct task_struct *tsk, struct mm_struct *mm)
 -- 
 Cheers,
 Joey Pabalinas
