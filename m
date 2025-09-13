@@ -1,63 +1,63 @@
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 722A77DA6D
-	for <linux-hexagon@vger.kernel.org>; Sat, 13 Sep 2025 00:53:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B66524C83
+	for <linux-hexagon@vger.kernel.org>; Sat, 13 Sep 2025 00:54:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757724793; cv=none; b=ZJzMRxHW9EnCWANB3EA2XjPz0WCs+GEazFe9BTU8/YB7Hltya2QOyDAObp5i8XU7OV1n4OgmnBbgTbwFI44uzObYIVyzky9WL4cafRGo8pWtOR8nVJDDTmn3f1JnqvzyjTyCNLVTpOmpq0p4fnkd/6IKNZAv9cWJ3Ebe8ec1v40=
+	t=1757724857; cv=none; b=D179LJEK8PB23gLx7N1ApuUDIuTPbEXC7h8tXCH8vFQFGPWAXFW1Uz/AkjcW2QPsG3HrdIPVZndID3ymh1kAnOvoHpEe3P76B4oaMd4E/p8LWbqcuDLDdtJvEGQpJN6HR8rW5ZOqJFgrnaHs3txALQkqPkAkWvA2eu7+w1SP8Xg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757724793; c=relaxed/simple;
-	bh=x5NNVyIF1R5eB/2ANpkfxinDkMZ4lHIXMUphyEE4B54=;
+	s=arc-20240116; t=1757724857; c=relaxed/simple;
+	bh=Jkxu5ZUI0H6ttWYEi4Z84BWe03GXjUbvUo6lUIoM5rY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mPDcOfCZ9W/BoXnvp3gVW2bmI88YxZPVbAguI1K0cV5ohslNgC6rDURpTNy7V05c775JuPopMw6do8qwDPTbulesewE6UoEi4YpiqfOxB4YZP0eYOonl5BqS+wVqnWqLcEPoook4Ca4mzi9IcwrIJqzyhvFMo6lw3J/J029zsyg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KGKxaKJJ; arc=none smtp.client-ip=209.85.208.54
+	 MIME-Version; b=QYCN8P0E9Y0Du7WPDn8liOdkC00snf5Da8uougHz4EixNa0W5qJMf1w71hfIcbrXsM/Mowe/EF3L2nN/dU+eCAJA+H1srYbR/kyLT/AHJOMZ2//b9ddgXLb0vMix5y7oLWoEb0+owB20ziN8MWZdj5KoGCPmDHL+SyvB6rtiR4U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NvT6e3Ob; arc=none smtp.client-ip=209.85.218.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KGKxaKJJ"
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-62ee43b5e5bso2137853a12.1
-        for <linux-hexagon@vger.kernel.org>; Fri, 12 Sep 2025 17:53:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NvT6e3Ob"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-b07883a5feeso443760866b.1
+        for <linux-hexagon@vger.kernel.org>; Fri, 12 Sep 2025 17:54:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757724788; x=1758329588; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757724853; x=1758329653; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=qPSAK5Fj4YQSUyCSJit30V41XYzOMHEP2qtV3SbNp88=;
-        b=KGKxaKJJAEmQb6XUp3nRwdDCCxc+u+hiDne6Z/NPf1uixihci6LE3WqQK66IqjXdY4
-         Xb/SIK40YfVhek6ziJiApcg4teUqoYD+EUABCY4ZDilpIOpcxVeVt4xnP8Y3hMV830Jd
-         BgRCzsXLuAt/64gYNvjWjTt0faQGDNZq5VES2V7LFxosLo+CyBxCqy0cFlgLTUfnd41y
-         g5A5xGHGNE2ZrRJQWf4a4OG0sSfOVWqShG7OAgFkdiIQMVcQX7NExVIHdtllyNXyAyPe
-         SXalYa6zfu1Jnx/pFPicmNaDPB3e4ynKFhUSu4lO0eWu8UaD73J3NMjlvmNcETXjIJLv
-         jaTQ==
+        bh=HNaBVV0FpkKN0cdUwxCZ8fQss5eC0TEeX4co/5GJ2YQ=;
+        b=NvT6e3ObjPoqqPnxCS60GcwK+yLdOlfN22Jnv2lY67RA/U1al/OIo3S4BwG/GKULue
+         oTCpL8coYPSgHWTBgX54uuCFQcUq1LHojhq2vj1SU0MSap61BLXAyUIZVC9Wm8MNNSKQ
+         ZIJvpWkRvAUlrww9wJU5tj83FxL3UGf6dcaoDZIF/lsSYItI6HG6gpZSxJDoVbVfCCvt
+         rdp0lb5dDw4ls+bnlyJn6EDojFmBWvllBN5GBV9Xi95j5sjAnNZnWIgr/IlHDyt1nZ0I
+         q0ApG2FWKiKptbJBqBpWqvJuz2WEwrbOtYPrqw9HMraW/wyXa/GoD5KUhkMKAT0DY+iW
+         pwww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757724788; x=1758329588;
+        d=1e100.net; s=20230601; t=1757724853; x=1758329653;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=qPSAK5Fj4YQSUyCSJit30V41XYzOMHEP2qtV3SbNp88=;
-        b=rcaxTBND59Uvh5GqqxdQzH0OQVHGg9Bv4IF9ZgpUZ3vA7HO9DOc+oCgnF1EBVD4L8b
-         ZpvWuWcp/n9L0ATz+thvm9cwyKU6Rk3bX+rJqj9tYinLxeaBR5pFshv39eQUttiJoFu6
-         oVmu1SeFqi5Yh+y6q0MiljG9OBAYn5A2ZPVeyme+yZnb8rtNw486UQu1gRewV0EXKOW8
-         McI2CH8zEgH+2YQYZ3gau3GRe2whT91GhK/wgFHLAc0q49hvTD43fw2cKHEMEwSDboMN
-         CjtK7KS9RJ32QtNvl/5h3W8CuoOo+tgQKkeTXivyk+fIaQeTwIAFAMkaVZ2c9Jdqsz/l
-         anDA==
-X-Forwarded-Encrypted: i=1; AJvYcCVG/b3YUpWMjFhzXu9PuJncEHyk0XZI7eWUmLaUP738eusOW1ze1d6ayFcbkwNO14y0SYQJoo0+xXBfS1sH@vger.kernel.org
-X-Gm-Message-State: AOJu0YxderYrohRn1x8P5Afd4u6C7Z9RYwE9cGQ83bZSznH8QcXauEj1
-	KpvBceNK3qdy17Y9bbqApfTftdMm5RAx1QU39YIGIUa7rjZh4UGSRDoN
-X-Gm-Gg: ASbGnctDp5kAJIuLKeUGgZmHxw8kDza1MA1B94QRgZAwh242JnlAumr8BB6R6JSea2K
-	tbgNud76npxM5pVOE3uv3UPL+BACuxUMgGUSDUumEEUNNX594EWJwwbpJBaYFDc4Jom8TcXSi2B
-	ncOrlZEow1yvq13JWIzsruvmJ258WcSWQJXjnhw3kNwCYcYiWFFXMQ0a/3GhBpPdmAWFXRtIb5o
-	P3kNxj66SqCJ73rXgBLaT+Yl6bcJiBtnTsmxQRgtL32+1low58G4dygqUIWt3qE0c7yZkUcdSON
-	mvgPyQhNlk0BpJH6NMBieFeTD/BAhnv310HxVdVX52AQsIXLr8KtLBLG80BFbOEEYl4LeJ1dVFV
-	1asDPgzf1N8d37dGmYSBPpzldInjv5A==
-X-Google-Smtp-Source: AGHT+IFLH7pCvIgBYHEI5BCYMw7iR++gatKVbesXKTxSAgJfhChwCe/V59YIUp3mRnJ55soXUGFMnw==
-X-Received: by 2002:a17:907:da4:b0:b04:2cc2:e49c with SMTP id a640c23a62f3a-b07c35bbcbbmr535243766b.19.1757724787764;
-        Fri, 12 Sep 2025 17:53:07 -0700 (PDT)
+        bh=HNaBVV0FpkKN0cdUwxCZ8fQss5eC0TEeX4co/5GJ2YQ=;
+        b=uMIcPpmgifQRCLo4wtT6oR3IzKbCrWv0JfehfRoJS31PBXgESyFZ2o43Ow/KEM6OyH
+         JETlGL5kLM38OBnKVqW+QuimQHoRwxht6O1SdelU5DZJy6KQk6L4rH4chLWwrs1CA9Cg
+         fAnkH0AqDwKShFrkWqRk4H8sC12eGEIyMdEgtQa808MNBG+v9XNEQ7jVC6sLmnUT1nqG
+         A45RlC1pKb3cIwjVwkNEjxYzISqcQicrMG1vSLr9rUivGM0Ht9Wm8MxLhaGp/M6uVXPT
+         k9zRco7kY5QINJP8wlBcKf+smQbCt24r0mHdqM3KFPd/HSBB3i4o4VvE6ZMZROVEMIwI
+         uATw==
+X-Forwarded-Encrypted: i=1; AJvYcCVJOyEbF6YBv/rblh6L9wvkEGQHyU3Az9n2KDhY8SY4av9X09o3p/Hw3EG8eCAjjCHAJBk+Gq9RTBfqWAX0@vger.kernel.org
+X-Gm-Message-State: AOJu0YyS8dQ+rTJolb7nB67G4ll8MSqNFLE+0nrghZVnDq16YkelnjYC
+	GcWIOKN8Aoc6FISr5IB2gyUw8rddzp3rQN/3u7Z2OG48Mwc49YL0T6QV
+X-Gm-Gg: ASbGncs3hbJNN3NLlDU7EYd7KN8ptGlHoMko1cF6Wa+2yIZLdCTW/WsBTOHFAr+Z4DE
+	Iw1Ug/BXKgwk/jqv3Fq/UWbFwBs0demHHnJACLmPaK3YcQsnZzRAkUXhiClRaYoNjFaOkYVw2Oe
+	OpGsIRCQAooYFeB7TpOlWHWnIkYZyZH9zJjjAha79q+TUnQowQdfI3KoPJ2D0ShPfsVPcaC2G1+
+	A9D702+RrQY4OH3os9Sy8nSgqVEoZzNNm6DC6F5Xx52xJEpnR1e21grUqzQ+GPrgJ46WFGl4cjJ
+	f21G0dehI9NLOFjnKz1MCx55ykJEA5Q85/4rUYf0SO7FQhKn9Cj3WVR1u4QvfBXO0EvtNw+J0tc
+	1PWzQH1tTsdXvF2XiFm4JfC6LEQbdAw==
+X-Google-Smtp-Source: AGHT+IFRAhwUW5zsVWdQl7rom9u+xngcdJiQFGIxNb9yv6sUT2JdEwHxw5AIwBj5WkuunZa0hzcUAQ==
+X-Received: by 2002:a17:907:7e8c:b0:b04:3513:5138 with SMTP id a640c23a62f3a-b07c37fca87mr474198766b.41.1757724853144;
+        Fri, 12 Sep 2025 17:54:13 -0700 (PDT)
 Received: from localhost ([212.73.77.104])
-        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-b07b32f22e8sm477916866b.87.2025.09.12.17.53.03
+        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-b07b30da310sm465332066b.20.2025.09.12.17.54.08
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Sep 2025 17:53:07 -0700 (PDT)
+        Fri, 12 Sep 2025 17:54:12 -0700 (PDT)
 From: Askar Safin <safinaskar@gmail.com>
 To: linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org
@@ -113,9 +113,9 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	Thorsten Blum <thorsten.blum@linux.dev>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	patches@lists.linux.dev
-Subject: [PATCH RESEND 12/62] init: remove /proc/sys/kernel/real-root-dev
-Date: Sat, 13 Sep 2025 00:37:51 +0000
-Message-ID: <20250913003842.41944-13-safinaskar@gmail.com>
+Subject: [PATCH RESEND 13/62] ext2: remove ext2_image_size and associated code
+Date: Sat, 13 Sep 2025 00:37:52 +0000
+Message-ID: <20250913003842.41944-14-safinaskar@gmail.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250913003842.41944-1-safinaskar@gmail.com>
 References: <20250913003842.41944-1-safinaskar@gmail.com>
@@ -127,80 +127,56 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-It was used for initrd support, which was removed in previous
-commits
+It is not used anymore
 
 Signed-off-by: Askar Safin <safinaskar@gmail.com>
 ---
- Documentation/admin-guide/sysctl/kernel.rst |  6 ------
- include/uapi/linux/sysctl.h                 |  1 -
- init/do_mounts_initrd.c                     | 20 --------------------
- 3 files changed, 27 deletions(-)
+ fs/ext2/ext2.h          |  9 ---------
+ include/linux/ext2_fs.h | 13 -------------
+ 2 files changed, 22 deletions(-)
 
-diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst
-index 8b49eab937d0..cc958c228bc2 100644
---- a/Documentation/admin-guide/sysctl/kernel.rst
-+++ b/Documentation/admin-guide/sysctl/kernel.rst
-@@ -1215,12 +1215,6 @@ that support this feature.
- ==  ===========================================================================
+diff --git a/fs/ext2/ext2.h b/fs/ext2/ext2.h
+index cf97b76e9fd3..d623a14040d9 100644
+--- a/fs/ext2/ext2.h
++++ b/fs/ext2/ext2.h
+@@ -608,15 +608,6 @@ struct ext2_dir_entry_2 {
+ 					 ~EXT2_DIR_ROUND)
+ #define EXT2_MAX_REC_LEN		((1<<16)-1)
  
- 
--real-root-dev
--=============
--
--See Documentation/admin-guide/initrd.rst.
--
--
- reboot-cmd (SPARC only)
- =======================
- 
-diff --git a/include/uapi/linux/sysctl.h b/include/uapi/linux/sysctl.h
-index 63d1464cb71c..1c7fe0f4dca4 100644
---- a/include/uapi/linux/sysctl.h
-+++ b/include/uapi/linux/sysctl.h
-@@ -92,7 +92,6 @@ enum
- 	KERN_DOMAINNAME=8,	/* string: domainname */
- 
- 	KERN_PANIC=15,		/* int: panic timeout */
--	KERN_REALROOTDEV=16,	/* real root device to mount after initrd */
- 
- 	KERN_SPARC_REBOOT=21,	/* reboot command on Sparc */
- 	KERN_CTLALTDEL=22,	/* int: allow ctl-alt-del to reboot */
-diff --git a/init/do_mounts_initrd.c b/init/do_mounts_initrd.c
-index bec1c5d684a3..d5264e9a52e0 100644
---- a/init/do_mounts_initrd.c
-+++ b/init/do_mounts_initrd.c
-@@ -14,30 +14,10 @@
- 
- unsigned long initrd_start, initrd_end;
- int initrd_below_start_ok;
--static unsigned int real_root_dev;	/* do_proc_dointvec cannot handle kdev_t */
- 
- phys_addr_t phys_initrd_start __initdata;
- unsigned long phys_initrd_size __initdata;
- 
--#ifdef CONFIG_SYSCTL
--static const struct ctl_table kern_do_mounts_initrd_table[] = {
--	{
--		.procname       = "real-root-dev",
--		.data           = &real_root_dev,
--		.maxlen         = sizeof(int),
--		.mode           = 0644,
--		.proc_handler   = proc_dointvec,
--	},
--};
--
--static __init int kernel_do_mounts_initrd_sysctls_init(void)
+-static inline void verify_offsets(void)
 -{
--	register_sysctl_init("kernel", kern_do_mounts_initrd_table);
--	return 0;
+-#define A(x,y) BUILD_BUG_ON(x != offsetof(struct ext2_super_block, y));
+-	A(EXT2_SB_MAGIC_OFFSET, s_magic);
+-	A(EXT2_SB_BLOCKS_OFFSET, s_blocks_count);
+-	A(EXT2_SB_BSIZE_OFFSET, s_log_block_size);
+-#undef A
 -}
--late_initcall(kernel_do_mounts_initrd_sysctls_init);
--#endif /* CONFIG_SYSCTL */
 -
- static int __init early_initrdmem(char *p)
- {
- 	phys_addr_t start;
+ /*
+  * ext2 mount options
+  */
+diff --git a/include/linux/ext2_fs.h b/include/linux/ext2_fs.h
+index 1fef88569037..e5ebe6cdf06c 100644
+--- a/include/linux/ext2_fs.h
++++ b/include/linux/ext2_fs.h
+@@ -27,17 +27,4 @@
+  */
+ #define EXT2_LINK_MAX		32000
+ 
+-#define EXT2_SB_MAGIC_OFFSET	0x38
+-#define EXT2_SB_BLOCKS_OFFSET	0x04
+-#define EXT2_SB_BSIZE_OFFSET	0x18
+-
+-static inline u64 ext2_image_size(void *ext2_sb)
+-{
+-	__u8 *p = ext2_sb;
+-	if (*(__le16 *)(p + EXT2_SB_MAGIC_OFFSET) != cpu_to_le16(EXT2_SUPER_MAGIC))
+-		return 0;
+-	return (u64)le32_to_cpup((__le32 *)(p + EXT2_SB_BLOCKS_OFFSET)) <<
+-		le32_to_cpup((__le32 *)(p + EXT2_SB_BSIZE_OFFSET));
+-}
+-
+ #endif	/* _LINUX_EXT2_FS_H */
 -- 
 2.47.2
 
