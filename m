@@ -1,63 +1,63 @@
-Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C57026B747
-	for <linux-hexagon@vger.kernel.org>; Sun, 14 Sep 2025 03:55:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EA8D2550CA
+	for <linux-hexagon@vger.kernel.org>; Sun, 14 Sep 2025 03:55:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757822124; cv=none; b=AMJaXkXKMU5yvvygGP3bUxlednrKTrD7CTcFsI2xrjzBOp9zI0SKMBClvTemVS6+xqPW3wxwTo0epAeba2dUL0lTJQLHucDkmYPiGowzP4T0c+vK8czB2XD1W+lWaCTPWXykNGG1rP+ruzRgKOLDXMy86T498AU7HQ9k0YRhDBM=
+	t=1757822161; cv=none; b=XKHueGAkB1GU61JEW8ihiq60mFkQwHladj1AUSgrNwQk+l1t4jtRANDFv0lP2W2Nv4/OYVjORhHynrOk50+VXi/BiHCKidpBColByTrkURoxC/HCBE+KfS5ch4Th2j5LMi0JblHmcEx6f8CtxDYJUMjuAnA1qVGF1towZHg71Eo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757822124; c=relaxed/simple;
-	bh=+xt36CXvj6oCs9wyUV3RsDXHuKnSILTg1/3pffdBhfQ=;
+	s=arc-20240116; t=1757822161; c=relaxed/simple;
+	bh=n+mmy3PjKTU6Jj1te3ZtONq7xS36QH+38sfXYxmW5ws=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qhc4ccmWG5ZpgOhKVhthGOIsskPOwXXm7aHqFYVlqeKmBzFa/Nw4Kfht5tsEBMWNPuspg/c6HvYVTOYP1FK7v5N9UZHPxWNFXdBkapbJ6rPOCuWGbqfdtUFeIcbjPDWD0dBMihH48acMnEBvzJreUjGcP+b2ckNCBnNsKsmvnFo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jPFPn18s; arc=none smtp.client-ip=209.85.208.51
+	 MIME-Version; b=H2RGs/rIpbOepxdDfM3KgV2/+ok/KBTjCS5dqDL6YdyRvCE3D+fa6dkUrjmHMROY2IIsjuGmN9si5y7SE/9rtRphJ/Y8l+6v0v/L+1Aqpg9nJkFfqSNpKoUM9LiOVZf/0qObW34KZnJYX7dSeQR4EyRIq2EQs4IfMOAVG38w/qw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vnx7+S6v; arc=none smtp.client-ip=209.85.208.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jPFPn18s"
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-62f2b27a751so347637a12.3
-        for <linux-hexagon@vger.kernel.org>; Sat, 13 Sep 2025 20:55:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vnx7+S6v"
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-61a8c134533so5968389a12.3
+        for <linux-hexagon@vger.kernel.org>; Sat, 13 Sep 2025 20:55:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757822120; x=1758426920; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757822157; x=1758426957; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wOmwD5NF6m1DAFdekL887975d4wKOOnVQzHmGUBheo0=;
-        b=jPFPn18s2gjVSyHwPhLo3Hw5+gngEAz77U7bYOsxXpnhqlO6dm9hCQtJSMX8AIFYXJ
-         RfK51aiUPV0Co2tI6hQZg49zYvuLYiyNALtmcRbik2Cf+kCMDG6jlGDojbmuCFp3lICl
-         WCkA+bSusMihD5McoP0rZW+4D6s5K0Dq4Mz67DLIY40p7v8J93R4x9EQzY19SZ2iv2ev
-         Zz05FoZbdT8UN6h1hnJaoA5iN1OIudmtdbJdpiBnENnZkhJFFD034ha8cG2VHEW3Te0q
-         ov23KCx1e/nle+jvq59518DZS7sJjivQxrQ+TaW0GVNJfeJGVFJyWjkHf1t6RQBZXjo2
-         ddzQ==
+        bh=IZ7mWaMdZxGJK1wTX4F7lWg1sPAH5qiKx6l6RS6EW/U=;
+        b=Vnx7+S6vR5uXvbxbQI6Y2nSi9+hEKUhrI+HwiAIdN707y/+/0p2YE+/GeqFmuX1GRJ
+         UmfbavpAMsUNv/JYJb/rHEKQIImz68EFaYQS6v90t97us53l6aJTcciPwYDeAptqB5uE
+         KIVroc2zNs2ycQRgXSexOBVTJGNWyP0I7PBdHbRfFW+/H6OrVTg6b6+9tLmEf7kiELSY
+         Wh0ffdJCq58eBl69bD7bPJX2rKH96f8FrWO8iO46le5j7Do/KceVIc7/U+x0Jpi9Um1d
+         9aLhofIKfXtovdWaTt6eDwUVr+rWqj0/U7p18dRBUBcBFfwoO+WWnrDPTNnaIkPi+hV9
+         p0aQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757822120; x=1758426920;
+        d=1e100.net; s=20230601; t=1757822157; x=1758426957;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wOmwD5NF6m1DAFdekL887975d4wKOOnVQzHmGUBheo0=;
-        b=XQxO62GN2rCWUT2aM7nSZZrmNwEYygQECAZWvy9Sxr0LxjfFDaUf8TsniLmYopnCGq
-         RI2Sue8orALALyM7RgFJwXDwBQfISwIN59JHPsedDEVoWXRWt2/hs2K/uQf3tJKdhECM
-         M5SqIwW6g6FHjwQqS04m8MMg+yiGVmIUlJpvM5unEw3oFntX9AoqdtPEgZoUCngJsamC
-         vB+jAoPy6kqXLgh3helVU9eUv6ajZCw+k9JQN2N8dXlRD+v2N6RzzaxmUhvuuN/ri8RQ
-         ivI0eye4DGmmtJtxgsiHBU1EBrX036TkHCpxXiuFxiE59c4X0Wdgm3zoqREC687kZowM
-         fHkg==
-X-Forwarded-Encrypted: i=1; AJvYcCWTPDoYNplT3K+ZPmc59IMYJ4iZcSbofWjJFMXeqavmnguaqE87Y8whdq6HEUMhaQ3VqvtRCAm61EjRdAkW@vger.kernel.org
-X-Gm-Message-State: AOJu0YxOCF9UmIVPpntJdzNiEdarFmb5+IMKQNTCmu0UFnKlhtFk75AZ
-	3z8HcTFYumlicTfhHoEclI7lsq/o5V1HhTOfED38ZNxRX7YcztgFGN8W
-X-Gm-Gg: ASbGnctYbbiiIFqn2aI5pOJAlSHurV8bM2IpI2I1o4Hbh4DuYGjdrQn4zR+szDhUCmO
-	/sMPnYaB2C2p4aoM++fgRnt/o3sJ1Wn2XxaeBAQpECOYiQG8xHsJSEWd/DHkWlCoEvrm6W43kl9
-	YAUrqh5U32TwG9IC4FdW0o3fByijwvUTgtLHSkltbzUprKvp8h4yHddM2oe29KBA0JaKs5Y5L5i
-	nnHkJH0CxwxM5vCKf4kRWshSkXVpPczrDeH4IJ9xWUF4K6cyQxuy3In7gAq7gUFLodRFYeA+DWb
-	rzrfYfygpTw/+4R6Ca65xBKFVuIoTB9O/7GXrzYQWS7/QrmidNt9pd1oWcwDySK1EFfz7vlXwH1
-	uw0XNQPUIjr4p1QZ9QeU=
-X-Google-Smtp-Source: AGHT+IFVXahsOiekrkN9a/Uz4eTnqleIeXBA7XQN4UsGQJ/USlX1vtxhVK0N6asLg1FonCbVUR1qZQ==
-X-Received: by 2002:a05:6402:44d2:b0:61b:ff85:398b with SMTP id 4fb4d7f45d1cf-62ed80ee786mr6900890a12.14.1757822119812;
-        Sat, 13 Sep 2025 20:55:19 -0700 (PDT)
+        bh=IZ7mWaMdZxGJK1wTX4F7lWg1sPAH5qiKx6l6RS6EW/U=;
+        b=gQI1DSSZXAUTgwRRAo8BnnhxRxUeyB422yBy7IegGdCmqYHNQdPiVRHY3rzve/r0sq
+         CwgRbTQ8XGML8sfXT93AnlgAnRyWOEgB6Fq5+VcpM8q48CgZIaNkC5HvEpBcrugSqimS
+         +XIRFTUyfxJLrpzG0Ze5wOHBBtYt0TuCj9cuEvqkxyl0rEEc1flP0C7E0nmPND9BvKzA
+         NSTS0VRjdLUlh8WmAK0TqTaf+Bi3kC5x64NcUoZLqxyCCPOsTQByzpzCTqRx4t4WASEK
+         VVbQlqCyce5AjiQWRJEn+SmUgYWR8Dj2yKcjawQAP5bQs1YwywgdH0pLzydSmC14nEQH
+         +7yw==
+X-Forwarded-Encrypted: i=1; AJvYcCV+LX0/nJL6To/Hjytx7C88vS+norsqnVuSHjdzkMLoLtPxrPRXzJnC/5bDFKOb2EOqzNPw/ROa0dwDJBOi@vger.kernel.org
+X-Gm-Message-State: AOJu0YxRw8TL31J95F+2lTnhuy9368Flf9pvGIiC/EJpFdCDgDJIrnYi
+	qJGBYOom97/bq7wtJqF50r5zrGbDz76P7TKgd2YmftZnn6rm4epgePnP
+X-Gm-Gg: ASbGncuG1Uzcw2bI70jQbnZHVzdApI3X/tdmHCW3VOMD0zImKXHllAr9P3zVn/t4Gk8
+	eYigE+nZ4yDnt161ILpdUrkFJr0kYrH93laQLzsTInZASWdAixYB4mAUmsLyotTqGfgR9vDZXbS
+	5Bas93px8xGIOoU6TsG2qGX01vYnYbtP4IFddBD6i6B79kUTGXBhEUr0fgCXJn7lEtmi9vNty1V
+	59AacFbd1qRUCD12gO4qaosTdszwaKkTUXdrIvHj52za9b0lhWc61C36e1Gmh2ptfYvpK+To6xt
+	SbfRu5NojFCKOeMyUSjZiic6S0VAaHCcubNe1TLnS/x/vpTgvG9bAX0gLG5I+mfHjavmZI80172
+	YELjVI7ShtzLkUP76rQUmr/lVWqpgAw==
+X-Google-Smtp-Source: AGHT+IHVlqrM3WGO2PMhAdJqFymXZDFmcHUFnmRqsIL52zZcyiB7/sntw8UcjJnO5qIuj3xo01B0kw==
+X-Received: by 2002:a05:6402:278f:b0:62f:26f8:fea0 with SMTP id 4fb4d7f45d1cf-62f26f91103mr1500285a12.33.1757822156480;
+        Sat, 13 Sep 2025 20:55:56 -0700 (PDT)
 Received: from localhost ([212.73.77.104])
-        by smtp.gmail.com with UTF8SMTPSA id 4fb4d7f45d1cf-62ec2e661a5sm6313404a12.0.2025.09.13.20.55.14
+        by smtp.gmail.com with UTF8SMTPSA id 4fb4d7f45d1cf-62f2b2a8c38sm677327a12.31.2025.09.13.20.55.51
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 13 Sep 2025 20:55:18 -0700 (PDT)
+        Sat, 13 Sep 2025 20:55:55 -0700 (PDT)
 From: Askar Safin <safinaskar@gmail.com>
 To: linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org
@@ -113,9 +113,9 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	Thorsten Blum <thorsten.blum@linux.dev>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	patches@lists.linux.dev
-Subject: [PATCH RESEND 46/62] init: edit docs for initramfs-related configs
-Date: Sun, 14 Sep 2025 06:55:13 +0300
-Message-ID: <20250914035513.3694090-1-safinaskar@gmail.com>
+Subject: [PATCH RESEND 47/62] init: fix typo: virtul => virtual
+Date: Sun, 14 Sep 2025 06:55:50 +0300
+Message-ID: <20250914035550.3706342-1-safinaskar@gmail.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250913003842.41944-1-safinaskar@gmail.com>
 References: <20250913003842.41944-1-safinaskar@gmail.com>
@@ -127,229 +127,26 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This is cleanup after initrd removal
+Fix typo
 
 Signed-off-by: Askar Safin <safinaskar@gmail.com>
 ---
- drivers/block/Kconfig |  7 ++-----
- init/Kconfig          | 18 +++++++-----------
- usr/Kconfig           | 42 +++++++++++++++++++++---------------------
- 3 files changed, 30 insertions(+), 37 deletions(-)
+ init/initramfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
-index 8cf06e40f61c..a268ac3dd304 100644
---- a/drivers/block/Kconfig
-+++ b/drivers/block/Kconfig
-@@ -225,9 +225,7 @@ config BLK_DEV_RAM
- 	  Saying Y here will allow you to use a portion of your RAM memory as
- 	  a block device, so that you can make file systems on it, read and
- 	  write to it and do all the other things that you can do with normal
--	  block devices (such as hard drives). It is usually used to load and
--	  store a copy of a minimal root file system off of a floppy into RAM
--	  during the initial install of Linux.
-+	  block devices (such as hard drives).
+diff --git a/init/initramfs.c b/init/initramfs.c
+index 8b648b09247a..cf19b7c0c358 100644
+--- a/init/initramfs.c
++++ b/init/initramfs.c
+@@ -636,7 +636,7 @@ void __init reserve_initramfs_mem(void)
+ 	phys_addr_t start;
+ 	unsigned long size;
  
- 	  For details, read <file:Documentation/admin-guide/blockdev/ramdisk.rst>.
+-	/* Ignore the virtul address computed during device tree parsing */
++	/* Ignore the virtual address computed during device tree parsing */
+ 	virt_external_initramfs_start = virt_external_initramfs_end = 0;
  
-@@ -244,8 +242,7 @@ config BLK_DEV_RAM_COUNT
- 	depends on BLK_DEV_RAM
- 	help
- 	  The default value is 16 RAM disks. Change this if you know what you
--	  are doing. If you boot from a filesystem that needs to be extracted
--	  in memory, you will need at least one RAM disk (e.g. root on cramfs).
-+	  are doing.
- 
- config BLK_DEV_RAM_SIZE
- 	int "Default RAM disk size (kbytes)"
-diff --git a/init/Kconfig b/init/Kconfig
-index 0263c08960bc..1c371dca7fd4 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -1435,18 +1435,14 @@ config RELAY
- 	  If unsure, say N.
- 
- config BLK_DEV_INITRD
--	bool "Initial RAM filesystem and RAM disk (initramfs/initrd) support"
-+	bool "Initial RAM filesystem (initramfs) support"
- 	help
--	  The initial RAM filesystem is a ramfs which is loaded by the
--	  boot loader (loadlin or lilo) and that is mounted as root
-+	  The initial RAM filesystem is a ramfs or tmpfs which is loaded by the
-+	  boot loader and that is mounted as root
- 	  before the normal boot procedure. It is typically used to
- 	  load modules needed to mount the "real" root file system,
- 	  etc. See <file:Documentation/filesystems/ramfs-rootfs-initramfs.rst> for details.
- 
--	  If RAM disk support (BLK_DEV_RAM) is also included, this
--	  also enables initial RAM disk (initrd) support and adds
--	  15 Kbytes (more on some other architectures) to the kernel size.
--
- 	  If unsure say Y.
- 
- if BLK_DEV_INITRD
-@@ -1485,8 +1481,8 @@ config BOOT_CONFIG_EMBED
- 	depends on BOOT_CONFIG
- 	help
- 	  Embed a bootconfig file given by BOOT_CONFIG_EMBED_FILE in the
--	  kernel. Usually, the bootconfig file is loaded with the initrd
--	  image. But if the system doesn't support initrd, this option will
-+	  kernel. Usually, the bootconfig file is loaded with the initramfs.
-+	  But if the system doesn't support initramfs, this option will
- 	  help you by embedding a bootconfig file while building the kernel.
- 
- 	  If unsure, say N.
-@@ -1496,8 +1492,8 @@ config BOOT_CONFIG_EMBED_FILE
- 	depends on BOOT_CONFIG_EMBED
- 	help
- 	  Specify a bootconfig file which will be embedded to the kernel.
--	  This bootconfig will be used if there is no initrd or no other
--	  bootconfig in the initrd.
-+	  This bootconfig will be used if there is no initramfs or no other
-+	  bootconfig in the initramfs.
- 
- config INITRAMFS_PRESERVE_MTIME
- 	bool "Preserve cpio archive mtimes in initramfs"
-diff --git a/usr/Kconfig b/usr/Kconfig
-index 9279a2893ab0..8899353bd7d5 100644
---- a/usr/Kconfig
-+++ b/usr/Kconfig
-@@ -27,7 +27,7 @@ config INITRAMFS_FORCE
- 	depends on CMDLINE_EXTEND || CMDLINE_FORCE
- 	help
- 	  This option causes the kernel to ignore the initramfs image
--	  (or initrd image) passed to it by the bootloader. This is
-+	  passed to it by the bootloader. This is
- 	  analogous to CMDLINE_FORCE, which is found on some architectures,
- 	  and is useful if you cannot or don't want to change the image
- 	  your bootloader passes to the kernel.
-@@ -53,59 +53,59 @@ config INITRAMFS_ROOT_GID
- 	  If you are not sure, leave it set to "0".
- 
- config RD_GZIP
--	bool "Support initial ramdisk/ramfs compressed using gzip"
-+	bool "Support initial ramfs compressed using gzip"
- 	default y
- 	select DECOMPRESS_GZIP
- 	help
--	  Support loading of a gzip encoded initial ramdisk or cpio buffer.
-+	  Support loading of a gzip encoded initial ramfs.
- 	  If unsure, say Y.
- 
- config RD_BZIP2
--	bool "Support initial ramdisk/ramfs compressed using bzip2"
-+	bool "Support initial ramfs compressed using bzip2"
- 	default y
- 	select DECOMPRESS_BZIP2
- 	help
--	  Support loading of a bzip2 encoded initial ramdisk or cpio buffer
-+	  Support loading of a bzip2 encoded initial ramfs.
- 	  If unsure, say N.
- 
- config RD_LZMA
--	bool "Support initial ramdisk/ramfs compressed using LZMA"
-+	bool "Support initial ramfs compressed using LZMA"
- 	default y
- 	select DECOMPRESS_LZMA
- 	help
--	  Support loading of a LZMA encoded initial ramdisk or cpio buffer
-+	  Support loading of a LZMA encoded initial ramfs.
- 	  If unsure, say N.
- 
- config RD_XZ
--	bool "Support initial ramdisk/ramfs compressed using XZ"
-+	bool "Support initial ramfs compressed using XZ"
- 	default y
- 	select DECOMPRESS_XZ
- 	help
--	  Support loading of a XZ encoded initial ramdisk or cpio buffer.
-+	  Support loading of a XZ encoded initial ramfs.
- 	  If unsure, say N.
- 
- config RD_LZO
--	bool "Support initial ramdisk/ramfs compressed using LZO"
-+	bool "Support initial ramfs compressed using LZO"
- 	default y
- 	select DECOMPRESS_LZO
- 	help
--	  Support loading of a LZO encoded initial ramdisk or cpio buffer
-+	  Support loading of a LZO encoded initial ramfs.
- 	  If unsure, say N.
- 
- config RD_LZ4
--	bool "Support initial ramdisk/ramfs compressed using LZ4"
-+	bool "Support initial ramfs compressed using LZ4"
- 	default y
- 	select DECOMPRESS_LZ4
- 	help
--	  Support loading of a LZ4 encoded initial ramdisk or cpio buffer
-+	  Support loading of a LZ4 encoded initial ramfs.
- 	  If unsure, say N.
- 
- config RD_ZSTD
--	bool "Support initial ramdisk/ramfs compressed using ZSTD"
-+	bool "Support initial ramfs compressed using ZSTD"
- 	default y
- 	select DECOMPRESS_ZSTD
- 	help
--	  Support loading of a ZSTD encoded initial ramdisk or cpio buffer.
-+	  Support loading of a ZSTD encoded initial ramfs.
- 	  If unsure, say N.
- 
- choice
-@@ -127,7 +127,7 @@ choice
- 	  boot.
- 
- 	  Keep in mind that your build system needs to provide the appropriate
--	  compression tool to compress the generated initram cpio file for
-+	  compression tool to compress the generated initramfs cpio file for
- 	  embedding.
- 
- 	  If in doubt, select 'None'
-@@ -153,7 +153,7 @@ config INITRAMFS_COMPRESSION_BZIP2
- 	  booting.
- 
- 	  If you choose this, keep in mind that you need to have the bzip2 tool
--	  available to be able to compress the initram.
-+	  available to be able to compress the initramfs.
- 
- config INITRAMFS_COMPRESSION_LZMA
- 	bool "LZMA"
-@@ -166,7 +166,7 @@ config INITRAMFS_COMPRESSION_LZMA
- 	  comparison to gzip.
- 
- 	  If you choose this, keep in mind that you may need to install the xz
--	  or lzma tools to be able to compress the initram.
-+	  or lzma tools to be able to compress the initramfs.
- 
- config INITRAMFS_COMPRESSION_XZ
- 	bool "XZ"
-@@ -179,7 +179,7 @@ config INITRAMFS_COMPRESSION_XZ
- 	  slow.
- 
- 	  If you choose this, keep in mind that you may need to install the xz
--	  tool to be able to compress the initram.
-+	  tool to be able to compress the initramfs.
- 
- config INITRAMFS_COMPRESSION_LZO
- 	bool "LZO"
-@@ -191,7 +191,7 @@ config INITRAMFS_COMPRESSION_LZO
- 	  is quite fast too.
- 
- 	  If you choose this, keep in mind that you may need to install the lzop
--	  tool to be able to compress the initram.
-+	  tool to be able to compress the initramfs.
- 
- config INITRAMFS_COMPRESSION_LZ4
- 	bool "LZ4"
-@@ -213,7 +213,7 @@ config INITRAMFS_COMPRESSION_ZSTD
- 	  decompress around the same speed as LZO, but slower than LZ4.
- 
- 	  If you choose this, keep in mind that you may need to install the zstd
--	  tool to be able to compress the initram.
-+	  tool to be able to compress the initramfs.
- 
- config INITRAMFS_COMPRESSION_NONE
- 	bool "None"
+ 	if (!phys_external_initramfs_size)
 -- 
 2.47.2
 
