@@ -1,151 +1,127 @@
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 903532F5A10
-	for <linux-hexagon@vger.kernel.org>; Tue, 16 Sep 2025 17:08:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCE192FABFA
+	for <linux-hexagon@vger.kernel.org>; Wed, 17 Sep 2025 18:00:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758042515; cv=none; b=L9d/GEX1vDchX16Zm/yegPR+q2/H7kaXXafk88q8gelJkq+7OGLQ2kLp1Jhn/ljxPSwrJANvWANDK89Aer6OM4TYUoTjFC8Ju69qsxgrDKaiJUHDzB7RzYvFDHySzmx9C5a4293mxeGBuxuYO3UfaeI7gcr9F0+5m94k4h1H9FQ=
+	t=1758132049; cv=none; b=KyyG79UKk5AcC/xaWtFWaHXrryPTzPsbvxakvNVvneIYsClBgcz8bSionaYwBHyb2JvZ0sqN44A4m8CcsQUMgSL4J0u+9mHvYqBSee6IbnLoxa6avlpiLv3mOyiRwUWFYj83Nvt7cjfHnp4P3tmXcD8tIyFk6BzsfuSuR345ggk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758042515; c=relaxed/simple;
-	bh=PgWcajlgRtwCN1aidp/F0FGsvN0V9p5zYN3VYaOBF0E=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=C6apTbfE7us3D+lI+RUQo9ox+CrOY+rZg27vcxSWkhn0cHXyRII7rXKm2OBBDgc/4ZbVmhg+12/hPG6+xh07/dJ3KrixxjJMKCazdLwleaAZMdqcq+GsHj4GQiAlVcAvl4NL4fIK/DvqRPsBdSv+c/KjLhoJ+SIbS2PyHk5puJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jrtc27.com; spf=pass smtp.mailfrom=jrtc27.com; dkim=pass (2048-bit key) header.d=jrtc27.com header.i=@jrtc27.com header.b=D5eLwBoj; arc=none smtp.client-ip=209.85.221.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jrtc27.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jrtc27.com
+	s=arc-20240116; t=1758132049; c=relaxed/simple;
+	bh=DLDcGQ3mu3T/MPVKq0NF9V2I5Jn6ILZwFaw9KVQfhOo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SEpLowpb9c2WeJrgZZOOtpRLXKLMYE+WRJ6LCbzqb4b8CdAnchR4i0x0HOgLb5B1V+cSQQ7rGxb4GWB/vlxxUPU84whDGQ4BnZBCobTe0tP0FmJQKIXJN8MQIwRbtuodMy0/NsPqveo5UW40MjMxEdzf9QCxhLY/dDUD3z5ZiHk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=amacapital.net; spf=pass smtp.mailfrom=amacapital.net; dkim=pass (2048-bit key) header.d=amacapital-net.20230601.gappssmtp.com header.i=@amacapital-net.20230601.gappssmtp.com header.b=g1LtUuBN; arc=none smtp.client-ip=209.85.167.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=amacapital.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amacapital.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=jrtc27.com header.i=@jrtc27.com header.b="D5eLwBoj"
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-3ebe8dc13a3so1238414f8f.3
-        for <linux-hexagon@vger.kernel.org>; Tue, 16 Sep 2025 10:08:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=amacapital-net.20230601.gappssmtp.com header.i=@amacapital-net.20230601.gappssmtp.com header.b="g1LtUuBN"
+Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-577232b26a6so101899e87.2
+        for <linux-hexagon@vger.kernel.org>; Wed, 17 Sep 2025 11:00:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jrtc27.com; s=gmail.jrtc27.user; t=1758042511; x=1758647311; darn=vger.kernel.org;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
+        d=amacapital-net.20230601.gappssmtp.com; s=20230601; t=1758132044; x=1758736844; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=AIXyc3Fa0oN4a5i/p3ClDZo8xo9GAZJtSKI5SCU0zd8=;
-        b=D5eLwBojfdlh7Q0cfd/t8ODFkczYAE4ccdja3rz4S2mZAneyp4d5nkKj2+q5ACqPOi
-         /yjKRgjGDtlthxxMjKg+S4dh4NoTe7TQtaOGt7C2xJuzHcDvWXbiFQeZFEXRTYRGEndM
-         SX9Sw6J/VXNagS+CitUGczdEzmFWRDpey8ygRCmBQMHIQu7GPnjJmsiuzxJ439/U8JmR
-         298j/N4p67b/yaMJKJJ+VWXOpv1hUZ105IAdTcUXwsdDkApa+SUIZ/41vDVTSl2x9Wl3
-         IQdtpGO7ZGksW/E0kcCSXvs8GiZJOFfXHXP3NBDLRPnYeH08tG9upiLt0dMHZhfnli7C
-         h58Q==
+        bh=0Pv4dFUExNQfPloEDat7jfEF9BkjeLOy7zrinjdnc80=;
+        b=g1LtUuBN2lj4qvyQzWAdLKTewMPpvB0BMgAm3EhYmOSEcT379TNMgVSmJk7DCmgjc/
+         T0eHokwlFMY3Yd+mXYCz+ekytPn0ndF69T0GJJIC1YMQr15FXnETUToESn8hAOjjN4TJ
+         wc+dE3joK8Hj6X0qrUlvmHpmCBRx7/hVESh3NV1/RSPbebawN77L/JxPYbAY8rno5NPR
+         h45BlMuQrVS79kOiLhszZHO32mHd/xwXNvhKNiRJJPEEOxGanxAq7D4RvCoxMPnsrP0o
+         gtEy+UX8pbw1CA/Tbhp0++SKDmI4SgqYBJ/2EKyXEOwvuyrgRQgYTYLI+VQny1h7rWhV
+         /NkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758042511; x=1758647311;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1758132044; x=1758736844;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=AIXyc3Fa0oN4a5i/p3ClDZo8xo9GAZJtSKI5SCU0zd8=;
-        b=HT1r8/GhmW/lapYnb4TlZPbzEOdz/h2z3Yi8tDCaOWKlftIqYPOhBNo42T73shNTD2
-         t/dUTGRkYS78WPcFL5qfOvWefB0GxNerlTgmxx/TCse7bGQY2bcBWac+QKKW0LBhvGSk
-         CcTCA5s93cVIc7Yx30oDFkM9/GH36YFyDxrOaCl19KwCMlSOZUE7R7mBXF3kDkLLsLpK
-         b3+4VdfDSIDx6TaBz8cXMoIp0oABPWPvAUpQtCjbdFKAqfOkETv11PYRUu2xZZ97SAk3
-         ufUFvSzUSSIi+HDVXzSnWL8n1zTjKkablR/3E2f3d7u4XKs5eqmcPSGntw7dPEIEYKY7
-         HwFw==
-X-Forwarded-Encrypted: i=1; AJvYcCXXEAlEVqB9wiNrLFf9Du7fUkHXLw2uAho+WodB3ooVQUdG+vBFYAbS1+1aiAEfHHtE5TpPfPKzDW5iJIfi@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywi9P2YKOt4ybO6Gort5YQ0JI8eKctRJWlHjQPig4Ep1kQVGIOu
-	9M+ug1700546McpbdCCvZLcdbQe81hs9DPyskexfRJWxsHvlWdLcDOhmTOfCZ1C2wYo=
-X-Gm-Gg: ASbGncvHIcGucJOSkj4GfVDKGqi7y+HS/E4Hnps0l+tN8RJ7BkNG/X0gmpKwNUGJQY7
-	auqz6oAuci+EKtqQGEs0R2gvE87nEqe6fCBDGw2AmfbTg65CykR38cKA2M+5YbV+yL/F8N2zx+V
-	w+XWJke5kUlvAoOIL4qT5sVle+ek78fhzDDJBiITvrFvjDCi+RFtO00w1QIJmfjYUCtrR93aqPX
-	REi5xwbbUN4ox/JCWCDsq3doD4qk7jnocMV+YDMM/Eop2BYCnLQudsdkUNJANpxIbp6hnMrhZEN
-	MFlOHQroFW/3X16VdrXqvLyjNf3taTBmOm1MiQLLrmfULpHFLSwDEKVdhbkYjTnhvD8MuORUQUG
-	HV7JSuQdaGSou1q8kgkZAIGNqhkYDUECk6lMNYmo1AJ2a2de3plaztIo8YA==
-X-Google-Smtp-Source: AGHT+IGdFovreVsG0VTuKKVTgWJJEqEKFnO21Mo+tI9uoQq7jJrFi/9vVCfXuUmfB6QhCbWUaAaAkg==
-X-Received: by 2002:a05:6000:2dca:b0:3eb:2437:97c5 with SMTP id ffacd0b85a97d-3eb24379a13mr7083124f8f.22.1758042510664;
-        Tue, 16 Sep 2025 10:08:30 -0700 (PDT)
-Received: from smtpclient.apple (nat-184-7.net.cam.ac.uk. [131.111.184.7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3e7607cd0a7sm22520843f8f.39.2025.09.16.10.08.29
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Sep 2025 10:08:30 -0700 (PDT)
-Content-Type: text/plain;
-	charset=us-ascii
+        bh=0Pv4dFUExNQfPloEDat7jfEF9BkjeLOy7zrinjdnc80=;
+        b=Fv4CrZLslJdGg+TSjE5svmA29rN22SSIKLzs4AkJRwOUEAwabJXpVFyMUUcJUaTu8l
+         +iQ8LYR42WntrtHV/zWux2seHP3MwrYuCjBWM7+NM21L5SGs1l/K6aHUhTYQ8Ojuddjf
+         WO8G4AKd8SayzJXKVmhqWn31nwOzQ3KM58OypMv8yasp3ErQ+k/t3qRhH7elsqNmcdTY
+         qMekIDBGR9IkA/3PyLd7p3PDirW96hV2OzLBXh6LN8aYILofLEuRDPggUJ3hVEBHBf+V
+         yZqsl8PnHPTpSovXwO4+oWp9a927uCbHoJpqLZNKweXOYSziWs8o0uHbxHZJ4AEyw9fl
+         0Bgg==
+X-Forwarded-Encrypted: i=1; AJvYcCXzf9naw6E4AB9FjEO3vyJ7JIj+fCd/y2u354Bo/hk90XyzQH1mC61EiD8xGzpBj5VWz9Cr1CTvraZG4Mo1@vger.kernel.org
+X-Gm-Message-State: AOJu0YxiTtBlprukUdqpxsE74BoM6+Npoy5ilAwd8XzAtLnBGnDnjmjn
+	uCyX9fn7PZYCvMnL8fkzwrkv5z+h95VrS6B7LDKiBXusUEGsgGGueIbHw8HWU23ki66okhSvwVn
+	tLt8jOp7Zeub4y2MZ92xUsEg7fhi9mv+43jzwXcZL
+X-Gm-Gg: ASbGncsOB7x4TXU3uQnhXJ/NMbmZYNiSGyV7JXHtJVRR6+Iyc7tmq5LADfcTnPCcyGE
+	wnoUnmenc0kGngpWh2zQEs02DWfSLEWFXMlvJxYrlsrLCX2BhcqVB+bEUxwGZ8+264JikhBtzY3
+	UyNTt1T636Onrmu7+V56O2ZcYH6VLhNI3gS5tMsy5S4ueplxYLXJKRYp+sZs6PI4/hHndpuPxxa
+	Poxlw==
+X-Google-Smtp-Source: AGHT+IGI+xF2OSgRbI6+fabXiqu9Xwuf5bxWYwnja/rNGOUuSmNzhH42MNUAKuR34Ox7ov8nmiujA9clDhMS84oRbmU=
+X-Received: by 2002:ac2:4e09:0:b0:576:d217:3f2f with SMTP id
+ 2adb3069b0e04-57796b5e819mr1028160e87.3.1758132043747; Wed, 17 Sep 2025
+ 11:00:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.700.81\))
-Subject: Re: [PATCH RESEND 00/62] initrd: remove classic initrd support
-From: Jessica Clarke <jrtc27@jrtc27.com>
-In-Reply-To: <20250913003842.41944-1-safinaskar@gmail.com>
-Date: Tue, 16 Sep 2025 18:08:18 +0100
-Cc: linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Christian Brauner <brauner@kernel.org>,
- Al Viro <viro@zeniv.linux.org.uk>,
- Jan Kara <jack@suse.cz>,
- Christoph Hellwig <hch@lst.de>,
- Jens Axboe <axboe@kernel.dk>,
- Andy Shevchenko <andy.shevchenko@gmail.com>,
- Aleksa Sarai <cyphar@cyphar.com>,
- =?utf-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
- Julian Stecklina <julian.stecklina@cyberus-technology.de>,
- Gao Xiang <hsiangkao@linux.alibaba.com>,
- Art Nikpal <email2tema@gmail.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Eric Curtin <ecurtin@redhat.com>,
- Alexander Graf <graf@amazon.com>,
- Rob Landley <rob@landley.net>,
- Lennart Poettering <mzxreary@0pointer.de>,
- linux-arch@vger.kernel.org,
- linux-alpha@vger.kernel.org,
- linux-snps-arc@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org,
- linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org,
- sparclinux@vger.kernel.org,
- linux-um@lists.infradead.org,
- x86@kernel.org,
- Ingo Molnar <mingo@redhat.com>,
- linux-block@vger.kernel.org,
- initramfs@vger.kernel.org,
- linux-api@vger.kernel.org,
- linux-doc@vger.kernel.org,
- linux-efi@vger.kernel.org,
- linux-ext4@vger.kernel.org,
- "Theodore Y . Ts'o" <tytso@mit.edu>,
- linux-acpi@vger.kernel.org,
- Michal Simek <monstr@monstr.eu>,
- devicetree@vger.kernel.org,
- Luis Chamberlain <mcgrof@kernel.org>,
- Kees Cook <kees@kernel.org>,
- Thorsten Blum <thorsten.blum@linux.dev>,
- Heiko Carstens <hca@linux.ibm.com>,
- patches@lists.linux.dev
-Content-Transfer-Encoding: 7bit
-Message-Id: <A08066E1-A57E-4980-B15A-8FB00AC747CC@jrtc27.com>
-References: <20250913003842.41944-1-safinaskar@gmail.com>
-To: Askar Safin <safinaskar@gmail.com>
-X-Mailer: Apple Mail (2.3826.700.81)
+MIME-Version: 1.0
+References: <20250912223937.3735076-1-safinaskar@zohomail.com> <0342fbda-9901-4293-afa7-ba6085eb1688@landley.net>
+In-Reply-To: <0342fbda-9901-4293-afa7-ba6085eb1688@landley.net>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Wed, 17 Sep 2025 11:00:32 -0700
+X-Gm-Features: AS18NWAGwakGZ9zjxjq7MnfN8O7ZgOJb6fmKIJ0JIML7P3j0NnlDZ27eNb5S7Es
+Message-ID: <CALCETrXHxOkHoS+0zhvc4cfpZqJ0wpfQUDnXW-A-qyQkqur-DQ@mail.gmail.com>
+Subject: Re: [PATCH 00/62] initrd: remove classic initrd support
+To: Rob Landley <rob@landley.net>
+Cc: Askar Safin <safinaskar@zohomail.com>, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Christian Brauner <brauner@kernel.org>, 
+	Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>, 
+	Jens Axboe <axboe@kernel.dk>, Andy Shevchenko <andy.shevchenko@gmail.com>, 
+	Aleksa Sarai <cyphar@cyphar.com>, =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
+	Julian Stecklina <julian.stecklina@cyberus-technology.de>, 
+	Gao Xiang <hsiangkao@linux.alibaba.com>, Art Nikpal <email2tema@gmail.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Eric Curtin <ecurtin@redhat.com>, 
+	Alexander Graf <graf@amazon.com>, Lennart Poettering <mzxreary@0pointer.de>, linux-arch@vger.kernel.org, 
+	linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, 
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org, x86@kernel.org, 
+	Ingo Molnar <mingo@redhat.com>, linux-block@vger.kernel.org, initramfs@vger.kernel.org, 
+	linux-api@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org, 
+	"Theodore Y . Ts'o" <tytso@mit.edu>, linux-acpi@vger.kernel.org, Michal Simek <monstr@monstr.eu>, 
+	devicetree@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>, Kees Cook <kees@kernel.org>, 
+	Thorsten Blum <thorsten.blum@linux.dev>, Heiko Carstens <hca@linux.ibm.com>, patches@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 13 Sep 2025, at 01:37, Askar Safin <safinaskar@gmail.com> wrote:
-> [...]
-> For example, I renamed the following global variables:
-> 
-> __initramfs_start
-> __initramfs_size
-> [...]
-> 
-> to:
-> 
-> __builtin_initramfs_start
-> __builtin_initramfs_size
+On Mon, Sep 15, 2025 at 10:09=E2=80=AFAM Rob Landley <rob@landley.net> wrot=
+e:
 
-I strongly suggest picking different names given __builtin_foo is the
-naming scheme used for GNU C builtins/intrinsics. I leave you and
-others to bikeshed that one.
+> While you're at it, could you fix static/builtin initramfs so PID 1 has
+> a valid stdin/stdout/stderr?
+>
+> A static initramfs won't create /dev/console if the embedded initramfs
+> image doesn't contain it, which a non-root build can't mknod, so the
+> kernel plumbing won't see it dev in the directory we point it at unless
+> we build with root access.
 
-Jessica
+I have no current insight as to whether there's a kernel issue here,
+but why are you trying to put actual device nodes in an actual
+filesystem as part of a build process?  It's extremely straightforward
+to emit devices nodes in cpio format, and IMO it's far *more*
+straightforward to do that than to make a whole directory, try to get
+all the modes right, and cpio it up.
 
+I wrote an absolutely trivial tool for this several years ago:
+
+https://github.com/amluto/virtme/blob/master/virtme/cpiowriter.py
+
+it would be barely more complicated to strip the trailer off an cpio
+file from some other source, add some device nodes, and stick the
+trailer back on.  But it's also really, really, really easy to emit an
+entire, functioning cpio-formatted initramfs from plain user code with
+no filesystem manipulation at all.  This also makes that portion of
+the build reproducible, which is worth quite a bit IMO.
+
+--Andy
