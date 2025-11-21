@@ -1,126 +1,106 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2865178372;
-	Sun, 19 Oct 2025 06:50:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B22634C134
+	for <linux-hexagon@vger.kernel.org>; Fri, 21 Nov 2025 10:01:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760856631; cv=none; b=K/78XNAKiDzDOooJcNp6Eu7AipUYBG1kPLI8N/p5Cza3u1FLaw2JLMT5Zo8BYIUgv2wrfJXIekPQJ4MKhqrHKYxeHu2n5PKjQi/v1gR9tQPp1p0HCXWMQh93jRWQwhafmjrxGk3HtW7t1K2WNNouBp355Vl+DkRC1mW8enY/ZJE=
+	t=1763719280; cv=none; b=G2TcxHqQYfhaOn1cnoJ0rrkoBRZ/OGOr67eFh9I6IPstvjNb9iI+EOOwHTOpMNuS7ACUSGZmV+STFsZj/qEzJJR2CX43FCDVBPku+h/1wvKmUgUUXOWHK1KTTFOFfyD+Ydly0rj0NDWqIbTYOoahFycyxjTwFSZ6UUHLvis9mCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760856631; c=relaxed/simple;
-	bh=EdgpjTa5vPTpdpYEzLk3B3e9bf5d6qYFWAfS+EwNqnE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XiUeVLimD7Xq4wSNC3HT1XLtnTbynNPLVCwp5kXj5tnPfO2LiZS7Aq3Hwcs9tAOrM4NxzNwsFxaGc+bDR/nSuaoZCEWPzZS0KK5z/1IrC2OiPCslTQ4AtyUyXJrOlkgO0X0N3i/BwgXUfIqBbW8d97EvWjh0wtDx/lsiuCVDo6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cl0KoSN2; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1763719280; c=relaxed/simple;
+	bh=L4YFaTnsWWe+GAcc9P2MJG61bNdoHxPJA91P9A0Oq0c=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=NyBmE3etAItpDd8WNsdRI9lihDQs+1ljVLw5OKOqi1kW3y4taJ0uk/jFPOVWjgPLXDI3ZHiE+eIjw+Q82C1fC89ZAu/2tw686UtP1M+L/mDv6L+GbcG6qB8qgsl/7pRfZlmKNczgb8Fwtq7NOQdWpNIU+bgm8/V4QRGFOF6ULKQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VEspEJ60; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cl0KoSN2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F25C4CEE7;
-	Sun, 19 Oct 2025 06:50:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1760856630;
-	bh=EdgpjTa5vPTpdpYEzLk3B3e9bf5d6qYFWAfS+EwNqnE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Cl0KoSN24WldfEYSRSfu5lozmGJAVE9xioGE6C+PBBseYSuE/7hgf2KbKvxu1nAfq
-	 +AnxTaK9VaE7xdn62r2Zk9oFnNMs7lSpecdggsfr9Z5mfbyraggVUnrWZwla30ASHd
-	 TTQUKVBXbjDXmyKfOdXMojvKQKorenot/jpefXad8wpoUyJQ/gWBwcSUSTx6MlFUkq
-	 O4BqR0RMnSAfMnvUpkN7wKJhQIsaUmfqwAekVS20NwyN/940rzzKb69Mu6Ni7vQrxn
-	 4PzVEO7y+ixH5H5iambi/6vum/20jOqyGoZB3A2tTRPyBtt8DjbzWrov4g4xwvEbN2
-	 ljhF5KLlm27vA==
-Date: Sun, 19 Oct 2025 02:50:21 -0400
-From: Guo Ren <guoren@kernel.org>
-To: Kees Cook <kees@kernel.org>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-	x86@kernel.org, linux-alpha@vger.kernel.org,
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, llvm@lists.linux.dev,
-	linux-hardening@vger.kernel.org
-Subject: Re: [PATCH 03/17] csky: Add __attribute_const__ to ffs()-family
- implementations
-Message-ID: <aPSKLRnWUAVSGQjF@gmail.com>
-References: <20250804163910.work.929-kees@kernel.org>
- <20250804164417.1612371-3-kees@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VEspEJ60"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763719276;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PyxNrZrZ4s0Cafl08yElNbsFTtb9GtmPPWVKnhiFUv0=;
+	b=VEspEJ607Fb/3xt4etQZNCQebB8Ft61LoiL4Hzrkn60SpFZlWsPrqkuUhvMlfzOMSONfQY
+	8CxrjBle4DEBEvbUuCa0fmSvu4nFmwPRZUs97g+jdR1+pa4dShkyIPpLHDNq/xr2wO+xEL
+	1Sc7EqrwxdGp4FtwxiBUrLpm38tvNSM=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-27-k3_x5bMqM3ipcdFdaf01Qg-1; Fri,
+ 21 Nov 2025 05:01:14 -0500
+X-MC-Unique: k3_x5bMqM3ipcdFdaf01Qg-1
+X-Mimecast-MFC-AGG-ID: k3_x5bMqM3ipcdFdaf01Qg_1763719273
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1507619560BC;
+	Fri, 21 Nov 2025 10:01:13 +0000 (UTC)
+Received: from thuth-p1g4.redhat.com (unknown [10.44.32.78])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id CB4131955F66;
+	Fri, 21 Nov 2025 10:01:09 +0000 (UTC)
+From: Thomas Huth <thuth@redhat.com>
+To: Arnd Bergmann <arnd@arndb.de>,
+	linux-arch@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-kbuild@vger.kernel.org,
+	Thomas Huth <thuth@redhat.com>,
+	Brian Cain <brian.cain@oss.qualcomm.com>,
+	linux-hexagon@vger.kernel.org
+Subject: [PATCH v4 4/9] hexagon: Replace __ASSEMBLY__ with __ASSEMBLER__ in uapi headers
+Date: Fri, 21 Nov 2025 11:00:39 +0100
+Message-ID: <20251121100044.282684-5-thuth@redhat.com>
+In-Reply-To: <20251121100044.282684-1-thuth@redhat.com>
+References: <20251121100044.282684-1-thuth@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250804164417.1612371-3-kees@kernel.org>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Mon, Aug 04, 2025 at 09:43:59AM -0700, Kees Cook wrote:
-> While tracking down a problem where constant expressions used by
-> BUILD_BUG_ON() suddenly stopped working[1], we found that an added static
-> initializer was convincing the compiler that it couldn't track the state
-> of the prior statically initialized value. Tracing this down found that
-> ffs() was used in the initializer macro, but since it wasn't marked with
-> __attribute__const__, the compiler had to assume the function might
-> change variable states as a side-effect (which is not true for ffs(),
-> which provides deterministic math results).
-> 
-> Add missing __attribute_const__ annotations to C-SKY's implementations of
-> ffs(), __ffs(), fls(), and __fls() functions. These are pure mathematical
-> functions that always return the same result for the same input with no
-> side effects, making them eligible for compiler optimization.
-LGTM.
+From: Thomas Huth <thuth@redhat.com>
 
-Acked-by: Guo Ren <guoren@kernel.org>
+__ASSEMBLY__ is only defined by the Makefile of the kernel, so
+this is not really useful for uapi headers (unless the userspace
+Makefile defines it, too). Let's switch to __ASSEMBLER__ which
+gets set automatically by the compiler when compiling assembly
+code.
 
-> 
-> Build tested ARCH=csky defconfig with GCC csky-linux 15.1.0.
-> 
-> Link: https://github.com/KSPP/linux/issues/364 [1]
-> Signed-off-by: Kees Cook <kees@kernel.org>
-> ---
->  arch/csky/include/asm/bitops.h | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/csky/include/asm/bitops.h b/arch/csky/include/asm/bitops.h
-> index 72e1b2aa29a0..80d67eee6e86 100644
-> --- a/arch/csky/include/asm/bitops.h
-> +++ b/arch/csky/include/asm/bitops.h
-> @@ -9,7 +9,7 @@
->  /*
->   * asm-generic/bitops/ffs.h
->   */
-> -static inline int ffs(int x)
-> +static inline __attribute_const__ int ffs(int x)
->  {
->  	if (!x)
->  		return 0;
-> @@ -26,7 +26,7 @@ static inline int ffs(int x)
->  /*
->   * asm-generic/bitops/__ffs.h
->   */
-> -static __always_inline unsigned long __ffs(unsigned long x)
-> +static __always_inline __attribute_const__ unsigned long __ffs(unsigned long x)
->  {
->  	asm volatile (
->  		"brev %0\n"
-> @@ -39,7 +39,7 @@ static __always_inline unsigned long __ffs(unsigned long x)
->  /*
->   * asm-generic/bitops/fls.h
->   */
-> -static __always_inline int fls(unsigned int x)
-> +static __always_inline __attribute_const__ int fls(unsigned int x)
->  {
->  	asm volatile(
->  		"ff1 %0\n"
-> @@ -52,7 +52,7 @@ static __always_inline int fls(unsigned int x)
->  /*
->   * asm-generic/bitops/__fls.h
->   */
-> -static __always_inline unsigned long __fls(unsigned long x)
-> +static __always_inline __attribute_const__ unsigned long __fls(unsigned long x)
->  {
->  	return fls(x) - 1;
->  }
-> -- 
-> 2.34.1
-> 
-> 
+Cc: Brian Cain <brian.cain@oss.qualcomm.com>
+Cc: linux-hexagon@vger.kernel.org
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+---
+ arch/hexagon/include/uapi/asm/registers.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/hexagon/include/uapi/asm/registers.h b/arch/hexagon/include/uapi/asm/registers.h
+index d51270f3b3582..8f73d41651e87 100644
+--- a/arch/hexagon/include/uapi/asm/registers.h
++++ b/arch/hexagon/include/uapi/asm/registers.h
+@@ -7,7 +7,7 @@
+ #ifndef _ASM_REGISTERS_H
+ #define _ASM_REGISTERS_H
+ 
+-#ifndef __ASSEMBLY__
++#ifndef __ASSEMBLER__
+ 
+ /*  See kernel/entry.S for further documentation.  */
+ 
+@@ -224,6 +224,6 @@ struct pt_regs {
+ 	(regs)->hvmer.vmest = (HVM_VMEST_UM_MSK << HVM_VMEST_UM_SFT) \
+ 			    | (HVM_VMEST_IE_MSK << HVM_VMEST_IE_SFT)
+ 
+-#endif  /*  ifndef __ASSEMBLY  */
++#endif  /*  ifndef __ASSEMBLER__  */
+ 
+ #endif
+-- 
+2.51.1
+
