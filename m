@@ -1,238 +1,173 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FF5634C806
-	for <linux-hexagon@vger.kernel.org>; Fri, 21 Nov 2025 10:01:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3379320A0A
+	for <linux-hexagon@vger.kernel.org>; Thu, 18 Dec 2025 09:18:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763719284; cv=none; b=F6usl/Fww6Y8iBQvbdIJxdzktL4Cpo5yLeTop/x5KCEe7G+Fn0l1Qrb4k7lqs2gyEz+IyWUwgs6EmjacU4T2aTGwQ31Gto8O0Vdc5aEuzVa3KuFBSm/DMY4uCCGYt6vsqYkrIdQfT8kfmV0MbXagrGr0vsYdZW1NNTSWN/DOsCE=
+	t=1766049504; cv=none; b=I+gKu87f4VT00j3bGvrVyYYtRcx6wWhwSnIQ4T4QALbl9v1Z82Xsx39OAGubWugtjFp21tCnzfhpvSWmdEsTsCU+49CKAq5UXpCsmA5u5yYClJzSpox7WovRazJHp8Rug3itMfD1KfLHu32YH+nE5uHcX6ijkbFhSbqJmSi1Oz8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763719284; c=relaxed/simple;
-	bh=LT1BUueUeG/RSYzxYTNK+EK8UtaLF3x8AM0qu8TrIFE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GvvwL4WXhMWGK83T8x1zcEyLatDubl0+jYz0VWkXti+pKrdIT3ibziGqIRuaTSRfFZLPFsqvfLRKVDnccEt3UEFdHC7Et59d06Pz7ViPPFARZ+3p6cLWCFO+WTnKNEcj3W2hLqriSG7BRAO1h3V+DGd6OVfGUAMr2BzUBEIL920=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SK8mgjV6; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1766049504; c=relaxed/simple;
+	bh=RyEgzxI8oPffOHkVVOIZhsjUU0Nu1XWYtTHFe1Aa1ZE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LxehrS9zu9phqIl52dw98PdT+xv2aVKcu+IutL3zPe1ckw9iumIQTmJI9TbXYWJPXS0bqGVAM2DGcUy9qpsuz4AzZqBPXHQ6kxQk2vRP+xtUj02da3m43NluI9bTk3lGjiXTuHYYRwZinjYmcslGVEQJEDVOmc+IicCOMXRB7+w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ff3f/CoS; arc=none smtp.client-ip=209.85.219.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SK8mgjV6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763719281;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=GrCua9hgAWiQ3//K2j8DdRzDOS0asZkTg7UL0JjeQzk=;
-	b=SK8mgjV6fk9mG+utLeMOKyeFYuj52oEo7wrSvy/kNaiM35wT98ZQKqcgWV/IXiIESMRZS2
-	5BgbZHtS11/lng9eO1N9bqw6MmPGKYp0zD4y39pXBDuN1aNWLPH1k5yQ/NgqBpFf3wfWje
-	F6UB767ZSI+/dRKMBDBUDr452Bfwntk=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-422-JHYIc-gmNuCcW7X0uNxFAg-1; Fri,
- 21 Nov 2025 05:01:17 -0500
-X-MC-Unique: JHYIc-gmNuCcW7X0uNxFAg-1
-X-Mimecast-MFC-AGG-ID: JHYIc-gmNuCcW7X0uNxFAg_1763719276
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 234A9180122F;
-	Fri, 21 Nov 2025 10:01:16 +0000 (UTC)
-Received: from thuth-p1g4.redhat.com (unknown [10.44.32.78])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 979731956045;
-	Fri, 21 Nov 2025 10:01:13 +0000 (UTC)
-From: Thomas Huth <thuth@redhat.com>
-To: Arnd Bergmann <arnd@arndb.de>,
-	linux-arch@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-kbuild@vger.kernel.org,
-	Thomas Huth <thuth@redhat.com>,
-	linux-hexagon@vger.kernel.org,
-	Brian Cain <brian.cain@oss.qualcomm.com>
-Subject: [PATCH v4 5/9] hexagon: Replace __ASSEMBLY__ with __ASSEMBLER__ in non-uapi headers
-Date: Fri, 21 Nov 2025 11:00:40 +0100
-Message-ID: <20251121100044.282684-6-thuth@redhat.com>
-In-Reply-To: <20251121100044.282684-1-thuth@redhat.com>
-References: <20251121100044.282684-1-thuth@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ff3f/CoS"
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-88a32bf0248so3421166d6.0
+        for <linux-hexagon@vger.kernel.org>; Thu, 18 Dec 2025 01:18:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1766049501; x=1766654301; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:feedback-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xrxnNnWxI4nS0YOrpBWcQANh5SNRLcQSO0aWER1QbrU=;
+        b=ff3f/CoSZIyY8Yp+aNjFhuiGt8Qjx/bywKPCZPifz1HR7J6M4F9+mknbF2EBZUEnwr
+         PNPPh/FfmW08lN/b4B8kkjikAyNh8NLW6/yOhPRl3Dvbw5Z0SoTfYjwvV8iCNWh6TB/4
+         bhLSakQipGLykNwFbF1/ELIjNwtH/fL836We1unBdPypk8J0m768TwRJI7eU8Up2BOy8
+         AFOmUf+23UaSmoBVOJfUgQLj9sXrEQnjPAdjP1MbtMCidCZ+rW2QY/qAzYRme+Z+hdLP
+         7VGT5W82nnVHvXIBRwkVtc/zD3mqvkCGSjcQCh1CwSgVhhLBNWTeY92Os3gtOOSETlFb
+         scTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1766049501; x=1766654301;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:feedback-id:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=xrxnNnWxI4nS0YOrpBWcQANh5SNRLcQSO0aWER1QbrU=;
+        b=h6Hn3vaVvJtZ/9GWdITRlURhi+BHYK80vLlXGq8tOLgHa5u1zv+hxVaBE1e3b9mrs2
+         w5tCHCOx6CAJi0tBmJUsYRQ78klweTjozXXqIVsBsiRDEWSG1mkeCYkRE9fQRxwiBxE2
+         +J790dKIi4wiqJ38CVdV9PLDITAWgB8HU4tS7OsCnJAT7s7RT60n5IG9NW6K0MKZxlcj
+         q03cLNfiLVIIykze1GCGFc4HMG11gKMBRBnGN1TFgn1P+v7u2+2V7dLobE8v7IhPydXC
+         mBuajrg2ael0MmP7rLyqjx/a46fUtMClhBz7Xl8pDx3RmTuYvXZpVpsIy4c0hVnUrjvv
+         P1dA==
+X-Forwarded-Encrypted: i=1; AJvYcCVe0LgRnH3ij8ler4kkVPyPp6nCBMkFeJMPYDT3xs507ke+PNh+bMP49AUqM2+haw0aEnreMg+Dh/u52Dag@vger.kernel.org
+X-Gm-Message-State: AOJu0YzG9S9BW7ixKUUMr47ia++ZujtnoFx/tUhm3ILf76RJo2Hva6fY
+	Gi4HrBHLTxwD83nd3FC4c1EV3wVmOtVLBwQg/FUvqEK7m7fmahCmWKGA
+X-Gm-Gg: AY/fxX7um2GSmGLatHPRsnr5Xhsl9imFw+w8AeBpiHDN/T9s4e8pIKy/d4iG4gVaAgE
+	SG0mgvuG5Sftd+Qll996Li+jl2dplMNAfXagd0QaRu3NTpfCDoUzOtHNoHFM3eiF9EZaNf7hDlm
+	NAZtH3lUzEuGhwS+/hw02ByfbCM8geAcAMu18Z4MkYYxSToVdr15JvnchBZMg27+hrQq0NLeq8n
+	wlE899ZbYgEN2hHvJF4ffzsvOXUlBWskkuSTzQVAEtHqXWqa0ibA/jDvUbTciUw0yXn0S3xTC5t
+	0/ZdYtmWcmTWB1dFMbJGAYGjQOPQAOZ6/XoJwPShETnF1DoKgdbqsSwM/YJ5zW/p5txw+WkNzke
+	qZS7lXsm2v+KSy0HEFifd+PenOX45fw7yDQrX3rUEEVayyYtccN6VQAan4Xv+/dLhFMcNtTDRsv
+	pi2dUuD05FmnIbJvD/TTXgQ9YOKheN85IPYq+58jY67HMq5b4Nez/0LbZvAtRouy6B+fjBts0uL
+	8oxpApVSCZeDvM=
+X-Google-Smtp-Source: AGHT+IGcCSZ2GTde4aBCYX1t8a7toNqTh87um5AM7sqyimiK1IjG5xXwzjeXHFVeUXoPi5AeBf7daw==
+X-Received: by 2002:a05:6214:3f88:b0:888:f03f:3d60 with SMTP id 6a1803df08f44-888f03f3fd4mr298428876d6.23.1766049500611;
+        Thu, 18 Dec 2025 01:18:20 -0800 (PST)
+Received: from fauth-a2-smtp.messagingengine.com (fauth-a2-smtp.messagingengine.com. [103.168.172.201])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-88c6089a7c3sm13752156d6.27.2025.12.18.01.18.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Dec 2025 01:18:20 -0800 (PST)
+Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 93062F4007D;
+	Thu, 18 Dec 2025 04:18:19 -0500 (EST)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-03.internal (MEProxy); Thu, 18 Dec 2025 04:18:19 -0500
+X-ME-Sender: <xms:28ZDaYZEfJvWf-SbMYzrwGR3XiBc9nchrwXFhKQR8GJSSPC5Ar8EDQ>
+    <xme:28ZDaQ3X24tbFZCKSuy5BC9I-mJ6F97xHygLeYsX0Q24WXatFCtqulZ7k7xDXldMD
+    w8thToUOyrSqYEOYVh9FeLhsV3yHiaH4wNjMKNGLA9kWLxJNQIW5A>
+X-ME-Received: <xmr:28ZDaS76HLTNf9hsmzSKKCFzqme6tSv1wQBubRlahd7SzJkjvySDN_JZ4AwY>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdeghedtgecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeeuohhquhhnucfh
+    vghnghcuoegsohhquhhnrdhfvghnghesghhmrghilhdrtghomheqnecuggftrfgrthhtvg
+    hrnhephedugfduffffteeutddvheeuveelvdfhleelieevtdeguefhgeeuveeiudffiedv
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepsghoqh
+    hunhdomhgvshhmthhprghuthhhphgvrhhsohhnrghlihhthidqieelvdeghedtieegqddu
+    jeejkeehheehvddqsghoqhhunhdrfhgvnhhgpeepghhmrghilhdrtghomhesfhhigihmvg
+    drnhgrmhgvpdhnsggprhgtphhtthhopedviedpmhhouggvpehsmhhtphhouhhtpdhrtghp
+    thhtohepfhhujhhithgrrdhtohhmohhnohhrihesghhmrghilhdrtghomhdprhgtphhtth
+    hopehojhgvuggrsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehpvghtvghriiesihhn
+    fhhrrgguvggrugdrohhrghdprhgtphhtthhopeifihhllheskhgvrhhnvghlrdhorhhgpd
+    hrtghpthhtoheprggtohhurhgsohhtsehnvhhiughirgdrtghomhdprhgtphhtthhopegr
+    rdhhihhnuggsohhrgheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprghlihgtvghrhi
+    hhlhesghhoohhglhgvrdgtohhmpdhrtghpthhtohepsghjohhrnhefpghghhesphhrohht
+    ohhnmhgrihhlrdgtohhmpdhrtghpthhtohepuggrkhhrsehkvghrnhgvlhdrohhrgh
+X-ME-Proxy: <xmx:28ZDaURyyKmDQ4rzO87pKe_8fgOq1CvxIA38rZW58_FyV787JuMOoA>
+    <xmx:28ZDaToXdtq1vvHJfqWGgCi5IrxlFpN9arJc7JnP0gCVwOlnuJ_8BA>
+    <xmx:28ZDaW8x_MNLpH_gvIPSydRn1Oxq4VIuot4c-gyvDK1ojt2oOdljwQ>
+    <xmx:28ZDaYMv8CQExp0AUKVWhGPIMDC66fwr1u9bQ-Paapulqomq_rU8JQ>
+    <xmx:28ZDaQlMxy_vd7Y9jFbADfvmvXTPmU_Nc3DIq04M5dpRvhc5Lkr_GE4M>
+Feedback-ID: iad51458e:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 18 Dec 2025 04:18:18 -0500 (EST)
+Date: Thu, 18 Dec 2025 18:18:17 +0900
+From: Boqun Feng <boqun.feng@gmail.com>
+To: FUJITA Tomonori <fujita.tomonori@gmail.com>
+Cc: ojeda@kernel.org, peterz@infradead.org, will@kernel.org,
+	acourbot@nvidia.com, a.hindborg@kernel.org, aliceryhl@google.com,
+	bjorn3_gh@protonmail.com, dakr@kernel.org, gary@garyguo.net,
+	lossin@kernel.org, mark.rutland@arm.com, tmgross@umich.edu,
+	rust-for-linux@vger.kernel.org,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org,
+	Vineet Gupta <vgupta@kernel.org>,
+	linux-snps-arc@lists.infradead.org, Brian Cain <bcain@kernel.org>,
+	linux-hexagon@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH v1 0/4] rust: Add i8/i16 atomic xchg helpers
+Message-ID: <aUPG2Q_sSPDnlQ0G@tardis-2.local>
+References: <20251217213742.639812-1-fujita.tomonori@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251217213742.639812-1-fujita.tomonori@gmail.com>
 
-From: Thomas Huth <thuth@redhat.com>
+[Cc parisc, sparc32, arc and hexagon]
 
-While the GCC and Clang compilers already define __ASSEMBLER__
-automatically when compiling assembly code, __ASSEMBLY__ is a
-macro that only gets defined by the Makefiles in the kernel.
-This can be very confusing when switching between userspace
-and kernelspace coding, or when dealing with uapi headers that
-rather should use __ASSEMBLER__ instead. So let's standardize now
-on the __ASSEMBLER__ macro that is provided by the compilers.
+On Thu, Dec 18, 2025 at 06:37:38AM +0900, FUJITA Tomonori wrote:
+> This adds atomic xchg helpers with full, acquire, release, and relaxed
+> orderings in preparation for i8/i16 atomic xchg support.
+> 
+> The architectures supporting Rust, implement atomic xchg families
+> using architecture-specific instructions. So the helpers just call
+> them.
+> 
+> Note that the architectures that support Rust handle xchg differently:
+> 
+> - arm64 and riscv support xchg with all the orderings.
+> 
+> - x86_64 and loongarch support only full-ordering xchg. They calls the
+>   full-ordering xchg for any orderings.
+> 
+> - arm v7 supports only relaxed-odering xchg. It uses __atomic_op_
+>  macros to add barriers properly.
+> 
 
-This is a completely mechanical patch (done with a simple "sed -i"
-statement).
+Thanks for the work! And please do Cc linux-arch next time when doing
+architecture-related changes. We would get more experts to take a look.
 
-Cc: linux-hexagon@vger.kernel.org
-Acked-by: Brian Cain <brian.cain@oss.qualcomm.com>
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- arch/hexagon/include/asm/hexagon_vm.h  |  4 ++--
- arch/hexagon/include/asm/mem-layout.h  |  6 +++---
- arch/hexagon/include/asm/page.h        |  4 ++--
- arch/hexagon/include/asm/processor.h   |  4 ++--
- arch/hexagon/include/asm/thread_info.h | 12 ++++++------
- 5 files changed, 15 insertions(+), 15 deletions(-)
+I think the current implementation expects that xchg() work with normal
+store/load, and that requires ARCH_SUPPORTS_ATOMIC_RMW. So could you add
+a comment saying the current implementation only support
+ARCH_SUPPORTS_ATOMIC_RMW architectures? And when you wire up the rust
+helpers, I think using #[cfg(CONFIG_ARCH_SUPPORTS_ATOMIC_RMW)] is a good
+idea. This will at least let the !ARCH_SUPPORTS_ATOMIC_RMW archs know
+that something is missing here.
 
-diff --git a/arch/hexagon/include/asm/hexagon_vm.h b/arch/hexagon/include/asm/hexagon_vm.h
-index 9aa2493fe7863..e1e702eb9e12a 100644
---- a/arch/hexagon/include/asm/hexagon_vm.h
-+++ b/arch/hexagon/include/asm/hexagon_vm.h
-@@ -39,7 +39,7 @@
- #define HVM_TRAP1_VMGETREGS		22
- #define HVM_TRAP1_VMTIMEROP		24
- 
--#ifndef __ASSEMBLY__
-+#ifndef __ASSEMBLER__
- 
- enum VM_CACHE_OPS {
- 	hvmc_ickill,
-@@ -178,7 +178,7 @@ static inline long __vmintop_clear(long i)
- 
- #else /* Only assembly code should reference these */
- 
--#endif /* __ASSEMBLY__ */
-+#endif /* __ASSEMBLER__ */
- 
- /*
-  * Constants for virtual instruction parameters and return values
-diff --git a/arch/hexagon/include/asm/mem-layout.h b/arch/hexagon/include/asm/mem-layout.h
-index e2f99413fe56e..8bad920d8928a 100644
---- a/arch/hexagon/include/asm/mem-layout.h
-+++ b/arch/hexagon/include/asm/mem-layout.h
-@@ -25,7 +25,7 @@
-  */
- 
- #ifdef CONFIG_HEXAGON_PHYS_OFFSET
--#ifndef __ASSEMBLY__
-+#ifndef __ASSEMBLER__
- extern unsigned long	__phys_offset;
- #endif
- #define PHYS_OFFSET	__phys_offset
-@@ -44,7 +44,7 @@ extern unsigned long	__phys_offset;
- #define STACK_TOP			TASK_SIZE
- #define STACK_TOP_MAX			TASK_SIZE
- 
--#ifndef __ASSEMBLY__
-+#ifndef __ASSEMBLER__
- enum fixed_addresses {
- 	FIX_KMAP_BEGIN,
- 	FIX_KMAP_END,  /*  check for per-cpuism  */
-@@ -101,7 +101,7 @@ extern int max_kernel_seg;
-  * and pkmap_base begins.
-  */
- #define VMALLOC_END (PKMAP_BASE-PAGE_SIZE*2)
--#endif /*  !__ASSEMBLY__  */
-+#endif /*  !__ASSEMBLER__  */
- 
- 
- #endif /* _ASM_HEXAGON_MEM_LAYOUT_H */
-diff --git a/arch/hexagon/include/asm/page.h b/arch/hexagon/include/asm/page.h
-index 137ba7c5de481..7e651428a08c0 100644
---- a/arch/hexagon/include/asm/page.h
-+++ b/arch/hexagon/include/asm/page.h
-@@ -48,7 +48,7 @@
- #include <vdso/page.h>
- 
- #ifdef __KERNEL__
--#ifndef __ASSEMBLY__
-+#ifndef __ASSEMBLER__
- 
- /*
-  * This is for PFN_DOWN, which mm.h needs.  Seems the right place to pull it in.
-@@ -128,7 +128,7 @@ static inline unsigned long virt_to_pfn(const void *kaddr)
- /* XXX Todo: implement assembly-optimized version of getorder. */
- #include <asm-generic/getorder.h>
- 
--#endif /* ifdef __ASSEMBLY__ */
-+#endif /* ifdef __ASSEMBLER__ */
- #endif /* ifdef __KERNEL__ */
- 
- #endif
-diff --git a/arch/hexagon/include/asm/processor.h b/arch/hexagon/include/asm/processor.h
-index 0cd39c2cdf8f7..b93c2cc4be22e 100644
---- a/arch/hexagon/include/asm/processor.h
-+++ b/arch/hexagon/include/asm/processor.h
-@@ -8,7 +8,7 @@
- #ifndef _ASM_PROCESSOR_H
- #define _ASM_PROCESSOR_H
- 
--#ifndef __ASSEMBLY__
-+#ifndef __ASSEMBLER__
- 
- #include <asm/mem-layout.h>
- #include <asm/registers.h>
-@@ -124,6 +124,6 @@ struct hexagon_switch_stack {
- 	unsigned long		lr;
- };
- 
--#endif /* !__ASSEMBLY__ */
-+#endif /* !__ASSEMBLER__ */
- 
- #endif
-diff --git a/arch/hexagon/include/asm/thread_info.h b/arch/hexagon/include/asm/thread_info.h
-index e90f280b9ce3e..a0da6c694c87b 100644
---- a/arch/hexagon/include/asm/thread_info.h
-+++ b/arch/hexagon/include/asm/thread_info.h
-@@ -10,7 +10,7 @@
- 
- #ifdef __KERNEL__
- 
--#ifndef __ASSEMBLY__
-+#ifndef __ASSEMBLER__
- #include <asm/processor.h>
- #include <asm/registers.h>
- #include <asm/page.h>
-@@ -20,7 +20,7 @@
- #define THREAD_SIZE		(1<<THREAD_SHIFT)
- #define THREAD_SIZE_ORDER	(THREAD_SHIFT - PAGE_SHIFT)
- 
--#ifndef __ASSEMBLY__
-+#ifndef __ASSEMBLER__
- 
- /*
-  * This is union'd with the "bottom" of the kernel stack.
-@@ -47,13 +47,13 @@ struct thread_info {
- 	unsigned long		sp;
- };
- 
--#else /* !__ASSEMBLY__ */
-+#else /* !__ASSEMBLER__ */
- 
- #include <asm/asm-offsets.h>
- 
--#endif  /* __ASSEMBLY__  */
-+#endif  /* __ASSEMBLER__  */
- 
--#ifndef __ASSEMBLY__
-+#ifndef __ASSEMBLER__
- 
- #define INIT_THREAD_INFO(tsk)                   \
- {                                               \
-@@ -73,7 +73,7 @@ struct thread_info {
- register struct thread_info *__current_thread_info asm(QUOTED_THREADINFO_REG);
- #define current_thread_info()  __current_thread_info
- 
--#endif /* __ASSEMBLY__ */
-+#endif /* __ASSEMBLER__ */
- 
- /*
-  * thread information flags
--- 
-2.51.1
+Regards,
+Boqun
 
+> FUJITA Tomonori (4):
+>   rust: helpers: Add i8/i16 atomic xchg helpers
+>   rust: helpers: Add i8/i16 atomic xchg_acquire helpers
+>   rust: helpers: Add i8/i16 atomic xchg_release helpers
+>   rust: helpers: Add i8/i16 atomic xchg_relaxed helpers
+> 
+>  rust/helpers/atomic_ext.c | 41 +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 41 insertions(+)
+> 
+> 
+> base-commit: 02c5c8c11bbd34cdd9c566dd4ecca48995c09621
+> -- 
+> 2.43.0
+> 
