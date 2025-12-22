@@ -1,136 +1,95 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBFA9314B62
-	for <linux-hexagon@vger.kernel.org>; Thu, 18 Dec 2025 11:08:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59EC73101C0;
+	Mon, 22 Dec 2025 07:41:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766056128; cv=none; b=b9edjRO3Ggs5KlzxiCjk9cKG2FSGMnV5iduwT6Kyn9WMIsv61nNIyDEpZLpWS07VGidSiLrBVhbwFHXPIL8nw/UaCJQtdAFxI0gQ5+kwzbc3FLrLXKOt6kN1iRv0ZBsD5qRxmlCk2cUZHXpZT535mkWyau2l/oUVo8alPmBvP7A=
+	t=1766389269; cv=none; b=Ug4sUQiXmncgiqqWW5dzjH4xaHfRLfXzJDukAx2tlfaU7Luw/NLuYTTvJNBIAhEca7afLZuHrTqGLmwzu45pxwA4xDE6ZMnHd3OaV7gsx1C/OC7I4crkpXXviHQ57V0YxAEy6piivSGAmCt1GX/ik8RJKoJbJL+255vSE6OoXUE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766056128; c=relaxed/simple;
-	bh=5ae4jwThX22GsqQgWrYZpZKKD1C+wqRFa+cbCkUbJkM=;
-	h=Date:Message-Id:To:Cc:Subject:From:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=Uf+wCV560g6u0BwDfHEI1F6w5T0oN/NwBoJp4PF0iRo/3ra/rFoEcPEgg/ayavCQQ4qn+OsTDVrMi6jq23NYuh4Z1WBje9ANVcSerNlnB27z2P6ww5f4NCQP3+WKcIvrDy4FKTBqkcoH+4GbkDfX9RICKUPCpvpKu+uoxykGA0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C1g4Wd7B; arc=none smtp.client-ip=209.85.210.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1766389269; c=relaxed/simple;
+	bh=20Jzfcxwvd8WNTSlqh8yUovJSlnzxx9t29vXrdr4S6c=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=GpC6Bbifcgp6vlmkj1o0kr5eOY27+MyxQ4j8lbyJ/+NQeSDEQZFI2Katmzmr5pt5BslMMwWfdwtERaIyuLIIUjvRdRW5wVeJ7RbRsICcjrdb2vtlDtw/je0Rn55tC5OjxncqP9QYJlG3X7iEZbMG5jZjGedHdIniFyZys2FdnT4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=RmkuxGRQ; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=dpr7yMrT; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C1g4Wd7B"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-7bc248dc16aso443681b3a.0
-        for <linux-hexagon@vger.kernel.org>; Thu, 18 Dec 2025 03:08:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1766056125; x=1766660925; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to:from
-         :subject:cc:to:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=fvrOODWWF0yZN0kTruhNLT8tt7pIP8wMKuLRwhFsSME=;
-        b=C1g4Wd7BARsbkRJe0oAR4w8atQbrErRn+cI/n8mMImNacVG4ZPCfyxJPTsz4kn263/
-         1GawtQ9i7Ep7A4QL2mEHbXQYvpZwO1+aZqE32yVyd4TgAyOeTfQj+1yosn/82b41nlUs
-         CJrLQUbFRDzGtZ6PIkWOa2ZaKg+rGfawDVWJf7uxvlK7Vdx3T2dVWwaJDnPYP/+suhoK
-         3ZoZBOtrXZlEUdMiSAKITWD+K3+dCssxYYETxuA2+NY25oy4O1bB9g43qu9cY8sMMITN
-         FM5r+DRZiEVg7GA1T4OVbbtbAJuKDszVemvarwAoWPEU4/fcxm63i/pgqe0ECqDVv0Zr
-         bRrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766056125; x=1766660925;
-        h=content-transfer-encoding:mime-version:references:in-reply-to:from
-         :subject:cc:to:message-id:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fvrOODWWF0yZN0kTruhNLT8tt7pIP8wMKuLRwhFsSME=;
-        b=oTjWHp4RdM7V35SwAOzXvksRYq/3Xyh+dlVEm91Qd7+OqOaOz6JAfsETme3WRwvkUW
-         y7iKBIvfYswwMxw2jWf9LZCOdEa4Dw+kGQNYvMc2LdKuIHChp04uBSSCcfq0y+ig6yaW
-         wRLKuW5HsCceOmmT4td0kktF4lsbCw8cQa6tbKM7c9QfSxqxYCMvJZIGYlPUxRo0UZHC
-         V8rjn7lXT+PeE7/KgesncaN3TjIK0SI5rwkutSCnJ6CWBbGKxifoKvyns+lCeGlEvSlj
-         MNTblJFh12bxswnUy3rfbCnacZ3wnjKAoooRlhsNxSiRAWbcUn56GYrHtSR6RDtpZg1A
-         WcxA==
-X-Forwarded-Encrypted: i=1; AJvYcCUeAU6IlkHyjREdFO3RdrszfMbZV3FgM1ROtz3ZnSO6uSzIqzBDpWnnIHBs68VzdRtHSJQ7Bd57eAaBdwMx@vger.kernel.org
-X-Gm-Message-State: AOJu0YzCNeekSfRyTmyCI6hMceXGsNZhhAaFowhlhWX82PAYpWHSYT//
-	JdYUKZ5RxqPTPdVfWLucWa5X2gIPdkV0jesE+ij5WWJQtVN7C8skwXrb
-X-Gm-Gg: AY/fxX77PGTjM/kuAKWl3FCeAONx/iijZB95h01bYWexgIA8t2KXeu92G8Kx3e32gWH
-	UkmMbwdVlGCrwIQiMBCCPxCEbc0Liz5qmgbDch5PZpY58TsQnsSCNDf/8ol+8DLrLWa/xDw0Cvy
-	n4jFqqhiDyBpKaMuA7ZEYYdUhjKPT8FzbS55dapVS03opzG59JkgiR7k2zQZKCnxibYBAsE+vbU
-	2EPIOPXaPcoWZAE9+oN4J54Pu3eQS8xipf5Pg+wWwGvdSevH1ZvCR+yUQjGHYtctk7YxBnkBo1G
-	XP5LwIDuhO0TR9G3s0l1UVN5IqYcY1/rnOcavuUTphOLS2/MeTj3rLx8QtDfLfdBDJcbktt4LRI
-	FOCYTuhSok3ADZNyF4TCoKyaf2DTq572UbQHzGBTPGjL+7hT+spZfG5EE3QBpVdd2n5PVrYszQi
-	J7pdWOhu2FCQpnoxWa5rB+3C79b3lkarKGFqvO4gCChXGg35kTGc44C4vR1mjhCGBcNkw=
-X-Google-Smtp-Source: AGHT+IGAV2/r1YTG/myMJw8Xx7HTeJ86vOJi7XK0y5urcjohswz9dbr215J8uix2rwoqrzjY/V5ZRA==
-X-Received: by 2002:a05:6a20:7343:b0:366:5332:466 with SMTP id adf61e73a8af0-369affec42fmr22254047637.53.1766056124849;
-        Thu, 18 Dec 2025 03:08:44 -0800 (PST)
-Received: from localhost (p5342157-ipxg23901hodogaya.kanagawa.ocn.ne.jp. [180.39.242.157])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c1d2dc9dec9sm2029744a12.10.2025.12.18.03.08.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Dec 2025 03:08:44 -0800 (PST)
-Date: Thu, 18 Dec 2025 20:08:24 +0900 (JST)
-Message-Id: <20251218.200824.2202311883856399078.fujita.tomonori@gmail.com>
-To: boqun.feng@gmail.com
-Cc: fujita.tomonori@gmail.com, ojeda@kernel.org, peterz@infradead.org,
- will@kernel.org, acourbot@nvidia.com, a.hindborg@kernel.org,
- aliceryhl@google.com, bjorn3_gh@protonmail.com, dakr@kernel.org,
- gary@garyguo.net, lossin@kernel.org, mark.rutland@arm.com,
- tmgross@umich.edu, rust-for-linux@vger.kernel.org,
- James.Bottomley@hansenpartnership.com, deller@gmx.de,
- linux-parisc@vger.kernel.org, davem@davemloft.net, andreas@gaisler.com,
- sparclinux@vger.kernel.org, vgupta@kernel.org,
- linux-snps-arc@lists.infradead.org, bcain@kernel.org,
- linux-hexagon@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH v1 0/4] rust: Add i8/i16 atomic xchg helpers
-From: FUJITA Tomonori <fujita.tomonori@gmail.com>
-In-Reply-To: <aUPG2Q_sSPDnlQ0G@tardis-2.local>
-References: <20251217213742.639812-1-fujita.tomonori@gmail.com>
-	<aUPG2Q_sSPDnlQ0G@tardis-2.local>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="RmkuxGRQ";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="dpr7yMrT"
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1766389264;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=jWdAY6sBKx6S0PxNvf/DvGbHLBB0BlqRAuGVx2twGYw=;
+	b=RmkuxGRQwTE5nuQgYveoVD7amd1dv5HcsEGMzOMUAyYc6ZAqAgdExtNf5KNwuxgw+TLDkR
+	wJ7MN9FIjNJkkK72DUrIpEdopnKixYS8A7uKxYDz1Z+ExYqYpjj2oOEcmEh89wDvnngXYg
+	ZF4tcxeqUEC6Qah+w3aP1kWxbjXPz49cXsLck0xeeppdcfzxgqf4rRj9QhE0LtR0qK8BxT
+	cZQmqFpBrAf8XzP/A/QDRZ0rsCxZmzJFubmHLWVfNrOAStEfmN3U5Sj4AHUzdUHUDyNmk1
+	DYycKyFv75fKe8vxYVcminlrXLroHW3eyyVv9CnqB81ASoYEQhohKab9QNyiNg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1766389264;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=jWdAY6sBKx6S0PxNvf/DvGbHLBB0BlqRAuGVx2twGYw=;
+	b=dpr7yMrTomhC9pwTETqcUBICH2CO6KA1/7VkH8CA7ZIzXBafphQ4tBrKrJhzjA69zKewQs
+	YA0qVjHkabpvsZCg==
+Date: Mon, 22 Dec 2025 08:40:56 +0100
+Subject: [PATCH] hexagon: uapi: Fix structure alignment attribute
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20251222-uapi-hexagon-v1-1-192bf7d9d702@linutronix.de>
+X-B4-Tracking: v=1; b=H4sIAAf2SGkC/x3MQQqAIBBA0avErBNsorCuEi0kR52NilIE4t2Tl
+ m/xf4VCmanAPlTI9HDhGDqmcYDL6+BIsOkGlLhMiChunVh4erWLQVi7bjQrOaMy0JOUyfL7746
+ ztQ/vNFkmXgAAAA==
+X-Change-ID: 20251222-uapi-hexagon-ff69e380328d
+To: Brian Cain <bcain@kernel.org>
+Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Arnd Bergmann <arnd@arndb.de>, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1766389263; l=881;
+ i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
+ bh=20Jzfcxwvd8WNTSlqh8yUovJSlnzxx9t29vXrdr4S6c=;
+ b=EtHtVvGiGcxQllUOmfoMutmrvArlhTQ61GqWPlf4hYV3/lEFcV1LfgStlbsncuWGkgZbvZmn/
+ ZIDsPBqYA+NBPlcqic59iPDOQOVhMDp5zwGYGtPWEXcZh79MgSFsWwc
+X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
+ pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-On Thu, 18 Dec 2025 18:18:17 +0900
-Boqun Feng <boqun.feng@gmail.com> wrote:
+__aligned() is a kernel macro, which is not available in UAPI headers.
 
-> [Cc parisc, sparc32, arc and hexagon]
-> 
-> On Thu, Dec 18, 2025 at 06:37:38AM +0900, FUJITA Tomonori wrote:
->> This adds atomic xchg helpers with full, acquire, release, and relaxed
->> orderings in preparation for i8/i16 atomic xchg support.
->> 
->> The architectures supporting Rust, implement atomic xchg families
->> using architecture-specific instructions. So the helpers just call
->> them.
->> 
->> Note that the architectures that support Rust handle xchg differently:
->> 
->> - arm64 and riscv support xchg with all the orderings.
->> 
->> - x86_64 and loongarch support only full-ordering xchg. They calls the
->>   full-ordering xchg for any orderings.
->> 
->> - arm v7 supports only relaxed-odering xchg. It uses __atomic_op_
->>  macros to add barriers properly.
->> 
-> 
-> Thanks for the work! And please do Cc linux-arch next time when doing
-> architecture-related changes. We would get more experts to take a look.
+Use the compiler-provided alignment attribute directly.
 
-Will do, thanks.
+Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+---
+ arch/hexagon/include/uapi/asm/sigcontext.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> I think the current implementation expects that xchg() work with normal
-> store/load, and that requires ARCH_SUPPORTS_ATOMIC_RMW. So could you add
-> a comment saying the current implementation only support
-> ARCH_SUPPORTS_ATOMIC_RMW architectures? And when you wire up the rust
-> helpers, I think using #[cfg(CONFIG_ARCH_SUPPORTS_ATOMIC_RMW)] is a good
-> idea. This will at least let the !ARCH_SUPPORTS_ATOMIC_RMW archs know
-> that something is missing here.
+diff --git a/arch/hexagon/include/uapi/asm/sigcontext.h b/arch/hexagon/include/uapi/asm/sigcontext.h
+index 7171edb1b8b7..179a97041b59 100644
+--- a/arch/hexagon/include/uapi/asm/sigcontext.h
++++ b/arch/hexagon/include/uapi/asm/sigcontext.h
+@@ -29,6 +29,6 @@
+  */
+ struct sigcontext {
+ 	struct user_regs_struct sc_regs;
+-} __aligned(8);
++} __attribute__((aligned(8)));
+ 
+ #endif
 
-I will add a comment.
+---
+base-commit: 8f0b4cce4481fb22653697cced8d0d04027cb1e8
+change-id: 20251222-uapi-hexagon-ff69e380328d
 
-ARCH_SUPPORTS_ATOMIC_RMW is required, but we also rely on xchg
-supporting i8/i16, which is not currently required on the C side, I
-suppose.
-
-As I wrote, at the moment, the architectures that support Rust
-(x86_64, armv7, arm64, riscv, and loongarch) satisfy these
-requirements, so my plan was to use cfgs in internal.rs to restrict
-xchg support to those architectures.
+Best regards,
+-- 
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 
