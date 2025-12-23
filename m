@@ -1,99 +1,90 @@
-Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 962C730CDBD;
-	Mon, 22 Dec 2025 09:23:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3F3E26C3A2;
+	Tue, 23 Dec 2025 07:04:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766395436; cv=none; b=H0TA8E7y3NXJCuV66rmo7AGMA8h4THAcHyzVtcXPfmasXGfhYbRmCkLCek5cDlhhi9ZemCf1pbiWXaxg7oU89ZMEJ980fBSqJt/O6EaUhWRRrGZgmHn34GKbl6zYsgMC9ogNrExSkCE4OXFNOXe64lxBSLNdZNTshBCy0VEqiwI=
+	t=1766473459; cv=none; b=W8n2NU4IhlfN5SfeAAsBAzfQEKGQKSYoOuZpo1NW32CUPThjusUx+VlL9XUo3ldvWXZqYgbBXWEg5F92YaQXf6bFs3O5qm8Ns5JuuMyMubb5XoIQ11/Rw8MGc6uTbdpBbH8qffvCmXtGB76WKxPy482X/WYtJ81HPeJ5squO2sc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766395436; c=relaxed/simple;
-	bh=uRBVWAiaGAON24PWb1hMShWdsmQROohqUGwoUEzvwLY=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=CUmfOkKWRQ+/q+Nja+OeCmmfOfWa5lVyKsG6JpAyWcE6VYZ9zoopAzIJRQOXONWvJPeMdO32YSp8Ub0tEmfsLRSvDsURMRE28PABYC7ZR2edj8c7W1X08EU6MGJDvmZ9ho/LIUApV1kezeeRC+y+JeONcfXJqLzizVlfIj6FGzA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=CFh/zBWH; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=xt2cddAH; arc=none smtp.client-ip=202.12.124.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1766473459; c=relaxed/simple;
+	bh=Yd4HmCaRPrqWYEU2zhoNXtl8+qOP1jtlDRWKrpC3Rdw=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=pxKlWPCb41rUIETmLEi9OCxgp/RbtkdOIe0UkuwlF9h5qyF7qHf9/NNvaNZEk8ZYIdZnZdCeqQ4XuH32E4Ky7trTYWELzDI11dXLka+q0C5INu/x31caqdo1D2mUxoKTbSKGAUkVVLbQkmC7vgXvzLEea1jjA9F9264JjRggV+s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=19JnU+1R; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=EqyPUknW; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="CFh/zBWH";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="xt2cddAH"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id B80E27A006A;
-	Mon, 22 Dec 2025 04:23:53 -0500 (EST)
-Received: from phl-imap-17 ([10.202.2.105])
-  by phl-compute-04.internal (MEProxy); Mon, 22 Dec 2025 04:23:53 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1766395433;
-	 x=1766481833; bh=uRBVWAiaGAON24PWb1hMShWdsmQROohqUGwoUEzvwLY=; b=
-	CFh/zBWHfQLe5TUcm5DRrY01VNYR7ezjcd1lW89pDzZKnzGp1TnTdwceK8eucyG2
-	+ClPnyYHgloycpkfSV3ae8CSjylU6adc1H9pM/hZJgf+Hi8EJToroRBqpcxBBtWr
-	pRK7cG+CJ4MTHejEWAsdiPyt5Mw36qY8snoreKKBRAX0zMViTbjtGuSrJUOdZjl9
-	heVVZ/9OEb3lA6XQdqtUyklQoPnXFHKvYUQSk+Wh8z6Tqenc2RzIHaZe5I/XJL65
-	TiI+GbGW+tbDOpVi+9ZHyTRkWrA3hVgylojvBHhDiz4WQuFhfgAz9c/3QmwdjyBz
-	nvKY7ujO1bsAk791r0f5jw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1766395433; x=
-	1766481833; bh=uRBVWAiaGAON24PWb1hMShWdsmQROohqUGwoUEzvwLY=; b=x
-	t2cddAH4qRPXfdQE2o+LwvLYLa6Py9fA2IBAchW/y1nHg7yPr3PiQ2s5faK9Nh8H
-	UqcNC3D0mAIW5eF0KCQimRakOcJjH/xzMth1m9Fy2vCRATeZ5nzSLPA8AaXRnKtz
-	KJOnAZDic0QZcOE9FxFnK0jAQN+I9Ru4SOPixYt8e/4ngZNmVPBlG7978p29ZLaT
-	5UW2psbSgRL1gxkjIAp5sjW/5WFoCiWEn6HC/z0CZMPSpxMpuj+etiZlTkEkZpHn
-	79CMuJ2OQH/rJG14Rq66FuHMEOXkm19NLm4j5EpdmrEYH4M/7zzVclsK33lbCJK6
-	bivyVgCz/aZJPrfl3BDsg==
-X-ME-Sender: <xms:KQ5Jacg8aC1GxlNHYvmZBJIgeKb-oFygb_uuH_uRuLJmSs0guwJDvQ>
-    <xme:KQ5Jaf1k7E97KKm3MQ_vwub8dArDd0dUtMHCsAvRfgxh6ZCQgv7IOkQSSHkuRk9bQ
-    bu7tESIIyvWUow-N5Q_R2ylDkFCbBNAd3Bpq0NziVKGGE0_aaRfNw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdehieehjecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefoggffhffvvefkjghfufgtgfesthhqredtredtjeenucfhrhhomhepfdetrhhnugcu
-    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
-    hnpedvhfdvkeeuudevfffftefgvdevfedvleehvddvgeejvdefhedtgeegveehfeeljeen
-    ucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnug
-    esrghrnhgusgdruggvpdhnsggprhgtphhtthhopeegpdhmohguvgepshhmthhpohhuthdp
-    rhgtphhtthhopegstggrihhnsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehthhhomh
-    grshdrfigvihhsshhstghhuhhhsehlihhnuhhtrhhonhhigidruggvpdhrtghpthhtohep
-    lhhinhhugidqhhgvgigrghhonhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtth
-    hopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:KQ5JaSLESPWrfrhCk1HO_pvBy9KTFt3lYSPhoOlS6UKd1hkBOAl2gQ>
-    <xmx:KQ5JaVlcIGpGOfBG275BrApgMuVYv6sbCtuBBvOrA3WTSdhRmqRmJw>
-    <xmx:KQ5JaWNbthrAcU_WSRhwh8TnQQhzGV91_GqYBuVlBDcjjEAxrYCyUQ>
-    <xmx:KQ5Jab3BMGpsV_eqWpeHrMmaZ3eKlTeWHgv1LUFStodo8BD4tl1Qkg>
-    <xmx:KQ5JaXMn21-0Jk7em704ha_GFUJ9ssZ0oN2ab5PMIsWSY7f0JgmDW8vH>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 76F62C40054; Mon, 22 Dec 2025 04:23:53 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="19JnU+1R";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="EqyPUknW"
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1766473456;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=K3gV414u+Yc4wMSM7xqi5LXM3RbWQDpMH3ISLeml8MU=;
+	b=19JnU+1Rur1a0TnxKuiHnVkvpb6GcboXTafU6NdPXNaPK9WEjtx8mdpgj5QHng+ea0J2MQ
+	Is1p/shSi54ql2p7oQIt4G361E+qfvpIFk1jblEPXkwDoHBkyYfPHzDGsQo+rqGRJcdokj
+	BCAlpaMEdwdbeESm0cQBPk5FEOZFxpRpokf/4nQwCDINeZnh0+cYxEb41h9WyQhNBhIgB2
+	7FWZ5qpGicCu9h75uHA76eCisLsiWzkL5zQma7sclLHSxzOqzMHEjn9YZ1l3RLQeJ+SCrb
+	2zi7DT9Od0Md2cQaT2M1ZIuyVr5C60ydnMWoN90h8/ylBCal6qk0bnomqnhZTQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1766473456;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=K3gV414u+Yc4wMSM7xqi5LXM3RbWQDpMH3ISLeml8MU=;
+	b=EqyPUknWWUXXjSEbeevo5fopEy/0NA1OMj34iRei21C6W6r1DkHCU3Y/7tzlLyxCC1xw5Q
+	2xxnHZgOZ8QfQAAw==
+Subject: [PATCH 0/5] kbuild: uapi: improvements to header testing
+Date: Tue, 23 Dec 2025 08:04:07 +0100
+Message-Id: <20251223-uapi-nostdinc-v1-0-d91545d794f7@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: ApM8UPHRU2I-
-Date: Mon, 22 Dec 2025 10:23:32 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
- "Brian Cain" <bcain@kernel.org>
-Cc: linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <5726fefe-4608-42d9-9761-595bae50bc0a@app.fastmail.com>
-In-Reply-To: <20251222-uapi-hexagon-v1-1-192bf7d9d702@linutronix.de>
-References: <20251222-uapi-hexagon-v1-1-192bf7d9d702@linutronix.de>
-Subject: Re: [PATCH] hexagon: uapi: Fix structure alignment attribute
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAOg+SmkC/x3MQQqAIBBA0avIrBPUVKKrRAvRqWajohWBdPek5
+ Vv836BiIawwswYFb6qUYoccGPjDxR05hW5QQhmpxMgvl4nHVM9A0XOrMXicTNBWQ29ywY2e/7e
+ s7/sBK1mgWF8AAAA=
+X-Change-ID: 20251203-uapi-nostdinc-64edce85d464
+To: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
+ Brian Cain <bcain@kernel.org>
+Cc: linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ bpf@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1766473456; l=919;
+ i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
+ bh=Yd4HmCaRPrqWYEU2zhoNXtl8+qOP1jtlDRWKrpC3Rdw=;
+ b=XBPuvpG9XsVr3yJuVGQuyOrzv7eDF1hmJg8VSPhLx8A8gXFqWGi0R0owIqYYuhbw6iiRm2Iwf
+ fbxZaGFxdSnC66ytOn9X+ZgsxKJA2YL2oGrcAYQmHHWSH640uskGskD
+X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
+ pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-On Mon, Dec 22, 2025, at 08:40, Thomas Wei=C3=9Fschuh wrote:
-> __aligned() is a kernel macro, which is not available in UAPI headers.
->
-> Use the compiler-provided alignment attribute directly.
->
-> Signed-off-by: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
+Also validate that UAPI headers do not depend on libc and remove the
+dependency on CC_CAN_LINK.
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+---
+Thomas Weißschuh (5):
+      kbuild: uapi: validate that headers do not use libc
+      hexagon: Drop invalid UAPI header asm/signal.h
+      kbuild: uapi: don't compile test bpf_perf_event.h on xtensa
+      kbuild: uapi: split out command conditions into variables
+      kbuild: uapi: drop dependency on CC_CAN_LINK
+
+ arch/hexagon/include/{uapi => }/asm/signal.h |  0
+ init/Kconfig                                 |  2 +-
+ usr/include/Makefile                         | 87 +++++++++++++++++++++++++++-
+ 3 files changed, 87 insertions(+), 2 deletions(-)
+---
+base-commit: 8f0b4cce4481fb22653697cced8d0d04027cb1e8
+change-id: 20251203-uapi-nostdinc-64edce85d464
+
+Best regards,
+-- 
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+
