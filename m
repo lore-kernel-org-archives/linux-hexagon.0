@@ -1,118 +1,244 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14C4530BBA0;
-	Tue, 23 Dec 2025 07:04:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B784121255A;
+	Sun, 28 Dec 2025 12:40:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766473462; cv=none; b=WpQEBKWMw3tyI1vFzfDfOrflqLE93bxt9Ox4EarAc6NzpNejTMzp0Y98KhopuBfzTIkXjsFCpkwT7B7fbprBXS8+s+g07BEmkwDqVFCENtE4ap+fIV41Dx7K2pB6kE4K945LBw+cEerc5VhPguee4w0Hycsv1ETfDvce/v39rJc=
+	t=1766925624; cv=none; b=X2HZV9Iuko6s/BNZuTmVM66nt2NiPYES/2qmCj8aHDG7SRqOcXycCBb2ICNZ7m05yr8GDmEmKJ+l8woutCL1CxUCtvHGIahij3BsQ8A/Z26CAsoTyiLPLqTLcXb+3pYZV6eqSwCp18Msdf1X0nnCwQCUq3c7CFANq4zJCYvQm7g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766473462; c=relaxed/simple;
-	bh=JvThK3D0po6Go7rwk2+OL/2B8Ulbte9q+20HJXRZ7kw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=GrLGlwvNWD1cDP2VaPjscgdq7bT+hWOPkFEsUdVQfS6wIRUUDlWG93SxEsCryP5Q2JLUXgvrzYT+hGAKp7sN216oxml5w/wSevyWnrK7ZlCiLjpc/zGl0e52Y67BXj6a2FoW+MDxWXb4GysDcOjAVkCmzJxRJ27jmwNmjGPoy2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=GggDd38O; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=u90Z0mYU; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1766925624; c=relaxed/simple;
+	bh=sXg/eGtpStxuOg/YYnTnKHLFWH8EKXy5iyUYi++8khY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LCa3M84ks60a5JEOomiBQNej45J6/L6c73MsDDKjciijINA2eiXuxkS4NucSSmiU1V7uiEFpVCTHKkVN+4GqSudCYjNnhJYIMl6ogH+n98uoktSSCMl7mn7/FIGNGL3Nt9C9/0Qd0Q0x0UkK0pmIL2ZXMoXJ3/iYnSfKnLnvgH4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JXSMQI8l; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="GggDd38O";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="u90Z0mYU"
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1766473459;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hTn+nCaMtLNpZ9M4ZQw3UrVsBJeVi0MyHz1cx+b02SY=;
-	b=GggDd38OxhzhjfSLAPm9m4DCbFOwre3cTY2fuxZTTjjIHkl5PGEgd8gKohFp8lI4V0wsHx
-	8kfo9Z0GXUcM4NtqUiSRpkvkyldtGvHRhXNGLLLNPFfo9sxsle5quey3M/HoaMhMF07FTc
-	9X7RekB7/o3FyB4alyZdcs2rH9v0qzWSpOz4e+2SSPRbmqWivg2FdmDxTycYk8ONmKOx1/
-	CzKem85lEmd++nM2+oq8NUF8sqR43C6ALXIBCSllLDIeVzZ7H0ZB90y30dCU1F9zJAWnty
-	9EuHjcZkTy4AfUmTiJWG3ktY997pLNkN4AsaMNZKBqTCcYjtCHt3q4ihZDD/yw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1766473459;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hTn+nCaMtLNpZ9M4ZQw3UrVsBJeVi0MyHz1cx+b02SY=;
-	b=u90Z0mYUrEf8PCGb1IDvcG/3i2uieUhFYzSnLxxUayTNYJSQTMaljANymhZuu4osGgN+bh
-	8pDOE9E8VoDEY/BA==
-Date: Tue, 23 Dec 2025 08:04:12 +0100
-Subject: [PATCH 5/5] kbuild: uapi: drop dependency on CC_CAN_LINK
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JXSMQI8l"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6F68C4CEFB;
+	Sun, 28 Dec 2025 12:40:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1766925623;
+	bh=sXg/eGtpStxuOg/YYnTnKHLFWH8EKXy5iyUYi++8khY=;
+	h=From:To:Cc:Subject:Date:From;
+	b=JXSMQI8l5FZolejTk5mJv6quraHJlKmuF8twD40ZAWMOQZK+U7pyVygxOROMFe1B0
+	 tr8vJLMrqIcrt++LIAENoYcVcJb437aztawcxW2Ryt48u9sfI48SxSG0pjE0ivfh5n
+	 65ZIVAkGJycQK0LAPdjNnYFxj6kv4hkgMf38zWq6L2c161HN/YenbghDeWTPGysWbw
+	 SFyckrxDWUHpRNZNS/PPTejvpAV5uJxzs8W19ji6hxViDYqKZqU23ZM1n/3rjhokjT
+	 6QAFreOcfXfdT+EBPFCtGE3JapCzoxuwD9DDmvJ5sANYode+bX0kc9S3wM1fu5EwB5
+	 pxYkAtiZ4jyJQ==
+From: Mike Rapoport <rppt@kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alex Shi <alexs@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Brian Cain <bcain@kernel.org>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@kernel.org>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonathan Corbet <corbet@lwn.net>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Matt Turner <mattst88@gmail.com>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Hocko <mhocko@suse.com>,
+	Michal Simek <monstr@monstr.eu>,
+	Mike Rapoport <rppt@kernel.org>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Pratyush Yadav <pratyush@kernel.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>,
+	Stafford Horne <shorne@gmail.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Vineet Gupta <vgupta@kernel.org>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Will Deacon <will@kernel.org>,
+	x86@kernel.org,
+	linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org,
+	linux-cxl@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-um@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	loongarch@lists.linux.dev,
+	sparclinux@vger.kernel.org
+Subject: [PATCH 00/28] arch, mm: consolidate hugetlb early reservation
+Date: Sun, 28 Dec 2025 14:39:30 +0200
+Message-ID: <20251228124001.3624742-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20251223-uapi-nostdinc-v1-5-d91545d794f7@linutronix.de>
-References: <20251223-uapi-nostdinc-v1-0-d91545d794f7@linutronix.de>
-In-Reply-To: <20251223-uapi-nostdinc-v1-0-d91545d794f7@linutronix.de>
-To: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
- Brian Cain <bcain@kernel.org>
-Cc: linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org, 
- bpf@vger.kernel.org, linux-hexagon@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1766473456; l=1988;
- i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=JvThK3D0po6Go7rwk2+OL/2B8Ulbte9q+20HJXRZ7kw=;
- b=GtixPB7n5P/Q1KtZNZscrAVFYfCRtRXEWGZstURVep+3cMTg6UVzi/tC2cpY+8XSad9oNfD6G
- 4oLfl8346cBDsIMwjOfFyAlLW0Y6RaUdjB4UBh8mNNud3m4RBBrSSWZ
-X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
- pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-The header tests try to compile each header. Some UAPI headers depend on
-libc headers so they need a full userspace toolchain to build. This
-dependency is expressed in kconfig as a dependency on CC_CAN_LINK.
-Many kernel builds do not satisfy CC_CAN_LINK as they only use a
-minimal kernel (cross-) compiler. In those configurations the UAPI
-headers are not tested at all.
+From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
 
-However most UAPI headers do not even depend on any libc headers,
-and such dependencies are undesired in any case. Also the static
-analysis performed by headers_check.pl does not need CC_CAN_LINK.
+Hi,
 
-Drop the hard dependency on CC_CAN_LINK and instead skip the affected
-compilation step for exactly those headers which require libc.
+Order in which early memory reservation for hugetlb happens depends on
+architecture, on configuration options and on command line parameters.
 
-Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
----
- init/Kconfig         | 2 +-
- usr/include/Makefile | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+Some architectures rely on the core MM to call hugetlb_bootmem_alloc()
+while others call it very early to allow pre-allocation of HVO-style
+vmemmap.
 
-diff --git a/init/Kconfig b/init/Kconfig
-index fa79feb8fe57..4e7ae65683ee 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -247,7 +247,7 @@ config WERROR
- 
- config UAPI_HEADER_TEST
- 	bool "Compile test UAPI headers"
--	depends on HEADERS_INSTALL && CC_CAN_LINK
-+	depends on HEADERS_INSTALL
- 	help
- 	  Compile test headers exported to user-space to ensure they are
- 	  self-contained, i.e. compilable as standalone units.
-diff --git a/usr/include/Makefile b/usr/include/Makefile
-index fa01bcda21f5..6d86a53c6f0a 100644
---- a/usr/include/Makefile
-+++ b/usr/include/Makefile
-@@ -151,7 +151,8 @@ endif
- always-y := $(patsubst $(obj)/%.h,%.hdrtest, $(shell find $(obj) -name '*.h' 2>/dev/null))
- 
- target-no-libc = $(filter-out $(uses-libc), $*.h)
--target-can-compile = $(filter-out $(no-header-test), $*.h)
-+target-can-compile = $(and $(filter-out $(no-header-test), $*.h), \
-+                           $(or $(CONFIG_CC_CAN_LINK), $(target-no-libc)))
- 
- # Include the header twice to detect missing include guard.
- quiet_cmd_hdrtest = HDRTEST $<
+When hugetlb_cma is supported by an architecture it is initialized during
+setup_arch() and then later hugetlb_init code needs to understand did it
+happen or not.
 
+To make everything consistent and unified, both reservation of hugetlb
+memory from bootmem and creation of CMA areas for hugetlb must be called
+from core MM initialization and it would have been a simple change.
+However, HVO-style pre-initialization ordering requirements slightly
+complicate things and for HVO pre-init to work sparse and memory map should
+be initialized after hugetlb reservations.
+
+This required pulling out the call to free_area_init() out of setup_arch()
+path and moving it MM initialization and this is what the first 23 patches
+do.
+
+These changes are deliberately split into per-arch patches that change how
+the zone limits are calculated for each architecture and the patches 22 and
+23 just remove the calls to free_area_init() and sprase_init() from arch/*.
+
+Patch 24 is a simple cleanup for MIPS.
+
+Patches 25 and 26 actually consolidate hugetlb reservations and patches 27
+and 28 perform some aftermath cleanups.
+
+I tried to trim the distribution list and although it's still quite long
+if you feel that someone was wrongly excluded please add them back.
+
+The changes also available in git:
+https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git/log/?h=hugetlb-init/v1
+
+Mike Rapoport (Microsoft) (28):
+  alpha: introduce arch_zone_limits_init()
+  arc: introduce arch_zone_limits_init()
+  arm: introduce arch_zone_limits_init()
+  arm64: introduce arch_zone_limits_init()
+  csky: introduce arch_zone_limits_init()
+  hexagon: introduce arch_zone_limits_init()
+  loongarch: introduce arch_zone_limits_init()
+  m68k: introduce arch_zone_limits_init()
+  microblaze: introduce arch_zone_limits_init()
+  mips: introduce arch_zone_limits_init()
+  nios2: introduce arch_zone_limits_init()
+  openrisc: introduce arch_zone_limits_init()
+  parisc: introduce arch_zone_limits_init()
+  powerpc: introduce arch_zone_limits_init()
+  riscv: introduce arch_zone_limits_init()
+  s390: introduce arch_zone_limits_init()
+  sh: introduce arch_zone_limits_init()
+  sparc: introduce arch_zone_limits_init()
+  um: introduce arch_zone_limits_init()
+  x86: introduce arch_zone_limits_init()
+  xtensa: introduce arch_zone_limits_init()
+  arch, mm: consolidate initialization of nodes, zones and memory map
+  arch, mm: consolidate initialization of SPARSE memory model
+  mips: drop paging_init()
+  x86: don't reserve hugetlb memory in setup_arch()
+  mm, arch: consolidate hugetlb CMA reservation
+  mm/hugetlb: drop hugetlb_cma_check()
+  Revert "mm/hugetlb: deal with multiple calls to hugetlb_bootmem_alloc"
+
+ .../driver-api/cxl/linux/early-boot.rst       |  2 +-
+ Documentation/mm/memory-model.rst             |  3 -
+ .../translations/zh_CN/mm/memory-model.rst    |  2 -
+ arch/alpha/kernel/setup.c                     |  1 -
+ arch/alpha/mm/init.c                          | 16 ++--
+ arch/arc/mm/init.c                            | 37 ++++----
+ arch/arm/mm/init.c                            | 25 +----
+ arch/arm64/include/asm/hugetlb.h              |  2 -
+ arch/arm64/mm/hugetlbpage.c                   | 10 +-
+ arch/arm64/mm/init.c                          | 39 ++++----
+ arch/csky/kernel/setup.c                      | 16 ++--
+ arch/hexagon/mm/init.c                        | 19 +---
+ arch/loongarch/include/asm/pgtable.h          |  2 -
+ arch/loongarch/kernel/setup.c                 | 10 --
+ arch/loongarch/mm/init.c                      |  6 +-
+ arch/m68k/mm/init.c                           |  8 +-
+ arch/m68k/mm/mcfmmu.c                         |  3 -
+ arch/m68k/mm/motorola.c                       |  6 +-
+ arch/m68k/mm/sun3mmu.c                        |  9 --
+ arch/microblaze/mm/init.c                     | 22 ++---
+ arch/mips/include/asm/pgalloc.h               |  2 -
+ arch/mips/include/asm/pgtable.h               |  2 +-
+ arch/mips/kernel/setup.c                      | 15 +--
+ arch/mips/loongson64/numa.c                   | 10 +-
+ arch/mips/mm/init.c                           |  8 +-
+ arch/mips/sgi-ip27/ip27-memory.c              |  8 +-
+ arch/nios2/mm/init.c                          | 12 +--
+ arch/openrisc/mm/init.c                       | 10 +-
+ arch/parisc/mm/init.c                         | 11 +--
+ arch/powerpc/include/asm/hugetlb.h            |  5 -
+ arch/powerpc/include/asm/setup.h              |  4 +
+ arch/powerpc/kernel/setup-common.c            |  1 -
+ arch/powerpc/mm/hugetlbpage.c                 | 11 +--
+ arch/powerpc/mm/mem.c                         | 27 ++----
+ arch/powerpc/mm/numa.c                        |  2 -
+ arch/riscv/mm/hugetlbpage.c                   |  8 ++
+ arch/riscv/mm/init.c                          | 10 +-
+ arch/s390/kernel/setup.c                      |  2 -
+ arch/s390/mm/hugetlbpage.c                    |  8 ++
+ arch/s390/mm/init.c                           | 13 ++-
+ arch/sh/mm/init.c                             | 12 +--
+ arch/sparc/mm/init_64.c                       | 17 +---
+ arch/sparc/mm/srmmu.c                         | 17 ++--
+ arch/um/kernel/mem.c                          | 10 +-
+ arch/x86/kernel/setup.c                       |  5 -
+ arch/x86/mm/hugetlbpage.c                     |  8 ++
+ arch/x86/mm/init.c                            |  8 +-
+ arch/x86/mm/init_32.c                         |  2 -
+ arch/x86/mm/init_64.c                         |  4 -
+ arch/x86/mm/mm_internal.h                     |  1 -
+ arch/xtensa/mm/init.c                         | 14 +--
+ include/linux/hugetlb.h                       | 12 +--
+ include/linux/mm.h                            |  5 +-
+ include/linux/mmzone.h                        |  2 -
+ init/main.c                                   |  1 +
+ mm/hugetlb.c                                  | 13 ---
+ mm/hugetlb_cma.c                              | 33 ++++---
+ mm/hugetlb_cma.h                              |  5 -
+ mm/hugetlb_vmemmap.c                          | 11 ---
+ mm/internal.h                                 |  6 ++
+ mm/mm_init.c                                  | 94 +++++++++++--------
+ 61 files changed, 263 insertions(+), 424 deletions(-)
+
+
+base-commit: 8f0b4cce4481fb22653697cced8d0d04027cb1e8
 -- 
-2.52.0
+2.51.0
 
