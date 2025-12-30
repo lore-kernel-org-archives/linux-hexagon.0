@@ -1,102 +1,75 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78AC1224AF0;
-	Mon, 29 Dec 2025 13:55:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 819741F95C;
+	Tue, 30 Dec 2025 20:32:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767016527; cv=none; b=iAlBCpKfVTydfbLGw3rfVdAQ/y26jFyI/UXweRc6rdQgCDLotE8uTLR7TsAoV1pOqX/sXJh8DYEr+tC08/Odtw+/+d00VvRNUAubWIGv4KZAb+Y6SDHgzRLgdA9WlZYXZFnXiSBCLxu1ZqK8rXYYhCqelK1IPSbo5ygJlOdoKC0=
+	t=1767126720; cv=none; b=PXTGKhwnszl7OtP6trCwAbufEQfCADksvnlbG/xrXeMVmUdSmS4bqsTdzc47E1UK3LxAzeej9RQV5MvoX7I4QxBVk/aimPwCSljzTxjKkqSW4138jysn9xiC9gYlV3nomi/ByxLw7StmfmrCVM3nihkm2T0THIsSh/FeBDZ2YQ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767016527; c=relaxed/simple;
-	bh=KUzcCQmQKdCc6BXDXkIzmgljIGG78Dm71TrJEBQ0UVk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tWhrptlcLvaf+QdrS9gnBNvHdigWdFR7jUoAH+R0XjKieLsNgjOdXzq616Y0IAyVoVEVlCNAwaWoc8O4Q4Xsi/Yf+71e4LSQJKRHu1mrc4oJw23OGkQhXtYS27x7mN4yb3272GVspIhIKZzyU2cNOFyw266DDuvVAJ88cWv4mNM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YGxdnq2k; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1767126720; c=relaxed/simple;
+	bh=4u5e0fMkjgaUZ1oU9t+Zpd9Xl9tAAI4rsfqfmlUrWe0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sNQrbY7Hinbs1nBpYMU8hVX/O/4Q5NUpcOQNUMmfQW+zTi1/FZ1hG4dH0uuk7pUZ00706JkJTsoGsu8mPGbwKmP76AjP5Jrk/GjJLhAi60rokGxybUn6sqY9IDic2FIG0kboOqJoZZDeemXOPYpPW0lk5z+uOEh8VRNHUfkr7kY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Iith7RyG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YGxdnq2k"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B958C4CEF7;
-	Mon, 29 Dec 2025 13:55:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Iith7RyG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB1D1C113D0;
+	Tue, 30 Dec 2025 20:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767016527;
-	bh=KUzcCQmQKdCc6BXDXkIzmgljIGG78Dm71TrJEBQ0UVk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=YGxdnq2k/1YHQkO+jdKT72GRWIqp9MvmMpClq2GsOdPjlPP0FWxM04kupp5c2Q36H
-	 WhlDnqIsMmUc8EKUXxMVpxOS42QmCYKRBBIDWLcXcg4PUPqipaWdrKH1gKS1FwASa/
-	 hKp6pXPaUfKZpSt6S9+PDmd4sDLYk+k7PB2/GgxYMbTYOOhWXttLamMY9XPRpV3eOG
-	 +7yYHchowcnAlit4edYM+tpviihqUXpxV86rHDGshmddrsiLgHbLG6n6z8+q8V0Y39
-	 wHGA0q9QyXUGWHVXz4L51blEjBjtP/4YARdm22YWyWh7Tr/vFqZHJq9k7MphA7j8SR
-	 mM6Yjtx2b2iDw==
-Message-ID: <d17b3b7e-2d3e-4b0c-aa55-ce82fecc1710@kernel.org>
-Date: Mon, 29 Dec 2025 07:55:22 -0600
+	s=k20201202; t=1767126720;
+	bh=4u5e0fMkjgaUZ1oU9t+Zpd9Xl9tAAI4rsfqfmlUrWe0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Iith7RyGBc4rTzG0IUcLbRungYMUaZ/1vGNIH/UNMWfdZjFj1MQAcXiiKLe1aVARP
+	 eLvJPmhQHJ25OLFPeIkcFNAEaeKAx/vYG6TsixJiS1aHQqJgft0j6bFkWpA3CTJnTi
+	 DeG6m4sIUXZk4pH9Ys5V33TmC8N+IqtClmbHgokEwbZbbiEAMG7MaFTdvge3eaEbvo
+	 HhAaP07lHlz18izsXC6UzQBRCdNsZzLns5NTdKlWd1hxC5xWw/VgH6ezC6MT5JZWPU
+	 89X3EYlNHy4ShtN/cgdzyjaWjvsFFLKZlcGovmfunzAv33d5BaG9usprlQ9Foxcj59
+	 3jHx6USGUProw==
+Date: Tue, 30 Dec 2025 13:31:56 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas.weissschuh@linutronix.de>
+Cc: Nicolas Schier <nsc@kernel.org>, Brian Cain <bcain@kernel.org>,
+	linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org, linux-hexagon@vger.kernel.org
+Subject: Re: [PATCH 0/5] kbuild: uapi: improvements to header testing
+Message-ID: <20251230203156.GD4062669@ax162>
+References: <20251223-uapi-nostdinc-v1-0-d91545d794f7@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 11/28] nios2: introduce arch_zone_limits_init()
-To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Alex Shi <alexs@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Andreas Larsson <andreas@gaisler.com>, Borislav Petkov <bp@alien8.de>,
- Brian Cain <bcain@kernel.org>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- "David S. Miller" <davem@davemloft.net>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- David Hildenbrand <david@kernel.org>,
- Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>,
- Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
- Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Jonathan Corbet <corbet@lwn.net>, "Liam R. Howlett"
- <Liam.Howlett@oracle.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Magnus Lindholm <linmag7@gmail.com>, Matt Turner <mattst88@gmail.com>,
- Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>,
- Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
- Palmer Dabbelt <palmer@dabbelt.com>, Pratyush Yadav <pratyush@kernel.org>,
- Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>,
- Stafford Horne <shorne@gmail.com>, Suren Baghdasaryan <surenb@google.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>,
- Vineet Gupta <vgupta@kernel.org>, Vlastimil Babka <vbabka@suse.cz>,
- Will Deacon <will@kernel.org>, x86@kernel.org, linux-alpha@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
- linux-cxl@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-mm@kvack.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- sparclinux@vger.kernel.org
-References: <20251228124001.3624742-1-rppt@kernel.org>
- <20251228124001.3624742-12-rppt@kernel.org>
-Content-Language: en-US
-From: Dinh Nguyen <dinguyen@kernel.org>
-In-Reply-To: <20251228124001.3624742-12-rppt@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20251223-uapi-nostdinc-v1-0-d91545d794f7@linutronix.de>
 
+Hi Thomas,
 
-
-On 12/28/25 06:39, Mike Rapoport wrote:
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+On Tue, Dec 23, 2025 at 08:04:07AM +0100, Thomas Weiﬂschuh wrote:
+> Also validate that UAPI headers do not depend on libc and remove the
+> dependency on CC_CAN_LINK.
 > 
-> Move calculations of zone limits to a dedicated arch_zone_limits_init()
-> function.
-> 
-> Later MM core will use this function as an architecture specific callback
-> during nodes and zones initialization and thus there won't be a need to
-> call free_area_init() from every architecture.
-> 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
 > ---
->   arch/nios2/mm/init.c | 8 ++++++--
->   1 file changed, 6 insertions(+), 2 deletions(-)
+> Thomas Weiﬂschuh (5):
+>       kbuild: uapi: validate that headers do not use libc
+>       hexagon: Drop invalid UAPI header asm/signal.h
+>       kbuild: uapi: don't compile test bpf_perf_event.h on xtensa
+>       kbuild: uapi: split out command conditions into variables
+>       kbuild: uapi: drop dependency on CC_CAN_LINK
 > 
+>  arch/hexagon/include/{uapi => }/asm/signal.h |  0
+>  init/Kconfig                                 |  2 +-
+>  usr/include/Makefile                         | 87 +++++++++++++++++++++++++++-
+>  3 files changed, 87 insertions(+), 2 deletions(-)
 
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
+This seems like a great improvement to the UAPI header testing. I don't
+see any immediate problems and it works for me in my brief local
+testing. I will give a week or so for comments before I apply this to
+kbuild-next (plus -next should be operating at that point).
+
+Cheers,
+Nathan
