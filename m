@@ -1,82 +1,181 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0FAB288C13;
-	Tue,  6 Jan 2026 22:10:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84662255F3F
+	for <linux-hexagon@vger.kernel.org>; Wed,  7 Jan 2026 04:58:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767737453; cv=none; b=nNtj3PGbilqA4TRjJfkn7Mm49rafA9MQSgYtw9P0rCyN0fca4gmLJ42JY9j/R4+HN8XmGJfSx8vlz2o1gkOF179+D7ajYpXmNAa1494M3EAOy7nchw3Cqt6oBkqn9aLwOywLFFQ5hgYYd/5rReJogNJSxRX8y741qVV0UxnT3U0=
+	t=1767761905; cv=none; b=pi7ZKR/SKxrvnWu6ZQWjjf/OrvIkxAfPFbYAX2krxMuTac8ZV5O3YskXWyShqoZXf8W76pkzU29z3xRG6MECjt4rOREEP035CJBMzHAVPw0GXQqljcTMxqAkM2+YTYUZHA6k6giEbJnMpZM2F9BB3Hd3Lj+21NQcpzN4yKQxigY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767737453; c=relaxed/simple;
-	bh=3ItmZWXe7SLATqaA/No0vinjdYjMYE4Kv3BCtuInokY=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=JxBZZ9W1Et5lmEsn7y29taKQQowRX6cOZR7ZEsIaDT1TQQtTHg1wvzySeCiKHkzKJT4oNp55oKcva4LrDIM5WZ1YHD+/hu4p15dcqi8B4lfL6Q2mUWHcm4tF4yLWFMXh2kKjgWlaMUURI/N8Azx3tH6tYfFFZmilmbSdaWWpzaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qi+MZXd1; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1767761905; c=relaxed/simple;
+	bh=u52IYXtkIGi8sisrJ2GXaZQiFovGjOBhfJtTiCU+FIM=;
+	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References:
+	 MIME-Version:Content-Type; b=f3ClpozWFVypuJGp/HFpMLtPNkR3UXEVdB2GY9eNlddcPSqOFxI/GjuxxqiEJ8BlDa8XoUbx6MdAOLodSZ5kyvae81t8noyRxW68h8EV9WRISFbaRy39/d3dgCt460HLJ22CgQtR813LX5wYoxiJH5BTBCS6zgV9YgQjybin/tI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XE9OHB7K; arc=none smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qi+MZXd1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5845FC19421;
-	Tue,  6 Jan 2026 22:10:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767737452;
-	bh=3ItmZWXe7SLATqaA/No0vinjdYjMYE4Kv3BCtuInokY=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=qi+MZXd1/oLdWLcHvlwqpwcdkrYHzdtmHT3UgLO+nOBkwS3ltGhH3Hu6g3YkQJqM7
-	 wJmRt1U0p7fUaarV6lfCX+laBGFcXHKL14KfF+GkMm4m9hwlCbOlAG5EDnYBTFQUBX
-	 pyMbndCiICGcvQPXXiV8JBIqIYWg5eeZlRstgw5QXjHFHh40PVxhN9YzZSXLtYJ3zT
-	 nrZWEI5ajr1HQ0lJLLeVY6gVq3KG1iLntKBXJCwKPUaUTaWp0SvKX84NcDLZYoyaQp
-	 9JB/IuzyIr62iqM90v5gmVD8zx13GGdpWUG9Ao1jMffjSfyUMwmpovwmHz0+4IVHhG
-	 R28nCoOf2KRjg==
-From: Nathan Chancellor <nathan@kernel.org>
-To: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
- Brian Cain <bcain@kernel.org>, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-Cc: linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org, 
- bpf@vger.kernel.org, linux-hexagon@vger.kernel.org
-In-Reply-To: <20251223-uapi-nostdinc-v1-0-d91545d794f7@linutronix.de>
-References: <20251223-uapi-nostdinc-v1-0-d91545d794f7@linutronix.de>
-Subject: Re: [PATCH 0/5] kbuild: uapi: improvements to header testing
-Message-Id: <176773745004.1983625.3214132191933293574.b4-ty@kernel.org>
-Date: Tue, 06 Jan 2026 15:10:50 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XE9OHB7K"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-34c71f462d2so1618969a91.0
+        for <linux-hexagon@vger.kernel.org>; Tue, 06 Jan 2026 20:58:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1767761902; x=1768366702; darn=vger.kernel.org;
+        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=nurUXHNs091EaceKYt0jtxQiBJ2IaAdTDr7CGJ+zWBU=;
+        b=XE9OHB7Kl+IegOavGwsCniq7IfH569pyWSwOB3GH4IFakEzMoVU0qTAM99Htm/LTZa
+         oIrdXqofABAYlYf0vbgd+n0GUNiJzVIPiyO8CScU6yhPMURk/UDM/RVMGFEztgjtLPNS
+         WRPiIEJnD0Ff9/Z8WNMKc7Anw6/nMx8MAbq3s3xv9xn+5m1oNJCX1ktobB6O3+C+tCKf
+         0dT43+gSNEm71HVEC9CZgI8klLsPbgoiQqrHQwigH/O6I0GQ3Ti8owh0piXgvhZN4xe2
+         1m7D9Rr/nZ33sxwqrbUB/YINiEIurizt1znhUcLNHdGYLs9ErvXCDeFUGjhnGu4pVoK6
+         wLTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767761902; x=1768366702;
+        h=mime-version:references:message-id:date:in-reply-to:subject:cc:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=nurUXHNs091EaceKYt0jtxQiBJ2IaAdTDr7CGJ+zWBU=;
+        b=SxsYl2Z9EAWRkRo1UTpHBJjqdyPyqmXKSMLqSm78uvjiK2VM/+Qplte6DTKMMKIE3M
+         4ZKGVW/umTwhNpWe8jsIzuJfQlORVhSh6xyQaYwnc3RPGX595D7F1bGici4u9zfvjB+2
+         mMlaDWz4UvLyKTXKXT6KPqzUPYowrwiFuBXrm6Y47bROAqRq1jhqsLlTc6gD+sx+pJZS
+         NnhbyNxhcnYRaZ88dMgEhYLboBbl0zk7CP4Iyhwa+AD4C+McfNeR2kHtHyCF2kwekgj+
+         3rRhnUMoLUmWeupUouc+x5S6bbWukNlhYrddSS62z1yTG6gWKMgMnqFTSSmFD6kyxuQm
+         CxzA==
+X-Forwarded-Encrypted: i=1; AJvYcCXc50v+fYvdweM4KmAu524pbdU8hM62PjTxHce2B0VqHOv50y27NVCp2Lm76AgYE7d495vBSU2iOsNXdDZx@vger.kernel.org
+X-Gm-Message-State: AOJu0YxrUSDcOk3yhl16OJ77YAaYtzwzt2odtRylZG9WY49BarTswqrw
+	U0293L7Jn5VcPC1TFL5aFs6hWua7vYysfYr2avVysP2DLuoFq+yB0wcR
+X-Gm-Gg: AY/fxX4jwWAS+3CQihsmzRbc2yYIcsUwXikiL0EsZ9Kz2xbcjoJxZRW8SdS+j1+QOYM
+	AjaAKl9zORI2QLoPoMBs9FL6uCAu2OQPtVpuJUQT1kC52dkbgS4Sfh6TU/xRb2ZPMrpkrTs6GR1
+	7XzL2xbUvsZh+OD3QEql0EEpuh6GxRA7XBxTDWjdEyiU7Lw7WaecwGAggR3K6ecWPdZsMDcPBw/
+	wM3j3WYfUNmmFm/Wi9BxHWNdvPQ40b3c5Va3JpNAYqwfc3qHZ+OYB+Mvl4swp4dLbxlZeU9F1Dl
+	zacIr+tSJcaD0qcMssJZL/QIFsilJ26wBX0V9WpShV8TZs3jJIKnJJgexHCD+6BFmSUNDR5GtgZ
+	5HVFqixw/KQB+0JX38py7jI/og8gTQcZkYA6Cfd2vKpvyAsX9cP1N5BAaceGifQQCEe+svjkgpR
+	slwh9B6A==
+X-Google-Smtp-Source: AGHT+IE3iEJ4twso46GOnqJPDopUox2qFLaKHiDPKI95vlPPxjV/F7mxvaI/CeOE2s8GrRHRScEd6Q==
+X-Received: by 2002:a17:90b:6c7:b0:335:2eef:4ca8 with SMTP id 98e67ed59e1d1-34f68d3b4a4mr1191743a91.33.1767761901762;
+        Tue, 06 Jan 2026 20:58:21 -0800 (PST)
+Received: from dw-tp ([49.207.192.172])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34f5fb75902sm3622895a91.16.2026.01.06.20.58.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Jan 2026 20:58:20 -0800 (PST)
+From: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+To: Mike Rapoport <rppt@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Alex Shi <alexs@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Andreas Larsson <andreas@gaisler.com>, Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	"David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	David Hildenbrand <david@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Jonathan Corbet <corbet@lwn.net>, 
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
+	Magnus Lindholm <linmag7@gmail.com>, Matt Turner <mattst88@gmail.com>, 
+	Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, 
+	Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>, 
+	Oscar Salvador <osalvador@suse.de>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Pratyush Yadav <pratyush@kernel.org>, Richard Weinberger <richard@nod.at>, 
+	Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, 
+	Suren Baghdasaryan <surenb@google.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, 
+	Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, x86@kernel.org, 
+	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-csky@vger.kernel.org, linux-cxl@vger.kernel.org, 
+	linux-doc@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
+	linux-mips@vger.kernel.org, linux-mm@kvack.org, 
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
+	linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
+	loongarch@lists.linux.dev, sparclinux@vger.kernel.org
+Subject: Re: [PATCH v2 14/28] powerpc: introduce arch_zone_limits_init()
+In-Reply-To: <20260102070005.65328-15-rppt@kernel.org>
+Date: Wed, 07 Jan 2026 09:57:34 +0530
+Message-ID: <87ldia9he1.ritesh.list@gmail.com>
+References: <20260102070005.65328-1-rppt@kernel.org> <20260102070005.65328-15-rppt@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Mailer: b4 0.15-dev
+Content-Type: text/plain
 
-On Tue, 23 Dec 2025 08:04:07 +0100, Thomas Weißschuh wrote:
-> Also validate that UAPI headers do not depend on libc and remove the
-> dependency on CC_CAN_LINK.
-> 
-> 
+Mike Rapoport <rppt@kernel.org> writes:
 
-Applied to
+> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+>
+> Move calculations of zone limits to a dedicated arch_zone_limits_init()
+> function.
+>
+> Later MM core will use this function as an architecture specific callback
+> during nodes and zones initialization and thus there won't be a need to
+> call free_area_init() from every architecture.
+>
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> ---
+>  arch/powerpc/mm/mem.c | 22 ++++++++++++----------
+>  1 file changed, 12 insertions(+), 10 deletions(-)
+>
+> diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+> index 3ddbfdbfa941..32c496bfab4f 100644
+> --- a/arch/powerpc/mm/mem.c
+> +++ b/arch/powerpc/mm/mem.c
+> @@ -221,13 +221,23 @@ static int __init mark_nonram_nosave(void)
+>   * anyway) will take a first dip into ZONE_NORMAL and get otherwise served by
+>   * ZONE_DMA.
+>   */
+> -static unsigned long max_zone_pfns[MAX_NR_ZONES];
+> +void __init arch_zone_limits_init(unsigned long *max_zone_pfns)
+> +{
+> +#ifdef CONFIG_ZONE_DMA
+> +	max_zone_pfns[ZONE_DMA]	= min(zone_dma_limit, max_low_pfn - 1) + 1;
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/kbuild/linux.git kbuild-next-unstable
+Hi Mike, 
 
-Thanks!
+This doesn't look correct. Isn't the zone_dma_limit value in bytes actually?
+Shouldn't it be -
 
-[1/5] kbuild: uapi: validate that headers do not use libc
-      https://git.kernel.org/kbuild/c/6059b880a93c3
-[2/5] hexagon: Drop invalid UAPI header asm/signal.h
-      https://git.kernel.org/kbuild/c/cc45d2ea5cfb8
-[3/5] kbuild: uapi: don't compile test bpf_perf_event.h on xtensa
-      https://git.kernel.org/kbuild/c/e2772ba5f43df
-[4/5] kbuild: uapi: split out command conditions into variables
-      https://git.kernel.org/kbuild/c/4ac85d9bc73ed
-[5/5] kbuild: uapi: drop dependency on CC_CAN_LINK
-      https://git.kernel.org/kbuild/c/e3970d77ec504
+     max_zone_pfns[ZONE_DMA] = min((zone_dma_limit >> PAGE_SHIFT) + 1, max_low_pfn);
 
-Please look out for regression or issue reports or other follow up
-comments, as they may result in the patch/series getting dropped or
-reverted. Patches applied to an "unstable" branch are accepted pending
-wider testing in -next and any post-commit review; they will generally
-be moved to the main branch in a week if no issues are found.
 
-Best regards,
--- 
-Nathan Chancellor <nathan@kernel.org>
+-ritesh
+
+
+> +#endif
+> +	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+> +#ifdef CONFIG_HIGHMEM
+> +	max_zone_pfns[ZONE_HIGHMEM] = max_pfn;
+> +#endif
+> +}
+>  
+>  /*
+>   * paging_init() sets up the page tables - in fact we've already done this.
+>   */
+>  void __init paging_init(void)
+>  {
+> +	unsigned long max_zone_pfns[MAX_NR_ZONES];
+>  	unsigned long long total_ram = memblock_phys_mem_size();
+>  	phys_addr_t top_of_ram = memblock_end_of_DRAM();
+>  	int zone_dma_bits;
+> @@ -259,15 +269,7 @@ void __init paging_init(void)
+>  
+>  	zone_dma_limit = DMA_BIT_MASK(zone_dma_bits);
+>  
+> -#ifdef CONFIG_ZONE_DMA
+> -	max_zone_pfns[ZONE_DMA]	= min(max_low_pfn,
+> -				      1UL << (zone_dma_bits - PAGE_SHIFT));
+> -#endif
+> -	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+> -#ifdef CONFIG_HIGHMEM
+> -	max_zone_pfns[ZONE_HIGHMEM] = max_pfn;
+> -#endif
+> -
+> +	arch_zone_limits_init(max_zone_pfns);
+>  	free_area_init(max_zone_pfns);
+>  
+>  	mark_nonram_nosave();
+> -- 
+> 2.51.0
 
