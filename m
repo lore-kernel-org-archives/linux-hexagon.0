@@ -1,97 +1,149 @@
-Received: from bumble.maple.relay.mailchannels.net (bumble.maple.relay.mailchannels.net [23.83.214.25])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7809287505
-	for <linux-hexagon@vger.kernel.org>; Wed,  7 Jan 2026 07:29:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=23.83.214.25
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767770991; cv=pass; b=F1QwOVsS8opf3YTfxRf+UiIlH8EZ/61+puLdpnsdoWG4clByZoihX1qv/jNBo98bLyobrkp9zwR+Us+PMsSENV94jGafXrRcfgHeGI1CKPlU6Oeit1opcn7dcWR3go4C/FS5xUE1+saEyd9Bd1Nv91/g4eqX9IEhxvlDyZCDywc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767770991; c=relaxed/simple;
-	bh=FiJtxBI078l8SBgafpa2/ZVIdEmusV8YUBLBhKfT+zw=;
-	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type; b=Ya1WZg4dkw+7FRTjgNUCY7kdpbSJKdyJUngIX3mFTEDOb48lLDiRTHNm6VwBDe4ZfdXGtquT3FkAmq6GLEQL3Of59/gKZ/VoAjGjYImUYc+WL3UniDSwJ0XMIdb8JzgRfclWDXxtXto/1xbOsbVOlSrRQ1esNHIdd2mJDto7fYg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net; spf=pass smtp.mailfrom=landley.net; dkim=pass (2048-bit key) header.d=landley.net header.i=@landley.net header.b=N8oLApD7; arc=pass smtp.client-ip=23.83.214.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=landley.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 307A7139579;
+	Wed,  7 Jan 2026 09:06:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1767776766; cv=none; b=JKTvE81rp7U7fF002EfkTv7Bvjun+1Vx9Fvv4cP5VPHZFnZreZJKm8bE3kG47wF2ILsVfosPprpqYadWQ74V8/zVLu8Pe3lh5dWwoWRBgyTJ1/oygCgiZiORQjDrpOuzK41GUe7Dm1ZOG+ri32pjTLQB36gpLRlH7VAwCkDHk/U=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1767776766; c=relaxed/simple;
+	bh=pMgU+C5FcOLCmP6ptKqgGVGjjrLsI8HbEkAssUEFqo0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aGVZKvknXFNDn7nEo9Va6l6h5K63mCPER8sPd40W63bONmgztZ9UlxkF11EapwWHi9Yuy2z4+RNnOVE7+zsKeeMa6hnrg0r6Lf03ydEdBMfBdTFnJIGlQtASmoDY9IWj0uGw1pnEEBRgcKh8PeTh66HV3Y1cU0SymFNDiueL2hs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Gp3clrex; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=landley.net header.i=@landley.net header.b="N8oLApD7"
-X-Sender-Id: dreamhost|x-authsender|rob@landley.net
-Received: from relay.mailchannels.net (localhost [127.0.0.1])
-	by relay.mailchannels.net (Postfix) with ESMTP id 6EA3B46120D
-	for <linux-hexagon@vger.kernel.org>; Wed, 07 Jan 2026 07:20:10 +0000 (UTC)
-Received: from pdx1-sub0-mail-a217.dreamhost.com (trex-green-4.trex.outbound.svc.cluster.local [100.106.235.176])
-	(Authenticated sender: dreamhost)
-	by relay.mailchannels.net (Postfix) with ESMTPA id 7370C4612EF
-	for <linux-hexagon@vger.kernel.org>; Wed, 07 Jan 2026 07:20:07 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; d=mailchannels.net; s=arc-2022; cv=none;
-	t=1767770407;
-	b=d+opvtXJ8T2OhURPBWC8qj0edEQyT7W21z4A6grxYE5chvs+Yu1BtHMnb/pDp1ZmEHO7iU
-	a0qggTuzgM5oDvWLYXbJ1jbKUI5qEZ8DKkMYXJglGRHSgTOtVk8oz7VMTdsvFJq8bh4Y4H
-	FDi5+DMYM4puxy1sOtR+5NNLuaFrrrLTPUYsApCK+XseBZm+UvtNzxoAfS1KU3oIbBQ8FK
-	/qCxdJZyx+e6r36UHu1j8tkdRkknLkgMuAw22rC4LUw1mj0ZU1Nf86bjkxHcf0wb/Ush7b
-	IuAQjvK61YaMwolqGhTxD2vGNpRU7qlWAtu0IK0DJC6gevVEB+yILp2l82lWEQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed;
- d=mailchannels.net;
-	s=arc-2022; t=1767770407;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:dkim-signature;
-	bh=FiJtxBI078l8SBgafpa2/ZVIdEmusV8YUBLBhKfT+zw=;
-	b=GCxtYrzXBI9kNpDFyApF7PFGotejkPW1S/MUnehvFzMt9hytFAY+OhIMMzl8B65zjhzFrY
-	M7p16a2HUX8qTAfPrBaWWuCqow/pv6vc2Y8BHotYCspLyURRMpylj+yx7qKd5anppHUdxl
-	I6S3XU3pY86y290K59DEPqrMaUQnUKffMJAZPAsmPYqaYyvxoVs/5oflOm02LCOxqW+WSS
-	4aXhpF+ESji1ys3YCHig4Zs0GAWLV7TkD0+bA1MSaaLUN1Ah/mwhh9zIUUdfkeeRtFjoKP
-	SDnHSfevE5NO0/ccriF1bdus7WLbh3Yx52qxlx15F5rgwWBaS8LG5Gusyzb91w==
-ARC-Authentication-Results: i=1;
-	rspamd-69599c6f48-s6x4t;
-	auth=pass smtp.auth=dreamhost smtp.mailfrom=rob@landley.net
-X-Sender-Id: dreamhost|x-authsender|rob@landley.net
-X-MC-Relay: Neutral
-X-MailChannels-SenderId: dreamhost|x-authsender|rob@landley.net
-X-MailChannels-Auth-Id: dreamhost
-X-Fumbling-Attack: 2a5056ec041e0e4f_1767770409926_2292125598
-X-MC-Loop-Signature: 1767770409926:2858887034
-X-MC-Ingress-Time: 1767770409924
-Received: from pdx1-sub0-mail-a217.dreamhost.com (pop.dreamhost.com
- [64.90.62.162])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
-	by 100.106.235.176 (trex/7.1.3);
-	Wed, 07 Jan 2026 07:20:09 +0000
-Received: from [IPV6:2607:fb90:9a98:b4a:ee1c:ff6f:1018:9809] (unknown [172.58.11.125])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: rob@landley.net)
-	by pdx1-sub0-mail-a217.dreamhost.com (Postfix) with ESMTPSA id 4dmKDl0c4RzT1
-	for <linux-hexagon@vger.kernel.org>; Tue,  6 Jan 2026 23:20:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=landley.net;
-	s=dreamhost; t=1767770407;
-	bh=FiJtxBI078l8SBgafpa2/ZVIdEmusV8YUBLBhKfT+zw=;
-	h=Date:To:From:Subject:Content-Type:Content-Transfer-Encoding;
-	b=N8oLApD7xtFKoHPpysdNc1lObtoDKQ0XEeYWG5wbnorY5UZ4o6CVJZod8bGKUWGjC
-	 JE2IJNrvjUiu1HzMcXk7KbGlMEnVW5tnxDfEUSxu00w/a9CUjUyP2Rf4O6lUlUZ4Dn
-	 d8FWJ5e0iOgeaoXnSsobgE+LHpDh1FIS0zWx5oJqk8dUuLbX9oOK6qIfmvIkq6ver9
-	 uvZVn9Dwqo1fPQxAk+LfpvkMy+c6UrQsxvRwquNNuvibv63YDFyN06cxirxRpmkleD
-	 x5MpVDpLFMe25bvCRduyJK28xJcVHD+V49TTk8FD1d+lNxQv2zfdmLM977rJPVdqGG
-	 Qmxd+/hj5wOXA==
-Message-ID: <68f83fb5-4564-4bae-b214-44cbf2a3a4bc@landley.net>
-Date: Wed, 7 Jan 2026 01:20:03 -0600
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gp3clrex"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E975C4CEF7;
+	Wed,  7 Jan 2026 09:05:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1767776765;
+	bh=pMgU+C5FcOLCmP6ptKqgGVGjjrLsI8HbEkAssUEFqo0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Gp3clrexlQYTflBjEroGcywSAtzuN1Rwv0/QCEq3+PrJVFxFCVnDuCiuhES9FxML1
+	 +DUJuEGclss/ATJRkynVca+Jnh3h6LZ1jKDlpzlWcRAo6+izc5O03Sz6x9cKrXFMgx
+	 Y9bLrHVqoYADWUH0XXdTVI1WfeT51LlKWgWoIjuvqFNTY1UuAQKsvL4rxcgKYa53RT
+	 HwvCsYN0oC3j7a2aYW9dIrhGAdIXV+DZgKRIozZxrf5fhJ5MEoUdXKbMDnSFYYNvLk
+	 A7qYfjWXWSXUlNaU2pK6XIEQpbQqJGgs3DYcZ5NSns73Gyit+KIQRcRWBuYWEkPzAs
+	 SZx9UZSS/0clA==
+Date: Wed, 7 Jan 2026 11:05:42 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: alexs@kernel.org
+Cc: Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>, Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Nick Piggin <npiggin@gmail.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Guo Ren <guoren@kernel.org>, Brian Cain <bcain@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>, Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>, David Hildenbrand <david@kernel.org>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	"open list:ALPHA PORT" <linux-alpha@vger.kernel.org>,
+	open list <linux-kernel@vger.kernel.org>,
+	"open list:SYNOPSYS ARC ARCHITECTURE" <linux-snps-arc@lists.infradead.org>,
+	"moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
+	"open list:MMU GATHER AND TLB INVALIDATION" <linux-arch@vger.kernel.org>,
+	"open list:MMU GATHER AND TLB INVALIDATION" <linux-mm@kvack.org>,
+	"open list:C-SKY ARCHITECTURE" <linux-csky@vger.kernel.org>,
+	"open list:QUALCOMM HEXAGON ARCHITECTURE" <linux-hexagon@vger.kernel.org>,
+	"open list:LOONGARCH" <loongarch@lists.linux.dev>,
+	"open list:M68K ARCHITECTURE" <linux-m68k@lists.linux-m68k.org>,
+	"open list:MIPS" <linux-mips@vger.kernel.org>,
+	"open list:OPENRISC ARCHITECTURE" <linux-openrisc@vger.kernel.org>,
+	"open list:PARISC ARCHITECTURE" <linux-parisc@vger.kernel.org>,
+	"open list:RISC-V ARCHITECTURE" <linux-riscv@lists.infradead.org>,
+	"open list:SUPERH" <linux-sh@vger.kernel.org>,
+	"open list:USER-MODE LINUX (UML)" <linux-um@lists.infradead.org>
+Subject: Re: [PATCH] mm/pgtable: convert pgtable_t to ptdesc pointer
+Message-ID: <aV4h5vQUNXn5cpMY@kernel.org>
+References: <20260107064642.15771-1-alexs@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: linux-hexagon@vger.kernel.org
-Content-Language: en-US
-From: Rob Landley <rob@landley.net>
-Subject: Hexagon wikipedia article deleted?
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260107064642.15771-1-alexs@kernel.org>
 
-Was there a reason...?
+On Wed, Jan 07, 2026 at 02:46:35PM +0800, alexs@kernel.org wrote:
+> From: Alex Shi <alexs@kernel.org>
+> 
+> After struct ptdesc introduced, pgtable_t should used it instead of old
+> struct page pointer. The only thing in the way for this change is just
+> pgtable->lru in pgtable_trans_huge_deposit/withdraw.
+> 
+> Let's convert them into ptdesc and use struct ptdesc* as pgtable_t.
+> Thanks testing support from kernel test robot <lkp@intel.com>
+> 
+> Signed-off-by: Alex Shi <alexs@kernel.org>
+> ---
 
-https://en.wikipedia.org/w/index.php?title=Special:Log/delete&page=Qualcomm_Hexagon
+...
 
-Rob
+> diff --git a/arch/arm/include/asm/pgalloc.h b/arch/arm/include/asm/pgalloc.h
+> index a17f01235c29..1a3484c2df4c 100644
+> --- a/arch/arm/include/asm/pgalloc.h
+> +++ b/arch/arm/include/asm/pgalloc.h
+> @@ -96,12 +96,12 @@ pte_alloc_one(struct mm_struct *mm)
+>  {
+>  	struct page *pte;
+>  
+> -	pte = __pte_alloc_one(mm, GFP_PGTABLE_USER | PGTABLE_HIGHMEM);
+> +	pte = ptdesc_page(__pte_alloc_one(mm, GFP_PGTABLE_USER | PGTABLE_HIGHMEM));
+
+When ptdesc will be separated from struct page, ptdesc_page() would fail if the
+allocation failed. This line should be split into something like
+
+	struct ptdesc *ptdesc = __pte_alloc_one(...);
+	if (!ptesc)
+		return NULL;
+	pte = ptdesc_page(ptdesc);
+
+
+>  	if (!pte)
+>  		return NULL;
+>  	if (!PageHighMem(pte))
+>  		clean_pte_table(page_address(pte));
+> -	return pte;
+> +	return page_ptdesc(pte);
+>  }
+>  
+>  static inline void __pmd_populate(pmd_t *pmdp, phys_addr_t pte,
+
+-- 
+Sincerely yours,
+Mike.
