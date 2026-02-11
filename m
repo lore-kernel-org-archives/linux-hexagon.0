@@ -1,360 +1,196 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F04A331A5C;
-	Wed, 11 Feb 2026 10:32:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770805970; cv=none; b=p5pLv7C2yvEP1uSsV3zD15Du1QdBl+lGTFBldLmpskXN7R9urFdyAPxM2xku+UwPXAycMVzxGtIHl+t3jQrhVJ/SRNx4srWyWc7XRKgTQuk4CVkPfblBsxxB75BrJT5lmTQb5ft7OuU1R38B3ezPMgWa5DEcWL0pmGALHQdzg9g=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770805970; c=relaxed/simple;
-	bh=WXj3bDUynhmJwIWcqszyv0wbTX5I8QPCpk4+eeqSnq4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=o8yO4biMYXU1a7O5CG/ZYFkxfUzu3a6aLregohfL7dIgPHc+5KW2IWLHV9TUt7B6OpqLj2D+o91Imo9e5OHy3RfS7c+RRDcWC8Y4zs1jtcA8QWW++NcLsrpkVSkJWUmGcCVE7S1u17jVQptJvF0CxHtjCkaFHL+WynhBx+BG+ck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VUycx2g0; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24D3B340294
+	for <linux-hexagon@vger.kernel.org>; Wed, 11 Feb 2026 20:14:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770840874; cv=pass; b=G4O9tt69tkI6c92Td/M8lgmtqaBJPas4Oz5N2+h5OCFHaCD5PxyFchWYFcKCvCP7E791nh71ROwUBJtAjR74xVRv2NqEUICrr3XEKzVf6/TX9yH0VWY7HO4SmpGrFCDuvNa1/fhz9e78NUtsJFCZBy3Tjoh05ILi/iuLmBXHa/Q=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770840874; c=relaxed/simple;
+	bh=XTU0SZsxOmJ3FoM/DLxyJrm+s5UGvDwm08Uhn3BjVVE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WJzoftSCTuqK4OcmIZC4C9JYELXlr9nWh9t/Zvb+2eorOK4mCZHdoWWm+I9iy8B1dtBGDRv9HeFN1//9JI+FzLG5NFp2RkKxsX9tvp8CPji2sNqxk+4yS4c7ohoGVrn60IbgBkZjx0fc8bMcHfdNjQgQl9HOTT7M1tI2QwIiK18=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=APb4+MbR; arc=pass smtp.client-ip=209.85.208.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VUycx2g0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F37C2C2BCAF;
-	Wed, 11 Feb 2026 10:32:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770805970;
-	bh=WXj3bDUynhmJwIWcqszyv0wbTX5I8QPCpk4+eeqSnq4=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=VUycx2g0refsXHYPZVpEU+UC7PHYsiruAyCk0E2NjULDdTGpkmomFQafKHUOTFGfN
-	 gxdwH68dJxpGp5uoQ4bCIYVF9q/ZtWZyBrRXQKklHUNBBv4tXopKimIWb6HO1xITWD
-	 v5Le7kpV2WyO2ymXn0Iru7RhLgig1FDLpKEZLiaW4uloDE3fqoRPWZQHcg4WZLcxzC
-	 Dem6wAhAyVX6Jeh2Hi5hO5aKu49m5ADtB9baTMfm2NL2MQ5Xgny2uugfwPkwNfT/Sh
-	 55TTMaB6nztE9wmgPYA3G+uvSqqAXPlhRNT70FMQNqDaWyvoaKR0G5d15Xri9RCkaK
-	 z/9dYoHmO4k7Q==
-From: Mike Rapoport <rppt@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andreas Larsson <andreas@gaisler.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Brian Cain <bcain@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	David Hildenbrand <david@kernel.org>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Guo Ren <guoren@kernel.org>,
-	Helge Deller <deller@gmx.de>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Matt Turner <mattst88@gmail.com>,
-	Max Filippov <jcmvbkbc@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michal Hocko <mhocko@suse.com>,
-	Michal Simek <monstr@monstr.eu>,
-	Mike Rapoport <rppt@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Richard Weinberger <richard@nod.at>,
-	Russell King <linux@armlinux.org.uk>,
-	Stafford Horne <shorne@gmail.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Vineet Gupta <vgupta@kernel.org>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Will Deacon <will@kernel.org>,
-	linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org,
-	linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	linux-mm@kvack.org,
-	x86@kernel.org
-Subject: [PATCH v3 4/4] mm: cache struct page for empty_zero_page and return it from ZERO_PAGE()
-Date: Wed, 11 Feb 2026 12:31:41 +0200
-Message-ID: <20260211103141.3215197-5-rppt@kernel.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260211103141.3215197-1-rppt@kernel.org>
-References: <20260211103141.3215197-1-rppt@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="APb4+MbR"
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-6581234d208so9678115a12.3
+        for <linux-hexagon@vger.kernel.org>; Wed, 11 Feb 2026 12:14:33 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770840871; cv=none;
+        d=google.com; s=arc-20240605;
+        b=HIKwgRK2r7ZkqR29myUh8KEeMixl8Wd3qHVesyiSwsZG7C2Er/k4bNspCYKx55aIV9
+         cmX1gJ7E3i9awkBw/cBHAkW14WYwyzRbSvZ/r8R2V40aPqxvzK/t1lHDJ655c5W4hEgE
+         PEguF6NQgOll13mXPPZ06/53baE2gWudZcnmusuax3+hFk66um2ob/P3PBeFgmzkSxWv
+         r4z1M6f78d3EaeIVZ6y9xO5V6QXsjRvVHxMUljefHHZwrLVbE2KmxUsZT5xFKoRl3xCu
+         eaVEnXnbaDV+WDtIPaHgZBZrT9SZyhcuodEvwHelr/g9pNKl7IMKW/Azs17V++9Iualt
+         7ViA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=28hr9LjidhOb4+7vDtUZiT7dYr2nuAMqMlceW5mXuOg=;
+        fh=uEO558Du9Pixx7IsmzzA1VlFIk/80UHuqSL6ksObJs4=;
+        b=llcmxB4Ww8XXbghK/zB/ERZ4ENhtZl1GO3O8IG580vY+LashUAYNdRTt2FD8fzTTZa
+         LMwAEBS6UwlsWqVCwGUd5dGvAcEntqML31CCkK+htrOJnjZhSAaIrLFqWxStSbBRoSFF
+         vBnLbbr6+U8mP8dP1ArIxnU2nSA0U6cIWsu1OUs81+fMn9ubWXGeYv738pzZoW3EnDGG
+         P3JcMvfekRkGaj0Hju2ly/O4wTYTyyOWGnVYEcFUvJ6Xd88cweLxClx72aRe7z8UiWZD
+         LnrPblE3oxe7/J0ugveT9NBEkyl9E2J4yr4QqOawtMXe2xYyEH9JJBTPyBHHoxKr0qNf
+         irfg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1770840871; x=1771445671; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=28hr9LjidhOb4+7vDtUZiT7dYr2nuAMqMlceW5mXuOg=;
+        b=APb4+MbRhaKWB087tAeEmwP4Lu08rdhv4sI3dkqV/YTBKS/mgYlB4ErJ/k5iCsIhES
+         Dyw4yDNNlDLkNRi9ufKgKfoCSPhw1aSEB0/poC9PbO0t1/cNXY8FT9FWmqb2ZydsqZgd
+         53dDCxe/YzpA/t0cV+IuTD4fKyw73qjg5LCeIynNVe7Hi2tyRKsLAamW+zTJIDsSswnY
+         IGlos9hWFaX4FF+o122mFll2sqWsBCEXNdPmDDBvTHhOzo5VINHjmH16G9wTMe2fYvsc
+         df42ezDoaRiLAol2+Y0BhdzgWhRvx874hQwyXFwYh7WvP1MprulEETQ0RPLz4DYSv9nK
+         9W+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770840871; x=1771445671;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=28hr9LjidhOb4+7vDtUZiT7dYr2nuAMqMlceW5mXuOg=;
+        b=sFqkBp0n8YRbfcstCeImXFo57uDo2a3PMqU0eEyj6MsExITyU/l58XeVvqSZ6+8QQe
+         kpkernSVHeXNEjRB06ZZFNg+G+PCJl4e68gEK5a2VjSiEwURlFvMxVVJ+rncnn+PUeFi
+         aPOLHHPufFaM9y2G6XE+p9Hti9PEs3PIT9BJXyzyuY3dvzoyvtng7kilfTT+6Sz1EsGz
+         jfg142hx4QPXUGT22uM3HMN1DsUMtVQ11gUVCiAz6Ui8zIutxCkjO7Oe8CtnYP1HUShU
+         Ykal22GpalRTzrrOYwLzlbo9bF3AjQdqHiTx4+S0IkwvKhnKEX4MTg1BZ2zTr2grgPLZ
+         2u0Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWTh6CethPd7VGQEIOfccKc3q9zoK7cfikAg2h+6DIMMkeiHhokSyIpbF1rXpl6x60r/O5OXaD4Hkt2b/pW@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy8mhfGZvwRfesKJxYEmigI1r7+mg33RmyZGLOEftBQYck7LwpI
+	dK7kdSxdBfdfxFmI2pZRXSIyaI0dI0JFYVtTuxVxELxisnTL8jjwkW2KtODj2E4wTzs8GfvfRWi
+	tSVXGeAldefG9yZFV4kwH5p/4H7nllKM=
+X-Gm-Gg: AZuq6aJJ2kq9szbFVaqlg0NUJTpJnl2sPeOWi+2zgJDTBpyQiIQDYFeWhWWd6RleL3P
+	de1qdQadHCAN6a9qrwXvM7LWEL0wgCTgbpifDkEQO54N4qlTOU88cwgz96GuUvGU2TVihsSXKHj
+	A0vb/mehHFAYjxCws3Lg+0S7Ba/qYZhKaEN8phtuLDTnggEjrypNEybhaSfDrsH12tPVUevDuru
+	CHjjva/YDfpBTSdii9BHT1l3sMygskcxzBHA/eZjl6QHVBjdzOHxBrFURlclYSrXcLD+bel94CI
+	TU3ayGhB5i4bFWsRvcG0QBeC2FKsRhyEXoNs0LJX9w==
+X-Received: by 2002:a17:907:a08a:b0:b8e:64e:1ed with SMTP id
+ a640c23a62f3a-b8f8f72d91emr17643566b.50.1770840871149; Wed, 11 Feb 2026
+ 12:14:31 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260211103141.3215197-1-rppt@kernel.org> <20260211103141.3215197-4-rppt@kernel.org>
+In-Reply-To: <20260211103141.3215197-4-rppt@kernel.org>
+From: Magnus Lindholm <linmag7@gmail.com>
+Date: Wed, 11 Feb 2026 21:14:19 +0100
+X-Gm-Features: AZwV_QgdPAvH3hw0825YIt93LQPupYFvh_AV-2zMkwGhubC87cSa2iVxpdoZwag
+Message-ID: <CA+=Fv5T07oBJweU3tURD4Nuh7VRWovsf0zjHtA1nDAVNmO=D2w@mail.gmail.com>
+Subject: Re: [PATCH v3 3/4] arch, mm: consolidate empty_zero_page
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andreas Larsson <andreas@gaisler.com>, 
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, 
+	Catalin Marinas <catalin.marinas@arm.com>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@kernel.org>, 
+	Dinh Nguyen <dinguyen@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, 
+	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Michal Simek <monstr@monstr.eu>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Richard Weinberger <richard@nod.at>, 
+	Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, 
+	Suren Baghdasaryan <surenb@google.com>, Thomas Gleixner <tglx@kernel.org>, Vineet Gupta <vgupta@kernel.org>, 
+	Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, linux-alpha@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, 
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org, 
+	x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+On Wed, Feb 11, 2026 at 11:32=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wr=
+ote:
+>
+> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+>
+> Reduce 22 declarations of empty_zero_page to 3 and 23 declarations of
+> ZERO_PAGE() to 4.
+>
+> Every architecture defines empty_zero_page that way or another, but for t=
+he
+> most of them it is always a page aligned page in BSS and most definitions
+> of ZERO_PAGE do virt_to_page(empty_zero_page).
+>
+> Move Linus vetted x86 definition of empty_zero_page and ZERO_PAGE() to th=
+e
+> core MM and drop these definitions in architectures that do not implement
+> colored zero page (MIPS and s390).
+>
+> ZERO_PAGE() remains a macro because turning it to a wrapper for a static
+> inline causes severe pain in header dependencies.
+>
+> For the most part the change is mechanical, with these being noteworthy:
+>
+> * alpha: aliased empty_zero_page with ZERO_PGE that was also used for boo=
+t
+>   parameters. Switching to a generic empty_zero_page removes the aliasing
+>   and keeps ZERO_PGE for boot parameters only
+> * arm64: uses __pa_symbol() in ZERO_PAGE() so that definition of
+>   ZERO_PAGE() is kept intact.
+> * m68k/parisc/um: allocated empty_zero_page from memblock,
+>   although they do not support zero page coloring and having it in BSS
+>   will work fine.
+> * sparc64 can have empty_zero_page in BSS rather allocate it, but it
+>   can't use virt_to_page() for BSS. Keep it's definition of ZERO_PAGE()
+>   but instead of allocating it, make mem_map_zero point to
+>   empty_zero_page.
+> * sh: used empty_zero_page for boot parameters at the very early boot.
+>   Rename the parameters page to boot_params_page and let sh use the gener=
+ic
+>   empty_zero_page.
+> * hexagon: had an amusing comment about empty_zero_page
+>
+>         /* A handy thing to have if one has the RAM. Declared in head.S *=
+/
+>
+>   that unfortunately had to go :)
+>
+> Acked-by: Helge Deller <deller@gmx.de>   # parisc
+> Tested-by: Helge Deller <deller@gmx.de>  # parisc
+> Reviewed-by: Christophe Leroy (CS GROUP) <chleroy@kernel.org>
+> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> ---
+>  arch/alpha/include/asm/pgtable.h          |  6 ------
 
-For most architectures every invocation of ZERO_PAGE() does
-virt_to_page(empty_zero_page). But empty_zero_page is in BSS and it is
-enough to get its struct page once at initialization time and then use
-it whenever a zero page should be accessed.
+> diff --git a/arch/alpha/include/asm/pgtable.h b/arch/alpha/include/asm/pg=
+table.h
+> index 90e7a9539102..12a3c5f8ece8 100644
+> --- a/arch/alpha/include/asm/pgtable.h
+> +++ b/arch/alpha/include/asm/pgtable.h
+> @@ -125,12 +125,6 @@ struct vm_area_struct;
+>   */
+>  #define pgprot_noncached(prot) (prot)
+>
+> -/*
+> - * ZERO_PAGE is a global shared page that is always zero:  used
+> - * for zero-mapped memory areas etc..
+> - */
+> -#define ZERO_PAGE(vaddr)       (virt_to_page(ZERO_PGE))
+> -
+>  /*
+>   * On certain platforms whose physical address space can overlap KSEG,
+>   * namely EV6 and above, we must re-twiddle the physaddr to restore the
 
-Add yet another __zero_page variable that will be initialized as
-virt_to_page(empty_zero_page) for most architectures in a weak
-arch_setup_zero_pages() function.
+This looks good from an Alpha perspective
 
-For architectures that use colored zero pages (MIPS and s390) rename their
-setup_zero_pages() to arch_setup_zero_pages() and make it global rather
-than static.
-
-For architectures that cannot use virt_to_page() for BSS (arm64 and
-sparc64) add override of arch_setup_zero_pages().
-
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
----
- arch/arm64/include/asm/pgtable.h    |  6 ------
- arch/arm64/mm/init.c                |  5 +++++
- arch/mips/mm/init.c                 | 11 +----------
- arch/s390/mm/init.c                 |  4 +---
- arch/sparc/include/asm/pgtable_64.h |  3 ---
- arch/sparc/mm/init_64.c             | 17 +++++++----------
- include/linux/pgtable.h             | 11 ++++++++---
- mm/mm_init.c                        | 21 +++++++++++++++++----
- 8 files changed, 39 insertions(+), 39 deletions(-)
-
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 63da07398a30..2c1ec7cc8612 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -106,12 +106,6 @@ static inline void arch_leave_lazy_mmu_mode(void)
- #define flush_tlb_fix_spurious_fault_pmd(vma, address, pmdp)	\
- 	local_flush_tlb_page_nonotify(vma, address)
- 
--/*
-- * ZERO_PAGE is a global shared page that is always zero: used
-- * for zero-mapped memory areas etc..
-- */
--#define ZERO_PAGE(vaddr)	phys_to_page(__pa_symbol(empty_zero_page))
--
- #define pte_ERROR(e)	\
- 	pr_err("%s:%d: bad pte %016llx.\n", __FILE__, __LINE__, pte_val(e))
- 
-diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index 96711b8578fd..417ec7efe569 100644
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -328,6 +328,11 @@ void __init bootmem_init(void)
- 	memblock_dump_all();
- }
- 
-+void __init arch_setup_zero_pages(void)
-+{
-+	__zero_page = phys_to_page(__pa_symbol(empty_zero_page));
-+}
-+
- void __init arch_mm_preinit(void)
- {
- 	unsigned int flags = SWIOTLB_VERBOSE;
-diff --git a/arch/mips/mm/init.c b/arch/mips/mm/init.c
-index 4f6449ad02ca..55b25e85122a 100644
---- a/arch/mips/mm/init.c
-+++ b/arch/mips/mm/init.c
-@@ -56,10 +56,7 @@ unsigned long empty_zero_page, zero_page_mask;
- EXPORT_SYMBOL_GPL(empty_zero_page);
- EXPORT_SYMBOL(zero_page_mask);
- 
--/*
-- * Not static inline because used by IP27 special magic initialization code
-- */
--static void __init setup_zero_pages(void)
-+void __init arch_setup_zero_pages(void)
- {
- 	unsigned int order;
- 
-@@ -450,7 +447,6 @@ void __init arch_mm_preinit(void)
- 	BUILD_BUG_ON(IS_ENABLED(CONFIG_32BIT) && (PFN_PTE_SHIFT > PAGE_SHIFT));
- 
- 	maar_init();
--	setup_zero_pages();	/* Setup zeroed pages.  */
- 	highmem_init();
- 
- #ifdef CONFIG_64BIT
-@@ -461,11 +457,6 @@ void __init arch_mm_preinit(void)
- 				0x80000000 - 4, KCORE_TEXT);
- #endif
- }
--#else  /* CONFIG_NUMA */
--void __init arch_mm_preinit(void)
--{
--	setup_zero_pages();	/* This comes from node 0 */
--}
- #endif /* !CONFIG_NUMA */
- 
- void free_init_pages(const char *what, unsigned long begin, unsigned long end)
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 3c20475cbee2..1f72efc2a579 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -69,7 +69,7 @@ unsigned long empty_zero_page, zero_page_mask;
- EXPORT_SYMBOL(empty_zero_page);
- EXPORT_SYMBOL(zero_page_mask);
- 
--static void __init setup_zero_pages(void)
-+void __init arch_setup_zero_pages(void)
- {
- 	unsigned long total_pages = memblock_estimated_nr_free_pages();
- 	unsigned int order;
-@@ -159,8 +159,6 @@ void __init arch_mm_preinit(void)
- 	cpumask_set_cpu(0, mm_cpumask(&init_mm));
- 
- 	pv_init();
--
--	setup_zero_pages();	/* Setup zeroed pages. */
- }
- 
- unsigned long memory_block_size_bytes(void)
-diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
-index 615f460c50af..74ede706fb32 100644
---- a/arch/sparc/include/asm/pgtable_64.h
-+++ b/arch/sparc/include/asm/pgtable_64.h
-@@ -210,9 +210,6 @@ extern unsigned long _PAGE_CACHE;
- extern unsigned long pg_iobits;
- extern unsigned long _PAGE_ALL_SZ_BITS;
- 
--extern struct page *mem_map_zero;
--#define ZERO_PAGE(vaddr)	(mem_map_zero)
--
- /* PFNs are real physical page numbers.  However, mem_map only begins to record
-  * per-page information starting at pfn_base.  This is to handle systems where
-  * the first physical page in the machine is at some huge physical address,
-diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-index 0cc8de2fea90..707c1df67d79 100644
---- a/arch/sparc/mm/init_64.c
-+++ b/arch/sparc/mm/init_64.c
-@@ -177,9 +177,6 @@ extern unsigned long sparc_ramdisk_image64;
- extern unsigned int sparc_ramdisk_image;
- extern unsigned int sparc_ramdisk_size;
- 
--struct page *mem_map_zero __read_mostly;
--EXPORT_SYMBOL(mem_map_zero);
--
- unsigned int sparc64_highest_unlocked_tlb_ent __read_mostly;
- 
- unsigned long sparc64_kern_pri_context __read_mostly;
-@@ -2496,11 +2493,17 @@ static void __init register_page_bootmem_info(void)
- 			register_page_bootmem_info_node(NODE_DATA(i));
- #endif
- }
--void __init mem_init(void)
-+
-+void __init arch_setup_zero_pages(void)
- {
- 	phys_addr_t zero_page_pa = kern_base +
- 		((unsigned long)&empty_zero_page[0] - KERNBASE);
- 
-+	__zero_page = phys_to_page(zero_page_pa);
-+}
-+
-+void __init mem_init(void)
-+{
- 	/*
- 	 * Must be done after boot memory is put on freelist, because here we
- 	 * might set fields in deferred struct pages that have not yet been
-@@ -2509,12 +2512,6 @@ void __init mem_init(void)
- 	 */
- 	register_page_bootmem_info();
- 
--	/*
--	 * Set up the zero page, mark it reserved, so that page count
--	 * is not manipulated when freeing the page from user ptes.
--	 */
--	mem_map_zero = pfn_to_page(PHYS_PFN(zero_page_pa));
--
- 	if (tlb_type == cheetah || tlb_type == cheetah_plus)
- 		cheetah_ecache_flush_init();
- }
-diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index 3d48eea57cd2..1da21ec62836 100644
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -1894,6 +1894,8 @@ static inline void pfnmap_setup_cachemode_pfn(unsigned long pfn, pgprot_t *prot)
-  * For architectures that don't __HAVE_COLOR_ZERO_PAGE the zero page lives in
-  * empty_zero_page in BSS.
-  */
-+void arch_setup_zero_pages(void);
-+
- #ifdef __HAVE_COLOR_ZERO_PAGE
- static inline int is_zero_pfn(unsigned long pfn)
- {
-@@ -1921,10 +1923,13 @@ static inline unsigned long zero_pfn(unsigned long addr)
- }
- 
- extern uint8_t empty_zero_page[PAGE_SIZE];
-+extern struct page *__zero_page;
- 
--#ifndef ZERO_PAGE
--#define ZERO_PAGE(vaddr) ((void)(vaddr),virt_to_page(empty_zero_page))
--#endif
-+static inline struct page *_zero_page(unsigned long addr)
-+{
-+	return __zero_page;
-+}
-+#define ZERO_PAGE(vaddr) _zero_page(vaddr)
- 
- #endif /* __HAVE_COLOR_ZERO_PAGE */
- 
-diff --git a/mm/mm_init.c b/mm/mm_init.c
-index 1eac634ece1a..b08608c1b71d 100644
---- a/mm/mm_init.c
-+++ b/mm/mm_init.c
-@@ -59,7 +59,10 @@ EXPORT_SYMBOL(zero_page_pfn);
- #ifndef __HAVE_COLOR_ZERO_PAGE
- uint8_t empty_zero_page[PAGE_SIZE] __page_aligned_bss;
- EXPORT_SYMBOL(empty_zero_page);
--#endif
-+
-+struct page *__zero_page __ro_after_init;
-+EXPORT_SYMBOL(__zero_page);
-+#endif /* __HAVE_COLOR_ZERO_PAGE */
- 
- #ifdef CONFIG_DEBUG_MEMORY_INIT
- int __meminitdata mminit_loglevel;
-@@ -2675,12 +2678,21 @@ static void __init mem_init_print_info(void)
- 		);
- }
- 
--static int __init init_zero_page_pfn(void)
-+#ifndef __HAVE_COLOR_ZERO_PAGE
-+/*
-+ * architectures that __HAVE_COLOR_ZERO_PAGE must define this function
-+ */
-+void __init __weak arch_setup_zero_pages(void)
-+{
-+	__zero_page = virt_to_page(empty_zero_page);
-+}
-+#endif
-+
-+static void __init init_zero_page_pfn(void)
- {
-+	arch_setup_zero_pages();
- 	zero_page_pfn = page_to_pfn(ZERO_PAGE(0));
--	return 0;
- }
--early_initcall(init_zero_page_pfn);
- 
- void __init __weak arch_mm_preinit(void)
- {
-@@ -2704,6 +2716,7 @@ void __init mm_core_init_early(void)
- void __init mm_core_init(void)
- {
- 	arch_mm_preinit();
-+	init_zero_page_pfn();
- 
- 	/* Initializations relying on SMP setup */
- 	BUILD_BUG_ON(MAX_ZONELISTS > 2);
--- 
-2.51.0
-
+Acked-by: Magnus Lindholm <linmag7@gmail.com>
