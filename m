@@ -1,92 +1,119 @@
-Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
+Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6D763B961B;
-	Fri, 27 Feb 2026 06:38:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C0CD36A009;
+	Fri, 27 Feb 2026 09:19:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772174290; cv=none; b=JCgA33opuggwdmltGxi6im7gTIG0epDxOVtFl30aXOKgB0Jl0c8iyChKITDRZx7nYuVnNUj04LoUY9WwRzYFK7UI3sZvbJuXO3QNi5iC8tTUcaS35LFIX2dEdUdIV+sTAIigtnlT0te+GU/YBxifDaxvGcS65Qz0TRU5FqCwgho=
+	t=1772183967; cv=none; b=akLjv0DzSrdgyagqij/BDSbpPq2w2hQFI/OVxmrSxnxuYd7HTFkYqLBKGAxLNHaGH9Tjtql9BpjvWsmSY7jekpxg7AFFBEu2nKr5A4vaQUkw4DM3lZ8H+L9yRFe2SwM0Gu+9cTXYQ3sGdsnuVFUE+zrRAvzXkyKQtCiiDr9VtF4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772174290; c=relaxed/simple;
-	bh=bkXGwvvaOvc0BEh/UPqlv0oKwlhbzEGpNzwjMPjItm8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=bfFoY70vx1KY5ZPc0n3+ZvQ/pVLvYC92oUViq9Xp3i//78nlFKebXapqxyk41+N01OSUQ8T+XDIVGTdfjORhQOHGHpcFK93/ybz/P/PeNXLJaYClZm04LnVeNIfv7XF7UJC4JmOz/tBwPMg3g9pnVlwKv0b9D4b/QHFryEykWXM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=ZUZg+IrQ; arc=none smtp.client-ip=159.69.126.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
+	s=arc-20240116; t=1772183967; c=relaxed/simple;
+	bh=14lIq3uIsoTUXmXeDVf8trioPIFd+HXq/khzmZE0brs=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=ce33+txE7+K4BIUOI694arr1bS+Bq6Uub0pgwJERAk8Sddq4AYavGa8m5oqZ+Tl18otHblcQ5FmQ8eLMqc/FDvER6sT2SeFY//sRlk/v9BSLj6xntwPW8amS1CwDPf0hQp+bHAbK6zCP5KdRgZ+H6rpmB3UVbNSAAQnTxtpBzWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=pFRgZ2S+; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=wEf5fadu; arc=none smtp.client-ip=202.12.124.158
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="ZUZg+IrQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
-	s=mail; t=1772174283;
-	bh=bkXGwvvaOvc0BEh/UPqlv0oKwlhbzEGpNzwjMPjItm8=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=ZUZg+IrQbZIv5UkzEK+Njg+e09jDUUZkY/oWCQ3ZpkU5C5RRAatNSMMGbDZjn/ASH
-	 LupyXk67UKjK+86JtWYnj3niQ28654dWTv3CRnNHBKC2B+Xa/7A+IcTKQfN1nLnECV
-	 I0FVJyccIhriBFr/7xAQ6s90G5oHIpZIl82Gv24c=
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Fri, 27 Feb 2026 07:38:07 +0100
-Subject: [PATCH 9/9] kbuild: uapi: remove now unneeded guard headers
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="pFRgZ2S+";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="wEf5fadu"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 4155B7A015B;
+	Fri, 27 Feb 2026 04:19:25 -0500 (EST)
+Received: from phl-imap-02 ([10.202.2.81])
+  by phl-compute-04.internal (MEProxy); Fri, 27 Feb 2026 04:19:25 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1772183965;
+	 x=1772270365; bh=JUOpQRrexySp/N8/7Xbn2hL60opnNztghRSTNtZVCfA=; b=
+	pFRgZ2S+66V4AEba7/PDWXhj/bc2oFfGU5KB4cZxnNEdyUtZqEwpQWML1vHTlYhO
+	3IX0O9DFP3BqW06/JFUZ6jus7/M682rbOi+V7JfKfJqArfuJtLiG7qSR3Iv45TY0
+	rLBsmsfqfz+9cJ0jfHbYIrxwdLyJ47LBu7odhPkbAhV/Q4wwko1BZ6Xiq2rtUY80
+	pnSjZ9oUuUWUADJrXSj2JLOZy/YNP6MPGJI3MTjjxkXIda7H2vl126X6TsjHW8Q3
+	A0gqHygUSYWpBO1PJ2PotzJ07hPniJj6r+9N8mWwAMwx/LM2C4eax/5KG+LhT1aR
+	fEWA/vBIaSeAZsB1hxwE3w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1772183965; x=
+	1772270365; bh=JUOpQRrexySp/N8/7Xbn2hL60opnNztghRSTNtZVCfA=; b=w
+	Ef5faduaVmATnoE8irdpOJRm28k4vMHmdlL7e41XLQcdOhGBy06IQu146ncMpsC7
+	8PeuPI44LgGb68+pMfqh1Q6zqiUiUxcXcWpFUX/VOT4NTqoHRY/4cSHaMK2KBZFp
+	aNmzyPYuzRHJxMSNQaqvOFwXzUZD9yAbh3Hb+0OlplJPwHNKvoKcAXiLLgROCCqf
+	jW1yyhkrCn0BEUnXfF2wSyGHhKB+dQRdX0QXXElo9vDsibBPfqPKDFM96KAFztUP
+	bnEfOS3fcU8YnzqrG7EUTCkecOrKy3kt6qbG4VixJ3+Eo8DnibR48YRpHO10o0PL
+	SzeQk7vxbft9B5GC4Fnuw==
+X-ME-Sender: <xms:nGGhaaBT9g12G3SZQD4xogk0OkEAmDUynIvmF7zgT-HSDcXhQsGlGw>
+    <xme:nGGhafUuEvQ9pBVI7BJORPartZ10eXUjUTCcfNL6rxOhN27CxaE7NuZGjoNPZ4c2z
+    zSNKjNy_AGCVTggY31nbT_5v_fJh0WPisRcf8vqlVW69UhZeis2v2s>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvgeekiedvucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
+    hrnhepvdfhvdekueduveffffetgfdvveefvdelhedvvdegjedvfeehtdeggeevheefleej
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
+    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepkedpmhhouggvpehsmhhtphhouhht
+    pdhrtghpthhtohepsggtrghinheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepnhgrth
+    hhrghnsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehnshgtsehkvghrnhgvlhdrohhr
+    ghdprhgtphhtthhopehthhhomhgrshdrfigvihhsshhstghhuhhhsehlihhnuhhtrhhonh
+    higidruggvpdhrtghpthhtoheplhhinhhugidqhhgvgigrghhonhesvhhgvghrrdhkvghr
+    nhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhksghuihhlugesvhhgvghrrdhkvg
+    hrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhk
+    vghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigseifvghishhsshgthhhuhhdrnh
+    gvth
+X-ME-Proxy: <xmx:nGGhaUy4xg3r8GId7bwe1nNiYECzU9wZxY9i84eIWZHCCEeV80FvPQ>
+    <xmx:nGGhaa2g9GcgvK3WLi9T6XX6pP14Euh43tnh8B23CEBCjqvZS-WW1g>
+    <xmx:nGGhaZ-sHbgUpFHNNQN5pBFmtz8-zAcXGuxq1YiNM0F0tdsL1kceXw>
+    <xmx:nGGhaSoP2h_UOv0i0fQGOvNxzwHdqKaTBB9owUVDoODNdvzqNPl8XA>
+    <xmx:nWGhaRE53ELuZk5_JT_B7LLXXsxNdLDccwwQpisrmN1mJZVK2jG6Bi6e>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id B359A700065; Fri, 27 Feb 2026 04:19:24 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260227-kbuild-uapi-libc-v1-9-c17de0d19776@weissschuh.net>
-References: <20260227-kbuild-uapi-libc-v1-0-c17de0d19776@weissschuh.net>
+X-ThreadId: AxRtHzFcvrMk
+Date: Fri, 27 Feb 2026 10:18:41 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+ "Nathan Chancellor" <nathan@kernel.org>, "Nicolas Schier" <nsc@kernel.org>,
+ "Brian Cain" <bcain@kernel.org>
+Cc: linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-hexagon@vger.kernel.org,
+ =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+Message-Id: <67674db4-4da2-484c-be59-c97144083179@app.fastmail.com>
 In-Reply-To: <20260227-kbuild-uapi-libc-v1-0-c17de0d19776@weissschuh.net>
-To: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
- Brian Cain <bcain@kernel.org>
-Cc: linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1772174282; l=1090;
- i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=bkXGwvvaOvc0BEh/UPqlv0oKwlhbzEGpNzwjMPjItm8=;
- b=rYE5gUNrshLbWx7rPwMmoa1PUEr8jFZdzgkTzSi4rkRdR9eLPLv92HKnFmFq1AnNKisEsjSDh
- zV4KjucMC2EA6czxzuumwfoCOZYd1CXyWB9V8WRSvcHfiK5K7BkkORT
-X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
- pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
+References: <20260227-kbuild-uapi-libc-v1-0-c17de0d19776@weissschuh.net>
+Subject: Re: [PATCH 0/9] kbuild: uapi: remove usage of toolchain headers
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-The test compilation does not allow usage of the toolchain headers
-anymore, so these dummy headers are not needed anymore.
+On Fri, Feb 27, 2026, at 07:37, Thomas Wei=C3=9Fschuh wrote:
+> Currently the test compilation of some UAPI headers requires a toolcha=
+in
+> libc headers. Remove that dependency.
+>
+> Signed-off-by: Thomas Wei=C3=9Fschuh <linux@weissschuh.net>
 
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
----
- usr/dummy-include/stdbool.h | 7 -------
- usr/dummy-include/stdlib.h  | 7 -------
- 2 files changed, 14 deletions(-)
+Nice work!
 
-diff --git a/usr/dummy-include/stdbool.h b/usr/dummy-include/stdbool.h
-deleted file mode 100644
-index 54ff9e9c90ac..000000000000
---- a/usr/dummy-include/stdbool.h
-+++ /dev/null
-@@ -1,7 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
--#ifndef _STDBOOL_H
--#define _STDBOOL_H
--
--#error "Please do not include <stdbool.h> from exported headers"
--
--#endif /* _STDBOOL_H */
-diff --git a/usr/dummy-include/stdlib.h b/usr/dummy-include/stdlib.h
-deleted file mode 100644
-index e8c21888e371..000000000000
---- a/usr/dummy-include/stdlib.h
-+++ /dev/null
-@@ -1,7 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
--#ifndef _STDLIB_H
--#define _STDLIB_H
--
--#error "Please do not include <stdlib.h> from exported headers"
--
--#endif /* _STDLIB_H */
+Acked-by: Arnd Bergmann <arnd@arndb.de>
 
--- 
-2.53.0
+I had toyed around with a similar series, using a slightly different
+approach of always using the in-kernel nolibc headers, and making
+those compile across all architectures (using empty stubs for those
+that are missing syscall entry functions).
 
+I don't care much which way we do this as long as we can build test
+the headers, but I wonder what your reason was for picking this
+approach over the other.
+
+     Arnd
