@@ -1,80 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12AF81494C3;
-	Thu,  5 Mar 2026 00:36:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F171A245031;
+	Thu,  5 Mar 2026 09:42:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772671005; cv=none; b=kdXvbGDuaaQjD/NHVqe/mk7Gzp4vuKenXGmkVXZLiFIm0UompskYwsk/yk1Q919syQiQbi2v87Wg06apPFRxe/h488j+QT5u1sarXVM6ODP64I/uNi/2vr/p/Ol2EECPOz28L/cNm5JJPBgEVjUTRi/zEOxxyN19olScvgIkEvI=
+	t=1772703734; cv=none; b=ZYWy22AhUterUUWTUm6xuYXfND435zVSEoK4a5yPF/woinztrCT/zMWhevW2ZPuOm5nXSWWkf3/BPVp3/ntGzQVAEykaAhspfme4wS32MDkcVpklR3KrRpBxdejEPvj1s52wPJaeasrlUh5ZV/Lj8/nnLhfFQ6ck0gHK2YGxySI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772671005; c=relaxed/simple;
-	bh=dufxbUIyr7d8ExFT8JscxBc90VyX6BXpvMXaMHirGFY=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=NuB/2colSWq/IScSq18GNiHE9njLfWu1FVHPyCKCfmAb6AmgXUadRwqUf50X1RmW/1rsLk2jtZO5xkdokw2u1nz0C6TxUfd60zK7ai+EisGPgfYxcymmEq5W9xrVF8c5AeTab/97dQitXFTA8IhdeHrMUVAAH0BGU7V1LwlRAZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KToGiCmv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772703734; c=relaxed/simple;
+	bh=Wx2LogNDbns541SnFVUv93/3oIAkkkOiWLeIhqW3jiU=;
+	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
+	 References:Date:Message-Id; b=u8iEdz0lhO4rK8VRIPCg6Xcm6QE9KucWOfZHX5+8AG50Q8R7RnIjvKXkvD29X6h80o0YkLIuq2CfEIxCa+BwhfueCcERxw85cTiSltGTln8dgF7S24VXouYbnmTw7N0nYKiqXBDltrCn8AHrQnsOK1TuQUeQHIA5tKkM96JQZpU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A1Pqemu9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KToGiCmv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70C0CC4CEF7;
-	Thu,  5 Mar 2026 00:36:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A1Pqemu9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D42BC116C6;
+	Thu,  5 Mar 2026 09:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772671004;
-	bh=dufxbUIyr7d8ExFT8JscxBc90VyX6BXpvMXaMHirGFY=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=KToGiCmvRjrVNqFH9bmGJHeZ38P88LzG7roLZL+LfIaWcpEiN2r+2cd8LeoKKP35z
-	 U1kZMnp2GF5lnZ/nU+B3HGi0hmJYpifkPnaIttjOzC0p4MJWgdE7whcAtStb71A/hR
-	 PWMEoeZUETbXXgqKLd947UqscZTCqE7PdSGVXWHEJVzdsA5P/GL+TYntigcrzmPu9S
-	 bwFDNJowrmaquHt0GQepYaacF/aqErDIPLaR1+ZJBBxnDoRwltgCLkyg6X/do1S70f
-	 /t3wS/hkSXMAn5Ptc3L2X59NGkKMvuLeUJNxpcdH9xAkM1JdLfqBeN7u7tjz5Udo9K
-	 2yvhogx3J8MSA==
-From: Nathan Chancellor <nathan@kernel.org>
-To: Nicolas Schier <nsc@kernel.org>, Nathan Chancellor <nathan@kernel.org>
-Cc: Richard Henderson <richard.henderson@linaro.org>, 
- Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
- Vineet Gupta <vgupta@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
- Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, 
- Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, 
- WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, 
- Sam Creasey <sammy@sammy.net>, 
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
- Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, 
- Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
- Stafford Horne <shorne@gmail.com>, 
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
- Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
- "David S. Miller" <davem@davemloft.net>, 
- Andreas Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, 
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
- Johannes Berg <johannes@sipsolutions.net>, 
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
- Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
- Masahiro Yamada <masahiroy@kernel.org>, Alexey Gladkov <legion@kernel.org>, 
- linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
- linux-um@lists.infradead.org, linux-kbuild@vger.kernel.org, 
- stable@vger.kernel.org, Ed W <lists@wildgooses.com>
-In-Reply-To: <20260225-separate-modinfo-from-elf-details-v1-1-387ced6baf4b@kernel.org>
-References: <20260225-separate-modinfo-from-elf-details-v1-1-387ced6baf4b@kernel.org>
-Subject: Re: [PATCH] kbuild: Split .modinfo out from ELF_DETAILS
-Message-Id: <177267099220.1730256.13119170390082704508.b4-ty@kernel.org>
-Date: Wed, 04 Mar 2026 17:36:32 -0700
+	s=k20201202; t=1772703733;
+	bh=Wx2LogNDbns541SnFVUv93/3oIAkkkOiWLeIhqW3jiU=;
+	h=Subject:From:To:Cc:In-Reply-To:References:Date:From;
+	b=A1Pqemu99Yfpw0QnYo8TB9yTHrR0fE2RDK9jTlVIN0EEeJ9kc/ThHQn3qrOSiVBD+
+	 8Dc7i2cY6yhupxUVvXmieUq1RNLqhjsB/T6lQu4x3vdMI6JSaJy/QeMZDZ320FAwfc
+	 tAa/hp/eLwBhINTBnXlcxHwqYaXcg0SIABHB5eARBlkdyTwNXfp9kcD1DFeKNUYg/J
+	 NJ8zpo86WEGlojPjbKfetcWgHiLXKLdJ49qGrboKbmI520xUAr7K5hJelqpA3vSuAN
+	 X/iDHVM4SEC552AwE/52wD9y1oTOb0sBdJQ/B/mthKQjTnx1/yzgVqRyZ7aGRpVk1+
+	 TyTSwmQIAXrwA==
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
@@ -82,38 +33,51 @@ List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15-dev
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH 0/9] kbuild: uapi: remove usage of toolchain headers
+From: Nicolas Schier <nsc@kernel.org>
+To: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
+Cc: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
+ Brian Cain <bcain@kernel.org>, linux-kbuild@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, 
+ linux-hexagon@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+In-Reply-To: <20260227-kbuild-uapi-libc-v1-0-c17de0d19776@weissschuh.net>
+References: <20260227-kbuild-uapi-libc-v1-0-c17de0d19776@weissschuh.net>
+Date: Thu, 05 Mar 2026 10:41:55 +0100
+Message-Id: <177270371590.103031.6257749379376584635@derry.ads.avm.de>
+X-Mailer: b4 0.15-dev-363b9
+X-Developer-Signature: v=1; a=openpgp-sha256; l=444; i=nsc@kernel.org;
+ s=20250924; h=from:subject:message-id;
+ bh=Wx2LogNDbns541SnFVUv93/3oIAkkkOiWLeIhqW3jiU=;
+ b=owEBbQKS/ZANAwAKAQdSCnAWJhJpAcsmYgBpqU/qjDPfC5xvFortkyG0MKGDxmPaelRTIOk1e
+ ot9NlLEPwWJAjMEAAEKAB0WIQSHQTenhzckp4G+wsYHUgpwFiYSaQUCaalP6gAKCRAHUgpwFiYS
+ aY3mEACXuJeGoqWpxF9yVei8JmJpgRj9WMvVu4Hw0bLHKIdgUwr0DJRshynekgezYGyd+EFFalL
+ VyHmc+utk5ykVt6Sewnt7Eguf6fe6HbR/A9ZlfAQnSVvIQp2s7L8NamyO4Fu9jLc0FeFg+Fp+FQ
+ tASyB9h1c1syQ6Hg6fqbKUETQztomVhjNfsXmP7ALSSgzJB6UIUwc3Jf9kYgmKtBJDgMey3mETe
+ e6b6Fc4fk9Yk2lpwVyo7Nh39f7ZPJwnjg++x7hYzhbElJvASjPIqyrtKUC9OCmhjwzOM4FkRdgg
+ xPGZomBnFPkbe/PjYM8Ly3TevVO4xvWNdYYEASlq+LXKDt4/xNbCV0srGJgFRtf3sLy0PbTg0Q6
+ XwhSs6Har2eyMs/KI79tvSh77gD2qoTQLFeN0EfDqQv/NziOuU526D2Pdh1wKABK7sVwlfP8vNG
+ qNSq8eZhTlMlyBbaqKbzFFLQG/j5VgvkK3DKGs5dceDgcuTb9fEpD8qeNEmZabV4KurgBmwlEtU
+ 0B2G9BdLriUFOoEGx8i8OG2qMsM4eSszExtNt5/Q0Iwn9gMdNjpr6OvZEAPLLsRlS2rR0qs4zcT
+ pe2G1r3GlNEgnOtR78MfD3Vcb8SQh4Jc3mRlhPOMbcpc8rROqH7W5vAeflb7smDiofeVJdMSzDi
+ SV3bXk6tN5CD6hg==
+X-Developer-Key: i=nsc@kernel.org; a=openpgp;
+ fpr=18ED52DBE34F860EE9FBC82B7D97093255A0CE7F
 
-On Wed, 25 Feb 2026 15:02:51 -0700, Nathan Chancellor wrote:
-> Commit 3e86e4d74c04 ("kbuild: keep .modinfo section in
-> vmlinux.unstripped") added .modinfo to ELF_DETAILS while removing it
-> from DISCARDS, as it was needed in vmlinux.unstripped and ELF_DETAILS
-> was present in all architecture specific vmlinux linker scripts. While
-> this shuffle is fine for vmlinux, ELF_DETAILS and DISCARDS may be used
-> by other linker scripts, such as the s390 and x86 compressed boot
-> images, which may not expect to have a modinfo section. In certain
-> circumstances, this could result in a bootloader failing to load the
-> compressed kernel [1].
-> 
-> [...]
+On Fri, 27 Feb 2026 07:37:58 +0100, Thomas Weißschuh <linux@weissschuh.net> wrote:
+> Currently the test compilation of some UAPI headers requires a toolchain
+> libc headers. Remove that dependency.
 
-Applied to
+Thanks a lot for the highly appreciated clean up!  Having -nostdinc in
+UAPI header tests is good thing!
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/kbuild/linux.git kbuild-fixes
+Kind regards,
+Nicolas
 
-Thanks!
+Reviewed-by: Nicolas Schier <nsc@kernel.org>
+Tested-by: Nicolas Schier <nsc@kernel.org>
 
-[1/1] kbuild: Split .modinfo out from ELF_DETAILS
-      https://git.kernel.org/kbuild/c/8678591b47469
-
-Please look out for regression or issue reports or other follow up
-comments, as they may result in the patch/series getting dropped or
-reverted. Patches applied to an "unstable" branch are accepted pending
-wider testing in -next and any post-commit review; they will generally
-be moved to the main branch in a week if no issues are found.
-
-Best regards,
 -- 
-Nathan Chancellor <nathan@kernel.org>
+Nicolas
 
