@@ -1,83 +1,72 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F171A245031;
-	Thu,  5 Mar 2026 09:42:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92CF62EB0F;
+	Tue, 10 Mar 2026 01:00:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772703734; cv=none; b=ZYWy22AhUterUUWTUm6xuYXfND435zVSEoK4a5yPF/woinztrCT/zMWhevW2ZPuOm5nXSWWkf3/BPVp3/ntGzQVAEykaAhspfme4wS32MDkcVpklR3KrRpBxdejEPvj1s52wPJaeasrlUh5ZV/Lj8/nnLhfFQ6ck0gHK2YGxySI=
+	t=1773104426; cv=none; b=XNBEt3nOmrUnjBx+j8/6eGsmHzQdRXdYMw0/GtX8sPDZOvjAG0xLKT2vx1XQQ+2xLTfdHLWJ1F36q4dZus/eiMKA+jIWF7rPrwSB4Tzs045esR+m5B1zr3OOnGTX4ZvGL51NIZvYrMamShRRO/V1TYE0fG+0qF8y+H03DRdhPho=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772703734; c=relaxed/simple;
-	bh=Wx2LogNDbns541SnFVUv93/3oIAkkkOiWLeIhqW3jiU=;
-	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
-	 References:Date:Message-Id; b=u8iEdz0lhO4rK8VRIPCg6Xcm6QE9KucWOfZHX5+8AG50Q8R7RnIjvKXkvD29X6h80o0YkLIuq2CfEIxCa+BwhfueCcERxw85cTiSltGTln8dgF7S24VXouYbnmTw7N0nYKiqXBDltrCn8AHrQnsOK1TuQUeQHIA5tKkM96JQZpU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A1Pqemu9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773104426; c=relaxed/simple;
+	bh=ucmT4p18l1zVyxUUw0lvEnyqpW0i4kJiK96ub5xOeh4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=p1DkeayA4ihDHUZkiXJsV1P+ycMcfZ1nxtNLgo7tc76cFdza5IGsR2yGpbBpOz0KkYpTMMSFDd0O5i653jInwyPjUVZ/sHNAdjnNCmHJjo6Wbgx8yl66+evgObpst0Qs3NSBzfBT2Jvwq2i5wC4lAkclu+wWhngWmZMbMW/AB2c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kzZAMYEC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A1Pqemu9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D42BC116C6;
-	Thu,  5 Mar 2026 09:42:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kzZAMYEC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84239C4CEF7;
+	Tue, 10 Mar 2026 01:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772703733;
-	bh=Wx2LogNDbns541SnFVUv93/3oIAkkkOiWLeIhqW3jiU=;
-	h=Subject:From:To:Cc:In-Reply-To:References:Date:From;
-	b=A1Pqemu99Yfpw0QnYo8TB9yTHrR0fE2RDK9jTlVIN0EEeJ9kc/ThHQn3qrOSiVBD+
-	 8Dc7i2cY6yhupxUVvXmieUq1RNLqhjsB/T6lQu4x3vdMI6JSaJy/QeMZDZ320FAwfc
-	 tAa/hp/eLwBhINTBnXlcxHwqYaXcg0SIABHB5eARBlkdyTwNXfp9kcD1DFeKNUYg/J
-	 NJ8zpo86WEGlojPjbKfetcWgHiLXKLdJ49qGrboKbmI520xUAr7K5hJelqpA3vSuAN
-	 X/iDHVM4SEC552AwE/52wD9y1oTOb0sBdJQ/B/mthKQjTnx1/yzgVqRyZ7aGRpVk1+
-	 TyTSwmQIAXrwA==
+	s=k20201202; t=1773104426;
+	bh=ucmT4p18l1zVyxUUw0lvEnyqpW0i4kJiK96ub5xOeh4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=kzZAMYECpe7/AQfu8jlRUAnEuPUdpRs0AU+nGE3O6LBPG+Ia5wMiuNIoppPrcY9Gf
+	 JaGSQ6PjNwpheYbAvPCtiK+lS4Hgp2i3SJ8eE8Z5A2xtE2tvM2iyQmF9yXs7NRn4Fa
+	 /g7itB4Ht8f+7NTS6Ns3DqG659VxYsA/HiapXCyuCdY6pLLiMRFVbG78sDw2N90NQo
+	 wVq30CArRN4BbsVHtXNiKxyYji1gmTozq9vYVbv8T546MQePHfzTJNVO5qvNrPfpzE
+	 V6VBeMw4loaHiGk4Q/9S68f9mKDCQTwIPCFd7vyARjYdVpSud4YHyJbqgeYA2yl0yu
+	 8CIXrH9kVSl6A==
+Date: Mon, 9 Mar 2026 18:00:21 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>
+Cc: Nicolas Schier <nsc@kernel.org>, Brian Cain <bcain@kernel.org>,
+	linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Arnd Bergmann <arnd@arndb.de>, linux-hexagon@vger.kernel.org,
+	Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas.weissschuh@linutronix.de>
+Subject: Re: [PATCH 0/9] kbuild: uapi: remove usage of toolchain headers
+Message-ID: <20260310010021.GA1321389@ax162>
+References: <20260227-kbuild-uapi-libc-v1-0-c17de0d19776@weissschuh.net>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 0/9] kbuild: uapi: remove usage of toolchain headers
-From: Nicolas Schier <nsc@kernel.org>
-To: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Cc: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
- Brian Cain <bcain@kernel.org>, linux-kbuild@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, 
- linux-hexagon@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 In-Reply-To: <20260227-kbuild-uapi-libc-v1-0-c17de0d19776@weissschuh.net>
-References: <20260227-kbuild-uapi-libc-v1-0-c17de0d19776@weissschuh.net>
-Date: Thu, 05 Mar 2026 10:41:55 +0100
-Message-Id: <177270371590.103031.6257749379376584635@derry.ads.avm.de>
-X-Mailer: b4 0.15-dev-363b9
-X-Developer-Signature: v=1; a=openpgp-sha256; l=444; i=nsc@kernel.org;
- s=20250924; h=from:subject:message-id;
- bh=Wx2LogNDbns541SnFVUv93/3oIAkkkOiWLeIhqW3jiU=;
- b=owEBbQKS/ZANAwAKAQdSCnAWJhJpAcsmYgBpqU/qjDPfC5xvFortkyG0MKGDxmPaelRTIOk1e
- ot9NlLEPwWJAjMEAAEKAB0WIQSHQTenhzckp4G+wsYHUgpwFiYSaQUCaalP6gAKCRAHUgpwFiYS
- aY3mEACXuJeGoqWpxF9yVei8JmJpgRj9WMvVu4Hw0bLHKIdgUwr0DJRshynekgezYGyd+EFFalL
- VyHmc+utk5ykVt6Sewnt7Eguf6fe6HbR/A9ZlfAQnSVvIQp2s7L8NamyO4Fu9jLc0FeFg+Fp+FQ
- tASyB9h1c1syQ6Hg6fqbKUETQztomVhjNfsXmP7ALSSgzJB6UIUwc3Jf9kYgmKtBJDgMey3mETe
- e6b6Fc4fk9Yk2lpwVyo7Nh39f7ZPJwnjg++x7hYzhbElJvASjPIqyrtKUC9OCmhjwzOM4FkRdgg
- xPGZomBnFPkbe/PjYM8Ly3TevVO4xvWNdYYEASlq+LXKDt4/xNbCV0srGJgFRtf3sLy0PbTg0Q6
- XwhSs6Har2eyMs/KI79tvSh77gD2qoTQLFeN0EfDqQv/NziOuU526D2Pdh1wKABK7sVwlfP8vNG
- qNSq8eZhTlMlyBbaqKbzFFLQG/j5VgvkK3DKGs5dceDgcuTb9fEpD8qeNEmZabV4KurgBmwlEtU
- 0B2G9BdLriUFOoEGx8i8OG2qMsM4eSszExtNt5/Q0Iwn9gMdNjpr6OvZEAPLLsRlS2rR0qs4zcT
- pe2G1r3GlNEgnOtR78MfD3Vcb8SQh4Jc3mRlhPOMbcpc8rROqH7W5vAeflb7smDiofeVJdMSzDi
- SV3bXk6tN5CD6hg==
-X-Developer-Key: i=nsc@kernel.org; a=openpgp;
- fpr=18ED52DBE34F860EE9FBC82B7D97093255A0CE7F
 
-On Fri, 27 Feb 2026 07:37:58 +0100, Thomas Wei√üschuh <linux@weissschuh.net> wrote:
+On Fri, Feb 27, 2026 at 07:37:58AM +0100, Thomas Weiﬂschuh wrote:
 > Currently the test compilation of some UAPI headers requires a toolchain
 > libc headers. Remove that dependency.
+> 
+> Signed-off-by: Thomas Weiﬂschuh <linux@weissschuh.net>
+> ---
+> Thomas Weiﬂschuh (9):
+>       hexagon: uapi: Fix structure alignment attribute
+>       kbuild: uapi: test linux/bpf_perf_event.h on powerpc
+>       kbuild: uapi: deduplicate linux/bpf_perf_event.h exclusions
+>       kbuild: uapi: completely exclude linux/bpf_perf_event.h on nios2
+>       kbuild: uapi: only use dummy-include for headers which use libc
+>       kbuild: uapi: provide stub includes for some libc headers
+>       kbuild: uapi: use custom stub headers instead of libc ones
+>       kbuild: uapi: simplify libc dependency logic
+>       kbuild: uapi: remove now unneeded guard headers
 
-Thanks a lot for the highly appreciated clean up!  Having -nostdinc in
-UAPI header tests is good thing!
+This is nice! For the series:
 
-Kind regards,
-Nicolas
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 
-Reviewed-by: Nicolas Schier <nsc@kernel.org>
-Tested-by: Nicolas Schier <nsc@kernel.org>
-
--- 
-Nicolas
-
+Cheers,
+Nathan
