@@ -1,86 +1,234 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E652B3859DB;
-	Thu, 12 Mar 2026 12:10:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41D91314A6F;
+	Thu, 12 Mar 2026 19:16:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773317434; cv=none; b=JVd241MItAGW6Zw6bcpzqXLSejIAEO5dqJhMC+w1c+Wy5/O5uhueL16KcSWjV2ThTSqTnpX4OXSWMS5aex1H4YYsKPEri0R0015E4Z1VVm2lVgglpTbuupNSwj+Y8eCzSlJ5IcSTNZ5S+PKfeymcnUt0ZUOVll0SHJ3mhtw4aRc=
+	t=1773342994; cv=none; b=fg+P+qqOzrkYhpt6G9CkDhTV1Wniov5MOWOkMZINNjwcMh88v/7ikSGGXd7Wv9juFi/vBVGo6fv+M5mGrZT9S+fUiJZB4BtkDwMhjuireWpSW2oS9oykObi7NwwoZQfv/wWyH/FzgiOqqDVKJwjfswqp/OQ+5Cb6wUO41cpSFas=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773317434; c=relaxed/simple;
-	bh=Uy44JtFCaQETPOQmn0NLrcXjDSVVxXklwtav5/rwLsY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jZjvH+mpP9BbpwwjG5X+97m6XqHBlM68s8au6P1jdHLkwXo+BRc67eiCxM4OQZ0GQA+vq4BdPtKKfirSTG3nKR/kbVXm1f/XDMB8zSyQ1QO30VJJ6n051zCrnrZTVKyTnm3f/hVjp7eYkRPfdCAEJws6dQP36hXpy7kbzD7rOjo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=odIJVO+y; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773342994; c=relaxed/simple;
+	bh=TaSLkR5gPDfxujDC1zIc+PKZQMwo2SHfFpgA8heiCwA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oH0nxdoAS3l/iisb8Lmb2PYKBoEOwrGjeeKWROtkNJscoDk+KUrBQLFX0zDux3xP4Dp9uBiUq3dOK94k600ThjhSVjmrq9EOS7RFgTHoyutVKSX0XrwyDjg/5VNrFwz1gPOv7rh9XvcdzjQMiD+dDuoC5ulqcjEE5UmXgu6UZ00=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RJ/OeZwo; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="odIJVO+y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0DC7C4CEF7;
-	Thu, 12 Mar 2026 12:10:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RJ/OeZwo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FB2FC4CEF7;
+	Thu, 12 Mar 2026 19:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773317433;
-	bh=Uy44JtFCaQETPOQmn0NLrcXjDSVVxXklwtav5/rwLsY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=odIJVO+yarTpEbMuYOpV4oISuKTu+51RiGjba9b+t2f4iRckiJyy2BBW2sYpo2U8d
-	 7h2AdU8UQoKuyIg4E+85tNtcy++PeAkUmXWb7ReexAILKZqll/Bi2wfCkZA7NwUSIl
-	 Sl+l/nvjGE1mLRY0JZ3dHUWZK91vj7CJjr0hFEA3jvT5vN38VEYpDWI9sqoN7z0cI/
-	 16yV/C0iSvELary+I5ekWoloOSAjDJcmMB4Jb7pmorrk841EfUMBcx9tjUDma/qUn4
-	 fp4Ax0WUkGlEH5ztSkVUq24XVhhI/hocp5DJO50mj9kxW3qJMONIe48BIKCKkgqoV6
-	 Fqrs7J4Rt3X1g==
-From: Nicolas Schier <nsc@kernel.org>
-To: Nathan Chancellor <nathan@kernel.org>,
-	Brian Cain <bcain@kernel.org>,
-	=?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Cc: Nicolas Schier <nsc@kernel.org>,
-	linux-kbuild@vger.kernel.org,
+	s=k20201202; t=1773342993;
+	bh=TaSLkR5gPDfxujDC1zIc+PKZQMwo2SHfFpgA8heiCwA=;
+	h=From:To:Cc:Subject:Date:From;
+	b=RJ/OeZwo0EpMiWhb6/z0zIn+/lFIuIvP2BfzNEAj9LTqZfBCjv1o5hnt4plZA721a
+	 ih6WVKNO5Z+PgABzP3qU9mNk3ZQdayMRlhZrsa3HWiVByCdZSFrFYLe0/7lxG7OMSg
+	 FBYifP/bgQwr574bwudgfgyoHnB9f/hWGwgWe1FDPrtLRQXW3cutgrXsqn1yBfQyAO
+	 cLyQ9H8N5cQhIxAeyK3PB3UNucYEayj8QTANEhh8lPSNLnt33n+V+48VghS2R7jej6
+	 vxj7XgXAC6C2E/LkQ0c1rBr5o/kq+vJUK3tiAL3mfMap9fAXAJ1J2eEDtK0eEUhevE
+	 WNctijuQVz9Nw==
+From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: David Hildenbrand <david@kernel.org>,
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Jann Horn <jannh@google.com>,
+	Pedro Falcato <pfalcato@suse.de>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Kees Cook <kees@kernel.org>,
+	linux-mm@kvack.org,
 	linux-kernel@vger.kernel.org,
-	Arnd Bergmann <arnd@arndb.de>,
+	Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Brian Cain <bcain@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	Xu Xin <xu.xin16@zte.com.cn>,
+	Chengming Zhou <chengming.zhou@linux.dev>,
+	Michal Hocko <mhocko@suse.com>,
+	Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
 	linux-hexagon@vger.kernel.org,
-	=?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-Subject: Re: [PATCH 0/9] kbuild: uapi: remove usage of toolchain headers
-Date: Thu, 12 Mar 2026 13:08:47 +0100
-Message-ID: <177331711839.39835.7291910138948892352.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260227-kbuild-uapi-libc-v1-0-c17de0d19776@weissschuh.net>
-References: <20260227-kbuild-uapi-libc-v1-0-c17de0d19776@weissschuh.net>
+	loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-fsdevel@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: [PATCH 00/20] mm/vma: convert vm_flags_t to vma_flags_t in vma code
+Date: Thu, 12 Mar 2026 19:15:58 +0000
+Message-ID: <cover.1773342102.git.ljs@kernel.org>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 
-On Fri, 27 Feb 2026 07:37:58 +0100, Thomas Weißschuh wrote:
-> Currently the test compilation of some UAPI headers requires a toolchain
-> libc headers. Remove that dependency.
+This series converts a lot of the existing use of the legacy vm_flags_t
+data type to the new vma_flags_t type which replaces it.
 
-Applied to kbuild/kbuild-next.git (kbuild-next), thanks!
+In order to do so it adds a number of additional helpers:
 
-[1/9] hexagon: uapi: Fix structure alignment attribute
-      https://git.kernel.org/kbuild/c/47bca1cb
-[2/9] kbuild: uapi: test linux/bpf_perf_event.h on powerpc
-      https://git.kernel.org/kbuild/c/a8c9d3cc
-[3/9] kbuild: uapi: deduplicate linux/bpf_perf_event.h exclusions
-      https://git.kernel.org/kbuild/c/45bd8643
-[4/9] kbuild: uapi: completely exclude linux/bpf_perf_event.h on nios2
-      https://git.kernel.org/kbuild/c/60a16bee
-[5/9] kbuild: uapi: only use dummy-include for headers which use libc
-      https://git.kernel.org/kbuild/c/0ef1b7a6
-[6/9] kbuild: uapi: provide stub includes for some libc headers
-      https://git.kernel.org/kbuild/c/aad94ba6
-[7/9] kbuild: uapi: use custom stub headers instead of libc ones
-      https://git.kernel.org/kbuild/c/579f103f
-[8/9] kbuild: uapi: simplify libc dependency logic
-      https://git.kernel.org/kbuild/c/510c7a57
-[9/9] kbuild: uapi: remove now unneeded guard headers
-      https://git.kernel.org/kbuild/c/febb5c81
+* vma_flags_empty() - Determines whether a vma_flags_t value has no bits
+  set.
 
-Please look out for regression or issue reports or other follow up
-comments, as they may result in the patch/series getting dropped,
-reverted or modified (e.g. trailers).
+* vma_flags_and() - Performs a bitwise AND between two vma_flags_t values.
 
-Best regards,
--- 
-Nicolas
+* vma_flags_diff_pair() - Determines which flags are not shared between a
+  pair of VMA flags (typically non-constant values)
 
+* append_vma_flags() - Similar to mk_vma_flags(), but allows a vma_flags_t
+  value to be specified (typically a constant value) which will be copied
+  and appended to to create a new vma_flags_t value, with additional flags
+  specified to append to it.
+
+* vma_flags_same() - Determines if a vma_flags_t value is exactly equal to
+  a set of VMA flags.
+
+* vma_flags_same_mask() - Determines if a vma_flags_t value is eactly equal
+  to another vma_flags_t value (typically constant).
+
+* vma_flags_same_pair() - Determines if a pair of vma_flags_t values are
+  exactly equal to one another (typically both non-constant).
+
+* vma_flags_to_legacy() - Converts a vma_flags_t value to a vm_flags_t
+  value, used to enable more iterative introduction of the use of
+  vma_flags_t.
+
+* legacy_to_vma_flags() - Converts a vm_flags_t value to a vma_flags-t
+  value, for the same purpose.
+
+* vma_test() - Tests whether a VMA's flags contain s specific singular VMA
+  flag.
+
+* vma_test_any() - Tests whether a VMA's flags contain any of a set of VMA
+  flags.
+
+* vma_test_any_mask() - Tests whether a VMA's flags contain any of the
+  flags specified in another, typically constant, vma_flags_t value.
+
+* vma_clear_flags() - Clears a specific set of VMA flags from a vma_flags_t
+  value.
+
+* vma_clear_flags_mask() - Clears those flag set in a vma_flags_t value
+  (typically constant) from a (typically not constant) vma_flags_t value.
+
+The series mostly focuses on the the VMA specific code, especially that
+contained in mm/vma.c and mm/vma.h.
+
+It updates both brk() and mmap() logic to utils vma_flags_t values as much
+as is practiaclly possible at this point, changing surrounding logic to be
+able to do so.
+
+It also updates the vma_modify_xxx() functions where they interact with VMA
+flags directly to use vm_flags_t values where possible.
+
+There is extensive testing added in the VMA userland tests to assert that
+all of these new VMA flag functions work correctly.
+
+Lorenzo Stoakes (Oracle) (20):
+  mm/vma: add vma_flags_empty(), vma_flags_and(), vma_flags_diff_pair()
+  tools/testing/vma: add unit tests flag empty, diff_pair, and[_mask]
+  mm/vma: add further vma_flags_t unions
+  tools/testing/vma: convert bulk of test code to vma_flags_t
+  mm/vma: use new VMA flags for sticky flags logic
+  tools/testing/vma: fix VMA flag tests
+  mm/vma: add append_vma_flags() helper
+  tools/testing/vma: add simple test for append_vma_flags()
+  mm: unexport vm_brk_flags() and eliminate vm_flags parameter
+  mm/vma: introduce vma_flags_same[_mask/_pair]()
+  mm/vma: introduce [vma_flags,legacy]_to_[legacy,vma_flags]() helpers
+  tools/testing/vma: test that legacy flag helpers work correctly
+  mm: convert do_brk_flags() to use vma_flags_t
+  mm/vma: introduce vma_test[_any[_mask]](), and make inlining
+    consistent
+  tools/testing/vma: update VMA flag tests to test vma_test[_any_mask]()
+  mm/vma: introduce vma_clear_flags[_mask]()
+  tools/testing/vma: update VMA tests to test vma_clear_flags[_mask]()
+  mm/vma: convert as much as we can in mm/vma.c to vma_flags_t
+  mm/vma: convert vma_modify_flags[_uffd]() to use vma_flags_t
+  mm/vma: convert __mmap_region() to use vma_flags_t
+
+ arch/arc/include/asm/page.h        |   2 +-
+ arch/arm/include/asm/page.h        |   2 +-
+ arch/arm64/include/asm/page.h      |   3 +-
+ arch/hexagon/include/asm/page.h    |   2 +-
+ arch/loongarch/include/asm/page.h  |   2 +-
+ arch/mips/include/asm/page.h       |   2 +-
+ arch/nios2/include/asm/page.h      |   2 +-
+ arch/powerpc/include/asm/page.h    |   4 +-
+ arch/powerpc/include/asm/page_32.h |   2 +-
+ arch/powerpc/include/asm/page_64.h |  12 +-
+ arch/riscv/include/asm/page.h      |   2 +-
+ arch/s390/include/asm/page.h       |   2 +-
+ arch/x86/include/asm/page_types.h  |   2 +-
+ arch/x86/um/asm/vm-flags.h         |   4 +-
+ fs/binfmt_elf.c                    |   3 +-
+ include/linux/ksm.h                |  10 +-
+ include/linux/mm.h                 | 282 ++++++++++++++++++++------
+ include/linux/mm_types.h           |  52 ++++-
+ include/linux/mman.h               |  49 -----
+ include/linux/userfaultfd_k.h      |   3 +
+ mm/internal.h                      |   3 +
+ mm/ksm.c                           |  43 ++--
+ mm/madvise.c                       |  10 +-
+ mm/mlock.c                         |  42 ++--
+ mm/mmap.c                          |  19 +-
+ mm/mprotect.c                      |  53 +++--
+ mm/mremap.c                        |   6 +-
+ mm/mseal.c                         |  10 +-
+ mm/userfaultfd.c                   |  21 +-
+ mm/vma.c                           | 216 ++++++++++++--------
+ mm/vma.h                           |  86 ++++++--
+ mm/vma_exec.c                      |   5 +-
+ security/selinux/hooks.c           |   4 +-
+ tools/include/linux/bitmap.h       |  13 ++
+ tools/lib/bitmap.c                 |  10 +
+ tools/testing/vma/include/custom.h |  19 --
+ tools/testing/vma/include/dup.h    | 262 +++++++++++++++++-------
+ tools/testing/vma/include/stubs.h  |  11 +-
+ tools/testing/vma/shared.c         |   8 +-
+ tools/testing/vma/shared.h         |  22 +-
+ tools/testing/vma/tests/merge.c    | 311 +++++++++++++++--------------
+ tools/testing/vma/tests/mmap.c     |  18 +-
+ tools/testing/vma/tests/vma.c      | 303 +++++++++++++++++++++++++---
+ 43 files changed, 1307 insertions(+), 630 deletions(-)
+
+--
+2.53.0
