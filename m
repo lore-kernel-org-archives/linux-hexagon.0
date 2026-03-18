@@ -1,207 +1,115 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 069F5378D79
-	for <linux-hexagon@vger.kernel.org>; Mon, 16 Mar 2026 23:23:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.178
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773703398; cv=pass; b=gIHBddxpscCsz/N8OUEmjXZTvD880JToDZcKAmbP0RxHZ+817YU/QkEIgX1WGA1QRs+LQNfa+zIjWeE9E9ErT6F2oTzgn8hoEH/QncZarU0dkWlFE7OIqqvgEon3qqwd7o7sEU05/DeZpD5rekIuEJ89kQJc1I1L0WAJEZks8dM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773703398; c=relaxed/simple;
-	bh=XTOZYOCHUctLkYMS5qNPCkNocPEUYtAP2iODWNe7Wt4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=U/QX0kU12U++MGM/3kr+kpy07J/+hshOOVmtEkOc7t7+yDfr8ZtQ3av7jOx50t717oyyKEJbJGJCCxdZA9Dhuy4yi7rrPT1I1iB0gEtytcGIrrQoDGxUOF4fwHR9PNpIxiByDM7lf0tTvXCkou/MuDapTaQ+STIXHp/rCrxzNBQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=eZ2/MpmH; arc=pass smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1B533DB62A;
+	Wed, 18 Mar 2026 14:40:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773844858; cv=none; b=nZQ/jopyEzpbiq7tWWaVe5u66VSHC51rB+VQUWofsxotJGz+fbcVXN+XkNXz9akVuHWMMKoOzdR9/MI526Y6vc3zYqcrO1GDNhfg4j2YbX71tIqPft24Hclk5bLIARfbWavKKdAsKZMBQm3kweYxLHbr7mQ/OyeiHXLkqtoxON8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773844858; c=relaxed/simple;
+	bh=QPe6wXvdAXZ1WsVrzW/I1Ea8rZgbDN6tCubJm34Z2So=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OmUOdMzDTBbdp2/SUG8PDRUWe80WdGY6WTrYrIJ55kGncC3z/sULkLzF4fmv0BxO+5S2oGpE/aB2YPaqBURGD4I2ALVrGCHfJpQdvPxPbLFPuK5q71z9DhunGb9CSCWKp3ZPuGHTDDiD6xZmnPoVwGjwKuntxsSUi+byJ8gcVIA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ngbdPPAx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="eZ2/MpmH"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2ab39b111b9so21638185ad.1
-        for <linux-hexagon@vger.kernel.org>; Mon, 16 Mar 2026 16:23:16 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773703396; cv=none;
-        d=google.com; s=arc-20240605;
-        b=hHTS7qnJixhJqyCaNjJtMjP9DGc6AGVlFas0DeBeA31yfHZhCA/YeV9L6wro12oCmT
-         zYGDH/aUr1gqd0hxyeqB1cl9ZvFXfhEwJ2K6ZtOXsNALRJt7ohrlWjWOhv+JEo8iCNKg
-         EAsVuu6kkK40B8bsWdKItsIQVKbkJbmh2iJyTWFMb7TSgVMR868QA52MyUvCHHvOHJl9
-         68SO1Dx2wlgf4g8922TZaDlX/31PlLfBLgU7I2d6XeRpVXcHdwuOlHRLI/3vUIJmucD6
-         /ttwsWpSaHNVmlwNASuPdBqGFnwgXFf8LA5oU0VWWQJULu9tTngmdk4n0F3sFE8e36zM
-         2dzQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=OjoL/xI+JfK24mJlLYQ/qQdhvwGI+GcsV2kW/9vszrY=;
-        fh=DKpC4T0ZjBwz5HbPUKQKs6CKJPNcFV4DP/MVgLYkmr0=;
-        b=LTWXazkEwr6sococ7FZPD+bu9MzEmfIDKiXfDrrN1gJP9NvuFbFZH/vwBkWyS5vLWi
-         W+ZJ1S2pEt2ranouKz+LfDpel8xGOMJK7CBCZRw5I/UxAUQRVFJXbNH73mGs925lnChC
-         rqeM2TRzelncxhOhVHpsSlwDfVcN534B9lKJ4EgT0IcnSK1Med1X/IJ9LjYrhbatc5lb
-         AnNmR06cXKPbJNWDmTGowOO0Fdb3aFzUDdO0WdKl3Wbk2fTFibwS2yDzVjWTq0kxlG0z
-         EAb8TnpP66AM2SuIxBD2NDXrEdB9dJQC5ruz+LZuYj9zw6fw5PVI3kbsiEBiO4Kl4sku
-         1QUg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1773703396; x=1774308196; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OjoL/xI+JfK24mJlLYQ/qQdhvwGI+GcsV2kW/9vszrY=;
-        b=eZ2/MpmHOTbFFzLcyxFQukFAMHAT6YzxNyylE8gye2eZalHZH61rGfghB43hOFP5Xv
-         i8LhnDq4eVj23kn8GYeN6ZuTHEnAtMqLvYP09F5fURs+lpwlM3ncS4FXsfjjksGdZXZV
-         9yjImmUjtDqg7ttiY4suwVHEZ7MAy1KjYM+0rSeHBMpOY3NWRyv7xLZdiy2DaYBIu66y
-         s01hTO2v+R0ZTDj9a4iTTP6Bb3UMZ40Y9cer+/SzSmu6By5v2qA9I/rfZuhJQM6P5IN7
-         sDRDxWgE2TUkrdSS43j55tIFZuKCmHxFtrHB3fL8Z7Gg1rjgs/kYO9IDpoPQRvu7wc6e
-         sW0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773703396; x=1774308196;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=OjoL/xI+JfK24mJlLYQ/qQdhvwGI+GcsV2kW/9vszrY=;
-        b=ry0JIxT596X8j9zqhYOwOiQIJ/qq/wRWs3fEyc8BekIeLybcV1K3x3kHfZOin7mcI0
-         +Q+D7EtatZrcDsm5HP3JjFM9qkzZS9kyGG41I3/JP/AaBsqalDs4HVjM2QTzI1sGAUFJ
-         NK45/YCtuXzOngiZ5dbi4iih2Cd2mLi3plXb1AytUXPvgqibIA4ZhTqD1wLm7Kjgty7p
-         TIByR9rJeXjrhdFX9sbAkw8h+SyvXWokC93jTWnQnj6dAAb+R2nDyFqYO1FIb6YNhw9S
-         q7gXoSyHXTMhbysnjgqkGMrCrf/ItNzxq2aMBp2RlWrFs2AD/5amscrzDwWGNRQ/Zs3O
-         9gHA==
-X-Forwarded-Encrypted: i=1; AJvYcCVFTg122PUbj4TM3u0U0bybUVHP4DbUW6MZjlANp2SGx+YEbu6c07a5m+MlOXqhl9DSQ1lzkNAvcm5h1qXN@vger.kernel.org
-X-Gm-Message-State: AOJu0YxcomlWxfDuuDTEqktVNvLpFHhPwaxl0poOeYv0JiBi4Lm8X3ya
-	NclXg1rq+1hYU1p0q9k944cqQ26QpEef2Jm2D03N0B6rYyoK7QGDe+j0OzG+pdJmgxS2uOrBVrZ
-	e9o3jteUSig4q5ZY0jqNTsL0L+eeBx6PbZLVrcgou
-X-Gm-Gg: ATEYQzz/BhKlpgX7g5NNrjHyufscl8smXy7TTdJDnkHSe9vO1Am8ucEqVXFL1ndTiCd
-	PHv1O3ha2rPiPBST3oGKa8sz73ULfgQVVMJDpEgHQ/+mUQgapz+8w6YgobQuJvgNtIILJjGoGLa
-	nSr2H5v+gMNeDJRudBv+zsLmCF86IoAdXJZM2hInaGY0HopPSjnVLzl2xLp7s7Yq12JMNkhIXoH
-	i3PWTfPrF/3NUXvePeUpGxJvz9iZqFFOUDJWgHW2d9ZXekS3CxEga4J+TLNIk5ewtjx9+53hwbs
-	kmtyPeLyGU2CuKw+ww==
-X-Received: by 2002:a17:902:ea06:b0:2b0:5c3f:c0d8 with SMTP id
- d9443c01a7336-2b05c3fc4damr40223235ad.47.1773703396327; Mon, 16 Mar 2026
- 16:23:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ngbdPPAx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F29C2BC87;
+	Wed, 18 Mar 2026 14:40:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773844858;
+	bh=QPe6wXvdAXZ1WsVrzW/I1Ea8rZgbDN6tCubJm34Z2So=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ngbdPPAxWjFSAiZvMouaeaCI+yNsZe/5Ks8XfwK23bbuJ+JwMl7yKx8wLk1AN3mNT
+	 TMgJMbhcekeQl6cZDmfGyt8APhVYsofGCMvUz7w5d4VSUqCEDHmA0FWwHmr908obc6
+	 Ca6I5aFuRQUI1yi4z3tpGvtErfL8rr5nKPdU3xQY3LcDhPRgWknRM3aO06irdxNWBm
+	 2TlgtJ0ipwGbJWHORKvyo/BwbM/qZgR2EjBk9w3ApuIqc+XrUbVpU21pCoE11NYSNq
+	 L1oljmENCVJ0s9YwPt8FVfCFDTEwjEsGgigo721LFalxDK0WN06IRwXdh82jFvxUSk
+	 UiZTvvvmHDYJQ==
+Message-ID: <4620167c-bcfe-414b-85f6-a5d28563b9af@kernel.org>
+Date: Wed, 18 Mar 2026 15:40:45 +0100
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1773665966.git.ljs@kernel.org> <063af0422d99bee0195589aa63f8f44edaf409fa.1773665966.git.ljs@kernel.org>
-In-Reply-To: <063af0422d99bee0195589aa63f8f44edaf409fa.1773665966.git.ljs@kernel.org>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 16 Mar 2026 19:23:04 -0400
-X-Gm-Features: AaiRm50DdYFqfixz3H6HRwMmLfdf5osoLUZfr0b1blDqz3IzGNPvd_xOI_ajOas
-Message-ID: <CAHC9VhR2T8ujtfvz-HgkgSFByptTLmhbCYS+scY53aYg=sgfqw@mail.gmail.com>
-Subject: Re: [PATCH v2 17/23] mm: convert do_brk_flags() to use vma_flags_t
-To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@kernel.org>, 
-	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Kees Cook <kees@kernel.org>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, Vineet Gupta <vgupta@kernel.org>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Dinh Nguyen <dinguyen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <chleroy@kernel.org>, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H . Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>, 
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>, 
-	Michal Hocko <mhocko@suse.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-snps-arc@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, 
-	linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 01/23] mm/vma: add vma_flags_empty(), vma_flags_and(),
+ vma_flags_diff_pair()
+Content-Language: en-US
+To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: David Hildenbrand <david@kernel.org>,
+ "Liam R . Howlett" <Liam.Howlett@oracle.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Kees Cook <kees@kernel.org>,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Dinh Nguyen <dinguyen@kernel.org>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H . Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
+ Michal Hocko <mhocko@suse.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
+References: <cover.1773665966.git.ljs@kernel.org>
+ <ede9b0f8a2e2dc72e7fbc1a0ddbeb513364c28a2.1773665966.git.ljs@kernel.org>
+From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+In-Reply-To: <ede9b0f8a2e2dc72e7fbc1a0ddbeb513364c28a2.1773665966.git.ljs@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Mar 16, 2026 at 9:09=E2=80=AFAM Lorenzo Stoakes (Oracle) <ljs@kerne=
-l.org> wrote:
->
-> In order to be able to do this, we need to change VM_DATA_DEFAULT_FLAGS a=
-nd
-> friends and update the architecture-specific definitions also.
->
-> We then have to update some KSM logic to handle VMA flags, and introduce
-> VMA_STACK_FLAGS to define the vma_flags_t equivalent of VM_STACK_FLAGS.
->
-> We also introduce two helper functions for use during the time we are
-> converting legacy flags to vma_flags_t values - vma_flags_to_legacy() and
-> legacy_to_vma_flags().
->
-> This enables us to iteratively make changes to break these changes up int=
-o
-> separate parts.
->
-> We use these explicitly here to keep VM_STACK_FLAGS around for certain
-> users which need to maintain the legacy vm_flags_t values for the time
-> being.
->
-> We are no longer able to rely on the simple VM_xxx being set to zero if t=
-he
-> feature is not enabled, so in the case of VM_DROPPABLE we introduce
-> VMA_DROPPABLE as the vma_flags_t equivalent, which is set to
-> EMPTY_VMA_FLAGS if the droppable flag is not available.
->
-> While we're here, we make the description of do_brk_flags() into a kdoc
-> comment, as it almost was already.
->
-> We use vma_flags_to_legacy() to not need to update the vm_get_page_prot()
-> logic as this time.
->
-> Note that in create_init_stack_vma() we have to replace the BUILD_BUG_ON(=
-)
-> with a VM_WARN_ON_ONCE() as the tested values are no longer build time
-> available.
->
-> We also update mprotect_fixup() to use VMA flags where possible, though w=
-e
-> have to live with a little duplication between vm_flags_t and vma_flags_t
-> values for the time being until further conversions are made.
->
-> Finally, we update the VMA tests to reflect these changes.
->
+On 3/16/26 14:07, Lorenzo Stoakes (Oracle) wrote:
+> Firstly, add the ability to determine if VMA flags are empty, that is no
+> flags are set in a vma_flags_t value.
+> 
+> Next, add the ability to obtain the equivalent of the bitwise and of two
+> vma_flags_t values, via vma_flags_and().
+
+Nit: "two values" is vma_flags_and_mask(), while vma_flags_and() takes one
+value and list of flags, no?
+
+> Next, add the ability to obtain the difference between two sets of VMA
+> flags, that is the equivalent to the exclusive bitwise OR of the two sets
+> of flags, via vma_flags_diff_pair().
+> 
+> vma_flags_xxx_mask() typically operates on a pointer to a vma_flags_t
+> value, which is assumed to be an lvalue of some kind (such as a field in a
+> struct or a stack variable) and an rvalue of some kind (typically a
+> constant set of VMA flags obtained e.g. via mk_vma_flags() or equivalent).
+> 
+> However vma_flags_diff_pair() is intended to operate on two lvalues, so use
+> the _pair() suffix to make this clear.
+> 
+> Finally, update VMA userland tests to add these helpers.
+> 
+> We also port bitmap_xor() and __bitmap_xor() to the tools/ headers and
+> source to allow the tests to work with vma_flags_diff_pair().
+> 
 > Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
-> ---
->  arch/arc/include/asm/page.h        |  2 +-
->  arch/arm/include/asm/page.h        |  2 +-
->  arch/arm64/include/asm/page.h      |  3 +-
->  arch/hexagon/include/asm/page.h    |  2 +-
->  arch/loongarch/include/asm/page.h  |  2 +-
->  arch/mips/include/asm/page.h       |  2 +-
->  arch/nios2/include/asm/page.h      |  2 +-
->  arch/powerpc/include/asm/page.h    |  4 +--
->  arch/powerpc/include/asm/page_32.h |  2 +-
->  arch/powerpc/include/asm/page_64.h | 12 ++++----
->  arch/riscv/include/asm/page.h      |  2 +-
->  arch/s390/include/asm/page.h       |  2 +-
->  arch/x86/include/asm/page_types.h  |  2 +-
->  arch/x86/um/asm/vm-flags.h         |  4 +--
->  include/linux/ksm.h                | 10 +++----
->  include/linux/mm.h                 | 47 ++++++++++++++++++------------
->  mm/internal.h                      |  3 ++
->  mm/ksm.c                           | 43 ++++++++++++++-------------
->  mm/mmap.c                          | 13 +++++----
->  mm/mprotect.c                      | 46 +++++++++++++++++------------
->  mm/mremap.c                        |  6 ++--
->  mm/vma.c                           | 34 +++++++++++----------
->  mm/vma.h                           | 14 +++++++--
->  mm/vma_exec.c                      |  5 ++--
->  security/selinux/hooks.c           |  4 ++-
->  tools/testing/vma/include/custom.h |  3 --
->  tools/testing/vma/include/dup.h    | 42 ++++++++++++++------------
->  tools/testing/vma/include/stubs.h  |  9 +++---
->  tools/testing/vma/tests/merge.c    |  3 +-
->  29 files changed, 186 insertions(+), 139 deletions(-)
 
-Not that the SELinux changes are really all that significant, but they
-look fine to me.
+Acked-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
 
-Acked-by: Paul Moore <paul@paul-moore.com> (SELinux)
-
---=20
-paul-moore.com
