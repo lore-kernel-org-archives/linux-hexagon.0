@@ -1,109 +1,102 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C9CD23ABBF;
-	Thu, 19 Mar 2026 20:24:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F07E5EED8;
+	Fri, 20 Mar 2026 08:48:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773951877; cv=none; b=WSXu/PJ1gW4TQOeikuy7fEi7lqW+JmpgdauKBSXmT+O0/R49CiCeeXiu846bSGppTqmiZw4JOwvkcZ+ubMt4FbXvXGNuydk4jywxUTMVvgBexD+Hm2ckWpmgzYqhzSmeWiRbl7PFl4z/vlIF2u3tGDGRIgvCoEPG1s7Oas9bL+s=
+	t=1773996534; cv=none; b=qADCKfc2+fPIjmW0GWRi/NFkeAhBMFAD6CfB/2YfFZP3DQ5SXMysU+wjgSyxdtMwhRy3vhY/EoJN/fpH+YaBBIralBjbW2YXpKAchXMkpSlrfoTXjuf744oOOzz8ieF9nek1llBOdXmNj3L8SqLy9rGkq+Mr7K96S8SeDtnC8Bo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773951877; c=relaxed/simple;
-	bh=++eEWU9U/XElXTXlMK0AqVMtloqKwDyjsQ+lSYM22fE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CmSKoHpSaivlQaK4WxuA3amBROstBsMKjGe45cQtno8awqGY+8Ha6MmxgVTnNhu6PBYzeNIy+oD8axrDgxUC3G5aQEQdu2k2sqYMPPzgV6c3dAgFgVOYBsD1j6Kz/Coe7EBlkBOm/xkqsgCMFxlQrp9XFK/Ttjlomz+0MG0MYy8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CiuBOTf8; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773996534; c=relaxed/simple;
+	bh=AVThdTFHSI3D63/uFwXEr2OGdo0OiWz7degFLaawtVQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fKQKs9p60A5yWf0Fw24+j1F7HOZD7692Tc7G05hwbKm7BwVz7v9IjFW7IBwbTRyZgWmr7FhKcLqNAjczJh0DoskxAlmxB9C5ZsJARxXqE7SBnP2z3ioSCDmWYwzet6Yw7Jp2jcUBedoBPSiz0zUIMNaFA7a7sxn8Imov91VC9Tk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aVDuHUfd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CiuBOTf8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7474C19424;
-	Thu, 19 Mar 2026 20:24:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aVDuHUfd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69C6FC4CEF7;
+	Fri, 20 Mar 2026 08:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773951876;
-	bh=++eEWU9U/XElXTXlMK0AqVMtloqKwDyjsQ+lSYM22fE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=CiuBOTf8oM3JpowrwY/RK71V0lFiytt3Vy70A5+Se8FSMNpBgrP1LzOd7oZgj2zFO
-	 aq37mpoCmue+Ohtsd4hTOp+Ou8urlIAHTqGzwCwS7euP3vimX0ON0XXWIMf99oiYxn
-	 uL0HQV6NWlMegU10XI0pVrcNbqc1gr/CUl0IgbuMdWUpEMoXWAsGWiXRl8TO0oVeZk
-	 UbfZOBhTjphUVeWMVb0epNP0DwpsmaWenaCJaXmD6ZItKEPk2wV0eWBNJoDRo9hJNa
-	 LpDwaOnBgmK9ho9ehOY8NGZiHYSfIV1suik/JeOa1AMGFvccrX/0T6VCSfPDqGOihh
-	 FHPWeqtfp2pyA==
-Date: Thu, 19 Mar 2026 13:24:30 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Nicolas Dufresne <nicolas@ndufresne.ca>
-Cc: Detlev Casanova <detlev.casanova@collabora.com>,
-	Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Heiko Stuebner <heiko@sntech.de>, Brian Cain <bcain@kernel.org>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>, linux-media@vger.kernel.org,
-	linux-rockchip@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, llvm@lists.linux.dev
-Subject: Re: [PATCH] media: rockchip: Disable VIDEO_ROCKCHIP_VDEC when
- compile testing for Hexagon
-Message-ID: <20260319202430.GA335306@ax162>
-References: <20260213-media-disable-rockchip-vdec-hexagon-v1-1-3f903398cc83@kernel.org>
- <90e62bf797b0532e5556adaf9e15cc7b73e18411.camel@ndufresne.ca>
- <1a618af9b6c311e8fe5db64ff6fb7c1872c7b2b6.camel@ndufresne.ca>
+	s=k20201202; t=1773996533;
+	bh=AVThdTFHSI3D63/uFwXEr2OGdo0OiWz7degFLaawtVQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=aVDuHUfdDD8S+qMhhcb+8iyq+IuTk2K0qpRAv1mnSPjQTT7GWau5uX1CNTdDtfR/0
+	 LFp++8Dnz2QwIE1kWsO/Av6uPpJORJ9xnJDFjFTcwzcgktO9VxcKv+wSUvrzz529wf
+	 Jleh6q8+Izcw8eTwQjx9H+19qhhqrrp8JH/iFcDfQPCQTH5ptvLmvsD0tj3RuwnSdm
+	 11tBmRkm8T9VJyB6mHacHEUYXp0QrFVfjmR41FNwWWw2f9UTt8GR5oY9fomV0MX3gt
+	 Xge1GZpeSPAeqwc5HQZYEgN6ad+xpQ+XJTcqZodE/t9TJgLMJDqXmC2Sy8iqPyspGC
+	 oOpqQ4TUqrEMQ==
+Message-ID: <7bd728dc-f370-4e64-a120-bd8fdcd3207a@kernel.org>
+Date: Fri, 20 Mar 2026 09:48:40 +0100
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1a618af9b6c311e8fe5db64ff6fb7c1872c7b2b6.camel@ndufresne.ca>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 13/23] mm/vma: introduce vma_test[_any[_mask]](), and
+ make inlining consistent
+Content-Language: en-US
+To: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: David Hildenbrand <david@kernel.org>,
+ "Liam R . Howlett" <Liam.Howlett@oracle.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Kees Cook <kees@kernel.org>,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Dinh Nguyen <dinguyen@kernel.org>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H . Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
+ Michal Hocko <mhocko@suse.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
+References: <cover.1773846935.git.ljs@kernel.org>
+ <7ea63af87bd35f20b204a14ad4912592e02b15a6.1773846935.git.ljs@kernel.org>
+From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+In-Reply-To: <7ea63af87bd35f20b204a14ad4912592e02b15a6.1773846935.git.ljs@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, Mar 19, 2026 at 04:08:29PM -0400, Nicolas Dufresne wrote:
-> Le lundi 16 février 2026 à 11:17 -0500, Nicolas Dufresne a écrit :
-> > Le vendredi 13 février 2026 à 15:10 -0500, Nathan Chancellor a écrit :
-> > > Building rkvdec-vdpu383-h264.c can take a few hours to finish building
-> > > with Clang 20.1.0 or newer when compile testing for Hexagon. While this
-> > > is further investigated and understood on the LLVM side [1], disable
-> > > CONFIG_VIDEO_ROCKCHIP_VDEC when compile testing for Hexagon.
-> > > 
-> > > Link: https://github.com/llvm/llvm-project/issues/178535 [1]
-> > > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> > > ---
-> > >  drivers/media/platform/rockchip/rkvdec/Kconfig | 3 ++-
-> > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/media/platform/rockchip/rkvdec/Kconfig
-> > > b/drivers/media/platform/rockchip/rkvdec/Kconfig
-> > > index 5f3bdd848a2c..d03689464206 100644
-> > > --- a/drivers/media/platform/rockchip/rkvdec/Kconfig
-> > > +++ b/drivers/media/platform/rockchip/rkvdec/Kconfig
-> > > @@ -1,7 +1,8 @@
-> > >  # SPDX-License-Identifier: GPL-2.0
-> > >  config VIDEO_ROCKCHIP_VDEC
-> > >  	tristate "Rockchip Video Decoder driver"
-> > > -	depends on ARCH_ROCKCHIP || COMPILE_TEST
-> > > +	# !HEXAGON: https://github.com/llvm/llvm-project/issues/178535
-> > > +	depends on ARCH_ROCKCHIP || (COMPILE_TEST && !HEXAGON)
-> > 
-> > This is clearly not a pleasing change to make. As this specific data structure
-> > and usage of bitfield has been discussed (along with the numerous issues in
-> > clang/llvm around these). We also agreed to move away from bitfield for this
-> > data structure and use a bitwriter. I would favour delaying this change to
-> > give
-> > devs the time to port instead. Ping again if nothing moves within few weeks.
-> > 
-> > best regards,
-> > Nicolas
+On 3/18/26 16:50, Lorenzo Stoakes (Oracle) wrote:
+> Introduce helper functions and macros to make it convenient to test flags
+> and flag masks for VMAs, specifically:
 > 
-> I haven't heard back about the port to plain bitwriter. I guess I have to pick
-> this patch, but I really don't want to have to maintain too many of these hacks.
-> Anyone else with an opinion on the topic ? Or a better idea how this can be
-> workaround differently ?
+> * vma_test() - determine if a single VMA flag is set in a VMA.
+> * vma_test_any_mask() - determine if any flags in a vma_flags_t value are
+> 			set in a VMA.
+> * vma_test_any() - Helper macro to test if any of specific flags are set.
+> 
+> Also, there are a mix of 'inline's and '__always_inline's in VMA helper
+> function declarations, update to consistently use __always_inline.
+> 
+> Finally, update the VMA tests to reflect the changes.
+> 
+> Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
 
-For what it's worth, I don't anticipate more of these hacks. Hexagon is
-rather special in that it has a lot of target specific optimization
-passes, which do not always see code as complex as Linux has in places
-during development. Ideally, it is resolved at some point during the
-LLVM 23 development cycle then we can version check this workaround and
-eventually clean it up altogether.
+Acked-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
 
-Cheers,
-Nathan
