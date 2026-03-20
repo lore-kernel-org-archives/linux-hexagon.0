@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EC8F3148A3;
-	Fri, 20 Mar 2026 16:38:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50331175A9F;
+	Fri, 20 Mar 2026 18:28:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774024729; cv=none; b=tQ4u2vb4GyEBsL7FxFkadwtf+OJanR6xf9Prg2sR/oxQBl4DZfyN+fAgkoZ4mejEqJLkDuIPsf5p6XDagcip6mdQVuGZtzdBhi/cAQaQeP5LZh+J0fzRf+TNScZ7N6vJntgAd3IzpM8iuz8r/cj9aanjebTTkmXo0z4W54trIcs=
+	t=1774031310; cv=none; b=UsqLmXWBJTPLbhmhByV5yC2CpPzoQrkzfTyCyTt34gUOrQBYjzpNIG1Bc3HbvHWMACFtRXZ6LN3N+1ymozbesz30fxv6+bO4PtBjm4VuK3ywGCMt0ugnK+yDaXOGWvQlhre0VAmKV7/TBxivCS9XoddY7J9UtuL7ZbZHQeJFvPo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774024729; c=relaxed/simple;
-	bh=Ksk0/Cy+7k9g8VSMuw5OALSCZ2GB9qpziu6Wa5P0d+4=;
+	s=arc-20240116; t=1774031310; c=relaxed/simple;
+	bh=Fv5VAaAi7lFFXaq+Zs2NQXEVg9yFBZfIimKqUJwizNI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ieAeJ30wVBt20n884dL1tEdndnECwoqlIGgUmH9Nl5KRXi/hQ5gS4VReqjZkm7n7TEoUaD6CxuCAgTC31ooaf+w7huRbcR7PbzkXDvxo3Ji0hm8zZNzDMMyuPFnjKr9XgdQn6tY60QaAzpfxH4D1XaEReEPUWUYxoO7lP0IU+Bg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I/OfmVcP; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=CMrDtu5x1aeGLM9X8YigyT9v+B/UnIL4cuG1L2l8+ID8L5u/NjsO43F4hj/xQ8olIG5zl9w4BGahv8gLMNXxMr68LIfmGVDxbspkAhe2Hn7HjFiutsX91mP/u1yeA2qSByHS6RRt9GN4kK+6KP3qlCUFrNAif808jBhbj/MC06c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gkHt0MCc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I/OfmVcP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDAC6C19425;
-	Fri, 20 Mar 2026 16:38:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gkHt0MCc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E703C4AF63;
+	Fri, 20 Mar 2026 18:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774024729;
-	bh=Ksk0/Cy+7k9g8VSMuw5OALSCZ2GB9qpziu6Wa5P0d+4=;
+	s=k20201202; t=1774031309;
+	bh=Fv5VAaAi7lFFXaq+Zs2NQXEVg9yFBZfIimKqUJwizNI=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=I/OfmVcP71NX/eXv6rVA2H8uavbrfsew5pTj2wiVU5s+aHz5rN91R2Pz36DoL2+Fo
-	 rANmKpvbZV7cOFQK+lP7oYlsRq/4paUxujz4rezTBqKA66bwYPVNNBhzhmCr6J4xbi
-	 vjtP4kZEQ3amGKczLKy0m9YptVW35xq5Lm0Uxk2IG2Ler/6ijJ1G8YxCbmrxkSEC7Y
-	 M29VqGltRdx6Sm1ifElpqV0bL0Tm8oltBzYTbPzaR+3rGw9s9CGPX7CR94ZjYtEyJX
-	 jNLGM6YhVKgZpqntE0j9rerpK2JQejQf6CXMtXpXIuBddKssqb6KupwcU8OClk6p8E
-	 qhsKSOvDUiIBg==
-Date: Fri, 20 Mar 2026 16:38:34 +0000
+	b=gkHt0MCcBHLIQio/xzhZ3JYDqMoeggebPJgOlyMKl++IgyflAsadSjnR6ajO59T7W
+	 Bads34sP/a5yAm4Az5ZrzO6EFDu3djUgXqmf5qozSpDl0E+emDW/7MW3NjnJK8Slny
+	 OotgoXlSvtjugWgJaY9L6WhmqLGWE1/djXCDpUtueFL1T/RlRKAFXQq8l15zcyQNzg
+	 xjTOR7A8pPrNcxZlYg/qfRZqRoGr1vsLPFhe4Hd1TaAtSvhAOyzOMqZjEfVQNGp8Tp
+	 eyJrsI19HFTP1bsaOPJ+0b/i2opswgGS1tIHSoUImZmzyNRI2vbOkompeaDJUfnist
+	 DFKvOz84NKcEw==
+Date: Fri, 20 Mar 2026 18:28:28 +0000
 From: "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
 To: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>, 
@@ -56,13 +56,12 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
 	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
 	linux-um@lists.infradead.org, linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v3 17/23] mm: convert do_brk_flags() to use vma_flags_t
-Message-ID: <366b74cf-b569-4004-bd12-dfbcefc25e56@lucifer.local>
+Subject: Re: [PATCH v3 21/23] mm/vma: convert as much as we can in mm/vma.c
+ to vma_flags_t
+Message-ID: <5c61e8fc-f77d-4f9a-80b9-534978aa1840@lucifer.local>
 References: <cover.1773846935.git.ljs@kernel.org>
- <981ed1afcd19115432e61778e7d226a36f8f5c2b.1773846935.git.ljs@kernel.org>
- <1d300b3b-2476-4381-b8df-a680f486b284@kernel.org>
- <f47e24c4-3a11-4a58-96f5-871443660246@lucifer.local>
- <7e2aea13-e047-4891-bd6f-ff6705c4fc28@kernel.org>
+ <44a952b98d68fc231ab231de6de04b077866bab8.1773846935.git.ljs@kernel.org>
+ <a7535063-abaa-4f67-a090-4a47098f10e7@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
@@ -71,149 +70,94 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7e2aea13-e047-4891-bd6f-ff6705c4fc28@kernel.org>
+In-Reply-To: <a7535063-abaa-4f67-a090-4a47098f10e7@kernel.org>
 
-On Fri, Mar 20, 2026 at 04:06:15PM +0100, Vlastimil Babka (SUSE) wrote:
-> On 3/20/26 14:42, Lorenzo Stoakes (Oracle) wrote:
-> >>
-> >> More nits below:
-> >>
-> >> > diff --git a/arch/arm64/include/asm/page.h b/arch/arm64/include/asm/page.h
-> >> > index b39cc1127e1f..e25d0d18f6d7 100644
-> >> > --- a/arch/arm64/include/asm/page.h
-> >> > +++ b/arch/arm64/include/asm/page.h
-> >> > @@ -46,7 +46,12 @@ int pfn_is_map_memory(unsigned long pfn);
-> >> >
-> >> >  #endif /* !__ASSEMBLER__ */
-> >> >
-> >> > -#define VM_DATA_DEFAULT_FLAGS	(VM_DATA_FLAGS_TSK_EXEC | VM_MTE_ALLOWED)
-> >> > +#ifdef CONFIG_ARM64_MTE
-> >> > +#define VMA_DATA_DEFAULT_FLAGS	append_vma_flags(VMA_DATA_FLAGS_TSK_EXEC, \
-> >> > +						 VMA_MTE_ALLOWED_BIT)
-> >>
-> >> I wonder what's the bloat-o-meter impact of these #define's (this
-> >> arm64-specific one isn't the only one) being no longer compile-time-constants?
+On Fri, Mar 20, 2026 at 11:15:52AM +0100, Vlastimil Babka (SUSE) wrote:
+> On 3/18/26 16:50, Lorenzo Stoakes (Oracle) wrote:
+> > Now we have established a good foundation for vm_flags_t to vma_flags_t
+> > changes, update mm/vma.c to utilise vma_flags_t wherever possible.
 > >
-> > I mean there's a precedent for this, but the compiler _should_ figure out this
-> > as a constant value, I have repeatedly confirmed that it's good at that in
-> > godbolt, via make foo/bar.S etc.
->
-> Great, thanks!
->
+> > We are able to convert VM_STARTGAP_FLAGS entirely as this is only used in
+> > mm/vma.c, and to account for the fact we can't use VM_NONE to make life
+> > easier, place the definition of this within existing #ifdef's to be
+> > cleaner.
 > >
-> >>
-> >> >   */
-> >> >  #define vma_desc_set_flags(desc, ...) \
-> >> >  	vma_desc_set_flags_mask(desc, mk_vma_flags(__VA_ARGS__))
-> >> > @@ -4059,7 +4071,6 @@ extern int replace_mm_exe_file(struct mm_struct *mm, struct file *new_exe_file);
-> >> >  extern struct file *get_mm_exe_file(struct mm_struct *mm);
-> >> >  extern struct file *get_task_exe_file(struct task_struct *task);
-> >> >
-> >> > -extern bool may_expand_vm(struct mm_struct *, vm_flags_t, unsigned long npages);
-> >> >  extern void vm_stat_account(struct mm_struct *, vm_flags_t, long npages);
-> >> >
-> >> >  extern bool vma_is_special_mapping(const struct vm_area_struct *vma,
-> >> > diff --git a/mm/internal.h b/mm/internal.h
-> >> > index f98f4746ac41..80d8651441a7 100644
-> >>
-> >> > diff --git a/mm/mprotect.c b/mm/mprotect.c
-> >> > index 9681f055b9fc..eaa724b99908 100644
-> >> > --- a/mm/mprotect.c
-> >> > +++ b/mm/mprotect.c
-> >>
-> >> > @@ -773,19 +778,24 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
-> >> >
-> >> >  	change_protection(tlb, vma, start, end, mm_cp_flags);
-> >> >
-> >> > -	if ((oldflags & VM_ACCOUNT) && !(newflags & VM_ACCOUNT))
-> >> > +	if (vma_flags_test(&old_vma_flags, VMA_ACCOUNT_BIT) &&
-> >> > +	    !vma_flags_test(&new_vma_flags, VMA_ACCOUNT_BIT))
-> >> >  		vm_unacct_memory(nrpages);
-> >> >
-> >> >  	/*
-> >> >  	 * Private VM_LOCKED VMA becoming writable: trigger COW to avoid major
-> >> >  	 * fault on access.
-> >> >  	 */
-> >> > -	if ((oldflags & (VM_WRITE | VM_SHARED | VM_LOCKED)) == VM_LOCKED &&
-> >> > -			(newflags & VM_WRITE)) {
-> >> > -		populate_vma_page_range(vma, start, end, NULL);
-> >> > +	if (vma_flags_test(&new_vma_flags, VMA_WRITE_BIT)) {
-> >> > +		const vma_flags_t mask =
-> >> > +			vma_flags_and(&old_vma_flags, VMA_WRITE_BIT,
-> >> > +				      VMA_SHARED_BIT, VMA_LOCKED_BIT);
-> >> > +
-> >> > +		if (vma_flags_same(&mask, VMA_LOCKED_BIT))
-> >>
-> >> That converts the original logic 1:1, but I wonder if it's now feasible to
-> >> write it more obviously as "VMA_LOCKED_BIT must be set, VM_WRITE_BIT and
-> >> VM_SHARED_BIT must not" ?
+> > Generally the remaining changes are mechanical.
 > >
-> > Hmm, I'm not sure if I can express this more clearly, it's a pain either
-> > way. Could do:
+> > Also update the VMA tests to reflect the changes.
 > >
-> > 	if (vma_flags_test(&new_vma_flags, VMA_WRITE_BIT) &&
-> > 	    !vma_flags_test_any(&old_vma_flags, VMA_WRITE_BIT, VMA_SHARED_BIT))
-> > 		populate_vma_page_range(vma, start, end, NULL);
+> > Signed-off-by: Lorenzo Stoakes (Oracle) <ljs@kernel.org>
 >
-> It would be a bit more:
->
-> 	if (vma_flags_test(&new_vma_flags, VMA_WRITE_BIT) &&
-> 	    vma_flags_test(&old_vma_flags, VMA_LOCKED_BIT) &&
->  	    !vma_flags_test_any(&old_vma_flags, VMA_WRITE_BIT, VMA_SHARED_BIT))
->  		populate_vma_page_range(vma, start, end, NULL);
+> Acked-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
 
-Right yeah sorry :)
-
-That is clearer but still pretty verbose. Will think about how to do it but I
-think as a follow up still makes more sense.
+Thanks!
 
 >
-> (or reordered in whatever way the short circuting works best here, the original
-> code tested oldflags first).
+> Nits:
 >
-> But yeah, at least to me it's more clear what that's testing and doesn't need to
-> set up the intermediate mask variable, and VMA_LOCKED_BIT is there only once
-> in the code now. The number of vma_flags_* operations is the same.
->
-> >>
-> >> > +			populate_vma_page_range(vma, start, end, NULL);
-> >> >  	}
-> >> >
-> >> > -	vm_stat_account(mm, oldflags, -nrpages);
-> >> > +	vm_stat_account(mm, vma_flags_to_legacy(old_vma_flags), -nrpages);
-> >> >  	vm_stat_account(mm, newflags, nrpages);
-> >> >  	perf_event_mmap(vma);
-> >> >  	return 0;
-> >>
-> >> > diff --git a/mm/vma.h b/mm/vma.h
-> >> > index cf8926558bf6..1f2de6cb3b97 100644
-> >> > --- a/mm/vma.h
-> >> > +++ b/mm/vma.h
-> >>
-> >> > +static inline bool is_data_mapping_vma_flags(const vma_flags_t *vma_flags)
-> >> > +{
-> >> > +	const vma_flags_t mask = vma_flags_and(vma_flags,
-> >> > +			VMA_WRITE_BIT, VMA_SHARED_BIT, VMA_STACK_BIT);
-> >> > +
-> >> > +	return vma_flags_same(&mask, VMA_WRITE_BIT);
-> >>
-> >> Ditto?
+> > @@ -2338,8 +2339,11 @@ void mm_drop_all_locks(struct mm_struct *mm)
+> >   * We account for memory if it's a private writeable mapping,
+> >   * not hugepages and VM_NORESERVE wasn't set.
+> >   */
+> > -static bool accountable_mapping(struct file *file, vm_flags_t vm_flags)
+> > +static bool accountable_mapping(struct mmap_state *map)
+> >  {
+> > +	const struct file *file = map->file;
+> > +	vma_flags_t mask;
+> > +
+> >  	/*
+> >  	 * hugetlb has its own accounting separate from the core VM
+> >  	 * VM_HUGETLB may not be set yet so we cannot check for that flag.
+> > @@ -2347,7 +2351,9 @@ static bool accountable_mapping(struct file *file, vm_flags_t vm_flags)
+> >  	if (file && is_file_hugepages(file))
+> >  		return false;
 > >
-> > I may do both as a follow up patch given the series is a pain to rework at this point
-> > and I want at least the first version to be like-for-like intentionally.
+> > -	return (vm_flags & (VM_NORESERVE | VM_SHARED | VM_WRITE)) == VM_WRITE;
+> > +	mask = vma_flags_and(&map->vma_flags, VMA_NORESERVE_BIT, VMA_SHARED_BIT,
+> > +			     VMA_WRITE_BIT);
+> > +	return vma_flags_same(&mask, VMA_WRITE_BIT);
 >
-> OK sure.
+> Another case of possible refactor, if you agree with those pointed out in
+> earlier patch.
 
-Cheers!
+Ack
 
 >
-> >>
-> >> > +}
-> >> >
-> >> >  static inline void vma_iter_config(struct vma_iterator *vmi,
-> >> >  		unsigned long index, unsigned long last)
-> >> > diff --git a/mm/vma_exec.c b/mm/vma_exec.c
-> >> > index 8134e1afca68..5cee8b7efa0f 100644
+> >  }
 > >
-> > Thanks, Lorenzo
+> >  /*
 >
+> > @@ -2993,7 +2998,8 @@ unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+> >  	gap = vma_iter_addr(&vmi) + info->start_gap;
+> >  	gap += (info->align_offset - gap) & info->align_mask;
+> >  	tmp = vma_next(&vmi);
+> > -	if (tmp && (tmp->vm_flags & VM_STARTGAP_FLAGS)) { /* Avoid prev check if possible */
+> > +	/* Avoid prev check if possible */
+> > +	if (tmp && (vma_test_any_mask(tmp, VMA_STARTGAP_FLAGS))) {
+>
+> The parentheses around function call not necessary?
+
+True, can fix up.
+
+>
+> >  		if (vm_start_gap(tmp) < gap + length - 1) {
+> >  			low_limit = tmp->vm_end;
+> >  			vma_iter_reset(&vmi);
+> > @@ -3045,7 +3051,8 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
+> >  	gap -= (gap - info->align_offset) & info->align_mask;
+> >  	gap_end = vma_iter_end(&vmi);
+> >  	tmp = vma_next(&vmi);
+> > -	if (tmp && (tmp->vm_flags & VM_STARTGAP_FLAGS)) { /* Avoid prev check if possible */
+> > +	 /* Avoid prev check if possible */
+> > +	if (tmp && (vma_test_any_mask(tmp, VMA_STARTGAP_FLAGS))) {
+>
+> Same.
+
+True, will fix up.
+
+>
+> >  		if (vm_start_gap(tmp) < gap_end) {
+> >  			high_limit = vm_start_gap(tmp);
+> >  			vma_iter_reset(&vmi);
+
+Cheers, Lorenzo
