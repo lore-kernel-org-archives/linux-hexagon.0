@@ -1,99 +1,70 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A5453CF69E;
-	Fri, 27 Mar 2026 08:27:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C71C1611E;
+	Fri, 27 Mar 2026 22:11:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774600051; cv=none; b=Odjz/esX+GQPBnyTOpigW3KbHhuu8I++WN1O8+mI9zfZyxeddqZpQxdkqakYZSkMhypoh6tRuOV3O+AxSA8SQyma34oRtmDuQTTFIMvLvr5kIJzyPelLy1meOn6czq+dT5fQxWr5UuZPrzu6j1J8pZFxwoLiQZEaHDsDh8+waDQ=
+	t=1774649468; cv=none; b=mO0M/yWA7dedbej3jhCE2+3huTjqYgOD+WH2r9+1PGLmfKtnWLEXf+xXrg4b7cUHSbKuDwIKE469tXfPVjy2EXIAUHSDMDipDrvy3Plwye4Utw3wOOOb3hqFD8JobxSp+mjXsOWNWd4HRtx+gzEt3RsSq5BOsbBSTGazKY570Wk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774600051; c=relaxed/simple;
-	bh=rkUuEott97cRG5EOSGam/2vURy0iz3AdOFQvnDvFuRk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aNpV6oKUIgEu88G+y4valkLMiR2Mluovx3yDAOPwEHtroS+FDR5Ook2vMDTmeDMU/kUYNhm/kuBIAnjivBVgbO7wc8CblQBKOge8UJHj47hJnvbfBgGeewcfcDL04Eb0Yc6oH3lBiSFX7Zyr9jXThydg2+Npvj11PyHzMF8Tfwg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R1FdErCm; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774649468; c=relaxed/simple;
+	bh=8VJCRTG8WD3XC0KXW/cifyktDXB0cqBeZOPOfzSOUKs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JC3BU+kQpSYFofgXJAQoNdRfUISzYBTN5bzthtd0xoZNp2DRZr78eG0dDe1yrxYJ2p2NT6YekXFTTmB7DtQ38Mik/862kGg+4j9/z0N5fPEJKw8RURUyvbQzVpD6qSM1/j867iiX5/Ks8EOsguX9aFroe6hz1LAAu5Ot0Va8Tps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hjE1lfkv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R1FdErCm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE27CC2BC87;
-	Fri, 27 Mar 2026 08:27:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hjE1lfkv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70823C19423;
+	Fri, 27 Mar 2026 22:11:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774600050;
-	bh=rkUuEott97cRG5EOSGam/2vURy0iz3AdOFQvnDvFuRk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=R1FdErCmpRUfW0Lp5ZacGDOniuT0AwJlAxVfVuljmrw2wCU7cAUPkqPI98IpTty16
-	 NBIRt4fVUPiLgcyTUvdyX/EfQJaP/Fn+rUGOf8JpxGhClHrnG7f8KRPoQz2OYh1WaJ
-	 H5o9DZM6WUru2OjwRibUTWgPS0u+3sPFUJBa/UzXV6LBqi+UjomHjJiBFcJiETq+MT
-	 87z1mRd67LAk1ZwXpjMe9nbD7JZY1/qttMJlLYp/x5WS7qVfoyPw2boeixrn5xIQMI
-	 FsKHOJV0ipEd+DPBQwi0B3HVifAvbXhgvRqUcdTuwlnZX1A9XjKSccTw9hYhAHIm+3
-	 pgbO2wr7F/yFQ==
-Message-ID: <c9bec45c-3312-46a7-a7bc-a7dba95bcda7@kernel.org>
-Date: Fri, 27 Mar 2026 09:27:16 +0100
+	s=k20201202; t=1774649468;
+	bh=8VJCRTG8WD3XC0KXW/cifyktDXB0cqBeZOPOfzSOUKs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=hjE1lfkvrpWReQ0hAgpvoXUF2Zlu63xFrxXDZB83gcyWJL6gGM1MpplSdDZmGygUA
+	 40yF0tziQsqDYqqdGKbVK+b8bpoLe2o/mhzN/X8JaOcAPpLT1Ti7z3LcdSx+TOrBmA
+	 cQ+VvBm1k1TNIUu8W9bWzuLn41a9Uxoq00bRVy9gWF23wRiqMVdyiyPO8cTNkSmN95
+	 QlkkQUi0MBe1vvHe91NY6Z8zKDljktggjCsniNgwl7TxcYg/1wAXEnm/hTkX/MKVLn
+	 rtPhJY2YjJcPoExrucdCUOipDzVhqaDjNvalaWVY0TgeayzcYAO8puvbI3ITiOZzmB
+	 CVxmt3Fi0bcuw==
+Date: Fri, 27 Mar 2026 23:11:02 +0100
+From: Nathan Chancellor <nathan@kernel.org>
+To: Nicolas Dufresne <nicolas@ndufresne.ca>
+Cc: Detlev Casanova <detlev.casanova@collabora.com>,
+	Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Heiko Stuebner <heiko@sntech.de>, Brian Cain <bcain@kernel.org>,
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>, linux-media@vger.kernel.org,
+	linux-rockchip@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, llvm@lists.linux.dev
+Subject: Re: [PATCH] media: rockchip: Disable VIDEO_ROCKCHIP_VDEC when
+ compile testing for Hexagon
+Message-ID: <20260327221102.GA3621310@ax162>
+References: <20260213-media-disable-rockchip-vdec-hexagon-v1-1-3f903398cc83@kernel.org>
+ <90e62bf797b0532e5556adaf9e15cc7b73e18411.camel@ndufresne.ca>
+ <1a618af9b6c311e8fe5db64ff6fb7c1872c7b2b6.camel@ndufresne.ca>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 00/25] mm/vma: convert vm_flags_t to vma_flags_t in vma
- code
-Content-Language: en-US
-To: Andrew Morton <akpm@linux-foundation.org>,
- "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>
-Cc: David Hildenbrand <david@kernel.org>,
- "Liam R . Howlett" <Liam.Howlett@oracle.com>, Jann Horn <jannh@google.com>,
- Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Kees Cook <kees@kernel.org>,
- linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
- WANG Xuerui <kernel@xen0n.name>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Dinh Nguyen <dinguyen@kernel.org>, Madhavan Srinivasan
- <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H . Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
- Michal Hocko <mhocko@suse.com>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- Ondrej Mosnacek <omosnace@redhat.com>, linux-snps-arc@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
- linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
-References: <cover.1774034900.git.ljs@kernel.org>
- <20260326225031.87e04d2c652923bc10aef0ee@linux-foundation.org>
-From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
-In-Reply-To: <20260326225031.87e04d2c652923bc10aef0ee@linux-foundation.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1a618af9b6c311e8fe5db64ff6fb7c1872c7b2b6.camel@ndufresne.ca>
 
-On 3/27/26 06:50, Andrew Morton wrote:
-> On Fri, 20 Mar 2026 19:38:17 +0000 "Lorenzo Stoakes (Oracle)" <ljs@kernel.org> wrote:
-> 
->> This series converts a lot of the existing use of the legacy vm_flags_t
->> data type to the new vma_flags_t type which replaces it.
-> 
-> Series has nine unreviewed patches.
+On Thu, Mar 19, 2026 at 04:08:29PM -0400, Nicolas Dufresne wrote:
+> I haven't heard back about the port to plain bitwriter. I guess I have to pick
+> this patch, but I really don't want to have to maintain too many of these hacks.
+> Anyone else with an opinion on the topic ? Or a better idea how this can be
+> workaround differently ?
 
-I think I only skipped those that were tools/testing only, because I'm lazy.
-In case a tag is missing in a non-test patch, let me know please.
+I ended up retesting this recently after I saw Denis posted a bitwriter
+series and it turns out that Arnd's commit 446c6a25a449 ("media: rkvdec:
+reduce excessive stack usage in assemble_hw_pps()") is enough to avoid
+this issue, so you can disregard this change.
 
-> Again, I plan to upstream this as-is - lots of Lorenzopatches remain
-> unreviewed and I'm OK with that.
-
-Ack, thanks!
+Cheers,
+Nathan
