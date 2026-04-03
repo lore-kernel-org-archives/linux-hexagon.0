@@ -1,126 +1,367 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 169413DBD78
-	for <linux-hexagon@vger.kernel.org>; Thu,  2 Apr 2026 13:08:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 168CE2773F7
+	for <linux-hexagon@vger.kernel.org>; Fri,  3 Apr 2026 01:26:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775135284; cv=none; b=VuclCak7SbJsaYma2A2TM5wbkA6AQNFQnEpe7RF6trIxtiorLX29k5LgdXqS3RHtcOrtsyrl3LBD7xyjW7ssgcNNJqrbU3+pGwH7RzL4hOD1b1wM5ysgxQS7nL90K3Trv1t1iatnWhUu7XVIlmo+uSyqxySw0fPseGtQxSK7ERk=
+	t=1775179564; cv=none; b=lvZDB0aDPWfZH/3gN9TWvZNrwv9izgyJ1LqZ933miPuT+uCIg+Yy1eJ4OeDX6LiRhi+4tAGkZj8JwXsXhE8qkFZc6ZEThJnhD3zHVIbwJz9AR8QgFCo4pKeUAATpax+GNP8d7RpsnTzBJTphS7WFuGcOGeBnqd5AZvmc/uqHxpc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775135284; c=relaxed/simple;
-	bh=J6KuSzBKCDeaYiVgmtuuUSqnvej1+MF06b183JPn5yo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Bdc5Y+Gj++AB4rhjYU+u6IcqzkWMB/gKx9cQsFWxX60J9j6BQjIqXkitfN2sNO+HgQAYkxodM+CklXU5IfSojwm71UIXuu8+/fBNRdOc5X1NpC27lkuD2v4iaGp5trP5ysXF13O8jqpGcb4c3uhKmKZT9pWSqSKuzdmF4GCRkqU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PJY3Xeej; arc=none smtp.client-ip=209.85.216.48
+	s=arc-20240116; t=1775179564; c=relaxed/simple;
+	bh=Rca1Igq11csWkwtHUepRgwzoIt9D5QauYh/gGKi0oLs=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=hD+NLq5lESbOp9Vns0CVDpJHirM6ZHEQ5OUWDD+ymr2ZjPC4WuWDJg3uw6eUhUDSSLw3HOFeOcN86eXFshBhXi+SNRUdZdJYf9AvP0cxWwhgJLxmdNlWOPXQMC9UBFxu0Oh1G33Ks2GfZ+ol1BcG38ZBFz2lKZauiJcgmVAIZN4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GWQ83985; arc=none smtp.client-ip=209.85.214.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PJY3Xeej"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-35d94f4ee36so497398a91.3
-        for <linux-hexagon@vger.kernel.org>; Thu, 02 Apr 2026 06:08:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GWQ83985"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2b24fede2acso7474335ad.3
+        for <linux-hexagon@vger.kernel.org>; Thu, 02 Apr 2026 18:26:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775135281; x=1775740081; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=KWxJTOWQkri5jmv5ZKMT+tNuIWsfKgbRVKTEMtbqloY=;
-        b=PJY3XeejgWRIMXpyhMO+u6jxmLwxcfufASnNiIpFCkeNcvwAsithilHAfhY5wy/vng
-         3OIgjRGhBHlDo5N7PhFCoMz9TVsP5yETjR5N7Rh3OlGy17wuPY0IkACiql1W0ukMTSqo
-         4KvtkNtw4f3WQUJyfGvDBYgAX7NkxzjN7CDvbMU/GWg+T8UtV8yaT2+0UTb5iIAZrys9
-         clV/yGPMxreSzrM50jf83Q0/nyNXCMX0BSbHk8PawyfpLZbdrSkfZyovK97mRRnBNt3W
-         pKYWlCXTMLNkGPJ/Sf4MSUpboNvn+sfYQcnjUa1aeRK6+dLoCAcQehPMWL8oFNC3pin4
-         1z7g==
+        d=gmail.com; s=20251104; t=1775179561; x=1775784361; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rY2ciLkg8RtFIf8Sumay9p4mc2pCLq551+da1KF5JtU=;
+        b=GWQ83985PWIK3VtqfTN03yGWL2Y728EBpAbS1xx0D9Pqgggd634J/2TCqj2LtsMwfo
+         xHm4baDtbvi9Vc85Jmq4J97lUc35GPRIifPJBxWGByvrPdSJOMfRsBg/4hgx7ws7OM1T
+         /Do4xDsfpOGkJ0ZMFus3uxBjQhJprWY8zQqm2NoJBnMbD7r4W3uQ2h8EMweVwSuuZqK8
+         wMblo1uJ9yluCH/MR/vgFgyDefBd3ffidHykyTgIRkua7VfZ8GuzwTH7XHMBlwmfT3lw
+         ZipYhDrogrvEvRq4AZoiPedVEgDhYPDvKU/gofpI3BwUZxzq/Sl7I7ewqqaSMI602hLo
+         1TTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775135281; x=1775740081;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=KWxJTOWQkri5jmv5ZKMT+tNuIWsfKgbRVKTEMtbqloY=;
-        b=NPCdnY5umapkCLpGnKlxzYUHOATPBWyb0jooTokdYJ5UXHpY7O7L5KLG7PgA9pp/c/
-         MzUhFcMaobb+/Py4fJQczD5DAfoVpKD9bcM22T/05121qDr67riAhRQ3Qkwr2PxCwg+O
-         7a2IM/bx/JYd28VsOcIfGWKvDy30XqtzKjE1jfb7aoEpoM6qPpRwmkSi2wjAmqz/ATTC
-         buHmCQ8GIWJ1lbIE/iEdGzGJfX9R6oKUcNHXa+6QM3e1lgPOC75h3a5BRgGLkx6y47CN
-         Ak3eoqvzTwR0X83RAT2mTLF9OnGQSBK6zRSv5J7lLOX4UInYSn4Y/iSWotAmf829oZ6j
-         SlxQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUoKqEt+keVVZRGTDg2Hgx4GVRnIfCDMjuywzBuA/FmhCVQGDdLBb+7v1qmDwBce3ut2/NAv1RZyhM/ofkF@vger.kernel.org
-X-Gm-Message-State: AOJu0YzNf6wK+XREQgxUXoeVSUuioiOXTeYvIXuO7d1/5CcMbjsk4/hs
-	G/cqb460qNDBLH/sILzizyKGXrFm1sxBE5O4NsI2yiYyQxfk4kz04wZs
-X-Gm-Gg: AeBDieu06P8tyybqBgSKhWGVQmhRWbpoM/skHbH7OL3Dul48Z4vTka0OHhwNOuee862
-	ELBEeHGu+yx60cKIrdANx8hlt9/gg+0sw/3vnTvuYv5F2S8xDtSgpYO66kEROrhdSH7bKXG5pWv
-	b81JnAnKI1+jm55X/25eyr4xA6g/N8s5JjMPYRVeLMaZyZ6tpqZfZfaNqDdTgTesUEPpldcfIss
-	UPd1tJE1TrAF16eDYYvkdub4AIcCL6i0ASeP8VwftAaOrDfjEk2gJw3soNv2ZmEz7Wip2vO+bNL
-	JPuNc9PLFg15Amfqr4xcCbNIyivcKzH2ANoE8UsO1+cyXxRMQ9wxKCLJtwDHvO5dBRYiFTufXwa
-	a9nZzKtXoS+zCpFjV4YdA+ZO17+ta8dHCsdeOaRAGW1+2s9dYaUHllWJnAm6SmNPRygaVjchGh2
-	aDKMeBCMlpJgyLtBL9+ouoRM6fxco=
-X-Received: by 2002:a17:90b:4d81:b0:35d:a412:3c79 with SMTP id 98e67ed59e1d1-35dc7079cb6mr6805318a91.30.1775135280985;
-        Thu, 02 Apr 2026 06:08:00 -0700 (PDT)
-Received: from fedora ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35dbe41b11fsm7822915a91.0.2026.04.02.06.07.48
+        d=1e100.net; s=20251104; t=1775179561; x=1775784361;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rY2ciLkg8RtFIf8Sumay9p4mc2pCLq551+da1KF5JtU=;
+        b=iFD5SMZxUNS3Yz4/jfV1Cmg0efqTn9jnStYmzr3+1Th0vALIi1sX4/erkMnQ9szvAD
+         FZ06IcPCYJX846lXJx0zMyachSLvP2Ksrr1jAUe0lwYI/MabsRyRP+srM/bRVFh3OI/1
+         oH1eiMnLL1tynK/zhQ9efdeX1DSc4GNg7IMFdC0+TEO/adJKF4nxcRcvag/GIZUph+GT
+         h0TzAOz7ZNC2RcdwkYTooaSxz8yhKLBnM/96VlZnXf/U7Mi4TH49rgXN/M6f6v0QfB9l
+         a2ojDT/7LJ6RggnC+dwtNkTzWbrQ8Brn2+e8AIWX8nTm1XPxAAMXOit2Z9AuXGZHP1D1
+         wGkw==
+X-Forwarded-Encrypted: i=1; AJvYcCW6dm8nQ/UinXjrP0hCMjLqphJUpx+S2HJ/FQUTURpg3YE54kCSow5Tg0Y7L/n3AbgxaHaUAmoCf8jdeHt8@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzj3PE6l8aDdcTGxIwqeUFNXyLxmqaP/BO4BNnTpWQe1BvScUzv
+	0xu/cYI+fEK4BYZ5xRjUR9JggFYmAjiXdgCijP1n3AuLkPg4x9ACNBBX
+X-Gm-Gg: AeBDiesv3dMVFfmem5516EvurVJm0xwZfaD8Ld6GhYjl5rPLw+DuBJPc+sjHermJudn
+	o5W2E/esf6iGRhyAhys+zxQPXDJFjRC4h6psiMlQ0iXb6pzgd1fk7FDNOS5lStpoMMsXeT1oz8y
+	Vqr2mXqZVRB+RkRrIOSzxobM5XgxZr/j0Jf7H4ScPxan0uB3KF/VUnOK185T2OdsdOzc6YAPqdK
+	7FGoRFNiq1/CblhNGVWDdoKmrQd8bIHKsIzVnJdsiuCnTz5GUr5gb/Ft2MVfu5wlYXRsIzRcC3G
+	aQpagO2TdEIMFZPxZO9P8acte5mpnYpeEFWFsx9t5Nb2GG+caCIMsZpxh0jaXOsy+xiVJKAEd0x
+	2muCuk8F+szE3QICSjjK/i8AVEsWL0RzSl9tMZkA5QrREEJfs2E9XlIaNjDBNwHyyaMzOuA/3uJ
+	nDIeCK2jr3P37/uakuwlkxF8XUfKMUvDKHAm8VMx72lVf9u61j
+X-Received: by 2002:a17:902:ea0b:b0:2b2:5da8:14be with SMTP id d9443c01a7336-2b28190a213mr12256705ad.41.1775179561300;
+        Thu, 02 Apr 2026 18:26:01 -0700 (PDT)
+Received: from 1.0.0.127.in-addr.arpa ([209.132.188.88])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b27472d688sm42536555ad.8.2026.04.02.18.25.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2026 06:08:00 -0700 (PDT)
-Date: Thu, 2 Apr 2026 13:07:45 +0000
+        Thu, 02 Apr 2026 18:25:59 -0700 (PDT)
 From: Hangbin Liu <liuhangbin@gmail.com>
-To: David Laight <david.laight.linux@gmail.com>
-Cc: Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Vineet Gupta <vgupta@kernel.org>, Brian Cain <bcain@kernel.org>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-	Max Filippov <jcmvbkbc@gmail.com>, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-hexagon@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-	Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH] cmpxchg: allow const-qualified old value in cmpxchg()
-Message-ID: <ac5qIUS5azbWAc9q@fedora>
-References: <20260402-cmpxchg-v1-1-4561e2c05d2c@gmail.com>
- <20260402095747.6efbd456@pumpkin>
+Date: Fri, 03 Apr 2026 09:19:54 +0800
+Subject: [PATCH v2] cmpxchg: allow const-qualified old value in cmpxchg()
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260402095747.6efbd456@pumpkin>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260403-cmpxchg-v2-1-23acd2727447@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/2XMSwrDIBSF4a2EO65Fb00KHXUfJQPxeaHGoEFSg
+ nuvzbTD/3D4Dig2ky3wGA7ItlKhtPTAywA6qMVbRqY3IMeJS45Mx3XXwTN05sbvTkolBfT3mq2
+ j/ZRec+9AZUv5c8JV/NZ/owommBwnYVHz0aB++qjofdUpwtxa+wIngfApngAAAA==
+X-Change-ID: 20260402-cmpxchg-2fd307f44a41
+To: Richard Henderson <richard.henderson@linaro.org>, 
+ Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
+ Vineet Gupta <vgupta@kernel.org>, Brian Cain <bcain@kernel.org>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Andreas Larsson <andreas@gaisler.com>, Thomas Gleixner <tglx@kernel.org>, 
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+ "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, 
+ Max Filippov <jcmvbkbc@gmail.com>, 
+ David Laight <david.laight.linux@gmail.com>
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org, 
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+ linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org, 
+ sparclinux@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, 
+ Hangbin Liu <liuhangbin@gmail.com>
+X-Mailer: b4 0.14.3
 
-On Thu, Apr 02, 2026 at 09:57:47AM +0100, David Laight wrote:
-> > diff --git a/arch/alpha/include/asm/cmpxchg.h b/arch/alpha/include/asm/cmpxchg.h
-> > index ae1b96479d0c..b4b8dac759c4 100644
-> > --- a/arch/alpha/include/asm/cmpxchg.h
-> > +++ b/arch/alpha/include/asm/cmpxchg.h
-> > @@ -234,7 +234,7 @@ ____cmpxchg(volatile void *ptr, unsigned long old, unsigned long new,
-> >  
-> >  #define arch_cmpxchg_local(ptr, o, n)					\
-> >  ({									\
-> > -	__typeof__(*(ptr)) _o_ = (o);					\
-> > +	__typeof__(*(ptr)) _o_ = (__typeof__(*(ptr)))(o);		\
-> >  	__typeof__(*(ptr)) _n_ = (n);					\
-> >  	(__typeof__(*(ptr))) ____cmpxchg((ptr), (unsigned long)_o_,	\
-> >  					  (unsigned long)_n_,		\
-> 
-> That looks like it loses the check that 'o' has the same type as '*ptr'.
-> Maybe this works?
-> 	auto _o_ = 1 ? (o) : *(ptr);
-> 
-Oh, I didn't notice this. Thanks for the comment!
+The old value passed to cmpxchg() is semantically read-only: it is
+only loaded into a register as a comparand and is never written back.
+However, the macro currently assigns it implicitly to a local variable
+of type __typeof__(*(ptr)), which triggers -Werror=discarded-qualifiers
+when old is a const-qualified pointer and ptr points to a non-const type.
 
-Best Regards
-Hangbin
+Fix this by using __auto_type with the conditional expression trick:
+
+  __auto_type _o_ = 1 ? (o) : *(ptr);
+
+The __auto_type deduces the type from the expression, so _o_ naturally
+takes the const-qualified type when o is const-qualified, avoiding the
+discarded-qualifiers warning. The conditional expression forces the
+compiler to verify that o and *(ptr) have compatible types, preserving
+the type-safety check that a bare __auto_type _o_ = (o) would lose.
+Since the condition is the constant 1, the compiler optimizes away the
+*(ptr) branch entirely with no runtime cost.
+
+For macros where ptr is already captured in a local variable (arc's
+_p_, hexagon's __ptr, riscv's __ptr), the captured variable is used
+in the conditional expression to avoid re-evaluating ptr.
+
+The new value is intentionally left without this treatment: new will
+be stored into *ptr, so silently accepting a const-qualified new would
+allow callers to store a pointer-to-const into a non-const location
+without any compiler warning.
+
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+---
+Changes in v2:
+- Use __auto_type as the previous way will loose ptr type checking (David Laight)
+- Link to v1: https://lore.kernel.org/r/20260402-cmpxchg-v1-1-4561e2c05d2c@gmail.com
+---
+ arch/alpha/include/asm/cmpxchg.h     | 4 ++--
+ arch/arc/include/asm/cmpxchg.h       | 4 ++--
+ arch/hexagon/include/asm/cmpxchg.h   | 2 +-
+ arch/parisc/include/asm/cmpxchg.h    | 2 +-
+ arch/powerpc/include/asm/cmpxchg.h   | 8 ++++----
+ arch/riscv/include/asm/cmpxchg.h     | 4 ++--
+ arch/sh/include/asm/cmpxchg.h        | 2 +-
+ arch/sparc/include/asm/cmpxchg_32.h  | 2 +-
+ arch/sparc/include/asm/cmpxchg_64.h  | 2 +-
+ arch/x86/include/asm/cmpxchg.h       | 2 +-
+ arch/xtensa/include/asm/cmpxchg.h    | 2 +-
+ tools/arch/x86/include/asm/cmpxchg.h | 2 +-
+ 12 files changed, 18 insertions(+), 18 deletions(-)
+
+diff --git a/arch/alpha/include/asm/cmpxchg.h b/arch/alpha/include/asm/cmpxchg.h
+index ae1b96479d0c..e6cb60ca35bf 100644
+--- a/arch/alpha/include/asm/cmpxchg.h
++++ b/arch/alpha/include/asm/cmpxchg.h
+@@ -234,7 +234,7 @@ ____cmpxchg(volatile void *ptr, unsigned long old, unsigned long new,
+ 
+ #define arch_cmpxchg_local(ptr, o, n)					\
+ ({									\
+-	__typeof__(*(ptr)) _o_ = (o);					\
++	__auto_type _o_ = 1 ? (o) : *(ptr);				\
+ 	__typeof__(*(ptr)) _n_ = (n);					\
+ 	(__typeof__(*(ptr))) ____cmpxchg((ptr), (unsigned long)_o_,	\
+ 					  (unsigned long)_n_,		\
+@@ -265,7 +265,7 @@ ____cmpxchg(volatile void *ptr, unsigned long old, unsigned long new,
+ #define arch_cmpxchg(ptr, o, n)						\
+ ({									\
+ 	__typeof__(*(ptr)) __ret;					\
+-	__typeof__(*(ptr)) _o_ = (o);					\
++	__auto_type _o_ = 1 ? (o) : *(ptr);				\
+ 	__typeof__(*(ptr)) _n_ = (n);					\
+ 	smp_mb();							\
+ 	__ret = (__typeof__(*(ptr))) ____cmpxchg((ptr),			\
+diff --git a/arch/arc/include/asm/cmpxchg.h b/arch/arc/include/asm/cmpxchg.h
+index 76f43db0890f..e18609174133 100644
+--- a/arch/arc/include/asm/cmpxchg.h
++++ b/arch/arc/include/asm/cmpxchg.h
+@@ -42,7 +42,7 @@
+ #define arch_cmpxchg_relaxed(ptr, old, new)				\
+ ({									\
+ 	__typeof__(ptr) _p_ = (ptr);					\
+-	__typeof__(*(ptr)) _o_ = (old);					\
++	__auto_type _o_ = 1 ? (old) : *(_p_);				\
+ 	__typeof__(*(ptr)) _n_ = (new);					\
+ 	__typeof__(*(ptr)) _prev_;					\
+ 									\
+@@ -64,7 +64,7 @@
+ #define arch_cmpxchg(ptr, old, new)				        \
+ ({									\
+ 	volatile __typeof__(ptr) _p_ = (ptr);				\
+-	__typeof__(*(ptr)) _o_ = (old);					\
++	__auto_type _o_ = 1 ? (old) : *(_p_);				\
+ 	__typeof__(*(ptr)) _n_ = (new);					\
+ 	__typeof__(*(ptr)) _prev_;					\
+ 	unsigned long __flags;						\
+diff --git a/arch/hexagon/include/asm/cmpxchg.h b/arch/hexagon/include/asm/cmpxchg.h
+index 9c58fb81f7fd..88986fe04072 100644
+--- a/arch/hexagon/include/asm/cmpxchg.h
++++ b/arch/hexagon/include/asm/cmpxchg.h
+@@ -54,7 +54,7 @@ __arch_xchg(unsigned long x, volatile void *ptr, int size)
+ #define arch_cmpxchg(ptr, old, new)				\
+ ({								\
+ 	__typeof__(ptr) __ptr = (ptr);				\
+-	__typeof__(*(ptr)) __old = (old);			\
++	__auto_type __old = 1 ? (old) : *(__ptr);		\
+ 	__typeof__(*(ptr)) __new = (new);			\
+ 	__typeof__(*(ptr)) __oldval = (__typeof__(*(ptr))) 0;	\
+ 								\
+diff --git a/arch/parisc/include/asm/cmpxchg.h b/arch/parisc/include/asm/cmpxchg.h
+index bf0a0f1189eb..30748e31aa17 100644
+--- a/arch/parisc/include/asm/cmpxchg.h
++++ b/arch/parisc/include/asm/cmpxchg.h
+@@ -78,7 +78,7 @@ __cmpxchg(volatile void *ptr, unsigned long old, unsigned long new_, int size)
+ 
+ #define arch_cmpxchg(ptr, o, n)						 \
+ ({									 \
+-	__typeof__(*(ptr)) _o_ = (o);					 \
++	__auto_type _o_ = 1 ? (o) : *(ptr);				 \
+ 	__typeof__(*(ptr)) _n_ = (n);					 \
+ 	(__typeof__(*(ptr))) __cmpxchg((ptr), (unsigned long)_o_,	 \
+ 				    (unsigned long)_n_, sizeof(*(ptr))); \
+diff --git a/arch/powerpc/include/asm/cmpxchg.h b/arch/powerpc/include/asm/cmpxchg.h
+index dbb50c06f0bf..eaf88b7d0443 100644
+--- a/arch/powerpc/include/asm/cmpxchg.h
++++ b/arch/powerpc/include/asm/cmpxchg.h
+@@ -698,7 +698,7 @@ __cmpxchg_acquire(void *ptr, unsigned long old, unsigned long new,
+ }
+ #define arch_cmpxchg(ptr, o, n)						 \
+   ({									 \
+-     __typeof__(*(ptr)) _o_ = (o);					 \
++     __auto_type _o_ = 1 ? (o) : *(ptr);				 \
+      __typeof__(*(ptr)) _n_ = (n);					 \
+      (__typeof__(*(ptr))) __cmpxchg((ptr), (unsigned long)_o_,		 \
+ 				    (unsigned long)_n_, sizeof(*(ptr))); \
+@@ -707,7 +707,7 @@ __cmpxchg_acquire(void *ptr, unsigned long old, unsigned long new,
+ 
+ #define arch_cmpxchg_local(ptr, o, n)					 \
+   ({									 \
+-     __typeof__(*(ptr)) _o_ = (o);					 \
++     __auto_type _o_ = 1 ? (o) : *(ptr);				 \
+      __typeof__(*(ptr)) _n_ = (n);					 \
+      (__typeof__(*(ptr))) __cmpxchg_local((ptr), (unsigned long)_o_,	 \
+ 				    (unsigned long)_n_, sizeof(*(ptr))); \
+@@ -715,7 +715,7 @@ __cmpxchg_acquire(void *ptr, unsigned long old, unsigned long new,
+ 
+ #define arch_cmpxchg_relaxed(ptr, o, n)					\
+ ({									\
+-	__typeof__(*(ptr)) _o_ = (o);					\
++	__auto_type _o_ = 1 ? (o) : *(ptr);				\
+ 	__typeof__(*(ptr)) _n_ = (n);					\
+ 	(__typeof__(*(ptr))) __cmpxchg_relaxed((ptr),			\
+ 			(unsigned long)_o_, (unsigned long)_n_,		\
+@@ -724,7 +724,7 @@ __cmpxchg_acquire(void *ptr, unsigned long old, unsigned long new,
+ 
+ #define arch_cmpxchg_acquire(ptr, o, n)					\
+ ({									\
+-	__typeof__(*(ptr)) _o_ = (o);					\
++	__auto_type _o_ = 1 ? (o) : *(ptr);				\
+ 	__typeof__(*(ptr)) _n_ = (n);					\
+ 	(__typeof__(*(ptr))) __cmpxchg_acquire((ptr),			\
+ 			(unsigned long)_o_, (unsigned long)_n_,		\
+diff --git a/arch/riscv/include/asm/cmpxchg.h b/arch/riscv/include/asm/cmpxchg.h
+index 8712cf9c69dc..30ade671298f 100644
+--- a/arch/riscv/include/asm/cmpxchg.h
++++ b/arch/riscv/include/asm/cmpxchg.h
+@@ -215,7 +215,7 @@
+ 		      cas_prepend, cas_append)				\
+ ({									\
+ 	__typeof__(ptr) __ptr = (ptr);					\
+-	__typeof__(*(__ptr)) __old = (old);				\
++	__auto_type __old = 1 ? (old) : *(__ptr);			\
+ 	__typeof__(*(__ptr)) __new = (new);				\
+ 	__typeof__(*(__ptr)) __ret;					\
+ 									\
+@@ -331,7 +331,7 @@ union __u128_halves {
+ 
+ #define __arch_cmpxchg128(p, o, n, cas_sfx)					\
+ ({										\
+-	__typeof__(*(p)) __o = (o);                                             \
++	__auto_type __o = 1 ? (o) : *(p);					\
+ 	union __u128_halves __hn = { .full = (n) };				\
+ 	union __u128_halves __ho = { .full = (__o) };				\
+ 	register unsigned long t1 asm ("t1") = __hn.low;			\
+diff --git a/arch/sh/include/asm/cmpxchg.h b/arch/sh/include/asm/cmpxchg.h
+index 1e5dc5ccf7bf..6c1bfb367f11 100644
+--- a/arch/sh/include/asm/cmpxchg.h
++++ b/arch/sh/include/asm/cmpxchg.h
+@@ -68,7 +68,7 @@ static inline unsigned long __cmpxchg(volatile void * ptr, unsigned long old,
+ 
+ #define arch_cmpxchg(ptr,o,n)						 \
+   ({									 \
+-     __typeof__(*(ptr)) _o_ = (o);					 \
++     __auto_type _o_ = 1 ? (o) : *(ptr);				 \
+      __typeof__(*(ptr)) _n_ = (n);					 \
+      (__typeof__(*(ptr))) __cmpxchg((ptr), (unsigned long)_o_,		 \
+ 				    (unsigned long)_n_, sizeof(*(ptr))); \
+diff --git a/arch/sparc/include/asm/cmpxchg_32.h b/arch/sparc/include/asm/cmpxchg_32.h
+index 8c1a3ca34eeb..df40a16dd021 100644
+--- a/arch/sparc/include/asm/cmpxchg_32.h
++++ b/arch/sparc/include/asm/cmpxchg_32.h
+@@ -55,7 +55,7 @@ __cmpxchg(volatile void *ptr, unsigned long old, unsigned long new_, int size)
+ 
+ #define arch_cmpxchg(ptr, o, n)						\
+ ({									\
+-	__typeof__(*(ptr)) _o_ = (o);					\
++	__auto_type _o_ = 1 ? (o) : *(ptr);				\
+ 	__typeof__(*(ptr)) _n_ = (n);					\
+ 	(__typeof__(*(ptr))) __cmpxchg((ptr), (unsigned long)_o_,	\
+ 			(unsigned long)_n_, sizeof(*(ptr)));		\
+diff --git a/arch/sparc/include/asm/cmpxchg_64.h b/arch/sparc/include/asm/cmpxchg_64.h
+index 3de25262c411..4b540405fcc7 100644
+--- a/arch/sparc/include/asm/cmpxchg_64.h
++++ b/arch/sparc/include/asm/cmpxchg_64.h
+@@ -170,7 +170,7 @@ __cmpxchg(volatile void *ptr, unsigned long old, unsigned long new, int size)
+ 
+ #define arch_cmpxchg(ptr,o,n)						 \
+   ({									 \
+-     __typeof__(*(ptr)) _o_ = (o);					 \
++     __auto_type _o_ = 1 ? (o) : *(ptr);				 \
+      __typeof__(*(ptr)) _n_ = (n);					 \
+      (__typeof__(*(ptr))) __cmpxchg((ptr), (unsigned long)_o_,		 \
+ 				    (unsigned long)_n_, sizeof(*(ptr))); \
+diff --git a/arch/x86/include/asm/cmpxchg.h b/arch/x86/include/asm/cmpxchg.h
+index a88b06f1c35e..e0340579ef69 100644
+--- a/arch/x86/include/asm/cmpxchg.h
++++ b/arch/x86/include/asm/cmpxchg.h
+@@ -85,7 +85,7 @@ extern void __add_wrong_size(void)
+ #define __raw_cmpxchg(ptr, old, new, size, lock)			\
+ ({									\
+ 	__typeof__(*(ptr)) __ret;					\
+-	__typeof__(*(ptr)) __old = (old);				\
++	__auto_type __old = 1 ? (old) : *(ptr);				\
+ 	__typeof__(*(ptr)) __new = (new);				\
+ 	switch (size) {							\
+ 	case __X86_CASE_B:						\
+diff --git a/arch/xtensa/include/asm/cmpxchg.h b/arch/xtensa/include/asm/cmpxchg.h
+index b6db4838b175..057fd24ed125 100644
+--- a/arch/xtensa/include/asm/cmpxchg.h
++++ b/arch/xtensa/include/asm/cmpxchg.h
+@@ -83,7 +83,7 @@ __cmpxchg(volatile void *ptr, unsigned long old, unsigned long new, int size)
+ }
+ 
+ #define arch_cmpxchg(ptr,o,n)						      \
+-	({ __typeof__(*(ptr)) _o_ = (o);				      \
++	({ __auto_type _o_ = 1 ? (o) : *(ptr);				      \
+ 	   __typeof__(*(ptr)) _n_ = (n);				      \
+ 	   (__typeof__(*(ptr))) __cmpxchg((ptr), (unsigned long)_o_,	      \
+ 	   			        (unsigned long)_n_, sizeof (*(ptr))); \
+diff --git a/tools/arch/x86/include/asm/cmpxchg.h b/tools/arch/x86/include/asm/cmpxchg.h
+index 0ed9ca2766ad..bbd3960c2218 100644
+--- a/tools/arch/x86/include/asm/cmpxchg.h
++++ b/tools/arch/x86/include/asm/cmpxchg.h
+@@ -35,7 +35,7 @@ extern void __cmpxchg_wrong_size(void)
+ #define __raw_cmpxchg(ptr, old, new, size, lock)			\
+ ({									\
+ 	__typeof__(*(ptr)) __ret;					\
+-	__typeof__(*(ptr)) __old = (old);				\
++	__auto_type __old = 1 ? (old) : *(ptr);				\
+ 	__typeof__(*(ptr)) __new = (new);				\
+ 	switch (size) {							\
+ 	case __X86_CASE_B:						\
+
+---
+base-commit: f8f5627a8aeab15183eef8930bf75ba88a51622f
+change-id: 20260402-cmpxchg-2fd307f44a41
+
+Best regards,
+-- 
+Hangbin Liu <liuhangbin@gmail.com>
+
