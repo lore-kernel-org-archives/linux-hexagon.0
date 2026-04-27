@@ -1,314 +1,229 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BBAA42980C;
-	Mon, 20 Apr 2026 13:29:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7460E29405;
+	Mon, 27 Apr 2026 17:16:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776691776; cv=none; b=HYv8Tr1ZGey2UtjjzITPRgTEfz1MuUiklmtCDWo1X5oWfm6Y3+Eg9ReT/GkbkYKTgqXYabfEV33cSrV/PuwNOxyHAvElcfFSuz9MFFpDwnIurNuYTMAST9rtHY7bu16S/1kRwPGjUZcWJ+XSWnuvjhGoghj4EcXMOVMcEIiaTeA=
+	t=1777310219; cv=none; b=lnKg7BoxsEj+KpDcf/oALBrXT1ccTPBpkTI3ECVX2s5+j9fNGEdNiRPFZQ8HHDtmvwK+7jcFnrgXz6RbeU/6P/VLAj5z8DPYqKu0fs6R/6tWQQ0otKZOoYGLjzORJyOu7yinHhzzi5Rz3N/XoPqxUmBTM7+3NcZDBN5Fa5hGw78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776691776; c=relaxed/simple;
-	bh=EUQvfoHTyphRGiu49M/mNXYExgyeJft98e5BXxPZICE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qX1D8ah4Hbf76rjl0/1lfqK8SpdjtNZ8Wld/R1XgYNU7/gAHfIaKhIUbSiEcp0tpyXt/WvSNmbyYA/ZR9wSCWUCELlXV6vB6bovx37A1rwanwm3DxjFvSwxlKUyTA2Fu60ksIF/lEgc3JGZB8t1sxRRo9aV6iVhq6k2L7kvlJFc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DWX/9d2q; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777310219; c=relaxed/simple;
+	bh=Gdo90UdOw5JDNcbBc6CTpgqBoS99tJWdzzhKt47HDkg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QCWJwhkgyQIPBwW36YBLsUTxKenVr8c/dnY28kBLLI5w/jdSgmUcTrI8h7IRMX6fYYCmnIiH5daNsx88sS8N05ODBVdWNquhCzzZoTW7kiY+fqoobv6Du/Xc5AYtVrf7QCsNShxs3Cx0dwSSwP+bsgcv8u6JdQAck3yTm/GilNE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U2+LLE02; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DWX/9d2q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81835C2BCB9;
-	Mon, 20 Apr 2026 13:29:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U2+LLE02"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87FE1C2BCB4;
+	Mon, 27 Apr 2026 17:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776691776;
-	bh=EUQvfoHTyphRGiu49M/mNXYExgyeJft98e5BXxPZICE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=DWX/9d2qKPMOUFhmH2QNMPwtnJi73G/hdV3HWzv7+6EMfyrZnUzEC0k04z/KtAxH1
-	 5/kRw8XYnkLH21mzWx1u2qO4kgmp2a4f8r6OrJyyJR/TExHRqfPXzE8D3Jmyov3eH7
-	 UzmSGv9nekRUlpjW92oNjNSJs0Tv1WOOpEDb6dqgJjGQk5ltsb5bvTfg5WJFnR0t21
-	 mkhUlzQkUYYrOfcTkwYz6wyP8MUoYFNqZfJw9DueFvXBNDJoyq/KqAR53BOkBjKWBG
-	 T9J6gR6oTfXGkqe4CR90AAFFLLfU1htPivOzM40yQtFifEeX5zmNH5FqANAbXGF+gi
-	 5Vc4ZezVH2RZQ==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nsc@kernel.org>,
-	Sasha Levin <sashal@kernel.org>,
+	s=k20201202; t=1777310218;
+	bh=Gdo90UdOw5JDNcbBc6CTpgqBoS99tJWdzzhKt47HDkg=;
+	h=From:To:Cc:Subject:Date:From;
+	b=U2+LLE02v2RJdGrHn64GqYJdP4+hDdO9CRQcGon9U+fg19LBxhX5PBepS5h9HJCqe
+	 szqGGe/Sn0Ja8ufrVfKBRayklpg7ZNqhD3AjlJFyhWTD2cy+E9nyVtxoXvU6RVePwS
+	 nC/EKNFwPrGycTqEuaSwxvd9NLoS3iznsIjTk0KPgTVc+veLovfoR+uQQZvkXu6BEL
+	 XY5HSP+s8CkmcaZnZCCWlv0qtPkuKqPRoos+3EvmYxD3lbF+eVbofOW/u0ribOc9N6
+	 46gB4iCE7qS4DHXiu+LbPED9AO2rWWkmtG0xffEU92OaQJ+vWiy9PumgjbDE3AiKLE
+	 isfjlgjrnrghg==
+From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+To: Yury Norov <ynorov@nvidia.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	David Laight <david.laight.linux@gmail.com>,
+	Thomas Gleixner <tglx@linutronix.de>
+Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	linux-alpha@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mips@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	kvm@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	dmaengine@vger.kernel.org,
+	linux-efi@vger.kernel.org,
+	linux-fsi@lists.ozlabs.org,
+	amd-gfx@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	intel-gfx@lists.freedesktop.org,
+	linux-wpan@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org,
+	linux-spi@vger.kernel.org,
+	linux-media@vger.kernel.org,
+	linux-staging@lists.linux.dev,
+	linux-serial@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	xen-devel@lists.xenproject.org,
+	linux-fsdevel@vger.kernel.org,
+	ocfs2-devel@lists.linux.dev,
+	bpf@vger.kernel.org,
+	kasan-dev@googlegroups.com,
+	linux-mm@kvack.org,
+	linux-x25@vger.kernel.org,
+	rust-for-linux@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	sound-open-firmware@alsa-project.org,
+	linux-csky@vger.kernel.org,
 	linux-hexagon@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 7.0-5.10] hexagon: uapi: Fix structure alignment attribute
-Date: Mon, 20 Apr 2026 09:19:41 -0400
-Message-ID: <20260420132314.1023554-187-sashal@kernel.org>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260420132314.1023554-1-sashal@kernel.org>
-References: <20260420132314.1023554-1-sashal@kernel.org>
+	loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org,
+	linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-arch@vger.kernel.org
+Subject: [RFC PATCH v1 0/9] uaccess: Convert small fixed size copy_{to/from}_user() to scoped user access
+Date: Mon, 27 Apr 2026 19:13:41 +0200
+Message-ID: <cover.1777306795.git.chleroy@kernel.org>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 7.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=7253; i=chleroy@kernel.org; h=from:subject:message-id; bh=Gdo90UdOw5JDNcbBc6CTpgqBoS99tJWdzzhKt47HDkg=; b=owGbwMvMwCV2d0KB2p7V54MZT6slMWS+nxkaMinl/6P42P3bc0Qj3v7nk1G4YbGg/rEse+BPv 7e7BNgWdJSyMIhxMciKKbIc/8+9a0bXl9T8qbv0YeawMoEMYeDiFICJRDExMmwV0vIK89sWnHjX Y4WN3O+gaTyvmP0m2koKTvi9YNORsocM/wPkn2xoM0q8N63lWvLNy/m/speGuG7LLGiQ1I6bVSB dxgQA
+X-Developer-Key: i=chleroy@kernel.org; a=openpgp; fpr=10FFE6F8B390DE17ACC2632368A92FEB01B8DD78
 Content-Transfer-Encoding: 8bit
 
-From: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+A lot of copy_from_user() and copy_to_user() perform copies of small
+fixed size pieces of data between kernel and userspace, and don't
+care about partial copies.
 
-[ Upstream commit 47bca1cbf692b89defbf4db27495813f82d5e3ff ]
+copy_from_user() and copy_to_user() are big functions optimised for
+copying large amount of data, with cache management, etc ... This is
+often overkill for small copies that could just be inlined instead.
 
-__aligned() is a kernel macro, which is not available in UAPI headers.
+What makes things a bit more tricky is that those copy functions
+are designed to handle partial copies in case of page fault. But among
+the 6000 callers of those functions, only 2% really care about the
+quantity of no-copied data that those functions return. All other ones
+fails as soon as the returned value is not 0, returning -EACCESS.
 
-Use the compiler-provided alignment attribute directly.
+So first step in this series is to introduce variants called
+copy_from_user_partial() and copy_to_user_partial() which will be
+called by the 2% users that care about the partial copy, then the
+original copy_from_user() and copy_to_user() are changed to return
+-EFAULT when the copy fails.
 
-Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nicolas Schier <nsc@kernel.org>
-Tested-by: Nicolas Schier <nsc@kernel.org>
-Link: https://patch.msgid.link/20260227-kbuild-uapi-libc-v1-1-c17de0d19776@weissschuh.net
-Signed-off-by: Nicolas Schier <nsc@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
+Then the second step is to implement copy of small fixed-size data
+with scoped user access instead of calling the arch specific heavy
+user copy functions.
 
-LLM Generated explanations, may be completely bogus:
+Patch 5, can be split in different patches for each archicture or
+subsystem, but let's get a first feedback and agree on the principle.
 
-Now I have all the information needed. Let me compile the full analysis.
+Christophe Leroy (CS GROUP) (9):
+  uaccess: Split check_zeroed_user() out of usercopy.c
+  uaccess: Convert INLINE_COPY_{TO/FROM}_USER to kconfig and reduce
+    ifdefery
+  x86/umip: Be stricter in fixup_umip_exception()
+  uaccess: Introduce copy_{to/from}_user_partial()
+  uaccess: Switch to copy_{to/from}_user_partial() when relevant
+  uaccess: Change copy_{to/from}_user to return -EFAULT
+  x86: Add unsafe_copy_from_user()
+  arm64: Add unsafe_copy_from_user()
+  uaccess: Convert small fixed size copy_{to/from}_user() to scoped user
+    access
 
----
+ arch/alpha/Kconfig                            |   1 +
+ arch/alpha/kernel/osf_sys.c                   |   4 +-
+ arch/alpha/kernel/termios.c                   |   2 +-
+ arch/arc/include/asm/uaccess.h                |   3 -
+ arch/arc/kernel/disasm.c                      |   2 +-
+ arch/arm/include/asm/uaccess.h                |   2 -
+ arch/arm64/include/asm/gcs.h                  |   2 +-
+ arch/arm64/include/asm/uaccess.h              |  30 +++--
+ arch/arm64/kernel/signal32.c                  |   2 +-
+ arch/csky/Kconfig                             |   1 +
+ arch/hexagon/include/asm/uaccess.h            |   3 -
+ arch/loongarch/include/asm/uaccess.h          |   3 -
+ arch/m68k/include/asm/uaccess.h               |   3 -
+ arch/microblaze/include/asm/uaccess.h         |   2 -
+ arch/mips/include/asm/uaccess.h               |   3 -
+ arch/mips/kernel/rtlx.c                       |   8 +-
+ arch/mips/kernel/vpe.c                        |   2 +-
+ arch/nios2/include/asm/uaccess.h              |   2 -
+ arch/openrisc/include/asm/uaccess.h           |   2 -
+ arch/parisc/include/asm/uaccess.h             |   3 -
+ arch/powerpc/Kconfig                          |   1 +
+ arch/powerpc/kvm/book3s_64_mmu_hv.c           |   4 +-
+ arch/powerpc/kvm/book3s_64_mmu_radix.c        |   4 +-
+ arch/powerpc/kvm/book3s_hv.c                  |   2 +-
+ arch/riscv/Kconfig                            |   1 +
+ arch/riscv/kernel/signal.c                    |   2 +-
+ arch/s390/include/asm/idals.h                 |   8 +-
+ arch/s390/include/asm/uaccess.h               |   3 -
+ arch/sh/include/asm/uaccess.h                 |   2 -
+ arch/sparc/include/asm/uaccess_32.h           |   3 -
+ arch/sparc/include/asm/uaccess_64.h           |   2 -
+ arch/sparc/kernel/termios.c                   |   2 +-
+ arch/um/include/asm/uaccess.h                 |   3 -
+ arch/um/kernel/process.c                      |   2 +-
+ arch/x86/Kconfig                              |   1 +
+ arch/x86/include/asm/uaccess.h                |  29 ++++-
+ arch/x86/kernel/umip.c                        |   2 +-
+ arch/x86/lib/insn-eval.c                      |   2 +-
+ arch/x86/um/signal.c                          |   2 +-
+ arch/xtensa/include/asm/uaccess.h             |   2 -
+ drivers/android/binder_alloc.c                |   2 +-
+ drivers/comedi/comedi_fops.c                  |   4 +-
+ drivers/dma/idxd/cdev.c                       |   2 +-
+ drivers/firmware/efi/test/efi_test.c          |   2 +-
+ drivers/fsi/fsi-scom.c                        |   2 +-
+ .../amd/display/amdgpu_dm/amdgpu_dm_debugfs.c |   2 +-
+ drivers/gpu/drm/i915/gt/intel_sseu.c          |   4 +-
+ drivers/gpu/drm/i915/i915_gem.c               |   4 +-
+ drivers/hwtracing/intel_th/msu.c              |   2 +-
+ drivers/misc/ibmvmc.c                         |   2 +-
+ drivers/misc/vmw_vmci/vmci_host.c             |   2 +-
+ drivers/most/most_cdev.c                      |   2 +-
+ drivers/net/ieee802154/ca8210.c               |   4 +-
+ drivers/net/wireless/ath/wil6210/debugfs.c    |   2 +-
+ .../intel/iwlwifi/pcie/gen1_2/trans.c         |   2 +-
+ drivers/net/wireless/ti/wlcore/debugfs.c      |   2 +-
+ drivers/ps3/ps3-lpm.c                         |   2 +-
+ drivers/s390/crypto/zcrypt_api.h              |   4 +-
+ drivers/spi/spidev.c                          |   2 +-
+ .../staging/media/atomisp/pci/atomisp_cmd.c   |   8 +-
+ drivers/tty/tty_ioctl.c                       |  14 +--
+ drivers/tty/vt/vc_screen.c                    |   4 +-
+ drivers/usb/gadget/function/f_hid.c           |   4 +-
+ drivers/usb/gadget/function/f_printer.c       |   2 +-
+ drivers/vfio/vfio_iommu_type1.c               |   4 +-
+ drivers/xen/xenbus/xenbus_dev_frontend.c      |   2 +-
+ fs/namespace.c                                |   2 +-
+ fs/ocfs2/dlmfs/dlmfs.c                        |   2 +-
+ fs/proc/base.c                                |   4 +-
+ include/asm-generic/uaccess.h                 |   2 -
+ include/linux/bpfptr.h                        |   2 +-
+ include/linux/sockptr.h                       |   4 +-
+ include/linux/uaccess.h                       | 107 ++++++++++++++----
+ ipc/msg.c                                     |   8 +-
+ ipc/sem.c                                     |   8 +-
+ ipc/shm.c                                     |  18 +--
+ kernel/regset.c                               |   2 +-
+ kernel/sys.c                                  |   4 +-
+ lib/Kconfig                                   |   3 +
+ lib/Makefile                                  |   4 +-
+ lib/kfifo.c                                   |   8 +-
+ lib/{usercopy.c => usercheck.c}               |  22 ----
+ lib/usercopy.c                                |  66 -----------
+ mm/kasan/kasan_test_c.c                       |   4 +-
+ mm/memory.c                                   |   2 +-
+ net/x25/af_x25.c                              |   2 +-
+ rust/helpers/uaccess.c                        |   6 +-
+ sound/pci/emu10k1/emufx.c                     |   4 +-
+ sound/pci/rme9652/hdsp.c                      |   6 +-
+ sound/soc/intel/avs/probes.c                  |   6 +-
+ sound/soc/sof/compress.c                      |  12 +-
+ sound/soc/sof/sof-client-probes.c             |   6 +-
+ 92 files changed, 269 insertions(+), 288 deletions(-)
+ copy lib/{usercopy.c => usercheck.c} (73%)
 
-## PHASE 1: COMMIT MESSAGE FORENSICS
-
-**Step 1.1: Subject Line**
-Record: [hexagon/uapi] [Fix] Fix structure alignment attribute -
-replacing kernel-internal `__aligned()` macro with compiler
-`__attribute__((aligned(8)))` in a UAPI header.
-
-**Step 1.2: Tags**
-- Signed-off-by: Thomas Weißschuh (author, prolific UAPI header cleaner)
-- Acked-by: Arnd Bergmann (ARM/arch maintainer, respected cross-
-  subsystem reviewer)
-- Reviewed-by: Nathan Chancellor (kbuild/clang maintainer)
-- Reviewed-by: Nicolas Schier
-- Tested-by: Nicolas Schier
-- Link: https://patch.msgid.link/20260227-kbuild-uapi-
-  libc-v1-1-c17de0d19776@weissschuh.net
-- Signed-off-by: Nicolas Schier (committer)
-
-No Fixes: tag, no Cc: stable, no Reported-by. Strong review lineage
-(Arnd Bergmann + Nathan Chancellor).
-
-**Step 1.3: Body Text**
-The commit states: `__aligned()` is a kernel macro not available in UAPI
-headers. Uses the compiler-provided alignment attribute directly. This
-is a build fix - the UAPI header cannot be compiled by userspace
-programs.
-
-**Step 1.4: Hidden Bug Fix Detection**
-This IS a real bug fix. `__aligned()` is defined only in
-`include/linux/compiler_attributes.h` (line 33), which is NOT exported
-to userspace. Any userspace program including `<asm/sigcontext.h>` on
-hexagon will get a compilation error because `__aligned` is undefined.
-
-## PHASE 2: DIFF ANALYSIS
-
-**Step 2.1: Inventory**
-- 1 file changed: `arch/hexagon/include/uapi/asm/sigcontext.h`
-- 1 line changed (s/__aligned(8)/__attribute__((aligned(8)))/)
-- Single-file, single-line surgical fix
-
-**Step 2.2: Code Flow**
-- Before: `} __aligned(8);` — uses kernel-only macro
-- After: `} __attribute__((aligned(8)));` — uses compiler-native
-  attribute
-- Functionally identical within the kernel; fixes compilation for
-  userspace
-
-**Step 2.3: Bug Mechanism**
-This is a build fix (category h: hardware workarounds/build fixes). The
-UAPI header uses a macro that only exists in kernel-internal headers.
-The macro `__aligned` is defined in
-`include/linux/compiler_attributes.h` as
-`__attribute__((__aligned__(x)))`. Since `compiler_attributes.h` is NOT
-exported to userspace, this header is broken for userspace compilation.
-
-**Step 2.4: Fix Quality**
-- Obviously correct: exact same pattern as the s390 fix (commit
-  `bae0aae2f8f97`) from 2019
-- Minimal/surgical: single character-level substitution
-- Zero regression risk: the replacement is semantically identical
-- Reviewed by 3 expert reviewers including Arnd Bergmann and Nathan
-  Chancellor
-
-## PHASE 3: GIT HISTORY
-
-**Step 3.1: Blame**
-The buggy line (`__aligned(8)`) was introduced in commit `cd5b61d6f4f07`
-("Hexagon: Add signal functions") by Richard Kuo on 2011-10-31. This was
-first included in v3.2-rc1. The bug has existed since the very first
-version of this file — over 14 years and ALL stable trees.
-
-**Step 3.2: Fixes Tag**
-No Fixes: tag present. The implicit fix target is `cd5b61d6f4f07` from
-v3.2.
-
-**Step 3.3: File History**
-The file has had only 3 commits since creation (all trivial: copyright
-changes, SPDX, UAPI disintegration). No conflicting changes exist.
-
-**Step 3.4: Author**
-Thomas Weißschuh is a prolific contributor to UAPI header cleanups. He
-authored a major series adding UAPI header build validation (`kbuild:
-uapi: validate that headers do not use libc`), and has systematically
-fixed many UAPI header issues across multiple architectures.
-
-**Step 3.5: Dependencies**
-This is a standalone fix. No prerequisites needed. The file is trivially
-simple and unchanged across all stable trees.
-
-## PHASE 4: MAILING LIST RESEARCH
-
-**Step 4.1-4.2:** Lore.kernel.org was unreachable (anti-bot protection).
-The commit has strong review signals: Acked-by Arnd Bergmann, Reviewed-
-by Nathan Chancellor and Nicolas Schier, Tested-by Nicolas Schier.
-
-**Step 4.3:** The Link: message-id suggests this is patch 1 of series
-"kbuild-uapi-libc-v1", which is Thomas's UAPI cleanup work. This
-specific fix is self-contained.
-
-**Step 4.4-4.5:** Cannot verify stable mailing list discussion due to
-lore access restrictions.
-
-## PHASE 5: CODE SEMANTIC ANALYSIS
-
-**Step 5.1-5.4:** The change is to a structure definition in a header
-file. `struct sigcontext` is used in signal handling code for the
-hexagon architecture. The fix only changes the macro used for the
-alignment attribute — it does not change the structure layout,
-alignment, or any runtime behavior. This is purely a compile-time fix
-for userspace consumers of the header.
-
-**Step 5.5: Similar Patterns**
-The exact same bug was fixed for s390 in commit `bae0aae2f8f97` ("s390:
-fix unrecognized __aligned() in uapi header", 2019). That fix used the
-same approach: replacing `__aligned()` with `__attribute__`. The hexagon
-instance is the LAST remaining bare `__aligned()` in any UAPI header
-(confirmed by grep).
-
-## PHASE 6: STABLE TREE ANALYSIS
-
-**Step 6.1:** The buggy code exists in ALL stable trees (v3.2+, since
-2011). Every stable tree that supports hexagon is affected.
-
-**Step 6.2:** The patch will apply cleanly to all stable trees — the
-file has been unchanged (except for trivial metadata) since creation.
-
-**Step 6.3:** No related fixes already in stable for this specific file.
-
-## PHASE 7: SUBSYSTEM CONTEXT
-
-**Step 7.1:** Architecture-specific (hexagon) UAPI header. Hexagon is a
-niche architecture (Qualcomm DSP), so this is PERIPHERAL criticality.
-However, UAPI header correctness affects anyone building userspace tools
-for that architecture.
-
-**Step 7.2:** Very low activity — file unchanged since 2017 (SPDX
-addition).
-
-## PHASE 8: IMPACT AND RISK
-
-**Step 8.1:** Affects: hexagon userspace developers who include
-`<asm/sigcontext.h>`.
-
-**Step 8.2:** Triggered whenever a userspace program includes this
-header on hexagon. Always reproducible.
-
-**Step 8.3:** Failure mode: compilation error. Severity: MEDIUM (build
-breakage, not runtime).
-
-**Step 8.4:**
-- BENEFIT: Low-medium (niche architecture, but fixes a real build
-  breakage)
-- RISK: Extremely low (1-line change, semantically identical, well-
-  reviewed, proven pattern from s390 fix)
-- Ratio: Favorable — virtually zero risk for a real fix
-
-## PHASE 9: FINAL SYNTHESIS
-
-**Evidence FOR backporting:**
-- Fixes a real UAPI header compilation breakage
-- One-line, trivially correct change
-- Proven fix pattern (identical to s390 fix from 2019)
-- Reviewed by 3 experts (Arnd Bergmann, Nathan Chancellor, Nicolas
-  Schier)
-- Tested by Nicolas Schier
-- Bug exists in all stable trees since v3.2
-- Will apply cleanly with zero conflicts
-- Falls into "build fix" exception category
-
-**Evidence AGAINST backporting:**
-- Hexagon is a niche architecture with limited userbase
-- No Fixes: tag or Cc: stable (expected, not a negative signal)
-- Not a runtime bug — only affects userspace compilation
-
-**Stable Rules Checklist:**
-1. Obviously correct and tested? **YES** — reviewed by 3 experts,
-   tested, identical to proven s390 fix
-2. Fixes a real bug? **YES** — UAPI header is broken for userspace
-   compilation
-3. Important issue? **MEDIUM** — build fix (compilation error)
-4. Small and contained? **YES** — 1 line changed in 1 file
-5. No new features or APIs? **YES** — no new features
-6. Can apply to stable? **YES** — clean apply guaranteed (file unchanged
-   since 2017)
-
-**Exception Category:** Build fix — these are explicitly called out as
-stable-worthy.
-
-## Verification
-
-- [Phase 1] Parsed tags: Acked-by Arnd Bergmann, Reviewed-by Nathan
-  Chancellor + Nicolas Schier, Tested-by Nicolas Schier
-- [Phase 2] Diff analysis: 1 line changed, `__aligned(8)` ->
-  `__attribute__((aligned(8)))` in UAPI header
-- [Phase 3] git blame: buggy code introduced in `cd5b61d6f4f07`
-  (v3.2-rc1, 2011), present in all stable trees
-- [Phase 3] git log: file has only 3 commits total (all trivial
-  metadata), no conflicts possible
-- [Phase 3] Author: Thomas Weißschuh is a prolific UAPI header
-  maintainer with 20+ related commits
-- [Phase 4] b4 dig: commit not yet in tree (candidate), lore blocked by
-  anti-bot protection
-- [Phase 5] grep: confirmed this is the ONLY remaining bare
-  `__aligned()` in all UAPI headers
-- [Phase 5] Verified `__aligned` defined only in
-  `include/linux/compiler_attributes.h` (line 33), not exported to
-  userspace
-- [Phase 6] File unchanged since 2017, will apply cleanly to all stable
-  trees
-- [Phase 6] Precedent: identical s390 fix (commit `bae0aae2f8f97`) was
-  applied in v5.3 for the same bug pattern
-- [Phase 8] Failure mode: userspace compilation error; severity MEDIUM;
-  risk extremely low
-
-**YES**
-
- arch/hexagon/include/uapi/asm/sigcontext.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/hexagon/include/uapi/asm/sigcontext.h b/arch/hexagon/include/uapi/asm/sigcontext.h
-index 7171edb1b8b71..179a97041b593 100644
---- a/arch/hexagon/include/uapi/asm/sigcontext.h
-+++ b/arch/hexagon/include/uapi/asm/sigcontext.h
-@@ -29,6 +29,6 @@
-  */
- struct sigcontext {
- 	struct user_regs_struct sc_regs;
--} __aligned(8);
-+} __attribute__((aligned(8)));
- 
- #endif
 -- 
-2.53.0
+2.49.0
 
