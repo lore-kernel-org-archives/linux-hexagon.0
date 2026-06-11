@@ -1,134 +1,141 @@
-Received: from mail-dy1-f196.google.com (mail-dy1-f196.google.com [74.125.82.196])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3887C26FD9B
-	for <linux-hexagon@vger.kernel.org>; Wed, 10 Jun 2026 22:24:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6174D369203
+	for <linux-hexagon@vger.kernel.org>; Thu, 11 Jun 2026 07:37:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781130269; cv=none; b=MymLMrzgVifiHVsxujhncH13rV7CFgjy/tixlSRI89IUJ9VmTB6JOr+Nm/nRe8yQAN0h8zQpxiAGC29StEWU8K9njBMfGk+7TdVIfXMVp+pyS1It8+wTZDNN2gGJo6NeDNEklEOeY2un2ekSv2UnosrsF2tDtxnnjZFKSmQ+Y3k=
+	t=1781163425; cv=none; b=d7WGsTJFT65QFnYZQflefNGMudi2r9rIuYrTwQ7Etp45jYnorG/PLdswwKzalwTz2yhXhfB2uPRedxsYZMz4oOqvs85ln5UGcSM1Y5xJ9eho0/8zxrSRkv5u9lQPpoyWKk0GPeFdKnvCKGCQq4mRKheRlXiOJPKrLMthZugtMfc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781130269; c=relaxed/simple;
-	bh=7qESKhmeQ2ZCPCD+Yx2/oS5Iv2mIx1jyg09EXRD5euo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ATM8Npyv41WzKZtgbgu8a7CjvMeSX9PRbKGZHN9u8r+a2hIs3rt61DAXi2i6UNJVT3L15WevHVEnwvUFmncUPSDkWAdxqJz/HpzspnVUn+Gk2J/700dPTzuslYVr3DlwSQcQcmMcUgPF9grpOJImuk9jgkL31CrG0gI0YP1TWMA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IZ5ZlUhP; arc=none smtp.client-ip=74.125.82.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781163425; c=relaxed/simple;
+	bh=EqXTJLxse1hr1LH0D8WYCEH+Vaw7TN21R+DkZRrkpG8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YKxnnMSv6vB9eZit2ysKy1nBSegBJOIeYJGgNBTi/3HU0KFpUDRQl9yuNnGfneTsV0YcIgm3J5NkEfCj5e2hO/4pQFXms3iTo3rp1S/aWPN6TibclxKbQM7qmoNgm9YY0V3ijOSlSB8OLYdZsILyEYEZaUzSIlF2PKBY0rR/oh0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TWzPZD3O; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IZ5ZlUhP"
-Received: by mail-dy1-f196.google.com with SMTP id 5a478bee46e88-3074adb8fcaso1773174eec.0
-        for <linux-hexagon@vger.kernel.org>; Wed, 10 Jun 2026 15:24:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781130267; x=1781735067; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=5YKgYwbXHs9uriDa4H6yf4eIdSf4rT7QZ9yMscjJe9g=;
-        b=IZ5ZlUhPWfWulW26JFc0C6NPjYo61zHc3qSWkjHtkuSea8DSrADs5lEII01Ue827wx
-         Fia8RdHE5eY+J7vVwjNmArNh5m5tUHEdvjyVBhqa9XLHcAA7WGswEF/1ajnWgV2hoTNy
-         Hl5//Se/pbe7j1JjWW6tYp8Uv6lfoJL9s4VDljLyTFfDUJFMJ6OQZJD8X3r2xf/nTSpC
-         oK6g4nJJgI8p8+WCucLxhF+S2sJDu4N6rt7X67qL12nkD8lIlp3x/bfn7l+/2mBZYqFZ
-         PhScVYFeb+PmPKjdpdeuRQ0SHwFn7VCdfZiqtSFUeYbHmZP8Lu9A9dveXoerLyDH/xHB
-         /6yA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781130267; x=1781735067;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5YKgYwbXHs9uriDa4H6yf4eIdSf4rT7QZ9yMscjJe9g=;
-        b=D1+r1qPizo83VWn0+OyEZArZyhdyWTDyfCWPszL4g5OD/QH3PD7hpPkRplAlOeDfnQ
-         +WK8OJKBnFm9OOe9I8w5vOJjHbRT3L9qMPi+UbQ6JLOGMAH8CPnXW7ANkX2WZJyRSQx3
-         zPuP2sSTSHNl9ndNQ1Gnn2Wjgoe8oGFHakpax9Z+i9ASs71agPie2+JPoDOGNM37JiUR
-         UdZr36y8HlFF15TJBxTtn0zvbyp7+pnXW5OF6vyrSbagBkhqgtrshCPhR6mS9lbXpVIy
-         gSYx+GdPNY0GqyEB/4H9ThhaDn5A1+abFvL17YOIHrtZAcGxB7IeYJ5ptzPqSJSKLh9s
-         p/6g==
-X-Forwarded-Encrypted: i=1; AFNElJ94gam80WH+tku3KTuQGy3lwXW/wa1zK+UxsaQcd+Nd1zZvj9Y0rtRNfvrk80Ce3rn+TPBs8R1hX7ScbNOs@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzz84ameFmu19yXprH5BRTvPB5UaukOTkXUp5j5LYbszmm/RAkK
-	Phgu0+L1fkIOcYDDgX/QIQKy6IHmhpjXZtLB07v5bluy0K5Z/hhP37V1
-X-Gm-Gg: Acq92OFwjUrAv1C7mWJ9aCKOkOQ+84e8CTmKukyyRkUSEcdFs5J2w5W4k6gPxRM9Hjz
-	/tYo5KTTiE49zB35TXc2Q0pBVlb/c+WLF/fZt2x+zCnuegojVQ5dfnmHpmci0TFT1N+ZPypW/p5
-	EEqjwikgQ0BjoAjMsLnujhTvNtrN/ChBxH5IBIQKxP59lzicay1O/DNXjxVG3SJsNMKHMmw268D
-	a5tuWct4jzjolDmnSD7QRK4Q/hwPeCo5e27+d57ZMzKz9XxKbwWqcBIuZ056ZwWCueDCmWNA6DD
-	lRWBwWmqps7GGWET42pBcShZf9nu9Rlg7nyEhjL/W7QV+J2YqUkgEos8BJga8PrSv6S14gqC1ok
-	wWT0Sa8G7fqofnvbF9ZxzM3tIrUOBnc8S+c9LCwvp4ZZ6WtRcNlrAa+kdPWTqFwoOGRrZwxTgKA
-	/ooIPSZ1P2/elGEaERXjtuGhvtQrMco+J9Es9yWgLsqWblyGEYxr1jxdezM/FJAdkyBrgyMQu+g
-	CwIitpW6IKAvxTN+D4APRNY9nKepU5Iz7vx2fSp/EnMT8S9KHgEz3fLkAtWuUO+kgMF4Wp18PRw
-	ulS0LNzFxMG92yRAhHG5qbzw4HD5j1xmhn1koX0=
-X-Received: by 2002:a05:7300:6da6:b0:2d1:d434:cfe3 with SMTP id 5a478bee46e88-3080411cef8mr243124eec.0.1781130267174;
-        Wed, 10 Jun 2026 15:24:27 -0700 (PDT)
-Received: from ethan-latitude5420.. (host-127-24.cafrjco.fresno.ca.us.clients.pavlovmedia.net. [68.180.127.24])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30791f6381fsm18674572eec.0.2026.06.10.15.24.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 15:24:26 -0700 (PDT)
-From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
-To: Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@kernel.org>,
-	"Vlastimil Babka (SUSE)" <vbabka@kernel.org>,
-	Ankur Arora <ankur.a.arora@oracle.com>,
-	"Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
-	Ethan Nelson-Moore <enelsonmoore@gmail.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Andreas Larsson <andreas@gaisler.com>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	"Mike Rapoport (Microsoft)" <rppt@kernel.org>,
-	linux-hexagon@vger.kernel.org
-Cc: Brian Cain <bcain@kernel.org>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Helge Deller <deller@gmx.de>
-Subject: [PATCH] hexagon: remove code to handle nonexistent CONFIG_PAGE_SIZE_1MB
-Date: Wed, 10 Jun 2026 15:23:52 -0700
-Message-ID: <20260610222357.108394-1-enelsonmoore@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TWzPZD3O"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6B791F00898;
+	Thu, 11 Jun 2026 07:36:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781163423;
+	bh=SimfTtmryQt1sBgD+7feMudSbLS1AX6TnzQNnCF7qME=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=TWzPZD3O3yY7RuZvf1kD4YApPM5GOUc/7XWWIwn7Tk8hQXX+1qAOvuDttHByrQwUR
+	 LVos+8YuzJwVzVOESOCCbgmV4GC6ooYiQRzdjIuZHIUthOmqJoA42c0xvYIIChTlPw
+	 fJwU1xSd5Sv6M/GT+F8QZW4z7rv6vgfXrd7zbEzmWKF+rJQC4QUQmGgXJ2GFmnBm4P
+	 XDY5XzRgVJ2rxDvWInHI7c5Lb2Jh+/JknUmfBEqyesDI8/yLZlXvL7FbSIMHcVy42F
+	 abNdsT0XLZ0CZRH7c42slJ9gGAfAorNhMhASAoJ6xTiSfXNQrpAPEv5xmrAs64jOOU
+	 4P6xZybDfPcYQ==
+Message-ID: <eaa19238-d4ba-4789-91ff-4a019b2486d9@kernel.org>
+Date: Thu, 11 Jun 2026 09:36:58 +0200
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] hexagon: remove code to handle nonexistent
+ CONFIG_PAGE_SIZE_1MB
+To: Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,
+ Ankur Arora <ankur.a.arora@oracle.com>,
+ "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
+ Magnus Lindholm <linmag7@gmail.com>, Andreas Larsson <andreas@gaisler.com>,
+ "Liam R. Howlett" <liam@infradead.org>, Dinh Nguyen <dinguyen@kernel.org>,
+ "Mike Rapoport (Microsoft)" <rppt@kernel.org>, linux-hexagon@vger.kernel.org
+Cc: Brian Cain <bcain@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>,
+ Helge Deller <deller@gmx.de>
+References: <20260610222357.108394-1-enelsonmoore@gmail.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260610222357.108394-1-enelsonmoore@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Two Hexagon memory management headers contain code to handle
-CONFIG_PAGE_SIZE_1MB, which has never existed in the kernel. Remove
-this dead code.
+On 6/11/26 00:23, Ethan Nelson-Moore wrote:
+> Two Hexagon memory management headers contain code to handle
+> CONFIG_PAGE_SIZE_1MB, which has never existed in the kernel. Remove
+> this dead code.
+> 
+> Discovered while searching for CONFIG_* symbols referenced in code but
+> not defined in any Kconfig file.
+> 
+> Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+> ---
+>  arch/hexagon/include/asm/page.h    | 4 ----
+>  arch/hexagon/include/asm/pgtable.h | 4 ----
+>  2 files changed, 8 deletions(-)
+> 
+> diff --git a/arch/hexagon/include/asm/page.h b/arch/hexagon/include/asm/page.h
+> index 6d82572a7f21..6eac99438e3f 100644
+> --- a/arch/hexagon/include/asm/page.h
+> +++ b/arch/hexagon/include/asm/page.h
+> @@ -28,10 +28,6 @@
+>  #define HEXAGON_L1_PTE_SIZE __HVM_PDE_S_256KB
+>  #endif
+>  
+> -#ifdef CONFIG_PAGE_SIZE_1MB
+> -#define HEXAGON_L1_PTE_SIZE __HVM_PDE_S_1MB
+> -#endif
+> -
 
-Discovered while searching for CONFIG_* symbols referenced in code but
-not defined in any Kconfig file.
+Heh, I stumbled over that myself at some point and was like "wtf, how can that
+even work" :)
 
-Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
----
- arch/hexagon/include/asm/page.h    | 4 ----
- arch/hexagon/include/asm/pgtable.h | 4 ----
- 2 files changed, 8 deletions(-)
+$ git grep PAGE_SIZE_1MB | grep Kconfig
+arch/sh/mm/Kconfig:     default HUGETLB_PAGE_SIZE_1MB if PAGE_SIZE_64KB
+arch/sh/mm/Kconfig:config HUGETLB_PAGE_SIZE_1MB
 
-diff --git a/arch/hexagon/include/asm/page.h b/arch/hexagon/include/asm/page.h
-index 6d82572a7f21..6eac99438e3f 100644
---- a/arch/hexagon/include/asm/page.h
-+++ b/arch/hexagon/include/asm/page.h
-@@ -28,10 +28,6 @@
- #define HEXAGON_L1_PTE_SIZE __HVM_PDE_S_256KB
- #endif
- 
--#ifdef CONFIG_PAGE_SIZE_1MB
--#define HEXAGON_L1_PTE_SIZE __HVM_PDE_S_1MB
--#endif
--
- /*
-  *  These should be defined in hugetlb.h, but apparently not.
-  *  "Huge" for us should be 4MB or 16MB, which are both represented
-diff --git a/arch/hexagon/include/asm/pgtable.h b/arch/hexagon/include/asm/pgtable.h
-index 27b269e2870d..0c62df423a1d 100644
---- a/arch/hexagon/include/asm/pgtable.h
-+++ b/arch/hexagon/include/asm/pgtable.h
-@@ -89,10 +89,6 @@
- #define PTRS_PER_PTE 16
- #endif
- 
--#ifdef CONFIG_PAGE_SIZE_1MB
--#define PTRS_PER_PTE 4
--#endif
--
- /*  Any bigger and the PTE disappears.  */
- #define pgd_ERROR(e) \
- 	printk(KERN_ERR "%s:%d: bad pgd %08lx.\n", __FILE__, __LINE__,\
+
+Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
+
 -- 
-2.43.0
+Cheers,
 
+David
