@@ -1,33 +1,86 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6174D369203
-	for <linux-hexagon@vger.kernel.org>; Thu, 11 Jun 2026 07:37:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92BD3381B0A
+	for <linux-hexagon@vger.kernel.org>; Wed,  1 Jul 2026 17:06:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781163425; cv=none; b=d7WGsTJFT65QFnYZQflefNGMudi2r9rIuYrTwQ7Etp45jYnorG/PLdswwKzalwTz2yhXhfB2uPRedxsYZMz4oOqvs85ln5UGcSM1Y5xJ9eho0/8zxrSRkv5u9lQPpoyWKk0GPeFdKnvCKGCQq4mRKheRlXiOJPKrLMthZugtMfc=
+	t=1782925598; cv=none; b=LFJ2NxcWjj5z4cQ3pgYTx20jwVHPINKL1vGRDg+6tDL7y0Uv89FgjPblbJN7gptgTSQJBKkyw2m0tBTRYnrjGz82M3OUuyeR/unWamYw7aJuW3rtOhByb/rXsw/PlqpnlI+RHrPlVXk/5HoDz2k3wSp3ojinS4d+Jj1NeX9DheY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781163425; c=relaxed/simple;
-	bh=EqXTJLxse1hr1LH0D8WYCEH+Vaw7TN21R+DkZRrkpG8=;
+	s=arc-20240116; t=1782925598; c=relaxed/simple;
+	bh=JgNyjnXkZ4IAkfrQNLtTTbl0+irC9+TiBNmugwwIuvs=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YKxnnMSv6vB9eZit2ysKy1nBSegBJOIeYJGgNBTi/3HU0KFpUDRQl9yuNnGfneTsV0YcIgm3J5NkEfCj5e2hO/4pQFXms3iTo3rp1S/aWPN6TibclxKbQM7qmoNgm9YY0V3ijOSlSB8OLYdZsILyEYEZaUzSIlF2PKBY0rR/oh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TWzPZD3O; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=fLlg4RJ/H95MQStZsWneTCW9o1iaCeRMUdIfPSS3l7nHc+TH6l9f8Ufitmmx3zoTV8Ke+4IGuf1hR/oNt4ExuZ8De8yEXgVnF6w4owaIhB6JOfeAu4aXuhGafdwnYxrhCFxV8V3EQn/LMME9ZiaVKOaeGTKJXFXodOl+sssbsns=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=FU0noXjj; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=MEGcO2yu; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TWzPZD3O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6B791F00898;
-	Thu, 11 Jun 2026 07:36:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781163423;
-	bh=SimfTtmryQt1sBgD+7feMudSbLS1AX6TnzQNnCF7qME=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=TWzPZD3O3yY7RuZvf1kD4YApPM5GOUc/7XWWIwn7Tk8hQXX+1qAOvuDttHByrQwUR
-	 LVos+8YuzJwVzVOESOCCbgmV4GC6ooYiQRzdjIuZHIUthOmqJoA42c0xvYIIChTlPw
-	 fJwU1xSd5Sv6M/GT+F8QZW4z7rv6vgfXrd7zbEzmWKF+rJQC4QUQmGgXJ2GFmnBm4P
-	 XDY5XzRgVJ2rxDvWInHI7c5Lb2Jh+/JknUmfBEqyesDI8/yLZlXvL7FbSIMHcVy42F
-	 abNdsT0XLZ0CZRH7c42slJ9gGAfAorNhMhASAoJ6xTiSfXNQrpAPEv5xmrAs64jOOU
-	 4P6xZybDfPcYQ==
-Message-ID: <eaa19238-d4ba-4789-91ff-4a019b2486d9@kernel.org>
-Date: Thu, 11 Jun 2026 09:36:58 +0200
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="FU0noXjj";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="MEGcO2yu"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 661GmXKk1710551
+	for <linux-hexagon@vger.kernel.org>; Wed, 1 Jul 2026 17:06:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	6eZIaHDykI6XJ9s9FKsW8D/6O13gN/UWOUJM7W01Ixg=; b=FU0noXjjft57TfDz
+	i7NmIVyUNMaQgBaJE0ZpzIQH10O8IS2vbVPLpY1Q6vNoM7xAiVHd18G40bI0Fl2Z
+	tyAchTTHYUky5cAkfMpTO5GAmwUL8na7+8+qwjA497aog2BS7WtuGUo/GTOLhNjF
+	9hOhMMIbB5kXoqUNjXn9eF5BR6WSRniHqfo/mfVtxQW/lHf7kjpY3xGzrYsB3m7v
+	ECdtqMURE5jqnApUQKgfF1uScuuMfW3/9foAvrADI8YQSMUf8WYJ12lTTS5ZAbjC
+	+TC2PMsBNaazNvuQlnQ5/1SvcymYvdYCwmxWkI2Fq6m6UR/Aebg8McgXhH5+yx1G
+	Aq3g3Q==
+Received: from mail-vs1-f70.google.com (mail-vs1-f70.google.com [209.85.217.70])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f56gpr51e-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-hexagon@vger.kernel.org>; Wed, 01 Jul 2026 17:06:36 +0000 (GMT)
+Received: by mail-vs1-f70.google.com with SMTP id ada2fe7eead31-737d34a0dc8so964548137.1
+        for <linux-hexagon@vger.kernel.org>; Wed, 01 Jul 2026 10:06:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1782925595; x=1783530395; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=6eZIaHDykI6XJ9s9FKsW8D/6O13gN/UWOUJM7W01Ixg=;
+        b=MEGcO2yuuz88v39xP2rof0ydmVM3GXiyBO8qksDl33p01npqZ24ep4rA/oZwaXi33e
+         bLZ21R/ndUzvIs2TJlTsgX8gYIk+8yveSscgHAo9/zpmetYYGrsF5zlGgP1bq5LyQSLt
+         tulTrmj9O7O6DUc1RP+rGVVktiHuPdJJqlU07xIU8kE523Qa7gEemOFeh02hNjMFPHrQ
+         SGzLefU3IOOOujmpLTa8ZeR2W5EfZIi1xSEGjb3ekhYcq9g3HNehQqBbv4xqji1Hc659
+         zaclNzSp4tGB9Fqsi3BjadB8QnwLLLZFqo3uHAZ96meDHnNePJdWqVKUO7Xd9cxpnFIK
+         YPJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782925595; x=1783530395;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=6eZIaHDykI6XJ9s9FKsW8D/6O13gN/UWOUJM7W01Ixg=;
+        b=YK1Do8iMc3gnPNnMTpqFmPipr66jziFDEc3lP89C5V7biOi8V5jZTUiX5RW6cAVhCt
+         rMnGA63rr8EXFI3Bx5xlGpso7Uy/8xfRMiyLkYi9/hYiK42ssfVUqyO0K+V15jA3uB/L
+         GijCGS4p7pNjMdLIVqU21xA+I55J/MBt16PWUEZzBDHj7LQsapt7tm4JZRgaK9VOXGGc
+         admutsZlHp4BttZsmahbxi08POThL99tZB8ich4AvCLlUC8MgSo627F0WW8/xMWc04uU
+         7icBrLcx6xQvxT+woCYGKKSBJBUQO5TyQPSpQQqP3j64llO+INvzV5KLbByI8qzJGxox
+         M1Iw==
+X-Forwarded-Encrypted: i=1; AHgh+RqlmZhaYApVJtQ3tV5YtvqTV+65joviML+RR28/ONREZzRSpRk+m7lWsylFNkpFu/8ug0WqD0V7A0dgTV6O@vger.kernel.org
+X-Gm-Message-State: AOJu0YzrEPGDUhJoMXTd1TqnolS5dQpNFyUZYBmoQo5DKUvafVmAsLAM
+	epGJbCzMVVwhMjMZC4y/dDleT8VccF0IVLnCV+ZerhMZ91Kuf4ZgBaEj7SGLtjMZRtB39JO4jPK
+	5HxxCuoj1TvYGm9m8HaeF2IhE9EF53k3yg6cMJ/KcGOtQZPuCu5xFNK/uxFLbjSpCZK96
+X-Gm-Gg: AfdE7cmpeDT7NQ7EWGEofRd7C71S4/y0tFUlPj9lvJse0pUSMikMOFLumnSHapUWihn
+	iaJv12JfgJwsz5mSaxCo3427llaL9KqP2cnqiDfxdbTTbQ4fhADJXym+NpnCESjdYHQ8l12WBjD
+	8f5IvzHpLEjJ19WPGI+hpgjLbxMOI641xoG45sXTmER8GKqBzBBNocL7CJZy3+KEmel108Nda3F
+	r5WBTz+GN2X9mzpXShUmuqYRWRU3VAPrJYJxXeYI0UhiP2SwC279fIv5RJwSdNWcw43VLFG+UOL
+	8Syv4lMFVD+3fdKw0gouU7VAfX9i9cY6H6JM2LLi5nGXKZ94BGqAx3BKhBLNgKfu17sdH7IZFlj
+	TEQAMGvHKY2jk13ZLWX3UH2t1I6auxlVTZg==
+X-Received: by 2002:a05:6102:2920:b0:726:cd42:d039 with SMTP id ada2fe7eead31-73daabbec62mr1472668137.24.1782925595597;
+        Wed, 01 Jul 2026 10:06:35 -0700 (PDT)
+X-Received: by 2002:a05:6102:2920:b0:726:cd42:d039 with SMTP id ada2fe7eead31-73daabbec62mr1472610137.24.1782925595185;
+        Wed, 01 Jul 2026 10:06:35 -0700 (PDT)
+Received: from [192.168.0.138] ([79.127.134.50])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6987c21f123sm3063693a12.0.2026.07.01.10.06.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 01 Jul 2026 10:06:33 -0700 (PDT)
+Message-ID: <233e71c1-c87e-4b18-8137-3e48ae83bc89@oss.qualcomm.com>
+Date: Wed, 1 Jul 2026 19:06:16 +0200
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
@@ -38,67 +91,54 @@ User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] hexagon: remove code to handle nonexistent
  CONFIG_PAGE_SIZE_1MB
 To: Ethan Nelson-Moore <enelsonmoore@gmail.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,
- Ankur Arora <ankur.a.arora@oracle.com>,
- "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
- Magnus Lindholm <linmag7@gmail.com>, Andreas Larsson <andreas@gaisler.com>,
- "Liam R. Howlett" <liam@infradead.org>, Dinh Nguyen <dinguyen@kernel.org>,
- "Mike Rapoport (Microsoft)" <rppt@kernel.org>, linux-hexagon@vger.kernel.org
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@kernel.org>,
+        "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,
+        Ankur Arora <ankur.a.arora@oracle.com>,
+        "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
+        Magnus Lindholm <linmag7@gmail.com>,
+        Andreas Larsson <andreas@gaisler.com>,
+        "Liam R. Howlett" <liam@infradead.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+        linux-hexagon@vger.kernel.org
 Cc: Brian Cain <bcain@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>,
- Helge Deller <deller@gmx.de>
+        Helge Deller <deller@gmx.de>
 References: <20260610222357.108394-1-enelsonmoore@gmail.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
+From: =?UTF-8?Q?Philippe_Mathieu-Daud=C3=A9?= <philmd@oss.qualcomm.com>
 In-Reply-To: <20260610222357.108394-1-enelsonmoore@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzAxMDE4MSBTYWx0ZWRfX70nT1yyZq8G5
+ qXJ9MV+bMQmGIAjWQMLrw8hsI6T06CD+NWQxhOdXNqB/fh9vZ9X6BftMbHf2QkGrC6yudDZhuBe
+ +xjYjdQYIxVv4MM4GOJcYj6f7HFshmo=
+X-Proofpoint-GUID: dZzHFGCplMSy2EpJOYqAevWzwIwS2d4A
+X-Proofpoint-ORIG-GUID: dZzHFGCplMSy2EpJOYqAevWzwIwS2d4A
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzAxMDE4MSBTYWx0ZWRfX+TJnitwR7sMo
+ ZkbdKSPnhkRjvVjx+FmTcJyg3XX8IMVbSBJ7HsYgwXJ3FYc+/V9h8ey+NjO1ohTkmVGmj0aRR3C
+ ABanPh57/FWOsidyEkHZ5CzDkVmbKTyJz1aHSmc5Yejdw1KQOKj0G8+n4J+LW8yavRZCgz5G+JM
+ 0Tj34Xl77H6T+ZolOAxQjR/BscHcSkLg2zkmehpGPN6sThbvltoMO2ZTpjpKCwsECBX5yJ64LeF
+ QlXjuXlpfz3sK5DaZdImMKUtU/6Rp8y6SlAVUGFETQUAHlaipPnC40bzaMD1MnIf02JnRbxyIGd
+ OcocuqeffZs0kCtCF/FeoSmN6QJLcg3djc7vtGwBfNxNjASum5MWTh+pS/m3sZWxdy5T+etaf4M
+ AtIOvD9Ovt3yo1CXjeVei0Nk+JMrGL8D1ZDFP+DRxNPt93OdH3TAa7N/dU5frXEsYU2iSKAeG3k
+ WtlM+yoGOV3TcRO2ZlA==
+X-Authority-Analysis: v=2.4 cv=K9oS2SWI c=1 sm=1 tr=0 ts=6a45491c cx=c_pps
+ a=N1BjEkVkxJi3uNfLdpvX3g==:117 a=Js8H1uCOjlYa+gbBZlwYwQ==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=M51BFTxLslgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22
+ a=pGLkceISAAAA:8 a=EUspDBNiAAAA:8 a=1tSEMpTH9XP_W59IOagA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10 a=crWF4MFLhNY0qMRaF8an:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-07-01_04,2026-06-26_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 phishscore=0 priorityscore=1501 lowpriorityscore=0 clxscore=1011
+ adultscore=0 impostorscore=0 suspectscore=0 spamscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607010181
 
-On 6/11/26 00:23, Ethan Nelson-Moore wrote:
+On 2026-06-11 0:23, Ethan Nelson-Moore wrote:
 > Two Hexagon memory management headers contain code to handle
 > CONFIG_PAGE_SIZE_1MB, which has never existed in the kernel. Remove
 > this dead code.
@@ -108,34 +148,7 @@ On 6/11/26 00:23, Ethan Nelson-Moore wrote:
 > 
 > Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
 > ---
->  arch/hexagon/include/asm/page.h    | 4 ----
->  arch/hexagon/include/asm/pgtable.h | 4 ----
->  2 files changed, 8 deletions(-)
-> 
-> diff --git a/arch/hexagon/include/asm/page.h b/arch/hexagon/include/asm/page.h
-> index 6d82572a7f21..6eac99438e3f 100644
-> --- a/arch/hexagon/include/asm/page.h
-> +++ b/arch/hexagon/include/asm/page.h
-> @@ -28,10 +28,6 @@
->  #define HEXAGON_L1_PTE_SIZE __HVM_PDE_S_256KB
->  #endif
->  
-> -#ifdef CONFIG_PAGE_SIZE_1MB
-> -#define HEXAGON_L1_PTE_SIZE __HVM_PDE_S_1MB
-> -#endif
-> -
-
-Heh, I stumbled over that myself at some point and was like "wtf, how can that
-even work" :)
-
-$ git grep PAGE_SIZE_1MB | grep Kconfig
-arch/sh/mm/Kconfig:     default HUGETLB_PAGE_SIZE_1MB if PAGE_SIZE_64KB
-arch/sh/mm/Kconfig:config HUGETLB_PAGE_SIZE_1MB
-
-
-Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
-
--- 
-Cheers,
-
-David
+>   arch/hexagon/include/asm/page.h    | 4 ----
+>   arch/hexagon/include/asm/pgtable.h | 4 ----
+>   2 files changed, 8 deletions(-)
+Reviewed-by: Philippe Mathieu-Daudé <philmd@oss.qualcomm.com>
