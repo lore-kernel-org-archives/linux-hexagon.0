@@ -1,154 +1,239 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92BD3381B0A
-	for <linux-hexagon@vger.kernel.org>; Wed,  1 Jul 2026 17:06:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D3962F12A5;
+	Tue,  7 Jul 2026 19:05:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782925598; cv=none; b=LFJ2NxcWjj5z4cQ3pgYTx20jwVHPINKL1vGRDg+6tDL7y0Uv89FgjPblbJN7gptgTSQJBKkyw2m0tBTRYnrjGz82M3OUuyeR/unWamYw7aJuW3rtOhByb/rXsw/PlqpnlI+RHrPlVXk/5HoDz2k3wSp3ojinS4d+Jj1NeX9DheY=
+	t=1783451159; cv=none; b=pkEvgJ/wGEQHYxNTnXDdjRAdNZ6ke0tREY3EjUFeQGyP17E4byRSUqaFmG0xcXuEyqA2krjEvKEwANDQ9XKDbSp6HHkHRhDc0KH03YiiuNba8/qiZW3ZDqUL9fliqA/etdXvesJbA5zZvnK4WFTpOexSr+LCHPs4xeV9VUJTp50=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782925598; c=relaxed/simple;
-	bh=JgNyjnXkZ4IAkfrQNLtTTbl0+irC9+TiBNmugwwIuvs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fLlg4RJ/H95MQStZsWneTCW9o1iaCeRMUdIfPSS3l7nHc+TH6l9f8Ufitmmx3zoTV8Ke+4IGuf1hR/oNt4ExuZ8De8yEXgVnF6w4owaIhB6JOfeAu4aXuhGafdwnYxrhCFxV8V3EQn/LMME9ZiaVKOaeGTKJXFXodOl+sssbsns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=FU0noXjj; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=MEGcO2yu; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1783451159; c=relaxed/simple;
+	bh=QXLUt1TPzW5KUIfT+EbS13frXZWcSnBhPA0WRti5QHo=;
+	h=Date:Message-ID:From:To:Cc:Subject; b=POA9D7ZKW0/zNUHuA5rKB3WkMniTIJteB8EAENg8NhbVwtwBt1fg1LHd6lLxJcr0qlUrf1Pmg0JlU1I6ZWzgY3/UX05uHHb/AeEgLfHkg2qeTewX/n0KReX/MxrzlfZTfT3AJBHZflxvsHuI+ljeIgwraSElD/x/7CLYHHxXlTE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VFkWTdo5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="FU0noXjj";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="MEGcO2yu"
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 661GmXKk1710551
-	for <linux-hexagon@vger.kernel.org>; Wed, 1 Jul 2026 17:06:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	6eZIaHDykI6XJ9s9FKsW8D/6O13gN/UWOUJM7W01Ixg=; b=FU0noXjjft57TfDz
-	i7NmIVyUNMaQgBaJE0ZpzIQH10O8IS2vbVPLpY1Q6vNoM7xAiVHd18G40bI0Fl2Z
-	tyAchTTHYUky5cAkfMpTO5GAmwUL8na7+8+qwjA497aog2BS7WtuGUo/GTOLhNjF
-	9hOhMMIbB5kXoqUNjXn9eF5BR6WSRniHqfo/mfVtxQW/lHf7kjpY3xGzrYsB3m7v
-	ECdtqMURE5jqnApUQKgfF1uScuuMfW3/9foAvrADI8YQSMUf8WYJ12lTTS5ZAbjC
-	+TC2PMsBNaazNvuQlnQ5/1SvcymYvdYCwmxWkI2Fq6m6UR/Aebg8McgXhH5+yx1G
-	Aq3g3Q==
-Received: from mail-vs1-f70.google.com (mail-vs1-f70.google.com [209.85.217.70])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f56gpr51e-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-hexagon@vger.kernel.org>; Wed, 01 Jul 2026 17:06:36 +0000 (GMT)
-Received: by mail-vs1-f70.google.com with SMTP id ada2fe7eead31-737d34a0dc8so964548137.1
-        for <linux-hexagon@vger.kernel.org>; Wed, 01 Jul 2026 10:06:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1782925595; x=1783530395; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=6eZIaHDykI6XJ9s9FKsW8D/6O13gN/UWOUJM7W01Ixg=;
-        b=MEGcO2yuuz88v39xP2rof0ydmVM3GXiyBO8qksDl33p01npqZ24ep4rA/oZwaXi33e
-         bLZ21R/ndUzvIs2TJlTsgX8gYIk+8yveSscgHAo9/zpmetYYGrsF5zlGgP1bq5LyQSLt
-         tulTrmj9O7O6DUc1RP+rGVVktiHuPdJJqlU07xIU8kE523Qa7gEemOFeh02hNjMFPHrQ
-         SGzLefU3IOOOujmpLTa8ZeR2W5EfZIi1xSEGjb3ekhYcq9g3HNehQqBbv4xqji1Hc659
-         zaclNzSp4tGB9Fqsi3BjadB8QnwLLLZFqo3uHAZ96meDHnNePJdWqVKUO7Xd9cxpnFIK
-         YPJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782925595; x=1783530395;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=6eZIaHDykI6XJ9s9FKsW8D/6O13gN/UWOUJM7W01Ixg=;
-        b=YK1Do8iMc3gnPNnMTpqFmPipr66jziFDEc3lP89C5V7biOi8V5jZTUiX5RW6cAVhCt
-         rMnGA63rr8EXFI3Bx5xlGpso7Uy/8xfRMiyLkYi9/hYiK42ssfVUqyO0K+V15jA3uB/L
-         GijCGS4p7pNjMdLIVqU21xA+I55J/MBt16PWUEZzBDHj7LQsapt7tm4JZRgaK9VOXGGc
-         admutsZlHp4BttZsmahbxi08POThL99tZB8ich4AvCLlUC8MgSo627F0WW8/xMWc04uU
-         7icBrLcx6xQvxT+woCYGKKSBJBUQO5TyQPSpQQqP3j64llO+INvzV5KLbByI8qzJGxox
-         M1Iw==
-X-Forwarded-Encrypted: i=1; AHgh+RqlmZhaYApVJtQ3tV5YtvqTV+65joviML+RR28/ONREZzRSpRk+m7lWsylFNkpFu/8ug0WqD0V7A0dgTV6O@vger.kernel.org
-X-Gm-Message-State: AOJu0YzrEPGDUhJoMXTd1TqnolS5dQpNFyUZYBmoQo5DKUvafVmAsLAM
-	epGJbCzMVVwhMjMZC4y/dDleT8VccF0IVLnCV+ZerhMZ91Kuf4ZgBaEj7SGLtjMZRtB39JO4jPK
-	5HxxCuoj1TvYGm9m8HaeF2IhE9EF53k3yg6cMJ/KcGOtQZPuCu5xFNK/uxFLbjSpCZK96
-X-Gm-Gg: AfdE7cmpeDT7NQ7EWGEofRd7C71S4/y0tFUlPj9lvJse0pUSMikMOFLumnSHapUWihn
-	iaJv12JfgJwsz5mSaxCo3427llaL9KqP2cnqiDfxdbTTbQ4fhADJXym+NpnCESjdYHQ8l12WBjD
-	8f5IvzHpLEjJ19WPGI+hpgjLbxMOI641xoG45sXTmER8GKqBzBBNocL7CJZy3+KEmel108Nda3F
-	r5WBTz+GN2X9mzpXShUmuqYRWRU3VAPrJYJxXeYI0UhiP2SwC279fIv5RJwSdNWcw43VLFG+UOL
-	8Syv4lMFVD+3fdKw0gouU7VAfX9i9cY6H6JM2LLi5nGXKZ94BGqAx3BKhBLNgKfu17sdH7IZFlj
-	TEQAMGvHKY2jk13ZLWX3UH2t1I6auxlVTZg==
-X-Received: by 2002:a05:6102:2920:b0:726:cd42:d039 with SMTP id ada2fe7eead31-73daabbec62mr1472668137.24.1782925595597;
-        Wed, 01 Jul 2026 10:06:35 -0700 (PDT)
-X-Received: by 2002:a05:6102:2920:b0:726:cd42:d039 with SMTP id ada2fe7eead31-73daabbec62mr1472610137.24.1782925595185;
-        Wed, 01 Jul 2026 10:06:35 -0700 (PDT)
-Received: from [192.168.0.138] ([79.127.134.50])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6987c21f123sm3063693a12.0.2026.07.01.10.06.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 Jul 2026 10:06:33 -0700 (PDT)
-Message-ID: <233e71c1-c87e-4b18-8137-3e48ae83bc89@oss.qualcomm.com>
-Date: Wed, 1 Jul 2026 19:06:16 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VFkWTdo5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 113781F000E9;
+	Tue,  7 Jul 2026 19:05:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783451156;
+	bh=sKaa6jqJcnZ3kixdUKctGHCLE8bgvUhOgv/iQQ4U2eg=;
+	h=Date:From:To:Cc:Subject;
+	b=VFkWTdo5yhgpXx9sxvRHZ3HlP4xSZ4aHXa1zsGtMnp9mQpMvU4qieroT0K0+AUmNe
+	 mH4Zbvrp37BWRtV+WSrFvOBwzQyMx5YfHARXuOrmubRPkhjAk6NgYYQTWgkAhazAju
+	 1djGcOQc2V77x2qVXGFvC6BkwM/+Iezw2J7QhqUY7M9Y5saOvbXsETd73JhuSwTJ1e
+	 Hk7rq39ys7eddzm/Skk6nfXmoJIZBJVZnDdD7rbJtFga+XVDyFyYEDjJyfJdP9Y2Vt
+	 rb/jER5CfvGmtQfb87VuvQHb1UgZTCkpnw26sWY8rQ0z0x4vkc0U56YUbxw1o0tQkB
+	 6sQc63NXlLiVQ==
+Date: Tue, 07 Jul 2026 21:05:53 +0200
+Message-ID: <20260707181957.433213175@kernel.org>
+User-Agent: quilt/0.69
+From: Thomas Gleixner <tglx@kernel.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>,
+ Michael Ellerman <mpe@ellerman.id.au>,
+ Shrikanth Hegde <sshegde@linux.ibm.com>,
+ linuxppc-dev@lists.ozlabs.org,
+ Kees Cook <kees@kernel.org>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ loongarch@lists.linux.dev,
+ Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>,
+ linux-riscv@lists.infradead.org,
+ Sven Schnelle <svens@linux.ibm.com>,
+ linux-s390@vger.kernel.org,
+ x86@kernel.org,
+ Mark Rutland <mark.rutland@arm.com>,
+ Jinjie Ruan <ruanjinjie@huawei.com>,
+ Andy Lutomirski <luto@kernel.org>,
+ Oleg Nesterov <oleg@redhat.com>,
+ Richard Henderson <richard.henderson@linaro.org>,
+ Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Guo Ren <guoren@kernel.org>,
+ Geert Uytterhoeven <geert@linux-m68k.org>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Helge Deller <deller@gmx.de>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Richard Weinberger <richard@nod.at>,
+ Chris Zankel <chris@zankel.net>,
+ linux-arm-kernel@lists.infradead.org,
+ linux-alpha@vger.kernel.org,
+ linux-csky@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org,
+ linux-parisc@vger.kernel.org,
+ linux-sh@vger.kernel.org,
+ linux-um@lists.infradead.org,
+ Arnd Bergmann <arnd@arndb.de>,
+ Vineet Gupta <vgupta@kernel.org>,
+ Will Deacon <will@kernel.org>,
+ Brian Cain <bcain@kernel.org>,
+ Michal Simek <monstr@monstr.eu>,
+ Dinh Nguyen <dinguyen@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>,
+ linux-snps-arc@lists.infradead.org,
+ linux-hexagon@vger.kernel.org,
+ linux-openrisc@vger.kernel.org,
+ sparclinux@vger.kernel.org,
+ linux-arch@vger.kernel.org,
+ =?UTF-8?q?Michal=20Such=C3=A1nek?= <msuchanek@suse.de>,
+ Jonathan Corbet <corbet@lwn.net>,
+ linux-doc@vger.kernel.org
+Subject: [patch 00/18] entry: Consolidate and rework syscall entry handling
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] hexagon: remove code to handle nonexistent
- CONFIG_PAGE_SIZE_1MB
-To: Ethan Nelson-Moore <enelsonmoore@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@kernel.org>,
-        "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,
-        Ankur Arora <ankur.a.arora@oracle.com>,
-        "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
-        Magnus Lindholm <linmag7@gmail.com>,
-        Andreas Larsson <andreas@gaisler.com>,
-        "Liam R. Howlett" <liam@infradead.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
-        linux-hexagon@vger.kernel.org
-Cc: Brian Cain <bcain@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>,
-        Helge Deller <deller@gmx.de>
-References: <20260610222357.108394-1-enelsonmoore@gmail.com>
-Content-Language: en-US
-From: =?UTF-8?Q?Philippe_Mathieu-Daud=C3=A9?= <philmd@oss.qualcomm.com>
-In-Reply-To: <20260610222357.108394-1-enelsonmoore@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzAxMDE4MSBTYWx0ZWRfX70nT1yyZq8G5
- qXJ9MV+bMQmGIAjWQMLrw8hsI6T06CD+NWQxhOdXNqB/fh9vZ9X6BftMbHf2QkGrC6yudDZhuBe
- +xjYjdQYIxVv4MM4GOJcYj6f7HFshmo=
-X-Proofpoint-GUID: dZzHFGCplMSy2EpJOYqAevWzwIwS2d4A
-X-Proofpoint-ORIG-GUID: dZzHFGCplMSy2EpJOYqAevWzwIwS2d4A
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzAxMDE4MSBTYWx0ZWRfX+TJnitwR7sMo
- ZkbdKSPnhkRjvVjx+FmTcJyg3XX8IMVbSBJ7HsYgwXJ3FYc+/V9h8ey+NjO1ohTkmVGmj0aRR3C
- ABanPh57/FWOsidyEkHZ5CzDkVmbKTyJz1aHSmc5Yejdw1KQOKj0G8+n4J+LW8yavRZCgz5G+JM
- 0Tj34Xl77H6T+ZolOAxQjR/BscHcSkLg2zkmehpGPN6sThbvltoMO2ZTpjpKCwsECBX5yJ64LeF
- QlXjuXlpfz3sK5DaZdImMKUtU/6Rp8y6SlAVUGFETQUAHlaipPnC40bzaMD1MnIf02JnRbxyIGd
- OcocuqeffZs0kCtCF/FeoSmN6QJLcg3djc7vtGwBfNxNjASum5MWTh+pS/m3sZWxdy5T+etaf4M
- AtIOvD9Ovt3yo1CXjeVei0Nk+JMrGL8D1ZDFP+DRxNPt93OdH3TAa7N/dU5frXEsYU2iSKAeG3k
- WtlM+yoGOV3TcRO2ZlA==
-X-Authority-Analysis: v=2.4 cv=K9oS2SWI c=1 sm=1 tr=0 ts=6a45491c cx=c_pps
- a=N1BjEkVkxJi3uNfLdpvX3g==:117 a=Js8H1uCOjlYa+gbBZlwYwQ==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=M51BFTxLslgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22
- a=pGLkceISAAAA:8 a=EUspDBNiAAAA:8 a=1tSEMpTH9XP_W59IOagA:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10 a=crWF4MFLhNY0qMRaF8an:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-07-01_04,2026-06-26_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 phishscore=0 priorityscore=1501 lowpriorityscore=0 clxscore=1011
- adultscore=0 impostorscore=0 suspectscore=0 spamscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607010181
 
-On 2026-06-11 0:23, Ethan Nelson-Moore wrote:
-> Two Hexagon memory management headers contain code to handle
-> CONFIG_PAGE_SIZE_1MB, which has never existed in the kernel. Remove
-> this dead code.
-> 
-> Discovered while searching for CONFIG_* symbols referenced in code but
-> not defined in any Kconfig file.
-> 
-> Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
-> ---
->   arch/hexagon/include/asm/page.h    | 4 ----
->   arch/hexagon/include/asm/pgtable.h | 4 ----
->   2 files changed, 8 deletions(-)
-Reviewed-by: Philippe Mathieu-Daudé <philmd@oss.qualcomm.com>
+Sorry for the long CC list, but this is a treewide change.
+
+Michal recently posted a RFC patch to separate the potential syscall number
+modifications in syscall_enter_user_mode_work() from the information
+whether the syscall should be processed and the return value modified:
+
+  https://lore.kernel.org/lkml/CE1qW@kunlun.suse.cz
+
+The existing logic is:
+
+arch_syscall()
+	regs->result = -ENOSYS;
+
+	syscallnr = syscall_enter_from_user_mode(regs, syscall);
+
+	if (syscallnr != -1L)
+		regs->result = invoke_syscall(regs, syscall;
+
+syscall_enter_from_user_mode() invokes ptrace, seccomp and
+tracing/BPF/Probes. All of them can modify the syscall number.
+
+ptrace and seccomp explicitly set the syscall number to -1L to indicate
+that the syscall invocation needs to be skipped and the result has not to
+be modified as it might have been modified by ptrace or seccomp. The
+tracer/BPF/Probes mechanism can modify the syscall number as well and
+relies implicitly on the -1L logic.
+
+This can obviously not be differentiated from a syscall invocation where
+userspace provided -1 as syscall number.
+
+The general agreement of the discussion was that the current mechanism,
+while functionally correct is non-intuitive and something like Michals
+proposal would make that code clearer and easier to handle on the
+architecture side:
+
+arch_syscall()
+	regs->result = -ENOSYS;
+
+	if (syscall_enter_from_user_mode(regs, &syscall)) 
+		regs->result = invoke_syscall(regs, syscall;
+
+That discussion made me look deeper into the related code and as usual
+there were a lot of other things to discover.
+
+  1) Stack randomization
+
+     add_random_kstack_offset() can only be invoked after
+     enter_from_user_mode() established proper state as it calls into
+     instrumentable code.
+
+     PowerPC got that wrong and the other architectures either invoke it
+     after enter_from_user_mode() or after syscall_enter_from_user_mode().
+
+     The latter is suboptimal as the randomization takes place after all
+     the user mode entry work. Aside of that add_random_kstack_offset()
+     uses get/put_cpu_var(), which makes it usable in preemptible code, but
+     when invoked in the interrupt disabled region that's pointless
+     overhead.
+
+  2) As discussed in the above thread just changing the function signature
+     of syscall_enter_from_user_mode[_work]() so they take a pointer
+     argument for the syscall and then return 0 on success is not really
+     intuitive either. Aside of that this breaks the implicit assumption of
+     the tracer when setting the syscall number to -1.
+
+  3) The x86 entry code has some historically accumulated oddities
+
+The following series addresses this by:
+
+  1) Providing new [syscall_]enter_from_user_mode() variants, which include
+     stack randomization and utilize a new add_random_kstack_offset_irqsoff()
+     variant, which avoids the get/put_cpu_var() overhead and converting all
+     usage sites over
+
+  2) Picking up Jinjie's seccomp patch from:
+
+     https://lore.kernel.org/lkml/20260629130616.642022-2-ruanjinjie@huawei.com
+
+     and addressing the feedback (renaming the seccomp functions)
+
+  3) Making the ptrace and tracer related functions return a boolean value
+     to indicate syscall permission
+
+  4) Addressing the x86 oddities
+
+  5) Converting the tree over to the new scheme
+
+With that all architectures using the generic syscall entry code follow the
+same scheme, apply stack randomization at the correct and earliest possible
+place and skip syscall processing depending on the boolean return value of
+syscall_enter_from_user_mode[_work]().
+
+There should be no functional changes, at least there are none intended.
+
+The resulting text size for the syscall entry code on x8664 is slightly
+smaller than before these changes.
+
+Testing syscall heavy workloads and micro benchmarks shows a small
+performance gain for the general rework, but the last patch, which changes
+the logic to be more understandable has no measurable impact in either
+direction.
+
+The series applies on Linus tree and is also available from git:
+
+        git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git entry-rework-v1
+
+Thanks,
+
+	tglx
+---
+ Documentation/core-api/entry.rst      |   33 +++++---
+ arch/alpha/kernel/ptrace.c            |    4 -
+ arch/arc/kernel/ptrace.c              |    2 
+ arch/arm/kernel/ptrace.c              |    4 -
+ arch/arm64/kernel/ptrace.c            |    4 -
+ arch/csky/kernel/ptrace.c             |    4 -
+ arch/hexagon/kernel/traps.c           |    2 
+ arch/loongarch/kernel/syscall.c       |   17 +---
+ arch/m68k/kernel/ptrace.c             |    4 -
+ arch/microblaze/kernel/ptrace.c       |    2 
+ arch/mips/kernel/ptrace.c             |    4 -
+ arch/nios2/kernel/ptrace.c            |    2 
+ arch/openrisc/kernel/ptrace.c         |    2 
+ arch/parisc/kernel/ptrace.c           |   12 +--
+ arch/powerpc/kernel/syscall.c         |    5 -
+ arch/riscv/kernel/traps.c             |   14 +--
+ arch/s390/kernel/syscall.c            |   11 +-
+ arch/sh/kernel/ptrace_32.c            |    4 -
+ arch/sparc/kernel/ptrace_32.c         |    2 
+ arch/sparc/kernel/ptrace_64.c         |    2 
+ arch/um/kernel/ptrace.c               |    2 
+ arch/um/kernel/skas/syscall.c         |    2 
+ arch/x86/entry/syscall_32.c           |   70 +++++++------------
+ arch/x86/entry/syscall_64.c           |   61 ++++++----------
+ arch/x86/entry/vsyscall/vsyscall_64.c |   14 +--
+ arch/x86/include/asm/entry-common.h   |    1 
+ arch/x86/include/asm/syscall.h        |   10 --
+ arch/xtensa/kernel/ptrace.c           |    5 -
+ include/asm-generic/syscall.h         |    4 -
+ include/linux/entry-common.h          |  125 ++++++++++++++++++++--------------
+ include/linux/irq-entry-common.h      |    6 -
+ include/linux/ptrace.h                |   13 +--
+ include/linux/randomize_kstack.h      |   19 +++++
+ include/linux/seccomp.h               |   12 +--
+ kernel/entry/syscall-common.c         |    7 +
+ kernel/seccomp.c                      |   35 ++++-----
+ 36 files changed, 264 insertions(+), 256 deletions(-)
+
+
