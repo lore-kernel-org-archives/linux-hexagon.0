@@ -1,71 +1,71 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B20A443746F
-	for <linux-hexagon@vger.kernel.org>; Thu,  9 Jul 2026 18:40:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D1EF43B48F
+	for <linux-hexagon@vger.kernel.org>; Thu,  9 Jul 2026 18:41:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783622422; cv=none; b=VeDxzMaF9R4gy+jSli+DlkKEKrS5Z1FHVDNZWL+X7SZHUM6p1NEPYiaxd/o2j9s7Bs0SVb10D/4kRUOrORymJTpZgYT8LW8BebEeU5uhXpT4uQJG9PMmaTSN5bWCxz8Cm4a2Fd/aw2mOpi+Rwm4Lqw1jV9J8Uw+J+7ig1mRcIs0=
+	t=1783622487; cv=none; b=udkLROixkqx4LSuOVIPGjGgRvu/L/BXOhTrJAxBxcS4gytO9+CTnpu03skHK3Az2OhZMwU55fvwKlqWo/tCt5WMli9B5JqDV0V/1CpEfJpmHCVmltn4kTIsjqUf1wZQH9hzG/3RxhQJ+0usw4glTvDaTEszvK/iojhpyvOq7QY8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783622422; c=relaxed/simple;
-	bh=rnI8Mtk7zFh67ToOxrITQJjhD2smVc7SMC3A0Srfn7A=;
+	s=arc-20240116; t=1783622487; c=relaxed/simple;
+	bh=x/B73ZAx/OZvPWDOjgMBsyCuVlSuIzuC3lusVvx1Is4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=G14pEQF+ipxnGOAQvGcMSZA4IBXUMZu16pdyp/pjB6n8aAWbyBNwgtVSJ8GkrJpdmodtnV93DFYHmkwI9T7nzEb68cj6ZHWxf6kCjTulzmkDE+h1YOz+jrN1ScFLMt5tl/fbg3RuKfyCUVNdLEB8Q3qHRRtz8B7gtZx2CNH85Wc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hSxrzxxE; arc=none smtp.client-ip=209.85.215.174
+	 Content-Type:Content-Disposition:In-Reply-To; b=fzUM6Z45UFmnHVyIeqJkU6TOURVIb5c2shc+57sckEESKLVA08jRdwQmVVqOmr5fCR0uQEOeyzCdsobM2/97JD2k16iMjf4aYBtUF2HczqJY3/jFTgZfikOf9Qm6jSZJUOLcqwS45ZaYgH+YnL2foJsN/33/xv3lf6yxi1Y3yr8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AVAXJFFm; arc=none smtp.client-ip=209.85.214.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hSxrzxxE"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-ca97d139d8dso89019a12.2
-        for <linux-hexagon@vger.kernel.org>; Thu, 09 Jul 2026 11:40:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AVAXJFFm"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2cca0c5799eso803915ad.0
+        for <linux-hexagon@vger.kernel.org>; Thu, 09 Jul 2026 11:41:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783622419; x=1784227219; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783622485; x=1784227285; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=v3NWG3nzWzn0lD5brSEphHHDIxNRitNNFv0e1po41sA=;
-        b=hSxrzxxEgcIPpX4HGktg5ZBZPXnANJ73MP3lQU8dB8IP7Qadq7oJ8G+4+MWybMR345
-         8CD1MkedcDdfN9mmArcgE/028EQezgTd0kAfl421CaxIudItiKKE10qi8Hx/9r62yEyx
-         L94i9XpzAPgVLVw5oRo/Cu4zV80C73sGdWFgFhGCzziH+NX//k6+57HkXCDPFDDUBWZc
-         ASWX5fCCg0oURezyLULnlaLxVPoPewDbOh1Y8+e6IUs/KO6/S3FQwLZwN/3FF0sAVTqs
-         pcWyaUPVyMBfu+h0C/SdPiDsIEvJVLAXiECIbVjHMA/BigcVj3icz30PkDlWEhhKpoRQ
-         lmjA==
+        bh=aq4oHRjffhbqNLpraCJHXQbfXmiONMD/vVc6qcgWJtk=;
+        b=AVAXJFFmK0nNQhIep2Zx7bQdFMVddMSEs+L4Gx9GRroa0HtOoGG79MHkpkbb+yGdq9
+         mMa24LFtE6V2hXx+q5AovfFeAZSs/VC6/AeG9dU48X7N3xSCHS4uqGNtj17QWFTJdJSe
+         JB1/zywZB5SQMADKuoiUUPLFcYWeOOFBCpUjBEr3aGMRxM3D4MNpkS+ANOiGWTtXyZkC
+         if6xGjcnc8pBFlVWHJb9XXQOdHLeb2JwsQH4YA+0ivE+gjgRfvDY2hsDr0jpUu6miCVx
+         yVF1GgWIDOlyJipWCi8tIkQKFScHFAiDOIXyB8qnWiDKSR3Uw3k6deV1NZVpP7BL0p10
+         mCmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783622419; x=1784227219;
+        d=1e100.net; s=20251104; t=1783622485; x=1784227285;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=v3NWG3nzWzn0lD5brSEphHHDIxNRitNNFv0e1po41sA=;
-        b=CQpIVXyAfAqr8tkpB9YaSb/2Enwd22kdvFW27eT46Z79a7/j5M5UOpXyV9bG/Z4m+W
-         Zv8ZRykZ2de3PrafaIVwjMJnf+8G1cfWL4E3zJA+t8LItyaagnKEOFhHgKskZKT9p9eN
-         66v/lNSYz1R8f0gnOFUciGp0pCTxUxEKtgb+S2dWR6hsHEfuLHTCfX/cyHz3i6GVCKKo
-         G1mWjcnpIa9sUPFO+OWnKB88RUbHqFhoXMncp0IyiTWJJhMwPPrtAcsSXxDZxzhxI5tK
-         bhGjbDHOYhXwPNabR3M3idOGybdOXDAeamfNoYRmP/m1tC328QrPirXLeYaJ4FHL9bC7
-         b+Rw==
-X-Forwarded-Encrypted: i=1; AHgh+RraBI3Z+DG/ygMVXRdoZWtBudgvsdlOcT2sUq6cp+hrYSF7tMUiPubTnhiqvRAxwdK2Pa1v+DY4rj1YoD6g@vger.kernel.org
-X-Gm-Message-State: AOJu0YwelPINmWdzGHf4CShSRX0COHoKpJ6wbb+FCkwDGO/DUjcW+D7M
-	oajfAB0OWiOtEw1sKdUUT9HmG2F5L2rO6t+Jua0M16vytzokxj+7gz2Q
-X-Gm-Gg: AfdE7ckRnUtqYstQsbvXawXEhh3lR166YXGq77vy0WPd47hGNoSWwSDyC0IMAQK22Sa
-	Wdh1yGXh+u3+klj56op21MKaQRS1xcxPwB/2QfViU6OYvXbqPHOoO4m13rUxvJhZ2LHQy8hl40F
-	/AUrOK90QcDLy3DygIrAs/XKFZ9vLaz78YG9yZtYR2bxWx3lQtzXRF1yEX7/TBybJckk3Tli+tm
-	K7RbpZycMfU1pEDp1GF4RFurc1/Ewt5CXWl+hrd5Dj7Ureraxd6yy4/I0Z9hxfLPUbTveFBOiEm
-	BTzA962xKrjRRLM7RfBzyJt1MFdNamp4dX/VQ8QlKz4H7A+KrNNjddXDqb2XkB526BFGH7tEsVE
-	v3lG+WQVWUvahqlIWJt5ZUFGvruD9WkSIUqax3uqkLa6XKRDD/5mX7L2esiXzPtSaNlNrqYXHTH
-	kNqSx8R3GXlRK+8suYv6kSdkDS9/NUETgfH4D08/t4U14z9kj6BJBY9q187wYb
-X-Received: by 2002:a05:6a21:4902:b0:3b4:8300:7019 with SMTP id adf61e73a8af0-3c0bcf656a1mr10343651637.18.1783622418932;
-        Thu, 09 Jul 2026 11:40:18 -0700 (PDT)
+        bh=aq4oHRjffhbqNLpraCJHXQbfXmiONMD/vVc6qcgWJtk=;
+        b=ToBG1VjYYBfkVYnn/WInw9m6mxWbnlfJyknPwbUu6eo9UuSPCak3ErNIvSfESZO2UL
+         vUC5jUdTBf4VrHnizm0dlgJp10uTo5Y2anKLMZ1TIzKhdqdlGVZqZLKslKKui1vVqvbH
+         7wSOw0GgacadyO3iV7Dh1aZrzyclKqnfC2kZE/zqVu/k7feET5GnrbyyGrKnk7E/9LFp
+         NBNlrIN6dPOgIYOB2sgHHvYc5gg8wLuEkJ3B8GgDYIsK8pfu1oqsP60OeYFf2/JFVTi+
+         YEfJnURjsWXG+NQSyX4jqXMVPOn4fnXhDQsXFuGyJ117bTYjMu48Qhj1KUS5YoE5txEx
+         dTvA==
+X-Forwarded-Encrypted: i=1; AHgh+RoQnRG1hM5IuY+P3WcU2nazSeFMLMq8AQISM/oC/gaJu0dafudt/XWTxbVkaK55241u7x5ugLgUHWcifXYp@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw0wv9Vrn5W7sQkWWYTAYTLw47Lr374DgaLUVX3G6riUAcxxqb1
+	DDtCWhPqQ3YinESMVQN4Jv0p2vKQInjqy5JOs/II8B+ahrpj6BBsRMyE
+X-Gm-Gg: AfdE7ckZ2fcpXB1Rn9AQjJKI1UT37sxBugkcnKZ8saMYwUsOO3KBxL27S0FQ0ej+iz0
+	gY+5NoSuLxNttP2nDIU0Kp//CFeewbvKEOxq1LYp5r7JP8LppX9WP+w+6ar7VcVnSx9wc/7HA3R
+	DWI0EBiLdSsA53Fb9Jc8BHKhru7buRkXudPgzAknzH/D4wn0YfwcIs/Jj2XtAW83Gb2FjhsICkt
+	SziloWBXRHJKuubZXIiEvd4nak/cZUYSXzHxxNAztq+EXTILOSyufj+TfPqKxNdv+TIarFJzuI4
+	1tBny4tr3+wbev/vK9yQipqEFO5gSreAY+antQCAWQ45SZY4L2LJMShhefPROAAnuei72AJA0pv
+	0Azvy4jijkWTnyZzC30Ip8q0NYYRpy6NExbApXVx5XyCu876QzKWkX5EvHuli3+IxCmdTxW/Dqm
+	OHGQJHHv8hZB4kPvGuinPARDViYBlDEKIDASS/W6S7frAk0BJAaNvwRlsdgdlD
+X-Received: by 2002:a05:6a20:3d0c:b0:3bf:80b8:9c8a with SMTP id adf61e73a8af0-3c0bcead1e2mr9967332637.6.1783622485265;
+        Thu, 09 Jul 2026 11:41:25 -0700 (PDT)
 Received: from li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com ([106.51.160.236])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3118ee6091dsm28653518eec.14.2026.07.09.11.40.03
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b659d7c8bsm35321002c88.12.2026.07.09.11.41.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jul 2026 11:40:18 -0700 (PDT)
-Date: Fri, 10 Jul 2026 00:10:01 +0530
+        Thu, 09 Jul 2026 11:41:24 -0700 (PDT)
+Date: Fri, 10 Jul 2026 00:11:04 +0530
 From: Mukesh Kumar Chaurasiya <mkchauras@gmail.com>
 To: Thomas Gleixner <tglx@kernel.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, 
-	Michael Ellerman <mpe@ellerman.id.au>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
-	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, Paul Walmsley <pjw@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Shrikanth Hegde <sshegde@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>, 
 	Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
 	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, 
 	Mark Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, 
@@ -84,11 +84,11 @@ Cc: LKML <linux-kernel@vger.kernel.org>,
 	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-openrisc@vger.kernel.org, 
 	sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, 
 	Michal =?utf-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Subject: Re: [patch 04/18] loongarch/syscall: Use
+Subject: Re: [patch 05/18] powerpc/syscall: Use
  syscall_enter_from_user_mode_randomize_stack()
-Message-ID: <ak_q9qWuifFdo_9S@li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com>
+Message-ID: <ak_rL1RfdQVJ6zeq@li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com>
 References: <20260707181957.433213175@kernel.org>
- <20260707190253.865955911@kernel.org>
+ <20260707190253.918861529@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
@@ -97,9 +97,9 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260707190253.865955911@kernel.org>
+In-Reply-To: <20260707190253.918861529@kernel.org>
 
-On Tue, Jul 07, 2026 at 09:06:11PM +0200, Thomas Gleixner wrote:
+On Tue, Jul 07, 2026 at 09:06:15PM +0200, Thomas Gleixner wrote:
 > syscall_enter_from_user_mode_randomize_stack() replaces
 > syscall_enter_from_user_mode() and the subsequent invocation of
 > add_random_kstack_offset().
@@ -111,37 +111,32 @@ On Tue, Jul 07, 2026 at 09:06:11PM +0200, Thomas Gleixner wrote:
 > No functional change.
 > 
 > Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> Cc: Huacai Chen <chenhuacai@kernel.org>
-> Cc: loongarch@lists.linux.dev
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Shrikanth Hegde <sshegde@linux.ibm.com>
+> Cc: linuxppc-dev@lists.ozlabs.org
 > ---
->  arch/loongarch/kernel/syscall.c |    5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
+>  arch/powerpc/kernel/syscall.c |    4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 > 
-> --- a/arch/loongarch/kernel/syscall.c
-> +++ b/arch/loongarch/kernel/syscall.c
-> @@ -11,7 +11,6 @@
->  #include <linux/linkage.h>
->  #include <linux/nospec.h>
->  #include <linux/objtool.h>
+> --- a/arch/powerpc/kernel/syscall.c
+> +++ b/arch/powerpc/kernel/syscall.c
+> @@ -2,7 +2,6 @@
+>  
+>  #include <linux/compat.h>
+>  #include <linux/context_tracking.h>
 > -#include <linux/randomize_kstack.h>
->  #include <linux/syscalls.h>
->  #include <linux/unistd.h>
+>  #include <linux/entry-common.h>
 >  
-> @@ -70,9 +69,7 @@ void noinstr __no_stack_protector do_sys
->  	regs->orig_a0 = regs->regs[4];
->  	regs->regs[4] = -ENOSYS;
+>  #include <asm/interrupt.h>
+> @@ -19,8 +18,7 @@ notrace long system_call_exception(struc
+>  	long ret;
+>  	syscall_fn f;
 >  
-> -	nr = syscall_enter_from_user_mode(regs, nr);
-> -
+> -	r0 = syscall_enter_from_user_mode(regs, r0);
 > -	add_random_kstack_offset();
-> +	nr = syscall_enter_from_user_mode_randomize_stack(regs, nr);
+> +	r0 = syscall_enter_from_user_mode_randomize_stack(regs, r0);
 >  
->  	if (nr < NR_syscalls) {
->  		syscall_fn = sys_call_table[array_index_nospec(nr, NR_syscalls)];
-> 
+>  	if (unlikely(r0 >= NR_syscalls)) {
+>  		if (unlikely(trap_is_unsupported_scv(regs))) {
 > 
 Reviewed-by: Mukesh Kumar Chaurasiya (IBM) <mkchauras@gmail.com>
-> _______________________________________________
-> linux-snps-arc mailing list
-> linux-snps-arc@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-snps-arc
