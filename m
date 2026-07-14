@@ -1,126 +1,235 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE3E7368D79
-	for <linux-hexagon@vger.kernel.org>; Mon, 13 Jul 2026 07:06:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BB453F9278
+	for <linux-hexagon@vger.kernel.org>; Tue, 14 Jul 2026 08:20:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783926388; cv=none; b=pnvXLDTwS29CgQNpfoLv7x/oZ2hM4aiJ3SlEziGQla0qsV7hFMqe/M9z5lQNHrZOM+Xt2ffBKkqAlMd63wPQdDShFLsflcpNCY/EKsQuCLZr8oHCpgI0czzdJQfOMaCuQJa6qrmsx4DRymjgefuCvWlxSlg07JoXEc+854EV6w4=
+	t=1784017233; cv=none; b=hr+0ku9+MDED0/eyj1tKTjYK7A2C/umcFwwNS0csZUIHfbOAMwCjTSlZ1dtO5gFbklhBY2xIMXuWLMYZGJ3wmQNt7b90+cH9Kmh7oMIX98yPdCBWuQG4spVMI6PXMqkfY1xLpMffU6Eo3v5ryN7VPfJMS+SnEMAo8Gm0/PohaQU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783926388; c=relaxed/simple;
-	bh=hCeMAFawqUQZK5TTzZSun5coCAr0fqMieti9jZqRw7A=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ErG3xHBQCFcOkE+gWTGuaarwFYg6KWYJDodgMnee1XDZvRUWhdXGcIZIPrhFR+QP08HXLXL7xl3j09wN2o/9QRrkXCi95bhQz/7EL8SxCSxYPwtyKzgg5l43xpMqdoxFDyaCZLdAn4+QzimLw/6rxGRKI+B4uvYaQPmoaiCxd3Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TbglOxZr; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784017233; c=relaxed/simple;
+	bh=TGt1HFaW/THuzsrHNEcoHdyo6LaeCt1ApJr4+qFvNmI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=L6iVhbqaGP3MuMkZoEx1UV3SSGxMvm2BVvgrJ/8bQR0QD/9RYPQq3YEgBikzL3TFURBJ0iNT/vz7yy3/bhYRg8UYcs+pkC3NWcS8k5QTbuQgfOUziamyVXt0MZn0GuxfEaKBBSCq9Sw182ZFEP1OFQQ9u+I0p8PcB4ofR1VjqL8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DKJ09ll/; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kyKADJBo; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DKJ09ll/; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kyKADJBo; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TbglOxZr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 410EF1F00ACA
-	for <linux-hexagon@vger.kernel.org>; Mon, 13 Jul 2026 07:06:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783926384;
-	bh=MaoMLNzrQSdilHBAPxvn7cFGYo6KCQRZiQrYmmdeSDg=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=TbglOxZrZc+8ho1Z2BcK0IhS3egNUSq0c5Yekd6nxDBKZQhVPPnrHghm6ItjXrvW8
-	 myYXJ6x6lFh7QX5ecmuh/vq7Qwc4aN3eTk8kvvmFs1d8wRQY7vrvAGfQK8ML7sZ4Yj
-	 k2WeLrzUteazWoeRwgjCCUDZJ2+PWRLzL1ozd2prV95l5uW3ki91C/T/KpUndY2saf
-	 +I1D4H0CLwMJu74DptZISJOOYDmUct5uhnCyLsAUx2HSrcK3fC5VZsBannIxQYZ7Rq
-	 GNjV6d1+IgN8jsegZ7lli5dbQ5dULez5iyH6dt+oUZzipNLSJVSN9n9AB3HDQyztKw
-	 NLk2nciGwWqEA==
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-4629051c9d1so1460400f8f.2
-        for <linux-hexagon@vger.kernel.org>; Mon, 13 Jul 2026 00:06:24 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+Rrh7tnXlB2pIUuJNnmxAa6qTuRrJePsUQZlyCYN3ssvMsfNAQV+KKlRN83zrAJan1zjHXAAC2scn6SI32wH@vger.kernel.org
-X-Gm-Message-State: AOJu0YwWYAPyhFD3C7mc+xTpQ2eXATTv0+eCQ3E+sXMDnojZSGz69MP8
-	OnzCH8dqqrroCC/J14tnbxlA57LjmJiXdLK7Eh4yRBTaO2AjtA3TY6Afi5Fh4AoHTOogcHRPsMk
-	56kolLS8rrtKfyJ9qovN/pIjuNAFHq5U=
-X-Received: by 2002:a05:6000:186c:b0:476:d13f:bb74 with SMTP id
- ffacd0b85a97d-47f2dc9bac8mr8770361f8f.15.1783926382749; Mon, 13 Jul 2026
- 00:06:22 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DKJ09ll/";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kyKADJBo";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DKJ09ll/";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kyKADJBo"
+Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 5B37B77D67;
+	Tue, 14 Jul 2026 08:20:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784017221; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=j1nzoIiIS1i6/8kifcmUM+0AdKBs7HiZlyka0H+4a9w=;
+	b=DKJ09ll/zFwCXlbl6voF6Ew/i+nGfuIXvwr6+pPYyJYkjrugeEud/q+Ki5j7VPl5fqg4RU
+	7v0Fr5aEHfh6wFz8BRS8uap35P8g2QzVdrMcXNhwITMtJjhdQjQ/wGAESjusjginjvTIaB
+	s/IaH99ENQnMIs5WMPNIymEU1PqEzNQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784017221;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=j1nzoIiIS1i6/8kifcmUM+0AdKBs7HiZlyka0H+4a9w=;
+	b=kyKADJBodi7qpCF8SOU3elSKX6/nsxl0ZSGyW3McIGkcmKNlth+AD/XvcaQdtO7s/xaBLW
+	/BdlcT2IZYRDreCA==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="DKJ09ll/";
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=kyKADJBo
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1784017221; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=j1nzoIiIS1i6/8kifcmUM+0AdKBs7HiZlyka0H+4a9w=;
+	b=DKJ09ll/zFwCXlbl6voF6Ew/i+nGfuIXvwr6+pPYyJYkjrugeEud/q+Ki5j7VPl5fqg4RU
+	7v0Fr5aEHfh6wFz8BRS8uap35P8g2QzVdrMcXNhwITMtJjhdQjQ/wGAESjusjginjvTIaB
+	s/IaH99ENQnMIs5WMPNIymEU1PqEzNQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1784017221;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=j1nzoIiIS1i6/8kifcmUM+0AdKBs7HiZlyka0H+4a9w=;
+	b=kyKADJBodi7qpCF8SOU3elSKX6/nsxl0ZSGyW3McIGkcmKNlth+AD/XvcaQdtO7s/xaBLW
+	/BdlcT2IZYRDreCA==
+Date: Tue, 14 Jul 2026 10:20:20 +0200
+From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	linux-riscv@lists.infradead.org,
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
+	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Guo Ren <guoren@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Helge Deller <deller@gmx.de>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Richard Weinberger <richard@nod.at>,
+	Chris Zankel <chris@zankel.net>,
+	linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
+	linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
+	Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>,
+	Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>,
+	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
+	linux-arch@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+	linux-doc@vger.kernel.org
+Subject: Re: [patch 13/18] entry: Make trace_syscall_enter() return type bool
+Message-ID: <alXxRMjQsBas4AJv@kunlun.suse.cz>
+References: <20260707181957.433213175@kernel.org>
+ <20260707190254.338083894@kernel.org>
+ <ak5ySpil83TNWxeq@kunlun.suse.cz>
+ <87se5tqkyp.ffs@fw13>
+ <alDQ7isUKJFl8Va4@kunlun.suse.cz>
+ <87a4rxqnar.ffs@fw13>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260707181957.433213175@kernel.org> <20260707190253.974626922@kernel.org>
-In-Reply-To: <20260707190253.974626922@kernel.org>
-From: Guo Ren <guoren@kernel.org>
-Date: Mon, 13 Jul 2026 15:06:10 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTTjW0RfZsJmHVAqrRsHpK4cJ+01G_Kkytt=0Wpm4sZpkg@mail.gmail.com>
-X-Gm-Features: AUfX_mzuKA4JwmuMUWB774bzpkP7q4a7PrJvxtp8N1GWwrENQwGP0BULxiqlyqc
-Message-ID: <CAJF2gTTjW0RfZsJmHVAqrRsHpK4cJ+01G_Kkytt=0Wpm4sZpkg@mail.gmail.com>
-Subject: Re: [patch 06/18] riscv/syscall: Use syscall_enter_from_user_mode_randomize_stack()
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
-	Michael Ellerman <mpe@ellerman.id.au>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
-	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, 
-	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, 
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, 
-	Mark Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, 
-	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller <deller@gmx.de>, 
-	Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, 
-	Chris Zankel <chris@zankel.net>, linux-arm-kernel@lists.infradead.org, 
-	linux-alpha@vger.kernel.org, linux-csky@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, 
-	linux-um@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, 
-	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, 
-	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-arch@vger.kernel.org, =?UTF-8?Q?Michal_Such=C3=A1nek?= <msuchanek@suse.de>, 
-	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <87a4rxqnar.ffs@fw13>
+X-Spamd-Bar: +++++++++++++
+X-Rspamd-Queue-Id: 5B37B77D67
+X-Spam-Flag: YES
+X-Spam-Score: 13.02
+X-Spam-Level: *************
+X-Rspamd-Action: add header
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [13.02 / 50.00];
+	SPAM_FLAG(5.00)[];
+	NEURAL_SPAM_LONG(3.50)[1.000];
+	BAYES_HAM(-3.00)[100.00%];
+	HFILTER_HOSTNAME_UNKNOWN(2.50)[];
+	RDNS_NONE(2.00)[];
+	ONCE_RECEIVED(1.20)[];
+	HFILTER_HELO_IP_A(1.00)[kunlun.suse.cz];
+	NEURAL_SPAM_SHORT(0.83)[0.278];
+	HFILTER_HELO_NORES_A_OR_MX(0.30)[kunlun.suse.cz];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	MIME_TRACE(0.00)[0:+];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmx.de];
+	FREEMAIL_CC(0.00)[vger.kernel.org,infradead.org,ellerman.id.au,linux.ibm.com,lists.ozlabs.org,kernel.org,lists.linux.dev,dabbelt.com,lists.infradead.org,arm.com,huawei.com,redhat.com,linaro.org,armlinux.org.uk,linux-m68k.org,alpha.franken.de,gmx.de,users.sourceforge.jp,nod.at,zankel.net,lists.linux-m68k.org,arndb.de,monstr.eu,davemloft.net,gaisler.com,lwn.net];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b306:2000::2:from];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[52];
+	MISSING_XM_UA(0.00)[];
+	RCVD_COUNT_ZERO(0.00)[0];
+	DKIM_TRACE(0.00)[suse.de:+];
+	R_RATELIMIT(0.00)[to_ip_from(RLs1yuyu6ywojxyk8y3ncu5g39)];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim]
+X-Spam: Yes
 
-On Wed, Jul 8, 2026 at 3:06=E2=80=AFAM Thomas Gleixner <tglx@kernel.org> wr=
-ote:
->
-> syscall_enter_from_user_mode_randomize_stack() replaces
-> syscall_enter_from_user_mode() and the subsequent invocation of
-> add_random_kstack_offset().
->
-> The advantage is that it applies the stack randomization right after
-> enter_from_user_mode() and thereby avoids the overhead of get/put_cpu_var=
-()
-> as that code is invoked with interrupts disabled.
->
-> No functional change.
->
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> Cc: Paul Walmsley <pjw@kernel.org>
-> Cc: Palmer Dabbelt <palmer@dabbelt.com>
-> Cc: linux-riscv@lists.infradead.org
-> ---
->  arch/riscv/kernel/traps.c |    5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
->
-> --- a/arch/riscv/kernel/traps.c
-> +++ b/arch/riscv/kernel/traps.c
-> @@ -7,7 +7,6 @@
->  #include <linux/kernel.h>
->  #include <linux/init.h>
->  #include <linux/irqflags.h>
-> -#include <linux/randomize_kstack.h>
->  #include <linux/sched.h>
->  #include <linux/sched/debug.h>
->  #include <linux/sched/signal.h>
-> @@ -333,9 +332,7 @@ void do_trap_ecall_u(struct pt_regs *reg
->
->                 riscv_v_vstate_discard(regs);
->
-> -               syscall =3D syscall_enter_from_user_mode(regs, syscall);
-> -
-> -               add_random_kstack_offset();
-> +               syscall =3D syscall_enter_from_user_mode_randomize_stack(=
-regs, syscall);
+On Sat, Jul 11, 2026 at 10:33:16PM +0200, Thomas Gleixner wrote:
+> Michal!
+> 
+> On Fri, Jul 10 2026 at 13:01, Michal Suchánek wrote:
+> > On Wed, Jul 08, 2026 at 10:34:38PM +0200, Thomas Gleixner wrote:
+> >> does not make #2 magically go away. It's still the same problem whether
+> >> you like it or not.
+> >
+> > However, reading the syscall number from pt_regs only after
+> > syscall_enter_from_user_mode exits does.
+> 
+> That does not solve anything at all.
+> 
+> TBH, your communication style is annoying as hell. You fail to provide
+> any useful arguments and explanations despite me giving you a proper
+> analysis. And I'm absolutely tired of this.
+> 
+> So let me try again for _ONE_ last time to explain you why your ppc/s390
+> world view is broken and let's look at the current code (irrelevant
+> portions omitted).
+> 
+> static __always_inline long syscall_trace_enter(struct pt_regs *regs, unsigned long work)
+> {
+> 	if (work & SYSCALL_WORK_SYSCALL_USER_DISPATCH) {
+> #1		if (syscall_user_dispatch(regs))
+> 			return -1L;
+> 	}
+>         
+> 	if (work & (SYSCALL_WORK_SYSCALL_TRACE | SYSCALL_WORK_SYSCALL_EMU)) {
+> #2		ret = arch_ptrace_report_syscall_entry(regs);
+> 		if (ret || (work & SYSCALL_WORK_SYSCALL_EMU))
+> 			return -1L;
+> 	}
+> 
+> 	/* Do seccomp after ptrace, to catch any tracer changes. */
+> 	if (work & SYSCALL_WORK_SECCOMP) {
+> #3		ret = __secure_computing();
+> 		if (ret == -1L)
+> 			return ret;
+> 	}
+> 
+> 	/* Either of the above might have changed the syscall number */
+> #4	syscall = syscall_get_nr(current, regs);
+> 
+> 	if (unlikely(work & SYSCALL_WORK_SYSCALL_TRACEPOINT))
+> #5		syscall = trace_syscall_enter(regs, syscall);
+> 
+>         return syscall;
+> }
+> 
+> #1) The user dispatch mechanism does not modify the syscall return
+>     value, but it can rollback the syscall and tell the call site to
+>     skip the invocation.
+> 
+>     The mechanism used in upstream today is to return -1L as the syscall
+>     number which makes the architecture specific entry code skip the
+>     syscall and refrain from touching the return value.
+> 
+> #2) ptrace
+> 
+>     ptrace can poke whatever it wants into the syscall number storage
+>     via ptrace_set_syscall_info_entry() -> syscall_set_nr()
+> 
+>     It does not set the return code.
+> 
+>     It does not abort the syscall when the poked syscall number is -1L.
 
-Reviewed-by: Guo Ren <guoren@kernel.org>
+Indeed, it does not abort on -1 syscall number anymore although there
+are still comments around that claim that setting the syscall number to
+-1 is special.
 
---=20
-Best Regards
- Guo Ren
+Thanks
+
+Michal
