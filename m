@@ -1,179 +1,106 @@
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6E0837BE9C
-	for <linux-hexagon@vger.kernel.org>; Sun, 19 Jul 2026 11:25:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784460349; cv=pass; b=T/QHBHRxl2edGmydG1x6jxIJGxIPuJCDbqEQFaRKU3oRg6u3CmlocsEG0LVZdYNI52o92xwUIF3XvQzZBOinW9xKQtqSUAAk6ghn5rvsB6n//9SPnnFEssaCkbk8xazqGP9DniIVhRepV8tvRzbwVsBRx1oev18mWyVp7csv93I=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784460349; c=relaxed/simple;
-	bh=rgcqbxa6lEmJgPeR85dLIKFK2p9ERX+2iKovNt7jIVY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ldTmxO2Tnm0vw9s99LXrUAOzGajGh3ETPx+50N6yNlkjsEJ+9h+4/q+NSdgIcQ3GdLBiBt70cUHuN8ZwjFffo1st/Dmtql4cBRdnHZ6La7NvpTJywmfNOyabNECT+SRWWE8mXo5VbPMsAGjBA/X/cGl1tOdE7b2n6lDjNxRpZ2A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D9Eg2uDU; arc=pass smtp.client-ip=209.85.208.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E41F62FD69E;
+	Mon, 20 Jul 2026 19:21:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784575271; cv=none; b=XbMCTqgDla/IG1c0w9gd+sICX07wyjqwWgCh3fZ1a6+u0NBdpC4YhiqqvXBjdpHbwzUNARL/sC0VcOrHXMorlsQBWN4+Gavm0E8S1mfG1kCSVVfaXNADqR1NDXmpzoInO+CR+iNqongpltSoz1saPLV5T3M6A7iBPBxUv45hoXs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784575271; c=relaxed/simple;
+	bh=H/vKTqmynWJ9xGLYIa8zO75nqGaobj6R+UxbFnLBdNk=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=Ns/WBYXQtUdD3S2Cjb/A8hRI1LyhSq8EmQ9ue/mUebmcagp5v8VmfeZZWvfJKWm8zoTrt9aTo9Xaums8xR+3rdjmeuXeknojAl1/Xh2zJTc0Xy5RdbXktX/MgoEweD4OtLRh9bdPqzsA9FzVYhdC+JWUb+4ZQwYzjknQO1fnOJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Spav0GWz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D9Eg2uDU"
-Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-69e2266b07fso6395870a12.2
-        for <linux-hexagon@vger.kernel.org>; Sun, 19 Jul 2026 04:25:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784460345; cv=none;
-        d=google.com; s=arc-20260327;
-        b=X0RThpl1kJ3QXJTljgqmglSG12XBqokKb5TXh5cQlSkY7MsnkSCIUGwgOadbJ5EiBG
-         cNHFtnsOiNeKMG0oRaiFn4EOHldk+27ZlrGDijL3Qp4P1ZnwQnmNo7WiTfqTA1GIRM+Z
-         yf7M71DR1NcQaNR6s/S/FfxJE8KFMwhsi7pXpE028Rd12/UkwOxZDkAaS3x8y+qB6aBd
-         OyTKorsqz71PfqaN6SnOFKOReOlsHcG++Bz9Pu1tt7bJ8lFhzxV6RdHJ0vN5h86TM3vY
-         /VWJmLP9lF9Ub6sXzgI3MtegKRm+n93N0WhC6xob9k+PrcN+PCjK2iXOoX3wYqO9VMlv
-         tihg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=HjwBEg56Cr9vHNVIU01sUWrlM5gmQ+vCUXpN04JdIto=;
-        fh=JjOQK3qr6ZMJOeZmzDd01Qy0MiMYUD05e8iQgxeFaE8=;
-        b=oZVIT/3948lgfT/caIF6QChhx7UZccglZ5Hik/DvfOYaR08FlXpqB0VtwLhePZCzUl
-         ZTLsm/uINZ6YyF9mwbg3YSTBFQKZVnyZ1BOkQG+9IxPJGId0fji/2C6Us2wU6BISvMrX
-         Tr6/zgnWw9ecseATVS6PPXygnRVHF+9GIH6JJ8d84h+lmn/D/Q/SDnHx61us90lBiiSh
-         +tqdjqWBxHohFt8HEjokHRp/qaXeN26Uef6bfzE/clASF9DVQBrqLdggF3uqojLV4ygn
-         7F0N6qCHlae+c3fI4/Z1Lx7xJ1BqRPwHVLKlOJ1atVWh9i+sO1KQ2yRXhpJDez6/Nqyv
-         JawQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784460345; x=1785065145; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=HjwBEg56Cr9vHNVIU01sUWrlM5gmQ+vCUXpN04JdIto=;
-        b=D9Eg2uDUSi1x0Y0zg7fYRwtO/ea3ND5A/4nTPUeApKtSEYiUynlMiE59GblVd3IOrl
-         oWFLcCJp25Ys4PA6xy84FzRAl40+EnzjzRCpSvwGo7RHBsGsYMluu61eRFOFojQND+uf
-         lNJOO3g5JejU7GJi6tHzDEvpZzKFqs8qHKpdvXxbKlewQ6qiZ+CA5RKcpH/KLcFJLheA
-         g2ExVRjhJfMz7jIq0+v0kblCXJOFmPxGPhyEutQjLJ+4HNvh68qQ5hZaqeUXlD5xjERu
-         lUwCLdeswboAyC7uRJFB1Xc36fvUf6TDNx+P0LVWtrX9LSsJKKKRbJx1t2fLrOwcBBgd
-         7OEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784460345; x=1785065145;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=HjwBEg56Cr9vHNVIU01sUWrlM5gmQ+vCUXpN04JdIto=;
-        b=jr4AGwz3T5O1wV4lT2lUK/8ZUpPaXqz8K8V2UiwMgOyF+fvM6TfLa199S+5q6JBcMX
-         Tt1P4Zx9WTM7OigXkXWcRKsD+5YzeGyQbXWsFqshS3gB4H3kw7jXuDVkX2YxoHKs9O5u
-         cXchyISuP1CU59fa3kvYSn76yzo86+JfQ2B2k/YO8Jjxe3VfGf5SrhPYemXDYI+S0ES4
-         EFoyxj7N+FbEfQuj+ZB26SEsd4ziRw9tPxPPDG4w94UcRHS5qUuTuYfUO7YdpbABMsSX
-         V44UQJ00o32/sgxvd4xKoOuY8PcMV72RkA5luj576gROd5nYw7kpgTpxK2zFqgxmXCG+
-         SjCA==
-X-Forwarded-Encrypted: i=1; AHgh+RqfCSQAl45znoGwKiJFOQQsqoZ3MDwvO7d1N0b4whlOo3eBxdjyNS22Uv+kpV/j/jwye3UmirsywVjfoO5e@vger.kernel.org
-X-Gm-Message-State: AOJu0YxLWV0prISnlhw7XcDQ4KaHwKV+JZ8VU+GADKDHXXdMFy7Yy3ac
-	TScVtaBAFvNHziZq8Lh6eriZUSnrVjVy66zSRg5jPYBAJo4bdKsB+qD85HiRYxAL/yFsfSVkzbT
-	sxcJmhxmWzY3xT43WDzoGaXlWs6SdEUo=
-X-Gm-Gg: AfdE7cmA23SETVdLRcuzYYkKHNPKc3ykCi0drdEby1H0vWFZ0SxG+BuJ3dBDHS6x0/L
-	5Sd/JdSkqubZHwvn1W+CylqvFgCZDNG84ZKPeYJEryfJzALym1VFEsSKCfI/OkB29q6uV1Q70Gd
-	CpOFaliLWr/QU98vpR1rVB72apXcmcIWGSWeOkN4mMRM2t7cJ7NlGy9FnrrDznp6GhhoBpFPkDI
-	skWsZptijHTx5DDaf1MmOPh+XCT5kgJZXE+XNlNKBtU3qRynPzSbssT7p1DmGqENc7uo4hj54ER
-	9MmSSW1Cjo5DOm5VhTYoS/Mv3mdfNGXU+jQyHHKlBA==
-X-Received: by 2002:a05:6402:34d5:b0:698:3b7b:e48a with SMTP id
- 4fb4d7f45d1cf-69e652f908dmr3652615a12.32.1784460344585; Sun, 19 Jul 2026
- 04:25:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Spav0GWz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC12B1F000E9;
+	Mon, 20 Jul 2026 19:21:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784575270;
+	bh=y4vTZRCmYUoacTgRQeb9iD10u8BLXmQ5njXvIgguyco=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=Spav0GWz3rWmeiOvTkSHmoLaFmA0dsmghrTMMUGIy7BsnbqtE0r1vEIJpGCtqeWB+
+	 BpTJQ6xzB/KOaDAAkoTPfDvyF002TmAYBtSyKK5uExFq/Cj1mLr43Z33qJ2sRMi9Nf
+	 nJuZqLg2J7TvcdvdFpFOL3PuoTONb0yf3DbORivGivTO7zCY0H72Bu+OkktKpqh03L
+	 Vksh67h0wy7gmPYEI4mwGb9sleMrzw8Jsb1sLuHLmScVy2tv/f+VR08LYTxzvzqe4C
+	 b/ZkM/7+AGeKxhezpkSh009TVoxiBEuZvcET+KD3PE+3fxGAVYAS/3R9Y8DzfgWlkp
+	 U2Lg+Wsg/dkOQ==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Magnus Lindholm <linmag7@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra
+ <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Shrikanth
+ Hegde <sshegde@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org, Kees Cook
+ <kees@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt
+ <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, Sven Schnelle
+ <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, Mark
+ Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, Andy
+ Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Richard
+ Henderson <richard.henderson@linaro.org>, Russell King
+ <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Guo
+ Ren <guoren@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas
+ Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller <deller@gmx.de>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger
+ <richard@nod.at>, Chris Zankel <chris@zankel.net>,
+ linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
+ linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-um@lists.infradead.org, Arnd Bergmann
+ <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>, Will Deacon
+ <will@kernel.org>, Brian Cain <bcain@kernel.org>, Michal Simek
+ <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, "David S. Miller"
+ <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
+ linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-arch@vger.kernel.org, Michal =?utf-8?Q?Such=C3=A1nek?=
+ <msuchanek@suse.de>, Jonathan
+ Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
+Subject: Re: [patch 00/18] entry: Consolidate and rework syscall entry handling
+In-Reply-To: <CA+=Fv5TDNH8+JAojV9_W36kUkEE68uiA00FQ7i0vJunebqs1sA@mail.gmail.com>
+References: <20260707181957.433213175@kernel.org>
+ <CA+=Fv5TDNH8+JAojV9_W36kUkEE68uiA00FQ7i0vJunebqs1sA@mail.gmail.com>
+Date: Mon, 20 Jul 2026 21:21:07 +0200
+Message-ID: <87wluplb6k.ffs@fw13>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260707181957.433213175@kernel.org>
-In-Reply-To: <20260707181957.433213175@kernel.org>
-From: Magnus Lindholm <linmag7@gmail.com>
-Date: Sun, 19 Jul 2026 13:25:32 +0200
-X-Gm-Features: AUfX_mzTzrHRlu_CZJHA0P1GUw_Z2tfq0CbfsG-DFTqsEJDFIQx7LWbdfB3YWqk
-Message-ID: <CA+=Fv5TDNH8+JAojV9_W36kUkEE68uiA00FQ7i0vJunebqs1sA@mail.gmail.com>
-Subject: Re: [patch 00/18] entry: Consolidate and rework syscall entry handling
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Shrikanth Hegde <sshegde@linux.ibm.com>, 
-	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>, 
-	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev, 
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org, 
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, x86@kernel.org, 
-	Mark Rutland <mark.rutland@arm.com>, Jinjie Ruan <ruanjinjie@huawei.com>, 
-	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Helge Deller <deller@gmx.de>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Richard Weinberger <richard@nod.at>, Chris Zankel <chris@zankel.net>, linux-arm-kernel@lists.infradead.org, 
-	linux-alpha@vger.kernel.org, linux-csky@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, 
-	linux-um@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, 
-	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, 
-	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-arch@vger.kernel.org, =?UTF-8?Q?Michal_Such=C3=A1nek?= <msuchanek@suse.de>, 
-	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 
->
-> With that all architectures using the generic syscall entry code follow the
-> same scheme, apply stack randomization at the correct and earliest possible
-> place and skip syscall processing depending on the boolean return value of
-> syscall_enter_from_user_mode[_work]().
->
-> There should be no functional changes, at least there are none intended.
->
-> The resulting text size for the syscall entry code on x8664 is slightly
-> smaller than before these changes.
->
-> Testing syscall heavy workloads and micro benchmarks shows a small
-> performance gain for the general rework, but the last patch, which changes
-> the logic to be more understandable has no measurable impact in either
-> direction.
->
-> The series applies on Linus tree and is also available from git:
->
->         git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git entry-rework-v1
->
+Magnus!
 
-Hi Thomas,
+On Sun, Jul 19 2026 at 13:25, Magnus Lindholm wrote:
+> One Alpha-specific wrinkle I hit while rebasing the GENERIC_ENTRY patch is
+> that Alpha cannot unconditionally pre-seed the normal -ENOSYS return state
+> before calling into the generic entry code: syscall_set_return_value() also
+> updates r19/a3, which is still syscall argument 4 on the normal entry path.
+> Doing that too early broke early userspace mmap() during boot.
 
-I did another round of testing of this series on Alpha, this time with my
-Alpha GENERIC_ENTRY conversion rebased on top of this series.
+Similar to what Peter and me suggested in the related discussion
+vs. s390 which has a similar issue, you can just have a dedicated
+syscall_return member in your pt_regs struct, which is preset to -ENOSYS
+and operate on that. You have an unused padding entry there which means
+it won't even change the size.
 
-For this test I also manually applied the seccomp fixup discussed earlier in
-this thread, i.e. fixing the recheck-after-trace logic in
-__seccomp_filter() along the lines suggested by Jinjie/Oleg.
+> Are you planning to send a v2 with the seccomp recheck fix and any other
+> review fixups folded in? Is the intention to route this upstream
+> during the next merge window?
 
-With that in place, the kernel boots on Alpha and I do not see any
-regressions in the seccomp_bpf kernel selftest or in the strace testsuite.
+You were on CC for the V2, no?
 
-One note: the seccomp_bpf selftest run on Alpha uses this not-yet-upstream
-Alpha selftest enablement patch:
+The whole pile including Jinjie's seccomp bypass fix is in
 
-https://lore.kernel.org/linux-alpha/20260203063357.14320-1-linmag7@gmail.com/
+    git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git core/entry
 
-One Alpha-specific wrinkle I hit while rebasing the GENERIC_ENTRY patch is
-that Alpha cannot unconditionally pre-seed the normal -ENOSYS return state
-before calling into the generic entry code: syscall_set_return_value() also
-updates r19/a3, which is still syscall argument 4 on the normal entry path.
-Doing that too early broke early userspace mmap() during boot.
+and is targeted for the 7.3 merge window.
 
-The Alpha conversion therefore handles this on the no-dispatch path instead:
-after the generic entry helper returns, if the syscall is not to be invoked
-or the resulting syscall number is invalid, Alpha skips the call, preserves
-any ptrace/seccomp/BPF-provided return value, and only synthesizes -ENOSYS if
-the return state was otherwise unchanged. That was needed for the
-TRACE_syscall.ptrace.syscall_faked and syscall_errno seccomp_bpf cases to
-pass.
-
-So from the Alpha side, with the seccomp fixup applied:
-
-Tested-by: Magnus Lindholm linmag7@gmail.com
-
-Are you planning to send a v2 with the seccomp recheck fix and any other
-review fixups folded in? Is the intention to route this upstream
-during the next merge window?
+If you want to base your stuff on that for 7.3, I can add a tag which
+makes it immutable so it can be pulled into the alpha tree.
 
 Thanks,
-Magnus
+
+        tglx
+
