@@ -1,140 +1,188 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CA89390CB4;
-	Thu, 13 Aug 2026 07:18:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id F39CA3AFB18;
+	Tue, 18 Aug 2026 04:00:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786605533; cv=none; b=JiPJnRxJkTEL58aKiOTSXHgVbuH0B0AQt8Aur1vvwMewrLV0A1V57r2NbyaJBha0oMyTnC2+TX5p0zgN9vxqg0XqyXqxDcqjTEkKO588gY13W2uhMTQO4jcm20s5lxxdMzF7cr3nE9+QI5p8NmN+mKyaN1MF7NqoAoy8ZJbaSgY=
+	t=1787025650; cv=none; b=Fib8xTYK3kGT1yqSalNS96kXUfDw1tP65gmiqhYdg4xRE7Eg9Pd7TO2+Rx0YwAWezpKLwu5Ian+lI460/j6tehk+xJZvFLV4+twn31DrEnL6uFqCTp/e8xxX76QSlFR6Iq+pSG2scj8Be0JIKcczaihftow72Z0irUbY4fQWcYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786605533; c=relaxed/simple;
-	bh=eQzPUn44O/tPkq47pjGpUtWgG67qF5D4jdglOJfzjZ8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BDDGKuVRkBXhTR6HoFJJxMI/FuBTu88qi1dGnJtn8Fc5Uld70lBPRYW6Y7Gq9oJB6KrF3o+cGjFSEaTrlLjGOeMhYsYygEFjhXlKhXPFdN+9yCRFGVjnlL5FCTxgcwr9iLgeQryQXo71XSgAR9cZuJ5pd3qQCrI+feItGF1Nqp4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LQoW8GUU; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787025650; c=relaxed/simple;
+	bh=LRR2JW96qzLG8uXgU1+MfoOsPimHhtCsmfw/iXX8kB4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=E7BrJZ0DGKPsvdoknoe78OSNsuI3shVTMV/bj1XDXzkMOXRFLjVver7CwxlosaOQMTZwyni6M3DBER51LBhgQx/L20fhYN4joNAtdmPwPPCZfpYaXE1k321+U633VlHrOwlb6tIodRA/N3idWpR/Qw/kV3V+hF+gI298NbMEd9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=NtFRXij4; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LQoW8GUU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF6D91F00A3D;
-	Thu, 13 Aug 2026 07:18:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786605532;
-	bh=FRu9n4mjHkdLoh1auc0+F0uq9mi4uQgSH6ITAa/iuvU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=LQoW8GUUyQqsjsyMSCymikLCl0K/PpYaTCtOqE8smOcqa2DMyAwkHJlcjWeM1J3S+
-	 p7F7YTHDWjjGCL63HV5xpWRhAdsFHo0ku3RZp+dd7ECs9spcYVoBm+vyaaylpUF+PD
-	 H22qTcfvj4D5oNy89mJR0hbJjegsfONgrwhHmtzF+bBi+aGhDM9oGd0P2xzEDI2kou
-	 1E0HF2+DNVjJvv6cBBocYB1eb2SJm99VpExDuZUltvNNZREs8uFacDqc0tyd8Vhkzr
-	 RtyNl40a3quN8bMMpCL9V3232v/KWwZovejB57bX78GVNpy/nQciclUW97AqYJJX/W
-	 0jrUTV5cHJu/Q==
-Message-ID: <fc404670-7194-4ae9-8646-b543869738f3@kernel.org>
-Date: Thu, 13 Aug 2026 09:18:43 +0200
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="NtFRXij4"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 46004153B;
+	Mon, 17 Aug 2026 21:00:41 -0700 (PDT)
+Received: from localhost (a085714.arm.com [10.164.19.28])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6E5453F66F;
+	Mon, 17 Aug 2026 21:00:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1787025645; bh=LRR2JW96qzLG8uXgU1+MfoOsPimHhtCsmfw/iXX8kB4=;
+	h=From:To:Cc:Subject:Date:From;
+	b=NtFRXij4Uhwnlv72AF85fJYzj/aymvsPMmb1FV54uYlLFKg3t/C+cIPPz6W0jsHV1
+	 9J4gARXAWELXnskJwPs+BnDvgT6ZNx/a8ZwzPVKYIGTlZF5fGPZRP4qKo2lnT7Fr1w
+	 ur0UrDi2dMsXj4xyEnxA47CkAD4o6o2g2lJDsONI=
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+To: linux-mm@kvack.org,
+	akpm@linux-foundation.org,
+	david@kernel.org
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-arch@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [RFC V3 0/8] mm: Drop pxd_ERROR()
+Date: Tue, 18 Aug 2026 09:30:33 +0530
+Message-ID: <20260818040041.1891769-1-anshuman.khandual@arm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC V2 6/6] mm: Drop pxd_ERROR()
-To: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: linux-mm@kvack.org, akpm@linux-foundation.org,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
- WANG Xuerui <kernel@xen0n.name>, linux-alpha@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-um@lists.infradead.org, linux-arch@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260811042119.3652929-1-anshuman.khandual@arm.com>
- <20260811042119.3652929-7-anshuman.khandual@arm.com>
- <1fb9ed88-67d0-4ac1-878d-0dc8e1135d19@kernel.org>
- <2ys7apbnfuj3ugfoqgbptgej3jjcyfpmdgbv6qbxupmwg6mefc@h5p33ua2nzlu>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <2ys7apbnfuj3ugfoqgbptgej3jjcyfpmdgbv6qbxupmwg6mefc@h5p33ua2nzlu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 8/13/26 08:03, Anshuman Khandual wrote:
-> On Wed, Aug 12, 2026 at 01:33:14PM +0200, David Hildenbrand (Arm) wrote:
->> On 8/11/26 06:21, Anshuman Khandual wrote:
->>> pxd_ERROR() has been used in generic mm just to print the page table entry
->>> in pxd_clear_bad() before clearing those out with pxd_clear() later. These
->>> pxd_ERROR() macros have been provided by all platforms which basically did
->>> the same thing.
->>>
->>> Make pxd_clear_bad() use recently added ptval_to_str() instead for printing
->>> page table entries thus completely dropping dependency on platform provided
->>> pxd_ERROR() macros which can then be dropped off. First move all required
->>> helpers in core MM into a header file which could then be used else where.
->>>
->>
->> It might make sense to split this patch further up to ease review:
->>
->> Patch 1) provide ptval_to_str() a header.
->>
->> Patch 2) Stop using pxd_ERROR() and friends in common code, converting to
->> pteval_to_str()
->>
->> Patch 3) Remove now unused pxd_ERROR() and friends from arch code.
-> 
-> Sure but the intiial platform changes which now use ptval_to_str() as well
-> will probably come after the Patch (2) but before the Patch (3).
+pxd_ERROR() macros have been provided by all platforms, which are very much
+identical and can be dropped off completely if these pgtable printing could
+be moved to callers in generic MM aka all pxd_clear_bad().
 
-Exactly :)
+But first cleanups and re-organizations are required in some platforms that
+are using these macros internally. Afterwards [pte|pmd|pud|p4d|pgd]_ERROR()
+macros have been completely dropped from the entire tree.
+
+This series is based on v7.2 after the following patch and has also been
+built tested on multiple platforms.
+
+https://lore.kernel.org/all/20260709044334.1741263-1-anshuman.khandual@arm.com/
+
+Changes in RFC V3:
+
+- Moved ptrval_to_str() as header in a separate patch
+- Stopped using pxd_ERROR() in generic MM in a separate patch
+- Dropped pxd_ERRO() macros from all platforms in a separate patch
+- Dropped print_bad_pte() and also cleaned up set_pte_phys()
+- Added some pr_error() messages in __get_pte_phys()
+- Cleaned up error messages and used ptrval_to_str() in platforms
+
+Changes in RFC V2:
+
+https://lore.kernel.org/all/20260811042119.3652929-1-anshuman.khandual@arm.com/
+
+- Added clean up patches for platforms with existing pxd_ERROR() usage
+- Dropped __FILE__ and __LINE__ from all print sections per David
+
+Changes in RFC V1:
+
+https://lore.kernel.org/all/20260806080639.1916749-1-anshuman.khandual@arm.com/
+
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Huacai Chen <chenhuacai@kernel.org>
+Cc: WANG Xuerui <kernel@xen0n.name>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: loongarch@lists.linux.dev
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-openrisc@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-um@lists.infradead.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org
+
+Anshuman Khandual (8):
+  mm: Make ptrval_to_str() generally available
+  mm: Stop using pxd_ERROR()
+  loongarch/mm: Stop using pte_ERROR()
+  parisc/mm: Directly use generic [pmd|pgd]_clear_bad()
+  sh/mm: Stop using pte_ERROR()
+  sh/mm: Stop using [p4d|pud|pmd]_ERROR()
+  sh/mm: Stop using pgd_ERROR()
+  mm: Drop pxd_ERROR()
+
+ arch/alpha/include/asm/pgtable.h              |  7 -------
+ arch/arc/include/asm/pgtable-levels.h         | 11 ----------
+ arch/arm/include/asm/pgtable.h                |  7 -------
+ arch/arm/kernel/traps.c                       | 17 ---------------
+ arch/arm64/include/asm/pgtable.h              | 15 -------------
+ arch/csky/include/asm/pgtable.h               |  4 ----
+ arch/hexagon/include/asm/pgtable.h            |  3 ---
+ arch/loongarch/include/asm/pgtable.h          | 13 ------------
+ arch/loongarch/mm/init.c                      |  4 +++-
+ arch/m68k/include/asm/mcf_pgtable.h           |  6 ------
+ arch/m68k/include/asm/motorola_pgtable.h      |  8 -------
+ arch/m68k/include/asm/sun3_pgtable.h          |  7 -------
+ arch/microblaze/include/asm/pgtable.h         |  7 -------
+ arch/mips/include/asm/pgtable-32.h            | 10 ---------
+ arch/mips/include/asm/pgtable-64.h            | 13 ------------
+ arch/nios2/include/asm/pgtable.h              |  7 -------
+ arch/openrisc/include/asm/pgtable.h           |  7 -------
+ arch/parisc/include/asm/pgtable.h             |  9 --------
+ arch/parisc/kernel/pci-dma.c                  |  6 ++----
+ arch/powerpc/include/asm/book3s/32/pgtable.h  |  2 --
+ arch/powerpc/include/asm/book3s/64/pgtable.h  |  7 -------
+ arch/powerpc/include/asm/nohash/32/pgtable.h  |  2 --
+ .../include/asm/nohash/64/pgtable-4k.h        |  3 ---
+ arch/powerpc/include/asm/nohash/64/pgtable.h  |  5 -----
+ arch/riscv/include/asm/pgtable-64.h           |  9 --------
+ arch/riscv/include/asm/pgtable.h              |  4 ----
+ arch/s390/include/asm/pgtable.h               | 11 ----------
+ arch/sh/include/asm/pgtable-3level.h          |  3 ---
+ arch/sh/include/asm/pgtable_32.h              | 13 ------------
+ arch/sh/mm/init.c                             | 16 +++++++-------
+ arch/sparc/include/asm/pgtable_32.h           |  3 ---
+ arch/sparc/include/asm/pgtable_64.h           | 10 ---------
+ arch/um/include/asm/pgtable-2level.h          |  7 -------
+ arch/um/include/asm/pgtable-4level.h          | 13 ------------
+ arch/x86/include/asm/pgtable-2level.h         |  5 -----
+ arch/x86/include/asm/pgtable-3level.h         | 11 ----------
+ arch/x86/include/asm/pgtable_64.h             | 18 ----------------
+ arch/xtensa/include/asm/pgtable.h             |  4 ----
+ include/asm-generic/pgtable-nop4d.h           |  1 -
+ include/asm-generic/pgtable-nopmd.h           |  1 -
+ include/asm-generic/pgtable-nopud.h           |  1 -
+ include/linux/mm_types.h                      | 15 +++++++++++++
+ mm/memory.c                                   | 16 ++------------
+ mm/pgtable-generic.c                          | 21 +++++++++++++++----
+ 44 files changed, 48 insertions(+), 314 deletions(-)
 
 -- 
-Cheers,
+2.43.0
 
-David
