@@ -1,115 +1,122 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E180E379EC4;
-	Tue,  1 Sep 2026 17:48:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A9AA47CC75
+	for <linux-hexagon@vger.kernel.org>; Fri,  4 Sep 2026 10:56:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788284926; cv=none; b=nRw44fybFluxUpS3KRt7kSsW6w/OGu3GXPu0so8YF/A4/X3lm6b9C39uqwoNXw4jEEW+86ji667yiQbpG+uZ+enhEq+DbEbrIBESKCTPnQ8mcqz5Z+BKh/4f2zePlE6KiHfgx2gG7gqdM6YA8a/o77ucMvuFcyhvG/YwuFeEHqw=
+	t=1788519415; cv=none; b=IJflVlBj0DonZR/bs8qyGhEJSjP5vjNwB7QfPaTKnEBn9+YBIL8M/EH0oK96Eu1r2u9cG8hXJBYKDNDofcjmT+d/40gBg7b7NrINoTWFzt+a/ah+pZlRsobc5hQXI9dT3mEqv2tP8ZA7EooG1WxoeBpnJ5xoqg3aW+MnDt+e6Zo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788284926; c=relaxed/simple;
-	bh=ILEgUta+XEN5A01rR7LjqPYu5e1vBHkVQXMhim+XKZM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QL2a4/xJJ7CEboRu8aaKbIpBEqV6TOOxxB3hZZ/7NAGEclplMo33/wpPsHIYDHA1WT5xAarWWJ/o5aIXFEnUrfOXXJ3PePT8RFhwXklDSjaR3b2k1sXfK9Bi0HX3JkV6ZhUcrGuzOkbRdJosmkTgIuNLCIvZ3MkE31VtWPbpDik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=UVtis7e+; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1788519415; c=relaxed/simple;
+	bh=L3q78bqrpMJk/g5QJst8moEgJEW0mjslfg//pWTk2/o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZdEwMdT2A4t75xMeRxFoYfrTAUITYpgguFS9rru7T26KJ2mW/3y1tp4wr52/1BJl1lctAG/bsdYhAn70+Ujspi0XbeCgsMj0Uj2Qv+resSVi7ompx1f9js/rfxcm7XyxQfaVjXeOL1RSaK0lYK+rUfh1FEArRd+ZGVPN/9AmUGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dU66HQU3; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="UVtis7e+"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=PQNx8cP7/H92zG22iJw5UI7f9yq7f8zWrRV0yPrbUWI=; b=UVtis7e+r5/G27TIqfxZ+en6iD
-	ewP14Pe2h9SnqatfXnO6L1fC4qcBnFOELp+V8WjW5RT1xwY3uZi3XSEv9Vu+4qZ1jP6BGVn7PXBEA
-	4Uw0Phr831M7R4vLdI8REUIOdbiINbJ1LMU5Mje2MkkXTCbCEn9Xn2ArP+y9asBIjud478+zn1SSo
-	lebc9FLfrg1/y0a6m2dAyJLJ3yltmw6G3+vcRUXeO4yRAwAxeKznEDSHVJJRWpAMX3il8mcbEeTWo
-	3139sv5kbIIlk0Z/E868rddoQ5sSESOXVT4ZQj4kMrc2J++kPSB2h0IKqxPLn0UnyiWT6B5SeVd+c
-	852DOAfw==;
-Received: from [38.23.173.23] (helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1x1SaY-0000000Crxj-16sr;
-	Tue, 01 Sep 2026 17:48:03 +0000
-Date: Tue, 1 Sep 2026 13:47:49 -0400
-From: "Liam R. Howlett" <liam@infradead.org>
-To: Kiryl Shutsemau <kas@kernel.org>
-Cc: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Andrew Morton <akpm@linux-foundation.org>, 
-	David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, Guo Ren <guoren@kernel.org>, 
-	Brian Cain <bcain@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Dinh Nguyen <dinguyen@kernel.org>, Simon Schuster <schuster.simon@siemens-energy.com>, 
-	Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
-	Stafford Horne <shorne@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-	Russell King <linux@armlinux.org.uk>, Vineet Gupta <vgupta@kernel.org>, 
-	Michal Simek <monstr@monstr.eu>, Chris Zankel <chris@zankel.net>, 
-	Max Filippov <jcmvbkbc@gmail.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, 
-	Peter Zijlstra <peterz@infradead.org>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Richard Henderson <richard.henderson@linaro.org>, 
-	Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, 
-	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>, 
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Arnd Bergmann <arnd@arndb.de>, Vlastimil Babka <vbabka@kernel.org>, 
-	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org, 
-	linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org, 
-	linux-sh@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, linux-snps-arc@lists.infradead.org, linux-arch@vger.kernel.org, 
-	sparclinux@vger.kernel.org, linux-alpha@vger.kernel.org, loongarch@lists.linux.dev, 
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, 
-	Qi Zheng <qi.zheng@linux.dev>
-Subject: Re: [PATCH 01/12] mm/huge_memory: zap deposited page tables after an
- RCU grace period
-Message-ID: <px4uwbuq4ixucmjzudxulldk5l2tbuymaoaheyc624jdznnac6@px5wkmxqjmfo>
-References: <20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org>
- <20260901-rcu-pagetable-freeing-v1-1-5456a81c8212@kernel.org>
- <apbOlyF77yDCV4cF@thinkstation>
- <apbcoMTVlL42G5tg@gremlin>
- <20260901142408.GA56830@ziepe.ca>
- <apbiB51hjm-9pRzf@gremlin>
- <apbuO_QveZNAz3ns@thinkstation>
- <kasi4mkjkt56wxsrmphm5o2qfg2lwsdxf3tlmzx5tq6t7uez74@kozleoavd6r2>
- <apcHiE7jDQaFYXOM@thinkstation>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dU66HQU3"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-398b3c37877so832877a91.0
+        for <linux-hexagon@vger.kernel.org>; Fri, 04 Sep 2026 03:56:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788519412; x=1789124212; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=bIAgfjkMoEY865Ezpezchwh3HIj0Yl8K2XqbGFpjZ+U=;
+        b=dU66HQU3sdI3Rj0m0/x2nY7lwyBx72wHy9Em0pNLWyp5WEAAzAPBBqIUOwBocYZB7+
+         1+um0OZdOB3Omqj1boZcUrHw/NfMdXzr4VHdU71ZOmyiBdZLY+lHcyEFbNd/ps+K9q5v
+         JwH8XDcHqwcwWjMKfopA10iIZDWjBhgS9HT9vO7T9tw9m7jp5psjO6Y+aLwz+cUoNpbN
+         0oA7irvEAbxcdZ3i56rXUtPOEYn8acCd8RKWxNxsA6zhpbWd7jl3LUNscgKxF8ONdWop
+         BL7KNa5KOMPMu7FcmuIN1/r1b4W8ONNfBFfcG+Bo+papEwyS6UWySe+LTDx7Bpb+kcDW
+         TKuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788519412; x=1789124212;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=bIAgfjkMoEY865Ezpezchwh3HIj0Yl8K2XqbGFpjZ+U=;
+        b=TOf/ni6iqBW978dKOQnhQUja6/G+9MOV/m8KIcQK1cfRwyP6LcmT1FMpGKXOEHZz8n
+         36xJ/UvB7DM1NxJWA7+7+8EWWdCdkTEXt2Gd2CXmOhpOvRk1ZEvx9Roh9TVhNcIYTYKe
+         hOmG1bCMZf1S/Vhmt/mhXAWDVekdFRpVDHSwoy9sW4MEDP+szJydCXTzjbQ9tkKDuScZ
+         4U3L5oQatGIBB/NLRdG93yLLcLh4XwFADV3KfpcicC0XhpWZ8ArFy220m5L3WLjzfmLl
+         Lvu6NJUJXvNTn0InXKBwDopLfLBhgFWTLzrgQLV3tz4r0UbsTvaShw18TQQoN3r2NHXh
+         1vcw==
+X-Forwarded-Encrypted: i=1; AKwUvBxDAPNhF19buiW8lOWQuYuqhwRIRgW8juahK3oe4aJtwAXki5AlAPwULZKeFGeiyHZhL2JZtdQfpvP0Se5Y@vger.kernel.org
+X-Gm-Message-State: AFuF++m9+tnQH0LQcp9MfxrfU6ZTWXZlU/2m6iO/Y1imt0glTBQHyT1N
+	GgAIBeJ2wy2ZqWA7NFkpb3B0KnSAqDR7REHcnbHRRekQawzlAcpfFu1n
+X-Gm-Gg: AYBFou1+C9gvI3lS3UqQCRQkoZY3qBynK16YxuV2gsuV/liNNWUeRFcpRDTCsoQElDr
+	cPESBLk2jETHMaRCEPjrljYbKjHGztnNOoI5nnK7ZkfvjBAaWoRmzK2wZlGaR1+bbNcS/nPaSMl
+	0kroUlKGSt+Kgo9s1XmNhgOVtp+Z4DN9H3V4cSeAGqynLebwLmj+BA5iS4ye62pDrVqiVij025L
+	UMc37ddpaLMds3dVO6EpGSSqRuQdd7vPHD+e8PYKYa6WilQk6MJPLZ0t3yXBbsjKkyLD9zoiYPe
+	lBJ8Tzdkt1u34UzZkZIfW4hJd3B9RKn3SC64/R0UB1/svqB4IrwY3Mz0bGbZ+w2w7OwI80sCTaH
+	sxchb2O1l2Odrzc6jKiNNfJ8WSvhuqDl2guQ0gi5bqUoWl4fCO2w5vJGpHWPn79XQE2OdBAE9h7
+	yBcSen2/n3G6kAghvHJ1sFu7vw2fmuTkhmIL6R1VgHMijbLXRzBw9WQWn1MAvp/IQErJWi2qBQI
+	90GLZqPHh/EJJE=
+X-Received: by 2002:a17:90b:3d89:b0:396:5fce:8e24 with SMTP id 98e67ed59e1d1-39b260d2ea8mr7099437a91.4.1788519412234;
+        Fri, 04 Sep 2026 03:56:52 -0700 (PDT)
+Received: from volcano9f6e-hostos.amd.com ([165.204.217.251])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3339b6036fcsm6233396eec.20.2026.09.04.03.56.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Sep 2026 03:56:51 -0700 (PDT)
+From: Hemanth Selam <hemanth.selam@gmail.com>
+To: Brian Cain <bcain@kernel.org>
+Cc: linux-kernel@vger.kernel.org,
+	linux-hexagon@vger.kernel.org
+Subject: [PATCH] hexagon: fix typos in comments
+Date: Fri,  4 Sep 2026 16:26:46 +0530
+Message-ID: <20260904105647.38515-1-hemanth.selam@gmail.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <apcHiE7jDQaFYXOM@thinkstation>
+Content-Transfer-Encoding: 8bit
 
-On 26/09/01 06:13PM, Kiryl Shutsemau wrote:
-> On Tue, Sep 01, 2026 at 11:54:47AM -0400, Liam R. Howlett wrote:
-> > Do you have munmap() performance dependent workload that you are
-> > concerned about regressing?
-> 
-> exit(2) path is performance critical for many workloads. Like, if you
-> need to restart VM.
-> 
+Fix typos in comments, reported by scripts/checkpatch.pl using the
+misspelling list in scripts/spelling.txt.  Only touches comments, no code
+changes.
 
-That is not enough to see any impact, although less overall work would
-be done during the exit call.
+Assisted-by: Cursor:claude-opus-5
+Signed-off-by: Hemanth Selam <hemanth.selam@gmail.com>
+---
+ arch/hexagon/include/asm/hexagon_vm.h | 2 +-
+ arch/hexagon/lib/memcpy.S             | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-It would be very difficult to come up with a scenario that this would
-have a measurable difference and an even harder time to come up with one
-that is slower.
+diff --git a/arch/hexagon/include/asm/hexagon_vm.h b/arch/hexagon/include/asm/hexagon_vm.h
+index 9aa2493fe786..1a65dc6213b7 100644
+--- a/arch/hexagon/include/asm/hexagon_vm.h
++++ b/arch/hexagon/include/asm/hexagon_vm.h
+@@ -239,7 +239,7 @@ static inline long __vmintop_clear(long i)
+ #define HVM_EV_GENEX		2
+ #define HVM_EV_TRAP		8
+ #define HVM_EV_INTR		15
+-/* These shoud be nuked as soon as we know the VM is up to spec v0.1.1 */
++/* These should be nuked as soon as we know the VM is up to spec v0.1.1 */
+ #define HVM_EV_INTR_0		16
+ #define HVM_MAX_INTR		240
+ 
+diff --git a/arch/hexagon/lib/memcpy.S b/arch/hexagon/lib/memcpy.S
+index f8b3c02a8ad1..ae360be68b0d 100644
+--- a/arch/hexagon/lib/memcpy.S
++++ b/arch/hexagon/lib/memcpy.S
+@@ -291,7 +291,7 @@ memcpy:
+ 	if(noprolog) jump .Lnoprolog32;
+ 	align = offset;
+ }
+-/*  upto initial 7 bytes  */
++/*  up to initial 7 bytes  */
+ {
+ 	ldata0 = valignb(dataF8, data70, align);
+ 	ifbyte = tstbit(shift,#3);
+@@ -525,5 +525,5 @@ memcpy:
+ 	r25:24 = memd(sp+#8);	/*  restore r24+r25  */
+ 	r17:16 = memd(sp+#0);	/*  restore r16+r17  */
+ }
+-	deallocframe;	/*  restore r31 and incrment stack by 16  */
++	deallocframe;	/*  restore r31 and increment stack by 16  */
+ 	jumpr r31
+-- 
+2.48.1
 
