@@ -1,144 +1,180 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta1.migadu.com (out-71.mta1.migadu.com [95.215.58.71])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E70803BB13C
-	for <linux-hexagon@vger.kernel.org>; Wed, 23 Sep 2026 06:09:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3805B444705
+	for <linux-hexagon@vger.kernel.org>; Wed, 23 Sep 2026 06:16:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790143743; cv=none; b=M1Oge1aFy0cgyoec4DFOKpkzqN1t7NfFnpKjUYZKt/cNDIhEs8bqBcjIaxKzZNBs3x0RiiVtlfeLqHXRuwokbyY78e8W70ka9jrIo8H456WP8CV1dn/QAReHIC5H3kUUc57rB9XNHbmgrdDT5ph9Zb14+XylUtE22YcJa4mXaN4=
+	t=1790144168; cv=none; b=dfAmUrj4AxUlUkwdRITF5x60nfVb63xsoLsaeqIk75SMNQ+72tqjtO/Dk6PnUg8mu4faoEoz4R1ft+NGXQIa+6wh9RM0IXD6v3LMMWCHfFa3sUcvLv24PFgz6uKukpsmMIW0/Kc3JQcZY9ltj1ouUoc24svAiYAlpOZMgtR/EbM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790143743; c=relaxed/simple;
-	bh=RM5JnOwx7sGRs3q2+JWG0rZECDYyQsmlN5xGRLgZ7FI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WVoMyR4odkcuspOYbtAGFiRYphXA/qOmwELNHxnx0/sYl9Ru7OXuxqOdJnJ+1khNROrxEBmhX3SGecZSOm+OSe3kKE9N8nBKJgSVPiZ+0QXtJVNCckedF5uzJsMTuI/IH1YDHSgL8Q5aMSL4p4K6qnSM/X/kdJJL/Az4zmSA3+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=p7YaMNie; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=ErxzTU0C; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1790144168; c=relaxed/simple;
+	bh=iNN52+OjGBWKHuNTOEPyALCLpNm9HUlYo8ccDdYusP4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=qLT/DKDWgl8qxphClAfXAbK31MsDXwYSKNMG6e98FKfSCeKqr7FG3t4smDLKtvmL17R5fFerbxHV8ShLB5O9uhLMJw6RHEKm29hR5QXDW7DFt383s9zvOT0CCDV7wInByrclYmo2pYKuRUswdHd0qqlF/+4j/LQesrUtZgkY4Ew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=gag9wr/2; arc=none smtp.client-ip=95.215.58.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="p7YaMNie";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="ErxzTU0C"
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68N3iR322247656
-	for <linux-hexagon@vger.kernel.org>; Wed, 23 Sep 2026 06:09:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	5SgQ0ti2oEI2IjJGeNTH0HemHzqw6M4MvavgH0WwsUI=; b=p7YaMNievXe8rU9Q
-	oZM6ERkXVR7wGdxvugfeGMgwiFExuFjlsyDgHXcUcH5chd+5+QRKMJTschx9A9Un
-	mbBz3oZY6sWfhXhTJ+8npTri7wVHssrPnENgFGB+cJqlpscR1vFFoRe46/dKFHz5
-	KY1kCPILLTG33E7F9pHBmmZ9Icg9dYkH0BRhrH/zQvXD0CdIzJiBl2UfarH4RJVp
-	URjphgZBuKDD2qBHVayyFBsgUtv0uUp9AtBB3rHtZ3YlYo6crFBmeX6Y1dC7Y+jJ
-	S1uQBlRLQtJ2ig87D9NsdwAXnJfBDraW9fIZD968lraFvHwV2IXRB5SKLRFmg95l
-	p7GnSw==
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4guymw2bdr-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-hexagon@vger.kernel.org>; Wed, 23 Sep 2026 06:09:00 +0000 (GMT)
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-936708f129aso105085385a.0
-        for <linux-hexagon@vger.kernel.org>; Tue, 22 Sep 2026 23:09:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1790143740; x=1790748540; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5SgQ0ti2oEI2IjJGeNTH0HemHzqw6M4MvavgH0WwsUI=;
-        b=ErxzTU0CbQMoGqY+9ShWs+HuiOMnBEAfrE2bpGYINulOXoogd1PBMx9VWr5eZsekkJ
-         whH+clWHfopOWbZtPi1AGkPOifWB2w5Z/WntaAlAb8ElrEXifzwmbqOI8gPdbj+LWCXz
-         3RwDo2fh67tcylXije/Gq2o7rE0hRuQO3HyO+SYi6RCVxMWaPInSHhrMVwcBukssL2vp
-         wn7D5X8CwL5vVGQmXH8y9n+CD8E2qZewcHQ5nvx9YTtlzE1vDK6rfyHAtkWL8PMK0Ud5
-         JXsUfL34g4s52JtTRY0cailGslX5x2W3hIbrVf1lRXD0ZzXoK2Z3pVQ/otCCuy9Q/mUn
-         jSkw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790143740; x=1790748540;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=5SgQ0ti2oEI2IjJGeNTH0HemHzqw6M4MvavgH0WwsUI=;
-        b=idgQbCPYXjGUwj1h4LJ+uCNCmK2pI9Ycd3Ib3qLIMPjl8K3Vbsd5+xXY+kdyEF2gQK
-         UaguF0UWFAlcvUpUfYplLxy5eENipj3SDlFjCI9Pn72pAunRBvuTGY2VzX+AM6cwO38N
-         X2a9TyG1MLnKGU5vJ7FkKm+Nl0nwqowWvS+Htm69IsFAvbQerR4VjlmEZUJyzMipb+O1
-         KlsIbwuQXcxz92+P/dBZH7vYq5AsJqfMyfI/FWScb+3uFvQxzhjneigKmiKcepylnd3R
-         kcP5t0j249AAPvNLI/rmxPXU0xOsfHxv+Q61H5j0BImsdQ8CrmRd5Y3Y3WMvV5Q+dbdr
-         I7Eg==
-X-Forwarded-Encrypted: i=1; AKwUvBwRT1+AwaC09DywaRt26TH8ICFak7EC273IT9YEve069Kqb5MdYq1Vp8CL3xKXNJ+xxyxfb2Zglw6shN+dC@vger.kernel.org
-X-Gm-Message-State: AFuF++lJNJfY1IPbFEpt4/hQx4TI4pZo0Dg6WwAV+Ara12ScLDfjGCww
-	r/ZyznBK/wHB/jJX8YsMjG90VYvLBo/1Av7ETl8qdMv0pBu3djcflyhU1oImUSzvWizC0ZCh2S7
-	xcRfWSz2kA9CSPgrX0XM6I/NFBjG+F27qNUX923iQ231Mg5zqAJ0edioDN9/cE26iWPG7
-X-Gm-Gg: AYBFou0YUxJm/2mY/z7HgHoCPZiGiCDBplwE5vCptNiWpYmmrkcNBfjqB37Tuzasib6
-	cMSltl+MynCCMJ0b6PMxGpbCyi5mB4o21uDMXJ+ws/5a+ibrVad/oe8GKanqN7Lfi8pboXQmVDL
-	sYrtDshNM9J/XX+pnDkKVpAdtruiS4i12pADlKlOYmxV6T+QXd/c8PEQZsbOBXy7Qv90xrJ4mgb
-	IjJ7MOcBtVlG4kt/z8yD1WO5XHDfYk9cwUaPcd6wcdB1XK1aohbR3oj6N/S9MpZM2cEECbtoeBj
-	M1Hx3fLN+oJoi9QLP9E6pp4ygIxhbxeICKZknAuQLi92zH+JR4rlPbOixIA6UZ4Hzwq770JvH0X
-	pYJUAM9OVw3WepfVxMs/vbRpoNmdO65Ae
-X-Received: by 2002:a05:620a:1a0e:b0:939:5f4d:67b0 with SMTP id af79cd13be357-93c250813f3mr252076185a.8.1790143740028;
-        Tue, 22 Sep 2026 23:09:00 -0700 (PDT)
-X-Received: by 2002:a05:620a:1a0e:b0:939:5f4d:67b0 with SMTP id af79cd13be357-93c250813f3mr252073885a.8.1790143739561;
-        Tue, 22 Sep 2026 23:08:59 -0700 (PDT)
-Received: from [10.111.131.92] ([212.136.9.21])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4886876c267sm4248507f8f.16.2026.09.22.23.08.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 22 Sep 2026 23:08:58 -0700 (PDT)
-Message-ID: <88fcd62f-4a5e-4be3-92c8-1bba29b428fd@oss.qualcomm.com>
-Date: Wed, 23 Sep 2026 08:08:55 +0200
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="gag9wr/2"
+X-Envelope-To: linux-hexagon@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=iNN52+OjGBWKHuNTOEPyALCLpNm9HUlYo8ccDdYusP4=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1790144164; v=1; x=1790748964;
+ b=gag9wr/2m9nlYMg94wqKX0sL+xHtX2PQLyIL0XDY/IEf6zvjcqM4ToozQDjaYNC0SbsW7uX0
+ h9u+YxvHsPkhrZniHNejScthRlTvUpSuJw+p86CP75SstPEgn2FWeIj1kXX89now5P/OA7ZLzps
+ fk4oVuIAdp5yGiKT1mU1fOEY=
+X-Envelope-To: linux-hexagon@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id 4b4ce70d101944f5;
+	Wed, 23 Sep 2026 06:16:01 +0000
+X-Mizu-Trace-ID: 4b4ce70d101944f5
+X-Migadu-Flow: FLOW_OUT
+From: Lance Yang <lance.yang@linux.dev>
+To: ljs@kernel.org
+Cc: akpm@linux-foundation.org,
+	david@kernel.org,
+	ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com,
+	liam@infradead.org,
+	nico.pache@linux.dev,
+	ryan.roberts@arm.com,
+	dev.jain@arm.com,
+	baohua@kernel.org,
+	lance.yang@linux.dev,
+	usama.arif@linux.dev,
+	kas@kernel.org,
+	guoren@kernel.org,
+	bcain@kernel.org,
+	geert@linux-m68k.org,
+	dinguyen@kernel.org,
+	schuster.simon@siemens-energy.com,
+	jonas@southpole.se,
+	stefan.kristiansson@saunalahti.fi,
+	shorne@gmail.com,
+	dalias@libc.org,
+	glaubitz@physik.fu-berlin.de,
+	pjw@kernel.org,
+	palmer@dabbelt.com,
+	aou@eecs.berkeley.edu,
+	alex@ghiti.fr,
+	linux@armlinux.org.uk,
+	vgupta@kernel.org,
+	monstr@monstr.eu,
+	chris@zankel.net,
+	jcmvbkbc@gmail.com,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	peterz@infradead.org,
+	davem@davemloft.net,
+	andreas@gaisler.com,
+	richard.henderson@linaro.org,
+	mattst88@gmail.com,
+	linmag7@gmail.com,
+	catalin.marinas@arm.com,
+	mark.rutland@arm.com,
+	chenhuacai@kernel.org,
+	kernel@xen0n.name,
+	tsbogend@alpha.franken.de,
+	James.Bottomley@HansenPartnership.com,
+	deller@gmx.de,
+	maddy@linux.ibm.com,
+	mpe@ellerman.id.au,
+	chleroy@kernel.org,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	richard@nod.at,
+	anton.ivanov@cambridgegreys.com,
+	johannes@sipsolutions.net,
+	tglx@kernel.org,
+	mingo@redhat.com,
+	bp@alien8.de,
+	dave.hansen@linux.intel.com,
+	x86@kernel.org,
+	hpa@zytor.com,
+	arnd@arndb.de,
+	vbabka@kernel.org,
+	rppt@kernel.org,
+	surenb@google.com,
+	mhocko@suse.com,
+	jgg@ziepe.ca,
+	jhubbard@nvidia.com,
+	peterx@redhat.com,
+	ysato@users.sourceforge.jp,
+	shakeel.butt@linux.dev,
+	corbet@lwn.net,
+	rdunlap@infradead.org,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-openrisc@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arch@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-alpha@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	hughd@google.com,
+	qi.zheng@linux.dev,
+	linux-doc@vger.kernel.org
+Subject: Re: [PATCH v4 03/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU riscv
+Date: Wed, 23 Sep 2026 14:15:51 +0800
+Message-ID: <20260923061551.84398-1-lance.yang@linux.dev>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20260922-rcu-pagetable-freeing-v4-3-fe1ad1f1e303@kernel.org>
+References: <20260922-rcu-pagetable-freeing-v4-3-fe1ad1f1e303@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/7] hexagon: define ELF_CORE_EFLAGS for V4-and-later
- architectures
-To: Brian Cain <brian.cain@oss.qualcomm.com>, linux-hexagon@vger.kernel.org
-Cc: sid.manning@oss.qualcomm.com, pierrick.bouvier@oss.qualcomm.com
-References: <20260906021712.2498266-1-brian.cain@oss.qualcomm.com>
- <20260906021712.2498266-3-brian.cain@oss.qualcomm.com>
-Content-Language: en-US
-From: =?UTF-8?Q?Philippe_Mathieu-Daud=C3=A9?= <philmd@oss.qualcomm.com>
-In-Reply-To: <20260906021712.2498266-3-brian.cain@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIzMDAyNCBTYWx0ZWRfX8tzpQopb12Lv
- HeKebseZA7edWrtAp46O/ZUegU/x7wpsoP5otjE7pBAnmpuqPzIHG//Delk9R+NbSnX+Me6gU52
- OwHdBJa+1sFGusq+m/a9LNJCcRisiPHLYo2uwJ/FirrBo6i/dDryRxjPmX+rhqHJxgCVCFgond/
- Ojw3xFWVpiKK48ZMpLDVgvQnXlXMTrNToLnSF2fVt73cKI43cxgvLAzFhTxV4ytSWA+G2ulJpAw
- ANcTK998WyqsqcyHnKEK6PjBuvSxwc08LnetFv46skfpKATEbv5VX9G7SDF/sIwarIun+ZRpdNO
- 6/WpMKN8Jl7h+VrlPqC1LUwxcx70OSSEbrpjwtsVVGa6yIa7XrTwpuD7Mt0xdsPQX6R30YxcSa1
- q2mYgPeHI8Nn2svtkWf7//8Wt0efuajy5m2DUBOt1mFuzHbD1xNi1RbKnAMLvBswRExwSFaqCHA
- VrVLmAN+mkpPr9/twBw==
-X-Authority-Analysis: v=2.4 cv=feI4WEQF c=1 sm=1 tr=0 ts=6ab36cfd cx=c_pps
- a=qKBjSQ1v91RyAK45QCPf5w==:117 a=/bviTfK1dmy+WGcHzWQ0gg==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=M51BFTxLslgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22
- a=EUspDBNiAAAA:8 a=1tSEMpTH9XP_W59IOagA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=NFOGd7dJGGMPyQGDc5-O:22
-X-Proofpoint-GUID: btbihm5GgDkiXoau2_5UpXCQARwYs-89
-X-Proofpoint-ORIG-GUID: btbihm5GgDkiXoau2_5UpXCQARwYs-89
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIzMDAyNCBTYWx0ZWRfX7Ul6Muj0U8WQ
- hh10UAOKLn0nIn6CY0SxUAVdq15H2iFQ6L/8HUggwfl5xQU4025mNZxOpo8GotjOXzWKdC3Le0E
- GnNP1eBPCqdkUf247EBCC1OuPsgWyWg=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-23_02,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 phishscore=0 spamscore=0 suspectscore=0 lowpriorityscore=0
- clxscore=1015 impostorscore=0 malwarescore=0 priorityscore=1501 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609230024
 
-On 2026-09-06 4:17, Brian Cain wrote:
-> ELF_CORE_EFLAGS was only defined for CONFIG_HEXAGON_ARCH_VERSION
-> values of exactly 2, 3, or 4, unlike CS_COPYREGS just above it, which
-> already treats V4 as a ">= 4" floor rather than an exact match. Any
-> version newer than V4 left ELF_CORE_EFLAGS undefined and ptrace.c's
-> use of it in the hexagon_user_view initializer failed to build.
-> Extend the V4 case to match V4 and later, using the same core-dump
-> e_flags value V4 used.
-> 
-> Signed-off-by: Brian Cain <brian.cain@oss.qualcomm.com>
-> ---
->   arch/hexagon/include/asm/elf.h | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-Reviewed-by: Philippe Mathieu-Daudé <philmd@oss.qualcomm.com>
+
+On Tue, Sep 22, 2026 at 04:35:34PM +0100, Lorenzo Stoakes (ARM) wrote:
+>Currently riscv gates MMU_GATHER_RCU_TABLE_FREE on CONFIG_SMP and
+>CONFIG_MMU.
+>
+>Commit 69be3fb111e7 ("riscv: enable MMU_GATHER_RCU_TABLE_FREE for SMP &&
+>MMU") enabled CONFIG_MMU_GATHER_RCU_TABLE_FREE for CONFIG_SMP, CONFIG_MMU
+>riscv builds.
+>
+>This is expressly for the safety of GUP-fast walkers (CONFIG_HAVE_GUP_FAST
+>is enabled if CONFIG_MMU is enabled).
+>
+>Naturally a single core system does not encounter issues with software page
+>table walkers being correctly synchronised across cores, as there is only a
+>single core.
+>
+>However, CONFIG_PREEMPT_RCU is still available on a riscv UP system, so for
+>a future RCU-only page table walker, this guarantee is required to prevent
+>concurrent page table teardown.
+>
+>All page table freeing is already done via tlb_remove_ptdesc() so the
+>conditions of CONFIG_MMU_GATHER_RCU_TABLE_FREE are already met.
+>
+>This forms part of an overall effort to switch every architecture to this
+>mode.
+>
+>Acked-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
+>Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+>---
+
+Yeah, for RISC-V, page-table freeing already goes through
+tlb_remove_ptdesc() :) Tested on QEMU, no issues seen :)
+
+Tested-by: Lance Yang <lance.yang@linux.dev>
