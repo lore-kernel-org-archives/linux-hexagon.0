@@ -1,105 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 190953ADB94;
-	Wed, 23 Sep 2026 20:01:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 514DD48C8AE
+	for <linux-hexagon@vger.kernel.org>; Wed, 23 Sep 2026 22:09:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790193678; cv=none; b=Ut5gNZUabxMRB2w8HXhq4DKvybVSm65NM84MLtcgQy3IscnDTIaa1B2HGHx3IbmnA5+VD7/VqHZE+Szj/nYPl5FUrOrC8jwLzu97Xxv9TSzGleiCHophzpxp81hXNN0WB1mNejaa7QbJk2VI8PpxBTas0HD2OkRiQcpC9K/l8Ss=
+	t=1790201397; cv=none; b=iEotP07vD97o6cXVs9yt6+K+FWUboRcqbtxVD9d8v2hMB84swxuN1zacwWJOWgeA1kPkPVUeRWedT58jOCJuasiSBu35nySy6302qzNqa4I1AT4BfVdVDbETbT5pZ70qo8vUHT05xMRUbPVmMNMmB6gf9wk00me9OhY1I2ttbrU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790193678; c=relaxed/simple;
-	bh=EoAm9eQnkEX/Su8Tb54A8ZssNa84fNPugYrGvhxvhGs=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=PIgw6HoSqBahVwt9IRIAGNNfcJSquxWhPqqBcSTvYpvezso3UvwIEKSm8S3nDwXLe1r4bEYP0sEzqdiwrAjj1+s2z9DN/ms6whv7byrJ1nkJm/MPPJlKqnZ/Ouu77rWFmjtKOfg0YfLpj/H+S6kt1CTjjCXUDU1zrdqZ8aZjICc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=yukRbG0q; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790201397; c=relaxed/simple;
+	bh=EtOIa+oAShthuIiT1TwrJdQuJPXnDiaoPiPmXnJJfG4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=gdDM11r/LhsBTs/ZIZPM7x/wGZawrggzvvU+VTBT+kqliR+Y6AWG2qnPHLaRkW1HSWkD1539VvvE5Jyj1dPhjo+3BdRuOQO5toE/2+MLIbOhrhzoicpTpC2NANSDM1tPXF3ytNUc/SbkQjTSABdHSRQLtFq1xGAc2RyQcEdHiG0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JabHTBNb; arc=none smtp.client-ip=74.125.225.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="yukRbG0q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 976111F000FF;
-	Wed, 23 Sep 2026 20:01:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JabHTBNb"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49e620fa473so8400085e9.1
+        for <linux-hexagon@vger.kernel.org>; Wed, 23 Sep 2026 15:09:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux-foundation.org; s=korg; t=1790193668;
-	bh=pvDDKbJOCHVNMBf6MfRG+XPEG43cFbYIZQUAS2hlVUA=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=yukRbG0qkn30dWVsqij/SU5fM7nkPcs9gLdvOBDFKy6hSl5ItrFuR2BYdapipYrFp
-	 /ULALkETS2Hzxxifit/ssnY1WioE70raLvLXq6WSexLRbbzTwV3qRYdtF+xb4eB5wp
-	 1Lu+3tjEqSY8F42OSvK9noPy1qtRRMWcgWlWM4o4=
-Date: Wed, 23 Sep 2026 13:01:05 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, Baolin
- Wang <baolin.wang@linux.alibaba.com>, "Liam R. Howlett"
- <liam@infradead.org>, Nico Pache <nico.pache@linux.dev>, Ryan Roberts
- <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song
- <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, Usama Arif
- <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, Guo Ren
- <guoren@kernel.org>, Brian Cain <bcain@kernel.org>, Geert Uytterhoeven
- <geert@linux-m68k.org>, Dinh Nguyen <dinguyen@kernel.org>, Simon Schuster
- <schuster.simon@siemens-energy.com>, Jonas Bonn <jonas@southpole.se>,
- Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne
- <shorne@gmail.com>, Rich Felker <dalias@libc.org>, John Paul Adrian
- Glaubitz <glaubitz@physik.fu-berlin.de>, Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Alexandre Ghiti <alex@ghiti.fr>, Russell King <linux@armlinux.org.uk>,
- Vineet Gupta <vgupta@kernel.org>, Michal Simek <monstr@monstr.eu>, Chris
- Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, Will Deacon
- <will@kernel.org>, "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick
- Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>,
- "David S. Miller" <davem@davemloft.net>, Andreas Larsson
- <andreas@gaisler.com>, Richard Henderson <richard.henderson@linaro.org>,
- Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland
- <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
- <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge
- Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
- Ellerman <mpe@ellerman.id.au>, "Christophe Leroy (CS GROUP)"
- <chleroy@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Christian
- Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
- <svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov
- <anton.ivanov@cambridgegreys.com>, Johannes Berg
- <johannes@sipsolutions.net>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar
- <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
- <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>, Vlastimil Babka
- <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan
- <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jason Gunthorpe
- <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, Peter Xu
- <peterx@redhat.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Shakeel
- Butt <shakeel.butt@linux.dev>, Jonathan Corbet <corbet@lwn.net>, Randy
- Dunlap <rdunlap@infradead.org>, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-riscv@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- linux-snps-arc@lists.infradead.org, linux-arch@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-alpha@vger.kernel.org,
- loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, linux-um@lists.infradead.org, Hugh Dickins
- <hughd@google.com>, Qi Zheng <qi.zheng@linux.dev>,
- linux-doc@vger.kernel.org
-Subject: Re: [PATCH v4 00/12] mm: make userland page table freeing RCU-safe
-Message-Id: <20260923130105.522942080238d133a36afc91@linux-foundation.org>
-In-Reply-To: <arN3iaw7VDIA-bWf@gremlin>
-References: <20260922-rcu-pagetable-freeing-v4-0-fe1ad1f1e303@kernel.org>
-	<20260922160021.a2fc65d05d9b867a141e5457@linux-foundation.org>
-	<arN3iaw7VDIA-bWf@gremlin>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        d=gmail.com; s=20251104; t=1790201393; x=1790806193; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=l5dTpfk72zH6uImNLJc12NQcXIxnabFbxH2ktwvSTbg=;
+        b=JabHTBNb7ls2uP8xSKvzKXLBupNHM/NFoQnf3Z4Vgscxq88QF8Z8D0p+YbF2B1wwV7
+         lCwYSxeuVkvo+PeBdnTSVLKpJKviVNTxtSx+1T78rVQ0BFLmV2LjVeGh1qX8CrOL1epp
+         h2rVggzDp/Wl4xPa+nT2S7yHnRu7OT1GebGn7qJR+I0/Zwu7TlE46AOyeleem/qhP5nK
+         IUoe7wfrk2Ld1GfUGpeT+r6hIbhEB9TlYbP23ncRr6Ep+/8mXquQv1YopI1kztvbJC7f
+         HLTz0LVwkNTMfOPCuROJ2o0vCImMUFEcaOMWNWftvfagKZbNs1frgsZ32UhkYSjfQxyH
+         FxiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790201393; x=1790806193;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=l5dTpfk72zH6uImNLJc12NQcXIxnabFbxH2ktwvSTbg=;
+        b=aEwyQXSkFmzqQ+79LhPnBdcs1ztKkb4UhnEAfnR9WWGD6vAel3UKQ8q8HipQwsyuqj
+         AzSobqLQdTWhKuKeCE9EG6FK1FLYXzKpeYGPeT5JPN89hpC6acwBxY2+BDzJ2AizIxO4
+         N9XT7rBvPYpTWwmOrC74Eai75l0vXqUBRX14HEO1bt1BM7u7+aUfu5Igd5x9Kjz+Y3L4
+         fgNaZKF/yCkarGl8SDbxASxrB+2hm1eoAbI61jtRIpwMpTl9Uisswhul30ocCwDv6lEm
+         VIkISbih9RLYp/4FFuGGxdwxTT3tC7ol18NJk+c40r5iTwL2ich1ONuaqgoKzLx0Kb19
+         S0rw==
+X-Forwarded-Encrypted: i=1; AKwUvBzgkfBBPT7ipoSXfbfTS7CNc6sr+FTro8jathvwpzJEeN2X41Bt9c4ccpNiRH3Nz2sakKTH17JoQZMhQ+PQ@vger.kernel.org
+X-Gm-Message-State: AFuF++m6i/ju/ch1R9hTisJuvfl+2UsF8DuspSdDyyTFhSLRtpuJai92
+	j5J4ZaL4VeGOcl6yUmjFw1Rw4QDFHjNJWgd9as/mBXrDH/RlOGadoOD4K/jws/rg
+X-Gm-Gg: AYBFou0PjeuPOnhgwi2y9d0TlLcDHLyj8HqEV907O0L3W3zvtYT0u8xFBW779TUecsf
+	CFEB+KXlWjtHOSw012g8CZXQ4Hhx4ncCDxzBkcFLGFPHvKIP22D/2ScDfkCztPr/PRvzCESv+PE
+	O5cYI99latehGDgQxPDhV7ADaCmcpPAjqnLxMW2uXZ0pr5tDL8kGbrTHnyB0e1NP9Dl2r81jZWx
+	YEWZhgcfTTWiWcRKK1Qcj5KCNAAJdZJxPeq++xyBUEybVh+fhpICLnf+cvRErYpu5WD8ndjDLOq
+	uc2rYgwFp6JRk4roiKlmBetuDKsdXntCq3m1mhKCg3S55zjJJ/poI0CH6l4mDkBY2axvRGlWvIu
+	xc1ugsLS0GE6tpDzKxHC+wX65Un2ErNoBImBvDN9s/uxAAL7M9o/f4r2vTlJ+qgHrcxViNdEiEQ
+	cGiY+6N9MivJNWI9jfSKkY6MbAIHTe8fPtWU0vZx9ez4OPlbza+UfDWw0s7vE5i9TKHCs55as31
+	yEwJUWHs4SC3FSpsdUTmsES1CBwhkgeBiw=
+X-Received: by 2002:a05:600c:3514:b0:49c:fc6c:be09 with SMTP id 5b1f17b1804b1-49fe67078afmr8562615e9.32.1790201392960;
+        Wed, 23 Sep 2026 15:09:52 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fe5cd42f2sm17189365e9.15.2026.09.23.15.09.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Sep 2026 15:09:52 -0700 (PDT)
+Date: Wed, 23 Sep 2026 23:09:51 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Brian Cain <brian.cain@oss.qualcomm.com>
+Cc: linux-kernel@vger.kernel.org, pierrick.bouvier@oss.qualcomm.com,
+ paulmck@kernel.org, sid.manning@oss.qualcomm.com, peterz@infradead.org,
+ linux-hexagon@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, Frederic
+ Weisbecker <frederic@kernel.org>, Philippe =?UTF-8?B?TWF0aGlldS1EYXVkw6k=?=
+ <philmd@oss.qualcomm.com>
+Subject: Re: [PATCH v2] smp: align struct __call_single_node to 8 bytes
+Message-ID: <20260923230951.29231158@pumpkin>
+In-Reply-To: <20260923154307.3625611-1-brian.cain@oss.qualcomm.com>
+References: <20260923154307.3625611-1-brian.cain@oss.qualcomm.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 23 Sep 2026 08:04:25 +0100 "Lorenzo Stoakes (ARM)" <ljs@kernel.org> wrote:
+On Wed, 23 Sep 2026 08:43:07 -0700
+Brian Cain <brian.cain@oss.qualcomm.com> wrote:
 
-> Err, Kiryl reviewed the entire series, I sent it in -rc1 of this cycle, and
-> it's been in -next forever?
+> Consumers walking call_single_queue cast each node to call_single_data_t
+> and, given that type's declared over-alignment, the compiler may load
+> llist.next and u_flags as one naturally aligned double word.  Fields using
+> this type, such as task_struct::wake_entry only guarantee pointer alignme=
+nt,
+> which faults on strict-alignment 32-bit architectures like hexagon.
 
-I'd failed to notice that v3 of this series was in mm.git, oops. 
-Thanks for cluebatting.
+I think the same could happen on arm64.
+The compiler is being told the alignment is 4*sizeof(long)), but I doubt it
+can ever matter that it is more than 2*sizeof(long).
+
+The other option is to only ever use call_single_data_t to get an aligned
+version of the structure and use the struct everywhere else.
+The compiler won't be able to use the 'load two register' instruction, but
+I doubt that will be measurable.
+
+David
+
+>=20
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Ingo Molnar <mingo@kernel.org>
+> Cc: Paul E. McKenney <paulmck@kernel.org>
+> Cc: Frederic Weisbecker <frederic@kernel.org>
+> Cc: linux-hexagon@vger.kernel.org
+> Reviewed-by: Philippe Mathieu-Daud=C3=A9 <philmd@oss.qualcomm.com>
+> Signed-off-by: Brian Cain <brian.cain@oss.qualcomm.com>
+> ---
+>  include/linux/smp_types.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/include/linux/smp_types.h b/include/linux/smp_types.h
+> index 2e8461af8df6..5773e1fb2660 100644
+> --- a/include/linux/smp_types.h
+> +++ b/include/linux/smp_types.h
+> @@ -64,6 +64,6 @@ struct __call_single_node {
+>  #ifdef CONFIG_64BIT
+>  	u16 src, dst;
+>  #endif
+> -};
+> +} __aligned(8);
+> =20
+>  #endif /* __LINUX_SMP_TYPES_H */
 
