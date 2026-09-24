@@ -1,78 +1,140 @@
-Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
+Received: from mta0.migadu.com (out-228.mta0.migadu.com [91.218.175.228])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 514DD48C8AE
-	for <linux-hexagon@vger.kernel.org>; Wed, 23 Sep 2026 22:09:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F1AD3515CF
+	for <linux-hexagon@vger.kernel.org>; Thu, 24 Sep 2026 02:41:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.228
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790201397; cv=none; b=iEotP07vD97o6cXVs9yt6+K+FWUboRcqbtxVD9d8v2hMB84swxuN1zacwWJOWgeA1kPkPVUeRWedT58jOCJuasiSBu35nySy6302qzNqa4I1AT4BfVdVDbETbT5pZ70qo8vUHT05xMRUbPVmMNMmB6gf9wk00me9OhY1I2ttbrU=
+	t=1790217694; cv=none; b=SR3ZMCGSq4b3LuucUiVBc+8C0ROg3WhMKe+ml66FaVhkpN4zCSwHeYnQD4mt+0jJDfR5CQvYZwKnAs4Fv8Mxr9XbkTS7tGDUSHjDg7AZu3+WZKbLLHE0IWhrqpN7T7lgJPENKGgibxZFBwgKkP9Kc3vpX4/Ws8LBBdjtbQIJf+4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790201397; c=relaxed/simple;
-	bh=EtOIa+oAShthuIiT1TwrJdQuJPXnDiaoPiPmXnJJfG4=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=gdDM11r/LhsBTs/ZIZPM7x/wGZawrggzvvU+VTBT+kqliR+Y6AWG2qnPHLaRkW1HSWkD1539VvvE5Jyj1dPhjo+3BdRuOQO5toE/2+MLIbOhrhzoicpTpC2NANSDM1tPXF3ytNUc/SbkQjTSABdHSRQLtFq1xGAc2RyQcEdHiG0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JabHTBNb; arc=none smtp.client-ip=74.125.225.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790217694; c=relaxed/simple;
+	bh=4JyEcF/oNMZQFBpW+pWfHZaiat0WqM84Tbff9DsrqFA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=hjdyAwn2CvH7/ucM+qWtH9zOvqAviK2n6uLXg2uEXhVn7+otNYHXy8T3HnglTRthS653e4Rcw5Hnx5CtFXRZIwPx2ulGeE2efqY7vMq318QHj52MIkKEWHpIBTbdse5cgT6DCHikLG3CCDz5I40/FGd5RCJDC1bVAtfVvvSges8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=UZfw8DNC; arc=none smtp.client-ip=91.218.175.228
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JabHTBNb"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49e620fa473so8400085e9.1
-        for <linux-hexagon@vger.kernel.org>; Wed, 23 Sep 2026 15:09:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790201393; x=1790806193; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=l5dTpfk72zH6uImNLJc12NQcXIxnabFbxH2ktwvSTbg=;
-        b=JabHTBNb7ls2uP8xSKvzKXLBupNHM/NFoQnf3Z4Vgscxq88QF8Z8D0p+YbF2B1wwV7
-         lCwYSxeuVkvo+PeBdnTSVLKpJKviVNTxtSx+1T78rVQ0BFLmV2LjVeGh1qX8CrOL1epp
-         h2rVggzDp/Wl4xPa+nT2S7yHnRu7OT1GebGn7qJR+I0/Zwu7TlE46AOyeleem/qhP5nK
-         IUoe7wfrk2Ld1GfUGpeT+r6hIbhEB9TlYbP23ncRr6Ep+/8mXquQv1YopI1kztvbJC7f
-         HLTz0LVwkNTMfOPCuROJ2o0vCImMUFEcaOMWNWftvfagKZbNs1frgsZ32UhkYSjfQxyH
-         FxiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790201393; x=1790806193;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=l5dTpfk72zH6uImNLJc12NQcXIxnabFbxH2ktwvSTbg=;
-        b=aEwyQXSkFmzqQ+79LhPnBdcs1ztKkb4UhnEAfnR9WWGD6vAel3UKQ8q8HipQwsyuqj
-         AzSobqLQdTWhKuKeCE9EG6FK1FLYXzKpeYGPeT5JPN89hpC6acwBxY2+BDzJ2AizIxO4
-         N9XT7rBvPYpTWwmOrC74Eai75l0vXqUBRX14HEO1bt1BM7u7+aUfu5Igd5x9Kjz+Y3L4
-         fgNaZKF/yCkarGl8SDbxASxrB+2hm1eoAbI61jtRIpwMpTl9Uisswhul30ocCwDv6lEm
-         VIkISbih9RLYp/4FFuGGxdwxTT3tC7ol18NJk+c40r5iTwL2ich1ONuaqgoKzLx0Kb19
-         S0rw==
-X-Forwarded-Encrypted: i=1; AKwUvBzgkfBBPT7ipoSXfbfTS7CNc6sr+FTro8jathvwpzJEeN2X41Bt9c4ccpNiRH3Nz2sakKTH17JoQZMhQ+PQ@vger.kernel.org
-X-Gm-Message-State: AFuF++m6i/ju/ch1R9hTisJuvfl+2UsF8DuspSdDyyTFhSLRtpuJai92
-	j5J4ZaL4VeGOcl6yUmjFw1Rw4QDFHjNJWgd9as/mBXrDH/RlOGadoOD4K/jws/rg
-X-Gm-Gg: AYBFou0PjeuPOnhgwi2y9d0TlLcDHLyj8HqEV907O0L3W3zvtYT0u8xFBW779TUecsf
-	CFEB+KXlWjtHOSw012g8CZXQ4Hhx4ncCDxzBkcFLGFPHvKIP22D/2ScDfkCztPr/PRvzCESv+PE
-	O5cYI99latehGDgQxPDhV7ADaCmcpPAjqnLxMW2uXZ0pr5tDL8kGbrTHnyB0e1NP9Dl2r81jZWx
-	YEWZhgcfTTWiWcRKK1Qcj5KCNAAJdZJxPeq++xyBUEybVh+fhpICLnf+cvRErYpu5WD8ndjDLOq
-	uc2rYgwFp6JRk4roiKlmBetuDKsdXntCq3m1mhKCg3S55zjJJ/poI0CH6l4mDkBY2axvRGlWvIu
-	xc1ugsLS0GE6tpDzKxHC+wX65Un2ErNoBImBvDN9s/uxAAL7M9o/f4r2vTlJ+qgHrcxViNdEiEQ
-	cGiY+6N9MivJNWI9jfSKkY6MbAIHTe8fPtWU0vZx9ez4OPlbza+UfDWw0s7vE5i9TKHCs55as31
-	yEwJUWHs4SC3FSpsdUTmsES1CBwhkgeBiw=
-X-Received: by 2002:a05:600c:3514:b0:49c:fc6c:be09 with SMTP id 5b1f17b1804b1-49fe67078afmr8562615e9.32.1790201392960;
-        Wed, 23 Sep 2026 15:09:52 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fe5cd42f2sm17189365e9.15.2026.09.23.15.09.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Sep 2026 15:09:52 -0700 (PDT)
-Date: Wed, 23 Sep 2026 23:09:51 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Brian Cain <brian.cain@oss.qualcomm.com>
-Cc: linux-kernel@vger.kernel.org, pierrick.bouvier@oss.qualcomm.com,
- paulmck@kernel.org, sid.manning@oss.qualcomm.com, peterz@infradead.org,
- linux-hexagon@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, Frederic
- Weisbecker <frederic@kernel.org>, Philippe =?UTF-8?B?TWF0aGlldS1EYXVkw6k=?=
- <philmd@oss.qualcomm.com>
-Subject: Re: [PATCH v2] smp: align struct __call_single_node to 8 bytes
-Message-ID: <20260923230951.29231158@pumpkin>
-In-Reply-To: <20260923154307.3625611-1-brian.cain@oss.qualcomm.com>
-References: <20260923154307.3625611-1-brian.cain@oss.qualcomm.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="UZfw8DNC"
+X-Envelope-To: linux-hexagon@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=4JyEcF/oNMZQFBpW+pWfHZaiat0WqM84Tbff9DsrqFA=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1790217689; v=1; x=1790822489;
+ b=UZfw8DNCvzVWg99NPcR+Ebt/gMs9c2wbKlw9VF7xDnBODEnpn+5L/KTQ8WXUFmA/7/S3z6nK
+ uOHQ/7PMLg78DwOZDksDiNr+2zlrYBU6LyvH534tTa4wCqRE3GujpnsHM+atPSdOawKRtGksWF9
+ Z8XnWYcQsOI8qU0frPT9vz3w=
+X-Envelope-To: linux-hexagon@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id 1489725b085043fe;
+	Thu, 24 Sep 2026 02:41:26 +0000
+X-Mizu-Trace-ID: 1489725b085043fe
+X-Migadu-Flow: FLOW_OUT
+From: Lance Yang <lance.yang@linux.dev>
+To: ljs@kernel.org
+Cc: akpm@linux-foundation.org,
+	david@kernel.org,
+	ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com,
+	liam@infradead.org,
+	nico.pache@linux.dev,
+	ryan.roberts@arm.com,
+	dev.jain@arm.com,
+	baohua@kernel.org,
+	lance.yang@linux.dev,
+	usama.arif@linux.dev,
+	kas@kernel.org,
+	guoren@kernel.org,
+	bcain@kernel.org,
+	geert@linux-m68k.org,
+	dinguyen@kernel.org,
+	schuster.simon@siemens-energy.com,
+	jonas@southpole.se,
+	stefan.kristiansson@saunalahti.fi,
+	shorne@gmail.com,
+	dalias@libc.org,
+	glaubitz@physik.fu-berlin.de,
+	pjw@kernel.org,
+	palmer@dabbelt.com,
+	aou@eecs.berkeley.edu,
+	alex@ghiti.fr,
+	linux@armlinux.org.uk,
+	vgupta@kernel.org,
+	monstr@monstr.eu,
+	chris@zankel.net,
+	jcmvbkbc@gmail.com,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	peterz@infradead.org,
+	davem@davemloft.net,
+	andreas@gaisler.com,
+	richard.henderson@linaro.org,
+	mattst88@gmail.com,
+	linmag7@gmail.com,
+	catalin.marinas@arm.com,
+	mark.rutland@arm.com,
+	chenhuacai@kernel.org,
+	kernel@xen0n.name,
+	tsbogend@alpha.franken.de,
+	James.Bottomley@HansenPartnership.com,
+	deller@gmx.de,
+	maddy@linux.ibm.com,
+	mpe@ellerman.id.au,
+	chleroy@kernel.org,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	richard@nod.at,
+	anton.ivanov@cambridgegreys.com,
+	johannes@sipsolutions.net,
+	tglx@kernel.org,
+	mingo@redhat.com,
+	bp@alien8.de,
+	dave.hansen@linux.intel.com,
+	x86@kernel.org,
+	hpa@zytor.com,
+	arnd@arndb.de,
+	vbabka@kernel.org,
+	rppt@kernel.org,
+	surenb@google.com,
+	mhocko@suse.com,
+	jgg@ziepe.ca,
+	jhubbard@nvidia.com,
+	peterx@redhat.com,
+	ysato@users.sourceforge.jp,
+	shakeel.butt@linux.dev,
+	corbet@lwn.net,
+	rdunlap@infradead.org,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-openrisc@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arch@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-alpha@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	hughd@google.com,
+	qi.zheng@linux.dev,
+	linux-doc@vger.kernel.org
+Subject: Re: [PATCH v4 10/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc32
+Date: Thu, 24 Sep 2026 10:41:20 +0800
+Message-ID: <20260924024120.14225-1-lance.yang@linux.dev>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20260922-rcu-pagetable-freeing-v4-10-fe1ad1f1e303@kernel.org>
+References: <20260922-rcu-pagetable-freeing-v4-10-fe1ad1f1e303@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
@@ -80,51 +142,49 @@ List-Subscribe: <mailto:linux-hexagon+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, 23 Sep 2026 08:43:07 -0700
-Brian Cain <brian.cain@oss.qualcomm.com> wrote:
 
-> Consumers walking call_single_queue cast each node to call_single_data_t
-> and, given that type's declared over-alignment, the compiler may load
-> llist.next and u_flags as one naturally aligned double word.  Fields using
-> this type, such as task_struct::wake_entry only guarantee pointer alignme=
-nt,
-> which faults on strict-alignment 32-bit architectures like hexagon.
+On Tue, Sep 22, 2026 at 04:35:41PM +0100, Lorenzo Stoakes (ARM) wrote:
+>Careful handling is required for sparc32 which implements page tables as
+>part of a shared backing page.
+>
+>To support this, a custom __tlb_remove_table() function is required, as
+>specified by CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE.
+>
+>This allows __pte_free_tlb() and __pmd_free_tlb() to specify which page
+>table level is being freed, which is transmitted to __tlb_remove_table()
+>through setting the lowest bit of the page table to 1 for a PMD and 0 for a
+>PTE (the page tables are 256-byte aligned so this is safe to do).
+>
+>Next, since the page table freeing is done via RCU callback, and thus might
+>be executed in softirq context, update the spin locks to IRQ save/restore.
+>
+>Then, in __tlb_remove_table(), figure out whether to free a PMD page table
+>via free_pmd_fast() or a PTE via the newly introduced __pte_free()
+>function, using the lower bit encoded in __pte_free_tlb() or
+>__pmd_free_tlb() to determine which to call.
+>
+>As part of this change use this spin lock rather than mm->page_table_lock
+>for all shared page table exclusion, as RCU freeing means that page tables
+>can be freed from soft IRQ context so both don't have an mm and also
+>mm->page_table_lock is not IRQ-safe.
+>
+>Note that the specification of CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE disables
+>CONFIG_PT_RECLAIM for sparc32, which mirrors sparc64.
+>
+>This forms part of an overall effort to switch every architecture to this
+>mode, and with it complete, means every architecture now supports
+>CONFIG_MMU_GATHER_RCU_TABLE_FREE.
+>
+>Acked-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
+>Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+>---
 
-I think the same could happen on arm64.
-The compiler is being told the alignment is 4*sizeof(long)), but I doubt it
-can ever matter that it is more than 2*sizeof(long).
+Also ran page-table teardown stress on qemu-system-sparc (SS-20, sun4m,
+CONFIG_SPARC32=y). All 24 rounds ran cleanly :)
 
-The other option is to only ever use call_single_data_t to get an aligned
-version of the structure and use the struct everywhere else.
-The compiler won't be able to use the 'load two register' instruction, but
-I doubt that will be measurable.
+Feel free to add:
 
-David
-
->=20
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Ingo Molnar <mingo@kernel.org>
-> Cc: Paul E. McKenney <paulmck@kernel.org>
-> Cc: Frederic Weisbecker <frederic@kernel.org>
-> Cc: linux-hexagon@vger.kernel.org
-> Reviewed-by: Philippe Mathieu-Daud=C3=A9 <philmd@oss.qualcomm.com>
-> Signed-off-by: Brian Cain <brian.cain@oss.qualcomm.com>
-> ---
->  include/linux/smp_types.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/include/linux/smp_types.h b/include/linux/smp_types.h
-> index 2e8461af8df6..5773e1fb2660 100644
-> --- a/include/linux/smp_types.h
-> +++ b/include/linux/smp_types.h
-> @@ -64,6 +64,6 @@ struct __call_single_node {
->  #ifdef CONFIG_64BIT
->  	u16 src, dst;
->  #endif
-> -};
-> +} __aligned(8);
-> =20
->  #endif /* __LINUX_SMP_TYPES_H */
-
+Tested-by: Lance Yang <lance.yang@linux.dev>
+Acked-by: Lance Yang <lance.yang@linux.dev>
