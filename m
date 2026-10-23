@@ -1,96 +1,122 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.136
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792769958;
-	b=EuDv/ohzLT8Pz7NwsgoeIS0eIATtjWcXbU+WceowZ6mmIM+O05H9CVRQEizNx1YxAWGj
-	 foI2qPkwg/6oS1JnAf4PfNbUiUlGoMJ0gPILoNDf6Jt7MWiIdIrxmq11+ryw4OFgRw/K9
-	 m6GCaLFUyiaByFTBv9sq6iWfDUmtIcjZnWI1RUNIoyze19BIsHAS544dqBpH08PXYlo0g
-	 5bbJ81HwXJZ9K1NrFFZok9FqKIqaNjd+nX0NTLPShNH+//Ou2jHKdpvkcVpdazYI93Cny
-	 aP836XzkwaQVeFH40sYbSOPlMa0RZnfiMjNIewVVWmXMsG6rUWg0kpC1kkjbTL6UPTg==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792769958;
-	h=DMARC-Filter:Received:DKIM-Filter:DKIM-Signature:Date:From:To:CC:
-	 Subject:User-Agent:In-Reply-To:References:Message-ID:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=z2qBUDb/HEVpnZ0AdLrT9xxIZXcyNTPm5i0euSKeI8A=;
-	b=v8/9qYGJfLc+1UDRIPPW11ZVrGMQ71hPIWDnbFgo80h+mr4e9ocMCLSQt1SkxUTJNg8C
-	 qura5xUCq62SbBt8eqBbRhgHr4EQ9Gtb6K31+VsuB/c0GUa1yHXZbIXHkwPAlpSHwNLpt
-	 /Zs1QJl2MDmgBy++KMW7YNcdJlmXQFuy4lm57M65lOfiqnz/6vtBmSMDezuAhyIdLMbmh
-	 KR0A4gRyk7ucfNBuu7Cm5vu6Ff7CIHhy+0vk/kTKQrFe+PnLL54cOP+9kPRjSa0aPs4jn
-	 uh5915+9SxcGrDAOVrp8L3qWA3LVRpHskiHx18K5sBtDgnzBLRqA/3UnTiSkGJ3ElkQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=zytor.com;
-	spf=pass smtp.mailfrom=zytor.com;
-	dkim=pass header.d=zytor.com header.i=@zytor.com header.a=rsa-sha256 header.s=2026092801 header.b=O8Iixtg2;
-	arc=none smtp.remote-ip=198.137.202.136
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=205.220.180.131
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1792787521;
+	b=Gty72da3lgcUzqsGfoR1HbHNAOY6d36Rf+DHkgmmFT09IK7uwvYgD7pCKEqTNzn5Vju0
+	 0ghdG7ywIRVRlKHksOIAi1gNWRslh96Mk3xBGdYONDdLeKUAJTvfopOhFLR8QGwWX+2TR
+	 +iIiVnUYFPaATTXDCa6+vCnwRmrB6BMcooe5Exv55Mp7xGzdXMy166tVxLvbZfh0G9vSr
+	 GwJQcu/oVL2An2sLWEmMHqhisoC4pw5DevIExAvZ20btCEKsNlbJY5Xfp/mJ6uifgAJH0
+	 Xad6Nba92EE8GTE484R2Yu224qWBMGeX43P3+Yl0sJDkePZqKkH75htM3jZ4CFoGF+Q==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792787521;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
+	 DKIM-Signature:X-Google-DKIM-Signature:X-Gm-Message-State:X-Gm-Gg:
+	 X-Received:X-Received:MIME-Version:References:In-Reply-To:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Cc:Content-Type:
+	 Content-Transfer-Encoding:X-Proofpoint-Spam-Details-Enc:
+	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=M3CksnXcfFZv8Mv2aTb14UhB7R/567agzBhpVxUupjI=;
+	b=wiV1HZZjhR44dNvesllsim7OyjabTkKSCI59Dl2n3j8UWcxpk6tFrDwRsMt/0lVgvokP
+	 Co1PzeBRsauZyRVA1w7prq1lxiHzbn4WNlTtb/Rri7qE/I9eDnhFVB5l5RHDcGB9ESYNd
+	 ijPjeqdPrd7CherI6llakHxe9clFM7QtaRICHDdOq7iviPETmo7XGp/XmX4ii/gLeXglB
+	 lj/EaI3iUedCGGi3og3/Ppfw0EMsddpIysswq+f70cGXj9xJZypMmDhZZgAvPZ5xt7K6w
+	 gdZtgvNR3HaRvQZkXNEjRT8UQ33XRFwGFGjYLg0FAV/xDC1kMEXIR8VsWrTsvjzzAng==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=oss.qualcomm.com;
+	spf=pass smtp.mailfrom=oss.qualcomm.com;
+	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=EXPRiohQ;
+	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b="CC3L/zSl";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=205.220.180.131
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4970A606A31A;
-	Fri, 23 Oct 2026 15:39:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4970A606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AC42606A31A
+	for <linux-hexagon@vger.kernel.org>; Fri, 23 Oct 2026 20:32:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7AC42606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=zytor.com header.i=@zytor.com header.a=rsa-sha256 header.s=2026092801 header.b=O8Iixtg2
-Received: from ehlo.thunderbird.net (c-76-133-66-138.hsd1.ca.comcast.net [76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 69NFc9VP3102952
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Fri, 23 Oct 2026 08:38:09 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 69NFc9VP3102952
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2026092801; t=1792769891;
-	bh=z2qBUDb/HEVpnZ0AdLrT9xxIZXcyNTPm5i0euSKeI8A=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=O8Iixtg27nerxz4pv3MPQ79Qbkly3Qzdhjb7iI4+o56x6i8BSeIR1xQGCwnY7KKaQ
-	 QA0Qg7pDBg5vVmC4UggSsNd6S8W3qav0zjBwEGselkJ0VJy5I7ZrNewKIutUb7AfVm
-	 MdkVett81Uf9k7w/9M6Vs9Qyoxeec92PLSHDc6Cl9fwDnysLHD8N+1Ef2Jj1dB1Bez
-	 Q/DmdOARJu1F614hVTT4HTy48AJ8iHcZSQvZDYXV0Cb5RUaF6zX8Iqu24NZ3rB/QHw
-	 a/FnYpSSLXQYPrCSxXHH5/8CUI5QKVmOH3JXCGBKbQtNNmTk/ivswwNpvRE42ECOtx
-	 l5XmL1xVvuk2g==
-Date: Fri, 23 Oct 2026 08:38:03 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: Thomas Gleixner <tglx@kernel.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-CC: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Shrikanth Hegde <sshegde@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
-        Kees Cook <kees@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
-        loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Jinjie Ruan <ruanjinjie@huawei.com>, Andy Lutomirski <luto@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Helge Deller <deller@gmx.de>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Richard Weinberger <richard@nod.at>, Chris Zankel <chris@zankel.net>,
-        linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-m68k@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
-        Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>,
-        Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>,
-        Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andreas Larsson <andreas@gaisler.com>,
-        linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-arch@vger.kernel.org,
-        =?ISO-8859-1?Q?Michal_Such=E1nek?= <msuchanek@suse.de>,
-        Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Subject: =?US-ASCII?Q?Re=3A_=5Bpatch_16/18=5D_x86/entry=3A_Get_rid?=
- =?US-ASCII?Q?_of_the_sys=5Fni=5Fsyscall=28=29_indirection?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <87y0boze95.ffs@fw13>
-References: <20260707181957.433213175@kernel.org> <20260707190254.493733289@kernel.org> <20261022142425.3Wx-RrU5@linutronix.de> <87fqxx1r80.ffs@fw13> <87cxt11ktr.ffs@fw13> <1149A39E-BEBA-46EA-94F4-4DFFC4733EF5@zytor.com> <871p9g1s3w.ffs@fw13> <87y0boze95.ffs@fw13>
-Message-ID: <C6D7BF04-4CF7-48D1-93B5-E80D52C2617D@zytor.com>
+	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=EXPRiohQ;
+	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=CC3L/zSl
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69NIa2NP3259916
+	for <linux-hexagon@vger.kernel.org>; Fri, 23 Oct 2026 20:31:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	M3CksnXcfFZv8Mv2aTb14UhB7R/567agzBhpVxUupjI=; b=EXPRiohQnh6UaRhh
+	EEATDN2nQWp9kOvlO7lPbqsrACUrZeDwcJTdHa5xhcZqu4nQc6DyjMulqBlTnLQ6
+	QgQcChYSkVbF2Wlknfs9af8HNHOHIOllM8a+40qbBsIVq6MpKiAzWNow20WrRef0
+	ZyMF8YfGkVg8aTXAe1DC76/6yNhhC7hk5lj8/FMRau3EovAWTyPXPsjv5ipB/9o5
+	2Oj8IaB6WTBeVHgXv8bN6og6KGaSdehbhFq0Gp9XOqXYU6PsstSlzn7uY7TCu9Ad
+	On+9FfnP+lmy/MSmDf3NmQ/Nxo1bxK3wpFcV3r637otxCclqdhsz7p9Ug8R2JnIz
+	Mij2iw==
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com [209.85.128.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hgas6rw9d-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-hexagon@vger.kernel.org>; Fri, 23 Oct 2026 20:31:59 +0000 (GMT)
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-8b0a8c1b87dso21485027b3.2
+        for <linux-hexagon@vger.kernel.org>; Fri, 23 Oct 2026 13:31:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792787519; cv=none;
+        d=google.com; s=arc-20260327;
+        b=oYZKsmnm3w+CIgLPpCj8vktChLXVPM31iuml1Lsvq5B3A/r2jOCpk1VqJFcYTk3yf2
+         CnVoJBmu2BdT1oOj18sECGPWMNtC7O5kjo0NAXsMDRi549mmhVHlRl3P+G2Z2blZtETc
+         U2J1iERdLRMPVHcJdqTdlGrRTq3lsjli7ROQTM2vZpAloSmEnXFUI0gjXoCsKNnB+Ozt
+         qNAzVSaBS5cKneWFI5dBl2GHhc+DfY/rKszstfjxpPXLVQCH9fx555f6+xTv0dRPeU/T
+         tD3pZizhMlnLfcSIiVg8vzO8TE3ieE7xjf756LvvZvBU93IZfXxCv1s6zERgm2w3zPFl
+         IRjQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=M3CksnXcfFZv8Mv2aTb14UhB7R/567agzBhpVxUupjI=;
+        fh=8Jdc5r4QG/HYzedEu5VX2oS8AfqsgFen1idO94G9TM4=;
+        b=dowS0EI0rfT0lshzBYN/yh7P7OW1vpE/NG0o3X2RtfTJTu1XYA9IO8UXpmDIFd6ZUS
+         Jc4d3P1mUdc9ziJRVMaljQM0QFvch76d1mPC+LueMsvzNhAYYOHgjaRFdemY2evIVyrQ
+         5VK5uNEMw2QSOJegj6u3oPyfsVrtGanWVBH1toVmvlfCSxW1aR3526EwmfRw13bgMYaT
+         3p6jJfql91lqbX6dsoDEE4Yxe+3t+CftdfS7mxwbOVReGnsvWwKzqP3UOeuWBC63gJbJ
+         0+cmBDStCEK/4k+JhGBFCW4HhwJ7v+soD7jewULRzEqIJnk62UcO8tPWJmusHEJAtD0a
+         mLAQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1792787519; x=1793392319; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=M3CksnXcfFZv8Mv2aTb14UhB7R/567agzBhpVxUupjI=;
+        b=CC3L/zSl0jg3wYIdI6VwY0zxFRdcdvTTQjlWHnVERBpJaGZlBTKNIVuTlWbityE801
+         d+pMaK7sm4xxNaOJx4u8JX/RNmC/ZtYLG64IdpgCGbbOCisO9C41JErFXpjnL6bXU/J0
+         SnuIYPJLrbpwt1S6y1GP6V/Odts4YC0X6RKHtLMD7HqslWilB7JEtM1COEUZrgs/Bi5D
+         2tWagHQJPSsp5dhzgEhsdl41UmJohgPsTO5/ffPefQdBZGnMbnpDcY+VVNdjgzUF+LfT
+         5Zi6Q3aakw3ALTIBXPnoryVXARxu7pJsQ19FHqrbgTslfg4MAZsjzAF0lwzA+l7Dm1DN
+         znEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792787519; x=1793392319;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=M3CksnXcfFZv8Mv2aTb14UhB7R/567agzBhpVxUupjI=;
+        b=09A0IGqwoidQ7MaoEDLWv0tKiIQl4Y5nK4eya/MQPlSOe4qDZwAIsFjcWNWdw/CyQv
+         9aHaDEbCHQH9KJwsQg1Z21ZuNOtqgovbx75oZdAlCTpDZiDHxYqYMebb5z0DsaBjIShJ
+         YY5BoHOYfaNtEQn1pQUwFOdGxLJHFVUz2MKK49i42vUhmOXd/sKLwa56qBtLPC4ZrJv1
+         ULUsCbpcR/S4xsMZJe0ATVPPh3bWeXo87HZg/kj8GyA8Q88w7NQhWsNsJ6qXkeIrVxPW
+         I0BeswO2IbU1Axw79k61Arq/UhGL7rhvGOjDQHaw6m2IGwGmCs16wqkd/okVzAbsR6+W
+         t53A==
+X-Gm-Message-State: AFq9FYIpwQdzWkzA1NYhd36J9C4E1GJvA/j8LXdIh6ry3D/1RsTO3v/2
+	vmzIoQpb6eJH9ugojS8Jl93MwqM3GBM60Do0CGEJ4qUJ4cdU2mYtORrUyUOqWddU1whlpEviSj2
+	KaFodz8QCX6Rs0Xh6C+TaBFEHOup2k1xFpzQx8Ad4CSBnKcYrFDZ+cm9jTlMYXVDfKUuAqrRQMJ
+	BTp0TCQ1hTeKD48ni4AMinUsc6tyD/HeaFn78LpyjnQLA=
+X-Gm-Gg: AYBFou3akqWORCEaz/SES8tvTmJBr7aXLd82Z1wyV3HkmM3wryJD4ZN17jUwJhVEhvv
+	Kj5NzDHZSMwI0sKCYwAWNIdpt6duO3KE7TF3RMo7zsXLdV0RFsfy6xdYS4f0Zp3Vi43ZBvE4FKY
+	vAMTqFFSUyDFbs0BcKalFwg4qWTxWGDBgQHDEay+awZboXI7+IY07E3EbFu1o=
+X-Received: by 2002:a05:690c:e1c9:10b0:8b0:bc6c:9229 with SMTP id 00721157ae682-8b166c41cd0mr1795507b3.27.1792787518609;
+        Fri, 23 Oct 2026 13:31:58 -0700 (PDT)
+X-Received: by 2002:a05:690c:e1c9:10b0:8b0:bc6c:9229 with SMTP id
+ 00721157ae682-8b166c41cd0mr1795227b3.27.1792787518121; Fri, 23 Oct 2026
+ 13:31:58 -0700 (PDT)
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Post: <mailto:linux-hexagon@vger.kernel.org>
@@ -100,68 +126,72 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-hexagon+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
+References: <20260906021712.2498266-1-brian.cain@oss.qualcomm.com>
+In-Reply-To: <20260906021712.2498266-1-brian.cain@oss.qualcomm.com>
+From: Sid Manning <sid.manning@oss.qualcomm.com>
+Date: Fri, 23 Oct 2026 15:31:22 -0500
+X-Gm-Features: AclHuK9i94ql6Xgrum50sseUDW-3jGQPeHVVf4sf1XToWYXIxWgXHfVR3I2BmCU
+Message-ID: <CAJpW4SV5UhYExqmgtfTAt9eryXA1-+QdiqqHcU4PxCSnYqbDcg@mail.gmail.com>
+Subject: Re: [PATCH 0/7] Hexagon build/syscall/etc fixes
+To: Brian Cain <brian.cain@oss.qualcomm.com>
+Cc: linux-hexagon@vger.kernel.org, pierrick.bouvier@oss.qualcomm.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDA4MCBTYWx0ZWRfX740malu7beSu
+ ySro9cIgVZGz5BNXAd/9XIpB1zZ1MjfgrwWMiFlW0fTNymBe1x6D85+UaY3xLY8ZxOGTpt1alPA
+ GcLfy3KbaCRUgQkFchKmPRBg59JOQ6GgADaZZK3+y60cXdaGjHVCSsnORXNCzkMrO+cL95nTCzd
+ hWQFw43L7Hd9FJ4s2IZ1jZ9qkKuzSyxtYecE/0qIbC0fS6UgtNi+ZbF/f16N1ib8J0FckzlJh82
+ kWLlak5an5WgtQmrTxeonMMLbvs6GA8H8oE7X0kYhX2isr7hPSzL5y0BNL4j0JWLeUPswk2512k
+ htDKwIT0fkZ2QGe+rwvdkuHC2l4rA7AycmNLipXRqsAAxRtGbv7Ap27TWOByxdpDaGxk3V4xfwK
+ 13TVUWygvOWQZTMW5cwfK3F5B++I1YlbCnM/Bn6geoXkXziK+8deCjhHT3BMb1lPf4fqJn1sgYP
+ wF3huNQx+cB6psxpMbg==
+X-Authority-Analysis: v=2.4 cv=DK0acCNb c=1 sm=1 tr=0 ts=6adbc43f cx=c_pps
+ a=g1v0Z557R90hA0UpD/5Yag==:117 a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10
+ a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
+ a=ZpdpYltYx_vBUK5n70dp:22 a=EUspDBNiAAAA:8 a=Eun1QSdBXWjTrmcyj9AA:9
+ a=QEXdDO2ut3YA:10 a=MFSWADHSvvjO3QEy5MdX:22
+X-Proofpoint-GUID: PpUFK7DB4BszZ7Adc7Wd-kxKNFhXlFKG
+X-Proofpoint-ORIG-GUID: PpUFK7DB4BszZ7Adc7Wd-kxKNFhXlFKG
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDA4MCBTYWx0ZWRfX2GRoUPleJEDw
+ t1w7n3OtUD8/mejVnBRX4/sxtUhqoLTqgvZ8l2YuvUAwup+SNW123CN0xCRGDZDgCylPmGHVSQF
+ YIyzxFVa4Q7lXKAIDJhZfTTiV4slR40=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-10-23_05,2026-10-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 spamscore=0 priorityscore=1501 adultscore=0 malwarescore=0
+ impostorscore=0 lowpriorityscore=0 bulkscore=0 phishscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610230080
 
-On October 23, 2026 7:24:22 AM PDT, Thomas Gleixner <tglx@kernel=2Eorg> wro=
-te:
->On Fri, Oct 23 2026 at 15:09, Thomas Gleixner wrote:
->> On Thu, Oct 22 2026 at 17:22, H=2E Peter Anvin wrote:
->> Tired brain misread the test output:
->>
->> [RUN]   Running tests under ptrace: modifying the default return
->> [RUN]       Checking system calls with msb =3D 0 (0x0)
->> [OK]                x32 syscalls 0:-64=2E=2E-2 returned -ENOSYS as expe=
-cted
->> [OK]                x32 syscall 0:-1 returned MODIFIED_BY_PTRACE as exp=
-ected
->> [OK]                x64 syscalls 0:-64=2E=2E-1 returned -ENOSYS as expe=
-cted
->>
->> But that's because the "-1" on x32 is actually 0xFFFFFFFF while on x64
->> it's 0x7FFFFFFF=2E
->>
->> The whole mess comes from using -1 as indicator for syscall abort which
->> is undistinguishable from a syscall(nr=3D-1)=2E
->>
->> Bah=2E Let me restore this nonsense=2E
->
->The real question is how we ended up there=2E By design or as an
->implementation detail which got later set in stone and the selftest was
->written to test the implementation instead of testing against a
->specification=2E
->
->I went back in history and in 2=2E6=2E12 the behavior was for both i386 a=
-nd
->x86_64:
->
->  regs->ax =3D -ENOSYS;
->  syscall_trace_enter();
->  if (syscall_nr < MAX)
->  	do_syscall();
->  =2E=2E=2E=2E
->
->IOW, a tracer modification of regs->ax is not overwritten when the
->syscall number is out of range=2E
->
->Between 2=2E6=2E19-rc2 and -rc3 x86_64 was changed to _always_ overwrite
->regs->ax when the syscall number is out of range=2E
->
->In the 3=2E8 merge window seccomp introduced the -1 =3D=3D skip bogosity =
-which
->got fixed up and made "consistent" in several changes afterwards=2E Just
->that it never reached a state of consistency due to the overloading=2E
->
->So are we stuck with this behavior or do we sit down and define what the
->correct behavior should be?
->
->Thanks,
->
->        tglx
->
->
+LGTM
 
-Going back on something from 3=2E8 that is actively used seems unwise=2E I=
- fear that that ship sailed a long time ago, even though I hate it just as =
-much as you do=2E
+Reviewed-by: Sid Manning <sid.manning@oss.qualcomm.com>
+
+
+On Sat, Sep 5, 2026 at 9:17=E2=80=AFPM Brian Cain <brian.cain@oss.qualcomm.=
+com> wrote:
+>
+> While working on the qemu boot configuration, several issues were uncover=
+ed,
+> this series contains fixes for the bugs that were found.
+>
+> Brian Cain (7):
+>   hexagon: disable the LLVM packetizer
+>   hexagon: define ELF_CORE_EFLAGS for V4-and-later architectures
+>   hexagon: stop passing -mv${CONFIG_HEXAGON_ARCH_VERSION} to the linker
+>   hexagon: read the thread-info register with a volatile asm
+>   hexagon: let do_work_pending return without pending work
+>   hexagon: set the user stack pointer in start_thread
+>   hexagon: return -ENOSYS for unimplemented syscalls
+>
+>  arch/hexagon/Makefile                  |  7 +++++--
+>  arch/hexagon/include/asm/elf.h         |  2 +-
+>  arch/hexagon/include/asm/thread_info.h | 12 +++++++++---
+>  arch/hexagon/kernel/process.c          | 10 +++-------
+>  arch/hexagon/kernel/traps.c            | 13 +++++++++----
+>  5 files changed, 27 insertions(+), 17 deletions(-)
+>
+> --
+> 2.34.1
+>
