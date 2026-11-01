@@ -1,44 +1,44 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793387502;
-	b=FDJ+31hkmfnpaxL+Pr+u0PtJEOWFFBU10R+/XwL0NWr1VOUGaPrhPuGX665bCzGU2Dip
-	 xrgY38MTA7DTKG2xSejXbfsLMXhUHMzWbyA1siRHINqVOPytHNEIOOS0UaLXs7oISZrby
-	 BoRjr7XVBxZo6/cWiu01+73J0Fz6ldekKckWkkAo9kJRFzk3It41ezaNU9w6+rGoPwfUW
-	 XuTZxtPuq0R4zfQLEgdOoMlW6iRZ4XoCxOXJz2rxxn+n8SarQNPApn34yooxWckiLI7bF
-	 0sFdm2a9eic6AQze1XSTa4qVebyLa5O6v++3xqn3Yy6eQOWWuxj8YqKfRvnQpvLOYPw==
+	t=1793555892;
+	b=FXIcFh7dOmBvLkccW6Pmtfk9UNfYtnbK2nFMIYfF7USaK2GOjNjmgWTIdZjYXK+JpG44
+	 tqyZ0MOuwDi/WYZxJq2vyrGUGsUtRFafjL2GebWj4/sufLRJsJBbyPOS6g+vpKQG2jOz/
+	 d08Nm6+1MdAl4XDfljYFpgteSVYmPyBNOrbjeYKAN+utLcDzRv7EtRP6sfdU3WPwggRhZ
+	 gt3pmB2dbX842tC4cXpO8qbDFq+1x+3GWd36mGLP3BDbxJG2s/y43YRQSG4BX8G3FL/JH
+	 VKpfCGNTp1Hz0GdDcZARYpLUn5L45Fh2eEljXH2E7aR2A95SjzD1/7WJ45Hy9hXQgLg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793387502;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793555892;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:In-Reply-To:References:
 	 Date:Message-ID:MIME-Version:Content-Type;
-	bh=T4hFvVxLfjnAJg8k+NzczjZdpae4mRcTksCIzgxfA9U=;
-	b=y+MoYQ5cHEl5xfNV7/ZaXfb13bFP5+MFZB66uUJZ52ucFUuaCvRFwBWSctjWuQfHV2DP
-	 2ZeL3YSEFdnpNKl1VfGe3LBR0qb2xIG43GTFz0OCFSQ9HxqvL2F2j+CivfgNxzn6hOM8G
-	 hpZNg3DhJTe7dZCxElvZn5/OByn9uggFBbBYjZykcLAPtoFLdBKLpSGkSTDd1xXtc5l86
-	 og4+CtWYYoSZnML+tKndMchLgcfsA28PmRpNYea54eQdCQdUo+pug2sdKxuC6AMU2zPqk
-	 6Jv14mZkuP2D6LoMdP3tFW5IS/+ahYaInhz5k6j0to7JgGN3luUZ9Stn0R2Hl87c57g==
+	bh=+7HwRXGWtYS3xmU+Z46/w0lVl31Dl0sZcMyXjmUDfIs=;
+	b=e5Xj0w/BMboK2HQTrlV3GC9nl6B4wY2eIhjnYKaxYXq6FcqHV6g/4o/4sNm7Yk8pIt1P
+	 GubvDHoF3P9IfIZ64kH/SrqXU+FvyHXCkHkydGw4xIZVnM3zDZaDNVHLokOm3NLlUV5tz
+	 aj4+LvcdpZFGZawmh6JY5Sc8UMl8DTlgnC93b6QJ43JQmcZCXaa6LIvDPp3rJjDHQ9p1g
+	 0TPGTX3jwWN/n+YsCLlKSua75jB7b+KM3N/9V45vjViVZa2NwK1GRGCfVyEyuhkhDNWdl
+	 O1P/fPfVoq1Z7ZkCr6dgNpsYtUuNmhKMMMu5ivftXcMwLcIVwKssjyXi+rzxGn1H6MQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="cJGl/G/2";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FkpyzqH8;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B620E606A31A;
-	Fri, 30 Oct 2026 19:11:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 155C7606A338;
+	Sun,  1 Nov 2026 17:58:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cJGl/G/2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 856D71F000C1;
-	Fri, 30 Oct 2026 19:11:40 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FkpyzqH8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 388A21F00A17;
+	Sun,  1 Nov 2026 17:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793387501;
-	bh=T4hFvVxLfjnAJg8k+NzczjZdpae4mRcTksCIzgxfA9U=;
+	s=k20260515; t=1793555891;
+	bh=+7HwRXGWtYS3xmU+Z46/w0lVl31Dl0sZcMyXjmUDfIs=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=cJGl/G/2fQF1yJWHTie2xk6HB608xeSGry+Y/uMzkiv7mSAAvI/rgcFa2ycf1BTVh
-	 d35A0kNRaV1SESzGWirJvsignzKFJjZo7LJ49bkaLS5abOu8oYwNJDowAY4LXAaFk3
-	 1qvBtDFkFqlDjn51/ADmcGHjG88Z10ZTRm9cloeKGen2Fvgbp7EvWKP7Fs/k+w7w7I
-	 N+Bpq3UQzRBk81FGdRpPvr/G8hUKlkAznQ9epCS9WohqPLXX6ImGQB2IoLMbeTEcsI
-	 X7PFkJetPPJchwZrSKjuCFkEbuOgCvp7lXiZPRZWxHOpx5mbgnJHdFUTifU5ObrOgF
-	 1vyrUAqP9m8pA==
+	b=FkpyzqH892Y24Bf4MzJaxg0GENU+W3h1HrKoje37+gLiStKVwoHULfobDtcxPd97k
+	 O7yDPvc5mWSjJBu8vqqdIiJljIIY/6Z6d8PFXXCg74LTEn4DannL5V6rcy3NiVl7Cu
+	 DnutKq7d2bLfY2EkKJcg1fiS7Qvebb0UQQu9SHDSugPX5Tba1NEXcVGdUEzB6sw+y5
+	 V2z/p2t+EDUDEUhm+YjJeNELsgmzPgXTja1HpGoACFV2HxgapWeRjmaKUW4P/rTSol
+	 vGE0a3SiPbMJFefI/JNfVFZ/R4iCFJ+Rd4uFfOaqAIzWd7mtslcqNYqP4841tBmpOx
+	 x3REifKbTPuGQ==
 From: Thomas Gleixner <tglx@kernel.org>
 To: "H. Peter Anvin" <hpa@zytor.com>, Sebastian Andrzej Siewior
  <bigeasy@linutronix.de>
@@ -70,16 +70,17 @@ Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra
  linux-arch@vger.kernel.org, Michal =?utf-8?Q?Such=C3=A1nek?=
  <msuchanek@suse.de>, Jonathan
  Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Subject: [PATCH] x86/entry: Fix ptrace regression
-In-Reply-To: <87se1wyvs8.ffs@fw13>
+Subject: [PATCH V2] x86/entry: Fix ptrace regression
+In-Reply-To: <87mrrvxaty.ffs@fw13>
 References: <20260707181957.433213175@kernel.org>
  <20260707190254.493733289@kernel.org>
  <20261022142425.3Wx-RrU5@linutronix.de> <87fqxx1r80.ffs@fw13>
  <87cxt11ktr.ffs@fw13> <1149A39E-BEBA-46EA-94F4-4DFFC4733EF5@zytor.com>
  <871p9g1s3w.ffs@fw13> <87y0boze95.ffs@fw13>
  <C6D7BF04-4CF7-48D1-93B5-E80D52C2617D@zytor.com> <87se1wyvs8.ffs@fw13>
-Date: Fri, 30 Oct 2026 20:11:37 +0100
-Message-ID: <87mrrvxaty.ffs@fw13>
+ <87mrrvxaty.ffs@fw13>
+Date: Sun, 01 Nov 2026 18:58:08 +0100
+Message-ID: <87ecd4xwlr.ffs@fw13>
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Post: <mailto:linux-hexagon@vger.kernel.org>
@@ -95,7 +96,7 @@ The recent rework of the syscall entry code missed the historical detail of
 the abuse of syscall number -1L to abort a syscall and keep modifications
 by tracers to the return value, while a rewrite of the syscall number to an
 invalid value undoes eventual tracer modification to the return value and
-overwrites it with -ENOSYS.
+overwrite it with -ENOSYS.
 
 Restore the original behaviour.
 
@@ -105,18 +106,22 @@ Signed-off-by: Thomas Gleixner <tglx@kernel.org>
 Cc: stable@vger.kernel.org
 Closes: https://lore.kernel.org/all/20261022142425.3Wx-RrU5@linutronix.de
 ---
- arch/x86/entry/syscall_32.c |    2 ++
+V2: Add the missing -1 check in the 32bit path - sashiko
+---
+ arch/x86/entry/syscall_32.c |    4 ++++
  arch/x86/entry/syscall_64.c |   26 ++++++++++++++++++++++----
- 2 files changed, 24 insertions(+), 4 deletions(-)
+ 2 files changed, 26 insertions(+), 4 deletions(-)
 
 --- a/arch/x86/entry/syscall_32.c
 +++ b/arch/x86/entry/syscall_32.c
-@@ -77,6 +77,8 @@ static __always_inline void do_syscall_3
+@@ -77,6 +77,10 @@ static __always_inline void do_syscall_3
  	if (likely(nr < IA32_NR_syscalls)) {
  		nr = array_index_nospec(nr, IA32_NR_syscalls);
  		regs->ax = ia32_sys_call(regs, (unsigned int)nr);
 +	} else {
-+		regs->ax = -ENOSYS;
++		/* See comment in do_syscall_64() */
++		if (nr != -1UL) {
++			regs->ax = -ENOSYS;
  	}
  }
  
