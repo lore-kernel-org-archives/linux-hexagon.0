@@ -1,101 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.43
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794852645;
-	b=ceBW3qbnPreK2U+oj3brFmZRG23aY1pUAYSu1kxpGOov6ms9rEfT0c59MPbjPbUJUtaH
-	 4GBfruGfYlKjeWBKccx0AdfsyBV/plWcGyOsbDzZdYgkFUAdx/xer/p2HENCSjtHtbKWD
-	 6OYe1thhf994mGmLFSzYTZcNjRQbpFkI4gewew/h0pJvmvlSeYA/EEo5WzHxjfQfgn9I7
-	 Z4GKi73e8MfpBQIg/tqD6OD1+9j6nZo9Rp2njTOcqnBblan+tjJJSOGSKJ3qLa04vxyJf
-	 onbdSey0N9yJZnoQv6ZHkQGsDLwtL9lvT9iQm0CvCnrRiBvnNcr4R+EjU7Lky+JaHtA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794852645;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.46
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794894592;
+	b=dr7+n56kDjmHmPD8AXKVeovOPVV2FuA4g1gKybkXCpFdKrxkXI8EWAmPshvq7ZJrX5AS
+	 AVMd6tiJaD5pCm+y9ABg9vZv/a7SYyx54iX1SuI3JAhxCKwnzcGpE3F0GThTe2P0hl5yy
+	 vVaBtYZsDDR7yr/rdpj+DsVTYRIrsqU4Be0Ns8LlwwjS86RRTs8uLKBPiYlnTzshbzYyL
+	 i5aOQVeAGPTnEOQO+ZyBp34Bl0tOi+WVaUDooox7wLjWAd18VT3R8DQYXWqwzKSgoXYLY
+	 5spWCUC/ruypTHsIRbjw0YFwsYNVNxpvP3V+SLf5WEgbCaOg4+I3NqcggVegXgk/IaA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794894592;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=t10LdZZQL9q+bSGABLhe386ponBIV6xlTkNunDiJC5Y=;
-	b=cN8zvobybu+iESHMHbCTtF488UIqLg4yWcfvEnRZ0txijQjumepmUW8kCx9iDYzJWcmZ
-	 R5yJ4tyTDoC3N1kehR4WOILeVau6YAWyQchgqhOM4DpJZdRpo1MjrJQYTaPq9Gxo9wyxW
-	 c9jRS7s2wf5nhRbZPZD28saS7laUrNQ/GZaopgo91otAnJmMTSw1ovS/DOhRfrDnO52Xs
-	 YPesi9iMgwrrwhNbRi9NR3Gx2amq6/pWkmSjOeOm4h4p+HWmZIuK/ncEywvfjuU35gK8a
-	 o2gq1L75PN3zGKbqpzUfOTQr869k5XM+MTETf7VrkADNxVW+ToQBdQp5ULRbDk7QRTg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=eJPyKHP64G2eKzhiRICR4S2i28pJ2+2iaIFvgsyda0E=;
+	b=T4RLq57PsLArJMOPo0EqK1KT1nHaW5mA/hkgOmrHxPQAzEMMj30ujDJepW5jg0xE0Aus
+	 7NNUpXjBnP3l2M6R5TWdBTiGG5t8/lo1Rii0ZHFF1kbyZvZrauSee+7yWDipSqrX0Jr+X
+	 +n1Hhi4ZyMWMiu0BNxCusXFiKMl4j3FFfrySxP/K+jwIVBkq6jRHG87th3gCHOkdmSSaW
+	 xlxAebuz3C1cj2Q7AgQLChe1+YDnQsRgSLTJOQ0rcGSBwAijoCcaM6tq4sgcwILHF8n6D
+	 /Wi0BCD6IvnAujZp8lwhiZXBnl2JWJuh2kxBuZEZ/gNdISlBJ3RFvatXovtmIdZnWcA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=x0lt4j5h;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.43
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HvTlA8fr;
+	arc=none smtp.remote-ip=209.85.216.46
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E39F606A322
-	for <linux-hexagon@vger.kernel.org>; Mon, 16 Nov 2026 18:10:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8E39F606A322
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3FCF606A323
+	for <linux-hexagon@vger.kernel.org>; Tue, 17 Nov 2026 05:49:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D3FCF606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=x0lt4j5h
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6b8082af2ffso1893115a12.0
-        for <linux-hexagon@vger.kernel.org>; Mon, 16 Nov 2026 10:10:44 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794852643; cv=none;
-        d=google.com; s=arc-20260327;
-        b=T0hdWrQ99plq03BG/XDNj1gkW32IDjuxTGSfv0hPFAec6Sa5CKasjnj1XHQOBxSp4u
-         CuVHg/08ppHjjoxI4lFScyYp+aZkGAi+QWGJiSizrSrmYphNE/3MMwAhpBQPLzf3rL+U
-         h6Nmt4FHKXzWoNwPrIUBZq+u4TPMaLJfD+7K28TFE3XtUV1sHf+noULVEOFyEC9pOvAX
-         sKfiBVWU/+JdTGBhod7K7EiwkW7caFw9bUB6xi/hs+96CU0+1JWt323YjSKkXho0WWQo
-         LXLvAOrWoxKeui7U30dIdzW+yN6ykhYkFJtB7FEOaf8UGAddRy5B1E7RdoCfnAhr4Ggi
-         EXgg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=t10LdZZQL9q+bSGABLhe386ponBIV6xlTkNunDiJC5Y=;
-        fh=ZzeQ/9YhFITVVciDvr6LEPSsIzCESl6Rla8JUlhl85U=;
-        b=QNQkPqShsiynhPWq/A/EaqgOSvQ4D81or3TyyGsEQ6jSsnBrII/qMfxCKuz9AubDgq
-         euGl/CLDlR10ckzsAqvjXR+Ouxn9NiJYGjGlwOJxRxRBseGbXbUEeXMZe6zRzzpRsowa
-         L6hW/yR/kXvM7YMJB7pTBUSnBg0HxsNgD+qbcrmFO39l5s9Xu0mHjipaegjHZMhf5eO3
-         ltEMlE61bFFroUMul+0MQCxP7jWGN5IQ4FKVxr2bMDb0XhM9M1TJAnNRIn9c3MukP2tL
-         bwYxZ5jtkB+BIA1I/NN4v0/Q8ybQ5H5HhWFFGDRWLxT2jmgzmmRApeI1bXGbxZrLn4+v
-         4wWA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=HvTlA8fr
+Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-3b08a162d4bso2373974a91.3
+        for <linux-hexagon@vger.kernel.org>; Mon, 16 Nov 2026 21:49:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794852643; x=1795457443; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=t10LdZZQL9q+bSGABLhe386ponBIV6xlTkNunDiJC5Y=;
-        b=x0lt4j5h7o5ZOIupC6QpocZBfmv8wFzUHnqEUjT+qXXHs4fqM/212o+JPya3Ne+Seo
-         tLIn+ce71Roeft17QbgYTLYZCJ0+SlsLtt4o2OLm95aLJ5VyGYDhMzriK8UdMTHsHNnj
-         8mTqTlr5/Ax8I+pLOcrqBMRwU57PT7keOGJO4t4tmQGJKRYz/1wZ/uaK+JY6cLy80yx1
-         pkobwBcMhURP6h4GfSR12sTX8GLQ2Qvn5juEllVfsWcYtDCP4X7X2kujH+BqvT2pv+Ny
-         N7Wj9fipbTOHczIeVSeB+l1xH0/w8nez4g0GJUB68vMGCquO73GzeOY0af50BLWOXJ1z
-         6RHA==
+        d=gmail.com; s=20260707; t=1794894591; x=1795499391; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=eJPyKHP64G2eKzhiRICR4S2i28pJ2+2iaIFvgsyda0E=;
+        b=HvTlA8frczprnGV9oZERL7YtGJ4Kl7oX929awdw7jEyRTP1C6BtfVWQxkKK8MH5hWU
+         0uY5ker2kfrApUFLZg/cu+LALqGuaKZD0fIiOONWamxbJXqDyLIaw5O3780FvPrErR8C
+         3f2gnt9lq8A7Q0bUlRvehyE5liaY1nPoURDqmB2d74LSaOgN3y2iKmrvPeTKLU3RUX9p
+         ojw3cLNNzHt0naRZoneZ0YeZHfbPgzux9ZnAQcgFrCFdaNaYxqUa4elMXHeYG8NM371F
+         /R9M0RNn1M9ou4tqd/urU9i1xHCpfadHm6NTWvsJmr99+gF14D/oiQ1Hnr0gqwwUl4zo
+         pWAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794852643; x=1795457443;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=t10LdZZQL9q+bSGABLhe386ponBIV6xlTkNunDiJC5Y=;
-        b=hTL7ij0QwSV402rpmCLNFf0GLkgKMCHLnBqdLo1E1fuhTlLCnm0G2ScbdQZG/WV5U3
-         zZdOH3MWMC8w6mxHZro/eyxgCdlFIhfl2rsvacfCHanCFjz7TNAsdZ8nulvDtBrb9S1K
-         EKyPBxUrbbFzaam0ppY67zjknYZYIPcci7VHL8baZ6M342Xqku67RG0Ige77K+tBwg2k
-         bkPUT6eOipED6gDoMRvA9X2C3GTlKCTWeNTIORn/U66TsqvhIDHnOEOPJauo76TgF24W
-         +Km7FqqDMFaZFjAaksk6YpQzDGmzS2HK4MqED5VAMG5lEiSV3IGlF4rg+vEvnTIDVMKy
-         QAWg==
-X-Forwarded-Encrypted: i=1; AL+hErFMdYhZcauPFOXc0WcjMf1u4C7sAG6Njd10WdnDerecd2EVdUvJef97WpzSkkgO3Blywi/BhOeFGalB8Kco@vger.kernel.org
-X-Gm-Message-State: APuU4Z+psQEexGW/dpp15DiZhzh0HjNgYJrwt0eKUM8MSHF90/pR0s6j
-	SW8QcpdJscj1KGM9EcducAH+4v1aI9fjBZA1JOl7DJfc2s2Henr7qpd0z8mB7QL0IWZVF68bXRl
-	7tb1flQQU7PUzRenjYbX9tq32HKINqlc=
-X-Gm-Gg: AYBFou3Q1XHNGtPQk6AJBJAXrUJwJuaK93UChoXlXT2XA8LQIYkPJ9HshiCLHIItviE
-	fT7WGwA/D9SEVzvbOESWOJwxTChny005MQouLJXyVdDKZWFAkNP2N9kp23L1wh10aFW9AJ+YxTT
-	QhUcE5UDWx3QqiJ2igIz8j0Q+1gUTbBruvJUY1/bjIdR54hHYwx/IL/d9k6k9b9jqSCkbh94izF
-	PgLnTFWKp22o6K/s7S+/dIsNKKCHex2Lq5qV7fPovuXch9df+qybyZO7hbjYXOB7cofaTTM4Dhv
-	AIKAMUTXUquXwf2DWDH2e2X/xZxHe//+PBKI+XyN8oJ+LsEJIYIZXVM9uppFJ3htou7QeKQ9nKx
-	ZdOKLeCGbKlWLULRSYpiNsyqKV4TlcU/8sVPx32Hum8E5wSngRLJlMBQizqF+8/yLfDBLMOeIkN
-	/fc9mtOkFo3uoE7PMYTz4BX7lWuzl1qlcePgVNtCp77Ume
-X-Received: by 2002:aa7:c4cc:0:b0:6b4:1037:2bb1 with SMTP id
- 4fb4d7f45d1cf-6b7c0bc27a9mr6612692a12.22.1794852642773; Mon, 16 Nov 2026
- 10:10:42 -0800 (PST)
+        d=1e100.net; s=20260707; t=1794894591; x=1795499391;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=eJPyKHP64G2eKzhiRICR4S2i28pJ2+2iaIFvgsyda0E=;
+        b=2yQr5pfVcT6pklrlWz+eDZ8Dy5qViX5lG6CicMNDSjpaeWr7CJ/7ZgdFS4Lzmlk55U
+         6GXDheixExiEsIYvein4geTn5i/5bNqdiKgi3x2enJXQPSFn2pn1LDgHcMT+VTMDYLnN
+         I2MPhgZQm7ORgJrQg7bpm7EZJdHk6Xsm2/SlcMo58e79j8p9EY1uROfsCofzLiViiHbE
+         AhBfYMumTVcx56ltoMYUNNFsKrk7quutFTvURD24TJT6kCROsNcRD4Q7ULBncYam2ToV
+         MjyTDkG9mM4kIcXxubMBSxRGa2dohJzPFnzn6CW+U4QY6vvXmQX5qo0nh86qpq/FYsCs
+         4pYA==
+X-Forwarded-Encrypted: i=1; AL+hErG64B5x38W//REuoMi9uu98llyCVw9hNhiPl37HWzbl7NuXWTtp+VjGVdbROuLnzDM+zExLrZ88UV+BFvZU@vger.kernel.org
+X-Gm-Message-State: APuU4Z+EIIzA7mDwoBNVZdC0QknK/SD7RmNCFMefMEBQ1a5gmVSrfrLc
+	iWZEMkrPwVsbi0xIG88js3+iua/odFfr24CdVJ/cKyjbtKUzlnkvwGt+
+X-Gm-Gg: AZFdTZevX/sw3wpIGDRs6Dv/cXew5yp7JK0RIKamGKa+olVjJCnImfTCehyHTeGJfA4
+	WMKbYwg7+v00AQxiWGRhI/Mc/XdLenKtUkKhY7WSzn+kBi+DVtkjYRy7sRH1r5I3YWILY4gy+z5
+	8rrfWt7D6h9c9wJ5wHgfNBYzDvlKtu8RwGmnbrdSsMQRUZaRF7GFyPwAQ31NO11AFkh7aI7WCe6
+	J4ndgpST5WGXgD1DcbIadYmwZoHdVTXjvIKUJL/mNOFZIXWO0rbvQri6i92SbP4JrOhWdHgjyqd
+	K4HaQswyB6p/3PSDAWFri1I1WgnoXakTjVXTQKW6RnRpel88wAOtCCcx2ahFpGivydICqzZH7Nx
+	UhHxwz0uetGa8iaY0x8JazMW5JUYBwx1bAsHevynQ19yaHkKS+l17mx8zsviKJRoTS02G2KsSMI
+	1ZMIi9StOKf1XxTbgyIQ7R1qQif7gTNeid+3X/t2pWLLBm0lwvFnMN9geyGxkok05Fu3vwncYjD
+	1ghy5+TSk6XCHvad+hJhu2ANCgT/ea8rI2imtyVaohThHxA64oFcL3HFBHAvxsM2gvTHdbXsO0u
+	3E+6PweMj+sLvIL6gUDMXIyHqHNcQD/wzQ==
+X-Received: by 2002:a17:90b:1846:b0:3a4:6f38:f2a2 with SMTP id 98e67ed59e1d1-3b1b0a3e7bemr11245113a91.25.1794894590926;
+        Mon, 16 Nov 2026 21:49:50 -0800 (PST)
+Received: from arm-a100.. ([140.112.28.118])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b3ab9f3c5dsm2313835a91.0.2026.11.16.21.49.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Nov 2026 21:49:50 -0800 (PST)
+From: Tzu-Ching Yang <shingekinocore@gmail.com>
+To: Brian Cain <bcain@kernel.org>,
+	linux-hexagon@vger.kernel.org
+Cc: Yury Norov <yury.norov@gmail.com>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Arnd Bergmann <arnd@arndb.de>,
+	linux-arch@vger.kernel.org,
+	llvm@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] hexagon: bitops: use the compiler builtins for ffs(), fls() and ffz()
+Date: Tue, 17 Nov 2026 13:49:39 +0800
+Message-Id: <20261117054939.2126980-1-shingekinocore@gmail.com>
+X-Mailer: git-send-email 2.34.1
 X-Mailing-List: linux-hexagon@vger.kernel.org
 List-Id: <linux-hexagon.vger.kernel.org>
 List-Post: <mailto:linux-hexagon@vger.kernel.org>
@@ -105,196 +99,204 @@ List-Unsubscribe: <mailto:linux-hexagon+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-hexagon+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261114184720.373178-1-renzo@cs.unibo.it> <20261114184720.373178-2-renzo@cs.unibo.it>
-In-Reply-To: <20261114184720.373178-2-renzo@cs.unibo.it>
-From: Magnus Lindholm <linmag7@gmail.com>
-Date: Mon, 16 Nov 2026 19:10:30 +0100
-X-Gm-Features: AclHuK-3zf0u-_tVqqSwOuwnlXe0JuQIB0eE-s6YSpQo7rK-ZYPGihb4jDlFOAE
-Message-ID: <CA+=Fv5QPMYffznpkrEhZ3pMWtpHwNUUa3OaHxLexu8S47a7tRQ@mail.gmail.com>
-Subject: Re: [PATCH v4 1/3] asm/ptrace.h: add instruction_pointer_set
-To: Renzo Davoli <renzo@cs.unibo.it>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
-	Oleg Nesterov <oleg@redhat.com>, Shuah Khan <shuah@kernel.org>, Alexey Gladkov <legion@kernel.org>, 
-	Eugene Syromyatnikov <evgsyr@gmail.com>, Davide Berardi <berardi.dav@gmail.com>, 
-	"Dmitry V . Levin" <ldv@strace.io>, =?UTF-8?Q?Michal_Such=C3=A1nek?= <msuchanek@suse.de>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, strace-devel@lists.strace.io, 
-	linux-api@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Brian Cain <bcain@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
-	Dinh Nguyen <dinguyen@kernel.org>, Simon Schuster <schuster.simon@siemens-energy.com>, 
-	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, Chris Zankel <chris@zankel.net>, 
-	Max Filippov <jcmvbkbc@gmail.com>, linux-alpha@vger.kernel.org, 
-	linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
-	linux-um@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi Renzo,
+The hexagon inline asm for ffs(), __ffs(), fls(), __fls() and ffz() is
+not needed: Clang, the only compiler that builds hexagon kernels, emits
+the same ct0, cl0 and ct1 instructions for the compiler builtins, and
+unlike the asm, the builtins fold constant arguments. The asm dates
+from the 2011 port (a86a7ce30ac0, "Hexagon: Add bitops support"),
+before the builtin-based asm-generic helpers existed (048fa2df92c3,
+"generic: Implement generic ffs/fls using __builtin_* functions").
 
-On Sat, Nov 14, 2026 at 7:47=E2=80=AFPM Renzo Davoli <renzo@cs.unibo.it> wr=
-ote:
->
-> Add an instruction_pointer_set function for architectures that do
-> not currently provide one.
->
-> Signed-off-by: Renzo Davoli <renzo@cs.unibo.it>
-> ---
->  arch/alpha/include/asm/ptrace.h      | 6 ++++++
->  arch/hexagon/include/asm/ptrace.h    | 6 ++++++
->  arch/m68k/include/asm/ptrace.h       | 6 ++++++
->  arch/microblaze/include/asm/ptrace.h | 6 ++++++
->  arch/nios2/include/asm/ptrace.h      | 6 ++++++
->  arch/um/include/asm/ptrace-generic.h | 6 ++++++
->  arch/xtensa/include/asm/ptrace.h     | 6 ++++++
->  7 files changed, 42 insertions(+)
->
-> diff --git a/arch/alpha/include/asm/ptrace.h b/arch/alpha/include/asm/ptr=
-ace.h
-> index 45d1229344b6..1a6f073e892e 100644
-> --- a/arch/alpha/include/asm/ptrace.h
-> +++ b/arch/alpha/include/asm/ptrace.h
-> @@ -33,6 +33,12 @@ static __always_inline bool regs_irqs_disabled(struct =
-pt_regs *regs)
->         return arch_irqs_disabled_flags(regs->ps);
->  }
->
-> +static inline void instruction_pointer_set(struct pt_regs *regs,
-> +                                          unsigned long val)
-> +{
-> +       instruction_pointer(regs) =3D val;
-> +}
-> +
->  /* Syscall emulation defines */
->  #define PTRACE_SYSEMU                  0x1d
->  #define PTRACE_SYSEMU_SINGLESTEP       0x1e
-> diff --git a/arch/hexagon/include/asm/ptrace.h b/arch/hexagon/include/asm=
-/ptrace.h
-> index ed35da1ee685..0a121f6e3bfc 100644
-> --- a/arch/hexagon/include/asm/ptrace.h
-> +++ b/arch/hexagon/include/asm/ptrace.h
-> @@ -18,6 +18,12 @@ extern const char *regs_query_register_name(unsigned i=
-nt offset);
->         ((struct pt_regs *) \
->          ((unsigned long)current_thread_info() + THREAD_SIZE) - 1)
->
-> +static inline void instruction_pointer_set(struct pt_regs *regs,
-> +                                          unsigned long val)
-> +{
-> +       instruction_pointer(regs) =3D val;
-> +}
-> +
->  #if CONFIG_HEXAGON_ARCH_VERSION >=3D 4
->  #define arch_has_single_step() (1)
->  #endif
-> diff --git a/arch/m68k/include/asm/ptrace.h b/arch/m68k/include/asm/ptrac=
-e.h
-> index bc86ce012025..6e8a8f0daee8 100644
-> --- a/arch/m68k/include/asm/ptrace.h
-> +++ b/arch/m68k/include/asm/ptrace.h
-> @@ -18,6 +18,12 @@
->         (struct pt_regs *)((char *)current_thread_info() + THREAD_SIZE) -=
- 1
->  #define current_user_stack_pointer() rdusp()
->
-> +static inline void instruction_pointer_set(struct pt_regs *regs,
-> +                                          unsigned long val)
-> +{
-> +       instruction_pointer(regs) =3D val;
-> +}
-> +
->  #define arch_has_single_step() (1)
->
->  #ifdef CONFIG_MMU
-> diff --git a/arch/microblaze/include/asm/ptrace.h b/arch/microblaze/inclu=
-de/asm/ptrace.h
-> index 17982292a64f..69e10658d7a9 100644
-> --- a/arch/microblaze/include/asm/ptrace.h
-> +++ b/arch/microblaze/include/asm/ptrace.h
-> @@ -20,5 +20,11 @@ static inline long regs_return_value(struct pt_regs *r=
-egs)
->         return regs->r3;
->  }
->
-> +static inline void instruction_pointer_set(struct pt_regs *regs,
-> +                                          unsigned long val)
-> +{
-> +       instruction_pointer(regs) =3D val;
-> +}
-> +
->  #endif /* __ASSEMBLER__ */
->  #endif /* _ASM_MICROBLAZE_PTRACE_H */
-> diff --git a/arch/nios2/include/asm/ptrace.h b/arch/nios2/include/asm/ptr=
-ace.h
-> index 96cbcd40c7ce..d120d8ecb187 100644
-> --- a/arch/nios2/include/asm/ptrace.h
-> +++ b/arch/nios2/include/asm/ptrace.h
-> @@ -70,6 +70,12 @@ struct switch_stack {
->  #define user_stack_pointer(regs)       ((regs)->sp)
->  extern void show_regs(struct pt_regs *);
->
-> +static inline void instruction_pointer_set(struct pt_regs *regs,
-> +                                          unsigned long val)
-> +{
-> +       instruction_pointer(regs) =3D val;
-> +}
-> +
->  #define current_pt_regs() \
->         ((struct pt_regs *)((unsigned long)current_thread_info() + THREAD=
-_SIZE)\
->                 - 1)
-> diff --git a/arch/um/include/asm/ptrace-generic.h b/arch/um/include/asm/p=
-trace-generic.h
-> index 62e9916078ec..632d4ce3334d 100644
-> --- a/arch/um/include/asm/ptrace-generic.h
-> +++ b/arch/um/include/asm/ptrace-generic.h
-> @@ -29,6 +29,12 @@ struct pt_regs {
->
->  #define PTRACE_OLDSETOPTIONS 21
->
-> +static inline void instruction_pointer_set(struct pt_regs *regs,
-> +                                          unsigned long val)
-> +{
-> +       instruction_pointer(regs) =3D val;
-> +}
-> +
->  #ifdef CONFIG_BINFMT_ELF_FDPIC
->  #define PTRACE_GETFDPIC                31
->  #define PTRACE_GETFDPIC_EXEC   0
-> diff --git a/arch/xtensa/include/asm/ptrace.h b/arch/xtensa/include/asm/p=
-trace.h
-> index d0568ff6d349..97b14418955e 100644
-> --- a/arch/xtensa/include/asm/ptrace.h
-> +++ b/arch/xtensa/include/asm/ptrace.h
-> @@ -103,6 +103,12 @@ static inline unsigned long regs_return_value(struct=
- pt_regs *regs)
->         return regs->areg[2];
->  }
->
-> +static inline void instruction_pointer_set(struct pt_regs *regs,
-> +                                          unsigned long val)
-> +{
-> +       instruction_pointer(regs) =3D val;
-> +}
-> +
->  int do_syscall_trace_enter(struct pt_regs *regs);
->  void do_syscall_trace_leave(struct pt_regs *regs);
->
-> --
-> 2.47.3
->
+Replace the asm with the asm-generic builtin helpers, and ffz() with
+the generic __ffs(~x), as arm64 does.
 
-The Alpha change looks good and applies cleanly on my for-next,
-including the generic-entry fixes.
+ffs(0) and fls(0) still return 0. __ffs() and __fls() now return
+unsigned int, which is as wide as unsigned long on hexagon, and ffz()
+returns unsigned int instead of long. __ffs(0), __fls(0) and ffz(~0)
+remain undefined.
 
-Tested both series together on my AlphaServer ES40. The ptrace
-selftests passed on all three CPUs, including syscall skipping
-and instruction-pointer modification.
+With Clang 17 to 23, the functions of a defconfig vmlinux shrink by 1972
+to 6068 bytes in total (scripts/bloat-o-meter -t). One helper in
+lib/find_bit.c gets worse: _find_last_bit() executes one instruction
+more per call that finds a bit, because LLVM rewrites 31 - clz as 31 ^
+clz once it knows clz < 32, and the hexagon backend keeps the xor, which
+needs the 31 in a register, instead of sub(#31, Rs) [1]. A few 1 <<
+ffz() sites also grow by a few instructions, as LLVM rewrites that
+expression too [2]. __find_nth_bit() executes two fewer, and the other
+helpers that find_bit_benchmark calls the same number.
 
-For the Alpha part:
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/all/affe7da1-41aa-4710-bee0-5e3c2b8a8dfc@app.fastmail.com/
+Link: https://github.com/llvm/llvm-project/issues/236764 [1]
+Link: https://github.com/llvm/llvm-project/issues/236765 [2]
+Signed-off-by: Tzu-Ching Yang <shingekinocore@gmail.com>
+---
+I have no hexagon hardware, and mainline does not boot in QEMU yet. On
+Brian's out-of-tree bcain/hexagon-qemu-virt branch (dc370baa041d,
+v7.3-rc1 plus 24 patches) with this patch on top, qemu_defconfig plus
+the ffs and bitops KUnit tests and find_bit_benchmark, built with Clang
+17 and 23, boots under qemu-system-hexagon from qualcomm/qemu hex-next
+with -M virt,hvm=on (and under -M qcs6490-cdsp with the prebuilt H2
+hypervisor); the KUnit tests pass before and after, with the same
+.config on both sides. Under -M virt,hvm=on, with a TCG plugin that
+writes the same bitmaps into both kernels before each test and counts
+the executed instructions without interrupts, find_bit_benchmark's
+find_last_bit executes one instruction more per iteration,
+bitmap_find_next_zero_area_off 36 more on the random bitmap through its
+find_last_bit() calls, find_nth_bit and test_bitops' fns() two fewer,
+and the other tests the same.
 
-Acked-by: Magnus Lindholm <linmag7@gmail.com>
-Tested-by: Magnus Lindholm <linmag7@gmail.com>
+Under qemu-hexagon (user mode), the old and new helpers return the
+same values for every defined 32-bit input, and fls64() and __ffs64()
+for selected 64-bit inputs, with Clang 17 to 23 at -O2 and -Os.
 
-Thanks,
-Magnus
+defconfig (also with the KUnit tests and find_bit_benchmark, with -Os
+and with -mv73) and allmodconfig were built with Clang 17 to 23 before
+and after, with the same .config on both sides: same W=1 warnings, no
+calls to __ctzsi2(), __clzsi2() or ffs(), and a smaller bloat-o-meter -t
+total in every defconfig-based vmlinux. allmodconfig does not link with
+Clang 17 and 18, before or after: ld.lld before 19.1.5 rejects the calls
+in head.S as out of range.
+
+Instructions of each helper in a test function that only returns its
+result (return included), built with the kernel's flags by Clang 17
+to 22 at -O2 and -Os; Clang 23 adds an allocframe to both rows:
+
+            ffs  __ffs  fls  __fls  ffz
+  asm         6      3    4      4    3
+  builtin     5      2    3      3    2
+
+The instruction saved is the copy of the result to r0: the asm's
+early-clobber output ("=&r") cannot share the argument's register.
+
+In packets, only ffs() takes one more than the asm (4 -> 5): with
+df5e4db805d5 ("hexagon: disable the LLVM packetizer") applied, each
+instruction of the builtin version gets a packet of its own, while
+the asm is bundled by hand. Without that workaround, which linux-next
+does not have yet, ffs() goes from 6 instructions in 3 packets to 5
+in 2.
+
+Against the bcain/hexagon-fixes branch of bcain/linux.git
+(0304683b4c43); also applies to next-20261113 and to bitmap-for-next.
+
+ arch/hexagon/include/asm/bitops.h | 100 ++----------------------------
+ 1 file changed, 5 insertions(+), 95 deletions(-)
+
+diff --git a/arch/hexagon/include/asm/bitops.h b/arch/hexagon/include/asm/bitops.h
+index b23cb13833af..975328172b7c 100644
+--- a/arch/hexagon/include/asm/bitops.h
++++ b/arch/hexagon/include/asm/bitops.h
+@@ -194,101 +194,11 @@ arch_test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
+ 	return retval;
+ }
+ 
+-/*
+- * ffz - find first zero in word.
+- * @word: The word to search
+- *
+- * Undefined if no zero exists, so code should check against ~0UL first.
+- */
+-static inline long __attribute_const__ ffz(int x)
+-{
+-	int r;
+-
+-	asm("%0 = ct1(%1);\n"
+-		: "=&r" (r)
+-		: "r" (x));
+-	return r;
+-}
+-
+-/*
+- * fls - find last (most-significant) bit set
+- * @x: the word to search
+- *
+- * This is defined the same way as ffs.
+- * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
+- */
+-static inline __attribute_const__ int fls(unsigned int x)
+-{
+-	int r;
+-
+-	asm("{ %0 = cl0(%1);}\n"
+-		"%0 = sub(#32,%0);\n"
+-		: "=&r" (r)
+-		: "r" (x)
+-		: "p0");
+-
+-	return r;
+-}
+-
+-/*
+- * ffs - find first bit set
+- * @x: the word to search
+- *
+- * This is defined the same way as
+- * the libc and compiler builtin ffs routines, therefore
+- * differs in spirit from the above ffz (man ffs).
+- */
+-static inline __attribute_const__ int ffs(int x)
+-{
+-	int r;
+-
+-	asm("{ P0 = cmp.eq(%1,#0); %0 = ct0(%1);}\n"
+-		"{ if (P0) %0 = #0; if (!P0) %0 = add(%0,#1);}\n"
+-		: "=&r" (r)
+-		: "r" (x)
+-		: "p0");
+-
+-	return r;
+-}
+-
+-/*
+- * __ffs - find first bit in word.
+- * @word: The word to search
+- *
+- * Undefined if no bit exists, so code should check against 0 first.
+- *
+- * bits_per_long assumed to be 32
+- * numbering starts at 0 I think (instead of 1 like ffs)
+- */
+-static inline __attribute_const__ unsigned long __ffs(unsigned long word)
+-{
+-	int num;
+-
+-	asm("%0 = ct0(%1);\n"
+-		: "=&r" (num)
+-		: "r" (word));
+-
+-	return num;
+-}
+-
+-/*
+- * __fls - find last (most-significant) set bit in a long word
+- * @word: the word to search
+- *
+- * Undefined if no set bit exists, so code should check against 0 first.
+- * bits_per_long assumed to be 32
+- */
+-static inline __attribute_const__ unsigned long __fls(unsigned long word)
+-{
+-	int num;
+-
+-	asm("%0 = cl0(%1);\n"
+-		"%0 = sub(#31,%0);\n"
+-		: "=&r" (num)
+-		: "r" (word));
+-
+-	return num;
+-}
++#include <asm-generic/bitops/builtin-__ffs.h>
++#include <asm-generic/bitops/builtin-ffs.h>
++#include <asm-generic/bitops/builtin-__fls.h>
++#include <asm-generic/bitops/builtin-fls.h>
++#include <asm-generic/bitops/ffz.h>
+ 
+ #include <asm-generic/bitops/lock.h>
+ #include <asm-generic/bitops/non-instrumented-non-atomic.h>
+
+base-commit: 0304683b4c43048082483e9445fdd0691d088431
+-- 
+2.34.1
+
